@@ -255,8 +255,9 @@ class _EngineRow extends StatelessWidget {
                 Text('Score ${record.overallScore.toStringAsFixed(1)}',
                     style: FacingTokens.body.copyWith(
                       fontWeight: FontWeight.w700,
+                      fontFeatures: FacingTokens.tabular,
                     )),
-                const SizedBox(height: 2),
+                const SizedBox(height: FacingTokens.sp1),
                 Text(_formatDate(record.scoredAt),
                     style: FacingTokens.caption),
               ],
@@ -322,7 +323,10 @@ class _WodTab extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Text(r.estimatedTotalDisplay, style: FacingTokens.h3),
+                    Text(r.estimatedTotalDisplay,
+                        style: FacingTokens.h3.copyWith(
+                          fontFeatures: FacingTokens.tabular,
+                        )),
                     const Icon(Icons.chevron_right,
                         color: FacingTokens.muted, size: 20),
                   ],
