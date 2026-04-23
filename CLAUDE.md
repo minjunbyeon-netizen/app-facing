@@ -1,5 +1,7 @@
 ⚠️ 세션 시작 시 먼저 `docs/HANDOFF.md`를 읽고 현재 작업 상태를 파악할 것.
 
+⚠️ **UI·디자인·카피 관련 모든 결정은 먼저 `docs/VISUAL_CONCEPT.md` v1.0 (흑백·전사·Obsession 컨셉) → `docs/DESIGN_PLAYBOOK.md` v1.0 → 이 문서 순으로 확인**. 충돌 시 VISUAL_CONCEPT가 이김. 톤앤매너·스타일·컨셉 전부 SSOT는 VISUAL_CONCEPT.
+
 # facing-app -- WOD 페이싱 전략 모바일 앱
 
 > Flutter 기반 Android+iOS 앱. 백엔드 `services/facing/` API와 JSON 통신. UI/UX만 담당, 계산 로직 0%.

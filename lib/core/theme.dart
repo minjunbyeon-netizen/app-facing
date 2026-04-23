@@ -23,14 +23,18 @@ class FacingTokens {
   static const Color warning = Color(0xFFF59E0B);
   static const Color error = Color(0xFFEE2B2B);
 
-  // ---- Tier 색상 (Scaled < RX < RX+ < Elite < Games) ----
-  static const Color tierScaled = Color(0xFF5A5A5A);
-  static const Color tierRx = Color(0xFFEE2B2B);
-  static const Color tierRxPlus = Color(0xFFFF6B00);
-  static const Color tierElite = Color(0xFFC8A84B);
-  static const Color tierGames = Color(0xFFE8E8E8);
+  // ---- Tier 색상 (v1.15 흑백 재배치 - VISUAL_CONCEPT.md 3.2) ----
+  // 명도: 어두움(Motivation) → 빛(Obsession). RX만 유일한 유채색.
+  static const Color tierScaled = Color(0xFF4A4A4A);  // Motivation
+  static const Color tierRx = Color(0xFFEE2B2B);      // Discipline (유일 유채색, 기준선)
+  static const Color tierRxPlus = Color(0xFF929292);  // Discipline+
+  static const Color tierElite = Color(0xFFC8C8C8);   // Obsession
+  static const Color tierGames = Color(0xFFF0F0F0);   // Obsession (최상위)
 
   static const String fontFamily = 'Pretendard';
+  /// v1.15 — Bodoni Moda Italic (영문 선언 헤드라인 전용). Google Fonts SIL OFL.
+  /// pubspec.yaml에 assets/fonts/BodoniModa/ 번들 필요.
+  static const String fontFamilySerif = 'BodoniModa';
 
   static const List<FontFeature> tabular = [FontFeature.tabularFigures()];
 
