@@ -55,7 +55,7 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Step 1 / 6 · BODY')),
+      appBar: AppBar(title: const Text('Step 1 / 6')),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(FacingTokens.sp4),

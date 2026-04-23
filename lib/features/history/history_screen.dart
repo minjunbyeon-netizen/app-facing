@@ -141,7 +141,7 @@ class _EngineSparkline extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('OVERALL SCORE', style: FacingTokens.micro),
+              const Text('OVERALL SCORE', style: FacingTokens.sectionLabel),
               Text('${records.length} points', style: FacingTokens.micro),
             ],
           ),

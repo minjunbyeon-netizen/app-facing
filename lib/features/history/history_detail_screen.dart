@@ -76,7 +76,7 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
                 const Text('페이싱 플랜 없음.',
                     style: FacingTokens.caption),
               const SizedBox(height: FacingTokens.sp5),
-              const Text('ITEMS', style: FacingTokens.micro),
+              const Text('ITEMS', style: FacingTokens.sectionLabel),
               const SizedBox(height: FacingTokens.sp2),
               ...((wod['items'] as List? ?? const []))
                   .whereType<Map<String, dynamic>>()

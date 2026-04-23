@@ -147,7 +147,7 @@ V11. **번역 판단 기준:** 동작명/등급명/시스템명/메트릭명은 
 - UI에 "RXD 4/6" 같은 백엔드 내부 코드 노출 금지. 항상 위 5티어 라벨만 사용.
 - 티어 배지: 2px solid 티어 컬러 + 대문자 라벨 + 얇은 padding. 아이콘 없음.
 
-## 디자인 시스템 (v1.11.0 다크 전환)
+## 디자인 시스템 (v1.14.0 타이포 계층 정비)
 ### 컬러 토큰 (FacingTokens 기준)
 | 토큰 | 값 | 용도 |
 |---|---|---|
@@ -162,11 +162,35 @@ V11. **번역 판단 기준:** 동작명/등급명/시스템명/메트릭명은 
 | `warning` | `#F59E0B` | 주의 |
 | 5 tier 색 | 위 표 참조 | 티어 배지 전용 |
 
-### 타이포그래피
+### 타이포그래피 (v1.14.0 계층)
 - Pretendard 유지 (Variable, weight 400/700/800).
 - display/h1/h2는 w800 + negative letterSpacing.
-- `timer` 스타일 추가: 80sp w800 tabular. 카운트다운·결과 숫자 전용.
+- `timer` 토큰 삭제됨 (미사용). 큰 숫자는 `display`(64sp) 사용.
 - Phase 2에 Barlow Condensed 영문 전용 추가 검토.
+
+#### 토큰 스케일 (v1.14.0 최종)
+| 토큰 | 크기 | weight | 용도 |
+|---|---|---|---|
+| `display` | 64sp w800 ls-1.6 | 히어로 숫자·총시간 (result/history) |
+| `h1` | 44sp w800 ls-1.1 | 화면 단일 히어로 헤드라인 (intro, split pattern) |
+| `h2` | 30sp w700 ls-0.6 | 화면 주 타이틀 (AppBar 없는 화면 한정) |
+| `h3` | 20sp w700 ls-0.2 | 섹션 타이틀, AppBar title (테마 기본), segment slug, pace |
+| `lead` | 18sp w400 | intro body, segment estimated time |
+| `body` | 15sp w400 | 본문 |
+| `caption` | 13sp w400 muted | 부연 설명 |
+| `micro` | 11sp w500 ls+0.4 muted | 수치 보조(items, %, points) 전용 |
+| `sectionLabel` | **11sp w700 ls+1.6 muted** | **섹션 구분 라벨 전용. 대문자 필수(코드에서 toUpperCase).** |
+| `tierLabel` | 12sp w800 ls+1.8 | TierBadge 내부 전용 |
+| `brandLogo` | **72sp w800 ls-2.4** | **Splash "FACING" 전용** |
+| `bannerLabel` | **12sp w700 ls+1.2** | **Offline 등 배너 라벨 전용** |
+| `quote` | 14sp italic | 명언 전용 |
+
+#### 계층 규칙 (v1.14.0)
+R1. **화면당 h1 1개.** AppBar title이 있으면 화면 내 헤드라인 h2 제거.
+R2. **Tier 결과 화면 최대 2겹.** TierBadge(크게, fontSize 24) + Score 한 줄. `OVERALL` 라벨·`N/6` 숫자 금지.
+R3. **섹션 헤더는 `sectionLabel` 단독.** micro/caption/h2 inline/body.w800 섹션 헤더 사용 금지.
+R4. **동일 지표 동일 토큰.** "500m pace"=`h3`, "총 예상시간"=`display` 화면 막론 고정.
+R5. **하드코드 fontSize 금지.** 모든 텍스트 크기는 `FacingTokens` 상수 참조. 인라인 `TextStyle(fontSize: N)` 커밋 전 리뷰 거절.
 
 ### 인터랙션
 - splashFactory = NoSplash 유지.

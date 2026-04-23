@@ -316,7 +316,7 @@ class _OnboardingBenchmarksScreenState
     final progress = stepNumber / 6;
     final pct = (progress * 100).round();
     return Scaffold(
-      appBar: AppBar(title: Text('Step $stepNumber / 6 · ${_categories[_page].title}')),
+      appBar: AppBar(title: Text('Step $stepNumber / 6')),
       body: SafeArea(
         child: Column(
           children: [

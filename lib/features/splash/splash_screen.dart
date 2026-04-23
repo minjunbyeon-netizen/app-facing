@@ -66,14 +66,7 @@ class _SplashScreenState extends State<SplashScreen> {
           child: Column(
             children: [
               const Spacer(),
-              const Text('FACING',
-                  style: TextStyle(
-                    fontFamily: FacingTokens.fontFamily,
-                    fontSize: 72,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -2.0,
-                    color: FacingTokens.fg,
-                  )),
+              const Text('FACING', style: FacingTokens.brandLogo),
               const SizedBox(height: FacingTokens.sp2),
               const Text('Engine · Split · Burst',
                   style: FacingTokens.micro),

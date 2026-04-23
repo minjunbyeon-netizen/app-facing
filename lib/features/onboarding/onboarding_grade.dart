@@ -43,21 +43,17 @@ class OnboardingGradeScreen extends StatelessWidget {
                   const SizedBox(height: FacingTokens.sp3),
                   QuoteCard(quote: quote, compact: true),
                   const SizedBox(height: FacingTokens.sp6),
-                  const Text('OVERALL', style: FacingTokens.micro),
-                  const SizedBox(height: FacingTokens.sp2),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      TierBadge(tier: tier, fontSize: 18),
-                      const SizedBox(width: FacingTokens.sp3),
-                      Text('$overallNumber/6',
-                          style: FacingTokens.h2.copyWith(
-                            color: FacingTokens.muted,
+                      TierBadge(tier: tier, fontSize: 24),
+                      const SizedBox(width: FacingTokens.sp4),
+                      Text('Score $score',
+                          style: FacingTokens.body.copyWith(
+                            fontWeight: FontWeight.w700,
                           )),
                     ],
                   ),
-                  const SizedBox(height: FacingTokens.sp2),
-                  Text('Score $score', style: FacingTokens.caption),
                   const SizedBox(height: FacingTokens.sp6),
                   // v1.10.0 6 카테고리 분리 표시
                   if (grade['power'] != null) ...[
@@ -130,10 +126,7 @@ class _CategoryCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(title, style: FacingTokens.body.copyWith(
-                fontWeight: FontWeight.w800,
-                letterSpacing: 1.2,
-              )),
+              Text(title.toUpperCase(), style: FacingTokens.sectionLabel),
               TierBadge(tier: tier),
             ],
           ),

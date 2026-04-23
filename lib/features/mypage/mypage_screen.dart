@@ -57,21 +57,19 @@ class _TierSnapshot extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('CURRENT TIER', style: FacingTokens.micro),
-          const SizedBox(height: FacingTokens.sp2),
+          const Text('CURRENT TIER', style: FacingTokens.sectionLabel),
+          const SizedBox(height: FacingTokens.sp3),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              TierBadge(tier: tier, fontSize: 18),
-              const SizedBox(width: FacingTokens.sp3),
+              TierBadge(tier: tier, fontSize: 24),
+              const SizedBox(width: FacingTokens.sp4),
               Text(
-                n == null ? '-' : '${n.toInt()}/6',
-                style: FacingTokens.h2.copyWith(color: FacingTokens.muted),
+                n == null ? 'Score -' : 'Score $score',
+                style: FacingTokens.body.copyWith(fontWeight: FontWeight.w700),
               ),
             ],
           ),
-          const SizedBox(height: FacingTokens.sp2),
-          Text('Score $score', style: FacingTokens.caption),
           if (n == null) ...[
             const SizedBox(height: FacingTokens.sp2),
             const Text('데이터 없음. 온보딩 완료 후 표시.',
@@ -101,7 +99,7 @@ class _BodyStats extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('BODY', style: FacingTokens.micro),
+          const Text('BODY', style: FacingTokens.sectionLabel),
           const SizedBox(height: FacingTokens.sp2),
           _Kv(label: 'Weight', value: weightDisplay),
           _Kv(label: 'Height', value: height),
@@ -149,7 +147,7 @@ class _SettingsSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('SETTINGS', style: FacingTokens.micro),
+          const Text('SETTINGS', style: FacingTokens.sectionLabel),
           const SizedBox(height: FacingTokens.sp2),
           Row(
             children: [

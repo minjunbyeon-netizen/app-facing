@@ -156,7 +156,7 @@ class _SegmentCard extends StatelessWidget {
           if (segment.targetPaceSecPer500m != null)
             Text(
               '${segment.targetPaceSecPer500m}s / 500m',
-              style: FacingTokens.h2,
+              style: FacingTokens.h3,
             ),
           const SizedBox(height: FacingTokens.sp3),
           Text(segment.rationaleKo, style: FacingTokens.caption),

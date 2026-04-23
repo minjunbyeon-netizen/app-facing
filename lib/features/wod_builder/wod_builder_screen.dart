@@ -90,7 +90,7 @@ class _Body extends StatelessWidget {
               FacingTokens.sp4, FacingTokens.sp4, FacingTokens.sp4, FacingTokens.sp4,
             ),
             children: [
-              const Text('WOD Type', style: FacingTokens.caption),
+              const Text('WOD TYPE', style: FacingTokens.sectionLabel),
               const SizedBox(height: FacingTokens.sp2),
               _TypeSegmented(draft: draft),
               const SizedBox(height: FacingTokens.sp5),
@@ -118,7 +118,7 @@ class _Body extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: FacingTokens.sp6),
-              const Text('Movements', style: FacingTokens.caption),
+              const Text('MOVEMENTS', style: FacingTokens.sectionLabel),
               const SizedBox(height: FacingTokens.sp2),
               if (draft.items.isEmpty)
                 Container(

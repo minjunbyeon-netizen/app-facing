@@ -112,14 +112,34 @@ class FacingTokens {
     color: fg,
   );
 
-  /// 타이머/결과 숫자 전용.
-  static const TextStyle timer = TextStyle(
+  /// v1.14.0 신규 — 섹션 구분 라벨 전용. 코드에서 toUpperCase 필수.
+  /// micro·caption·inline body.w800을 섹션 헤더로 쓰는 것 금지.
+  static const TextStyle sectionLabel = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 80,
+    fontSize: 11,
+    fontWeight: FontWeight.w700,
+    height: 1.20,
+    letterSpacing: 1.6,
+    color: muted,
+  );
+
+  /// v1.14.0 신규 — Splash "FACING" 브랜드 로고 전용.
+  static const TextStyle brandLogo = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 72,
     fontWeight: FontWeight.w800,
     height: 1.0,
     letterSpacing: -2.4,
-    fontFeatures: tabular,
+    color: fg,
+  );
+
+  /// v1.14.0 신규 — Offline 배너 등 단어 라벨 전용.
+  static const TextStyle bannerLabel = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 12,
+    fontWeight: FontWeight.w700,
+    height: 1.0,
+    letterSpacing: 1.2,
     color: fg,
   );
 
