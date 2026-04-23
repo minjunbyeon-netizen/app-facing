@@ -235,16 +235,16 @@ class _Pill extends StatelessWidget {
           vertical: FacingTokens.sp2,
         ),
         decoration: BoxDecoration(
-          color: selected ? FacingTokens.fg : FacingTokens.bg,
-          border: Border.all(
-            color: selected ? FacingTokens.fg : FacingTokens.border,
-          ),
+          color: selected ? FacingTokens.fg : Colors.transparent,
+          border: selected
+              ? null
+              : Border.all(color: FacingTokens.border),
           borderRadius: BorderRadius.circular(FacingTokens.r4),
         ),
         child: Text(
           label,
           style: FacingTokens.body.copyWith(
-            color: selected ? FacingTokens.bg : FacingTokens.fg,
+            color: selected ? FacingTokens.bg : FacingTokens.muted,
             fontWeight: FontWeight.w700,
           ),
         ),
