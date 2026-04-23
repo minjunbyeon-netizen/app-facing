@@ -1,83 +1,98 @@
-# HANDOFF - 2026-04-23 (v1.15 VISUAL_CONCEPT 전환 중)
+# HANDOFF - 2026-04-24 07:18 (v1.15 자산 연결 완료 · 페르소나 10명 조사 대기)
 
-> **이전 HANDOFF (v1.11)는 `docs/archive/` 로 이동 권장.** 이 문서는 v1.14 타이포 계층 정비 완료 + v1.15 VISUAL_CONCEPT (흑백·전사·Obsession) 대전환 진행 중 상태.
+> 이전 HANDOFF (v1.15 전환 중)는 commit `7228034`에 스냅샷. 이 문서는 자산 파이프라인 일괄 생성 + 3 화면 실제 연결 완료 후 상태. **다음 세션 첫 작업 = 페르소나 10명 × 전 단계 UX/UI 피드백 조사.**
 
-## 완료 (이번 세션)
-- [x] **Level 1-7 완료**: foundation tokens / Splash-Intro / Onboarding 3 / Home-MyPage / History-Profile / Builder-Presets-Result / 공용 위젯 + CHANGELOG
-- [x] **`docs/DESIGN_PLAYBOOK.md` v1.0** — M3+HIG 기반 타이포·컬러·공간 체계 + 30 체크리스트
-- [x] **`docs/VISUAL_CONCEPT.md` v1.0** — 사용자 제공 10장 레퍼런스(흑백·전사·Obsession) SSOT. 5 라운드 /go 분석 통합.
-- [x] **Tier 색 재배치** (v1.15 흑백 통일): Scaled #4A4A4A / RX #EE2B2B(유일 유채색) / RX+ #929292 / Elite #E0E0E0 / Games #FFFFFF
-- [x] **Tier enum subtitle + quote** 추가: Motivation/Discipline/Obsession 3단 서사
-- [x] `fontFamilySerif = 'BodoniModa'` 예약 (번들은 미완)
-- [x] **Persona Round 1 (5명 명시)** 피드백 반영: Tier 색 +15% 밝기, Result 상단 컨텍스트 바
-- [x] **Persona R2-R11 통합 consolidated** (25 액션 A1~A25). P0 5개 + P1 3개 실제 반영:
-  - A7 `lib/core/glossary.dart` 신규 (20 용어)
-  - A10/A16 Result 에러 V7 + 재시도 버튼
-  - A11 Result _SegmentCard 'BURST' sectionLabel (accent)
-  - A14 Home 헤드라인 한글 SSOT 일치 ("오늘 WOD.\nSplit 뽑아라.")
-  - A17 Grade null 빈 상태 개선 (Start Onboarding CTA)
-  - A19 _Pill ConstrainedBox minHeight 48
-  - A20 Tier quote stableQuote → tier.quote 직결 (불일치 버그 수정)
-- [x] **CHANGELOG.md** v1.14.0 기록
-- [x] **GitHub 연동 + 자동 commit+push** (이번 세션 14+ 커밋)
+## 완료 (이번 세션 추가분 — 14m)
 
-## 진행중 — 남은 Persona P1/P2 (asset 없이 가능)
+- [x] **Halftone PNG 2종 자체 생성** — Python PIL (`scripts/gen_grain.py`)
+  - `assets/textures/grain_subtle.png` 256² (opacity 0.04)
+  - `assets/textures/grain_strong.png` 512² (opacity 0.12)
+- [x] **Hero placeholder 5장 자체 생성** — Python PIL (`scripts/gen_hero.py`)
+  - `assets/images/hero_{splash,intro_1,intro_2,intro_3,grade}.jpg` (1080×1920)
+  - 흑백 dark radial gradient + noise + vignette + rim light band
+  - 추후 Unsplash CC0 실사진으로 덮어쓰기 가능 (파일명 그대로 교체)
+- [x] **Stickman SVG 3종 직접 작성** — `assets/icons/stickman_{motivation,discipline,obsession}.svg`
+  - motivation: 직립 정면, ground line
+  - discipline: 달리는 mid-stride + motion dashes
+  - obsession: Sisyphus 바위 밀기 (slope + boulder + 양팔 push)
+- [x] **의존성 추가** — `google_fonts ^6.2.1` + `flutter_svg ^2.0.10+1`
+  - Bodoni Moda는 런타임 fetch (번들 파일 불필요, SIL OFL)
+- [x] **theme.dart serif 토큰 실제 연결** — `brandSerif` / `h1Serif` / `displaySerif` / `quoteSerif` (GoogleFonts.bodoniModa italic)
+- [x] **GrainOverlay + HeroBackground 위젯 신규** — `lib/widgets/{grain_overlay,hero_background}.dart`
+- [x] **Splash / Intro 1-3 / Grade 연결** — HeroBackground + GrainOverlay + Bodoni Italic 헤드라인 실 적용
+- [x] **release APK 재빌드 + 에뮬레이터 설치 + 3 화면 캡처 검증**
+  - `docs/screenshots/v1.15_{splash,intro2,intro3,current}.png`
+  - Intro 1/2/3 스틱맨·halftone·Bodoni Italic 모두 실기 렌더링 확인
+- [x] **commit `e930298` push 완료** (origin/master)
+
+## 진행중 — 다음 세션 첫 작업 (사용자 직접 지시)
+
+### [ ] **페르소나 10명 × 전 단계 UX/UI 피드백 조사 (/go 파이프라인)**
+사용자 지시 원문: "페르소나 10명 데리고와서, 체중입력부터해서 전부 직접 시켜보고, ux, ui 적인 측면에서 피드백 조사 /GO"
+
+**실행 계획**:
+1. 페르소나 10명 정의 (성별·연령·Tier·디바이스 친숙도·CrossFit 경력 다양성 확보)
+2. 각 페르소나 → Onboarding Step 1 (체중·키·성별·경력) → Step 2 (Benchmarks) → Loading → Grade → Home 전 단계 시뮬레이션
+3. 단계별 피드백 수집:
+   - 터치 타겟(48dp), 가독성(WCAG AA), 용어 이해도, 속도 인지, 혼동 지점, 미학·브랜드 톤
+4. 공통 이슈 P0/P1/P2 분류
+5. P0 즉시 반영 → 재빌드 → 재검증 → commit+push
+6. 결과 `docs/PERSONA_FEEDBACK_v1.15.md` SSOT 문서화
+
+**권장 팀 구성** (Phase 2 병렬):
+- Haiku × 3: 페르소나 프로파일 생성(페르소나 1-3/4-6/7-10), 각 페르소나별 단계별 나레이션+피드백 리포트
+- Sonnet × 2: 종합 이슈 분류 P0/P1/P2, `PERSONA_FEEDBACK_v1.15.md` 최종 초안 작성
+
+## 대기 — Asset 업그레이드 (선택)
+
+- [ ] **Hero placeholder → Unsplash CC0 실사진 교체** (5장)
+  - 검색어: `black and white athlete`, `barbell dark`, `runner silhouette`, `crossfit monochrome`
+  - 라이선스 스크린샷 필수 보관
+  - 파일명 그대로 덮어쓰기 → 재빌드만 하면 끝
+- [ ] **Home / WOD Builder / Result 화면 hero 배경** 미적용 (의도적 — 결과 화면 가독성 vs 배경 간섭 검토 필요)
+- [ ] **stickman SVG 디테일 업그레이드** — 현재 minimal line art, 취향에 따라 거친 느낌 강화 가능
+
+## 대기 — 남은 Persona P1 코드 액션 (asset 독립)
+
 - [ ] **A5** Grade `_CategoryCard` Score LinearProgressIndicator 2px (tier.color)
-- [ ] **A8** `GlossaryTip` 위젯 신규 + WOD Builder / Result long-press 툴팁
+- [ ] **A8** `GlossaryTip` 위젯 + WOD Builder / Result long-press 툴팁
 - [ ] **A9** WOD Builder 카테고리 첫 진입 hint SnackBar (1회 flag)
-- [ ] **A12** Result 컨텍스트 바 tier 문자열 → `TierBadge` 위젯 교체
+- [ ] **A12** Result 컨텍스트 바 tier 문자열 → `TierBadge` 교체
 - [ ] **A13** Home: 마지막 WOD 1줄 요약 (history_repository 비동기)
-- [ ] **A15** Result 로딩 상태 → `CircularProgressIndicator` + 랜덤 QuoteCard
-- [ ] **A18** 11sp 미만 글꼴 금지 확인 (grep 후 승격)
-- [ ] **A22** ElevatedButton scale press 0.97→1.0 (100ms) 애니메이션
-- [ ] **A23** 주요 CTA에 `HapticFeedback.lightImpact()` 추가
-- [ ] **A24** AppBar 아이콘 outlined 계열 통일
-- [ ] **A25** _CategoryCard Scaled(#4A4A4A) border 대비 fallback (muted)
-
-## 대기 — Asset 수급 필요
-- [ ] **Bodoni Moda 폰트 번들**: `assets/fonts/BodoniModa/` 6 파일 다운로드 + pubspec.yaml 등록 + `google_fonts` 패키지. 그 후 `displaySerif`/`h1Serif`/`quoteSerif` 토큰 실제 적용
-- [ ] **halftone PNG 2종**: `grain_subtle.png` (256×256, Unblast CC0) + `grain_strong.png` (512×512). `assets/textures/` 배치. `GrainOverlay` 위젯 구현
-- [ ] **영웅 이미지 5~8장**: Unsplash CC0 (runner/warrior/barbell/athlete). `assets/images/hero_*.jpg`. Splash/Intro 3/Grade 화면 배경
-- [ ] **스틱맨 SVG 3종**: `assets/icons/stickman_{motivation,discipline,obsession}.svg` (VC 섹션 6 스펙). A4 의존
-- [ ] **pubspec.yaml** 의존성: `flutter_svg`, `google_fonts`
+- [ ] **A15** Result 로딩 상태 → CircularProgressIndicator + 랜덤 QuoteCard
+- [ ] **A18** 11sp 미만 글꼴 검증 (grep 후 승격)
+- [ ] **A22** ElevatedButton scale press 0.97→1.0 (100ms)
+- [ ] **A23** HapticFeedback.lightImpact() 주요 CTA
+- [ ] **A24** AppBar 아이콘 outlined 통일
+- [ ] **A25** _CategoryCard Scaled(#4A4A4A) border contrast fallback
 
 ## 결정사항 / 주의
 
-### 1. SSOT 우선순위
+### 1. SSOT 우선순위 (변동 없음)
 ```
 VISUAL_CONCEPT.md v1.0 > DESIGN_PLAYBOOK.md v1.0 > CLAUDE.md 디자인 시스템
 ```
-시각 결정 충돌 시 VISUAL_CONCEPT가 이김. CLAUDE.md 최상단에 명시됨.
 
-### 2. 컬러 정책 (v1.15)
-- 흑백 + Red `#EE2B2B` **단일 accent**. 사용처 3곳 전용: Primary CTA 1개 / Burst segment / Destructive(Reset)
-- `success #22C55E` / `warning #F59E0B` 토큰 유지하되 **실사용 금지**
-- pure black/white 텍스트 금지 (#F5F5F5 ~ #9E9E9E)
+### 2. Bodoni Moda 사용 정책
+- `google_fonts` 패키지 런타임 fetch 방식 채택 (번들 없음). 첫 실행 시 네트워크 필요.
+- 오프라인 첫 실행 시 fallback = Pretendard w800 italic (Flutter 기본 동작).
+- 완전 오프라인 보장 필요하면 차후 `assets/fonts/BodoniModa/` 6 파일 번들 + `pubspec.yaml` fonts 블록 추가.
 
-### 3. Tier 서사
-- overall_number 1~6 → 5 Tier 라벨 유지
-- 서브타이틀: Motivation → Discipline → Obsession
-- **RX만 유일한 유채색**
-- `tier.quote` getter로 Tier별 고정 명언 (stableQuote는 Splash용만)
+### 3. Hero placeholder 특성
+- 현재는 코드 생성 흑백 그라디언트 (인물 실루엣 없음). 시각적 임팩트는 약함.
+- 실사진 교체만으로 즉시 v1.15 컨셉(전사·Obsession) 완성됨. 다음 세션 첫 시간 내 교체 권장.
 
-### 4. 폰트 정책
-- 영문 선언 헤드라인 → Bodoni Moda Italic (번들 완료 후)
-- 한글·UI·숫자 → Pretendard 유지
-- `fontFamilyFallback: ['Pretendard']`
+### 4. Grade 화면 배경
+- hero_grade.jpg가 `opacity: 0.35` + `subtle grain`으로 은은하게 깔려 있음.
+- 카테고리 카드 4~5개가 배경 위에 얹히는 구조 → 가독성 검증 필요 (페르소나 조사에서 확인).
 
-### 5. halftone 2단계
-- 일상 배경: `grain_subtle` 0.04 opacity
-- 드라마틱 순간: `grain_strong` 0.12
+### 5. Home 화면 의도적 미적용
+- Home은 정보 밀도 높음(Tier 배지 + 헤드라인 + 2 CTA + caption). 배경 넣으면 스캔 방해 우려.
+- 페르소나 조사 결과 따라 hero 추가 vs 현행 유지 결정.
 
-### 6. 법적 경고
-- m1ndshoot / OPUS ATHLETICS 원본 이미지 **픽셀 복제·파생 금지**
-- Unsplash/Pexels/Pixabay **CC0만** 사용
-- 다운로드 시 라이선스 스크린샷 보관
-
-### 7. 자동 commit+push
-- `C:/dev/` 하위 → 자동 커밋·푸시 정책 유지
-- Remote: `https://github.com/minjunbyeon-netizen/app-facing` (master)
-- 최종 커밋: `79a525b feat(persona-r2-r11-p1): BURST label + Grade empty state + _Pill touchMin`
+### 6. 자동 commit+push 유지
+- `C:/dev/` 하위 자동 커밋 정책 준수 중 (이번 세션 2회 push).
+- 최근 커밋: `e930298 feat(v1.15-assets): 자산 일괄 생성 + Bodoni Moda + halftone + stickman 실제 연결`
 
 ## 다음 세션 권장 첫 프롬프트
 ```
@@ -85,7 +100,7 @@ VISUAL_CONCEPT.md v1.0 > DESIGN_PLAYBOOK.md v1.0 > CLAUDE.md 디자인 시스템
 ```
 또는:
 ```
-facing-app v1.15 asset 수급. 1) Unsplash CC0 runner silhouette 1장 → Splash 배경 적용 테스트 → 2) Bodoni Moda 번들 → 3) 남은 Persona P1 (A5/A8/A12/A15/A18)
+페르소나 10명 데리고와서, 체중입력부터해서 전부 직접 시켜보고, ux, ui 적인 측면에서 피드백 조사 /GO
 ```
 
 ## 관련 경로
@@ -97,9 +112,15 @@ facing-app v1.15 asset 수급. 1) Unsplash CC0 runner silhouette 1장 → Splash
 | CHANGELOG | `CHANGELOG.md` |
 | 디자인 토큰 | `lib/core/theme.dart` |
 | Tier | `lib/core/tier.dart` |
-| 용어 glossary (신규) | `lib/core/glossary.dart` |
+| Glossary (v1.14) | `lib/core/glossary.dart` |
 | 명언 | `lib/core/quotes.dart` |
+| Hero 배경 위젯 (신규) | `lib/widgets/hero_background.dart` |
+| Halftone 오버레이 (신규) | `lib/widgets/grain_overlay.dart` |
+| Halftone 생성 스크립트 | `scripts/gen_grain.py` |
+| Hero 생성 스크립트 | `scripts/gen_hero.py` |
 | 백엔드 history | `services/facing/api/history.py` (5060) |
+| 최신 스크린샷 | `docs/screenshots/v1.15_*.png` |
 
 ## 이전 HANDOFF
-- `docs/archive/HANDOFF-2026-04-22.md` 로 이동 권장 (v1.11 기준)
+- commit `7228034` 스냅샷 (v1.15 전환 중 — asset 수급 대기 상태) 으로 archive 권장
+- `docs/archive/HANDOFF-2026-04-23.md` 로 이동해도 됨 (git history에서도 복원 가능하므로 선택)
