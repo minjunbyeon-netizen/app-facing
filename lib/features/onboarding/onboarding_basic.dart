@@ -229,23 +229,27 @@ class _Pill extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(FacingTokens.r4),
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: FacingTokens.sp4,
-          vertical: FacingTokens.sp2,
-        ),
-        decoration: BoxDecoration(
-          color: selected ? FacingTokens.fg : Colors.transparent,
-          border: selected
-              ? null
-              : Border.all(color: FacingTokens.border),
-          borderRadius: BorderRadius.circular(FacingTokens.r4),
-        ),
-        child: Text(
-          label,
-          style: FacingTokens.body.copyWith(
-            color: selected ? FacingTokens.bg : FacingTokens.muted,
-            fontWeight: FontWeight.w700,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: FacingTokens.touchMin),
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: FacingTokens.sp4,
+            vertical: FacingTokens.sp2,
+          ),
+          decoration: BoxDecoration(
+            color: selected ? FacingTokens.fg : Colors.transparent,
+            border: selected
+                ? null
+                : Border.all(color: FacingTokens.border),
+            borderRadius: BorderRadius.circular(FacingTokens.r4),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            label,
+            style: FacingTokens.body.copyWith(
+              color: selected ? FacingTokens.bg : FacingTokens.muted,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
       ),

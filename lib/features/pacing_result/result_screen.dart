@@ -158,6 +158,13 @@ class _SegmentCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (segment.isExplosion) ...[
+            Text('BURST',
+                style: FacingTokens.sectionLabel.copyWith(
+                  color: FacingTokens.accent,
+                )),
+            const SizedBox(height: FacingTokens.sp1),
+          ],
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

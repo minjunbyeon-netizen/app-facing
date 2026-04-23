@@ -18,7 +18,27 @@ class OnboardingGradeScreen extends StatelessWidget {
     if (grade == null) {
       return Scaffold(
         appBar: AppBar(title: const Text('Your Tier')),
-        body: const Center(child: Text('데이터 없음.', style: FacingTokens.body)),
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(FacingTokens.sp5),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('1RM 없음.', style: FacingTokens.h2),
+                const SizedBox(height: FacingTokens.sp2),
+                const Text('먼저 입력. Benchmarks 완료하면 Tier 확정.',
+                    style: FacingTokens.caption),
+                const SizedBox(height: FacingTokens.sp6),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context)
+                      .pushReplacementNamed('/onboarding/basic'),
+                  child: const Text('Start Onboarding'),
+                ),
+              ],
+            ),
+          ),
+        ),
       );
     }
     final overallNumber = grade['overall_number'];
