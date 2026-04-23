@@ -92,12 +92,13 @@ class _IntroScreenState extends State<IntroScreen> {
                 final active = i == _page;
                 return AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  height: 6,
-                  width: active ? 22 : 6,
+                  margin: const EdgeInsets.symmetric(
+                      horizontal: FacingTokens.sp1),
+                  height: FacingTokens.sp2 - 2, // 6px
+                  width: active ? FacingTokens.sp5 - 2 : FacingTokens.sp2 - 2,
                   decoration: BoxDecoration(
-                    color: active ? FacingTokens.fg : FacingTokens.border,
-                    borderRadius: BorderRadius.circular(3),
+                    color: active ? FacingTokens.accent : FacingTokens.border,
+                    borderRadius: BorderRadius.circular(FacingTokens.r1),
                   ),
                 );
               }),
