@@ -1,0 +1,166 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../core/api_client.dart';
+import '../../core/exception.dart';
+import '../../core/theme.dart';
+import '../../models/pacing_plan.dart';
+import '../profile/profile_state.dart';
+import '../wod_builder/wod_draft_state.dart';
+
+class ResultScreen extends StatefulWidget {
+  const ResultScreen({super.key});
+
+  @override
+  State<ResultScreen> createState() => _ResultScreenState();
+}
+
+class _ResultScreenState extends State<ResultScreen> {
+  late final Future<PacingPlan> _future;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = _calculate();
+  }
+
+  Future<PacingPlan> _calculate() async {
+    final api = context.read<ApiClient>();
+    final draft = context.read<WodDraftState>();
+    final profile = context.read<ProfileState>();
+    final body = {
+      'wod': draft.toApiJson(),
+      'profile_overrides': profile.toOverrides(),
+      if (profile.overallGrade != null) 'grade': profile.overallGrade,
+    };
+    final data = await api.post('/api/v1/pacing/calculate', body);
+    return PacingPlan.fromJson(data);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('페이싱 전략')),
+      body: FutureBuilder<PacingPlan>(
+        future: _future,
+        builder: (ctx, snap) {
+          if (snap.connectionState != ConnectionState.done) {
+            return const Center(child: Text('계산 중', style: FacingTokens.body));
+          }
+          if (snap.hasError) {
+            final e = snap.error;
+            final msg = e is AppException
+                ? '${e.messageKo}${e.code != null ? " (${e.code})" : ""}'
+                : e.toString();
+            return Padding(
+              padding: const EdgeInsets.all(FacingTokens.sp4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(FacingTokens.sp3),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: FacingTokens.fg),
+                      borderRadius: BorderRadius.circular(FacingTokens.r2),
+                    ),
+                    child: Text(msg, style: FacingTokens.body),
+                  ),
+                ],
+              ),
+            );
+          }
+          final plan = snap.data!;
+          return ListView(
+            padding: const EdgeInsets.all(FacingTokens.sp4),
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Text(plan.estimatedTotalDisplay, style: FacingTokens.display),
+                  const SizedBox(width: FacingTokens.sp2),
+                  const Text('예상', style: FacingTokens.caption),
+                ],
+              ),
+              const SizedBox(height: FacingTokens.sp2),
+              Text('formula v${plan.formulaVersion}', style: FacingTokens.micro),
+              const SizedBox(height: FacingTokens.sp5),
+              ...plan.segments.map((s) => _SegmentCard(segment: s)),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _SegmentCard extends StatelessWidget {
+  final PacingSegment segment;
+  const _SegmentCard({required this.segment});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: FacingTokens.sp3),
+      padding: const EdgeInsets.all(FacingTokens.sp4),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: segment.isExplosion ? FacingTokens.accent : FacingTokens.border,
+          width: segment.isExplosion ? 2 : 1,
+        ),
+        borderRadius: BorderRadius.circular(FacingTokens.r3),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(segment.movementSlug, style: FacingTokens.h3),
+              Text(segment.estimatedDisplay, style: FacingTokens.lead),
+            ],
+          ),
+          const SizedBox(height: FacingTokens.sp3),
+          if (segment.splitPattern.isNotEmpty)
+            _SplitText(
+              splits: segment.splitPattern,
+              lastIsExplosion: segment.isExplosion,
+            ),
+          if (segment.targetPaceSecPer500m != null)
+            Text(
+              '${segment.targetPaceSecPer500m}s / 500m',
+              style: FacingTokens.h2,
+            ),
+          const SizedBox(height: FacingTokens.sp3),
+          Text(segment.rationaleKo, style: FacingTokens.caption),
+        ],
+      ),
+    );
+  }
+}
+
+class _SplitText extends StatelessWidget {
+  final List<int> splits;
+  final bool lastIsExplosion;
+  const _SplitText({required this.splits, required this.lastIsExplosion});
+
+  @override
+  Widget build(BuildContext context) {
+    final joined = splits.join('-');
+    if (!lastIsExplosion) return Text(joined, style: FacingTokens.h1);
+    final lastIndex = joined.lastIndexOf('-') + 1;
+    final head = joined.substring(0, lastIndex);
+    final tail = joined.substring(lastIndex);
+    return Text.rich(
+      TextSpan(
+        style: FacingTokens.h1,
+        children: [
+          TextSpan(text: head),
+          TextSpan(text: tail,
+            style: const TextStyle(color: FacingTokens.accent),
+          ),
+        ],
+      ),
+    );
+  }
+}
