@@ -13,13 +13,13 @@ class OnboardingGradeScreen extends StatelessWidget {
     final grade = p.gradeResult;
     if (grade == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('3 / 3 · 등급')),
+        appBar: AppBar(title: const Text('결과 · 등급')),
         body: const Center(child: Text('등급 정보 없음', style: FacingTokens.body)),
       );
     }
     return Scaffold(
       appBar: AppBar(
-        title: const Text('3 / 3 · 당신의 등급'),
+        title: const Text('결과 · 당신의 등급'),
         automaticallyImplyLeading: false,
       ),
       body: SafeArea(
@@ -57,19 +57,19 @@ class OnboardingGradeScreen extends StatelessWidget {
                   const SizedBox(height: FacingTokens.sp6),
                   // v1.10.0 6 카테고리 분리 표시
                   if (grade['power'] != null) ...[
-                    _CategoryCard(title: '💪 파워', data: grade['power']),
+                    _CategoryCard(title: '파워', data: grade['power']),
                     const SizedBox(height: FacingTokens.sp3),
                   ],
                   if (grade['olympic'] != null) ...[
-                    _CategoryCard(title: '🏋 역도', data: grade['olympic']),
+                    _CategoryCard(title: '역도', data: grade['olympic']),
                     const SizedBox(height: FacingTokens.sp3),
                   ],
-                  _CategoryCard(title: '🤸 짐내스틱', data: grade['gymnastics']),
+                  _CategoryCard(title: '짐내스틱', data: grade['gymnastics']),
                   const SizedBox(height: FacingTokens.sp3),
-                  _CategoryCard(title: '🏃 카디오', data: grade['cardio']),
+                  _CategoryCard(title: '카디오', data: grade['cardio']),
                   if (grade['metcon'] != null) ...[
                     const SizedBox(height: FacingTokens.sp3),
-                    _CategoryCard(title: '⚡ 메타콘 (멘탈)', data: grade['metcon']),
+                    _CategoryCard(title: '메타콘 (멘탈)', data: grade['metcon']),
                   ],
                   const SizedBox(height: FacingTokens.sp6),
                   const Text(

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/theme.dart';
+import '../../core/unit_state.dart';
+import '../../widgets/offline_banner.dart';
 import '../profile/profile_state.dart';
 import '../wod_builder/wod_draft_state.dart';
 
@@ -14,13 +16,28 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('facing'),
         actions: [
+          Consumer<UnitState>(
+            builder: (ctx, u, _) => TextButton(
+              onPressed: u.toggle,
+              child: Text(
+                u.isKg ? 'kg' : 'lb',
+                style: FacingTokens.body.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: FacingTokens.fg,
+                ),
+              ),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.person_outline),
             onPressed: () => Navigator.of(context).pushNamed('/profile'),
           ),
         ],
       ),
-      body: SafeArea(
+      body: Column(
+        children: [
+          const OfflineBanner(),
+          Expanded(child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(FacingTokens.sp5),
           child: Column(
@@ -106,6 +123,8 @@ class HomeScreen extends StatelessWidget {
             ],
           ),
         ),
+      )),
+        ],
       ),
     );
   }

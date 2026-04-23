@@ -8,8 +8,29 @@ class ApiClient {
   static const String baseUrl = 'http://10.0.2.2:5060';
 
   final Dio _dio;
+  final List<Future<void> Function()> _retryQueue = [];
 
   ApiClient._(this._dio);
+
+  /// 네트워크 실패로 적재된 요청을 순서대로 재실행.
+  /// ConnectivityState가 온라인 복귀 시 호출.
+  Future<void> flushRetryQueue() async {
+    if (_retryQueue.isEmpty) return;
+    final pending = List<Future<void> Function()>.from(_retryQueue);
+    _retryQueue.clear();
+    for (final task in pending) {
+      try {
+        await task();
+      } catch (_) {
+        // 실패해도 나머지 계속. 영구 실패는 호출부 책임.
+      }
+    }
+  }
+
+  /// 네트워크 에러일 때 재시도용으로 적재. 호출부가 직접 enqueue.
+  void enqueueRetry(Future<void> Function() task) {
+    _retryQueue.add(task);
+  }
 
   static ApiClient create() {
     final dio = Dio(BaseOptions(

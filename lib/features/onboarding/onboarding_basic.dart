@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/theme.dart';
+import '../../core/unit_state.dart';
 import '../profile/profile_state.dart';
 
 class OnboardingBasicScreen extends StatefulWidget {
@@ -23,7 +24,11 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
   void initState() {
     super.initState();
     final p = context.read<ProfileState>();
-    if (p.bodyWeightKg != null) _weight.text = _fmt(p.bodyWeightKg!);
+    final unit = context.read<UnitState>();
+    if (p.bodyWeightKg != null) {
+      final disp = unit.kgToDisplay(p.bodyWeightKg!)!;
+      _weight.text = _fmt(disp);
+    }
     if (p.heightCm != null) _height.text = _fmt(p.heightCm!);
     if (p.ageYears != null) _age.text = _fmt(p.ageYears!);
     if (p.experienceYears > 0) _years.text = _fmt(p.experienceYears);
@@ -42,14 +47,15 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
     super.dispose();
   }
 
+  // v1.10.1: 모든 필드 선택. 체중만 있으면 진행 가능(등급 산정 최소 기준).
+  // 비우면 다음 단계에서 평균값 추론.
   bool get _canContinue =>
-      double.tryParse(_weight.text.trim()) != null &&
-      double.tryParse(_height.text.trim()) != null;
+      double.tryParse(_weight.text.trim()) != null;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('1 / 3 · 기본 정보')),
+      appBar: AppBar(title: const Text('1 / 6 · 기본 정보')),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(FacingTokens.sp4),
@@ -64,10 +70,17 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
                 style: FacingTokens.caption,
               ),
               const SizedBox(height: FacingTokens.sp6),
-              _Row(label: '체중 (kg)', child: _Input(
-                controller: _weight, hint: '예: 75', suffix: 'kg',
-                onChanged: (_) => setState(() {}),
-              )),
+              Consumer<UnitState>(
+                builder: (ctx, u, _) => _Row(
+                  label: '체중 (${u.weightSuffix})',
+                  child: _Input(
+                    controller: _weight,
+                    hint: u.isKg ? '예: 75' : '예: 165',
+                    suffix: u.weightSuffix,
+                    onChanged: (_) => setState(() {}),
+                  ),
+                ),
+              ),
               const SizedBox(height: FacingTokens.sp4),
               _Row(label: '키 (cm)', child: _Input(
                 controller: _height, hint: '예: 176', suffix: 'cm',
@@ -103,8 +116,10 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
 
   void _onNext() {
     final p = context.read<ProfileState>();
+    final unit = context.read<UnitState>();
+    final weightDisplay = double.tryParse(_weight.text.trim());
     p.setBasic(
-      bodyWeightKg: double.tryParse(_weight.text.trim()),
+      bodyWeightKg: unit.displayToKg(weightDisplay),
       heightCm: double.tryParse(_height.text.trim()),
       ageYears: double.tryParse(_age.text.trim()),
       gender: _gender,

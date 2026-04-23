@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
 import '../../core/theme.dart';
+import '../../core/unit_state.dart';
 import '../profile/profile_state.dart';
 
 /// v1.10.0 위저드 — 5 카테고리(파워/역도/짐내/카디오/메타콘) PageView.
@@ -28,7 +29,7 @@ class _OnboardingBenchmarksScreenState
   static const List<_Category> _categories = [
     _Category(
       key: 'power',
-      title: '💪 파워 (Powerlifting + OHP)',
+      title: '파워 (Powerlifting + OHP)',
       hint: 'SBD + OHP 1RM',
       fields: [
         'back_squat_1rm_lb',
@@ -40,7 +41,7 @@ class _OnboardingBenchmarksScreenState
     ),
     _Category(
       key: 'olympic',
-      title: '🏋 역도 (Olympic Lifting)',
+      title: '역도 (Olympic Lifting)',
       hint: '클린/스내치 5종',
       fields: [
         'clean_1rm_lb',
@@ -52,7 +53,7 @@ class _OnboardingBenchmarksScreenState
     ),
     _Category(
       key: 'gymnastics',
-      title: '🤸 짐내스틱',
+      title: '짐내스틱',
       hint: 'Max Unbroken / 1분 max',
       fields: [
         'strict_pull_up_max_ub',
@@ -66,7 +67,7 @@ class _OnboardingBenchmarksScreenState
     ),
     _Category(
       key: 'cardio',
-      title: '🏃 카디오',
+      title: '카디오',
       hint: '런 + 로잉 + Cooper',
       fields: [
         'run_mile_sec',
@@ -77,7 +78,7 @@ class _OnboardingBenchmarksScreenState
     ),
     _Category(
       key: 'metcon',
-      title: '⚡ 메타콘 (멘탈)',
+      title: '메타콘 (멘탈)',
       hint: '1분 max',
       fields: [
         'burpee_per_min',
@@ -157,12 +158,22 @@ class _OnboardingBenchmarksScreenState
   void initState() {
     super.initState();
     final p = context.read<ProfileState>();
+    final unit = context.read<UnitState>();
     _ctrls = {
       for (final k in _allFields)
         k: TextEditingController(
-          text: p.getBenchmark(k) == null ? '' : _fmt(p.getBenchmark(k)!),
+          text: _initText(p.getBenchmark(k), k, unit),
         ),
     };
+  }
+
+  String _initText(double? stored, String key, UnitState unit) {
+    if (stored == null) return '';
+    if (key.endsWith('_lb')) {
+      final disp = unit.lbToDisplay(stored);
+      return disp == null ? '' : _fmt(disp);
+    }
+    return _fmt(stored);
   }
 
   String _fmt(double v) =>
@@ -202,31 +213,71 @@ class _OnboardingBenchmarksScreenState
       _submitting = true;
       _error = null;
     });
+    // 계산 로딩 오버레이 (최소 800ms 보장)
+    final minShow = Future<void>.delayed(const Duration(milliseconds: 800));
+    _showLoadingOverlay();
     try {
       final p = context.read<ProfileState>();
+      final unit = context.read<UnitState>();
       for (final k in _allFields) {
-        final v = double.tryParse(_ctrls[k]!.text.trim());
-        p.setBenchmark(k, (v == null || v <= 0) ? null : v);
+        final disp = double.tryParse(_ctrls[k]!.text.trim());
+        double? stored;
+        if (disp == null || disp <= 0) {
+          stored = null;
+        } else if (k.endsWith('_lb')) {
+          stored = unit.displayToLb(disp);
+        } else {
+          stored = disp;
+        }
+        p.setBenchmark(k, stored);
       }
       final api = context.read<ApiClient>();
-      final result = await api.post('/api/v1/profile/grade', p.toGradePayload());
+      final result =
+          await api.post('/api/v1/profile/grade', p.toGradePayload());
       p.setGradeResult(result);
+      await minShow;
       if (mounted) {
+        _hideLoadingOverlay();
         Navigator.of(context).pushReplacementNamed('/onboarding/grade');
       }
     } catch (_) {
-      setState(() => _error = '등급 계산에 실패했습니다. 잠시 후 다시 시도해 주세요.');
+      await minShow;
+      if (mounted) {
+        _hideLoadingOverlay();
+        setState(() =>
+            _error = '등급 계산에 실패했습니다. 잠시 후 다시 시도해 주세요.');
+      }
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
   }
 
+  bool _overlayShown = false;
+  void _showLoadingOverlay() {
+    if (_overlayShown || !mounted) return;
+    _overlayShown = true;
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black54,
+      builder: (_) => const _ComputeLoadingDialog(),
+    );
+  }
+
+  void _hideLoadingOverlay() {
+    if (!_overlayShown) return;
+    _overlayShown = false;
+    Navigator.of(context, rootNavigator: true).pop();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final progress = (_page + 1) / _categories.length;
+    // 전체 위저드 6단계 중 benchmarks는 2~6번 (신체=1, 등급=결과화면).
+    final stepNumber = _page + 2;
+    final progress = stepNumber / 6;
     final pct = (progress * 100).round();
     return Scaffold(
-      appBar: AppBar(title: const Text('2 / 3 · 수행 능력 진단')),
+      appBar: AppBar(title: Text('$stepNumber / 6 · ${_categories[_page].title}')),
       body: SafeArea(
         child: Column(
           children: [
@@ -245,7 +296,7 @@ class _OnboardingBenchmarksScreenState
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '${_page + 1} / ${_categories.length}',
+                        '$stepNumber / 6 단계',
                         style: FacingTokens.caption,
                       ),
                       Text('$pct% 완료', style: FacingTokens.caption),
@@ -321,6 +372,7 @@ class _OnboardingBenchmarksScreenState
   }
 
   Widget _buildPage(_Category cat) {
+    final unit = context.watch<UnitState>();
     return ListView(
       padding: const EdgeInsets.all(FacingTokens.sp4),
       children: [
@@ -335,10 +387,15 @@ class _OnboardingBenchmarksScreenState
         const SizedBox(height: FacingTokens.sp4),
         ...cat.fields.map((k) {
           final m = _meta[k]!;
+          final isWeight = k.endsWith('_lb');
+          final suffix = isWeight ? unit.weightSuffix : m.$2;
+          final hint = isWeight && unit.isKg
+              ? _lbHintToKgHint(m.$3)
+              : m.$3;
           return _BenchmarkRow(
             label: m.$1,
-            suffix: m.$2,
-            hint: m.$3,
+            suffix: suffix,
+            hint: hint,
             help: m.$4,
             controller: _ctrls[k]!,
             onChanged: (_) => setState(() {}),
@@ -348,6 +405,15 @@ class _OnboardingBenchmarksScreenState
     );
   }
 
+  String _lbHintToKgHint(String lbHint) {
+    // "예: 315" → lb 숫자를 대략 kg로 치환. 힌트라 반올림 허용.
+    final match = RegExp(r'(\d+)').firstMatch(lbHint);
+    if (match == null) return lbHint;
+    final lb = int.parse(match.group(1)!);
+    final kg = (lb * 0.4536).round();
+    return lbHint.replaceFirst(RegExp(r'\d+'), '$kg');
+  }
+
   @override
   void dispose() {
     _pc.dispose();
@@ -355,6 +421,44 @@ class _OnboardingBenchmarksScreenState
       c.dispose();
     }
     super.dispose();
+  }
+}
+
+class _ComputeLoadingDialog extends StatelessWidget {
+  const _ComputeLoadingDialog();
+
+  @override
+  Widget build(BuildContext context) {
+    return PopScope(
+      canPop: false,
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.all(FacingTokens.sp5),
+          decoration: BoxDecoration(
+            color: FacingTokens.bg,
+            borderRadius: BorderRadius.circular(FacingTokens.r3),
+          ),
+          child: const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: 32,
+                height: 32,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  color: FacingTokens.accent,
+                ),
+              ),
+              SizedBox(height: FacingTokens.sp3),
+              Text('능력치 분석 중...', style: FacingTokens.body),
+              SizedBox(height: FacingTokens.sp1),
+              Text('6개 카테고리 점수 계산 중',
+                  style: FacingTokens.caption),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -371,7 +475,7 @@ class _Category {
   });
 }
 
-class _BenchmarkRow extends StatelessWidget {
+class _BenchmarkRow extends StatefulWidget {
   final String label;
   final String suffix;
   final String hint;
@@ -388,18 +492,49 @@ class _BenchmarkRow extends StatelessWidget {
   });
 
   @override
+  State<_BenchmarkRow> createState() => _BenchmarkRowState();
+}
+
+class _BenchmarkRowState extends State<_BenchmarkRow> {
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: FacingTokens.sp4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: FacingTokens.body.copyWith(fontWeight: FontWeight.w700)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Text(widget.label,
+                    style: FacingTokens.body
+                        .copyWith(fontWeight: FontWeight.w700)),
+              ),
+              TextButton(
+                style: TextButton.styleFrom(
+                  minimumSize: const Size(0, 28),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: FacingTokens.sp2),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                onPressed: () {
+                  widget.controller.clear();
+                  widget.onChanged('');
+                  setState(() {});
+                },
+                child: const Text('모름',
+                    style: TextStyle(
+                        fontSize: 12, color: FacingTokens.muted)),
+              ),
+            ],
+          ),
           const SizedBox(height: FacingTokens.sp1),
-          Text(help, style: FacingTokens.caption),
+          Text(widget.help, style: FacingTokens.caption),
           const SizedBox(height: FacingTokens.sp2),
           TextField(
-            controller: controller,
+            controller: widget.controller,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             inputFormatters: [
               FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
@@ -410,8 +545,8 @@ class _BenchmarkRow extends StatelessWidget {
               }),
             ],
             decoration: InputDecoration(
-              hintText: hint,
-              suffixText: suffix.isEmpty ? null : suffix,
+              hintText: widget.hint,
+              suffixText: widget.suffix.isEmpty ? null : widget.suffix,
               isDense: true,
               enabledBorder: OutlineInputBorder(
                 borderSide: const BorderSide(color: FacingTokens.border),
@@ -422,7 +557,7 @@ class _BenchmarkRow extends StatelessWidget {
                 borderRadius: BorderRadius.circular(FacingTokens.r2),
               ),
             ),
-            onChanged: onChanged,
+            onChanged: widget.onChanged,
           ),
         ],
       ),
