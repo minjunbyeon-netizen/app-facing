@@ -97,9 +97,19 @@ class _ResultScreenState extends State<ResultScreen> {
             );
           }
           final plan = snap.data!;
+          final draft = context.read<WodDraftState>();
+          final profile = context.read<ProfileState>();
+          final contextParts = <String>[
+            draft.type.labelKo,
+            if (draft.rounds != null) '${draft.rounds} Rounds',
+            if (profile.overallGrade != null) profile.overallGrade!.toUpperCase(),
+          ];
           return ListView(
             padding: const EdgeInsets.all(FacingTokens.sp4),
             children: [
+              Text(contextParts.join(' · '),
+                  style: FacingTokens.sectionLabel),
+              const SizedBox(height: FacingTokens.sp2),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.baseline,
                 textBaseline: TextBaseline.alphabetic,
