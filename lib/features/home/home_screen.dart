@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/theme.dart';
+import '../../core/tier.dart';
 import '../../core/unit_state.dart';
 import '../../widgets/offline_banner.dart';
+import '../../widgets/tier_badge.dart';
 import '../profile/profile_state.dart';
 import '../wod_builder/wod_draft_state.dart';
 
@@ -46,38 +48,22 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: FacingTokens.sp5),
               Consumer<ProfileState>(
                 builder: (ctx, p, _) {
-                  final label = p.overallGradeLabelKo;
-                  if (label == null) return const SizedBox.shrink();
+                  final g = p.gradeResult;
+                  if (g == null) return const SizedBox.shrink();
+                  final num? n = g['overall_number'] is num
+                      ? g['overall_number'] as num
+                      : null;
+                  final tier = Tier.fromOverallNumber(n);
                   return Padding(
                     padding: const EdgeInsets.only(bottom: FacingTokens.sp3),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: FacingTokens.sp3,
-                            vertical: FacingTokens.sp1,
-                          ),
-                          decoration: BoxDecoration(
-                            color: FacingTokens.accent,
-                            borderRadius: BorderRadius.circular(FacingTokens.r4),
-                          ),
-                          child: Text(
-                            label,
-                            style: FacingTokens.body.copyWith(
-                              color: FacingTokens.bg,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                    child: Row(children: [TierBadge(tier: tier)]),
                   );
                 },
               ),
-              const Text('오늘의 WOD\n전략이 필요합니까', style: FacingTokens.h1),
+              const Text('오늘 WOD.\nSplit 뽑아라.', style: FacingTokens.h1),
               const SizedBox(height: FacingTokens.sp2),
               const Text(
-                '등급에 맞춰 분할·폭발 시점을 자동 조정합니다.',
+                'RX부터 Games까지. Split · Burst 자동 계산.',
                 style: FacingTokens.caption,
               ),
               const Spacer(),
@@ -89,14 +75,14 @@ class HomeScreen extends StatelessWidget {
                     children: [
                       if (missing) ...[
                         const Text(
-                          'Max 능력치가 비어 있습니다. 먼저 프로필을 채우세요.',
+                          '1RM 없음. 먼저 입력.',
                           style: FacingTokens.caption,
                         ),
                         const SizedBox(height: FacingTokens.sp3),
                         OutlinedButton(
                           onPressed: () =>
                               Navigator.of(context).pushNamed('/profile'),
-                          child: const Text('프로필 입력'),
+                          child: const Text('1RM 입력'),
                         ),
                         const SizedBox(height: FacingTokens.sp3),
                       ],
@@ -105,7 +91,7 @@ class HomeScreen extends StatelessWidget {
                           context.read<WodDraftState>().clear();
                           Navigator.of(context).pushNamed('/presets');
                         },
-                        child: const Text('유명 WOD (Fran, Grace...)'),
+                        child: const Text('Benchmark WOD (Fran · Grace · Murph)'),
                       ),
                       const SizedBox(height: FacingTokens.sp3),
                       OutlinedButton(
@@ -113,7 +99,7 @@ class HomeScreen extends StatelessWidget {
                           context.read<WodDraftState>().clear();
                           Navigator.of(context).pushNamed('/builder');
                         },
-                        child: const Text('직접 WOD 만들기'),
+                        child: const Text('Custom WOD Builder'),
                       ),
                     ],
                   );

@@ -29,8 +29,8 @@ class _OnboardingBenchmarksScreenState
   static const List<_Category> _categories = [
     _Category(
       key: 'power',
-      title: '파워 (Powerlifting + OHP)',
-      hint: 'SBD + OHP 1RM',
+      title: 'POWER',
+      hint: 'Powerlifting + OHP · SBD + OHP 1RM',
       fields: [
         'back_squat_1rm_lb',
         'front_squat_1rm_lb',
@@ -41,8 +41,8 @@ class _OnboardingBenchmarksScreenState
     ),
     _Category(
       key: 'olympic',
-      title: '역도 (Olympic Lifting)',
-      hint: '클린/스내치 5종',
+      title: 'OLYMPIC',
+      hint: 'Clean / Snatch 5종',
       fields: [
         'clean_1rm_lb',
         'clean_and_jerk_1rm_lb',
@@ -53,8 +53,8 @@ class _OnboardingBenchmarksScreenState
     ),
     _Category(
       key: 'gymnastics',
-      title: '짐내스틱',
-      hint: 'Max Unbroken / 1분 max',
+      title: 'GYMNASTICS',
+      hint: 'Max Unbroken / 1분 Max',
       fields: [
         'strict_pull_up_max_ub',
         'chest_to_bar_max_ub',
@@ -67,8 +67,8 @@ class _OnboardingBenchmarksScreenState
     ),
     _Category(
       key: 'cardio',
-      title: '카디오',
-      hint: '런 + 로잉 + Cooper',
+      title: 'CARDIO',
+      hint: 'Run · Row · Cooper · Engine',
       fields: [
         'run_mile_sec',
         'row_500m_sec',
@@ -78,8 +78,8 @@ class _OnboardingBenchmarksScreenState
     ),
     _Category(
       key: 'metcon',
-      title: '메타콘 (멘탈)',
-      hint: '1분 max',
+      title: 'METCON',
+      hint: '1분 Max · 멘탈 capacity',
       fields: [
         'burpee_per_min',
         'double_under_per_min',
@@ -244,8 +244,7 @@ class _OnboardingBenchmarksScreenState
       await minShow;
       if (mounted) {
         _hideLoadingOverlay();
-        setState(() =>
-            _error = '등급 계산에 실패했습니다. 잠시 후 다시 시도해 주세요.');
+        setState(() => _error = '계산 실패. 재시도.');
       }
     } finally {
       if (mounted) setState(() => _submitting = false);
@@ -354,10 +353,10 @@ class _OnboardingBenchmarksScreenState
                         onPressed: _submitting ? null : _next,
                         child: Text(
                           _submitting
-                              ? '계산 중...'
+                              ? '계산 중'
                               : (_isLastPage
-                                  ? (_anyFilled ? '등급 확인하기' : '건너뛰고 결과 보기')
-                                  : '다음 →'),
+                                  ? (_anyFilled ? 'Engine 측정' : '건너뛰고 Tier 확인')
+                                  : '다음'),
                         ),
                       ),
                     ),
@@ -381,7 +380,7 @@ class _OnboardingBenchmarksScreenState
         Text(cat.hint, style: FacingTokens.caption),
         const SizedBox(height: FacingTokens.sp1),
         const Text(
-          '아는 만큼만 입력하세요. 빈 칸은 자동 추론됩니다.',
+          '아는 것만. 빈 칸은 추론.',
           style: FacingTokens.caption,
         ),
         const SizedBox(height: FacingTokens.sp4),
@@ -435,7 +434,8 @@ class _ComputeLoadingDialog extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(FacingTokens.sp5),
           decoration: BoxDecoration(
-            color: FacingTokens.bg,
+            color: FacingTokens.surface,
+            border: Border.all(color: FacingTokens.border),
             borderRadius: BorderRadius.circular(FacingTokens.r3),
           ),
           child: const Column(
@@ -450,9 +450,9 @@ class _ComputeLoadingDialog extends StatelessWidget {
                 ),
               ),
               SizedBox(height: FacingTokens.sp3),
-              Text('능력치 분석 중...', style: FacingTokens.body),
+              Text('계산 중', style: FacingTokens.body),
               SizedBox(height: FacingTokens.sp1),
-              Text('6개 카테고리 점수 계산 중',
+              Text('Engine 측정 · 6 카테고리 Tier 산출',
                   style: FacingTokens.caption),
             ],
           ),

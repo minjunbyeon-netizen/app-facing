@@ -55,7 +55,7 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('1 / 6 · 기본 정보')),
+      appBar: AppBar(title: const Text('1 / 6 · BODY')),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(FacingTokens.sp4),
@@ -63,10 +63,10 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: FacingTokens.sp3),
-              const Text('당신에 대해 알려주세요', style: FacingTokens.h2),
+              const Text('1RM 입력 전 · Body.', style: FacingTokens.h2),
               const SizedBox(height: FacingTokens.sp1),
               const Text(
-                '체중·키는 등급 산정 기준. 성별·경력은 난이도 보정에 쓰입니다.',
+                '체중·키는 Tier 산정 기준. 성별·경력은 난이도 보정.',
                 style: FacingTokens.caption,
               ),
               const SizedBox(height: FacingTokens.sp6),
@@ -97,7 +97,7 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
                 onChanged: (g) => setState(() => _gender = g),
               )),
               const SizedBox(height: FacingTokens.sp4),
-              _Row(label: '크로스핏 경력 (년)', child: _Input(
+              _Row(label: 'CrossFit 경력 (년)', child: _Input(
                 controller: _years, hint: '예: 3',
                 suffix: '년',
                 onChanged: (_) => setState(() {}),

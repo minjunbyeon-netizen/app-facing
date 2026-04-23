@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/quotes.dart';
 import '../../core/theme.dart';
+import '../../core/tier.dart';
+import '../../widgets/quote_card.dart';
+import '../../widgets/tier_badge.dart';
 import '../profile/profile_state.dart';
 
 class OnboardingGradeScreen extends StatelessWidget {
@@ -13,13 +17,20 @@ class OnboardingGradeScreen extends StatelessWidget {
     final grade = p.gradeResult;
     if (grade == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('결과 · 등급')),
-        body: const Center(child: Text('등급 정보 없음', style: FacingTokens.body)),
+        appBar: AppBar(title: const Text('결과 · Tier')),
+        body: const Center(child: Text('데이터 없음.', style: FacingTokens.body)),
       );
     }
+    final overallNumber = grade['overall_number'];
+    final tier = Tier.fromOverallNumber(
+        overallNumber is num ? overallNumber : null);
+    final score = grade['overall_score'];
+    final quote = stableQuote(
+        (overallNumber is num ? overallNumber.round() : 0) * 7 + 3);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('결과 · 당신의 등급'),
+        title: const Text('너의 Tier'),
         automaticallyImplyLeading: false,
       ),
       body: SafeArea(
@@ -30,50 +41,43 @@ class OnboardingGradeScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(FacingTokens.sp4),
                 children: [
                   const SizedBox(height: FacingTokens.sp3),
-                  const Text('종합 등급', style: FacingTokens.caption),
-                  const SizedBox(height: FacingTokens.sp1),
+                  QuoteCard(quote: quote, compact: true),
+                  const SizedBox(height: FacingTokens.sp6),
+                  const Text('OVERALL', style: FacingTokens.micro),
+                  const SizedBox(height: FacingTokens.sp2),
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                    textBaseline: TextBaseline.alphabetic,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(
-                        (grade['overall_label_ko'] ?? '').toString(),
-                        style: FacingTokens.display.copyWith(
-                          color: FacingTokens.accent,
-                        ),
-                      ),
-                      const SizedBox(width: FacingTokens.sp2),
-                      Text(
-                        '${grade['overall_number']}/6',
-                        style: FacingTokens.h2,
-                      ),
+                      TierBadge(tier: tier, fontSize: 18),
+                      const SizedBox(width: FacingTokens.sp3),
+                      Text('$overallNumber/6',
+                          style: FacingTokens.h2.copyWith(
+                            color: FacingTokens.muted,
+                          )),
                     ],
                   ),
                   const SizedBox(height: FacingTokens.sp2),
-                  Text(
-                    '점수 ${grade['overall_score']}',
-                    style: FacingTokens.caption,
-                  ),
+                  Text('Score $score', style: FacingTokens.caption),
                   const SizedBox(height: FacingTokens.sp6),
                   // v1.10.0 6 카테고리 분리 표시
                   if (grade['power'] != null) ...[
-                    _CategoryCard(title: '파워', data: grade['power']),
+                    _CategoryCard(title: 'POWER', data: grade['power']),
                     const SizedBox(height: FacingTokens.sp3),
                   ],
                   if (grade['olympic'] != null) ...[
-                    _CategoryCard(title: '역도', data: grade['olympic']),
+                    _CategoryCard(title: 'OLYMPIC', data: grade['olympic']),
                     const SizedBox(height: FacingTokens.sp3),
                   ],
-                  _CategoryCard(title: '짐내스틱', data: grade['gymnastics']),
+                  _CategoryCard(title: 'GYMNASTICS', data: grade['gymnastics']),
                   const SizedBox(height: FacingTokens.sp3),
-                  _CategoryCard(title: '카디오', data: grade['cardio']),
+                  _CategoryCard(title: 'CARDIO', data: grade['cardio']),
                   if (grade['metcon'] != null) ...[
                     const SizedBox(height: FacingTokens.sp3),
-                    _CategoryCard(title: '메타콘 (멘탈)', data: grade['metcon']),
+                    _CategoryCard(title: 'METCON', data: grade['metcon']),
                   ],
                   const SizedBox(height: FacingTokens.sp6),
                   const Text(
-                    '이 등급에 맞춰 페이싱 강도가 자동 조정됩니다. 언제든 프로필에서 수정 가능합니다.',
+                    'Tier에 맞춰 Split · Burst 자동 조정. 언제든 프로필에서 수정.',
                     style: FacingTokens.caption,
                   ),
                 ],
@@ -86,7 +90,7 @@ class OnboardingGradeScreen extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () => Navigator.of(context)
                       .pushNamedAndRemoveUntil('/home', (_) => false),
-                  child: const Text('시작하기'),
+                  child: const Text('WOD 시작'),
                 ),
               ),
             ),
@@ -105,13 +109,15 @@ class _CategoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final m = data is Map ? data as Map : const {};
-    final label = (m['label_ko'] ?? '').toString();
     final score = m['score'];
     final itemsUsed = m['items_used'] ?? 0;
     final missing = (m['missing'] as List?) ?? const [];
+    final num? catNum = m['number'] is num ? m['number'] as num : null;
+    final tier = Tier.fromOverallNumber(catNum);
     return Container(
       padding: const EdgeInsets.all(FacingTokens.sp4),
       decoration: BoxDecoration(
+        color: FacingTokens.surface,
         border: Border.all(color: FacingTokens.border),
         borderRadius: BorderRadius.circular(FacingTokens.r3),
       ),
@@ -121,21 +127,24 @@ class _CategoryCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(title, style: FacingTokens.body.copyWith(fontWeight: FontWeight.w700)),
-              Text(label, style: FacingTokens.h3),
+              Text(title, style: FacingTokens.body.copyWith(
+                fontWeight: FontWeight.w800,
+                letterSpacing: 1.2,
+              )),
+              TierBadge(tier: tier),
             ],
           ),
-          const SizedBox(height: FacingTokens.sp1),
+          const SizedBox(height: FacingTokens.sp2),
           Row(
             children: [
-              Text('점수 $score', style: FacingTokens.caption),
+              Text('Score $score', style: FacingTokens.caption),
               const SizedBox(width: FacingTokens.sp3),
-              Text('측정 $itemsUsed개', style: FacingTokens.caption),
+              Text('$itemsUsed items', style: FacingTokens.caption),
             ],
           ),
           if (missing.isNotEmpty) ...[
             const SizedBox(height: FacingTokens.sp2),
-            Text('추가 측정하면 더 정확: ${missing.length}개',
+            Text('측정 추가 ${missing.length}개 → 정확도 상승',
                 style: FacingTokens.micro),
           ],
         ],

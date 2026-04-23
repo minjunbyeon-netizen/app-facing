@@ -1,16 +1,31 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 
-/// facing 디자인 토큰 단일 진원지.
+/// facing 디자인 토큰 단일 진원지 (v1.11.0 CrossFit Elite / Dark).
+/// 규칙: apps/facing-app/CLAUDE.md "디자인 시스템" 섹션 SSOT.
 class FacingTokens {
   FacingTokens._();
 
-  static const Color bg = Color(0xFFFFFFFF);
-  static const Color fg = Color(0xFF1D1D1F);
-  static const Color muted = Color(0xFF6E6E73);
-  static const Color border = Color(0xFFE5E5E5);
-  static const Color accent = Color(0xFFD64545);
-  static const Color accentPressed = Color(0xFFB83838);
+  // ---- 기본 팔레트 (다크) ----
+  static const Color bg = Color(0xFF0A0A0A);
+  static const Color surface = Color(0xFF141414);
+  static const Color fg = Color(0xFFF5F5F5);
+  static const Color muted = Color(0xFF8A8A8A);
+  static const Color border = Color(0xFF2A2A2A);
+  static const Color accent = Color(0xFFEE2B2B);
+  static const Color accentPressed = Color(0xFFCC2020);
+
+  // ---- 상태 ----
+  static const Color success = Color(0xFF22C55E);
+  static const Color warning = Color(0xFFF59E0B);
+  static const Color error = Color(0xFFEE2B2B);
+
+  // ---- Tier 색상 (Scaled < RX < RX+ < Elite < Games) ----
+  static const Color tierScaled = Color(0xFF5A5A5A);
+  static const Color tierRx = Color(0xFFEE2B2B);
+  static const Color tierRxPlus = Color(0xFFFF6B00);
+  static const Color tierElite = Color(0xFFC8A84B);
+  static const Color tierGames = Color(0xFFE8E8E8);
 
   static const String fontFamily = 'Pretendard';
 
@@ -18,30 +33,30 @@ class FacingTokens {
 
   static const TextStyle display = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 56,
-    fontWeight: FontWeight.w700,
-    height: 1.10,
-    letterSpacing: -1.12,
+    fontSize: 64,
+    fontWeight: FontWeight.w800,
+    height: 1.05,
+    letterSpacing: -1.6,
     fontFeatures: tabular,
     color: fg,
   );
 
   static const TextStyle h1 = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 40,
-    fontWeight: FontWeight.w700,
-    height: 1.15,
-    letterSpacing: -0.80,
+    fontSize: 44,
+    fontWeight: FontWeight.w800,
+    height: 1.12,
+    letterSpacing: -1.1,
     fontFeatures: tabular,
     color: fg,
   );
 
   static const TextStyle h2 = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: FontWeight.w700,
-    height: 1.20,
-    letterSpacing: -0.28,
+    height: 1.18,
+    letterSpacing: -0.6,
     color: fg,
   );
 
@@ -50,6 +65,7 @@ class FacingTokens {
     fontSize: 20,
     fontWeight: FontWeight.w700,
     height: 1.30,
+    letterSpacing: -0.2,
     color: fg,
   );
 
@@ -57,7 +73,7 @@ class FacingTokens {
     fontFamily: fontFamily,
     fontSize: 18,
     fontWeight: FontWeight.w400,
-    height: 1.50,
+    height: 1.45,
     color: fg,
   );
 
@@ -65,7 +81,7 @@ class FacingTokens {
     fontFamily: fontFamily,
     fontSize: 15,
     fontWeight: FontWeight.w400,
-    height: 1.55,
+    height: 1.50,
     color: fg,
   );
 
@@ -80,9 +96,41 @@ class FacingTokens {
   static const TextStyle micro = TextStyle(
     fontFamily: fontFamily,
     fontSize: 11,
-    fontWeight: FontWeight.w400,
+    fontWeight: FontWeight.w500,
     height: 1.40,
-    letterSpacing: 0.22,
+    letterSpacing: 0.4,
+    color: muted,
+  );
+
+  /// 티어 배지 전용 라벨. 대문자 tracking.
+  static const TextStyle tierLabel = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 12,
+    fontWeight: FontWeight.w800,
+    height: 1.0,
+    letterSpacing: 1.8,
+    color: fg,
+  );
+
+  /// 타이머/결과 숫자 전용.
+  static const TextStyle timer = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 80,
+    fontWeight: FontWeight.w800,
+    height: 1.0,
+    letterSpacing: -2.4,
+    fontFeatures: tabular,
+    color: fg,
+  );
+
+  /// 영어 명언용 serif-ish (Pretendard 유지하되 italic).
+  static const TextStyle quote = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+    fontStyle: FontStyle.italic,
+    height: 1.50,
+    letterSpacing: 0.1,
     color: muted,
   );
 
@@ -108,21 +156,24 @@ class FacingTokens {
 class FacingTheme {
   FacingTheme._();
 
-  static ThemeData get light => ThemeData(
+  static ThemeData get light => dark; // 라이트 모드 미지원. alias.
+
+  static ThemeData get dark => ThemeData(
     useMaterial3: true,
-    brightness: Brightness.light,
+    brightness: Brightness.dark,
     scaffoldBackgroundColor: FacingTokens.bg,
-    colorScheme: const ColorScheme.light(
+    colorScheme: const ColorScheme.dark(
       surface: FacingTokens.bg,
       onSurface: FacingTokens.fg,
+      surfaceContainerHighest: FacingTokens.surface,
       primary: FacingTokens.accent,
-      onPrimary: FacingTokens.bg,
+      onPrimary: FacingTokens.fg,
       secondary: FacingTokens.fg,
       onSecondary: FacingTokens.bg,
       outline: FacingTokens.border,
       onSurfaceVariant: FacingTokens.muted,
-      error: FacingTokens.fg,
-      onError: FacingTokens.bg,
+      error: FacingTokens.error,
+      onError: FacingTokens.fg,
     ),
     fontFamily: FacingTokens.fontFamily,
     textTheme: const TextTheme(
@@ -159,10 +210,13 @@ class FacingTheme {
         }),
         foregroundColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.disabled)) return FacingTokens.muted;
-          return FacingTokens.bg;
+          return FacingTokens.fg;
         }),
         textStyle: WidgetStateProperty.all(
-          FacingTokens.body.copyWith(fontWeight: FontWeight.w700),
+          FacingTokens.body.copyWith(
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.4,
+          ),
         ),
         shape: WidgetStateProperty.all(
           RoundedRectangleBorder(
@@ -177,6 +231,25 @@ class FacingTheme {
         ),
         elevation: WidgetStateProperty.all(0),
         shadowColor: WidgetStateProperty.all(Colors.transparent),
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: ButtonStyle(
+        minimumSize: WidgetStateProperty.all(
+          const Size(double.infinity, FacingTokens.buttonH),
+        ),
+        foregroundColor: WidgetStateProperty.all(FacingTokens.fg),
+        side: WidgetStateProperty.all(
+          const BorderSide(color: FacingTokens.border, width: 1),
+        ),
+        textStyle: WidgetStateProperty.all(
+          FacingTokens.body.copyWith(fontWeight: FontWeight.w700),
+        ),
+        shape: WidgetStateProperty.all(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(FacingTokens.r3),
+          ),
+        ),
       ),
     ),
     dividerTheme: const DividerThemeData(

@@ -4,7 +4,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/api_client.dart';
 import '../../core/device_id.dart';
+import '../../core/quotes.dart';
 import '../../core/theme.dart';
+import '../../widgets/quote_card.dart';
 import '../profile/profile_state.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -55,33 +57,38 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    final q = randomQuote();
+    return Scaffold(
       backgroundColor: FacingTokens.bg,
       body: SafeArea(
-        child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(FacingTokens.sp5),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('facing',
+              const Spacer(),
+              const Text('facing',
                   style: TextStyle(
                     fontFamily: FacingTokens.fontFamily,
-                    fontSize: 56,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -1.0,
+                    fontSize: 72,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -2.0,
                     color: FacingTokens.fg,
                   )),
-              SizedBox(height: FacingTokens.sp2),
-              Text('WOD 페이싱 전략 계산기',
-                  style: FacingTokens.caption),
-              SizedBox(height: FacingTokens.sp6),
-              SizedBox(
-                width: 24,
-                height: 24,
+              const SizedBox(height: FacingTokens.sp2),
+              const Text('Engine · Split · Burst',
+                  style: FacingTokens.micro),
+              const SizedBox(height: FacingTokens.sp6),
+              const SizedBox(
+                width: 22,
+                height: 22,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: FacingTokens.fg,
+                  color: FacingTokens.accent,
                 ),
               ),
+              const Spacer(),
+              QuoteCard(quote: q, compact: true),
+              const SizedBox(height: FacingTokens.sp3),
             ],
           ),
         ),

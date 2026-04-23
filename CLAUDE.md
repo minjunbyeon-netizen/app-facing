@@ -76,12 +76,124 @@ apps/facing-app/
 - 응답 포맷은 백엔드 표준: `{ok: bool, data: {...}, error?: ..., code?: ...}`
 - 실패 시 사용자 친화 에러 메시지 (dio interceptor에서 공통 처리)
 
-## 디자인 원칙 (글로벌 CLAUDE.md 준수)
-- 이모지 금지
-- 색상 5토큰 (bg/fg/muted/border/accent)
-- 폰트 Pretendard 1종, weight 400/700
+## 브랜드 포지셔닝 (단일 진원지 -- v1.11.0 확정)
+> **"CrossFit Games 출전자급 엘리트를 위한 전용 앱."**
+> 일반 피트니스/헬스/다이어트 앱 아님. Scaled→RX→RX+→Elite→Games 티어 사용자 전용.
+> "운동", "헬스", "다이어트", "건강", "체중관리", "웰니스" 용어 전면 금지.
+> 타깃 정체성: Rich Froning / Mat Fraser / Tia Toomey 세대. Mayhem · HWPO · CompTrain · NoBull 톤.
+
+## Voice & Tone (어투 7원칙)
+V1. **반말·명령형 기본.** "~하세요" 금지. "입력." "확인." "계산." 생략형 명령 선호.
+V2. **숫자 없으면 동기부여 문구 금지.** "할 수 있다!" 류 공허한 응원 제거. "Fran 서브 2분, 82%" 식 metric 기반만.
+V3. **한 문장 10단어 이하.** 설명 길어지면 분리 또는 삭제.
+V4. **이모지 금지.** 박수·불꽃 없음. 숫자·기호(→ : %) 만 허용.
+V5. **"당신/귀하" 없음.** 2인칭은 생략 기본. 필요하면 "너".
+V6. **영문 전문 용어는 번역 안 함.** 1RM, AMRAP, EMOM, Metcon, Chipper, Engine, Unbroken 그대로.
+V7. **실패도 전술적으로.** "오류 발생" → "Offline. 연결 복구 시 동기화." 무기력이 아닌 리셋 프레임.
+
+한 줄 브랜드 보이스: **"Games-Player의 언어로, 숫자로만 말한다."**
+
+## 용어 팔레트
+### 사용 (영문 단독 원칙)
+`WOD` `AMRAP` `EMOM` `Metcon` `Chipper` `RX` `RX+` `Scaled` `Elite` `Games` `1RM` `Unbroken` `UB` `Box` `Engine` `Split` `Pacing` `Burst` `PR` `For Time` `Regionals` `Open`
+
+### 병기 규칙
+- **동작명**: 영문 단독 (Thruster / Pull-up / Box Jump / Back Squat / Snatch). 한글 번역 금지.
+- **UI 라벨 (탭/버튼)**: 한글 우선 (저장 / 계산 / 확인).
+- **등급/시스템**: 영문 단독 (RX, Games-Player, Elite tier).
+- **문장 내 혼용 허용**: "Unbroken으로 끊어라" "Engine 측정 완료".
+
+### 금지 용어
+운동 · 헬스 · 다이어트 · 건강 · 체중관리 · 체력증진 · 웰니스 · 칼로리 소모 · "쉬운" · "편리한" · "누구나"
+
+## 티어 시스템 (등급 표기 SSOT)
+백엔드 응답 `overall_number` (1~6) → 프론트에서 5 티어로 매핑:
+
+| number | Tier | 색상 토큰 | 설명 |
+|---|---|---|---|
+| 1 | **Scaled** | `tierScaled` #5A5A5A 회색 | Novice. 스케일드 동작 위주 |
+| 2 | **Scaled** | 동일 | Intermediate low |
+| 3 | **RX** | `tierRx` #EE2B2B 빨강 | RX 표준 달성 |
+| 4 | **RX+** | `tierRxPlus` #FF6B00 주황 | Advanced |
+| 5 | **Elite** | `tierElite` #C8A84B 금색 | Regionals 급 |
+| 6 | **Games** | `tierGames` #E8E8E8 실버 | Games 출전급 (최상위) |
+
+- UI에 "RXD 4/6" 같은 백엔드 내부 코드 노출 금지. 항상 위 5티어 라벨만 사용.
+- 티어 배지: 2px solid 티어 컬러 + 대문자 라벨 + 얇은 padding. 아이콘 없음.
+
+## 디자인 시스템 (v1.11.0 다크 전환)
+### 컬러 토큰 (FacingTokens 기준)
+| 토큰 | 값 | 용도 |
+|---|---|---|
+| `bg` | `#0A0A0A` | 기본 배경 (다크) |
+| `surface` | `#141414` | 카드 / 시트 |
+| `fg` | `#F5F5F5` | 본문 텍스트 |
+| `muted` | `#8A8A8A` | 보조 텍스트 |
+| `border` | `#2A2A2A` | 구분선 / 입력 외곽 |
+| `accent` | `#EE2B2B` | CrossFit red (primary CTA) |
+| `accentPressed` | `#CC2020` | 눌림 |
+| `success` | `#22C55E` | +델타, 성취 |
+| `warning` | `#F59E0B` | 주의 |
+| 5 tier 색 | 위 표 참조 | 티어 배지 전용 |
+
+### 타이포그래피
+- Pretendard 유지 (Variable, weight 400/700/800).
+- display/h1/h2는 w800 + negative letterSpacing.
+- `timer` 스타일 추가: 80sp w800 tabular. 카운트다운·결과 숫자 전용.
+- Phase 2에 Barlow Condensed 영문 전용 추가 검토.
+
+### 인터랙션
+- splashFactory = NoSplash 유지.
+- 버튼 press scale 0.97 → 1.0 (100ms).
+- PageView 전환 250ms easeInOut.
+- 카운트다운/결과 공개 시점에 HapticFeedback.heavyImpact (Phase 2).
+
+## 명언 시스템 (Quote)
+`lib/core/quotes.dart` 에 상수 배열로 관리. 3곳에 랜덤/고정 노출:
+1. SplashScreen 하단 (랜덤 1개)
+2. 계산 로딩 오버레이 (랜덤 1개)
+3. 등급 결과 화면 상단 (overall_number 해시로 고정 1개 — 같은 등급이면 같은 명언)
+
+### 채택 명언 10개 (표시 시 저자 포함, 영문 그대로)
+1. `"The only way out is through."` — Robert Frost
+2. `"Do the work. Every day."` — Rich Froning Jr.
+3. `"Train hard. Win easy."` — CrossFit community
+4. `"Comfort is the enemy of progress."` — P.T. Barnum
+5. `"Fatigue makes cowards of us all."` — Vince Lombardi
+6. `"Earn it."` — HWPO
+7. `"You don't rise to the level of your goals. You fall to the level of your systems."` — James Clear
+8. `"Pain is temporary. The score is permanent."` — CrossFit Games
+9. `"Impossible isn't far."` — Camille Leblanc-Bazinet
+10. `"Everyone wants to win. Not everyone wants to prepare to win."` — Mat Fraser
+
+추가 시 엘리트 athlete 인용 + 1줄 이내 + 동기부여가 아닌 사실 진술 성격만.
+
+## 카피 템플릿 (화면별 SSOT)
+| 위치 | 카피 |
+|---|---|
+| Intro 1 | **"Split이 순위를 만든다."** |
+| Intro 2 | **"6개 지표. Engine을 측정한다."** |
+| Intro 3 | **"시작해라."** |
+| Home headline | **"오늘 WOD. Split 뽑아라."** |
+| Home sub | **"RX부터 Games까지. Split · Burst 자동 계산."** |
+| Step 1 title | **"1RM 입력."** (sub: "체중·키는 등급 산정 기준.") |
+| Benchmarks hint | **"아는 것만. 빈 칸은 추론."** |
+| Loading | **"계산 중."** (sub: "6 카테고리 Engine 측정.") |
+| Submit 버튼 | **"Engine 측정"** |
+| Grade header | **"너의 Tier."** |
+| CTA 홈 이동 | **"WOD 시작"** |
+| Offline | **"Offline. 연결 시 동기화."** |
+| Calc error | **"계산 실패. 재시도."** |
+| Empty profile | **"1RM 없음. 먼저 입력."** |
+
+## 디자인 원칙 (글로벌 + facing 전용)
+- 이모지 금지 (V4)
+- 다크 배경 기본 (`bg=#0A0A0A`). 라이트 모드 제공 안 함.
+- 색상 9토큰 + 5 tier 색 (bg/surface/fg/muted/border/accent/accentPressed/success/warning + tier×5)
+- 폰트 Pretendard 1종 (weight 400/700/800)
 - 그라디언트/과도한 그림자 금지
 - ROW 우선, 여백 충분히
+- 사진/일러스트 없음. 타이포+수치 중심.
 
 ## 로컬 실행
 ```bash

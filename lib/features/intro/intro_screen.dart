@@ -16,19 +16,19 @@ class _IntroScreenState extends State<IntroScreen> {
 
   static const List<_IntroPage> _pages = [
     _IntroPage(
-      title: '페이싱이 승패를 가른다',
-      body: '처음 1분 전력질주는 마지막 5분을 무너뜨립니다.\n'
-          '논문 근거 공식으로 당신만의 분할·폭발 시점을 계산합니다.',
+      title: 'Split이 순위를 만든다.',
+      body: '첫 1분 all-out은 마지막 5분을 부순다.\n'
+          '논문 공식으로 Split · Burst 시점을 계산한다.',
     ),
     _IntroPage(
-      title: '6단계로 능력치 진단',
-      body: '기본 정보 + 5개 카테고리(파워·역도·짐내·카디오·메타콘).\n'
-          '아는 만큼만 입력하면 나머지는 추론됩니다.',
+      title: '6개 지표. Engine을 측정한다.',
+      body: 'Body · Power · Olympic · Gymnastics · Cardio · Metcon.\n'
+          '아는 것만. 빈 칸은 자동 추론.',
     ),
     _IntroPage(
-      title: '지금 시작해 봅시다',
-      body: '프로필은 언제든 수정 가능합니다.\n'
-          'WOD 입력하면 즉시 전략이 나옵니다.',
+      title: '시작해라.',
+      body: '프로필은 언제든 수정 가능.\n'
+          'WOD 붙이면 즉시 전략 출력.',
     ),
   ];
 

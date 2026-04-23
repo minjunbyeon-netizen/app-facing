@@ -15,7 +15,7 @@ class OfflineBanner extends StatelessWidget {
         if (state.isOnline) return const SizedBox.shrink();
         return Container(
           width: double.infinity,
-          color: FacingTokens.fg,
+          color: FacingTokens.surface,
           padding: const EdgeInsets.symmetric(
             horizontal: FacingTokens.sp4,
             vertical: FacingTokens.sp2,
@@ -24,11 +24,12 @@ class OfflineBanner extends StatelessWidget {
             top: false,
             bottom: false,
             child: Text(
-              '오프라인 상태 · 연결되면 자동으로 동기화됩니다',
+              'OFFLINE · 연결 시 동기화',
               style: TextStyle(
-                color: FacingTokens.bg,
+                color: FacingTokens.accent,
                 fontSize: 12,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 1.4,
                 fontFamily: FacingTokens.fontFamily,
               ),
               textAlign: TextAlign.center,
