@@ -25,8 +25,8 @@ class OnboardingGradeScreen extends StatelessWidget {
     final tier = Tier.fromOverallNumber(
         overallNumber is num ? overallNumber : null);
     final score = grade['overall_score'];
-    final quote = stableQuote(
-        (overallNumber is num ? overallNumber.round() : 0) * 7 + 3);
+    // v1.15: Tier별 고정 명언 (VISUAL_CONCEPT.md 3.2 SSOT)
+    final quote = Quote(tier.quote, tier.subtitle);
 
     return Scaffold(
       appBar: AppBar(

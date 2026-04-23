@@ -66,7 +66,7 @@ class HomeScreen extends StatelessWidget {
                   );
                 },
               ),
-              const Text("Today's WOD.\nPull your Split.", style: FacingTokens.h1),
+              const Text("오늘 WOD.\nSplit 뽑아라.", style: FacingTokens.h1),
               const SizedBox(height: FacingTokens.sp2),
               const Text(
                 'RX부터 Games까지. Split과 Burst 자동 계산.',

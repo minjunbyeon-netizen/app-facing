@@ -77,20 +77,27 @@ class _ResultScreenState extends State<ResultScreen> {
           if (snap.hasError) {
             final e = snap.error;
             final msg = e is AppException
-                ? '${e.messageKo}${e.code != null ? " (${e.code})" : ""}'
-                : e.toString();
+                ? e.messageKo
+                : '계산 실패. 재시도.';
             return Padding(
               padding: const EdgeInsets.all(FacingTokens.sp4),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(FacingTokens.sp3),
+                    padding: const EdgeInsets.all(FacingTokens.sp4),
                     decoration: BoxDecoration(
                       color: FacingTokens.surface,
                       borderRadius: BorderRadius.circular(FacingTokens.r2),
                     ),
                     child: Text(msg, style: FacingTokens.body),
+                  ),
+                  const SizedBox(height: FacingTokens.sp3),
+                  OutlinedButton(
+                    onPressed: () => setState(() {
+                      _future = _calculate();
+                    }),
+                    child: const Text('재시도'),
                   ),
                 ],
               ),
