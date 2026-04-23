@@ -41,12 +41,12 @@ class _PresetsScreenState extends State<PresetsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('프리셋 WOD')),
+      appBar: AppBar(title: const Text('Preset WODs')),
       body: FutureBuilder<(List<PresetWod>, Map<String, Movement>)>(
         future: _future,
         builder: (ctx, snap) {
           if (snap.connectionState != ConnectionState.done) {
-            return const Center(child: Text('불러오는 중', style: FacingTokens.body));
+            return const Center(child: Text('Loading.', style: FacingTokens.body));
           }
           if (snap.hasError) {
             return Padding(
@@ -98,7 +98,7 @@ class _FilterBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tabs = <(String, String)>[
-      ('all', '전체'),
+      ('all', 'All'),
       ('girl', 'Girls'),
       ('hero', 'Heroes'),
     ];

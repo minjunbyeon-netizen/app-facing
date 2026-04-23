@@ -17,8 +17,8 @@ class OnboardingGradeScreen extends StatelessWidget {
     final grade = p.gradeResult;
     if (grade == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('결과 · Tier')),
-        body: const Center(child: Text('데이터 없음.', style: FacingTokens.body)),
+        appBar: AppBar(title: const Text('Your Tier')),
+        body: const Center(child: Text('No data.', style: FacingTokens.body)),
       );
     }
     final overallNumber = grade['overall_number'];
@@ -30,7 +30,7 @@ class OnboardingGradeScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('너의 Tier'),
+        title: const Text('Your Tier'),
         automaticallyImplyLeading: false,
       ),
       body: SafeArea(
@@ -77,7 +77,8 @@ class OnboardingGradeScreen extends StatelessWidget {
                   ],
                   const SizedBox(height: FacingTokens.sp6),
                   const Text(
-                    'Tier에 맞춰 Split · Burst 자동 조정. 언제든 프로필에서 수정.',
+                    'Tier에 맞춰 Split과 Burst 자동 조정.\n'
+                    '언제든 Profile에서 수정.',
                     style: FacingTokens.caption,
                   ),
                 ],
@@ -90,7 +91,7 @@ class OnboardingGradeScreen extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () => Navigator.of(context)
                       .pushNamedAndRemoveUntil('/home', (_) => false),
-                  child: const Text('WOD 시작'),
+                  child: const Text('Start WOD'),
                 ),
               ),
             ),
@@ -144,7 +145,7 @@ class _CategoryCard extends StatelessWidget {
           ),
           if (missing.isNotEmpty) ...[
             const SizedBox(height: FacingTokens.sp2),
-            Text('측정 추가 ${missing.length}개 → 정확도 상승',
+            Text('${missing.length} more input → higher accuracy',
                 style: FacingTokens.micro),
           ],
         ],

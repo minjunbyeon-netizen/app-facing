@@ -24,7 +24,7 @@ class OfflineBanner extends StatelessWidget {
             top: false,
             bottom: false,
             child: Text(
-              'OFFLINE · 연결 시 동기화',
+              'OFFLINE · SYNC ON RECONNECT',
               style: TextStyle(
                 color: FacingTokens.accent,
                 fontSize: 12,

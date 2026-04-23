@@ -29,14 +29,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('내 프로필'),
+        title: const Text('Profile'),
         automaticallyImplyLeading: !widget.isOnboarding,
       ),
       body: FutureBuilder<List<MovementCategory>>(
         future: _future,
         builder: (ctx, snap) {
           if (snap.connectionState != ConnectionState.done) {
-            return const Center(child: Text('불러오는 중', style: FacingTokens.body));
+            return const Center(child: Text('Loading.', style: FacingTokens.body));
           }
           if (snap.hasError) {
             return Center(
@@ -75,11 +75,11 @@ class _ProfileFormState extends State<_ProfileForm> {
         FacingTokens.sp4, FacingTokens.sp3, FacingTokens.sp4, FacingTokens.sp8,
       ),
       children: [
-        const Text('체중', style: FacingTokens.h3),
+        const Text('Body Weight', style: FacingTokens.h3),
         const SizedBox(height: FacingTokens.sp2),
         _NumberField(
           value: state.bodyWeightKg,
-          hint: '예: 75',
+          hint: 'e.g. 75',
           suffix: 'kg',
           onChanged: (v) => state.setBasic(bodyWeightKg: v),
         ),
@@ -98,7 +98,7 @@ class _ProfileFormState extends State<_ProfileForm> {
             onPressed: state.isEmpty ? null : () {
               Navigator.of(context).pushReplacementNamed('/home');
             },
-            child: const Text('완료'),
+            child: const Text('Done'),
           ),
         ],
       ],
@@ -147,9 +147,9 @@ class _MovementMaxRow extends StatelessWidget {
 
   String _metricSuffix(String m) {
     switch (m) {
-      case 'max_unbroken': return '회';
+      case 'max_unbroken': return 'reps';
       case 'one_rep_max': return 'lb';
-      case 'max_pace_sec_per_500m': return '초';
+      case 'max_pace_sec_per_500m': return 'sec';
       default: return '';
     }
   }

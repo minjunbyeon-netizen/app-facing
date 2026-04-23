@@ -17,6 +17,9 @@ import 'features/presets/presets_screen.dart';
 import 'features/profile/profile_screen.dart';
 import 'features/profile/profile_state.dart';
 import 'features/splash/splash_screen.dart';
+import 'features/history/history_detail_screen.dart';
+import 'features/history/history_screen.dart';
+import 'features/mypage/mypage_screen.dart';
 import 'features/wod_builder/wod_builder_screen.dart';
 import 'features/wod_builder/wod_draft_state.dart';
 
@@ -68,7 +71,7 @@ class FacingApp extends StatelessWidget {
         ChangeNotifierProvider<WodDraftState>(create: (_) => WodDraftState()),
       ],
       child: MaterialApp(
-        title: 'facing',
+        title: 'FACING',
         theme: FacingTheme.light,
         debugShowCheckedModeBanner: false,
         initialRoute: '/splash',
@@ -80,9 +83,23 @@ class FacingApp extends StatelessWidget {
           '/onboarding/grade': (_) => const OnboardingGradeScreen(),
           '/home': (_) => const HomeScreen(),
           '/profile': (_) => const ProfileScreen(),
+          '/mypage': (_) => const MyPageScreen(),
+          '/history': (_) => const HistoryScreen(),
           '/builder': (_) => const WodBuilderScreen(),
           '/presets': (_) => const PresetsScreen(),
           '/result': (_) => const ResultScreen(),
+        },
+        onGenerateRoute: (settings) {
+          if (settings.name == '/history/detail') {
+            final id = settings.arguments is int
+                ? settings.arguments as int
+                : 0;
+            return MaterialPageRoute(
+              builder: (_) => HistoryDetailScreen(recordId: id),
+              settings: settings,
+            );
+          }
+          return null;
         },
       ),
     );

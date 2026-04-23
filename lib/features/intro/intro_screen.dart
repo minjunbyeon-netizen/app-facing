@@ -16,18 +16,18 @@ class _IntroScreenState extends State<IntroScreen> {
 
   static const List<_IntroPage> _pages = [
     _IntroPage(
-      title: 'Split이 순위를 만든다.',
+      title: 'Split defines rank.',
       body: '첫 1분 all-out은 마지막 5분을 부순다.\n'
-          '논문 공식으로 Split · Burst 시점을 계산한다.',
+          '논문 공식으로 Split과 Burst 시점을 계산한다.',
     ),
     _IntroPage(
-      title: '6개 지표. Engine을 측정한다.',
+      title: '6 metrics.\nMeasure Engine.',
       body: 'Body · Power · Olympic · Gymnastics · Cardio · Metcon.\n'
           '아는 것만. 빈 칸은 자동 추론.',
     ),
     _IntroPage(
-      title: '시작해라.',
-      body: '프로필은 언제든 수정 가능.\n'
+      title: 'Start.',
+      body: 'Profile은 언제든 수정 가능.\n'
           'WOD 붙이면 즉시 전략 출력.',
     ),
   ];
@@ -72,7 +72,7 @@ class _IntroScreenState extends State<IntroScreen> {
                 ),
                 child: TextButton(
                   onPressed: _finish,
-                  child: const Text('건너뛰기',
+                  child: const Text('Skip',
                       style: TextStyle(color: FacingTokens.muted)),
                 ),
               ),
@@ -106,7 +106,7 @@ class _IntroScreenState extends State<IntroScreen> {
               padding: const EdgeInsets.all(FacingTokens.sp4),
               child: ElevatedButton(
                 onPressed: _next,
-                child: Text(isLast ? '시작하기' : '다음'),
+                child: Text(isLast ? 'Start' : 'Next'),
               ),
             ),
           ],

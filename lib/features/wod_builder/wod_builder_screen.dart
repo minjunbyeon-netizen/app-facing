@@ -38,11 +38,11 @@ class _WodBuilderScreenState extends State<WodBuilderScreen> {
     final draft = context.watch<WodDraftState>();
     return Scaffold(
       appBar: AppBar(
-        title: const Text('WOD 구성'),
+        title: const Text('Build WOD'),
         actions: [
           TextButton(
             onPressed: draft.isEmpty ? null : () => draft.clear(),
-            child: const Text('초기화'),
+            child: const Text('Reset'),
           ),
         ],
       ),
@@ -50,7 +50,7 @@ class _WodBuilderScreenState extends State<WodBuilderScreen> {
         future: _future,
         builder: (ctx, snap) {
           if (snap.connectionState != ConnectionState.done) {
-            return const Center(child: Text('불러오는 중', style: FacingTokens.body));
+            return const Center(child: Text('Loading.', style: FacingTokens.body));
           }
           if (snap.hasError) {
             return Center(child: Text('${snap.error}', style: FacingTokens.body));
@@ -90,7 +90,7 @@ class _Body extends StatelessWidget {
               FacingTokens.sp4, FacingTokens.sp4, FacingTokens.sp4, FacingTokens.sp4,
             ),
             children: [
-              const Text('WOD 타입', style: FacingTokens.caption),
+              const Text('WOD Type', style: FacingTokens.caption),
               const SizedBox(height: FacingTokens.sp2),
               _TypeSegmented(draft: draft),
               const SizedBox(height: FacingTokens.sp5),
@@ -98,7 +98,7 @@ class _Body extends StatelessWidget {
                 children: [
                   Expanded(
                     child: _MiniField(
-                      label: '타임캡 (분)',
+                      label: 'Time Cap (min)',
                       controller: timeCapCtrl,
                       onChanged: (v) {
                         final m = int.tryParse(v);
@@ -110,7 +110,7 @@ class _Body extends StatelessWidget {
                   if (draft.type != WodType.forTime)
                     Expanded(
                       child: _MiniField(
-                        label: draft.type == WodType.amrap ? '라운드 (선택)' : '분',
+                        label: draft.type == WodType.amrap ? 'Rounds (opt)' : 'Minutes',
                         controller: roundsCtrl,
                         onChanged: (v) => draft.setRounds(int.tryParse(v)),
                       ),
@@ -118,7 +118,7 @@ class _Body extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: FacingTokens.sp6),
-              const Text('동작', style: FacingTokens.caption),
+              const Text('Movements', style: FacingTokens.caption),
               const SizedBox(height: FacingTokens.sp2),
               if (draft.items.isEmpty)
                 Container(
@@ -128,7 +128,7 @@ class _Body extends StatelessWidget {
                     borderRadius: BorderRadius.circular(FacingTokens.r2),
                   ),
                   child: const Text(
-                    '아래 버튼으로 동작을 추가하세요',
+                    'Tap button below to add a movement.',
                     style: FacingTokens.caption,
                   ),
                 )
@@ -143,7 +143,7 @@ class _Body extends StatelessWidget {
                       alignment: Alignment.centerRight,
                       padding: const EdgeInsets.only(right: FacingTokens.sp4),
                       color: FacingTokens.border,
-                      child: const Text('삭제', style: FacingTokens.body),
+                      child: const Text('Delete', style: FacingTokens.body),
                     ),
                     child: _ItemRow(index: i + 1, item: item),
                   );
@@ -154,7 +154,7 @@ class _Body extends StatelessWidget {
                   final added = await showMovementPicker(context, cats);
                   if (added != null) draft.addItem(added);
                 },
-                child: const Text('동작 추가'),
+                child: const Text('Add Movement'),
               ),
             ],
           ),
@@ -167,7 +167,7 @@ class _Body extends StatelessWidget {
               onPressed: draft.isEmpty
                   ? null
                   : () => Navigator.of(context).pushNamed('/result'),
-              child: const Text('계산'),
+              child: const Text('Calculate'),
             ),
           ),
         ),

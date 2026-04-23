@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -5,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../core/api_client.dart';
 import '../../core/theme.dart';
 import '../../core/unit_state.dart';
+import '../history/history_repository.dart';
 import '../profile/profile_state.dart';
 
 /// v1.10.0 위저드 — 5 카테고리(파워/역도/짐내/카디오/메타콘) PageView.
@@ -30,7 +33,7 @@ class _OnboardingBenchmarksScreenState
     _Category(
       key: 'power',
       title: 'POWER',
-      hint: 'Powerlifting + OHP · SBD + OHP 1RM',
+      hint: 'SBD + OHP · 1RM',
       fields: [
         'back_squat_1rm_lb',
         'front_squat_1rm_lb',
@@ -42,7 +45,7 @@ class _OnboardingBenchmarksScreenState
     _Category(
       key: 'olympic',
       title: 'OLYMPIC',
-      hint: 'Clean / Snatch 5종',
+      hint: 'Clean · Snatch · 1RM',
       fields: [
         'clean_1rm_lb',
         'clean_and_jerk_1rm_lb',
@@ -54,7 +57,7 @@ class _OnboardingBenchmarksScreenState
     _Category(
       key: 'gymnastics',
       title: 'GYMNASTICS',
-      hint: 'Max Unbroken / 1분 Max',
+      hint: 'Max Unbroken · 1-min Max',
       fields: [
         'strict_pull_up_max_ub',
         'chest_to_bar_max_ub',
@@ -79,7 +82,7 @@ class _OnboardingBenchmarksScreenState
     _Category(
       key: 'metcon',
       title: 'METCON',
-      hint: '1분 Max · 멘탈 capacity',
+      hint: '1-min Max · Capacity',
       fields: [
         'burpee_per_min',
         'double_under_per_min',
@@ -92,63 +95,63 @@ class _OnboardingBenchmarksScreenState
 
   static const Map<String, (String label, String suffix, String hint, String help)>
       _meta = {
-    // 파워
+    // Power
     'back_squat_1rm_lb':
-        ('백스쿼트 1RM', 'lb', '예: 315', '전 근력 기초'),
+        ('Back Squat 1RM', 'lb', 'e.g. 315', 'Base strength.'),
     'front_squat_1rm_lb':
-        ('프론트스쿼트 1RM', 'lb', '예: 255', '클린 받기 자세'),
+        ('Front Squat 1RM', 'lb', 'e.g. 255', 'Clean receive position.'),
     'bench_press_1rm_lb':
-        ('벤치프레스 1RM', 'lb', '예: 225', '상체 푸시'),
+        ('Bench Press 1RM', 'lb', 'e.g. 225', 'Upper-body push.'),
     'deadlift_1rm_lb':
-        ('데드리프트 1RM', 'lb', '예: 405', '포스 능력'),
+        ('Deadlift 1RM', 'lb', 'e.g. 405', 'Posterior chain force.'),
     'ohp_1rm_lb':
-        ('OHP 1RM', 'lb', '예: 135', '오버헤드 프레스 (strict)'),
-    // 역도
+        ('OHP 1RM', 'lb', 'e.g. 135', 'Strict overhead press.'),
+    // Olympic
     'clean_1rm_lb':
-        ('클린 1RM', 'lb', '예: 225', 'Squat 받기'),
+        ('Clean 1RM', 'lb', 'e.g. 225', 'Full squat catch.'),
     'clean_and_jerk_1rm_lb':
-        ('클린 앤 저크 1RM', 'lb', '예: 215', '전체 lift'),
+        ('Clean & Jerk 1RM', 'lb', 'e.g. 215', 'Full lift.'),
     'snatch_1rm_lb':
-        ('스내치 1RM', 'lb', '예: 165', 'Squat 받기 (한 번)'),
+        ('Snatch 1RM', 'lb', 'e.g. 165', 'Full squat catch, one motion.'),
     'power_clean_1rm_lb':
-        ('파워 클린 1RM', 'lb', '예: 195', 'High catch'),
+        ('Power Clean 1RM', 'lb', 'e.g. 195', 'High catch.'),
     'power_snatch_1rm_lb':
-        ('파워 스내치 1RM', 'lb', '예: 145', 'High catch'),
-    // 짐내스틱
+        ('Power Snatch 1RM', 'lb', 'e.g. 145', 'High catch.'),
+    // Gymnastics
     'strict_pull_up_max_ub':
-        ('Strict 풀업 Max', '회', '예: 12', 'kipping X 순수 strict'),
+        ('Strict Pull-up Max', 'reps', 'e.g. 12', 'No kip. Pure strict.'),
     'chest_to_bar_max_ub':
-        ('체투바 (CTB) Max', '회', '예: 18', '가슴 닿는 풀업'),
+        ('Chest-to-Bar Max', 'reps', 'e.g. 18', 'Chest touches the bar.'),
     'hspu_max_ub':
-        ('HSPU Max', '회', '예: 10', '핸드스탠드 푸쉬업'),
+        ('HSPU Max', 'reps', 'e.g. 10', 'Handstand push-up.'),
     'bar_muscle_up_max_ub':
-        ('바 머슬업 Max', '회', '예: 8', '바 머슬업'),
+        ('Bar Muscle-up Max', 'reps', 'e.g. 8', 'Bar muscle-up.'),
     'ring_muscle_up_max_ub':
-        ('링 머슬업 Max', '회', '예: 5', '링 머슬업'),
+        ('Ring Muscle-up Max', 'reps', 'e.g. 5', 'Ring muscle-up.'),
     'toes_to_bar_max_ub':
-        ('T2B Max', '회', '예: 25', '코어 지구력'),
+        ('T2B Max', 'reps', 'e.g. 25', 'Core endurance.'),
     'push_up_per_min':
-        ('푸시업 1분 Max', '회', '예: 45', '신체 밸런스 (보조)'),
-    // 카디오
+        ('Push-up 1-min Max', 'reps', 'e.g. 45', 'Auxiliary balance metric.'),
+    // Cardio
     'run_mile_sec':
-        ('1마일 런 (초)', '초', '예: 360 (6:00)', '달리기 핵심'),
+        ('1-mile Run', 'sec', 'e.g. 360 (6:00)', 'Running benchmark.'),
     'row_500m_sec':
-        ('500m 로잉 (초)', '초', '예: 95 (1:35)', '파워 카디오'),
+        ('500m Row', 'sec', 'e.g. 95 (1:35)', 'Power cardio.'),
     'row_2km_sec':
-        ('2km 로잉 (초)', '초', '예: 440 (7:20)', '카디오 지구력'),
+        ('2km Row', 'sec', 'e.g. 440 (7:20)', 'Cardio endurance.'),
     'cooper_12min_meters':
-        ('Cooper 12분 거리 (m)', 'm', '예: 2800', '12분 동안 달린 거리'),
-    // 메타콘
+        ('Cooper 12-min (m)', 'm', 'e.g. 2800', 'Distance in 12 min.'),
+    // Metcon
     'burpee_per_min':
-        ('버피 1분 Max', '회', '예: 22', '전신 메콘'),
+        ('Burpee 1-min Max', 'reps', 'e.g. 22', 'Whole-body metcon.'),
     'double_under_per_min':
-        ('더블언더 1분 Max', '회', '예: 110', '코디네이션'),
+        ('Double-under 1-min Max', 'reps', 'e.g. 110', 'Coordination.'),
     'assault_bike_per_min':
-        ('어썰트바이크 1분 cal', 'cal', '예: 22', '카디오 + 멘탈'),
+        ('Assault Bike 1-min', 'cal', 'e.g. 22', 'Cardio + mental.'),
     'wall_ball_per_min':
-        ('월볼 1분 Max', '회', '예: 22', '@20lb / 14lb'),
+        ('Wall Ball 1-min Max', 'reps', 'e.g. 22', '@20lb / 14lb.'),
     'box_jump_per_min':
-        ('박스점프 1분 Max', '회', '예: 18', '@24" / 20"'),
+        ('Box Jump 1-min Max', 'reps', 'e.g. 18', '@24" / 20".'),
   };
 
   static List<String> get _allFields =>
@@ -235,6 +238,10 @@ class _OnboardingBenchmarksScreenState
       final result =
           await api.post('/api/v1/profile/grade', p.toGradePayload());
       p.setGradeResult(result);
+
+      // fire-and-forget: Engine snapshot 저장. 실패해도 UX 진행.
+      unawaited(_saveEngineSnapshot(api, result));
+
       await minShow;
       if (mounted) {
         _hideLoadingOverlay();
@@ -244,10 +251,43 @@ class _OnboardingBenchmarksScreenState
       await minShow;
       if (mounted) {
         _hideLoadingOverlay();
-        setState(() => _error = '계산 실패. 재시도.');
+        setState(() => _error = 'Calc failed. Retry.');
       }
     } finally {
       if (mounted) setState(() => _submitting = false);
+    }
+  }
+
+  Future<void> _saveEngineSnapshot(ApiClient api, Map<String, dynamic> result) async {
+    try {
+      final repo = HistoryRepository(api);
+      double? catScore(String key) {
+        final c = result[key];
+        if (c is Map && c['score'] is num) return (c['score'] as num).toDouble();
+        return null;
+      }
+      int itemsUsed = 0;
+      for (final key in const ['gymnastics', 'weightlifting', 'cardio',
+                                'power', 'olympic', 'metcon']) {
+        final c = result[key];
+        if (c is Map && c['items_used'] is num) {
+          itemsUsed += (c['items_used'] as num).toInt();
+        }
+      }
+      await repo.saveEngineSnapshot({
+        'overall_score': result['overall_score'],
+        'overall_number': result['overall_number'],
+        'overall_label': result['overall'],
+        'gymnastics_score': catScore('gymnastics'),
+        'weightlifting_score': catScore('weightlifting'),
+        'cardio_score': catScore('cardio'),
+        'power_score': catScore('power'),
+        'olympic_score': catScore('olympic'),
+        'metcon_score': catScore('metcon'),
+        'items_used': itemsUsed,
+      });
+    } catch (_) {
+      // 저장 실패는 로그만. UX는 영향 없음.
     }
   }
 
@@ -276,7 +316,7 @@ class _OnboardingBenchmarksScreenState
     final progress = stepNumber / 6;
     final pct = (progress * 100).round();
     return Scaffold(
-      appBar: AppBar(title: Text('$stepNumber / 6 · ${_categories[_page].title}')),
+      appBar: AppBar(title: Text('Step $stepNumber / 6 · ${_categories[_page].title}')),
       body: SafeArea(
         child: Column(
           children: [
@@ -295,10 +335,10 @@ class _OnboardingBenchmarksScreenState
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '$stepNumber / 6 단계',
+                        'Step $stepNumber / 6',
                         style: FacingTokens.caption,
                       ),
-                      Text('$pct% 완료', style: FacingTokens.caption),
+                      Text('$pct%', style: FacingTokens.caption),
                     ],
                   ),
                   const SizedBox(height: FacingTokens.sp1),
@@ -343,7 +383,7 @@ class _OnboardingBenchmarksScreenState
                       Expanded(
                         child: OutlinedButton(
                           onPressed: _submitting ? null : _prev,
-                          child: const Text('← 이전'),
+                          child: const Text('← Back'),
                         ),
                       ),
                     if (_page > 0) const SizedBox(width: FacingTokens.sp3),
@@ -353,10 +393,10 @@ class _OnboardingBenchmarksScreenState
                         onPressed: _submitting ? null : _next,
                         child: Text(
                           _submitting
-                              ? '계산 중'
+                              ? 'Calculating'
                               : (_isLastPage
-                                  ? (_anyFilled ? 'Engine 측정' : '건너뛰고 Tier 확인')
-                                  : '다음'),
+                                  ? (_anyFilled ? 'Measure Engine' : 'Skip · See Tier')
+                                  : 'Next'),
                         ),
                       ),
                     ),
@@ -380,7 +420,7 @@ class _OnboardingBenchmarksScreenState
         Text(cat.hint, style: FacingTokens.caption),
         const SizedBox(height: FacingTokens.sp1),
         const Text(
-          '아는 것만. 빈 칸은 추론.',
+          '아는 것만 입력. 빈 칸은 자동 추론.',
           style: FacingTokens.caption,
         ),
         const SizedBox(height: FacingTokens.sp4),
@@ -405,7 +445,7 @@ class _OnboardingBenchmarksScreenState
   }
 
   String _lbHintToKgHint(String lbHint) {
-    // "예: 315" → lb 숫자를 대략 kg로 치환. 힌트라 반올림 허용.
+    // "e.g. 315" → lb 숫자를 대략 kg로 치환. 힌트라 반올림 허용.
     final match = RegExp(r'(\d+)').firstMatch(lbHint);
     if (match == null) return lbHint;
     final lb = int.parse(match.group(1)!);
@@ -450,9 +490,9 @@ class _ComputeLoadingDialog extends StatelessWidget {
                 ),
               ),
               SizedBox(height: FacingTokens.sp3),
-              Text('계산 중', style: FacingTokens.body),
+              Text('Calculating.', style: FacingTokens.body),
               SizedBox(height: FacingTokens.sp1),
-              Text('Engine 측정 · 6 카테고리 Tier 산출',
+              Text('Engine · 6 categories · Tier',
                   style: FacingTokens.caption),
             ],
           ),
@@ -524,7 +564,7 @@ class _BenchmarkRowState extends State<_BenchmarkRow> {
                   widget.onChanged('');
                   setState(() {});
                 },
-                child: const Text('모름',
+                child: const Text('Unknown',
                     style: TextStyle(
                         fontSize: 12, color: FacingTokens.muted)),
               ),

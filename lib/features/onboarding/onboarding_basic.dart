@@ -55,7 +55,7 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('1 / 6 · BODY')),
+      appBar: AppBar(title: const Text('Step 1 / 6 · BODY')),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(FacingTokens.sp4),
@@ -63,7 +63,7 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: FacingTokens.sp3),
-              const Text('1RM 입력 전 · Body.', style: FacingTokens.h2),
+              const Text('Body.', style: FacingTokens.h2),
               const SizedBox(height: FacingTokens.sp1),
               const Text(
                 '체중·키는 Tier 산정 기준. 성별·경력은 난이도 보정.',
@@ -72,40 +72,40 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
               const SizedBox(height: FacingTokens.sp6),
               Consumer<UnitState>(
                 builder: (ctx, u, _) => _Row(
-                  label: '체중 (${u.weightSuffix})',
+                  label: 'Body Weight (${u.weightSuffix})',
                   child: _Input(
                     controller: _weight,
-                    hint: u.isKg ? '예: 75' : '예: 165',
+                    hint: u.isKg ? 'e.g. 75' : 'e.g. 165',
                     suffix: u.weightSuffix,
                     onChanged: (_) => setState(() {}),
                   ),
                 ),
               ),
               const SizedBox(height: FacingTokens.sp4),
-              _Row(label: '키 (cm)', child: _Input(
-                controller: _height, hint: '예: 176', suffix: 'cm',
+              _Row(label: 'Height (cm)', child: _Input(
+                controller: _height, hint: 'e.g. 176', suffix: 'cm',
                 onChanged: (_) => setState(() {}),
               )),
               const SizedBox(height: FacingTokens.sp4),
-              _Row(label: '만 나이', child: _Input(
-                controller: _age, hint: '예: 32', suffix: '세',
+              _Row(label: 'Age', child: _Input(
+                controller: _age, hint: 'e.g. 32', suffix: 'yr',
                 onChanged: (_) => setState(() {}),
               )),
               const SizedBox(height: FacingTokens.sp4),
-              _Row(label: '성별', child: _GenderToggle(
+              _Row(label: 'Sex', child: _GenderToggle(
                 value: _gender,
                 onChanged: (g) => setState(() => _gender = g),
               )),
               const SizedBox(height: FacingTokens.sp4),
-              _Row(label: 'CrossFit 경력 (년)', child: _Input(
-                controller: _years, hint: '예: 3',
-                suffix: '년',
+              _Row(label: 'CrossFit XP (yr)', child: _Input(
+                controller: _years, hint: 'e.g. 3',
+                suffix: 'yr',
                 onChanged: (_) => setState(() {}),
               )),
               const Spacer(),
               ElevatedButton(
                 onPressed: _canContinue ? _onNext : null,
-                child: const Text('다음'),
+                child: const Text('Next'),
               ),
             ],
           ),
@@ -199,13 +199,13 @@ class _GenderToggle extends StatelessWidget {
     return Row(
       children: [
         _Pill(
-          label: '남성',
+          label: 'Male',
           selected: value == 'male',
           onTap: () => onChanged('male'),
         ),
         const SizedBox(width: FacingTokens.sp2),
         _Pill(
-          label: '여성',
+          label: 'Female',
           selected: value == 'female',
           onTap: () => onChanged('female'),
         ),
