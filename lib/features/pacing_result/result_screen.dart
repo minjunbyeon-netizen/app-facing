@@ -109,8 +109,9 @@ class _ResultScreenState extends State<ResultScreen> {
                   const Text('예상', style: FacingTokens.caption),
                 ],
               ),
-              const SizedBox(height: FacingTokens.sp2),
-              Text('formula v${plan.formulaVersion}', style: FacingTokens.micro),
+              const SizedBox(height: FacingTokens.sp1),
+              const Text('예상 완주 시간 · 레스트 포함',
+                  style: FacingTokens.caption),
               const SizedBox(height: FacingTokens.sp5),
               ...plan.segments.map((s) => _SegmentCard(segment: s)),
             ],
@@ -152,15 +153,23 @@ class _SegmentCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: FacingTokens.sp3),
-          if (segment.splitPattern.isNotEmpty)
+          if (segment.splitPattern.isNotEmpty) ...[
             _SplitText(
               splits: segment.splitPattern,
               lastIsExplosion: segment.isExplosion,
             ),
+            const SizedBox(height: FacingTokens.sp1),
+            Text(
+              '세트 간 휴식 ${segment.restBetweenSec}초',
+              style: FacingTokens.caption,
+            ),
+          ],
           if (segment.targetPaceSecPer500m != null)
             Text(
-              '${segment.targetPaceSecPer500m}s / 500m',
-              style: FacingTokens.h3,
+              _formatPace(segment.targetPaceSecPer500m!),
+              style: FacingTokens.h3.copyWith(
+                fontFeatures: FacingTokens.tabular,
+              ),
             ),
           const SizedBox(height: FacingTokens.sp3),
           Text(segment.rationaleKo, style: FacingTokens.caption),
@@ -168,6 +177,13 @@ class _SegmentCard extends StatelessWidget {
       ),
     );
   }
+}
+
+String _formatPace(int sec) {
+  if (sec < 300) return '${sec}s / 500m';
+  final m = sec ~/ 60;
+  final s = sec % 60;
+  return '$m:${s.toString().padLeft(2, '0')} / 500m';
 }
 
 String _prettifySlug(String slug) {

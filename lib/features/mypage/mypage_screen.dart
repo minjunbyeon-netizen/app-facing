@@ -65,8 +65,11 @@ class _TierSnapshot extends StatelessWidget {
               TierBadge(tier: tier, fontSize: 24),
               const SizedBox(width: FacingTokens.sp4),
               Text(
-                n == null ? 'Score -' : 'Score $score',
-                style: FacingTokens.body.copyWith(fontWeight: FontWeight.w700),
+                n == null ? 'Score -' : 'Score $score / 100',
+                style: FacingTokens.body.copyWith(
+                  fontWeight: FontWeight.w700,
+                  fontFeatures: FacingTokens.tabular,
+                ),
               ),
             ],
           ),

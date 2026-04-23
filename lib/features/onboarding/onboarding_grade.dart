@@ -48,9 +48,10 @@ class OnboardingGradeScreen extends StatelessWidget {
                     children: [
                       TierBadge(tier: tier, fontSize: 24),
                       const SizedBox(width: FacingTokens.sp4),
-                      Text('Score $score',
+                      Text('Score $score / 100',
                           style: FacingTokens.body.copyWith(
                             fontWeight: FontWeight.w700,
+                            fontFeatures: FacingTokens.tabular,
                           )),
                     ],
                   ),
