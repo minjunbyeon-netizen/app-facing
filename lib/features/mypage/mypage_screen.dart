@@ -250,7 +250,10 @@ class _ActionsSection extends StatelessWidget {
     final ok = await showDialog<bool>(
       context: context,
       builder: (dialogCtx) => AlertDialog(
-        backgroundColor: FacingTokens.surface,
+        backgroundColor: FacingTokens.surfaceOverlay,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(FacingTokens.r5),
+        ),
         title: const Text('Reset data?'),
         content: const Text(
           '프로필·등급·벤치마크를 전부 삭제합니다.\n'

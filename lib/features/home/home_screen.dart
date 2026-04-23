@@ -97,7 +97,13 @@ class HomeScreen extends StatelessWidget {
                           context.read<WodDraftState>().clear();
                           Navigator.of(context).pushNamed('/presets');
                         },
-                        child: const Text('Benchmark WOD · Fran · Grace · Murph'),
+                        child: const Text('Benchmark WOD'),
+                      ),
+                      const SizedBox(height: FacingTokens.sp1),
+                      const Text(
+                        'Fran · Grace · Murph · Helen…',
+                        style: FacingTokens.micro,
+                        textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: FacingTokens.sp3),
                       OutlinedButton(
