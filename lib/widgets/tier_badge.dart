@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/theme.dart';
 import '../core/tier.dart';
 
-/// CrossFit Tier 라벨 배지. 2px solid border + 대문자 라벨.
+/// CrossFit Tier 라벨 배지. v1.13부터 fill 방식 — tier 색 배경 + 대비 텍스트.
 class TierBadge extends StatelessWidget {
   final Tier tier;
   final double fontSize;
@@ -13,18 +13,19 @@ class TierBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: FacingTokens.sp3,
-        vertical: fontSize <= 12 ? 4 : 6,
+        horizontal: fontSize <= 12 ? 8 : 12,
+        vertical: fontSize <= 12 ? 3 : 6,
       ),
       decoration: BoxDecoration(
-        border: Border.all(color: tier.color, width: 2),
-        borderRadius: BorderRadius.circular(FacingTokens.r1),
+        color: tier.color,
+        borderRadius: BorderRadius.circular(FacingTokens.r2),
       ),
       child: Text(
         tier.label,
         style: FacingTokens.tierLabel.copyWith(
-          color: tier.color,
+          color: tier.textColor,
           fontSize: fontSize,
+          fontWeight: FontWeight.w800,
         ),
       ),
     );

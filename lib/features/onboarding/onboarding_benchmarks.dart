@@ -97,61 +97,61 @@ class _OnboardingBenchmarksScreenState
       _meta = {
     // Power
     'back_squat_1rm_lb':
-        ('Back Squat 1RM', 'lb', 'e.g. 315', 'Base strength.'),
+        ('Back Squat 1RM', 'lb', '예: 315', '기초 근력'),
     'front_squat_1rm_lb':
-        ('Front Squat 1RM', 'lb', 'e.g. 255', 'Clean receive position.'),
+        ('Front Squat 1RM', 'lb', '예: 255', 'Clean 받기 자세'),
     'bench_press_1rm_lb':
-        ('Bench Press 1RM', 'lb', 'e.g. 225', 'Upper-body push.'),
+        ('Bench Press 1RM', 'lb', '예: 225', '상체 푸시'),
     'deadlift_1rm_lb':
-        ('Deadlift 1RM', 'lb', 'e.g. 405', 'Posterior chain force.'),
+        ('Deadlift 1RM', 'lb', '예: 405', '후방 사슬 힘'),
     'ohp_1rm_lb':
-        ('OHP 1RM', 'lb', 'e.g. 135', 'Strict overhead press.'),
+        ('OHP 1RM', 'lb', '예: 135', 'Strict 오버헤드'),
     // Olympic
     'clean_1rm_lb':
-        ('Clean 1RM', 'lb', 'e.g. 225', 'Full squat catch.'),
+        ('Clean 1RM', 'lb', '예: 225', 'Full squat 받기'),
     'clean_and_jerk_1rm_lb':
-        ('Clean & Jerk 1RM', 'lb', 'e.g. 215', 'Full lift.'),
+        ('Clean & Jerk 1RM', 'lb', '예: 215', '전체 lift'),
     'snatch_1rm_lb':
-        ('Snatch 1RM', 'lb', 'e.g. 165', 'Full squat catch, one motion.'),
+        ('Snatch 1RM', 'lb', '예: 165', '한 동작 Full squat'),
     'power_clean_1rm_lb':
-        ('Power Clean 1RM', 'lb', 'e.g. 195', 'High catch.'),
+        ('Power Clean 1RM', 'lb', '예: 195', 'High catch'),
     'power_snatch_1rm_lb':
-        ('Power Snatch 1RM', 'lb', 'e.g. 145', 'High catch.'),
+        ('Power Snatch 1RM', 'lb', '예: 145', 'High catch'),
     // Gymnastics
     'strict_pull_up_max_ub':
-        ('Strict Pull-up Max', 'reps', 'e.g. 12', 'No kip. Pure strict.'),
+        ('Strict Pull-up Max', 'reps', '예: 12', 'Kipping 없는 순수 strict'),
     'chest_to_bar_max_ub':
-        ('Chest-to-Bar Max', 'reps', 'e.g. 18', 'Chest touches the bar.'),
+        ('Chest-to-Bar Max', 'reps', '예: 18', '가슴 닿는 풀업'),
     'hspu_max_ub':
-        ('HSPU Max', 'reps', 'e.g. 10', 'Handstand push-up.'),
+        ('HSPU Max', 'reps', '예: 10', '핸드스탠드 푸시업'),
     'bar_muscle_up_max_ub':
-        ('Bar Muscle-up Max', 'reps', 'e.g. 8', 'Bar muscle-up.'),
+        ('Bar Muscle-up Max', 'reps', '예: 8', '바 머슬업'),
     'ring_muscle_up_max_ub':
-        ('Ring Muscle-up Max', 'reps', 'e.g. 5', 'Ring muscle-up.'),
+        ('Ring Muscle-up Max', 'reps', '예: 5', '링 머슬업'),
     'toes_to_bar_max_ub':
-        ('T2B Max', 'reps', 'e.g. 25', 'Core endurance.'),
+        ('T2B Max', 'reps', '예: 25', '코어 지구력'),
     'push_up_per_min':
-        ('Push-up 1-min Max', 'reps', 'e.g. 45', 'Auxiliary balance metric.'),
+        ('Push-up 1-min Max', 'reps', '예: 45', '보조 밸런스 지표'),
     // Cardio
     'run_mile_sec':
-        ('1-mile Run', 'sec', 'e.g. 360 (6:00)', 'Running benchmark.'),
+        ('1-mile Run', 'sec', '예: 360 (6:00)', '달리기 벤치마크'),
     'row_500m_sec':
-        ('500m Row', 'sec', 'e.g. 95 (1:35)', 'Power cardio.'),
+        ('500m Row', 'sec', '예: 95 (1:35)', '파워 카디오'),
     'row_2km_sec':
-        ('2km Row', 'sec', 'e.g. 440 (7:20)', 'Cardio endurance.'),
+        ('2km Row', 'sec', '예: 440 (7:20)', '카디오 지구력'),
     'cooper_12min_meters':
-        ('Cooper 12-min (m)', 'm', 'e.g. 2800', 'Distance in 12 min.'),
+        ('Cooper 12-min (m)', 'm', '예: 2800', '12분 달린 거리'),
     // Metcon
     'burpee_per_min':
-        ('Burpee 1-min Max', 'reps', 'e.g. 22', 'Whole-body metcon.'),
+        ('Burpee 1-min Max', 'reps', '예: 22', '전신 메콘'),
     'double_under_per_min':
-        ('Double-under 1-min Max', 'reps', 'e.g. 110', 'Coordination.'),
+        ('Double-under 1-min Max', 'reps', '예: 110', '코디네이션'),
     'assault_bike_per_min':
-        ('Assault Bike 1-min', 'cal', 'e.g. 22', 'Cardio + mental.'),
+        ('Assault Bike 1-min', 'cal', '예: 22', '카디오 + 멘탈'),
     'wall_ball_per_min':
-        ('Wall Ball 1-min Max', 'reps', 'e.g. 22', '@20lb / 14lb.'),
+        ('Wall Ball 1-min Max', 'reps', '예: 22', '@20lb / 14lb'),
     'box_jump_per_min':
-        ('Box Jump 1-min Max', 'reps', 'e.g. 18', '@24" / 20".'),
+        ('Box Jump 1-min Max', 'reps', '예: 18', '@24" / 20"'),
   };
 
   static List<String> get _allFields =>
@@ -251,7 +251,7 @@ class _OnboardingBenchmarksScreenState
       await minShow;
       if (mounted) {
         _hideLoadingOverlay();
-        setState(() => _error = 'Calc failed. Retry.');
+        setState(() => _error = '계산 실패. 재시도.');
       }
     } finally {
       if (mounted) setState(() => _submitting = false);
@@ -366,7 +366,7 @@ class _OnboardingBenchmarksScreenState
                 child: Container(
                   padding: const EdgeInsets.all(FacingTokens.sp3),
                   decoration: BoxDecoration(
-                    border: Border.all(color: FacingTokens.fg),
+                    color: FacingTokens.surface,
                     borderRadius: BorderRadius.circular(FacingTokens.r2),
                   ),
                   child: Text(_error!, style: FacingTokens.body),
@@ -393,9 +393,9 @@ class _OnboardingBenchmarksScreenState
                         onPressed: _submitting ? null : _next,
                         child: Text(
                           _submitting
-                              ? 'Calculating'
+                              ? '계산 중'
                               : (_isLastPage
-                                  ? (_anyFilled ? 'Measure Engine' : 'Skip · See Tier')
+                                  ? (_anyFilled ? 'Measure Engine' : 'Skip · Tier 확인')
                                   : 'Next'),
                         ),
                       ),
@@ -475,7 +475,6 @@ class _ComputeLoadingDialog extends StatelessWidget {
           padding: const EdgeInsets.all(FacingTokens.sp5),
           decoration: BoxDecoration(
             color: FacingTokens.surface,
-            border: Border.all(color: FacingTokens.border),
             borderRadius: BorderRadius.circular(FacingTokens.r3),
           ),
           child: const Column(
@@ -492,7 +491,7 @@ class _ComputeLoadingDialog extends StatelessWidget {
               SizedBox(height: FacingTokens.sp3),
               Text('Calculating.', style: FacingTokens.body),
               SizedBox(height: FacingTokens.sp1),
-              Text('Engine · 6 categories · Tier',
+              Text('6 카테고리 Engine 측정 중.',
                   style: FacingTokens.caption),
             ],
           ),
@@ -564,7 +563,7 @@ class _BenchmarkRowState extends State<_BenchmarkRow> {
                   widget.onChanged('');
                   setState(() {});
                 },
-                child: const Text('Unknown',
+                child: const Text('모름',
                     style: TextStyle(
                         fontSize: 12, color: FacingTokens.muted)),
               ),

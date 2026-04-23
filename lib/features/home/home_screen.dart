@@ -69,7 +69,7 @@ class HomeScreen extends StatelessWidget {
               const Text("Today's WOD.\nPull your Split.", style: FacingTokens.h1),
               const SizedBox(height: FacingTokens.sp2),
               const Text(
-                'RX to Games. Auto Split · Burst.',
+                'RX부터 Games까지. Split과 Burst 자동 계산.',
                 style: FacingTokens.caption,
               ),
               const Spacer(),
@@ -81,7 +81,7 @@ class HomeScreen extends StatelessWidget {
                     children: [
                       if (missing) ...[
                         const Text(
-                          'No 1RM. Enter first.',
+                          '1RM 없음. 먼저 입력.',
                           style: FacingTokens.caption,
                         ),
                         const SizedBox(height: FacingTokens.sp3),

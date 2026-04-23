@@ -17,20 +17,29 @@ class MyPageScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Profile')),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(FacingTokens.sp4),
+          padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp3),
           children: const [
             _TierSnapshot(),
-            SizedBox(height: FacingTokens.sp5),
+            _SectionDivider(),
             _BodyStats(),
-            SizedBox(height: FacingTokens.sp5),
+            _SectionDivider(),
             _SettingsSection(),
-            SizedBox(height: FacingTokens.sp5),
+            _SectionDivider(),
             _ActionsSection(),
           ],
         ),
       ),
     );
   }
+}
+
+class _SectionDivider extends StatelessWidget {
+  const _SectionDivider();
+  @override
+  Widget build(BuildContext context) => const Padding(
+        padding: EdgeInsets.symmetric(vertical: FacingTokens.sp3),
+        child: Divider(height: 1, color: FacingTokens.border),
+      );
 }
 
 class _TierSnapshot extends StatelessWidget {
@@ -43,13 +52,8 @@ class _TierSnapshot extends StatelessWidget {
     final num? n = g?['overall_number'] is num ? g!['overall_number'] as num : null;
     final tier = Tier.fromOverallNumber(n);
     final score = g?['overall_score']?.toString() ?? '-';
-    return Container(
-      padding: const EdgeInsets.all(FacingTokens.sp4),
-      decoration: BoxDecoration(
-        color: FacingTokens.surface,
-        border: Border.all(color: FacingTokens.border),
-        borderRadius: BorderRadius.circular(FacingTokens.r3),
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -69,8 +73,8 @@ class _TierSnapshot extends StatelessWidget {
           const SizedBox(height: FacingTokens.sp2),
           Text('Score $score', style: FacingTokens.caption),
           if (n == null) ...[
-            const SizedBox(height: FacingTokens.sp3),
-            const Text('No data. Complete onboarding first.',
+            const SizedBox(height: FacingTokens.sp2),
+            const Text('데이터 없음. 온보딩 완료 후 표시.',
                 style: FacingTokens.caption),
           ],
         ],
@@ -92,12 +96,8 @@ class _BodyStats extends StatelessWidget {
     final height = p.heightCm == null ? '-' : '${_fmt(p.heightCm!)} cm';
     final age = p.ageYears == null ? '-' : '${_fmt(p.ageYears!)} yr';
     final sex = p.gender == 'female' ? 'Female' : 'Male';
-    return Container(
-      padding: const EdgeInsets.all(FacingTokens.sp4),
-      decoration: BoxDecoration(
-        border: Border.all(color: FacingTokens.border),
-        borderRadius: BorderRadius.circular(FacingTokens.r3),
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -144,17 +144,13 @@ class _SettingsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(FacingTokens.sp4),
-      decoration: BoxDecoration(
-        border: Border.all(color: FacingTokens.border),
-        borderRadius: BorderRadius.circular(FacingTokens.r3),
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const Text('SETTINGS', style: FacingTokens.micro),
-          const SizedBox(height: FacingTokens.sp3),
+          const SizedBox(height: FacingTokens.sp2),
           Row(
             children: [
               const Expanded(child: Text('Unit', style: FacingTokens.body)),
@@ -206,15 +202,12 @@ class _Pill extends StatelessWidget {
           vertical: FacingTokens.sp2,
         ),
         decoration: BoxDecoration(
-          color: selected ? FacingTokens.fg : FacingTokens.bg,
-          border: Border.all(
-            color: selected ? FacingTokens.fg : FacingTokens.border,
-          ),
+          color: selected ? FacingTokens.fg : Colors.transparent,
           borderRadius: BorderRadius.circular(FacingTokens.r4),
         ),
         child: Text(label,
             style: FacingTokens.body.copyWith(
-              color: selected ? FacingTokens.bg : FacingTokens.fg,
+              color: selected ? FacingTokens.bg : FacingTokens.muted,
               fontWeight: FontWeight.w700,
             )),
       ),
@@ -227,28 +220,31 @@ class _ActionsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        OutlinedButton(
-          onPressed: () =>
-              Navigator.of(context).pushNamed('/onboarding/basic'),
-          child: const Text('Edit Profile'),
-        ),
-        const SizedBox(height: FacingTokens.sp3),
-        OutlinedButton(
-          onPressed: () => Navigator.of(context).pushNamed('/history'),
-          child: const Text('View History'),
-        ),
-        const SizedBox(height: FacingTokens.sp3),
-        TextButton(
-          style: TextButton.styleFrom(
-            foregroundColor: FacingTokens.accent,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          OutlinedButton(
+            onPressed: () =>
+                Navigator.of(context).pushNamed('/onboarding/basic'),
+            child: const Text('Edit Profile'),
           ),
-          onPressed: () => _confirmReset(context),
-          child: const Text('Reset data'),
-        ),
-      ],
+          const SizedBox(height: FacingTokens.sp3),
+          OutlinedButton(
+            onPressed: () => Navigator.of(context).pushNamed('/history'),
+            child: const Text('View History'),
+          ),
+          const SizedBox(height: FacingTokens.sp3),
+          TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor: FacingTokens.accent,
+            ),
+            onPressed: () => _confirmReset(context),
+            child: const Text('Reset data'),
+          ),
+        ],
+      ),
     );
   }
 

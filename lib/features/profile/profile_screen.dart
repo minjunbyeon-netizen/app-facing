@@ -36,7 +36,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         future: _future,
         builder: (ctx, snap) {
           if (snap.connectionState != ConnectionState.done) {
-            return const Center(child: Text('Loading.', style: FacingTokens.body));
+            return const Center(child: Text('Loading', style: FacingTokens.body));
           }
           if (snap.hasError) {
             return Center(

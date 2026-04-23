@@ -82,7 +82,7 @@ class _EngineTab extends StatelessWidget {
       future: future,
       builder: (ctx, snap) {
         if (snap.connectionState != ConnectionState.done) {
-          return const Center(child: Text('Loading.', style: FacingTokens.body));
+          return const Center(child: Text('Loading', style: FacingTokens.body));
         }
         if (snap.hasError) {
           return _ErrorView(error: snap.error, onRetry: onRetry);
@@ -90,18 +90,26 @@ class _EngineTab extends StatelessWidget {
         final rows = snap.data ?? const [];
         if (rows.isEmpty) {
           return const _EmptyView(
-            title: 'No Engine history.',
-            body: '등급 계산 후 자동 저장된다.\n'
-                '다음 Engine 측정부터 시계열이 쌓인다.',
+            title: 'No Engine history',
+            body: '등급 계산 후 자동 저장.\n'
+                '다음 Engine 측정부터 시계열 축적.',
           );
         }
-        return ListView(
-          padding: const EdgeInsets.all(FacingTokens.sp4),
-          children: [
-            _EngineSparkline(records: rows),
-            const SizedBox(height: FacingTokens.sp4),
-            ...rows.map((r) => _EngineRow(record: r)),
-          ],
+        return ListView.separated(
+          padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp2),
+          itemCount: rows.length + 1,
+          separatorBuilder: (_, i) => i == 0
+              ? const SizedBox(height: FacingTokens.sp2)
+              : const Divider(height: 1, color: FacingTokens.border),
+          itemBuilder: (_, i) {
+            if (i == 0) {
+              return Padding(
+                padding: const EdgeInsets.all(FacingTokens.sp4),
+                child: _EngineSparkline(records: rows),
+              );
+            }
+            return _EngineRow(record: rows[i - 1]);
+          },
         );
       },
     );
@@ -125,7 +133,6 @@ class _EngineSparkline extends StatelessWidget {
       padding: const EdgeInsets.all(FacingTokens.sp4),
       decoration: BoxDecoration(
         color: FacingTokens.surface,
-        border: Border.all(color: FacingTokens.border),
         borderRadius: BorderRadius.circular(FacingTokens.r3),
       ),
       child: Column(
@@ -234,13 +241,9 @@ class _EngineRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tier = Tier.fromOverallNumber(record.overallNumber);
-    return Container(
-      margin: const EdgeInsets.only(bottom: FacingTokens.sp3),
-      padding: const EdgeInsets.all(FacingTokens.sp4),
-      decoration: BoxDecoration(
-        border: Border.all(color: FacingTokens.border),
-        borderRadius: BorderRadius.circular(FacingTokens.r2),
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+          horizontal: FacingTokens.sp4, vertical: FacingTokens.sp3),
       child: Row(
         children: [
           TierBadge(tier: tier),
@@ -277,7 +280,7 @@ class _WodTab extends StatelessWidget {
       future: future,
       builder: (ctx, snap) {
         if (snap.connectionState != ConnectionState.done) {
-          return const Center(child: Text('Loading.', style: FacingTokens.body));
+          return const Center(child: Text('Loading', style: FacingTokens.body));
         }
         if (snap.hasError) {
           return _ErrorView(error: snap.error, onRetry: onRetry);
@@ -285,8 +288,8 @@ class _WodTab extends StatelessWidget {
         final rows = snap.data ?? const [];
         if (rows.isEmpty) {
           return const _EmptyView(
-            title: 'No WOD records.',
-            body: 'WOD 계산 후 저장하면 여기에 쌓인다.\n'
+            title: 'No WOD records',
+            body: 'WOD 계산 후 자동 저장.\n'
                 'Split · Burst · 예상 완주 시간 전부 보존.',
           );
         }
@@ -366,7 +369,7 @@ class _ErrorView extends StatelessWidget {
   Widget build(BuildContext context) {
     final msg = error is AppException
         ? (error as AppException).messageKo
-        : 'Loading failed.';
+        : '로딩 실패.';
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(FacingTokens.sp5),

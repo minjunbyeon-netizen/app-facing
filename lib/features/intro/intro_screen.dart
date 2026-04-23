@@ -22,8 +22,8 @@ class _IntroScreenState extends State<IntroScreen> {
     ),
     _IntroPage(
       title: '6 metrics.\nMeasure Engine.',
-      body: 'Body · Power · Olympic · Gymnastics · Cardio · Metcon.\n'
-          '아는 것만. 빈 칸은 자동 추론.',
+      body: 'Body · Power · Olympic · Gymnastics · Cardio · Metcon\n'
+          '아는 것만 입력. 빈 칸은 자동 추론.',
     ),
     _IntroPage(
       title: 'Start.',

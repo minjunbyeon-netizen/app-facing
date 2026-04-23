@@ -32,7 +32,7 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
         future: _future,
         builder: (ctx, snap) {
           if (snap.connectionState != ConnectionState.done) {
-            return const Center(child: Text('Loading.', style: FacingTokens.body));
+            return const Center(child: Text('Loading', style: FacingTokens.body));
           }
           if (snap.hasError) {
             final e = snap.error;
@@ -62,7 +62,7 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
                     Text(_fmtTime(plan['estimated_total_sec']),
                         style: FacingTokens.display),
                     const SizedBox(width: FacingTokens.sp2),
-                    const Text('est.', style: FacingTokens.caption),
+                    const Text('예상', style: FacingTokens.caption),
                   ],
                 ),
                 if (plan['grade'] != null)
@@ -73,7 +73,7 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
                     .whereType<Map<String, dynamic>>()
                     .map((s) => _SegmentCard(seg: s)),
               ] else
-                const Text('No pacing plan stored.',
+                const Text('페이싱 플랜 없음.',
                     style: FacingTokens.caption),
               const SizedBox(height: FacingTokens.sp5),
               const Text('ITEMS', style: FacingTokens.micro),

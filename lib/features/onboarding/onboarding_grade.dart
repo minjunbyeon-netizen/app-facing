@@ -18,7 +18,7 @@ class OnboardingGradeScreen extends StatelessWidget {
     if (grade == null) {
       return Scaffold(
         appBar: AppBar(title: const Text('Your Tier')),
-        body: const Center(child: Text('No data.', style: FacingTokens.body)),
+        body: const Center(child: Text('데이터 없음.', style: FacingTokens.body)),
       );
     }
     final overallNumber = grade['overall_number'];
@@ -78,7 +78,7 @@ class OnboardingGradeScreen extends StatelessWidget {
                   const SizedBox(height: FacingTokens.sp6),
                   const Text(
                     'Tier에 맞춰 Split과 Burst 자동 조정.\n'
-                    '언제든 Profile에서 수정.',
+                    '언제든 Profile에서 수정 가능.',
                     style: FacingTokens.caption,
                   ),
                 ],
@@ -116,11 +116,13 @@ class _CategoryCard extends StatelessWidget {
     final num? catNum = m['number'] is num ? m['number'] as num : null;
     final tier = Tier.fromOverallNumber(catNum);
     return Container(
-      padding: const EdgeInsets.all(FacingTokens.sp4),
+      padding: const EdgeInsets.fromLTRB(
+        FacingTokens.sp4, FacingTokens.sp3, FacingTokens.sp4, FacingTokens.sp3,
+      ),
       decoration: BoxDecoration(
-        color: FacingTokens.surface,
-        border: Border.all(color: FacingTokens.border),
-        borderRadius: BorderRadius.circular(FacingTokens.r3),
+        border: Border(
+          left: BorderSide(color: tier.color, width: 3),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -135,7 +137,7 @@ class _CategoryCard extends StatelessWidget {
               TierBadge(tier: tier),
             ],
           ),
-          const SizedBox(height: FacingTokens.sp2),
+          const SizedBox(height: FacingTokens.sp1),
           Row(
             children: [
               Text('Score $score', style: FacingTokens.caption),
@@ -144,8 +146,8 @@ class _CategoryCard extends StatelessWidget {
             ],
           ),
           if (missing.isNotEmpty) ...[
-            const SizedBox(height: FacingTokens.sp2),
-            Text('${missing.length} more input → higher accuracy',
+            const SizedBox(height: FacingTokens.sp1),
+            Text('입력 ${missing.length}개 추가 시 정확도 향상',
                 style: FacingTokens.micro),
           ],
         ],

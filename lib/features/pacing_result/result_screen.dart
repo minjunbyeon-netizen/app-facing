@@ -72,7 +72,7 @@ class _ResultScreenState extends State<ResultScreen> {
         future: _future,
         builder: (ctx, snap) {
           if (snap.connectionState != ConnectionState.done) {
-            return const Center(child: Text('Calculating.', style: FacingTokens.body));
+            return const Center(child: Text('계산 중', style: FacingTokens.body));
           }
           if (snap.hasError) {
             final e = snap.error;
@@ -87,7 +87,7 @@ class _ResultScreenState extends State<ResultScreen> {
                   Container(
                     padding: const EdgeInsets.all(FacingTokens.sp3),
                     decoration: BoxDecoration(
-                      border: Border.all(color: FacingTokens.fg),
+                      color: FacingTokens.surface,
                       borderRadius: BorderRadius.circular(FacingTokens.r2),
                     ),
                     child: Text(msg, style: FacingTokens.body),
@@ -106,7 +106,7 @@ class _ResultScreenState extends State<ResultScreen> {
                 children: [
                   Text(plan.estimatedTotalDisplay, style: FacingTokens.display),
                   const SizedBox(width: FacingTokens.sp2),
-                  const Text('est.', style: FacingTokens.caption),
+                  const Text('예상', style: FacingTokens.caption),
                 ],
               ),
               const SizedBox(height: FacingTokens.sp2),
@@ -131,10 +131,10 @@ class _SegmentCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: FacingTokens.sp3),
       padding: const EdgeInsets.all(FacingTokens.sp4),
       decoration: BoxDecoration(
-        border: Border.all(
-          color: segment.isExplosion ? FacingTokens.accent : FacingTokens.border,
-          width: segment.isExplosion ? 2 : 1,
-        ),
+        color: FacingTokens.surface,
+        border: segment.isExplosion
+            ? Border.all(color: FacingTokens.accent, width: 2)
+            : null,
         borderRadius: BorderRadius.circular(FacingTokens.r3),
       ),
       child: Column(

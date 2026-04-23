@@ -63,7 +63,7 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: FacingTokens.sp3),
-              const Text('Body.', style: FacingTokens.h2),
+              const Text('Body', style: FacingTokens.h2),
               const SizedBox(height: FacingTokens.sp1),
               const Text(
                 '체중·키는 Tier 산정 기준. 성별·경력은 난이도 보정.',

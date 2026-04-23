@@ -50,7 +50,7 @@ class _WodBuilderScreenState extends State<WodBuilderScreen> {
         future: _future,
         builder: (ctx, snap) {
           if (snap.connectionState != ConnectionState.done) {
-            return const Center(child: Text('Loading.', style: FacingTokens.body));
+            return const Center(child: Text('Loading', style: FacingTokens.body));
           }
           if (snap.hasError) {
             return Center(child: Text('${snap.error}', style: FacingTokens.body));
@@ -124,11 +124,11 @@ class _Body extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(FacingTokens.sp4),
                   decoration: BoxDecoration(
-                    border: Border.all(color: FacingTokens.border),
+                    color: FacingTokens.surface,
                     borderRadius: BorderRadius.circular(FacingTokens.r2),
                   ),
                   child: const Text(
-                    'Tap button below to add a movement.',
+                    '아래 버튼으로 동작 추가.',
                     style: FacingTokens.caption,
                   ),
                 )
