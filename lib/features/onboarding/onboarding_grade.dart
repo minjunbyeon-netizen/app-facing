@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/quotes.dart';
 import '../../core/theme.dart';
 import '../../core/tier.dart';
+import '../../widgets/grain_overlay.dart';
 import '../../widgets/quote_card.dart';
 import '../../widgets/tier_badge.dart';
 import '../profile/profile_state.dart';
@@ -53,14 +54,28 @@ class OnboardingGradeScreen extends StatelessWidget {
         title: const Text('Your Tier'),
         automaticallyImplyLeading: false,
       ),
-      body: SafeArea(
-        child: Column(
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          // v1.15: Grade 화면 배경 — 흑백 hero + subtle grain
+          Image.asset(
+            'assets/images/hero_grade.jpg',
+            fit: BoxFit.cover,
+            alignment: Alignment.topCenter,
+            opacity: const AlwaysStoppedAnimation(0.35),
+          ),
+          const GrainOverlay.subtle(),
+          SafeArea(
+            child: Column(
           children: [
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.all(FacingTokens.sp4),
                 children: [
                   const SizedBox(height: FacingTokens.sp3),
+                  // v1.15: 'Your Tier.' serif 헤드라인
+                  Text('Your Tier.', style: FacingTokens.h1Serif),
+                  const SizedBox(height: FacingTokens.sp4),
                   QuoteCard(quote: quote, compact: true),
                   const SizedBox(height: FacingTokens.sp6),
                   Row(
@@ -114,6 +129,8 @@ class OnboardingGradeScreen extends StatelessWidget {
             ),
           ],
         ),
+          ),
+        ],
       ),
     );
   }

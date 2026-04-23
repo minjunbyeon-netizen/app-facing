@@ -6,6 +6,7 @@ import '../../core/api_client.dart';
 import '../../core/device_id.dart';
 import '../../core/quotes.dart';
 import '../../core/theme.dart';
+import '../../widgets/hero_background.dart';
 import '../../widgets/quote_card.dart';
 import '../profile/profile_state.dart';
 
@@ -60,29 +61,34 @@ class _SplashScreenState extends State<SplashScreen> {
     final q = randomQuote();
     return Scaffold(
       backgroundColor: FacingTokens.bg,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(FacingTokens.sp5),
-          child: Column(
-            children: [
-              const Spacer(),
-              const Text('FACING', style: FacingTokens.brandLogo),
-              const SizedBox(height: FacingTokens.sp2),
-              const Text('Engine · Split · Burst',
-                  style: FacingTokens.micro),
-              const SizedBox(height: FacingTokens.sp6),
-              const SizedBox(
-                width: 22,
-                height: 22,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: FacingTokens.accent,
+      body: HeroBackground(
+        imageAsset: 'assets/images/hero_splash.jpg',
+        strongGrain: true,
+        darkenStrength: 0.65,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(FacingTokens.sp5),
+            child: Column(
+              children: [
+                const Spacer(),
+                Text('FACING', style: FacingTokens.brandSerif),
+                const SizedBox(height: FacingTokens.sp2),
+                const Text('Engine · Split · Burst',
+                    style: FacingTokens.micro),
+                const SizedBox(height: FacingTokens.sp6),
+                const SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: FacingTokens.accent,
+                  ),
                 ),
-              ),
-              const Spacer(),
-              QuoteCard(quote: q, compact: true),
-              const SizedBox(height: FacingTokens.sp3),
-            ],
+                const Spacer(),
+                QuoteCard(quote: q, compact: true),
+                const SizedBox(height: FacingTokens.sp3),
+              ],
+            ),
           ),
         ),
       ),

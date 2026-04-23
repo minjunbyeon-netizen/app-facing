@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none" stroke="#F5F5F5" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Motivation: upright stance, looking forward, neutral pose -->
+  <!-- head -->
+  <circle cx="256" cy="110" r="34"/>
+  <!-- neck + torso -->
+  <line x1="256" y1="144" x2="256" y2="310"/>
+  <!-- arms down slight bend -->
+  <line x1="256" y1="190" x2="200" y2="280"/>
+  <line x1="256" y1="190" x2="312" y2="280"/>
+  <!-- hips -->
+  <line x1="220" y1="310" x2="292" y2="310"/>
+  <!-- legs -->
+  <line x1="236" y1="310" x2="216" y2="440"/>
+  <line x1="276" y1="310" x2="296" y2="440"/>
+  <!-- ground line -->
+  <line x1="160" y1="460" x2="352" y2="460" stroke-width="4" opacity="0.4"/>
+</svg>

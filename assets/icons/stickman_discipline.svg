@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none" stroke="#F5F5F5" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Discipline: running mid-stride, dynamic forward lean -->
+  <!-- head -->
+  <circle cx="230" cy="110" r="32"/>
+  <!-- torso leaning forward -->
+  <line x1="240" y1="140" x2="280" y2="290"/>
+  <!-- front arm swung forward bent -->
+  <polyline points="262,200 320,180 336,240"/>
+  <!-- back arm swung back bent -->
+  <polyline points="255,205 200,230 184,180"/>
+  <!-- hips -->
+  <line x1="260" y1="290" x2="300" y2="290"/>
+  <!-- front leg bent forward (knee up) -->
+  <polyline points="268,290 240,350 300,410"/>
+  <!-- back leg extended behind push-off -->
+  <polyline points="294,290 360,370 400,400"/>
+  <!-- motion dashes behind -->
+  <line x1="120" y1="240" x2="160" y2="240" stroke-width="4" opacity="0.5"/>
+  <line x1="130" y1="270" x2="170" y2="270" stroke-width="4" opacity="0.4"/>
+  <line x1="140" y1="300" x2="180" y2="300" stroke-width="4" opacity="0.3"/>
+</svg>

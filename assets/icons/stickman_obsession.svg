@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none" stroke="#F5F5F5" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Obsession: Sisyphus pushing massive boulder uphill, extreme forward strain -->
+  <!-- ground slope -->
+  <line x1="40" y1="450" x2="472" y2="330" stroke-width="4" opacity="0.5"/>
+  <!-- boulder (large circle) -->
+  <circle cx="380" cy="320" r="78"/>
+  <!-- head low, forward -->
+  <circle cx="218" cy="240" r="28"/>
+  <!-- spine bent forward parallel to slope -->
+  <line x1="238" y1="258" x2="308" y2="310"/>
+  <!-- both arms pushing the boulder -->
+  <line x1="258" y1="270" x2="310" y2="278"/>
+  <line x1="268" y1="290" x2="314" y2="296"/>
+  <!-- hips -->
+  <line x1="290" y1="310" x2="326" y2="330"/>
+  <!-- back leg extended (pushing) -->
+  <polyline points="298,320 220,390 180,430"/>
+  <!-- front leg bent (driving) -->
+  <polyline points="320,328 300,400 256,440"/>
+  <!-- strain/effort marks behind head -->
+  <line x1="180" y1="210" x2="165" y2="200" stroke-width="4" opacity="0.4"/>
+  <line x1="195" y1="195" x2="188" y2="178" stroke-width="4" opacity="0.4"/>
+</svg>

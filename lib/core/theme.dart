@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'package:google_fonts/google_fonts.dart';
 
 /// facing 디자인 토큰 단일 진원지 (v1.11.0 CrossFit Elite / Dark).
 /// 규칙: apps/facing-app/CLAUDE.md "디자인 시스템" 섹션 SSOT.
@@ -160,6 +161,51 @@ class FacingTokens {
     letterSpacing: 0.1,
     color: muted,
   );
+
+  // ---- v1.15 Serif 토큰 (Bodoni Moda Italic, Google Fonts 런타임 fetch) ----
+  // 영문 선언 헤드라인·명언 전용. 한글·UI 라벨·숫자는 Pretendard 유지.
+  // 주의: const 불가 (GoogleFonts 런타임 resolve). 호출 시점 반환.
+
+  /// Splash "FACING" 세리프 대응 (기존 brandLogo와 교체 가능).
+  static TextStyle get brandSerif => GoogleFonts.bodoniModa(
+        fontSize: 72,
+        fontWeight: FontWeight.w800,
+        fontStyle: FontStyle.italic,
+        height: 1.0,
+        letterSpacing: -2.0,
+        color: fg,
+      );
+
+  /// 영문 hero 헤드라인 (Intro 1/2/3, Grade 'Your Tier.' 등).
+  static TextStyle get h1Serif => GoogleFonts.bodoniModa(
+        fontSize: 44,
+        fontWeight: FontWeight.w700,
+        fontStyle: FontStyle.italic,
+        height: 1.12,
+        letterSpacing: -0.8,
+        color: fg,
+      );
+
+  /// 히어로 숫자 (64sp display) serif 버전. tabular 고정.
+  static TextStyle get displaySerif => GoogleFonts.bodoniModa(
+        fontSize: 64,
+        fontWeight: FontWeight.w800,
+        fontStyle: FontStyle.italic,
+        height: 1.05,
+        letterSpacing: -1.2,
+        color: fg,
+        fontFeatures: tabular,
+      );
+
+  /// 명언 카드용 serif italic.
+  static TextStyle get quoteSerif => GoogleFonts.bodoniModa(
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
+        fontStyle: FontStyle.italic,
+        height: 1.45,
+        letterSpacing: 0.2,
+        color: fg,
+      );
 
   static const double sp1 = 4;
   static const double sp2 = 8;
