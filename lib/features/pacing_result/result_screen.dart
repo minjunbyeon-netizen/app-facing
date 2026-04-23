@@ -143,8 +143,12 @@ class _SegmentCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(segment.movementSlug, style: FacingTokens.h3),
-              Text(segment.estimatedDisplay, style: FacingTokens.lead),
+              Text(_prettifySlug(segment.movementSlug),
+                  style: FacingTokens.h3),
+              Text(segment.estimatedDisplay,
+                  style: FacingTokens.lead.copyWith(
+                    fontFeatures: FacingTokens.tabular,
+                  )),
             ],
           ),
           const SizedBox(height: FacingTokens.sp3),
@@ -164,6 +168,16 @@ class _SegmentCard extends StatelessWidget {
       ),
     );
   }
+}
+
+String _prettifySlug(String slug) {
+  if (slug.isEmpty) return slug;
+  return slug
+      .split('_')
+      .map((w) => w.isEmpty
+          ? w
+          : '${w[0].toUpperCase()}${w.substring(1)}')
+      .join(' ');
 }
 
 class _SplitText extends StatelessWidget {

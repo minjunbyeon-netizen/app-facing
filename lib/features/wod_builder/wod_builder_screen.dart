@@ -249,14 +249,17 @@ class _ItemRow extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: FacingTokens.sp2),
       padding: const EdgeInsets.all(FacingTokens.sp3),
       decoration: BoxDecoration(
-        border: Border.all(color: FacingTokens.border),
+        color: FacingTokens.surface,
         borderRadius: BorderRadius.circular(FacingTokens.r2),
       ),
       child: Row(
         children: [
           SizedBox(
-            width: 28,
-            child: Text('$index.', style: FacingTokens.body),
+            width: FacingTokens.sp6,
+            child: Text('$index.', style: FacingTokens.body.copyWith(
+              color: FacingTokens.muted,
+              fontFeatures: FacingTokens.tabular,
+            )),
           ),
           Expanded(
             child: Column(
