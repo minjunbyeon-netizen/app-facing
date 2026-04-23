@@ -11,10 +11,11 @@ class TierBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final compact = fontSize <= 12;
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: fontSize <= 12 ? 8 : 12,
-        vertical: fontSize <= 12 ? 3 : 6,
+        horizontal: compact ? FacingTokens.sp2 : FacingTokens.sp3,
+        vertical: compact ? FacingTokens.sp1 - 1 : FacingTokens.sp2 - 2,
       ),
       decoration: BoxDecoration(
         color: tier.color,
@@ -25,7 +26,6 @@ class TierBadge extends StatelessWidget {
         style: FacingTokens.tierLabel.copyWith(
           color: tier.textColor,
           fontSize: fontSize,
-          fontWeight: FontWeight.w800,
         ),
       ),
     );
