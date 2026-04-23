@@ -9,8 +9,11 @@ class FacingTokens {
   // ---- 기본 팔레트 (다크) ----
   static const Color bg = Color(0xFF0A0A0A);
   static const Color surface = Color(0xFF141414);
+  /// v1.14: 모달·바텀시트·로딩 다이얼로그 L2 표면. M3 tonal elevation.
+  static const Color surfaceOverlay = Color(0xFF1E1E1E);
   static const Color fg = Color(0xFFF5F5F5);
-  static const Color muted = Color(0xFF8A8A8A);
+  /// v1.14: muted 대비 상향 (#8A8A8A=4.9:1 경계 → #9E9E9E=6.1:1 통과 WCAG AA).
+  static const Color muted = Color(0xFF9E9E9E);
   static const Color border = Color(0xFF2A2A2A);
   static const Color accent = Color(0xFFEE2B2B);
   static const Color accentPressed = Color(0xFFCC2020);
@@ -167,8 +170,11 @@ class FacingTokens {
   static const double r2 = 8;
   static const double r3 = 12;
   static const double r4 = 16;
+  /// v1.14: 모달 시트, 전체 화면 카드용 large radius (M3 Shape xl).
+  static const double r5 = 28;
 
-  static const double touchMin = 44;
+  /// v1.14: Material 3 표준(48dp)으로 상향. iOS HIG 44pt 상위 호환.
+  static const double touchMin = 48;
   static const double buttonH = 52;
   static const double appBarH = 52;
 }
