@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
+import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../core/unit_state.dart';
 import '../history/history_repository.dart';
@@ -27,6 +28,12 @@ class _OnboardingBenchmarksScreenState
   int _page = 0;
   bool _submitting = false;
   String? _error;
+
+  // v1.15 P0-1: 사용자 취소 플래그. _compute 중 취소 시 true.
+  bool _cancelled = false;
+
+  // v1.15 P1-5: kg↔lb 토글 감지용 이전 상태 (unit listener).
+  bool? _lastIsKg;
 
   // v1.10.0 5 카테고리 — 1 화면 = 1 카테고리
   static const List<_Category> _categories = [
@@ -162,12 +169,33 @@ class _OnboardingBenchmarksScreenState
     super.initState();
     final p = context.read<ProfileState>();
     final unit = context.read<UnitState>();
+    _lastIsKg = unit.isKg;
     _ctrls = {
       for (final k in _allFields)
         k: TextEditingController(
           text: _initText(p.getBenchmark(k), k, unit),
         ),
     };
+    // v1.15 P1-5: kg↔lb 토글 시 이미 입력된 weight 값을 즉시 재변환.
+    unit.addListener(_onUnitChanged);
+  }
+
+  void _onUnitChanged() {
+    if (!mounted) return;
+    final unit = context.read<UnitState>();
+    if (_lastIsKg == unit.isKg) return;
+    // 현재 표시값(이전 단위 기준) → 다른 단위로 변환.
+    const double kgPerLb = 0.45359237;
+    for (final k in _allFields) {
+      if (!k.endsWith('_lb')) continue;
+      final raw = _ctrls[k]!.text.trim();
+      final v = double.tryParse(raw);
+      if (v == null || v <= 0) continue;
+      final converted = unit.isKg ? v * kgPerLb : v / kgPerLb;
+      _ctrls[k]!.text = _fmt(converted);
+    }
+    _lastIsKg = unit.isKg;
+    setState(() {});
   }
 
   String _initText(double? stored, String key, UnitState unit) {
@@ -212,6 +240,7 @@ class _OnboardingBenchmarksScreenState
   }
 
   Future<void> _compute() async {
+    _cancelled = false;
     setState(() {
       _submitting = true;
       _error = null;
@@ -235,26 +264,42 @@ class _OnboardingBenchmarksScreenState
         p.setBenchmark(k, stored);
       }
       final api = context.read<ApiClient>();
-      final result =
-          await api.post('/api/v1/profile/grade', p.toGradePayload());
+      // v1.15 P1-9: 8s 타임아웃 래핑 (Dio receiveTimeout 외 clientside 보강).
+      final result = await api
+          .post('/api/v1/profile/grade', p.toGradePayload())
+          .timeout(const Duration(seconds: 8));
+      if (_cancelled) return; // 취소 시 후속 작업 중단
       p.setGradeResult(result);
 
       // fire-and-forget: Engine snapshot 저장. 실패해도 UX 진행.
       unawaited(_saveEngineSnapshot(api, result));
 
       await minShow;
-      if (mounted) {
+      if (mounted && !_cancelled) {
         _hideLoadingOverlay();
+        Haptic.heavy(); // Tier 확정 결과 진입 — 결과 공개 피드백
         Navigator.of(context).pushReplacementNamed('/onboarding/grade');
       }
     } catch (_) {
       await minShow;
-      if (mounted) {
+      if (mounted && !_cancelled) {
         _hideLoadingOverlay();
-        setState(() => _error = '계산 실패. 재시도.');
+        setState(() => _error = 'Calc failed. Retry.');
       }
     } finally {
       if (mounted) setState(() => _submitting = false);
+    }
+  }
+
+  /// v1.15 P0-1: 로딩 취소. 다이얼로그 닫고 에러 상태로 전환.
+  void _cancelCompute() {
+    _cancelled = true;
+    _hideLoadingOverlay();
+    if (mounted) {
+      setState(() {
+        _submitting = false;
+        _error = 'Cancelled.';
+      });
     }
   }
 
@@ -299,7 +344,7 @@ class _OnboardingBenchmarksScreenState
       context: context,
       barrierDismissible: false,
       barrierColor: Colors.black54,
-      builder: (_) => const _ComputeLoadingDialog(),
+      builder: (_) => _ComputeLoadingDialog(onCancel: _cancelCompute),
     );
   }
 
@@ -381,21 +426,33 @@ class _OnboardingBenchmarksScreenState
                   children: [
                     if (_page > 0)
                       Expanded(
-                        child: OutlinedButton(
-                          onPressed: _submitting ? null : _prev,
-                          child: const Text('← Back'),
+                        child: OutlinedButton.icon(
+                          onPressed: _submitting
+                              ? null
+                              : () {
+                                  Haptic.light();
+                                  _prev();
+                                },
+                          icon: const Icon(Icons.arrow_back_ios_new, size: 14),
+                          label: const Text('Back'),
                         ),
                       ),
                     if (_page > 0) const SizedBox(width: FacingTokens.sp3),
                     Expanded(
                       flex: 2,
                       child: ElevatedButton(
-                        onPressed: _submitting ? null : _next,
+                        onPressed: _submitting
+                            ? null
+                            : () {
+                                Haptic.light();
+                                _next();
+                              },
+                        // v1.15 P1-7: 버튼 카피 영문 단독 일관. 'Calculating.' / 'Next' / 'Skip' 3 상태.
                         child: Text(
                           _submitting
-                              ? '계산 중'
+                              ? 'Calculating.'
                               : (_isLastPage
-                                  ? (_anyFilled ? 'Measure Engine' : 'Skip · Tier 확인')
+                                  ? (_anyFilled ? 'Measure Engine' : 'Skip')
                                   : 'Next'),
                         ),
                       ),
@@ -455,6 +512,10 @@ class _OnboardingBenchmarksScreenState
 
   @override
   void dispose() {
+    // v1.15 P1-5: unit 리스너 제거.
+    try {
+      context.read<UnitState>().removeListener(_onUnitChanged);
+    } catch (_) {/* context already dead */}
     _pc.dispose();
     for (final c in _ctrls.values) {
       c.dispose();
@@ -464,35 +525,56 @@ class _OnboardingBenchmarksScreenState
 }
 
 class _ComputeLoadingDialog extends StatelessWidget {
-  const _ComputeLoadingDialog();
+  /// v1.15 P0-1: 취소 콜백. null이면 취소 버튼 숨김.
+  final VoidCallback? onCancel;
+  const _ComputeLoadingDialog({this.onCancel});
 
   @override
   Widget build(BuildContext context) {
     return PopScope(
+      // v1.15 P0-1: 시스템 Back 허용 → 취소 경로 제공. pop 시 onCancel 호출.
       canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) onCancel?.call();
+      },
       child: Center(
         child: Container(
           padding: const EdgeInsets.all(FacingTokens.sp5),
           decoration: BoxDecoration(
-            color: FacingTokens.surface,
+            color: FacingTokens.surfaceOverlay,
             borderRadius: BorderRadius.circular(FacingTokens.r3),
           ),
-          child: const Column(
+          child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              SizedBox(
+              const SizedBox(
                 width: 32,
                 height: 32,
                 child: CircularProgressIndicator(
                   strokeWidth: 2.5,
-                  color: FacingTokens.accent,
+                  color: FacingTokens.muted,
                 ),
               ),
-              SizedBox(height: FacingTokens.sp3),
-              Text('Calculating.', style: FacingTokens.body),
-              SizedBox(height: FacingTokens.sp1),
-              Text('6 카테고리 Engine 측정 중.',
+              const SizedBox(height: FacingTokens.sp3),
+              const Text('Calculating.', style: FacingTokens.body),
+              const SizedBox(height: FacingTokens.sp1),
+              const Text('6 카테고리 Engine 측정 중.',
                   style: FacingTokens.caption),
+              if (onCancel != null) ...[
+                const SizedBox(height: FacingTokens.sp4),
+                TextButton(
+                  onPressed: () {
+                    Haptic.light();
+                    onCancel!();
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: FacingTokens.muted,
+                    minimumSize: const Size(FacingTokens.touchMin,
+                        FacingTokens.touchMin),
+                  ),
+                  child: const Text('Cancel'),
+                ),
+              ],
             ],
           ),
         ),
@@ -551,21 +633,21 @@ class _BenchmarkRowState extends State<_BenchmarkRow> {
                     style: FacingTokens.body
                         .copyWith(fontWeight: FontWeight.w700)),
               ),
+              // v1.15 P1-4: 48dp 터치 타겟 준수 (Masters·손 떨림 페르소나 대응).
               TextButton(
                 style: TextButton.styleFrom(
-                  minimumSize: const Size(0, 28),
+                  minimumSize: const Size(
+                      FacingTokens.touchMin, FacingTokens.touchMin),
                   padding: const EdgeInsets.symmetric(
-                      horizontal: FacingTokens.sp2),
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      horizontal: FacingTokens.sp3),
                 ),
                 onPressed: () {
+                  Haptic.light();
                   widget.controller.clear();
                   widget.onChanged('');
                   setState(() {});
                 },
-                child: const Text('모름',
-                    style: TextStyle(
-                        fontSize: 12, color: FacingTokens.muted)),
+                child: const Text('모름', style: FacingTokens.caption),
               ),
             ],
           ),
@@ -584,6 +666,8 @@ class _BenchmarkRowState extends State<_BenchmarkRow> {
               }),
             ],
             decoration: InputDecoration(
+              // v1.15 P1-6: 스크린리더 접근성.
+              labelText: widget.label,
               hintText: widget.hint,
               suffixText: widget.suffix.isEmpty ? null : widget.suffix,
               isDense: true,

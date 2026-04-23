@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../core/unit_state.dart';
 import '../profile/profile_state.dart';
@@ -54,14 +55,47 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
 
   @override
   Widget build(BuildContext context) {
+    const progress = 1 / 6;
+    const pct = 17;
     return Scaffold(
       appBar: AppBar(title: const Text('Step 1 / 6')),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(FacingTokens.sp4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // v1.15 P1-13: 6단계 진행률 시각화
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                FacingTokens.sp4,
+                FacingTokens.sp3,
+                FacingTokens.sp4,
+                FacingTokens.sp2,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: const [
+                      Text('Step 1 / 6', style: FacingTokens.caption),
+                      Text('$pct%', style: FacingTokens.caption),
+                    ],
+                  ),
+                  const SizedBox(height: FacingTokens.sp1),
+                  const LinearProgressIndicator(
+                    value: progress,
+                    minHeight: 4,
+                    backgroundColor: FacingTokens.border,
+                    color: FacingTokens.fg,
+                  ),
+                ],
+              ),
+            ),
+            Expanded(child: Padding(
+              padding: const EdgeInsets.all(FacingTokens.sp4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
               const SizedBox(height: FacingTokens.sp3),
               const Text('Body', style: FacingTokens.h2),
               const SizedBox(height: FacingTokens.sp1),
@@ -75,6 +109,7 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
                   label: 'Body Weight (${u.weightSuffix})',
                   child: _Input(
                     controller: _weight,
+                    semanticLabel: 'Body Weight',
                     hint: u.isKg ? 'e.g. 75' : 'e.g. 165',
                     suffix: u.weightSuffix,
                     onChanged: (_) => setState(() {}),
@@ -84,31 +119,44 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
               const SizedBox(height: FacingTokens.sp4),
               _Row(label: 'Height (cm)', child: _Input(
                 controller: _height, hint: 'e.g. 176', suffix: 'cm',
+                semanticLabel: 'Height',
                 onChanged: (_) => setState(() {}),
               )),
               const SizedBox(height: FacingTokens.sp4),
               _Row(label: 'Age', child: _Input(
                 controller: _age, hint: 'e.g. 32', suffix: 'yr',
+                semanticLabel: 'Age',
                 onChanged: (_) => setState(() {}),
               )),
               const SizedBox(height: FacingTokens.sp4),
               _Row(label: 'Sex', child: _GenderToggle(
                 value: _gender,
-                onChanged: (g) => setState(() => _gender = g),
+                onChanged: (g) {
+                  Haptic.selection();
+                  setState(() => _gender = g);
+                },
               )),
               const SizedBox(height: FacingTokens.sp4),
               _Row(label: 'CrossFit XP (yr)', child: _Input(
                 controller: _years, hint: 'e.g. 3',
                 suffix: 'yr',
+                semanticLabel: 'CrossFit Experience Years',
                 onChanged: (_) => setState(() {}),
               )),
               const Spacer(),
               ElevatedButton(
-                onPressed: _canContinue ? _onNext : null,
+                onPressed: _canContinue
+                    ? () {
+                        Haptic.light();
+                        _onNext();
+                      }
+                    : null,
                 child: const Text('Next'),
               ),
-            ],
-          ),
+                ],
+              ),
+            )),
+          ],
         ),
       ),
     );
@@ -150,12 +198,14 @@ class _Input extends StatelessWidget {
   final TextEditingController controller;
   final String hint;
   final String suffix;
+  final String? semanticLabel;
   final ValueChanged<String> onChanged;
   const _Input({
     required this.controller,
     required this.hint,
     required this.suffix,
     required this.onChanged,
+    this.semanticLabel,
   });
 
   @override
@@ -172,6 +222,8 @@ class _Input extends StatelessWidget {
         }),
       ],
       decoration: InputDecoration(
+        // v1.15 P1-6: 접근성 — 스크린리더가 필드 용도 인식 가능.
+        labelText: semanticLabel,
         hintText: hint,
         suffixText: suffix.isEmpty ? null : suffix,
         isDense: true,
@@ -226,29 +278,35 @@ class _Pill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(FacingTokens.r4),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: FacingTokens.touchMin),
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: FacingTokens.sp4,
-            vertical: FacingTokens.sp2,
-          ),
-          decoration: BoxDecoration(
-            color: selected ? FacingTokens.fg : Colors.transparent,
-            border: selected
-                ? null
-                : Border.all(color: FacingTokens.border),
-            borderRadius: BorderRadius.circular(FacingTokens.r4),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            style: FacingTokens.body.copyWith(
-              color: selected ? FacingTokens.bg : FacingTokens.muted,
-              fontWeight: FontWeight.w700,
+    // v1.15 P1-3: Semantics — 스크린리더에게 button/selected 상태 전달.
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: label,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(FacingTokens.r4),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: FacingTokens.touchMin),
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: FacingTokens.sp4,
+              vertical: FacingTokens.sp2,
+            ),
+            decoration: BoxDecoration(
+              color: selected ? FacingTokens.fg : Colors.transparent,
+              border: selected
+                  ? null
+                  : Border.all(color: FacingTokens.border),
+              borderRadius: BorderRadius.circular(FacingTokens.r4),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              label,
+              style: FacingTokens.body.copyWith(
+                color: selected ? FacingTokens.bg : FacingTokens.muted,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
         ),

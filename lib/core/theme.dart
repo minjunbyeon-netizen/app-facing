@@ -26,11 +26,12 @@ class FacingTokens {
 
   // ---- Tier 색상 (v1.15 흑백 재배치 - VISUAL_CONCEPT.md 3.2) ----
   // 명도: 어두움(Motivation) → 빛(Obsession). RX만 유일한 유채색.
+  // v1.15.1 P1-10: Elite↔Games 명도 격차 확대 (E0→C8, FF→F5). Masters 순백 피로 완화.
   static const Color tierScaled = Color(0xFF4A4A4A);  // Motivation
   static const Color tierRx = Color(0xFFEE2B2B);      // Discipline (유일 유채색, 기준선)
   static const Color tierRxPlus = Color(0xFF929292);  // Discipline+
-  static const Color tierElite = Color(0xFFE0E0E0);   // Obsession (+15% 밝기 P4)
-  static const Color tierGames = Color(0xFFFFFFFF);   // Obsession (최상위, 순백)
+  static const Color tierElite = Color(0xFFC8C8C8);   // Obsession (gap 확대)
+  static const Color tierGames = Color(0xFFF5F5F5);   // Obsession (최상위, 순백 회피)
 
   static const String fontFamily = 'Pretendard';
   /// v1.15 — Bodoni Moda Italic (영문 선언 헤드라인 전용). Google Fonts SIL OFL.

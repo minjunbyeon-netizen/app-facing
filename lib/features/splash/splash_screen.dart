@@ -79,9 +79,10 @@ class _SplashScreenState extends State<SplashScreen> {
                 const SizedBox(
                   width: 22,
                   height: 22,
+                  // v1.15 P2-4: 로딩=중립 → accent red 대신 muted (심리 부담 완화).
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: FacingTokens.accent,
+                    color: FacingTokens.muted,
                   ),
                 ),
                 const Spacer(),

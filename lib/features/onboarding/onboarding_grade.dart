@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/haptic.dart';
 import '../../core/quotes.dart';
 import '../../core/theme.dart';
 import '../../core/tier.dart';
@@ -32,8 +33,11 @@ class OnboardingGradeScreen extends StatelessWidget {
                     style: FacingTokens.caption),
                 const SizedBox(height: FacingTokens.sp6),
                 ElevatedButton(
-                  onPressed: () => Navigator.of(context)
-                      .pushReplacementNamed('/onboarding/basic'),
+                  onPressed: () {
+                    Haptic.light();
+                    Navigator.of(context)
+                        .pushReplacementNamed('/onboarding/basic');
+                  },
                   child: const Text('Start Onboarding'),
                 ),
               ],
@@ -46,8 +50,8 @@ class OnboardingGradeScreen extends StatelessWidget {
     final tier = Tier.fromOverallNumber(
         overallNumber is num ? overallNumber : null);
     final score = grade['overall_score'];
-    // v1.15: Tier별 고정 명언 (VISUAL_CONCEPT.md 3.2 SSOT)
-    final quote = Quote(tier.quote, tier.subtitle);
+    // v1.15 P2-1: Tier별 고정 명언 (저자 포함).
+    final quote = Quote(tier.quote, tier.quoteAuthor);
 
     return Scaffold(
       appBar: AppBar(
@@ -57,12 +61,27 @@ class OnboardingGradeScreen extends StatelessWidget {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // v1.15: Grade 화면 배경 — 흑백 hero + subtle grain
+          // v1.15 P1-8: Grade 화면 배경 — hero + 하단 darken gradient로 카드 텍스트 가독성 보장.
           Image.asset(
             'assets/images/hero_grade.jpg',
             fit: BoxFit.cover,
             alignment: Alignment.topCenter,
-            opacity: const AlwaysStoppedAnimation(0.35),
+            opacity: const AlwaysStoppedAnimation(0.28),
+          ),
+          // 하단→중간 어두움 gradient (P1-8 카드 가독성).
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  FacingTokens.bg.withValues(alpha: 0.40),
+                  FacingTokens.bg.withValues(alpha: 0.72),
+                  FacingTokens.bg.withValues(alpha: 0.95),
+                ],
+                stops: const [0.0, 0.45, 1.0],
+              ),
+            ),
           ),
           const GrainOverlay.subtle(),
           SafeArea(
@@ -121,8 +140,11 @@ class OnboardingGradeScreen extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(FacingTokens.sp4),
                 child: ElevatedButton(
-                  onPressed: () => Navigator.of(context)
-                      .pushNamedAndRemoveUntil('/home', (_) => false),
+                  onPressed: () {
+                    Haptic.medium();
+                    Navigator.of(context)
+                        .pushNamedAndRemoveUntil('/home', (_) => false);
+                  },
                   child: const Text('Start WOD'),
                 ),
               ),
@@ -168,18 +190,29 @@ class _CategoryCard extends StatelessWidget {
               TierBadge(tier: tier),
             ],
           ),
-          const SizedBox(height: FacingTokens.sp1),
+          const SizedBox(height: FacingTokens.sp2),
+          // v1.15 P2-6: Score 강조 (body.w700 + accent on 숫자) + items caption.
           Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
             children: [
-              Text('Score $score', style: FacingTokens.caption),
+              Text('$score',
+                  style: FacingTokens.body.copyWith(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 18,
+                    fontFeatures: FacingTokens.tabular,
+                  )),
+              const SizedBox(width: FacingTokens.sp2),
+              const Text('Score', style: FacingTokens.caption),
               const SizedBox(width: FacingTokens.sp3),
               Text('$itemsUsed items', style: FacingTokens.caption),
             ],
           ),
           if (missing.isNotEmpty) ...[
             const SizedBox(height: FacingTokens.sp1),
+            // v1.15 P1-11: micro(11sp) → caption(13sp) — Masters 노안 대응.
             Text('입력 ${missing.length}개 추가 시 정확도 향상',
-                style: FacingTokens.micro),
+                style: FacingTokens.caption),
           ],
         ],
       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../widgets/hero_background.dart';
 
@@ -19,13 +20,16 @@ class _IntroScreenState extends State<IntroScreen> {
   // v1.15: 각 페이지에 hero 이미지 + stickman SVG (Motivation → Discipline → Obsession)
   static const List<_IntroPage> _pages = [
     _IntroPage(
+      stage: 'MOTIVATION',
       title: 'Split defines rank.',
-      body: '첫 1분 all-out은 마지막 5분을 부순다.\n'
+      // v1.15 P1-12: V9 위반 제거 — "1분 all-out은" 영-한 혼용 → 전문 한글.
+      body: '초반 전력 질주는 마지막 5분을 부순다.\n'
           '논문 공식으로 Split과 Burst 시점을 계산한다.',
       heroAsset: 'assets/images/hero_intro_1.jpg',
       stickmanAsset: 'assets/icons/stickman_motivation.svg',
     ),
     _IntroPage(
+      stage: 'DISCIPLINE',
       title: '6 metrics.\nMeasure Engine.',
       body: 'Body · Power · Olympic · Gymnastics · Cardio · Metcon\n'
           '아는 것만 입력. 빈 칸은 자동 추론.',
@@ -33,7 +37,9 @@ class _IntroScreenState extends State<IntroScreen> {
       stickmanAsset: 'assets/icons/stickman_discipline.svg',
     ),
     _IntroPage(
-      title: 'Start.',
+      stage: 'OBSESSION',
+      // v1.15 P2-2: 버튼 'Start'와 중복 제거 → 'Run it.' (HWPO 톤).
+      title: 'Run it.',
       body: 'Profile은 언제든 수정 가능.\n'
           'WOD 붙이면 즉시 전략 출력.',
       heroAsset: 'assets/images/hero_intro_3.jpg',
@@ -88,10 +94,18 @@ class _IntroScreenState extends State<IntroScreen> {
                       horizontal: FacingTokens.sp3,
                       vertical: FacingTokens.sp2,
                     ),
+                    // v1.15 P1-15: Skip 48dp 터치 타겟 + P2-4 토큰 사용.
                     child: TextButton(
-                      onPressed: _finish,
-                      child: const Text('Skip',
-                          style: TextStyle(color: FacingTokens.muted)),
+                      style: TextButton.styleFrom(
+                        minimumSize: const Size(
+                            FacingTokens.touchMin, FacingTokens.touchMin),
+                        foregroundColor: FacingTokens.muted,
+                      ),
+                      onPressed: () {
+                        Haptic.light();
+                        _finish();
+                      },
+                      child: const Text('Skip'),
                     ),
                   ),
                 ),
@@ -118,7 +132,10 @@ class _IntroScreenState extends State<IntroScreen> {
                 Padding(
                   padding: const EdgeInsets.all(FacingTokens.sp4),
                   child: ElevatedButton(
-                    onPressed: _next,
+                    onPressed: () {
+                      Haptic.light();
+                      _next();
+                    },
                     child: Text(isLast ? 'Start' : 'Next'),
                   ),
                 ),
@@ -132,11 +149,14 @@ class _IntroScreenState extends State<IntroScreen> {
 }
 
 class _IntroPage {
+  /// v1.15 P2-5: 3단계 서사 라벨 (MOTIVATION / DISCIPLINE / OBSESSION).
+  final String stage;
   final String title;
   final String body;
   final String heroAsset;
   final String stickmanAsset;
   const _IntroPage({
+    required this.stage,
     required this.title,
     required this.body,
     required this.heroAsset,
@@ -177,6 +197,9 @@ class _IntroPageView extends StatelessWidget {
                 ),
               ),
               const Spacer(),
+              // v1.15 P2-5: 3단계 서사 라벨 (브랜드 의도 명시).
+              Text(page.stage, style: FacingTokens.sectionLabel),
+              const SizedBox(height: FacingTokens.sp2),
               Text(page.title, style: FacingTokens.h1Serif),
               const SizedBox(height: FacingTokens.sp4),
               Text(page.body, style: FacingTokens.lead),

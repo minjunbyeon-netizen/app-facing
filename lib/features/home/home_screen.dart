@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../core/tier.dart';
 import '../../core/unit_state.dart';
@@ -66,7 +67,9 @@ class HomeScreen extends StatelessWidget {
                   );
                 },
               ),
-              const Text("오늘 WOD.\nSplit 뽑아라.", style: FacingTokens.h1),
+              // v1.15 P1-12: V9 위반 제거 — "Split 뽑아라" 영-한 혼용 → 순영문.
+              const Text("Today's WOD.\nPull your Split.",
+                  style: FacingTokens.h1),
               const SizedBox(height: FacingTokens.sp2),
               const Text(
                 'RX부터 Games까지. Split과 Burst 자동 계산.',
@@ -94,6 +97,7 @@ class HomeScreen extends StatelessWidget {
                       ],
                       ElevatedButton(
                         onPressed: () {
+                          Haptic.medium();
                           context.read<WodDraftState>().clear();
                           Navigator.of(context).pushNamed('/presets');
                         },
@@ -108,6 +112,7 @@ class HomeScreen extends StatelessWidget {
                       const SizedBox(height: FacingTokens.sp3),
                       OutlinedButton(
                         onPressed: () {
+                          Haptic.light();
                           context.read<WodDraftState>().clear();
                           Navigator.of(context).pushNamed('/builder');
                         },

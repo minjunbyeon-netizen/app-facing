@@ -49,4 +49,20 @@ enum Tier {
         return 'Everyone wants to win. Not everyone wants to prepare.';
     }
   }
+
+  /// v1.15 P2-1: Tier별 고정 명언의 저자 (QuoteCard author 표시용).
+  String get quoteAuthor {
+    switch (this) {
+      case Tier.scaled:
+        return 'Robert Frost';
+      case Tier.rx:
+        return 'Rich Froning Jr.';
+      case Tier.rxPlus:
+        return 'P.T. Barnum';
+      case Tier.elite:
+        return 'Camille Leblanc-Bazinet';
+      case Tier.games:
+        return 'Mat Fraser';
+    }
+  }
 }

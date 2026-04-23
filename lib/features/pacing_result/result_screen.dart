@@ -37,7 +37,10 @@ class _ResultScreenState extends State<ResultScreen> {
       'profile_overrides': profile.toOverrides(),
       if (profile.overallGrade != null) 'grade': profile.overallGrade,
     };
-    final data = await api.post('/api/v1/pacing/calculate', body);
+    // v1.15 P1-9: 8s clientside timeout (Dio receiveTimeout 외 보강).
+    final data = await api
+        .post('/api/v1/pacing/calculate', body)
+        .timeout(const Duration(seconds: 8));
     // fire-and-forget: WOD history 저장
     unawaited(_saveHistory(api, wodJson, data, profile.overallGrade));
     return PacingPlan.fromJson(data);
@@ -72,13 +75,30 @@ class _ResultScreenState extends State<ResultScreen> {
         future: _future,
         builder: (ctx, snap) {
           if (snap.connectionState != ConnectionState.done) {
-            return const Center(child: Text('계산 중', style: FacingTokens.body));
+            // v1.15 P1-7: 카피 일관성 — 'Calculating.' 영문 단독.
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  SizedBox(
+                    width: 28,
+                    height: 28,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: FacingTokens.muted,
+                    ),
+                  ),
+                  SizedBox(height: FacingTokens.sp3),
+                  Text('Calculating.', style: FacingTokens.body),
+                ],
+              ),
+            );
           }
           if (snap.hasError) {
             final e = snap.error;
             final msg = e is AppException
                 ? e.messageKo
-                : '계산 실패. 재시도.';
+                : 'Calc failed. Retry.';
             return Padding(
               padding: const EdgeInsets.all(FacingTokens.sp4),
               child: Column(
@@ -94,10 +114,14 @@ class _ResultScreenState extends State<ResultScreen> {
                   ),
                   const SizedBox(height: FacingTokens.sp3),
                   OutlinedButton(
-                    onPressed: () => setState(() {
-                      _future = _calculate();
-                    }),
-                    child: const Text('재시도'),
+                    onPressed: () {
+                      // v1.15 P1-9: mounted 가드 (FutureBuilder setState 안전).
+                      if (!mounted) return;
+                      setState(() {
+                        _future = _calculate();
+                      });
+                    },
+                    child: const Text('Retry'),
                   ),
                 ],
               ),
