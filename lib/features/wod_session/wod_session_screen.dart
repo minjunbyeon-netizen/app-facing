@@ -1,0 +1,453 @@
+// v1.16 Sprint 10: WOD 세션 실행·기록 화면.
+// Persona P0 Top-4 대응:
+//  1. WOD 카드 Start/Complete 버튼 (시간·라운드 입력 → 기록 저장)
+//  2. 내장 타이머 (For Time count-up · AMRAP count-down · EMOM interval)
+//  3. 완료 시 WodSessionBus.bump() → Attendance 탭 캘린더 자동 체크
+//  4. Share placeholder (Phase 2) · Calc 페이싱 안내
+
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../core/api_client.dart';
+import '../../core/exception.dart';
+import '../../core/haptic.dart';
+import '../../core/theme.dart';
+import '../../core/wod_session_bus.dart';
+import '../../models/gym.dart';
+import '../history/history_repository.dart';
+
+enum _TimerMode { forTime, amrap, emom }
+
+class WodSessionScreen extends StatefulWidget {
+  final GymWodPost wod;
+  const WodSessionScreen({super.key, required this.wod});
+
+  @override
+  State<WodSessionScreen> createState() => _WodSessionScreenState();
+}
+
+class _WodSessionScreenState extends State<WodSessionScreen> {
+  late final _TimerMode _mode;
+  late final int _capSec; // AMRAP·EMOM 지속시간. For Time은 optional.
+  Timer? _tick;
+  int _elapsedSec = 0;
+  bool _running = false;
+  bool _completed = false;
+  bool _saving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _mode = _modeFrom(widget.wod.wodType);
+    _capSec = _resolveCap(widget.wod, _mode);
+  }
+
+  @override
+  void dispose() {
+    _tick?.cancel();
+    super.dispose();
+  }
+
+  static _TimerMode _modeFrom(String type) {
+    switch (type.toLowerCase()) {
+      case 'amrap':
+        return _TimerMode.amrap;
+      case 'emom':
+        return _TimerMode.emom;
+      default:
+        return _TimerMode.forTime;
+    }
+  }
+
+  /// AMRAP/EMOM 지속시간. time_cap_sec 우선, 없으면 content에서 "AMRAP 12" · "EMOM 10" 숫자 추출.
+  static int _resolveCap(GymWodPost wod, _TimerMode mode) {
+    if (wod.timeCapSec != null && wod.timeCapSec! > 0) return wod.timeCapSec!;
+    final m = RegExp(r'(AMRAP|EMOM)\s+(\d+)', caseSensitive: false)
+        .firstMatch(wod.content);
+    if (m != null) {
+      final mins = int.tryParse(m.group(2) ?? '') ?? 0;
+      if (mins > 0) return mins * 60;
+    }
+    // 기본값: AMRAP/EMOM 10분, For Time 무한.
+    if (mode == _TimerMode.forTime) return 0;
+    return 600;
+  }
+
+  void _start() {
+    if (_running || _completed) return;
+    Haptic.medium();
+    setState(() => _running = true);
+    _tick = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!mounted) return;
+      setState(() {
+        _elapsedSec++;
+        if (_mode == _TimerMode.emom && _elapsedSec % 60 == 0) {
+          Haptic.light();
+        }
+        if (_mode != _TimerMode.forTime && _capSec > 0 && _elapsedSec >= _capSec) {
+          _autoStop();
+        }
+        if (_mode == _TimerMode.forTime && _capSec > 0 && _elapsedSec >= _capSec) {
+          _autoStop();
+        }
+      });
+    });
+  }
+
+  void _pause() {
+    if (!_running) return;
+    Haptic.light();
+    _tick?.cancel();
+    setState(() => _running = false);
+  }
+
+  void _reset() {
+    Haptic.light();
+    _tick?.cancel();
+    setState(() {
+      _running = false;
+      _elapsedSec = 0;
+      _completed = false;
+    });
+  }
+
+  void _autoStop() {
+    _tick?.cancel();
+    Haptic.heavy();
+    setState(() {
+      _running = false;
+      _completed = true;
+    });
+  }
+
+  Future<void> _complete() async {
+    Haptic.heavy();
+    _tick?.cancel();
+    setState(() {
+      _running = false;
+      _completed = true;
+    });
+    await _openRecordSheet();
+  }
+
+  int get _displaySec {
+    if (_mode == _TimerMode.amrap && _capSec > 0) {
+      return (_capSec - _elapsedSec).clamp(0, _capSec);
+    }
+    return _elapsedSec;
+  }
+
+  String _formatMMSS(int s) {
+    final m = s ~/ 60;
+    final r = s % 60;
+    return '${m.toString().padLeft(2, '0')}:${r.toString().padLeft(2, '0')}';
+  }
+
+  Future<void> _openRecordSheet() async {
+    final timeCtrl = TextEditingController(text: _formatMMSS(_elapsedSec));
+    final roundsCtrl = TextEditingController();
+    final repsCtrl = TextEditingController();
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: FacingTokens.surface,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(FacingTokens.r4)),
+      ),
+      builder: (sheetCtx) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: FacingTokens.sp4,
+            right: FacingTokens.sp4,
+            top: FacingTokens.sp4,
+            bottom:
+                MediaQuery.of(sheetCtx).viewInsets.bottom + FacingTokens.sp4,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text('SAVE RECORD', style: FacingTokens.sectionLabel),
+              const SizedBox(height: FacingTokens.sp1),
+              Text(widget.wod.wodType.toUpperCase(),
+                  style: FacingTokens.h3.copyWith(
+                    color: FacingTokens.accent,
+                    fontWeight: FontWeight.w800,
+                  )),
+              const SizedBox(height: FacingTokens.sp4),
+              if (_mode == _TimerMode.forTime) ...[
+                const Text('완료 시간 (MM:SS)', style: FacingTokens.caption),
+                const SizedBox(height: FacingTokens.sp1),
+                TextField(
+                  controller: timeCtrl,
+                  decoration: const InputDecoration(hintText: '7:43'),
+                  keyboardType: TextInputType.datetime,
+                ),
+              ] else if (_mode == _TimerMode.amrap) ...[
+                const Text('완료한 라운드', style: FacingTokens.caption),
+                const SizedBox(height: FacingTokens.sp1),
+                TextField(
+                  controller: roundsCtrl,
+                  decoration: const InputDecoration(hintText: '5'),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: FacingTokens.sp3),
+                const Text('추가 반복 (optional)', style: FacingTokens.caption),
+                const SizedBox(height: FacingTokens.sp1),
+                TextField(
+                  controller: repsCtrl,
+                  decoration: const InputDecoration(hintText: '12'),
+                  keyboardType: TextInputType.number,
+                ),
+              ] else ...[
+                Text('${_capSec ~/ 60}분 EMOM 완료.',
+                    style: FacingTokens.body),
+              ],
+              const SizedBox(height: FacingTokens.sp4),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: _saving
+                          ? null
+                          : () => Navigator.of(sheetCtx).pop(),
+                      child: const Text('Cancel'),
+                    ),
+                  ),
+                  const SizedBox(width: FacingTokens.sp3),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _saving
+                          ? null
+                          : () async {
+                              final ok = await _saveRecord(
+                                timeStr: timeCtrl.text.trim(),
+                                rounds: int.tryParse(roundsCtrl.text.trim()),
+                                extraReps: int.tryParse(repsCtrl.text.trim()),
+                              );
+                              if (!sheetCtx.mounted) return;
+                              if (ok) Navigator.of(sheetCtx).pop();
+                            },
+                      child: Text(_saving ? 'Saving…' : 'Save'),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: FacingTokens.sp2),
+              Center(
+                child: TextButton(
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('공유 카드 생성은 Phase 2에서 제공.'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                  child: const Text('Share (Phase 2)'),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  int _parseTimeToSec(String s) {
+    final m = RegExp(r'^(\d+):(\d{1,2})$').firstMatch(s);
+    if (m != null) {
+      final mm = int.parse(m.group(1)!);
+      final ss = int.parse(m.group(2)!);
+      return mm * 60 + ss;
+    }
+    final n = int.tryParse(s);
+    return n ?? _elapsedSec;
+  }
+
+  Future<bool> _saveRecord({
+    required String timeStr,
+    int? rounds,
+    int? extraReps,
+  }) async {
+    setState(() => _saving = true);
+    try {
+      final api = context.read<ApiClient>();
+      final repo = HistoryRepository(api);
+      final totalSec = _mode == _TimerMode.forTime
+          ? _parseTimeToSec(timeStr)
+          : _elapsedSec;
+      final notes = StringBuffer();
+      notes.writeln('FACING WOD — ${widget.wod.postDate}');
+      if (rounds != null) notes.writeln('Rounds: $rounds');
+      if (extraReps != null) notes.writeln('Extra reps: $extraReps');
+      notes.writeln('---');
+      notes.writeln(widget.wod.content);
+
+      await repo.saveWodHistory({
+        'wod': {
+          'wod_type': widget.wod.wodType,
+          'time_cap_sec': widget.wod.timeCapSec,
+          'rounds': rounds ?? widget.wod.rounds,
+          'notes': notes.toString().substring(
+                0,
+                notes.length > 500 ? 500 : notes.length,
+              ),
+          'items': const [],
+        },
+        'plan': {
+          'formula_version': 'manual_session_v1',
+          'estimated_total_sec': totalSec,
+          'grade': '',
+          'segments': const [],
+        },
+      });
+
+      if (!mounted) return true;
+      context.read<WodSessionBus>().bump();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('기록 저장. 출석 달력 자동 반영.'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      Navigator.of(context).pop(); // 세션 스크린 종료
+      return true;
+    } on AppException catch (e) {
+      if (!mounted) return false;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('저장 실패: ${e.messageKo}')),
+      );
+      return false;
+    } catch (e) {
+      if (!mounted) return false;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('저장 실패: $e')),
+      );
+      return false;
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.wod.wodType.toUpperCase()),
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(FacingTokens.sp4),
+          child: Column(
+            children: [
+              // WOD 내용
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(FacingTokens.sp4),
+                decoration: BoxDecoration(
+                  color: FacingTokens.surface,
+                  borderRadius: BorderRadius.circular(FacingTokens.r3),
+                  border: Border.all(color: FacingTokens.border),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(_modeLabel(_mode),
+                        style: FacingTokens.sectionLabel.copyWith(
+                          color: FacingTokens.accent,
+                        )),
+                    const SizedBox(height: FacingTokens.sp2),
+                    Text(widget.wod.content, style: FacingTokens.body),
+                  ],
+                ),
+              ),
+              const Spacer(),
+              // 타이머 표시
+              Text(
+                _formatMMSS(_displaySec),
+                style: FacingTokens.display.copyWith(
+                  fontFeatures: FacingTokens.tabular,
+                ),
+              ),
+              const SizedBox(height: FacingTokens.sp1),
+              Text(_subLabel(),
+                  style: FacingTokens.caption.copyWith(
+                    color: FacingTokens.muted,
+                  )),
+              const Spacer(),
+              // 컨트롤 버튼
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: _reset,
+                      child: const Text('Reset'),
+                    ),
+                  ),
+                  const SizedBox(width: FacingTokens.sp3),
+                  Expanded(
+                    flex: 2,
+                    child: _running
+                        ? ElevatedButton(
+                            onPressed: _pause,
+                            child: const Text('Pause'),
+                          )
+                        : ElevatedButton(
+                            onPressed:
+                                _elapsedSec == 0 ? _start : _start,
+                            child:
+                                Text(_elapsedSec == 0 ? 'Start' : 'Resume'),
+                          ),
+                  ),
+                  const SizedBox(width: FacingTokens.sp3),
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: FacingTokens.accent,
+                        foregroundColor: FacingTokens.fg,
+                      ),
+                      onPressed: _elapsedSec == 0 ? null : _complete,
+                      child: const Text('Done'),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: FacingTokens.sp2),
+              Text(
+                _mode == _TimerMode.amrap
+                    ? 'AMRAP · 카운트다운 종료 시 자동 기록 전환'
+                    : _mode == _TimerMode.emom
+                        ? 'EMOM · 매 분 Haptic 알림'
+                        : 'For Time · 스톱워치 · Done 누르면 기록 저장',
+                style: FacingTokens.caption,
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _modeLabel(_TimerMode m) {
+    switch (m) {
+      case _TimerMode.forTime:
+        return 'FOR TIME';
+      case _TimerMode.amrap:
+        return 'AMRAP · ${_capSec ~/ 60} MIN';
+      case _TimerMode.emom:
+        return 'EMOM · ${_capSec ~/ 60} MIN';
+    }
+  }
+
+  String _subLabel() {
+    if (_mode == _TimerMode.amrap) {
+      return _running ? 'Remaining' : 'Countdown';
+    }
+    return _running ? 'Running' : (_elapsedSec == 0 ? 'Ready' : 'Paused');
+  }
+}

@@ -8,6 +8,7 @@ import 'core/movements_repository.dart';
 import 'core/theme.dart';
 import 'core/ui_prefs_state.dart';
 import 'core/unit_state.dart';
+import 'core/wod_session_bus.dart';
 import 'features/home/home_screen.dart';
 import 'features/intro/intro_screen.dart';
 import 'features/onboarding/onboarding_basic.dart';
@@ -99,6 +100,7 @@ class FacingApp extends StatelessWidget {
         ),
         ChangeNotifierProvider<AuthState>.value(value: auth),
         ChangeNotifierProvider<UiPrefsState>.value(value: uiPrefs),
+        ChangeNotifierProvider<WodSessionBus>(create: (_) => WodSessionBus()),
       ],
       child: Consumer<UiPrefsState>(
         builder: (ctx, ui, _) => MaterialApp(

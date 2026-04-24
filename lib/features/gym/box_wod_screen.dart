@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/gym.dart';
+import '../wod_session/wod_session_screen.dart';
 import 'coach_dashboard_screen.dart';
 import 'gym_search_screen.dart';
 import 'gym_state.dart';
@@ -308,52 +309,102 @@ class _WodCard extends StatelessWidget {
   final bool canDelete;
   const _WodCard({required this.wod, required this.canDelete});
 
+  void _openSession(BuildContext context) {
+    Haptic.medium();
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => WodSessionScreen(wod: wod),
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: FacingTokens.sp3),
-      padding: const EdgeInsets.all(FacingTokens.sp4),
       decoration: BoxDecoration(
         color: FacingTokens.surface,
         borderRadius: BorderRadius.circular(FacingTokens.r3),
         border: Border.all(color: FacingTokens.border),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(wod.wodType.toUpperCase(),
-                  style: FacingTokens.sectionLabel.copyWith(
-                    color: FacingTokens.accent,
-                  )),
-              const SizedBox(width: FacingTokens.sp2),
-              if (wod.timeCapSec != null)
-                Text(wod.timeCapDisplay, style: FacingTokens.caption),
-              if (wod.rounds != null) ...[
-                const SizedBox(width: FacingTokens.sp2),
-                Text('${wod.rounds} rounds', style: FacingTokens.caption),
-              ],
-              const Spacer(),
-              if (canDelete)
-                IconButton(
-                  icon: const Icon(Icons.delete_outline, size: 20),
-                  color: FacingTokens.muted,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  onPressed: () async {
-                    final ok = await _confirmDelete(context);
-                    if (ok == true && context.mounted) {
-                      Haptic.medium();
-                      context.read<GymState>().deleteWod(wod.id);
-                    }
-                  },
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _openSession(context),
+          borderRadius: BorderRadius.circular(FacingTokens.r3),
+          child: Padding(
+            padding: const EdgeInsets.all(FacingTokens.sp4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(wod.wodType.toUpperCase(),
+                        style: FacingTokens.sectionLabel.copyWith(
+                          color: FacingTokens.accent,
+                        )),
+                    const SizedBox(width: FacingTokens.sp2),
+                    if (wod.timeCapSec != null)
+                      Text(wod.timeCapDisplay, style: FacingTokens.caption),
+                    if (wod.rounds != null) ...[
+                      const SizedBox(width: FacingTokens.sp2),
+                      Text('${wod.rounds} rounds',
+                          style: FacingTokens.caption),
+                    ],
+                    const Spacer(),
+                    if (canDelete)
+                      IconButton(
+                        icon: const Icon(Icons.delete_outline, size: 20),
+                        color: FacingTokens.muted,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        onPressed: () async {
+                          final ok = await _confirmDelete(context);
+                          if (ok == true && context.mounted) {
+                            Haptic.medium();
+                            context.read<GymState>().deleteWod(wod.id);
+                          }
+                        },
+                      ),
+                  ],
                 ),
-            ],
+                const SizedBox(height: FacingTokens.sp2),
+                Text(wod.content, style: FacingTokens.body),
+                const SizedBox(height: FacingTokens.sp3),
+                Row(
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () => _openSession(context),
+                      icon: const Icon(Icons.play_arrow, size: 18),
+                      label: const Text('Start'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: FacingTokens.accent,
+                        foregroundColor: FacingTokens.fg,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: FacingTokens.sp4,
+                          vertical: FacingTokens.sp2,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: FacingTokens.sp2),
+                    TextButton.icon(
+                      onPressed: () {
+                        Haptic.light();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                                'Calc 탭에서 이 WOD 구성 후 Split·Burst 계산.'),
+                            duration: Duration(seconds: 3),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.calculate_outlined, size: 18),
+                      label: const Text('Pacing'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: FacingTokens.sp2),
-          Text(wod.content, style: FacingTokens.body),
-        ],
+        ),
       ),
     );
   }

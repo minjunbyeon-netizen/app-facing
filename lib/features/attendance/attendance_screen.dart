@@ -5,6 +5,7 @@ import '../../core/api_client.dart';
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
+import '../../core/wod_session_bus.dart';
 import '../history/history_models.dart';
 import '../history/history_repository.dart';
 
@@ -19,6 +20,7 @@ class AttendanceScreen extends StatefulWidget {
 
 class _AttendanceScreenState extends State<AttendanceScreen> {
   late final HistoryRepository _repo;
+  WodSessionBus? _bus;
   Future<List<WodHistoryItem>>? _future;
   late DateTime _month; // 1일 00:00 기준
 
@@ -29,6 +31,20 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     final now = DateTime.now();
     _month = DateTime(now.year, now.month, 1);
     _reload();
+    // WOD 완료 이벤트 구독 → 즉시 reload.
+    _bus = context.read<WodSessionBus>();
+    _bus?.addListener(_onSessionBump);
+  }
+
+  void _onSessionBump() {
+    if (!mounted) return;
+    _reload();
+  }
+
+  @override
+  void dispose() {
+    _bus?.removeListener(_onSessionBump);
+    super.dispose();
   }
 
   void _reload() {
