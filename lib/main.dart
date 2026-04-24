@@ -6,6 +6,7 @@ import 'core/api_client.dart';
 import 'core/connectivity_state.dart';
 import 'core/movements_repository.dart';
 import 'core/theme.dart';
+import 'core/shell_nav_bus.dart';
 import 'core/ui_prefs_state.dart';
 import 'core/unit_state.dart';
 import 'core/wod_session_bus.dart';
@@ -101,6 +102,7 @@ class FacingApp extends StatelessWidget {
         ChangeNotifierProvider<AuthState>.value(value: auth),
         ChangeNotifierProvider<UiPrefsState>.value(value: uiPrefs),
         ChangeNotifierProvider<WodSessionBus>(create: (_) => WodSessionBus()),
+        ChangeNotifierProvider<ShellNavBus>(create: (_) => ShellNavBus()),
       ],
       child: Consumer<UiPrefsState>(
         builder: (ctx, ui, _) => MaterialApp(

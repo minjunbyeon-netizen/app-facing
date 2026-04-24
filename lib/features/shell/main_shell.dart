@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/haptic.dart';
+import '../../core/shell_nav_bus.dart';
 import '../../core/theme.dart';
 import '../attendance/attendance_screen.dart';
 import '../gym/box_wod_screen.dart';
@@ -26,6 +28,8 @@ class _MainShellState extends State<MainShell> {
   int _index = _centerIndex;
   bool _showTabHint = false;
 
+  ShellNavBus? _navBus;
+
   @override
   void initState() {
     super.initState();
@@ -36,6 +40,26 @@ class _MainShellState extends State<MainShell> {
       if (!mounted) return;
       setState(() => _showTabHint = true);
     });
+    // v1.16 Sprint 11: 딥링크 탭 전환 요청 리스닝.
+    _navBus = context.read<ShellNavBus>();
+    _navBus?.addListener(_onNavRequest);
+  }
+
+  void _onNavRequest() {
+    final idx = _navBus?.requestedIndex;
+    if (idx == null) return;
+    if (idx == _index) {
+      _navBus?.consume();
+      return;
+    }
+    setState(() => _index = idx);
+    _navBus?.consume();
+  }
+
+  @override
+  void dispose() {
+    _navBus?.removeListener(_onNavRequest);
+    super.dispose();
   }
 
   Future<void> _dismissHint() async {

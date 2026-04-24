@@ -19,6 +19,7 @@ import '../gym/gym_state.dart';
 import '../history/history_models.dart';
 import '../history/history_repository.dart';
 import '../profile/profile_state.dart';
+import 'algorithm_screen.dart';
 import 'import_screen.dart';
 import 'privacy_screen.dart';
 
@@ -979,6 +980,14 @@ class _ActionsSection extends StatelessWidget {
               builder: (_) => const ImportScreen(),
             )),
             child: const Text('Import Data'),
+          ),
+          const SizedBox(height: FacingTokens.sp3),
+          // v1.16 Sprint 11: Engine 계산식 투명성 (P9 Q9-Q15).
+          OutlinedButton(
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => const AlgorithmScreen(),
+            )),
+            child: const Text('Algorithm'),
           ),
           const SizedBox(height: FacingTokens.sp3),
           TextButton(

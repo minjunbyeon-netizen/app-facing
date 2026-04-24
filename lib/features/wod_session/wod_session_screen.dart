@@ -9,6 +9,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../core/api_client.dart';
 import '../../core/exception.dart';
@@ -36,6 +37,7 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
   bool _running = false;
   bool _completed = false;
   bool _saving = false;
+  bool _scaled = false; // v1.16 Sprint 11: Scaled 기록 여부.
 
   @override
   void initState() {
@@ -47,6 +49,8 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
   @override
   void dispose() {
     _tick?.cancel();
+    // v1.16 Sprint 11: 세션 종료 시 wakelock 해제.
+    WakelockPlus.disable().catchError((_) {});
     super.dispose();
   }
 
@@ -78,6 +82,8 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
   void _start() {
     if (_running || _completed) return;
     Haptic.medium();
+    // v1.16 Sprint 11: 타이머 실행 중 화면 꺼짐 방지.
+    WakelockPlus.enable().catchError((_) {});
     setState(() => _running = true);
     _tick = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) return;
@@ -100,12 +106,14 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
     if (!_running) return;
     Haptic.light();
     _tick?.cancel();
+    WakelockPlus.disable().catchError((_) {});
     setState(() => _running = false);
   }
 
   void _reset() {
     Haptic.light();
     _tick?.cancel();
+    WakelockPlus.disable().catchError((_) {});
     setState(() {
       _running = false;
       _elapsedSec = 0;
@@ -115,6 +123,7 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
 
   void _autoStop() {
     _tick?.cancel();
+    WakelockPlus.disable().catchError((_) {});
     Haptic.heavy();
     setState(() {
       _running = false;
@@ -158,6 +167,7 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
             BorderRadius.vertical(top: Radius.circular(FacingTokens.r4)),
       ),
       builder: (sheetCtx) {
+        return StatefulBuilder(builder: (innerCtx, setSheet) {
         return Padding(
           padding: EdgeInsets.only(
             left: FacingTokens.sp4,
@@ -206,6 +216,30 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
                 Text('${_capSec ~/ 60}분 EMOM 완료.',
                     style: FacingTokens.body),
               ],
+              const SizedBox(height: FacingTokens.sp3),
+              // v1.16 Sprint 11: Scaled 토글 (P2 Q8/Q18).
+              Row(
+                children: [
+                  const Expanded(
+                    child: Text('Scaled 기록',
+                        style: FacingTokens.body),
+                  ),
+                  Switch(
+                    value: _scaled,
+                    activeTrackColor: FacingTokens.accent,
+                    onChanged: (v) {
+                      setSheet(() {});
+                      setState(() => _scaled = v);
+                    },
+                  ),
+                ],
+              ),
+              Text(
+                _scaled
+                    ? 'Scaled — Tier 반영 시 감산 가중치 적용.'
+                    : 'RX — 등급 기본 반영.',
+                style: FacingTokens.caption,
+              ),
               const SizedBox(height: FacingTokens.sp4),
               Row(
                 children: [
@@ -253,6 +287,7 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
             ],
           ),
         );
+        });
       },
     );
   }
@@ -281,7 +316,9 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
           ? _parseTimeToSec(timeStr)
           : _elapsedSec;
       final notes = StringBuffer();
-      notes.writeln('FACING WOD — ${widget.wod.postDate}');
+      notes.writeln(_scaled
+          ? '[SCALED] FACING WOD — ${widget.wod.postDate}'
+          : '[RX] FACING WOD — ${widget.wod.postDate}');
       if (rounds != null) notes.writeln('Rounds: $rounds');
       if (extraReps != null) notes.writeln('Extra reps: $extraReps');
       notes.writeln('---');
@@ -333,12 +370,51 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
     }
   }
 
+  Future<bool> _confirmExitIfRunning() async {
+    if (!_running && _elapsedSec == 0) return true;
+    if (_completed) return true;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: FacingTokens.surfaceOverlay,
+        title: const Text('세션 진행 중'),
+        content: const Text(
+          '타이머 기록을 저장하지 않고 종료하면 소실됩니다.\n계속 종료하시겠습니까?',
+          style: FacingTokens.caption,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('계속 운동'),
+          ),
+          TextButton(
+            style: TextButton.styleFrom(foregroundColor: FacingTokens.accent),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('종료'),
+          ),
+        ],
+      ),
+    );
+    return ok == true;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.wod.wodType.toUpperCase()),
-      ),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        final ok = await _confirmExitIfRunning();
+        if (ok && mounted) {
+          _tick?.cancel();
+          WakelockPlus.disable().catchError((_) {});
+          Navigator.of(context).pop();
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(widget.wod.wodType.toUpperCase()),
+        ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(FacingTokens.sp4),
@@ -430,6 +506,7 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
           ),
         ),
       ),
+    ),
     );
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/haptic.dart';
+import '../../core/shell_nav_bus.dart';
 import '../../core/theme.dart';
 import '../../models/gym.dart';
 import '../wod_session/wod_session_screen.dart';
@@ -388,11 +389,13 @@ class _WodCard extends StatelessWidget {
                     TextButton.icon(
                       onPressed: () {
                         Haptic.light();
+                        // v1.16 Sprint 11: Calc 탭(index 0) 딥링크.
+                        context.read<ShellNavBus>().requestTab(0);
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text(
-                                'Calc 탭에서 이 WOD 구성 후 Split·Burst 계산.'),
-                            duration: Duration(seconds: 3),
+                                'Calc 탭 이동. WOD 구성 후 Split·Burst 계산.'),
+                            duration: Duration(seconds: 2),
                           ),
                         );
                       },
