@@ -260,7 +260,7 @@ class _ResultBody extends StatelessWidget {
         const SizedBox(height: FacingTokens.sp1),
         const Text('예상 완주 시간. 레스트 포함.',
             style: FacingTokens.caption),
-        const SizedBox(height: FacingTokens.sp5),
+        const SizedBox(height: FacingTokens.sp4),
 
         // 2. PACE STRATEGY
         const Text('PACE STRATEGY', style: FacingTokens.sectionLabel),
@@ -269,7 +269,7 @@ class _ResultBody extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp1),
               child: Text(line, style: FacingTokens.lead),
             )),
-        const SizedBox(height: FacingTokens.sp5),
+        const SizedBox(height: FacingTokens.sp4),
 
         // 3. SPLIT SEQUENCE
         const Text('SPLIT SEQUENCE', style: FacingTokens.sectionLabel),
@@ -293,7 +293,7 @@ class _ResultBody extends StatelessWidget {
                   ],
                 ),
               )),
-          const SizedBox(height: FacingTokens.sp5),
+          const SizedBox(height: FacingTokens.sp4),
         ],
 
         // 5. REST STRATEGY
@@ -305,7 +305,7 @@ class _ResultBody extends StatelessWidget {
               : '세트 간 최대 $maxRest초. W-prime 회복 기준.',
           style: FacingTokens.caption,
         ),
-        const SizedBox(height: FacingTokens.sp5),
+        const SizedBox(height: FacingTokens.sp4),
 
         // 6. RATIONALE (collapsed)
         Theme(
@@ -341,62 +341,76 @@ class _ResultBody extends StatelessWidget {
   }
 }
 
+/// v1.16: 박스 제거 — 좌측 1px 라인만. BURST는 accent 색.
 class _SegmentCard extends StatelessWidget {
   final PacingSegment segment;
   const _SegmentCard({required this.segment});
 
   @override
   Widget build(BuildContext context) {
+    final accent = segment.isExplosion;
     return Container(
-      margin: const EdgeInsets.only(bottom: FacingTokens.sp3),
-      padding: const EdgeInsets.all(FacingTokens.sp4),
+      margin: const EdgeInsets.only(bottom: FacingTokens.sp4),
+      padding: const EdgeInsets.only(
+        left: FacingTokens.sp3,
+      ),
       decoration: BoxDecoration(
-        color: FacingTokens.surface,
-        border: segment.isExplosion
-            ? Border.all(color: FacingTokens.accent, width: 2)
-            : Border.all(color: FacingTokens.border, width: 1),
-        borderRadius: BorderRadius.circular(FacingTokens.r3),
+        border: Border(
+          left: BorderSide(
+            color: accent ? FacingTokens.accent : FacingTokens.border,
+            width: accent ? 2 : 1,
+          ),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (segment.isExplosion) ...[
-            Text('BURST',
-                style: FacingTokens.sectionLabel.copyWith(
-                  color: FacingTokens.accent,
-                )),
-            const SizedBox(height: FacingTokens.sp1),
-          ],
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
             children: [
-              Text(_prettifySlug(segment.movementSlug),
-                  style: FacingTokens.h3),
+              Expanded(
+                child: Text(_prettifySlug(segment.movementSlug),
+                    style: FacingTokens.h3),
+              ),
+              if (accent) ...[
+                Text('BURST',
+                    style: FacingTokens.micro.copyWith(
+                      color: FacingTokens.accent,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.0,
+                    )),
+                const SizedBox(width: FacingTokens.sp2),
+              ],
               Text(segment.estimatedDisplay,
-                  style: FacingTokens.lead.copyWith(
+                  style: FacingTokens.body.copyWith(
+                    fontWeight: FontWeight.w700,
                     fontFeatures: FacingTokens.tabular,
                   )),
             ],
           ),
-          const SizedBox(height: FacingTokens.sp3),
           if (segment.splitPattern.isNotEmpty) ...[
+            const SizedBox(height: FacingTokens.sp2),
             _SplitText(
               splits: segment.splitPattern,
               lastIsExplosion: segment.isExplosion,
             ),
             const SizedBox(height: FacingTokens.sp1),
             Text(
-              '세트 간 휴식 ${segment.restBetweenSec}초',
+              '세트 간 ${segment.restBetweenSec}초',
               style: FacingTokens.caption,
             ),
           ],
-          if (segment.targetPaceSecPer500m != null)
+          if (segment.targetPaceSecPer500m != null) ...[
+            const SizedBox(height: FacingTokens.sp1),
             Text(
               _formatPace(segment.targetPaceSecPer500m!),
-              style: FacingTokens.h3.copyWith(
+              style: FacingTokens.body.copyWith(
+                fontWeight: FontWeight.w700,
                 fontFeatures: FacingTokens.tabular,
               ),
             ),
+          ],
         ],
       ),
     );
