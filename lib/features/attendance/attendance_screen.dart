@@ -184,45 +184,98 @@ class _AttendanceBody extends StatelessWidget {
     final currentStreak = _currentStreak();
     final longestStreak = _longestStreak();
 
+    final streakNote = currentStreak == 0
+        ? '오늘 세션하면 streak 시작.'
+        : (currentStreak == longestStreak && currentStreak > 1)
+            ? '최장 streak 갱신 중. 멈추지 말 것.'
+            : currentStreak >= 7
+                ? '$currentStreak일 연속. 페이스 유지.'
+                : '$currentStreak일 연속.';
+
     return ListView(
       padding: const EdgeInsets.all(FacingTokens.sp4),
       children: [
-        // 1. TOTAL — 평생 누적 세션
-        const Text('TOTAL SESSIONS', style: FacingTokens.sectionLabel),
-        const SizedBox(height: FacingTokens.sp2),
+        // 1. CALENDAR — 최상단 (월 네비 + 그리드)
         Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('$totalLifetime', style: FacingTokens.displayCompact),
-            const SizedBox(width: FacingTokens.sp2),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: Text('sessions · $uniqueDays days',
-                  style: FacingTokens.caption),
+            IconButton(
+              icon: const Icon(Icons.chevron_left),
+              onPressed: onPrevMonth,
+            ),
+            Text(
+              '${month.year}.${month.month.toString().padLeft(2, '0')}',
+              style: FacingTokens.h3,
+            ),
+            IconButton(
+              icon: const Icon(Icons.chevron_right),
+              onPressed: onNextMonth,
             ),
           ],
         ),
-        const SizedBox(height: FacingTokens.sp5),
-
-        // 2. STREAK — 현재·최장 연속 출석
-        const Text('STREAK', style: FacingTokens.sectionLabel),
         const SizedBox(height: FacingTokens.sp2),
         Row(
-          children: [
-            Expanded(child: _StatBlock(label: 'CURRENT', value: '$currentStreak', unit: '일')),
-            Expanded(child: _StatBlock(label: 'LONGEST', value: '$longestStreak', unit: '일')),
+          children: const [
+            _WeekdayLabel('일'),
+            _WeekdayLabel('월'),
+            _WeekdayLabel('화'),
+            _WeekdayLabel('수'),
+            _WeekdayLabel('목'),
+            _WeekdayLabel('금'),
+            _WeekdayLabel('토'),
           ],
         ),
         const SizedBox(height: FacingTokens.sp2),
-        if (currentStreak == 0)
-          const Text('오늘 세션하면 streak 시작.', style: FacingTokens.caption)
-        else if (currentStreak == longestStreak && currentStreak > 1)
-          const Text('최장 streak 갱신 중. 멈추지 말 것.',
-              style: FacingTokens.caption)
-        else if (currentStreak >= 7)
-          Text('$currentStreak일 연속. 페이스 유지.', style: FacingTokens.caption)
-        else
-          Text('$currentStreak일 연속.', style: FacingTokens.caption),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: totalCells,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 7,
+            mainAxisSpacing: 4,
+            crossAxisSpacing: 4,
+            childAspectRatio: 1.0,
+          ),
+          itemBuilder: (_, i) {
+            final dayNum = i - firstWeekday + 1;
+            if (dayNum < 1 || dayNum > daysInMonth) {
+              return const SizedBox.shrink();
+            }
+            final count = counts[dayNum] ?? 0;
+            final isToday = today.year == month.year &&
+                today.month == month.month &&
+                today.day == dayNum;
+            return _DayCell(day: dayNum, count: count, isToday: isToday);
+          },
+        ),
+        const SizedBox(height: FacingTokens.sp5),
+
+        // 2. STATS — 캘린더 하단 label·value ROW
+        const Text('STATS', style: FacingTokens.sectionLabel),
+        const SizedBox(height: FacingTokens.sp2),
+        _StatLine(
+          label: 'THIS MONTH',
+          value: '$attendedDays / $daysInMonth 일',
+          trailing: '$attendancePct%',
+        ),
+        _StatLine(
+          label: 'TOTAL',
+          value: '$totalLifetime sessions',
+          trailing: '$uniqueDays days',
+        ),
+        _StatLine(
+          label: 'CURRENT STREAK',
+          value: '$currentStreak 일',
+          trailing: null,
+        ),
+        _StatLine(
+          label: 'LONGEST STREAK',
+          value: '$longestStreak 일',
+          trailing: null,
+          isLast: true,
+        ),
+        const SizedBox(height: FacingTokens.sp2),
+        Text(streakNote, style: FacingTokens.caption),
         const SizedBox(height: FacingTokens.sp5),
 
         // 3. MILESTONES — 단계별 진행도
@@ -287,112 +340,69 @@ class _AttendanceBody extends StatelessWidget {
         const SizedBox(height: FacingTokens.sp1),
         Text('⚠️ 챌린지는 가상 데이터 · 실제 집계 연결은 Phase 2',
             style: FacingTokens.micro),
-        const SizedBox(height: FacingTokens.sp5),
-
-        // 4. THIS MONTH — 월별 요약 (기존 캘린더)
-        const Text('THIS MONTH', style: FacingTokens.sectionLabel),
-        const SizedBox(height: FacingTokens.sp2),
-        Text('$attendedDays / $daysInMonth 일 · $attendancePct%',
-            style: FacingTokens.body),
-        const SizedBox(height: FacingTokens.sp3),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.chevron_left),
-              onPressed: onPrevMonth,
-            ),
-            Text(
-              '${month.year}.${month.month.toString().padLeft(2, '0')}',
-              style: FacingTokens.h3,
-            ),
-            IconButton(
-              icon: const Icon(Icons.chevron_right),
-              onPressed: onNextMonth,
-            ),
-          ],
-        ),
-        const SizedBox(height: FacingTokens.sp2),
-        Row(
-          children: const [
-            _WeekdayLabel('일'),
-            _WeekdayLabel('월'),
-            _WeekdayLabel('화'),
-            _WeekdayLabel('수'),
-            _WeekdayLabel('목'),
-            _WeekdayLabel('금'),
-            _WeekdayLabel('토'),
-          ],
-        ),
-        const SizedBox(height: FacingTokens.sp2),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: totalCells,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 7,
-            mainAxisSpacing: 4,
-            crossAxisSpacing: 4,
-            childAspectRatio: 1.0,
-          ),
-          itemBuilder: (_, i) {
-            final dayNum = i - firstWeekday + 1;
-            if (dayNum < 1 || dayNum > daysInMonth) {
-              return const SizedBox.shrink();
-            }
-            final count = counts[dayNum] ?? 0;
-            final isToday = today.year == month.year &&
-                today.month == month.month &&
-                today.day == dayNum;
-            return _DayCell(day: dayNum, count: count, isToday: isToday);
-          },
-        ),
       ],
     );
   }
 
 }
 
-/// v1.16: Streak 숫자 블록 (CURRENT · LONGEST).
-class _StatBlock extends StatelessWidget {
+/// v1.16: 캘린더 하단 통계를 label · value(· trailing) 한 줄씩 깔끔히.
+class _StatLine extends StatelessWidget {
   final String label;
   final String value;
-  final String unit;
-  const _StatBlock({
+  final String? trailing;
+  final bool isLast;
+  const _StatLine({
     required this.label,
     required this.value,
-    required this.unit,
+    this.trailing,
+    this.isLast = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label,
-            style: FacingTokens.micro.copyWith(
-              color: FacingTokens.muted,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 1.2,
-            )),
-        const SizedBox(height: FacingTokens.sp1),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
-          children: [
-            Text(value,
-                style: FacingTokens.h1.copyWith(
-                  fontSize: 36,
-                  fontFeatures: FacingTokens.tabular,
-                )),
-            const SizedBox(width: 4),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Text(unit, style: FacingTokens.caption),
-            ),
-          ],
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp3),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: isLast ? Colors.transparent : FacingTokens.border,
+            width: 1,
+          ),
         ),
-      ],
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 140,
+            child: Text(
+              label,
+              style: FacingTokens.micro.copyWith(
+                color: FacingTokens.muted,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1.2,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: FacingTokens.body.copyWith(
+                fontWeight: FontWeight.w700,
+                fontFeatures: FacingTokens.tabular,
+              ),
+            ),
+          ),
+          if (trailing != null)
+            Text(
+              trailing!,
+              style: FacingTokens.body.copyWith(
+                color: FacingTokens.muted,
+                fontFeatures: FacingTokens.tabular,
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
