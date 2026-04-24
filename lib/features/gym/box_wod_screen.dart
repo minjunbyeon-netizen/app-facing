@@ -412,16 +412,19 @@ class _WodCard extends StatelessWidget {
                 const SizedBox(height: FacingTokens.sp3),
                 Row(
                   children: [
-                    ElevatedButton.icon(
-                      onPressed: () => _openSession(context),
-                      icon: const Icon(Icons.play_arrow, size: 18),
-                      label: const Text('Start'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: FacingTokens.accent,
-                        foregroundColor: FacingTokens.fg,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: FacingTokens.sp4,
-                          vertical: FacingTokens.sp2,
+                    Expanded(
+                      flex: 2,
+                      child: ElevatedButton.icon(
+                        onPressed: () => _openSession(context),
+                        icon: const Icon(Icons.play_arrow, size: 18),
+                        label: const Text('Start'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: FacingTokens.accent,
+                          foregroundColor: FacingTokens.fg,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: FacingTokens.sp4,
+                            vertical: FacingTokens.sp2,
+                          ),
                         ),
                       ),
                     ),
