@@ -7,6 +7,7 @@ import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/gym.dart';
+import '../messages/messages_screen.dart';
 import 'gym_repository.dart';
 import 'gym_state.dart';
 
@@ -391,6 +392,25 @@ class _MemberDetailSheet extends StatelessWidget {
               ),
             ),
             const SizedBox(height: FacingTokens.sp4),
+            if (member.deviceHashFull != null)
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => MessagesScreen(
+                      withHash: member.deviceHashFull!,
+                      withLabel: member.deviceHashPrefix,
+                    ),
+                  ));
+                },
+                icon: const Icon(Icons.chat_bubble_outline, size: 18),
+                label: const Text('Send Message'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: FacingTokens.accent,
+                  foregroundColor: FacingTokens.fg,
+                ),
+              ),
+            const SizedBox(height: FacingTokens.sp2),
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(

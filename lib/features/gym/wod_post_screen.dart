@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
+import '../../models/gym.dart';
 import 'gym_state.dart';
 
 /// v1.15.3: 코치 WOD 작성 폼.
@@ -22,6 +23,8 @@ class _WodPostScreenState extends State<WodPostScreen> {
   String _wodType = 'for_time';
   DateTime _date = DateTime.now();
   bool _submitting = false;
+  // v1.16 Sprint 15: 라운드 배열 (각 라운드별 label·content·timeCap).
+  final List<_RoundDraft> _rounds = [];
 
   @override
   void dispose() {
@@ -74,6 +77,16 @@ class _WodPostScreenState extends State<WodPostScreen> {
     }
     setState(() => _submitting = true);
     Haptic.medium();
+    final roundsData = _rounds
+        .where((r) => r.content.text.trim().isNotEmpty)
+        .map((r) => WodRoundItem(
+              label: r.label.text.trim().isEmpty
+                  ? 'Round ${_rounds.indexOf(r) + 1}'
+                  : r.label.text.trim(),
+              content: r.content.text.trim(),
+              timeCapSec: _parseTimeCap(r.timeCap.text.trim()),
+            ))
+        .toList();
     final ok = await context.read<GymState>().postWod(
           postDate: _dateIso,
           wodType: _wodType,
@@ -81,6 +94,7 @@ class _WodPostScreenState extends State<WodPostScreen> {
           scaleGuide: _scaleGuideCtrl.text.trim().isEmpty
               ? null
               : _scaleGuideCtrl.text.trim(),
+          roundsData: roundsData,
           rounds: int.tryParse(_roundsCtrl.text.trim()),
           timeCapSec: _parseTimeCap(_timeCapCtrl.text.trim()),
         );
@@ -226,6 +240,80 @@ class _WodPostScreenState extends State<WodPostScreen> {
               ],
             ),
             const SizedBox(height: FacingTokens.sp5),
+            // v1.16 Sprint 15: 여러 라운드/블록 편집.
+            Row(
+              children: [
+                const Expanded(
+                  child: Text('ROUNDS (선택)',
+                      style: FacingTokens.sectionLabel),
+                ),
+                TextButton.icon(
+                  onPressed: _addRound,
+                  icon: const Icon(Icons.add, size: 16),
+                  label: const Text('Add Round'),
+                ),
+              ],
+            ),
+            const SizedBox(height: FacingTokens.sp1),
+            const Text(
+              '구조화 라운드: Chipper · 3 Rounds · Block 1/2/3 등. 위 CONTENT는 전체 요약.',
+              style: FacingTokens.caption,
+            ),
+            const SizedBox(height: FacingTokens.sp2),
+            ..._rounds.asMap().entries.map((e) {
+              final i = e.key;
+              final r = e.value;
+              return Container(
+                margin: const EdgeInsets.only(bottom: FacingTokens.sp3),
+                padding: const EdgeInsets.all(FacingTokens.sp3),
+                decoration: BoxDecoration(
+                  color: FacingTokens.surface,
+                  borderRadius: BorderRadius.circular(FacingTokens.r2),
+                  border: Border.all(color: FacingTokens.border),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: r.label,
+                            decoration: InputDecoration(
+                              labelText: 'Label',
+                              hintText: 'Round ${i + 1}',
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete_outline, size: 18),
+                          color: FacingTokens.muted,
+                          onPressed: () => _removeRound(i),
+                        ),
+                      ],
+                    ),
+                    TextField(
+                      controller: r.content,
+                      decoration: const InputDecoration(
+                        labelText: 'Content',
+                        hintText: '15 Thrusters · 12 Pull-ups',
+                      ),
+                      maxLines: 3,
+                    ),
+                    const SizedBox(height: FacingTokens.sp2),
+                    TextField(
+                      controller: r.timeCap,
+                      decoration: const InputDecoration(
+                        labelText: 'Time Cap (min, 선택)',
+                        hintText: '5',
+                      ),
+                      keyboardType: TextInputType.number,
+                    ),
+                  ],
+                ),
+              );
+            }),
+            const SizedBox(height: FacingTokens.sp4),
             ElevatedButton(
               onPressed: _submitting ? null : _submit,
               child: Text(_submitting ? 'Posting...' : 'Post WOD'),
@@ -234,5 +322,32 @@ class _WodPostScreenState extends State<WodPostScreen> {
         ),
       ),
     );
+  }
+
+  void _addRound() {
+    Haptic.light();
+    setState(() {
+      _rounds.add(_RoundDraft());
+    });
+  }
+
+  void _removeRound(int i) {
+    Haptic.light();
+    setState(() {
+      _rounds[i].dispose();
+      _rounds.removeAt(i);
+    });
+  }
+}
+
+/// v1.16 Sprint 15: 단일 라운드 편집 상태.
+class _RoundDraft {
+  final TextEditingController label = TextEditingController();
+  final TextEditingController content = TextEditingController();
+  final TextEditingController timeCap = TextEditingController();
+  void dispose() {
+    label.dispose();
+    content.dispose();
+    timeCap.dispose();
   }
 }

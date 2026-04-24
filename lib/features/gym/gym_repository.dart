@@ -1,4 +1,5 @@
 import '../../core/api_client.dart';
+import '../../models/announcement.dart';
 import '../../models/gym.dart';
 
 /// v1.15.3: /api/v1/gyms/* 래퍼.
@@ -58,6 +59,7 @@ class GymRepository {
     required String wodType,
     required String content,
     String? scaleGuide,
+    List<WodRoundItem> roundsData = const [],
     int? rounds,
     int? timeCapSec,
   }) async {
@@ -66,10 +68,63 @@ class GymRepository {
       'wod_type': wodType,
       'content': content,
       if (scaleGuide != null && scaleGuide.isNotEmpty) 'scale_guide': scaleGuide,
+      if (roundsData.isNotEmpty)
+        'rounds_data': roundsData.map((r) => r.toJson()).toList(),
       if (rounds != null) 'rounds': rounds,
       if (timeCapSec != null) 'time_cap_sec': timeCapSec,
     });
     return (data['wod_post_id'] as num).toInt();
+  }
+
+  // ---- v1.16 Sprint 15: 공지·메시지 ----
+
+  Future<List<GymAnnouncement>> listAnnouncements(int gymId) async {
+    final list = await api.getList('/api/v1/gyms/$gymId/announcements');
+    return list
+        .whereType<Map<String, dynamic>>()
+        .map(GymAnnouncement.fromJson)
+        .toList();
+  }
+
+  Future<int> postAnnouncement({
+    required int gymId,
+    required String title,
+    required String body,
+    String priority = 'normal',
+  }) async {
+    final data = await api.post('/api/v1/gyms/$gymId/announcements', {
+      'title': title,
+      'body': body,
+      'priority': priority,
+    });
+    return (data['announcement_id'] as num).toInt();
+  }
+
+  Future<void> deleteAnnouncement(int gymId, int id) async {
+    await api.delete('/api/v1/gyms/$gymId/announcements/$id');
+  }
+
+  Future<List<GymMessageItem>> listMessages(int gymId, {String? withHash}) async {
+    final qs = withHash == null || withHash.isEmpty
+        ? ''
+        : '?with=${Uri.encodeQueryComponent(withHash)}';
+    final list = await api.getList('/api/v1/gyms/$gymId/messages$qs');
+    return list
+        .whereType<Map<String, dynamic>>()
+        .map(GymMessageItem.fromJson)
+        .toList();
+  }
+
+  Future<int> sendMessage({
+    required int gymId,
+    required String toHash,
+    required String body,
+  }) async {
+    final data = await api.post('/api/v1/gyms/$gymId/messages', {
+      'to_hash': toHash,
+      'body': body,
+    });
+    return (data['message_id'] as num).toInt();
   }
 
   Future<List<GymWodPost>> listWods({required int gymId, String? date}) async {

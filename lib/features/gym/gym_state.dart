@@ -104,6 +104,7 @@ class GymState extends ChangeNotifier {
     required String wodType,
     required String content,
     String? scaleGuide,
+    List<WodRoundItem> roundsData = const [],
     int? rounds,
     int? timeCapSec,
   }) async {
@@ -116,6 +117,7 @@ class GymState extends ChangeNotifier {
         wodType: wodType,
         content: content,
         scaleGuide: scaleGuide,
+        roundsData: roundsData,
         rounds: rounds,
         timeCapSec: timeCapSec,
       );

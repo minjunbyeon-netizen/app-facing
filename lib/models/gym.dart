@@ -57,6 +57,7 @@ class GymMembership {
 class GymMember {
   final int id;
   final String deviceHashPrefix;
+  final String? deviceHashFull; // v1.16 Sprint 15: 코치 조회 시만 전체 노출 (DM 송신용).
   final String status;
   final DateTime requestedAt;
   final DateTime? decidedAt;
@@ -68,6 +69,7 @@ class GymMember {
   const GymMember({
     required this.id,
     required this.deviceHashPrefix,
+    this.deviceHashFull,
     required this.status,
     required this.requestedAt,
     this.decidedAt,
@@ -91,6 +93,7 @@ class GymMember {
   factory GymMember.fromJson(Map<String, dynamic> j) => GymMember(
         id: (j['id'] as num).toInt(),
         deviceHashPrefix: (j['device_hash_prefix'] ?? '').toString(),
+        deviceHashFull: j['device_hash']?.toString(),
         status: (j['status'] ?? '').toString(),
         requestedAt: DateTime.parse(j['requested_at'] as String),
         decidedAt: j['decided_at'] == null
@@ -104,12 +107,37 @@ class GymMember {
       );
 }
 
+class WodRoundItem {
+  final String label;
+  final String content;
+  final int? timeCapSec;
+
+  const WodRoundItem({
+    required this.label,
+    required this.content,
+    this.timeCapSec,
+  });
+
+  factory WodRoundItem.fromJson(Map<String, dynamic> j) => WodRoundItem(
+        label: (j['label'] ?? '').toString(),
+        content: (j['content'] ?? '').toString(),
+        timeCapSec: (j['time_cap_sec'] as num?)?.toInt(),
+      );
+
+  Map<String, dynamic> toJson() => {
+        'label': label,
+        'content': content,
+        if (timeCapSec != null) 'time_cap_sec': timeCapSec,
+      };
+}
+
 class GymWodPost {
   final int id;
   final String postDate; // YYYY-MM-DD
   final String wodType;
   final String content;
   final String? scaleGuide;
+  final List<WodRoundItem> roundsData;
   final int? rounds;
   final int? timeCapSec;
   final DateTime createdAt;
@@ -120,6 +148,7 @@ class GymWodPost {
     required this.wodType,
     required this.content,
     this.scaleGuide,
+    this.roundsData = const [],
     this.rounds,
     this.timeCapSec,
     required this.createdAt,
@@ -133,14 +162,24 @@ class GymWodPost {
     return '$m:${s.toString().padLeft(2, '0')} cap';
   }
 
-  factory GymWodPost.fromJson(Map<String, dynamic> j) => GymWodPost(
-        id: (j['id'] as num).toInt(),
-        postDate: (j['post_date'] ?? '').toString(),
-        wodType: (j['wod_type'] ?? '').toString(),
-        content: (j['content'] ?? '').toString(),
-        scaleGuide: j['scale_guide']?.toString(),
-        rounds: (j['rounds'] as num?)?.toInt(),
-        timeCapSec: (j['time_cap_sec'] as num?)?.toInt(),
-        createdAt: DateTime.parse(j['created_at'] as String),
-      );
+  factory GymWodPost.fromJson(Map<String, dynamic> j) {
+    final roundsRaw = j['rounds_data'];
+    final rounds = (roundsRaw is List)
+        ? roundsRaw
+            .whereType<Map<String, dynamic>>()
+            .map(WodRoundItem.fromJson)
+            .toList()
+        : <WodRoundItem>[];
+    return GymWodPost(
+      id: (j['id'] as num).toInt(),
+      postDate: (j['post_date'] ?? '').toString(),
+      wodType: (j['wod_type'] ?? '').toString(),
+      content: (j['content'] ?? '').toString(),
+      scaleGuide: j['scale_guide']?.toString(),
+      roundsData: rounds,
+      rounds: (j['rounds'] as num?)?.toInt(),
+      timeCapSec: (j['time_cap_sec'] as num?)?.toInt(),
+      createdAt: DateTime.parse(j['created_at'] as String),
+    );
+  }
 }

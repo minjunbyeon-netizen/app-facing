@@ -438,6 +438,40 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
                         )),
                     const SizedBox(height: FacingTokens.sp2),
                     Text(widget.wod.content, style: FacingTokens.body),
+                    if (widget.wod.roundsData.isNotEmpty) ...[
+                      const SizedBox(height: FacingTokens.sp2),
+                      ...widget.wod.roundsData.asMap().entries.map((e) {
+                        final i = e.key;
+                        final r = e.value;
+                        return Padding(
+                          padding:
+                              const EdgeInsets.only(top: FacingTokens.sp1),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                r.label.isEmpty
+                                    ? 'ROUND ${i + 1}'
+                                    : r.label.toUpperCase(),
+                                style: FacingTokens.micro.copyWith(
+                                  color: FacingTokens.accent,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
+                              Text(r.content,
+                                  style: FacingTokens.caption),
+                              if (r.timeCapSec != null)
+                                Text(
+                                  'cap ${r.timeCapSec! ~/ 60}:${(r.timeCapSec! % 60).toString().padLeft(2, '0')}',
+                                  style: FacingTokens.micro.copyWith(
+                                      color: FacingTokens.muted),
+                                ),
+                            ],
+                          ),
+                        );
+                      }),
+                    ],
                     if (widget.wod.scaleGuide != null &&
                         widget.wod.scaleGuide!.isNotEmpty) ...[
                       const SizedBox(height: FacingTokens.sp3),

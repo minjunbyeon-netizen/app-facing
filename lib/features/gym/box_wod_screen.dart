@@ -5,7 +5,9 @@ import '../../core/haptic.dart';
 import '../../core/shell_nav_bus.dart';
 import '../../core/theme.dart';
 import '../../models/gym.dart';
+import '../announcements/announcements_screen.dart';
 import '../leaderboard/box_leaderboard_screen.dart';
+import '../messages/messages_screen.dart';
 import '../wod_session/wod_session_screen.dart';
 import 'coach_dashboard_screen.dart';
 import 'gym_search_screen.dart';
@@ -43,6 +45,28 @@ class BoxWodScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('WOD'),
         actions: [
+          if (gs.hasGym && gs.membership.isApprovedMember || gs.isOwner)
+            IconButton(
+              tooltip: 'Messages',
+              icon: const Icon(Icons.mail_outline),
+              onPressed: () {
+                Haptic.light();
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => const MessagesScreen(),
+                ));
+              },
+            ),
+          if (gs.hasGym && gs.membership.isApprovedMember || gs.isOwner)
+            IconButton(
+              tooltip: 'Announcements',
+              icon: const Icon(Icons.campaign_outlined),
+              onPressed: () {
+                Haptic.light();
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => const AnnouncementsScreen(),
+                ));
+              },
+            ),
           if (gs.hasGym && gs.membership.isApprovedMember || gs.isOwner)
             IconButton(
               tooltip: 'Leaderboard',
@@ -385,6 +409,49 @@ class _WodCard extends StatelessWidget {
                 ),
                 const SizedBox(height: FacingTokens.sp2),
                 Text(wod.content, style: FacingTokens.body),
+                if (wod.roundsData.isNotEmpty) ...[
+                  const SizedBox(height: FacingTokens.sp3),
+                  ...wod.roundsData.asMap().entries.map((e) {
+                    final i = e.key;
+                    final r = e.value;
+                    return Container(
+                      margin: const EdgeInsets.only(top: FacingTokens.sp1),
+                      padding: const EdgeInsets.all(FacingTokens.sp2),
+                      decoration: BoxDecoration(
+                        color: FacingTokens.surfaceOverlay,
+                        borderRadius:
+                            BorderRadius.circular(FacingTokens.r1),
+                        border: Border(
+                          left: BorderSide(
+                              color: FacingTokens.accent, width: 2),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            r.label.isEmpty
+                                ? 'ROUND ${i + 1}'
+                                : r.label.toUpperCase(),
+                            style: FacingTokens.micro.copyWith(
+                              color: FacingTokens.accent,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(r.content, style: FacingTokens.caption),
+                          if (r.timeCapSec != null)
+                            Text(
+                              'cap ${r.timeCapSec! ~/ 60}:${(r.timeCapSec! % 60).toString().padLeft(2, '0')}',
+                              style: FacingTokens.micro.copyWith(
+                                  color: FacingTokens.muted),
+                            ),
+                        ],
+                      ),
+                    );
+                  }),
+                ],
                 if (wod.scaleGuide != null && wod.scaleGuide!.isNotEmpty) ...[
                   const SizedBox(height: FacingTokens.sp3),
                   Container(
