@@ -5,12 +5,14 @@ class GymSummary {
   final String name;
   final String location;
   final int memberCount;
+  final bool isOfficial;
 
   const GymSummary({
     required this.id,
     required this.name,
     required this.location,
     required this.memberCount,
+    this.isOfficial = false,
   });
 
   factory GymSummary.fromJson(Map<String, dynamic> j) => GymSummary(
@@ -18,6 +20,8 @@ class GymSummary {
         name: (j['name'] ?? '').toString(),
         location: (j['location'] ?? '').toString(),
         memberCount: ((j['member_count'] ?? 0) as num).toInt(),
+        isOfficial: (j['is_official'] == true) ||
+            ((j['name'] ?? '').toString() == 'FACING'),
       );
 }
 

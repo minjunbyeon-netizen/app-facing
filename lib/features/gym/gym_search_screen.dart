@@ -75,6 +75,12 @@ class _GymSearchScreenState extends State<GymSearchScreen> {
     final ok = await context.read<GymState>().joinGym(gym.id);
     if (!mounted) return;
     if (ok) {
+      final msg = gym.isOfficial
+          ? '${gym.name} · 가입 완료. 오늘의 WOD 확인 가능.'
+          : '${gym.name} · 가입 요청 전송. 코치 승인 대기.';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(msg), duration: const Duration(seconds: 2)),
+      );
       Navigator.of(context).pop();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -129,18 +135,53 @@ class _GymSearchScreenState extends State<GymSearchScreen> {
                           final g = _results[i];
                           return ListTile(
                             contentPadding: EdgeInsets.zero,
-                            title: Text(g.name,
-                                style: FacingTokens.body
-                                    .copyWith(fontWeight: FontWeight.w700)),
+                            title: Row(
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    g.name,
+                                    style: FacingTokens.body.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                if (g.isOfficial) ...[
+                                  const SizedBox(width: FacingTokens.sp2),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: FacingTokens.sp1,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                          color: FacingTokens.accent, width: 1),
+                                      borderRadius: BorderRadius.circular(
+                                          FacingTokens.r1),
+                                    ),
+                                    child: Text(
+                                      'OFFICIAL',
+                                      style: FacingTokens.micro.copyWith(
+                                        color: FacingTokens.accent,
+                                        fontWeight: FontWeight.w800,
+                                        letterSpacing: 1.2,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
                             subtitle: Text(
-                              g.location.isEmpty
-                                  ? '${g.memberCount} members'
-                                  : '${g.location} · ${g.memberCount} members',
+                              g.isOfficial
+                                  ? '공식 박스 · 즉시 승인 · 오늘의 WOD 제공'
+                                  : (g.location.isEmpty
+                                      ? '${g.memberCount} members'
+                                      : '${g.location} · ${g.memberCount} members'),
                               style: FacingTokens.caption,
                             ),
                             trailing: TextButton(
                               onPressed: () => _join(g),
-                              child: const Text('Join'),
+                              child: Text(g.isOfficial ? 'Join' : 'Request'),
                             ),
                           );
                         },
