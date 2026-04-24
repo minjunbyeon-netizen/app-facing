@@ -16,6 +16,8 @@ class WodPostScreen extends StatefulWidget {
 
 class _WodPostScreenState extends State<WodPostScreen> {
   final _contentCtrl = TextEditingController();
+  final _scaledCtrl = TextEditingController();
+  final _beginnerCtrl = TextEditingController();
   final _scaleGuideCtrl = TextEditingController();
   final _roundsCtrl = TextEditingController();
   final _timeCapCtrl = TextEditingController();
@@ -29,6 +31,8 @@ class _WodPostScreenState extends State<WodPostScreen> {
   @override
   void dispose() {
     _contentCtrl.dispose();
+    _scaledCtrl.dispose();
+    _beginnerCtrl.dispose();
     _scaleGuideCtrl.dispose();
     _roundsCtrl.dispose();
     _timeCapCtrl.dispose();
@@ -91,6 +95,12 @@ class _WodPostScreenState extends State<WodPostScreen> {
           postDate: _dateIso,
           wodType: _wodType,
           content: content,
+          scaledVersion: _scaledCtrl.text.trim().isEmpty
+              ? null
+              : _scaledCtrl.text.trim(),
+          beginnerVersion: _beginnerCtrl.text.trim().isEmpty
+              ? null
+              : _beginnerCtrl.text.trim(),
           scaleGuide: _scaleGuideCtrl.text.trim().isEmpty
               ? null
               : _scaleGuideCtrl.text.trim(),
@@ -196,14 +206,39 @@ class _WodPostScreenState extends State<WodPostScreen> {
               }).toList(),
             ),
             const SizedBox(height: FacingTokens.sp4),
-            const Text('CONTENT', style: FacingTokens.sectionLabel),
+            const Text('RX (기본)', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp2),
             TextField(
               controller: _contentCtrl,
               decoration: const InputDecoration(
-                labelText: 'WOD 내용 (예: 21-15-9 Thrusters 95lb, Pull-ups)',
+                labelText: 'RX 버전',
+                hintText: '21-15-9 Thruster 95/65lb + Pull-up',
               ),
-              maxLines: 6,
+              maxLines: 5,
+              maxLength: 2000,
+            ),
+            const SizedBox(height: FacingTokens.sp3),
+            const Text('SCALED (선택)', style: FacingTokens.sectionLabel),
+            const SizedBox(height: FacingTokens.sp2),
+            TextField(
+              controller: _scaledCtrl,
+              decoration: const InputDecoration(
+                labelText: 'Scaled 버전',
+                hintText: '21-15-9 Thruster 65/45lb + Ring Row',
+              ),
+              maxLines: 4,
+              maxLength: 2000,
+            ),
+            const SizedBox(height: FacingTokens.sp3),
+            const Text('BEGINNER (선택)', style: FacingTokens.sectionLabel),
+            const SizedBox(height: FacingTokens.sp2),
+            TextField(
+              controller: _beginnerCtrl,
+              decoration: const InputDecoration(
+                labelText: 'Beginner 버전',
+                hintText: '15-12-9 Goblet Squat 20lb + Jumping Pull-up',
+              ),
+              maxLines: 4,
               maxLength: 2000,
             ),
             const SizedBox(height: FacingTokens.sp3),

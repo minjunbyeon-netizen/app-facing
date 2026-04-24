@@ -9,6 +9,7 @@ import '../announcements/announcements_screen.dart';
 import '../leaderboard/box_leaderboard_screen.dart';
 import '../messages/messages_screen.dart';
 import '../wod_session/wod_session_screen.dart';
+import 'wod_detail_screen.dart';
 import 'coach_dashboard_screen.dart';
 import 'gym_search_screen.dart';
 import 'gym_state.dart';
@@ -350,6 +351,34 @@ class _WodCard extends StatelessWidget {
   final bool canDelete;
   const _WodCard({required this.wod, required this.canDelete});
 
+  Widget _versionChip(String label, {bool accent = false}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: accent ? FacingTokens.accent : FacingTokens.border,
+          width: 1,
+        ),
+        borderRadius: BorderRadius.circular(FacingTokens.r1),
+      ),
+      child: Text(
+        label,
+        style: FacingTokens.micro.copyWith(
+          color: accent ? FacingTokens.accent : FacingTokens.muted,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 1.0,
+        ),
+      ),
+    );
+  }
+
+  void _openDetail(BuildContext context) {
+    Haptic.light();
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => WodDetailScreen(wod: wod),
+    ));
+  }
+
   void _openSession(BuildContext context) {
     Haptic.medium();
     Navigator.of(context).push(MaterialPageRoute(
@@ -369,7 +398,7 @@ class _WodCard extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => _openSession(context),
+          onTap: () => _openDetail(context),
           borderRadius: BorderRadius.circular(FacingTokens.r3),
           child: Padding(
             padding: const EdgeInsets.all(FacingTokens.sp4),
@@ -407,6 +436,21 @@ class _WodCard extends StatelessWidget {
                       ),
                   ],
                 ),
+                if (wod.hasVersions) ...[
+                  const SizedBox(height: FacingTokens.sp2),
+                  Wrap(
+                    spacing: FacingTokens.sp1,
+                    children: [
+                      _versionChip('RX', accent: true),
+                      if (wod.scaledVersion != null &&
+                          wod.scaledVersion!.isNotEmpty)
+                        _versionChip('SCALED'),
+                      if (wod.beginnerVersion != null &&
+                          wod.beginnerVersion!.isNotEmpty)
+                        _versionChip('BEGINNER'),
+                    ],
+                  ),
+                ],
                 const SizedBox(height: FacingTokens.sp2),
                 Text(wod.content, style: FacingTokens.body),
                 if (wod.roundsData.isNotEmpty) ...[

@@ -58,6 +58,8 @@ class GymRepository {
     required String postDate,
     required String wodType,
     required String content,
+    String? scaledVersion,
+    String? beginnerVersion,
     String? scaleGuide,
     List<WodRoundItem> roundsData = const [],
     int? rounds,
@@ -67,6 +69,10 @@ class GymRepository {
       'post_date': postDate,
       'wod_type': wodType,
       'content': content,
+      if (scaledVersion != null && scaledVersion.isNotEmpty)
+        'scaled_version': scaledVersion,
+      if (beginnerVersion != null && beginnerVersion.isNotEmpty)
+        'beginner_version': beginnerVersion,
       if (scaleGuide != null && scaleGuide.isNotEmpty) 'scale_guide': scaleGuide,
       if (roundsData.isNotEmpty)
         'rounds_data': roundsData.map((r) => r.toJson()).toList(),
@@ -74,6 +80,69 @@ class GymRepository {
       if (timeCapSec != null) 'time_cap_sec': timeCapSec,
     });
     return (data['wod_post_id'] as num).toInt();
+  }
+
+  // ---- v1.16 Sprint 16: 박스 내 리더보드 + 댓글 ----
+
+  Future<List<GymWodResult>> listWodResults(int gymId, int wodId) async {
+    final list = await api.getList(
+      '/api/v1/gyms/$gymId/wods/$wodId/results',
+    );
+    return list
+        .whereType<Map<String, dynamic>>()
+        .map(GymWodResult.fromJson)
+        .toList();
+  }
+
+  Future<int> submitWodResult({
+    required int gymId,
+    required int wodId,
+    int? timeSec,
+    int? rounds,
+    int? extraReps,
+    String scaleLevel = 'rx',
+    String notes = '',
+  }) async {
+    final data = await api.post('/api/v1/gyms/$gymId/wods/$wodId/results', {
+      if (timeSec != null) 'time_sec': timeSec,
+      if (rounds != null) 'rounds': rounds,
+      if (extraReps != null) 'extra_reps': extraReps,
+      'scale_level': scaleLevel,
+      'notes': notes,
+    });
+    return (data['result_id'] as num).toInt();
+  }
+
+  Future<List<GymWodComment>> listWodComments(int gymId, int wodId) async {
+    final list = await api.getList(
+      '/api/v1/gyms/$gymId/wods/$wodId/comments',
+    );
+    return list
+        .whereType<Map<String, dynamic>>()
+        .map(GymWodComment.fromJson)
+        .toList();
+  }
+
+  Future<int> postWodComment({
+    required int gymId,
+    required int wodId,
+    required String body,
+  }) async {
+    final data = await api.post(
+      '/api/v1/gyms/$gymId/wods/$wodId/comments',
+      {'body': body},
+    );
+    return (data['comment_id'] as num).toInt();
+  }
+
+  Future<void> deleteWodComment({
+    required int gymId,
+    required int wodId,
+    required int commentId,
+  }) async {
+    await api.delete(
+      '/api/v1/gyms/$gymId/wods/$wodId/comments/$commentId',
+    );
   }
 
   // ---- v1.16 Sprint 15: 공지·메시지 ----

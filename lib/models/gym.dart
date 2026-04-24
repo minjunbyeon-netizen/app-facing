@@ -135,7 +135,9 @@ class GymWodPost {
   final int id;
   final String postDate; // YYYY-MM-DD
   final String wodType;
-  final String content;
+  final String content; // RX 버전
+  final String? scaledVersion;
+  final String? beginnerVersion;
   final String? scaleGuide;
   final List<WodRoundItem> roundsData;
   final int? rounds;
@@ -147,12 +149,18 @@ class GymWodPost {
     required this.postDate,
     required this.wodType,
     required this.content,
+    this.scaledVersion,
+    this.beginnerVersion,
     this.scaleGuide,
     this.roundsData = const [],
     this.rounds,
     this.timeCapSec,
     required this.createdAt,
   });
+
+  bool get hasVersions =>
+      (scaledVersion != null && scaledVersion!.isNotEmpty) ||
+      (beginnerVersion != null && beginnerVersion!.isNotEmpty);
 
   String get timeCapDisplay {
     if (timeCapSec == null) return '';
@@ -175,6 +183,8 @@ class GymWodPost {
       postDate: (j['post_date'] ?? '').toString(),
       wodType: (j['wod_type'] ?? '').toString(),
       content: (j['content'] ?? '').toString(),
+      scaledVersion: j['scaled_version']?.toString(),
+      beginnerVersion: j['beginner_version']?.toString(),
       scaleGuide: j['scale_guide']?.toString(),
       roundsData: rounds,
       rounds: (j['rounds'] as num?)?.toInt(),
@@ -182,4 +192,84 @@ class GymWodPost {
       createdAt: DateTime.parse(j['created_at'] as String),
     );
   }
+}
+
+/// v1.16 Sprint 16: WOD 리더보드 항목.
+class GymWodResult {
+  final int id;
+  final int rank;
+  final String deviceHashPrefix;
+  final bool isMine;
+  final int? timeSec;
+  final int? rounds;
+  final int? extraReps;
+  final String scaleLevel; // rx · scaled · beginner
+  final String notes;
+  final DateTime createdAt;
+
+  const GymWodResult({
+    required this.id,
+    required this.rank,
+    required this.deviceHashPrefix,
+    required this.isMine,
+    this.timeSec,
+    this.rounds,
+    this.extraReps,
+    required this.scaleLevel,
+    required this.notes,
+    required this.createdAt,
+  });
+
+  String get display {
+    if (timeSec != null) {
+      final m = timeSec! ~/ 60;
+      final s = timeSec! % 60;
+      return '$m:${s.toString().padLeft(2, '0')}';
+    }
+    if (rounds != null) {
+      final r = rounds!;
+      final reps = extraReps ?? 0;
+      if (reps > 0) return '$r+$reps';
+      return '$r rounds';
+    }
+    return '-';
+  }
+
+  factory GymWodResult.fromJson(Map<String, dynamic> j) => GymWodResult(
+        id: (j['id'] as num).toInt(),
+        rank: ((j['rank'] ?? 0) as num).toInt(),
+        deviceHashPrefix: (j['device_hash_prefix'] ?? '').toString(),
+        isMine: j['is_mine'] == true,
+        timeSec: (j['time_sec'] as num?)?.toInt(),
+        rounds: (j['rounds'] as num?)?.toInt(),
+        extraReps: (j['extra_reps'] as num?)?.toInt(),
+        scaleLevel: (j['scale_level'] ?? 'rx').toString(),
+        notes: (j['notes'] ?? '').toString(),
+        createdAt: DateTime.parse(j['created_at'] as String),
+      );
+}
+
+/// v1.16 Sprint 16: WOD 댓글.
+class GymWodComment {
+  final int id;
+  final String authorPrefix;
+  final bool isMine;
+  final String body;
+  final DateTime createdAt;
+
+  const GymWodComment({
+    required this.id,
+    required this.authorPrefix,
+    required this.isMine,
+    required this.body,
+    required this.createdAt,
+  });
+
+  factory GymWodComment.fromJson(Map<String, dynamic> j) => GymWodComment(
+        id: (j['id'] as num).toInt(),
+        authorPrefix: (j['author_prefix'] ?? '').toString(),
+        isMine: j['is_mine'] == true,
+        body: (j['body'] ?? '').toString(),
+        createdAt: DateTime.parse(j['created_at'] as String),
+      );
 }

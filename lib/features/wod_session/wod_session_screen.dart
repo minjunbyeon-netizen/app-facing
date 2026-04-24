@@ -17,6 +17,8 @@ import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../core/wod_session_bus.dart';
 import '../../models/gym.dart';
+import '../gym/gym_repository.dart';
+import '../gym/gym_state.dart';
 import '../history/history_repository.dart';
 
 enum _TimerMode { forTime, amrap, emom }
@@ -343,11 +345,31 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
         },
       });
 
+      // v1.16 Sprint 16: 박스 WOD인 경우 참가자 기록 리더보드 POST (best-effort).
+      try {
+        final gs = context.read<GymState>();
+        final gym = gs.membership.gym;
+        if (gym != null &&
+            (gs.isOwner || gs.membership.isApprovedMember)) {
+          await context.read<GymRepository>().submitWodResult(
+                gymId: gym.id,
+                wodId: widget.wod.id,
+                timeSec: _mode == _TimerMode.forTime ? totalSec : null,
+                rounds: rounds,
+                extraReps: extraReps,
+                scaleLevel: _scaled ? 'scaled' : 'rx',
+                notes: '',
+              );
+        }
+      } catch (_) {
+        // 리더보드 실패는 history 저장 성공을 막지 않음.
+      }
+
       if (!mounted) return true;
       context.read<WodSessionBus>().bump();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('기록 저장. 출석 달력 자동 반영.'),
+          content: Text('기록 저장. 출석 · 박스 리더보드 자동 반영.'),
           duration: Duration(seconds: 2),
         ),
       );
