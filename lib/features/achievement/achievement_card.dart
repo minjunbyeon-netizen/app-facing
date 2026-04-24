@@ -54,11 +54,25 @@ class AchievementCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Text(
-                  catalog.name,
-                  style: FacingTokens.h3.copyWith(
-                    color: unlocked ? FacingTokens.fg : FacingTokens.muted,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      koreanTitle(catalog.code),
+                      style: FacingTokens.h3.copyWith(
+                        color:
+                            unlocked ? FacingTokens.fg : FacingTokens.muted,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    Text(
+                      catalog.name,
+                      style: FacingTokens.caption.copyWith(
+                        color:
+                            unlocked ? FacingTokens.muted : FacingTokens.muted,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Text(
@@ -126,8 +140,67 @@ class AchievementCard extends StatelessWidget {
         return 'Hero WOD 3개 이상 완주.';
       case 'GAMES_1':
         return 'Games WOD 1개 이상 완주.';
+      // v1.16 Sprint 14: 칭호 5개.
+      case 'TITLE_POLYMATH':
+        return '6 카테고리 Engine 80 동시 돌파.';
+      case 'TITLE_OBSESSED':
+        return '365일 연속 출석.';
+      case 'TITLE_SCHOLAR':
+        return 'Overall Engine 80 이상.';
+      case 'TITLE_RELENTLESS':
+        return '100일 연속 출석.';
+      case 'TITLE_UNDEFEATED':
+        return '한 주 모든 기록 갱신 (주 7회).';
       default:
         return '미공개 조건.';
+    }
+  }
+
+  /// v1.16 Sprint 14: 한글 칭호 매핑 (Panel B).
+  static String koreanTitle(String code) {
+    switch (code) {
+      case 'FIRST_ENGINE':
+        return '첫 측정';
+      case 'REACH_RX':
+        return 'RX 기준';
+      case 'REACH_RX_PLUS':
+        return 'RX+ 선택';
+      case 'REACH_ELITE':
+        return '엘리트 급';
+      case 'REACH_GAMES':
+        return '게임스 선수';
+      case 'SCORE_80_OVERALL':
+        return '분석가';
+      case 'SCORE_95_OVERALL':
+        return '정점에';
+      case 'ALL_CAT_80':
+        return '만능 선수';
+      case 'WOD_50':
+        return '철의 의지';
+      case 'STREAK_10':
+        return '10일 투지';
+      case 'STREAK_30':
+        return '성실한';
+      case 'GIRLS_5_COMPLETE':
+        return 'Girls 5연';
+      case 'GIRLS_ALL':
+        return 'Girls 완수';
+      case 'HEROES_3':
+        return 'Hero 헌정';
+      case 'GAMES_1':
+        return 'Games 도전';
+      case 'TITLE_POLYMATH':
+        return '만능 선수';
+      case 'TITLE_OBSESSED':
+        return '집착하는';
+      case 'TITLE_SCHOLAR':
+        return '분석가';
+      case 'TITLE_RELENTLESS':
+        return '끝을 모르는';
+      case 'TITLE_UNDEFEATED':
+        return '불패 일주일';
+      default:
+        return '칭호';
     }
   }
 

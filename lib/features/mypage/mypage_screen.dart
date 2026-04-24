@@ -13,6 +13,10 @@ import '../../core/tier.dart';
 import '../../core/ui_prefs_state.dart';
 import '../../core/unit_state.dart';
 import '../../core/weak_insight.dart';
+import '../../core/worn_title_store.dart';
+import '../../models/achievement.dart';
+import '../achievement/achievement_card.dart';
+import '../achievement/achievement_state.dart';
 import '../../widgets/tier_badge.dart';
 import '../auth/auth_state.dart';
 import '../goals/goals_screen.dart';
@@ -37,6 +41,7 @@ class MyPageScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp3),
           children: const [
             _TierSnapshot(),
+            _WornTitleLine(),
             _SectionDivider(),
             _TierRoadmap(),
             _SectionDivider(),
@@ -1338,6 +1343,162 @@ class _RoleModelCardState extends State<_RoleModelCard> {
             ),
           ],
         ],
+      ),
+    );
+  }
+}
+
+/// v1.16 Sprint 14: 프로필 프로필 옆 착용 칭호 한 줄. 탭 시 해금 칭호 picker.
+class _WornTitleLine extends StatefulWidget {
+  const _WornTitleLine();
+
+  @override
+  State<_WornTitleLine> createState() => _WornTitleLineState();
+}
+
+class _WornTitleLineState extends State<_WornTitleLine> {
+  String? _code;
+  bool _loaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final c = await WornTitleStore.get();
+    if (!mounted) return;
+    setState(() {
+      _code = c;
+      _loaded = true;
+    });
+  }
+
+  Future<void> _openPicker() async {
+    Haptic.light();
+    final state = context.read<AchievementState>();
+    final catalog = state.snapshot.catalog;
+    final unlocked =
+        catalog.where((c) => state.isUnlockedInUi(c.code)).toList();
+    unlocked.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+
+    final picked = await showModalBottomSheet<String?>(
+      context: context,
+      backgroundColor: FacingTokens.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(FacingTokens.r4)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(FacingTokens.sp4),
+              child: Text('CHOOSE TITLE', style: FacingTokens.sectionLabel),
+            ),
+            ListTile(
+              title: const Text('해제 (No Title)', style: FacingTokens.body),
+              onTap: () => Navigator.of(ctx).pop('__none__'),
+            ),
+            if (unlocked.isEmpty)
+              const Padding(
+                padding: EdgeInsets.all(FacingTokens.sp4),
+                child: Text('해금된 칭호 없음. Engine 측정·세션 누적 후 잠금 해제.',
+                    style: FacingTokens.caption),
+              )
+            else
+              ...unlocked.map(
+                (c) => ListTile(
+                  title: Text(
+                    AchievementCard.koreanTitle(c.code),
+                    style: FacingTokens.body.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  subtitle: Text(c.name, style: FacingTokens.caption),
+                  trailing: Text(
+                    c.rarity.toUpperCase(),
+                    style: FacingTokens.micro.copyWith(
+                      color: FacingTokens.accent,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                  onTap: () => Navigator.of(ctx).pop(c.code),
+                ),
+              ),
+            const SizedBox(height: FacingTokens.sp3),
+          ],
+        ),
+      ),
+    );
+    if (picked == null) return;
+    if (picked == '__none__') {
+      await WornTitleStore.clear();
+      if (!mounted) return;
+      setState(() => _code = null);
+    } else {
+      await WornTitleStore.set(picked);
+      if (!mounted) return;
+      setState(() => _code = picked);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_loaded) return const SizedBox.shrink();
+    final state = context.watch<AchievementState>();
+    AchievementCatalog? current;
+    if (_code != null) {
+      for (final c in state.snapshot.catalog) {
+        if (c.code == _code) {
+          current = c;
+          break;
+        }
+      }
+    }
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        FacingTokens.sp4,
+        FacingTokens.sp3,
+        FacingTokens.sp4,
+        0,
+      ),
+      child: InkWell(
+        onTap: _openPicker,
+        child: Row(
+          children: [
+            SizedBox(
+              width: 96,
+              child: Text(
+                'WORN TITLE',
+                style: FacingTokens.micro.copyWith(
+                  color: FacingTokens.muted,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.2,
+                ),
+              ),
+            ),
+            Expanded(
+              child: Text(
+                current == null
+                    ? '칭호 선택 · 해금 시 노출'
+                    : AchievementCard.koreanTitle(current.code),
+                style: FacingTokens.body.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: current == null
+                      ? FacingTokens.muted
+                      : FacingTokens.accent,
+                ),
+              ),
+            ),
+            const Icon(Icons.chevron_right,
+                color: FacingTokens.muted, size: 18),
+          ],
+        ),
       ),
     );
   }
