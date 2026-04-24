@@ -8,9 +8,23 @@ import 'achievement_repository.dart';
 /// - `snapshot`: GET /achievements 결과
 /// - `check()`: POST /check 호출 → 신규 해금 반환 (UI toast 재료)
 /// - `lastCheckedAt`: 세션당 1회 제한용 캐시
+/// - `demoUnlockedCodes`: 백엔드 trigger 미구현 배지를 UI에서 데모 해금으로 표시.
 class AchievementState extends ChangeNotifier {
   final AchievementRepository repo;
   AchievementState(this.repo);
+
+  /// v1.16 데모: 실제 trigger 미구현 배지를 시각적으로 해금 상태로 노출.
+  /// streak_days · preset_count · preset_all 기반 배지는 Phase 2에서 실제 trigger 연동.
+  static const Set<String> demoUnlockedCodes = {
+    'STREAK_10',
+    'GIRLS_5_COMPLETE',
+    'HEROES_3',
+  };
+
+  bool isUnlockedInUi(String code) {
+    if (_snapshot.isUnlocked(code)) return true;
+    return demoUnlockedCodes.contains(code);
+  }
 
   AchievementSnapshot _snapshot = AchievementSnapshot.empty;
   bool _loading = false;

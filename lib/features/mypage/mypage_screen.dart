@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,7 +10,6 @@ import '../../core/theme.dart';
 import '../../core/tier.dart';
 import '../../core/unit_state.dart';
 import '../../widgets/tier_badge.dart';
-import '../achievement/achievement_section.dart';
 import '../auth/auth_state.dart';
 import '../gym/coach_dashboard_screen.dart';
 import '../gym/gym_state.dart';
@@ -30,6 +30,8 @@ class MyPageScreen extends StatelessWidget {
           children: const [
             _TierSnapshot(),
             _SectionDivider(),
+            _EngineTrend(),
+            _SectionDivider(),
             _CategoryTiers(),
             _SectionDivider(),
             _RecentRecords(),
@@ -39,8 +41,6 @@ class MyPageScreen extends StatelessWidget {
             _BodyStats(),
             _SectionDivider(),
             _SettingsSection(),
-            _SectionDivider(),
-            AchievementSection(),
             _SectionDivider(),
             _ActionsSection(),
           ],
@@ -290,6 +290,153 @@ class _MyBoxSection extends StatelessWidget {
       ),
     );
   }
+}
+
+/// v1.16: Engine 점수 + delta + 스파크라인. Trends에서 이관.
+class _EngineTrend extends StatefulWidget {
+  const _EngineTrend();
+
+  @override
+  State<_EngineTrend> createState() => _EngineTrendState();
+}
+
+class _EngineTrendState extends State<_EngineTrend> {
+  Future<List<EngineSnapshotRecord>>? _future;
+
+  @override
+  void initState() {
+    super.initState();
+    final repo = HistoryRepository(context.read<ApiClient>());
+    _future = repo.listEngineSnapshots(limit: 30);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('ENGINE SCORE', style: FacingTokens.sectionLabel),
+          const SizedBox(height: FacingTokens.sp2),
+          FutureBuilder<List<EngineSnapshotRecord>>(
+            future: _future,
+            builder: (ctx, snap) {
+              if (snap.connectionState != ConnectionState.done) {
+                return const Text('Loading.', style: FacingTokens.caption);
+              }
+              final records = snap.data ?? const [];
+              if (records.isEmpty) {
+                return const Text('기록 없음. 측정 후 표시.',
+                    style: FacingTokens.caption);
+              }
+              final sorted = [...records]
+                ..sort((a, b) => a.scoredAt.compareTo(b.scoredAt));
+              final latest = records.first;
+              final prev = records.length > 1 ? records[1] : null;
+              final current = engineScoreTo100(latest.overallScore);
+              final delta = prev != null
+                  ? current - engineScoreTo100(prev.overallScore)
+                  : 0;
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text('$current', style: FacingTokens.displayCompact),
+                      const SizedBox(width: FacingTokens.sp2),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child:
+                            Text('/ 100', style: FacingTokens.caption),
+                      ),
+                      const Spacer(),
+                      if (prev != null)
+                        Text(
+                          delta > 0
+                              ? '▲ +$delta'
+                              : (delta < 0 ? '▼ $delta' : 'Hold.'),
+                          style: FacingTokens.caption.copyWith(
+                            color: delta > 0
+                                ? FacingTokens.success
+                                : (delta < 0
+                                    ? FacingTokens.warning
+                                    : FacingTokens.muted),
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: FacingTokens.sp3),
+                  SizedBox(
+                    height: 100,
+                    child: CustomPaint(
+                      painter: _SparklinePainter(
+                        values: sorted
+                            .map((r) => engineScoreTo100(r.overallScore))
+                            .toList(),
+                      ),
+                      child: const SizedBox.expand(),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SparklinePainter extends CustomPainter {
+  final List<int> values;
+  _SparklinePainter({required this.values});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final gridPaint = Paint()
+      ..color = FacingTokens.border
+      ..strokeWidth = 0.5;
+    for (final v in [0, 50, 100]) {
+      final y = size.height - (v / 100 * size.height);
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
+    }
+    if (values.isEmpty) return;
+    if (values.length == 1) {
+      final y = size.height - (values[0] / 100 * size.height);
+      canvas.drawCircle(Offset(size.width / 2, y), 4,
+          Paint()..color = FacingTokens.accent);
+      return;
+    }
+    final stepX = size.width / (values.length - 1);
+    final linePaint = Paint()
+      ..color = FacingTokens.accent
+      ..strokeWidth = 2
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+    final path = Path();
+    for (int i = 0; i < values.length; i++) {
+      final x = stepX * i;
+      final y = size.height - (values[i] / 100 * size.height);
+      if (i == 0) {
+        path.moveTo(x, y);
+      } else {
+        path.lineTo(x, y);
+      }
+    }
+    canvas.drawPath(path, linePaint);
+    final lastX = stepX * (values.length - 1);
+    final lastY = size.height - (values.last / 100 * size.height);
+    canvas.drawCircle(Offset(lastX, lastY), 4,
+        Paint()..color = FacingTokens.accent);
+  }
+
+  @override
+  bool shouldRepaint(covariant _SparklinePainter old) =>
+      !listEquals(old.values, values);
 }
 
 /// v1.16: 최근 측정 기록 — Trends에서 이관. 깔끔 row 5개.
