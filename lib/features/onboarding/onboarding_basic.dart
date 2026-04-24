@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/glossary.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../core/unit_state.dart';
@@ -97,7 +98,13 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
               const SizedBox(height: FacingTokens.sp3),
-              const Text('BODY', style: FacingTokens.h2),
+              Row(
+                children: const [
+                  Text('BODY', style: FacingTokens.h2),
+                  SizedBox(width: FacingTokens.sp2),
+                  TermTip(term: 'Tier', iconSize: 16),
+                ],
+              ),
               const SizedBox(height: FacingTokens.sp1),
               const Text(
                 '체중·키는 Tier 산정 기준. 성별·경력은 난이도 보정.',

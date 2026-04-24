@@ -84,13 +84,67 @@ class _SignupScreenState extends State<SignupScreen> {
                   onPressed: _busy ? null : () => _signIn('kakao'),
                 ),
 
+                // v1.16 Sprint 7a: 이메일 가입 placeholder (Phase 2).
+                const SizedBox(height: FacingTokens.sp3),
+                OutlinedButton(
+                  onPressed: _busy
+                      ? null
+                      : () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('이메일 가입은 Phase 2에서 지원 예정.'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        },
+                  child: const Text('이메일로 시작 (Coming soon)'),
+                ),
+
                 const SizedBox(height: FacingTokens.sp4),
                 const Text(
-                  '(데모 — 버튼 탭 즉시 가입 처리)',
+                  'Beta Preview · 정식 출시 시 실제 OAuth 연결',
                   style: FacingTokens.caption,
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: FacingTokens.sp3),
+                const SizedBox(height: FacingTokens.sp2),
+                // v1.16 Sprint 7a: 약관·개인정보 placeholder 링크.
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextButton(
+                      onPressed: () => _showLegalSheet(
+                        context,
+                        title: '이용약관',
+                        body: '이용약관 본문은 정식 출시 시 업데이트됩니다.\n'
+                            '현재 Beta Preview 단계 — 데이터는 로컬에만 저장됩니다.',
+                      ),
+                      style: TextButton.styleFrom(
+                        foregroundColor: FacingTokens.muted,
+                        minimumSize: const Size(0, 32),
+                      ),
+                      child: const Text('이용약관',
+                          style: TextStyle(fontSize: 12)),
+                    ),
+                    const Text(' · ',
+                        style: TextStyle(color: FacingTokens.muted)),
+                    TextButton(
+                      onPressed: () => _showLegalSheet(
+                        context,
+                        title: '개인정보처리방침',
+                        body: '개인정보처리방침 본문은 정식 출시 시 업데이트됩니다.\n'
+                            'Beta Preview: device_id·프로필은 로컬 저장. '
+                            '서버 전송 데이터는 없습니다.',
+                      ),
+                      style: TextButton.styleFrom(
+                        foregroundColor: FacingTokens.muted,
+                        minimumSize: const Size(0, 32),
+                      ),
+                      child: const Text('개인정보처리방침',
+                          style: TextStyle(fontSize: 12)),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: FacingTokens.sp2),
               ],
             ),
           ),
@@ -98,6 +152,43 @@ class _SignupScreenState extends State<SignupScreen> {
       ),
     );
   }
+}
+
+void _showLegalSheet(
+  BuildContext context, {
+  required String title,
+  required String body,
+}) {
+  showModalBottomSheet<void>(
+    context: context,
+    backgroundColor: FacingTokens.surface,
+    shape: const RoundedRectangleBorder(
+      borderRadius:
+          BorderRadius.vertical(top: Radius.circular(FacingTokens.r3)),
+    ),
+    builder: (ctx) => SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(FacingTokens.sp5),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: FacingTokens.h2),
+            const SizedBox(height: FacingTokens.sp3),
+            Text(body, style: FacingTokens.body),
+            const SizedBox(height: FacingTokens.sp4),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: const Text('닫기'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
 }
 
 class _SocialButton extends StatelessWidget {

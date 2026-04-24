@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
 import '../../core/exception.dart';
+import '../../core/formula_references.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/pacing_plan.dart';
@@ -307,7 +308,7 @@ class _ResultBody extends StatelessWidget {
         ),
         const SizedBox(height: FacingTokens.sp4),
 
-        // 6. RATIONALE (collapsed)
+        // 6. RATIONALE (collapsed) — v1.16 Sprint 7a: 수식·논문 확장.
         Theme(
           data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
           child: ExpansionTile(
@@ -319,12 +320,63 @@ class _ResultBody extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.only(bottom: FacingTokens.sp4),
-                child: Text(
-                  plan.segments
-                      .map((s) => '• ${s.rationaleKo}')
-                      .where((t) => t.trim() != '•')
-                      .join('\n'),
-                  style: FacingTokens.caption,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 세그먼트별 근거.
+                    Text(
+                      plan.segments
+                          .map((s) => '• ${s.rationaleKo}')
+                          .where((t) => t.trim() != '•')
+                          .join('\n'),
+                      style: FacingTokens.caption,
+                    ),
+                    const SizedBox(height: FacingTokens.sp4),
+                    // 핵심 공식 요약.
+                    Text('PACING FORMULA',
+                        style: FacingTokens.micro.copyWith(
+                          color: FacingTokens.muted,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.0,
+                        )),
+                    const SizedBox(height: FacingTokens.sp2),
+                    Text(
+                      'Split = max_ub × first_ratio × (descending_step)^n\n'
+                      'Burst: T ≥ T_boundary (등급별 0.75~0.95)\n'
+                      'Rest = base × phase × category × load × wod_type',
+                      style: FacingTokens.caption.copyWith(
+                        fontFamily: 'monospace',
+                      ),
+                    ),
+                    const SizedBox(height: FacingTokens.sp4),
+                    // 근거 논문·표준.
+                    Text('REFERENCES',
+                        style: FacingTokens.micro.copyWith(
+                          color: FacingTokens.muted,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.0,
+                        )),
+                    const SizedBox(height: FacingTokens.sp2),
+                    ...kFormulaReferences.map((r) => Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: FacingTokens.sp1),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${r.title} — ${r.authors}',
+                                style: FacingTokens.caption.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              Text(r.relevance,
+                                  style: FacingTokens.micro.copyWith(
+                                    color: FacingTokens.muted,
+                                  )),
+                            ],
+                          ),
+                        )),
+                  ],
                 ),
               ),
             ],

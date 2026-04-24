@@ -83,7 +83,7 @@ class _TierSnapshot extends StatelessWidget {
           if (n == null)
             const Text('데이터 없음. 온보딩 완료 후 표시.',
                 style: FacingTokens.caption)
-          else
+          else ...[
             Row(
               crossAxisAlignment: CrossAxisAlignment.baseline,
               textBaseline: TextBaseline.alphabetic,
@@ -105,6 +105,23 @@ class _TierSnapshot extends StatelessWidget {
                 ),
               ],
             ),
+            // v1.16 Sprint 7a: Masters 연령 분류 배지.
+            Builder(builder: (ctx) {
+              final label = mastersLabel(p.ageYears);
+              if (label == null) return const SizedBox.shrink();
+              return Padding(
+                padding: const EdgeInsets.only(top: FacingTokens.sp2),
+                child: Text(
+                  label,
+                  style: FacingTokens.micro.copyWith(
+                    color: FacingTokens.muted,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.0,
+                  ),
+                ),
+              );
+            }),
+          ],
         ],
       ),
     );

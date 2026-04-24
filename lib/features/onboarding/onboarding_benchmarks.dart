@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
+import '../../core/glossary.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../core/unit_state.dart';
@@ -472,7 +473,15 @@ class _OnboardingBenchmarksScreenState
     return ListView(
       padding: const EdgeInsets.all(FacingTokens.sp4),
       children: [
-        Text(cat.title.toUpperCase(), style: FacingTokens.h2),
+        Row(
+          children: [
+            Text(cat.title.toUpperCase(), style: FacingTokens.h2),
+            const Spacer(),
+            const TermTip(term: '1RM', iconSize: 18),
+            const SizedBox(width: FacingTokens.sp2),
+            const TermTip(term: 'Unbroken', iconSize: 18),
+          ],
+        ),
         const SizedBox(height: FacingTokens.sp1),
         Text(cat.hint, style: FacingTokens.caption),
         const SizedBox(height: FacingTokens.sp1),

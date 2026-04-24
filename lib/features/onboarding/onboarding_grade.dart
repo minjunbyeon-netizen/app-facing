@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/glossary.dart';
 import '../../core/haptic.dart';
 import '../../core/quotes.dart';
 import '../../core/scoring.dart';
@@ -116,8 +117,45 @@ class _OnboardingGradeScreenState extends State<OnboardingGradeScreen> {
                 children: [
                   const SizedBox(height: FacingTokens.sp3),
                   // v1.15.3: 'YOUR TIER' 대문자 + 마침표 제거. serif 헤드라인 유지.
-                  Text('YOUR TIER', style: FacingTokens.h1Serif),
-                  const SizedBox(height: FacingTokens.sp4),
+                  // v1.16 Sprint 7a: Tier·Engine 용어 툴팁.
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text('YOUR TIER', style: FacingTokens.h1Serif),
+                      const SizedBox(width: FacingTokens.sp3),
+                      const TermTip(term: 'Tier', iconSize: 18),
+                      const SizedBox(width: FacingTokens.sp1),
+                      const TermTip(term: 'Engine', iconSize: 18),
+                    ],
+                  ),
+                  const SizedBox(height: FacingTokens.sp2),
+                  // v1.16 Sprint 7a: Masters 연령 배지 (35+/45+/55+/65+).
+                  Builder(builder: (ctx) {
+                    final label = mastersLabel(p.ageYears);
+                    if (label == null) return const SizedBox.shrink();
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: FacingTokens.sp3),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: FacingTokens.sp2,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: FacingTokens.muted),
+                          borderRadius: BorderRadius.circular(FacingTokens.r1),
+                        ),
+                        child: Text(
+                          label,
+                          style: FacingTokens.micro.copyWith(
+                            color: FacingTokens.fg,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 1.0,
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                  const SizedBox(height: FacingTokens.sp2),
                   QuoteCard(quote: quote, compact: true),
                   const SizedBox(height: FacingTokens.sp6),
                   Row(

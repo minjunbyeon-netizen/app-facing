@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 import '../../core/theme.dart';
+import '../../core/unit_state.dart';
 import '../../models/movement.dart';
 import 'wod_draft_state.dart';
 
@@ -34,10 +36,32 @@ class _CategorySheet extends StatefulWidget {
 
 class _CategorySheetState extends State<_CategorySheet> {
   int _catIndex = 0;
+  final TextEditingController _searchCtrl = TextEditingController();
+  String _query = '';
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final cat = widget.categories[_catIndex];
+    // v1.16 Sprint 7a: 검색 필터 (카테고리 전체 or 현재 카테고리 내).
+    final List<Movement> filtered;
+    if (_query.isEmpty) {
+      filtered = cat.movements;
+    } else {
+      final q = _query.toLowerCase();
+      // 검색 중엔 전 카테고리 합쳐서 필터링.
+      filtered = widget.categories
+          .expand((c) => c.movements)
+          .where((m) =>
+              m.nameKo.toLowerCase().contains(q) ||
+              m.slug.toLowerCase().contains(q))
+          .toList();
+    }
     return SafeArea(
       child: SizedBox(
         height: MediaQuery.of(context).size.height * 0.75,
@@ -50,48 +74,96 @@ class _CategorySheetState extends State<_CategorySheet> {
               child: Text('동작 선택', style: FacingTokens.h3),
             ),
             const SizedBox(height: FacingTokens.sp3),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp3),
-              child: Row(
-                children: List.generate(widget.categories.length, (i) {
-                  final selected = i == _catIndex;
-                  final c = widget.categories[i];
-                  return Padding(
-                    padding: const EdgeInsets.only(right: FacingTokens.sp2),
-                    child: _CategoryChip(
-                      label: c.nameKo,
-                      selected: selected,
-                      onTap: () => setState(() => _catIndex = i),
-                    ),
-                  );
-                }),
+            // v1.16 Sprint 7a: 검색 필드.
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
+              child: TextField(
+                controller: _searchCtrl,
+                onChanged: (v) => setState(() => _query = v.trim()),
+                decoration: InputDecoration(
+                  hintText: '동작 검색 (예: 스내치, Thruster)',
+                  prefixIcon: const Icon(Icons.search,
+                      color: FacingTokens.muted, size: 18),
+                  suffixIcon: _query.isEmpty
+                      ? null
+                      : IconButton(
+                          icon: const Icon(Icons.close, size: 18),
+                          onPressed: () {
+                            _searchCtrl.clear();
+                            setState(() => _query = '');
+                          },
+                        ),
+                  isDense: true,
+                ),
               ),
             ),
+            const SizedBox(height: FacingTokens.sp3),
+            if (_query.isEmpty)
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(
+                    horizontal: FacingTokens.sp3),
+                child: Row(
+                  children: List.generate(widget.categories.length, (i) {
+                    final selected = i == _catIndex;
+                    final c = widget.categories[i];
+                    return Padding(
+                      padding: const EdgeInsets.only(right: FacingTokens.sp2),
+                      child: _CategoryChip(
+                        label: c.nameKo,
+                        selected: selected,
+                        onTap: () => setState(() => _catIndex = i),
+                      ),
+                    );
+                  }),
+                ),
+              )
+            else
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: FacingTokens.sp4,
+                ),
+                child: Text(
+                  '"$_query" 검색 결과 ${filtered.length}',
+                  style: FacingTokens.caption,
+                ),
+              ),
             const Divider(),
             Expanded(
-              child: ListView.separated(
-                itemCount: cat.movements.length,
-                separatorBuilder: (_, __) => const Divider(height: 1),
-                itemBuilder: (_, i) {
-                  final m = cat.movements[i];
-                  return InkWell(
-                    onTap: () => Navigator.of(context).pop(m),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: FacingTokens.sp4,
-                        vertical: FacingTokens.sp4,
+              child: filtered.isEmpty
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(FacingTokens.sp5),
+                        child: Text('검색 결과 없음', style: FacingTokens.caption),
                       ),
-                      child: Row(
-                        children: [
-                          Expanded(child: Text(m.nameKo, style: FacingTokens.body)),
-                          Text(_unitLabel(m.unit), style: FacingTokens.caption),
-                        ],
-                      ),
+                    )
+                  : ListView.separated(
+                      itemCount: filtered.length,
+                      separatorBuilder: (_, __) =>
+                          const Divider(height: 1),
+                      itemBuilder: (_, i) {
+                        final m = filtered[i];
+                        return InkWell(
+                          onTap: () => Navigator.of(context).pop(m),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: FacingTokens.sp4,
+                              vertical: FacingTokens.sp4,
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(m.nameKo,
+                                      style: FacingTokens.body),
+                                ),
+                                Text(_unitLabel(m.unit),
+                                    style: FacingTokens.caption),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
             ),
           ],
         ),
@@ -162,7 +234,14 @@ class _ItemParamsSheetState extends State<_ItemParamsSheet> {
   final _repsCtrl = TextEditingController();
   final _distCtrl = TextEditingController();
   final _loadCtrl = TextEditingController();
-  String _loadUnit = 'lb';
+  // v1.16 Sprint 7a: 기본 단위를 UnitState에서. 세션 일관성.
+  String? _loadUnit;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadUnit ??= context.read<UnitState>().isKg ? 'kg' : 'lb';
+  }
 
   @override
   void dispose() {
@@ -210,12 +289,12 @@ class _ItemParamsSheetState extends State<_ItemParamsSheet> {
                     child: _LabelledField(
                       label: '중량',
                       controller: _loadCtrl,
-                      suffix: _loadUnit,
+                      suffix: _loadUnit ?? 'lb',
                     ),
                   ),
                   const SizedBox(width: FacingTokens.sp2),
                   _UnitToggle(
-                    unit: _loadUnit,
+                    unit: _loadUnit ?? 'lb',
                     onChanged: (u) => setState(() => _loadUnit = u),
                   ),
                 ],
@@ -229,7 +308,7 @@ class _ItemParamsSheetState extends State<_ItemParamsSheet> {
                   reps: _intOrNull(_repsCtrl.text),
                   distanceM: _intOrNull(_distCtrl.text),
                   loadValue: _doubleOrNull(_loadCtrl.text),
-                  loadUnit: _loadUnit,
+                  loadUnit: _loadUnit ?? 'lb',
                 );
                 Navigator.of(context).pop(item);
               },

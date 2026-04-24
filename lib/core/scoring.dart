@@ -83,3 +83,23 @@ int resolveCategoryNumber(Map data) {
   }
   return gradeStringToNumber(data['grade']);
 }
+
+/// v1.16 Sprint 7a: 연령 → Masters 분류 (WMA 2023 기준 차용).
+/// 35+ : Masters 35-44 / 45+ : Masters 45-54 / 55+ : Masters 55-64 / 65+ : Masters 65+.
+/// null or <35: null 반환 (일반 Open 분류).
+String? mastersCategory(num? ageYears) {
+  if (ageYears == null) return null;
+  final age = ageYears.toInt();
+  if (age >= 65) return '65+';
+  if (age >= 55) return '55+';
+  if (age >= 45) return '45+';
+  if (age >= 35) return '35+';
+  return null;
+}
+
+/// Masters 라벨 (UI 배지용).
+String? mastersLabel(num? ageYears) {
+  final cat = mastersCategory(ageYears);
+  if (cat == null) return null;
+  return 'MASTERS $cat';
+}
