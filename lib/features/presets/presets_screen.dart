@@ -41,7 +41,7 @@ class _PresetsScreenState extends State<PresetsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Preset WODs')),
+      appBar: AppBar(title: const Text('PRESET WODS')),
       body: FutureBuilder<(List<PresetWod>, Map<String, Movement>)>(
         future: _future,
         builder: (ctx, snap) {

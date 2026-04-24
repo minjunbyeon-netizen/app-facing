@@ -361,7 +361,7 @@ class _OnboardingBenchmarksScreenState
     final progress = stepNumber / 6;
     final pct = (progress * 100).round();
     return Scaffold(
-      appBar: AppBar(title: Text('Step $stepNumber / 6')),
+      appBar: AppBar(title: Text('STEP $stepNumber / 6')),
       body: SafeArea(
         child: Column(
           children: [
@@ -472,7 +472,7 @@ class _OnboardingBenchmarksScreenState
     return ListView(
       padding: const EdgeInsets.all(FacingTokens.sp4),
       children: [
-        Text(cat.title, style: FacingTokens.h2),
+        Text(cat.title.toUpperCase(), style: FacingTokens.h2),
         const SizedBox(height: FacingTokens.sp1),
         Text(cat.hint, style: FacingTokens.caption),
         const SizedBox(height: FacingTokens.sp1),

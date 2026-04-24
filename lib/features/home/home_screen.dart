@@ -67,8 +67,8 @@ class HomeScreen extends StatelessWidget {
                   );
                 },
               ),
-              // v1.15 P1-12: V9 위반 제거 — "Split 뽑아라" 영-한 혼용 → 순영문.
-              const Text("Today's WOD.\nPull your Split.",
+              // v1.15.3: 제목 영역 대문자 + 마침표 제거.
+              const Text("TODAY'S WOD\nPULL YOUR SPLIT",
                   style: FacingTokens.h1),
               const SizedBox(height: FacingTokens.sp2),
               const Text(

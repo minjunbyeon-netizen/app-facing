@@ -70,7 +70,7 @@ class _ResultScreenState extends State<ResultScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Pacing Strategy')),
+      appBar: AppBar(title: const Text('PACING STRATEGY')),
       body: FutureBuilder<PacingPlan>(
         future: _future,
         builder: (ctx, snap) {

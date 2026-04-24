@@ -111,24 +111,25 @@ class FacingTokens {
     color: muted,
   );
 
-  /// 티어 배지 전용 라벨. 대문자 tracking.
+  /// 티어 배지 전용 라벨. 대문자 — 자간은 타이트 유지 (v1.15.3).
   static const TextStyle tierLabel = TextStyle(
     fontFamily: fontFamily,
     fontSize: 12,
     fontWeight: FontWeight.w800,
     height: 1.0,
-    letterSpacing: 1.8,
+    letterSpacing: 0.2,
     color: fg,
   );
 
   /// v1.14.0 신규 — 섹션 구분 라벨 전용. 코드에서 toUpperCase 필수.
   /// micro·caption·inline body.w800을 섹션 헤더로 쓰는 것 금지.
+  /// v1.15.3: 자간 타이트 (1.6 → 0.2).
   static const TextStyle sectionLabel = TextStyle(
     fontFamily: fontFamily,
     fontSize: 11,
     fontWeight: FontWeight.w700,
     height: 1.20,
-    letterSpacing: 1.6,
+    letterSpacing: 0.2,
     color: muted,
   );
 
@@ -148,7 +149,7 @@ class FacingTokens {
     fontSize: 12,
     fontWeight: FontWeight.w700,
     height: 1.0,
-    letterSpacing: 1.2,
+    letterSpacing: 0.2,
     color: fg,
   );
 

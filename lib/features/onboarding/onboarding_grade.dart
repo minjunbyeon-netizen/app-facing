@@ -10,6 +10,15 @@ import '../../widgets/quote_card.dart';
 import '../../widgets/tier_badge.dart';
 import '../profile/profile_state.dart';
 
+/// v1.15.3: 백엔드 점수 스케일(1.0~6.0) → 0~100 만점 환산.
+/// 1.0=0, 6.0=100 기준 선형 매핑. 음수 방지 clamp.
+int _to100(dynamic raw) {
+  if (raw is! num) return 0;
+  final s = raw.toDouble();
+  final pct = ((s - 1.0) / 5.0 * 100).round();
+  return pct.clamp(0, 100);
+}
+
 class OnboardingGradeScreen extends StatelessWidget {
   const OnboardingGradeScreen({super.key});
 
@@ -19,7 +28,7 @@ class OnboardingGradeScreen extends StatelessWidget {
     final grade = p.gradeResult;
     if (grade == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Your Tier')),
+        appBar: AppBar(title: const Text('YOUR TIER')),
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(FacingTokens.sp5),
@@ -55,7 +64,7 @@ class OnboardingGradeScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Your Tier'),
+        title: const Text('YOUR TIER'),
         automaticallyImplyLeading: false,
       ),
       body: Stack(
@@ -92,8 +101,8 @@ class OnboardingGradeScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(FacingTokens.sp4),
                 children: [
                   const SizedBox(height: FacingTokens.sp3),
-                  // v1.15: 'Your Tier.' serif 헤드라인
-                  Text('Your Tier.', style: FacingTokens.h1Serif),
+                  // v1.15.3: 'YOUR TIER' 대문자 + 마침표 제거. serif 헤드라인 유지.
+                  Text('YOUR TIER', style: FacingTokens.h1Serif),
                   const SizedBox(height: FacingTokens.sp4),
                   QuoteCard(quote: quote, compact: true),
                   const SizedBox(height: FacingTokens.sp6),
@@ -102,7 +111,7 @@ class OnboardingGradeScreen extends StatelessWidget {
                     children: [
                       TierBadge(tier: tier, fontSize: 24),
                       const SizedBox(width: FacingTokens.sp4),
-                      Text('Score $score / 100',
+                      Text('Score ${_to100(score)} / 100',
                           style: FacingTokens.body.copyWith(
                             fontWeight: FontWeight.w700,
                             fontFeatures: FacingTokens.tabular,
@@ -191,19 +200,19 @@ class _CategoryCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: FacingTokens.sp2),
-          // v1.15 P2-6: Score 강조 (body.w700 + accent on 숫자) + items caption.
+          // v1.15.3: Score 1~6 → 0~100 환산. "NN / 100" 표기 통일.
           Row(
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Text('$score',
+              Text('${_to100(score)}',
                   style: FacingTokens.body.copyWith(
                     fontWeight: FontWeight.w800,
                     fontSize: 18,
                     fontFeatures: FacingTokens.tabular,
                   )),
-              const SizedBox(width: FacingTokens.sp2),
-              const Text('Score', style: FacingTokens.caption),
+              const SizedBox(width: FacingTokens.sp1),
+              const Text('/ 100', style: FacingTokens.caption),
               const SizedBox(width: FacingTokens.sp3),
               Text('$itemsUsed items', style: FacingTokens.caption),
             ],

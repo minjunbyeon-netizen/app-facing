@@ -14,7 +14,7 @@ class MyPageScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
+      appBar: AppBar(title: const Text('PROFILE')),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp3),
