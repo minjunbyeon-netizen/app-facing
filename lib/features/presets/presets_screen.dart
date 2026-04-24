@@ -120,6 +120,7 @@ class _FilterBar extends StatelessWidget {
       ('all', 'All'),
       ('girl', 'Girls'),
       ('hero', 'Heroes'),
+      ('games', 'Games'),
     ];
     return Padding(
       padding: const EdgeInsets.symmetric(

@@ -62,6 +62,21 @@ class CalcEntryScreen extends StatelessWidget {
               ),
               const Divider(height: 1, color: FacingTokens.border),
               _ChoiceRow(
+                title: 'Games',
+                subtitle: 'Amanda .45 · Jackie Pro · 2421 ...',
+                onTap: () {
+                  Haptic.medium();
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => const PresetsScreen(
+                      initialFilter: 'games',
+                      lockFilter: true,
+                      titleOverride: 'GAMES WODS',
+                    ),
+                  ));
+                },
+              ),
+              const Divider(height: 1, color: FacingTokens.border),
+              _ChoiceRow(
                 title: 'Custom',
                 subtitle: '동작·횟수 직접 구성. For Time 전용.',
                 onTap: () {
