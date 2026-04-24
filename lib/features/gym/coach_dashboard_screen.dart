@@ -6,10 +6,12 @@ import 'package:provider/provider.dart';
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
+import '../../models/coach_feedback.dart';
 import '../../models/gym.dart';
 import '../messages/messages_screen.dart';
 import 'gym_repository.dart';
 import 'gym_state.dart';
+import 'member_requests_screen.dart';
 
 class CoachDashboardScreen extends StatefulWidget {
   const CoachDashboardScreen({super.key});
@@ -128,6 +130,18 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                       Text(
                         '${approved.length} approved · $activeCount active · $dormantCount dormant · $totalSessions sessions',
                         style: FacingTokens.caption,
+                      ),
+                      const SizedBox(height: FacingTokens.sp3),
+                      // v1.16 Sprint 17: Member Requests 진입점.
+                      OutlinedButton.icon(
+                        onPressed: () {
+                          Haptic.light();
+                          Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) => const MemberRequestsScreen(),
+                          ));
+                        },
+                        icon: const Icon(Icons.inbox_outlined, size: 18),
+                        label: const Text('Member Requests'),
                       ),
                       const SizedBox(height: FacingTokens.sp5),
                       if (pending.isNotEmpty) ...[
@@ -392,7 +406,7 @@ class _MemberDetailSheet extends StatelessWidget {
               ),
             ),
             const SizedBox(height: FacingTokens.sp4),
-            if (member.deviceHashFull != null)
+            if (member.deviceHashFull != null) ...[
               ElevatedButton.icon(
                 onPressed: () {
                   Navigator.of(context).pop();
@@ -410,6 +424,17 @@ class _MemberDetailSheet extends StatelessWidget {
                   foregroundColor: FacingTokens.fg,
                 ),
               ),
+              const SizedBox(height: FacingTokens.sp2),
+              // v1.16 Sprint 17: 오늘 WOD 중 선택해 코치 노트 작성.
+              OutlinedButton.icon(
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  await _coachNoteFlow(context, member);
+                },
+                icon: const Icon(Icons.edit_note, size: 18),
+                label: const Text('Leave Coach Note'),
+              ),
+            ],
             const SizedBox(height: FacingTokens.sp2),
             Align(
               alignment: Alignment.centerRight,
@@ -417,6 +442,120 @@ class _MemberDetailSheet extends StatelessWidget {
                 onPressed: () => Navigator.of(context).pop(),
                 child: const Text('닫기'),
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _coachNoteFlow(BuildContext context, GymMember m) async {
+    Haptic.light();
+    final gs = context.read<GymState>();
+    final gym = gs.membership.gym;
+    if (gym == null || m.deviceHashFull == null) return;
+    final wods = gs.todayWods;
+    if (wods.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('오늘 WOD 없음. 먼저 WOD 게시.')),
+      );
+      return;
+    }
+    // WOD 선택 (today 1개면 스킵).
+    GymWodPost? pickedWod = wods.length == 1 ? wods.first : null;
+    if (pickedWod == null) {
+      pickedWod = await showModalBottomSheet<GymWodPost>(
+        context: context,
+        backgroundColor: FacingTokens.surface,
+        builder: (ctx) => SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(FacingTokens.sp4),
+                child: Text('SELECT WOD', style: FacingTokens.sectionLabel),
+              ),
+              ...wods.map((w) => ListTile(
+                    title: Text(w.wodType.toUpperCase()),
+                    subtitle: Text(
+                      w.content.length > 40
+                          ? '${w.content.substring(0, 40)}…'
+                          : w.content,
+                      style: FacingTokens.caption,
+                    ),
+                    onTap: () => Navigator.of(ctx).pop(w),
+                  )),
+            ],
+          ),
+        ),
+      );
+    }
+    if (pickedWod == null || !context.mounted) return;
+
+    if (!context.mounted) return;
+    final bodyCtrl = TextEditingController();
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: FacingTokens.surface,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(FacingTokens.r4)),
+      ),
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(
+          left: FacingTokens.sp4,
+          right: FacingTokens.sp4,
+          top: FacingTokens.sp4,
+          bottom: MediaQuery.of(ctx).viewInsets.bottom + FacingTokens.sp4,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text('COACH NOTE → ${m.deviceHashPrefix}',
+                style: FacingTokens.sectionLabel),
+            const SizedBox(height: FacingTokens.sp1),
+            Text(
+              'WOD: ${pickedWod!.wodType.toUpperCase()} · ${pickedWod.postDate}',
+              style: FacingTokens.caption,
+            ),
+            const SizedBox(height: FacingTokens.sp3),
+            TextField(
+              controller: bodyCtrl,
+              decoration: const InputDecoration(
+                labelText: '노트',
+                hintText:
+                    '예: "오늘 쓰러스터 중 어깨가 아파 보였음. 하지 드라이브 활용 권장."',
+              ),
+              maxLines: 6,
+              maxLength: 2000,
+            ),
+            const SizedBox(height: FacingTokens.sp3),
+            ElevatedButton(
+              onPressed: () async {
+                final body = bodyCtrl.text.trim();
+                if (body.isEmpty) return;
+                try {
+                  await context.read<GymRepository>().upsertCoachFeedback(
+                        gymId: gym.id,
+                        wodId: pickedWod!.id,
+                        memberHash: m.deviceHashFull!,
+                        body: body,
+                      );
+                  if (!ctx.mounted) return;
+                  Navigator.of(ctx).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('코치 노트 저장.')),
+                  );
+                } on AppException catch (e) {
+                  if (!ctx.mounted) return;
+                  ScaffoldMessenger.of(ctx).showSnackBar(
+                    SnackBar(content: Text('실패: ${e.messageKo}')),
+                  );
+                }
+              },
+              child: const Text('Save Note'),
             ),
           ],
         ),

@@ -1,5 +1,6 @@
 import '../../core/api_client.dart';
 import '../../models/announcement.dart';
+import '../../models/coach_feedback.dart';
 import '../../models/gym.dart';
 
 /// v1.15.3: /api/v1/gyms/* 래퍼.
@@ -207,5 +208,79 @@ class GymRepository {
 
   Future<void> deleteWod({required int gymId, required int wodId}) async {
     await api.delete('/api/v1/gyms/$gymId/wods/$wodId');
+  }
+
+  // ---- v1.16 Sprint 17: Coach Feedback ----
+
+  Future<List<CoachFeedback>> listCoachFeedback(int gymId, int wodId) async {
+    final list = await api.getList(
+      '/api/v1/gyms/$gymId/wods/$wodId/feedback',
+    );
+    return list
+        .whereType<Map<String, dynamic>>()
+        .map(CoachFeedback.fromJson)
+        .toList();
+  }
+
+  Future<int> upsertCoachFeedback({
+    required int gymId,
+    required int wodId,
+    required String memberHash,
+    required String body,
+  }) async {
+    final data = await api.post(
+      '/api/v1/gyms/$gymId/wods/$wodId/feedback',
+      {'member_hash': memberHash, 'body': body},
+    );
+    return (data['feedback_id'] as num).toInt();
+  }
+
+  Future<void> deleteCoachFeedback({
+    required int gymId,
+    required int wodId,
+    required int feedbackId,
+  }) async {
+    await api
+        .delete('/api/v1/gyms/$gymId/wods/$wodId/feedback/$feedbackId');
+  }
+
+  // ---- v1.16 Sprint 17: Member Requests ----
+
+  Future<List<MemberRequest>> listMemberRequests(
+    int gymId, {
+    String? status,
+  }) async {
+    final qs = (status == null || status.isEmpty) ? '' : '?status=$status';
+    final list = await api.getList('/api/v1/gyms/$gymId/requests$qs');
+    return list
+        .whereType<Map<String, dynamic>>()
+        .map(MemberRequest.fromJson)
+        .toList();
+  }
+
+  Future<int> sendMemberRequest({
+    required int gymId,
+    required String subject,
+    required String body,
+    int? wodPostId,
+  }) async {
+    final data = await api.post('/api/v1/gyms/$gymId/requests', {
+      'subject': subject,
+      'body': body,
+      if (wodPostId != null) 'wod_post_id': wodPostId,
+    });
+    return (data['request_id'] as num).toInt();
+  }
+
+  Future<void> respondMemberRequest({
+    required int gymId,
+    required int requestId,
+    String? coachResponse,
+    String? status,
+  }) async {
+    await api.patch('/api/v1/gyms/$gymId/requests/$requestId', {
+      if (coachResponse != null) 'coach_response': coachResponse,
+      if (status != null) 'status': status,
+    });
   }
 }
