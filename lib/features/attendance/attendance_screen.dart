@@ -208,28 +208,50 @@ class _AttendanceBody extends StatelessWidget {
                 ? '$currentStreak일 연속. 페이스 유지.'
                 : '$currentStreak일 연속.';
 
+    // v1.16 Sprint 16: 월별 최대 세션 수 (heatmap 강도 normalizer).
+    int maxCount = 1;
+    for (final v in counts.values) {
+      if (v > maxCount) maxCount = v;
+    }
+
     return ListView(
       padding: const EdgeInsets.all(FacingTokens.sp4),
       children: [
-        // 1. CALENDAR — 최상단 (월 네비 + 그리드)
+        // v1.16 Sprint 16: 월 헤더 대형화 + "N일 출석" 뿌듯 강조.
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             IconButton(
-              icon: const Icon(Icons.chevron_left),
+              icon: const Icon(Icons.chevron_left, size: 24),
               onPressed: onPrevMonth,
             ),
-            Text(
-              '${month.year}.${month.month.toString().padLeft(2, '0')}',
-              style: FacingTokens.h3,
+            Column(
+              children: [
+                Text(
+                  '${month.year}.${month.month.toString().padLeft(2, '0')}',
+                  style: FacingTokens.h3.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '$attendedDays일 · $attendancePct%',
+                  style: FacingTokens.caption.copyWith(
+                    color: FacingTokens.accent,
+                    fontWeight: FontWeight.w800,
+                    fontFeatures: FacingTokens.tabular,
+                  ),
+                ),
+              ],
             ),
             IconButton(
-              icon: const Icon(Icons.chevron_right),
+              icon: const Icon(Icons.chevron_right, size: 24),
               onPressed: onNextMonth,
             ),
           ],
         ),
-        const SizedBox(height: FacingTokens.sp2),
+        const SizedBox(height: FacingTokens.sp3),
         Row(
           children: const [
             _WeekdayLabel('일'),
@@ -248,8 +270,8 @@ class _AttendanceBody extends StatelessWidget {
           itemCount: totalCells,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 7,
-            mainAxisSpacing: 4,
-            crossAxisSpacing: 4,
+            mainAxisSpacing: 6,
+            crossAxisSpacing: 6,
             childAspectRatio: 1.0,
           ),
           itemBuilder: (_, i) {
@@ -261,8 +283,48 @@ class _AttendanceBody extends StatelessWidget {
             final isToday = today.year == month.year &&
                 today.month == month.month &&
                 today.day == dayNum;
-            return _DayCell(day: dayNum, count: count, isToday: isToday);
+            return _DayCell(
+              day: dayNum,
+              count: count,
+              isToday: isToday,
+              maxCount: maxCount,
+            );
           },
+        ),
+        const SizedBox(height: FacingTokens.sp3),
+        // v1.16 Sprint 16: Heatmap 범례.
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('LESS',
+                style: FacingTokens.micro.copyWith(
+                  color: FacingTokens.muted,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.2,
+                )),
+            const SizedBox(width: FacingTokens.sp2),
+            ...List.generate(4, (i) {
+              final intensity = (i + 1) * 0.25;
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 2),
+                child: Container(
+                  width: 14,
+                  height: 14,
+                  decoration: BoxDecoration(
+                    color: FacingTokens.accent.withValues(alpha: intensity),
+                    borderRadius: BorderRadius.circular(FacingTokens.r1),
+                  ),
+                ),
+              );
+            }),
+            const SizedBox(width: FacingTokens.sp2),
+            Text('MORE',
+                style: FacingTokens.micro.copyWith(
+                  color: FacingTokens.accent,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.2,
+                )),
+          ],
         ),
         const SizedBox(height: FacingTokens.sp5),
 
@@ -577,52 +639,115 @@ class _WeekdayLabel extends StatelessWidget {
   }
 }
 
+/// v1.16 Sprint 16: Heatmap 강도 + 굵은 숫자 + Today 강조 + 다중 세션 체크.
+/// "출석한 날은 정말 뿌듯하게 보이도록" — 페르소나 요구.
 class _DayCell extends StatelessWidget {
   final int day;
   final int count;
   final bool isToday;
+  final int maxCount;
   const _DayCell({
     required this.day,
     required this.count,
     required this.isToday,
+    required this.maxCount,
   });
+
+  /// 0 → 투명 · 1 → 0.45 · 2 → 0.70 · 3+ → 1.0 (full accent).
+  double _intensity() {
+    if (count <= 0) return 0;
+    if (count == 1) return 0.45;
+    if (count == 2) return 0.70;
+    if (count == 3) return 0.88;
+    return 1.0;
+  }
 
   @override
   Widget build(BuildContext context) {
     final hasSession = count > 0;
+    final intensity = _intensity();
+    final fillColor = hasSession
+        ? FacingTokens.accent.withValues(alpha: intensity)
+        : FacingTokens.surface;
+    final textColor = hasSession
+        ? FacingTokens.fg
+        : (isToday ? FacingTokens.fg : FacingTokens.muted);
     final sessionLabel = hasSession ? '$count 세션' : '세션 없음';
     final todayLabel = isToday ? ', 오늘' : '';
+
     return Semantics(
       label: '$day일$todayLabel, $sessionLabel',
       excludeSemantics: true,
       child: Container(
         decoration: BoxDecoration(
-          color: hasSession
-              ? FacingTokens.accent.withValues(alpha: 0.15)
-              : FacingTokens.surface,
+          color: fillColor,
           border: Border.all(
-            color: isToday ? FacingTokens.fg : FacingTokens.border,
-            width: isToday ? 1.5 : 1,
+            color: isToday
+                ? FacingTokens.fg
+                : (hasSession ? Colors.transparent : FacingTokens.border),
+            width: isToday ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(FacingTokens.r2),
+          boxShadow: hasSession && count >= 2
+              ? [
+                  BoxShadow(
+                    color: FacingTokens.accent.withValues(alpha: 0.35),
+                    blurRadius: 6,
+                    spreadRadius: -1,
+                  ),
+                ]
+              : null,
         ),
         child: Stack(
           alignment: Alignment.center,
           children: [
+            // 큰 일자 숫자 — 출석 시 굵게 흰색.
             Text(
               '$day',
-              style: FacingTokens.body.copyWith(
-                fontWeight: FontWeight.w700,
-                fontSize: 13,
-                color: hasSession ? FacingTokens.fg : FacingTokens.muted,
+              style: TextStyle(
+                fontFamily: 'Pretendard',
+                fontSize: hasSession ? 16 : 13,
+                fontWeight:
+                    hasSession ? FontWeight.w800 : FontWeight.w500,
+                color: textColor,
+                fontFeatures: FacingTokens.tabular,
               ),
             ),
-            if (hasSession)
+            // 2+ 세션일 때 왼쪽 상단 체크 아이콘.
+            if (count >= 2)
               Positioned(
-                bottom: 4,
+                top: 2,
+                left: 2,
+                child: Icon(
+                  Icons.check_circle,
+                  size: 10,
+                  color: FacingTokens.fg.withValues(alpha: 0.9),
+                ),
+              ),
+            // 세션 수 라벨 — 1 이상일 때 우측 하단에 "×N".
+            if (count > 1)
+              Positioned(
+                right: 3,
+                bottom: 2,
+                child: Text(
+                  '×$count',
+                  style: TextStyle(
+                    fontFamily: 'Pretendard',
+                    fontSize: 9,
+                    fontWeight: FontWeight.w800,
+                    color: FacingTokens.fg.withValues(alpha: 0.95),
+                    letterSpacing: 0.2,
+                  ),
+                ),
+              ),
+            // 오늘 표시 — 좌상단 accent dot.
+            if (isToday)
+              Positioned(
+                top: 3,
+                right: 3,
                 child: Container(
-                  width: 5,
-                  height: 5,
+                  width: 6,
+                  height: 6,
                   decoration: const BoxDecoration(
                     color: FacingTokens.accent,
                     shape: BoxShape.circle,
