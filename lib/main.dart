@@ -19,6 +19,8 @@ import 'features/profile/profile_state.dart';
 import 'features/splash/splash_screen.dart';
 import 'features/history/history_detail_screen.dart';
 import 'features/history/history_screen.dart';
+import 'features/gym/gym_repository.dart';
+import 'features/gym/gym_state.dart';
 import 'features/mypage/mypage_screen.dart';
 import 'features/shell/main_shell.dart';
 import 'features/wod_builder/wod_builder_screen.dart';
@@ -66,10 +68,14 @@ class FacingApp extends StatelessWidget {
       providers: [
         Provider<ApiClient>.value(value: api),
         Provider<MovementsRepository>(create: (_) => MovementsRepository(api)),
+        Provider<GymRepository>(create: (_) => GymRepository(api)),
         ChangeNotifierProvider<ProfileState>.value(value: profile),
         ChangeNotifierProvider<UnitState>.value(value: unit),
         ChangeNotifierProvider<ConnectivityState>.value(value: connectivity),
         ChangeNotifierProvider<WodDraftState>(create: (_) => WodDraftState()),
+        ChangeNotifierProvider<GymState>(
+          create: (ctx) => GymState(GymRepository(api))..loadMine(),
+        ),
       ],
       child: MaterialApp(
         title: 'FACING',

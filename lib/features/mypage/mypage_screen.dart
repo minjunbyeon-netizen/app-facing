@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../core/haptic.dart';
 import '../../core/scoring.dart';
 import '../../core/theme.dart';
 import '../../core/tier.dart';
 import '../../core/unit_state.dart';
 import '../../widgets/tier_badge.dart';
+import '../gym/coach_dashboard_screen.dart';
+import '../gym/gym_state.dart';
 import '../profile/profile_state.dart';
 
 class MyPageScreen extends StatelessWidget {
@@ -23,6 +26,8 @@ class MyPageScreen extends StatelessWidget {
             _TierSnapshot(),
             _SectionDivider(),
             _CategoryTiers(),
+            _SectionDivider(),
+            _MyBoxSection(),
             _SectionDivider(),
             _BodyStats(),
             _SectionDivider(),
@@ -227,6 +232,51 @@ class _CategoryTierRow extends StatelessWidget {
               ),
             ],
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// v1.15.3: 소속 박스 요약. owner면 'Manage Members' 버튼 노출.
+class _MyBoxSection extends StatelessWidget {
+  const _MyBoxSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final gs = context.watch<GymState>();
+    final gym = gs.membership.gym;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('MY BOX', style: FacingTokens.sectionLabel),
+          const SizedBox(height: FacingTokens.sp2),
+          if (gym == null)
+            const Text('박스 미가입. WOD 탭에서 Find Box.',
+                style: FacingTokens.caption)
+          else ...[
+            Text(gym.name,
+                style: FacingTokens.body.copyWith(fontWeight: FontWeight.w800)),
+            const SizedBox(height: FacingTokens.sp1),
+            Text(
+              '${gs.isOwner ? 'OWNER' : 'MEMBER'} · ${gs.membership.status ?? '-'} · ${gym.memberCount} members',
+              style: FacingTokens.caption,
+            ),
+            if (gs.isOwner) ...[
+              const SizedBox(height: FacingTokens.sp3),
+              OutlinedButton(
+                onPressed: () {
+                  Haptic.light();
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => const CoachDashboardScreen(),
+                  ));
+                },
+                child: const Text('Manage Members'),
+              ),
+            ],
+          ],
         ],
       ),
     );

@@ -1,0 +1,154 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../core/exception.dart';
+import '../../core/haptic.dart';
+import '../../core/theme.dart';
+import '../../models/gym.dart';
+import 'gym_repository.dart';
+import 'gym_state.dart';
+
+/// v1.15.3: 박스 검색 + 가입 신청.
+class GymSearchScreen extends StatefulWidget {
+  const GymSearchScreen({super.key});
+
+  @override
+  State<GymSearchScreen> createState() => _GymSearchScreenState();
+}
+
+class _GymSearchScreenState extends State<GymSearchScreen> {
+  final TextEditingController _ctrl = TextEditingController();
+  Timer? _debounce;
+  List<GymSummary> _results = const [];
+  bool _loading = false;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _runSearch('');
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  void _onChanged(String q) {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 300), () => _runSearch(q));
+  }
+
+  Future<void> _runSearch(String q) async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final list = await context.read<GymRepository>().search(q);
+      if (!mounted) return;
+      setState(() {
+        _results = list;
+        _loading = false;
+      });
+    } on AppException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e.messageKo;
+        _loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = '검색 실패: $e';
+        _loading = false;
+      });
+    }
+  }
+
+  Future<void> _join(GymSummary gym) async {
+    Haptic.medium();
+    final ok = await context.read<GymState>().joinGym(gym.id);
+    if (!mounted) return;
+    if (ok) {
+      Navigator.of(context).pop();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.read<GymState>().error ?? '가입 실패')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('FIND BOX')),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(FacingTokens.sp4),
+              child: TextField(
+                controller: _ctrl,
+                onChanged: _onChanged,
+                decoration: const InputDecoration(
+                  labelText: '박스 이름 검색',
+                  prefixIcon: Icon(Icons.search, color: FacingTokens.muted),
+                ),
+                autofocus: true,
+              ),
+            ),
+            if (_loading)
+              const Padding(
+                padding: EdgeInsets.all(FacingTokens.sp4),
+                child: CircularProgressIndicator(
+                    color: FacingTokens.muted, strokeWidth: 2),
+              )
+            else if (_error != null)
+              Padding(
+                padding: const EdgeInsets.all(FacingTokens.sp4),
+                child: Text(_error!, style: FacingTokens.caption),
+              )
+            else
+              Expanded(
+                child: _results.isEmpty
+                    ? const Center(
+                        child: Text('검색 결과 없음', style: FacingTokens.caption),
+                      )
+                    : ListView.separated(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: FacingTokens.sp4),
+                        itemCount: _results.length,
+                        separatorBuilder: (_, __) => const Divider(
+                            height: 1, color: FacingTokens.border),
+                        itemBuilder: (_, i) {
+                          final g = _results[i];
+                          return ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(g.name,
+                                style: FacingTokens.body
+                                    .copyWith(fontWeight: FontWeight.w700)),
+                            subtitle: Text(
+                              g.location.isEmpty
+                                  ? '${g.memberCount} members'
+                                  : '${g.location} · ${g.memberCount} members',
+                              style: FacingTokens.caption,
+                            ),
+                            trailing: TextButton(
+                              onPressed: () => _join(g),
+                              child: const Text('Join'),
+                            ),
+                          );
+                        },
+                      ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}

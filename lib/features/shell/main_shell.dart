@@ -4,8 +4,8 @@ import 'package:flutter/services.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../attendance/attendance_screen.dart';
+import '../gym/box_wod_screen.dart';
 import '../mypage/mypage_screen.dart';
-import '../presets/presets_screen.dart';
 import '../trends/trends_screen.dart';
 import '../wod_builder/wod_builder_screen.dart';
 
@@ -54,7 +54,7 @@ class _MainShellState extends State<MainShell> {
 
   static const List<Widget> _pages = [
     WodBuilderScreen(),
-    PresetsScreen(),
+    BoxWodScreen(),
     TrendsScreen(),
     AttendanceScreen(),
     MyPageScreen(),
