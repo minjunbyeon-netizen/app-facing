@@ -143,8 +143,9 @@ class _CategoryTiers extends StatelessWidget {
       final data = g[key];
       if (data is! Map) continue;
       final num? scoreNum = data['score'] is num ? data['score'] as num : null;
-      final num? catNum = data['number'] is num ? data['number'] as num : null;
       if (scoreNum == null) continue;
+      // v1.16 버그 fix: 백엔드 누락·구버전 저장본 대비 number/grade/score fallback.
+      final catNum = resolveCategoryNumber(data);
       rows.add(_CategoryTierRow(
         title: title,
         tier: Tier.fromOverallNumber(catNum),

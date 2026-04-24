@@ -192,7 +192,8 @@ class _CategoryCard extends StatelessWidget {
     final score = m['score'];
     final itemsUsed = m['items_used'] ?? 0;
     final missing = (m['missing'] as List?) ?? const [];
-    final num? catNum = m['number'] is num ? m['number'] as num : null;
+    // v1.16 버그 fix: 백엔드 누락·구버전 저장본 대비 number/grade/score fallback.
+    final catNum = resolveCategoryNumber(m);
     final tier = Tier.fromOverallNumber(catNum);
     return Container(
       padding: const EdgeInsets.fromLTRB(

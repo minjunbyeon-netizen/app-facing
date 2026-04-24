@@ -47,3 +47,39 @@ String formatTopPercent(double topPercent) {
   if (topPercent < 1.0) return 'Top <1%';
   return 'Top ${topPercent.round()}%';
 }
+
+/// v1.16 버그 fix: 백엔드 grade 문자열 → number(1~6) fallback.
+/// 백엔드가 `number`를 안 주거나 구버전 gradeResult 저장본일 때 사용.
+///
+/// 백엔드 grading.py `GRADES` 순서와 일치:
+/// scaled=1, beginner=2, intermediate=3, rxd=4, advanced=5, elite=6.
+int gradeStringToNumber(dynamic raw) {
+  if (raw is! String) return 1;
+  switch (raw.toLowerCase()) {
+    case 'elite':
+      return 6;
+    case 'advanced':
+      return 5;
+    case 'rxd':
+    case 'rx':
+      return 4;
+    case 'intermediate':
+      return 3;
+    case 'beginner':
+      return 2;
+    case 'scaled':
+    default:
+      return 1;
+  }
+}
+
+/// 카테고리 dict에서 number 해석. 우선순위: number(num) → score(1~6 round) → grade(str) → 1.
+int resolveCategoryNumber(Map data) {
+  final rawNum = data['number'];
+  if (rawNum is num) return rawNum.round().clamp(1, 6);
+  final rawScore = data['score'];
+  if (rawScore is num) {
+    return rawScore.round().clamp(1, 6);
+  }
+  return gradeStringToNumber(data['grade']);
+}
