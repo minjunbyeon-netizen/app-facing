@@ -67,8 +67,10 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
+    // canPop=false 고정 — 모든 back을 intercept 후 직접 처리.
+    // 비-중앙 탭: 중앙으로 복귀. 중앙 탭: SystemNavigator.pop()으로 앱 종료.
     return PopScope(
-      canPop: _index == _centerIndex,
+      canPop: false,
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) return;
         if (_index != _centerIndex) {
