@@ -7,7 +7,7 @@ import '../attendance/attendance_screen.dart';
 import '../gym/box_wod_screen.dart';
 import '../mypage/mypage_screen.dart';
 import '../trends/trends_screen.dart';
-import '../wod_builder/wod_builder_screen.dart';
+import '../wod_builder/calc_entry_screen.dart';
 
 /// v1.15.3: 5탭 하단 내비 Shell.
 /// 순서(좌→우): WOD계산기 · 와드확인 · 변화추이(center·default) · 출석률 · 마이프로필.
@@ -53,7 +53,7 @@ class _MainShellState extends State<MainShell> {
   ];
 
   static const List<Widget> _pages = [
-    WodBuilderScreen(),
+    CalcEntryScreen(),
     BoxWodScreen(),
     TrendsScreen(),
     AttendanceScreen(),

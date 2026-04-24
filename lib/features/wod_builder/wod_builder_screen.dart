@@ -24,6 +24,11 @@ class _WodBuilderScreenState extends State<WodBuilderScreen> {
   void initState() {
     super.initState();
     _future = context.read<MovementsRepository>().fetchCategoriesList();
+    // v1.16: Custom WOD은 for_time 고정. 진입 시 draft type 강제.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final draft = context.read<WodDraftState>();
+      if (draft.type != WodType.forTime) draft.setType(WodType.forTime);
+    });
   }
 
   @override
@@ -38,7 +43,7 @@ class _WodBuilderScreenState extends State<WodBuilderScreen> {
     final draft = context.watch<WodDraftState>();
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Build WOD'),
+        title: const Text('CUSTOM WOD'),
         actions: [
           TextButton(
             onPressed: draft.isEmpty ? null : () => draft.clear(),
@@ -90,32 +95,19 @@ class _Body extends StatelessWidget {
               FacingTokens.sp4, FacingTokens.sp4, FacingTokens.sp4, FacingTokens.sp4,
             ),
             children: [
-              const Text('WOD TYPE', style: FacingTokens.sectionLabel),
-              const SizedBox(height: FacingTokens.sp2),
-              _TypeSegmented(draft: draft),
-              const SizedBox(height: FacingTokens.sp5),
-              Row(
-                children: [
-                  Expanded(
-                    child: _MiniField(
-                      label: 'Time Cap (min)',
-                      controller: timeCapCtrl,
-                      onChanged: (v) {
-                        final m = int.tryParse(v);
-                        draft.setTimeCap(m == null ? null : m * 60);
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: FacingTokens.sp3),
-                  if (draft.type != WodType.forTime)
-                    Expanded(
-                      child: _MiniField(
-                        label: draft.type == WodType.amrap ? 'Rounds (opt)' : 'Minutes',
-                        controller: roundsCtrl,
-                        onChanged: (v) => draft.setRounds(int.tryParse(v)),
-                      ),
-                    ),
-                ],
+              // v1.16: Custom WOD = For Time 전용. AMRAP/EMOM은 Girls/Hero preset로.
+              const Text('FOR TIME', style: FacingTokens.sectionLabel),
+              const SizedBox(height: FacingTokens.sp1),
+              const Text('동작·횟수·중량 설정 후 Split 계산.',
+                  style: FacingTokens.caption),
+              const SizedBox(height: FacingTokens.sp4),
+              _MiniField(
+                label: 'Time Cap (min)',
+                controller: timeCapCtrl,
+                onChanged: (v) {
+                  final m = int.tryParse(v);
+                  draft.setTimeCap(m == null ? null : m * 60);
+                },
               ),
               const SizedBox(height: FacingTokens.sp6),
               const Text('MOVEMENTS', style: FacingTokens.sectionLabel),
@@ -176,45 +168,7 @@ class _Body extends StatelessWidget {
   }
 }
 
-class _TypeSegmented extends StatelessWidget {
-  final WodDraftState draft;
-  const _TypeSegmented({required this.draft});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: WodType.values.map((t) {
-        final selected = t == draft.type;
-        return Expanded(
-          child: Padding(
-            padding: const EdgeInsets.only(right: FacingTokens.sp2),
-            child: InkWell(
-              onTap: () => draft.setType(t),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp3),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: selected ? FacingTokens.fg : FacingTokens.bg,
-                  border: Border.all(
-                    color: selected ? FacingTokens.fg : FacingTokens.border,
-                  ),
-                  borderRadius: BorderRadius.circular(FacingTokens.r2),
-                ),
-                child: Text(
-                  t.labelKo,
-                  style: FacingTokens.body.copyWith(
-                    color: selected ? FacingTokens.bg : FacingTokens.fg,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-      }).toList(),
-    );
-  }
-}
+// v1.16: _TypeSegmented 제거 (AMRAP/EMOM 삭제, for_time 고정).
 
 class _MiniField extends StatelessWidget {
   final String label;

@@ -8,7 +8,18 @@ import '../../models/preset_wod.dart';
 import '../wod_builder/wod_draft_state.dart';
 
 class PresetsScreen extends StatefulWidget {
-  const PresetsScreen({super.key});
+  /// v1.16: 진입 시 적용할 카테고리 필터. 'girl' | 'hero' | 'all'(기본).
+  /// CalcEntryScreen에서 Girls/Hero 버튼으로 직접 진입 시 사용.
+  final String initialFilter;
+  final bool lockFilter;
+  final String? titleOverride;
+
+  const PresetsScreen({
+    super.key,
+    this.initialFilter = 'all',
+    this.lockFilter = false,
+    this.titleOverride,
+  });
 
   @override
   State<PresetsScreen> createState() => _PresetsScreenState();
@@ -16,11 +27,12 @@ class PresetsScreen extends StatefulWidget {
 
 class _PresetsScreenState extends State<PresetsScreen> {
   Future<(List<PresetWod>, Map<String, Movement>)>? _future;
-  String _filter = 'all';
+  late String _filter;
 
   @override
   void initState() {
     super.initState();
+    _filter = widget.initialFilter;
     final repo = context.read<MovementsRepository>();
     _future = _load(repo);
   }
@@ -41,7 +53,9 @@ class _PresetsScreenState extends State<PresetsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('PRESET WODS')),
+      appBar: AppBar(
+        title: Text(widget.titleOverride ?? 'PRESET WODS'),
+      ),
       body: FutureBuilder<(List<PresetWod>, Map<String, Movement>)>(
         future: _future,
         builder: (ctx, snap) {
@@ -60,11 +74,13 @@ class _PresetsScreenState extends State<PresetsScreen> {
               : presets.where((p) => p.category == _filter).toList();
           return Column(
             children: [
-              _FilterBar(
-                current: _filter,
-                onTap: (f) => setState(() => _filter = f),
-              ),
-              const Divider(),
+              if (!widget.lockFilter) ...[
+                _FilterBar(
+                  current: _filter,
+                  onTap: (f) => setState(() => _filter = f),
+                ),
+                const Divider(),
+              ],
               Expanded(
                 child: ListView.separated(
                   padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp2),
