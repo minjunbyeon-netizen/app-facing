@@ -111,47 +111,152 @@ class _AttendanceBody extends StatelessWidget {
     return map;
   }
 
+  /// v1.16: 전체 기록에서 고유 일자 집합 (date 기준).
+  Set<DateTime> _uniqueDays() {
+    return records
+        .map((r) {
+          final d = r.createdAt.toLocal();
+          return DateTime(d.year, d.month, d.day);
+        })
+        .toSet();
+  }
+
+  /// 현재 streak — 오늘(또는 가장 최근 세션일)부터 연속된 일수.
+  int _currentStreak() {
+    final days = _uniqueDays();
+    if (days.isEmpty) return 0;
+    final today = DateTime.now();
+    final todayDate = DateTime(today.year, today.month, today.day);
+    // 오늘 또는 어제에 세션 있으면 카운트 시작.
+    DateTime cursor = todayDate;
+    if (!days.contains(cursor)) {
+      cursor = cursor.subtract(const Duration(days: 1));
+      if (!days.contains(cursor)) return 0;
+    }
+    int count = 0;
+    while (days.contains(cursor)) {
+      count++;
+      cursor = cursor.subtract(const Duration(days: 1));
+    }
+    return count;
+  }
+
+  /// 최장 streak — 전체 기록 중 최장 연속 일수.
+  int _longestStreak() {
+    final days = _uniqueDays().toList()..sort();
+    if (days.isEmpty) return 0;
+    int best = 1;
+    int current = 1;
+    for (int i = 1; i < days.length; i++) {
+      final diff = days[i].difference(days[i - 1]).inDays;
+      if (diff == 1) {
+        current++;
+        if (current > best) best = current;
+      } else {
+        current = 1;
+      }
+    }
+    return best;
+  }
+
   @override
   Widget build(BuildContext context) {
     final counts = _countsByDay();
     final daysInMonth = DateUtils.getDaysInMonth(month.year, month.month);
-    // DateTime.weekday: 월=1 ~ 일=7. 캘린더 1열=일요일 기준 정렬.
-    final firstWeekday = DateTime(month.year, month.month, 1).weekday % 7; // 0=Sun
+    final firstWeekday = DateTime(month.year, month.month, 1).weekday % 7;
     final totalCells = ((firstWeekday + daysInMonth) / 7).ceil() * 7;
     final today = DateTime.now();
     final attendedDays = counts.keys.length;
-    final totalSessions = counts.values.fold<int>(0, (a, b) => a + b);
     final attendancePct = daysInMonth > 0
         ? (attendedDays / daysInMonth * 100).round()
         : 0;
+    final totalLifetime = records.length;
+    final uniqueDays = _uniqueDays().length;
+    final currentStreak = _currentStreak();
+    final longestStreak = _longestStreak();
 
     return ListView(
       padding: const EdgeInsets.all(FacingTokens.sp4),
       children: [
+        // 1. TOTAL — 평생 누적 세션
+        const Text('TOTAL SESSIONS', style: FacingTokens.sectionLabel),
         const SizedBox(height: FacingTokens.sp2),
-        // 상단 요약
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text('$attendancePct%', style: FacingTokens.displayCompact),
+            Text('$totalLifetime', style: FacingTokens.displayCompact),
             const SizedBox(width: FacingTokens.sp2),
             Padding(
               padding: const EdgeInsets.only(bottom: 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('$attendedDays / $daysInMonth 일',
-                      style: FacingTokens.caption),
-                  Text('총 $totalSessions 세션',
-                      style: FacingTokens.caption),
-                ],
-              ),
+              child: Text('sessions · $uniqueDays days',
+                  style: FacingTokens.caption),
             ),
           ],
         ),
-        const SizedBox(height: FacingTokens.sp4),
-        // 월 네비
+        const SizedBox(height: FacingTokens.sp5),
+
+        // 2. STREAK — 현재·최장 연속 출석
+        const Text('STREAK', style: FacingTokens.sectionLabel),
+        const SizedBox(height: FacingTokens.sp2),
+        Row(
+          children: [
+            Expanded(child: _StatBlock(label: 'CURRENT', value: '$currentStreak', unit: '일')),
+            Expanded(child: _StatBlock(label: 'LONGEST', value: '$longestStreak', unit: '일')),
+          ],
+        ),
+        const SizedBox(height: FacingTokens.sp2),
+        if (currentStreak == 0)
+          const Text('오늘 세션하면 streak 시작.', style: FacingTokens.caption)
+        else if (currentStreak == longestStreak && currentStreak > 1)
+          const Text('최장 streak 갱신 중. 멈추지 말 것.',
+              style: FacingTokens.caption)
+        else if (currentStreak >= 7)
+          Text('$currentStreak일 연속. 페이스 유지.', style: FacingTokens.caption)
+        else
+          Text('$currentStreak일 연속.', style: FacingTokens.caption),
+        const SizedBox(height: FacingTokens.sp5),
+
+        // 3. MILESTONES — 단계별 진행도
+        const Text('MILESTONES', style: FacingTokens.sectionLabel),
+        const SizedBox(height: FacingTokens.sp3),
+        _MilestoneRow(
+          title: '7-day attendance',
+          subtitle: '7일 연속 출석',
+          current: longestStreak.clamp(0, 7),
+          target: 7,
+        ),
+        _MilestoneRow(
+          title: '30-day attendance',
+          subtitle: '30일 연속 출석',
+          current: longestStreak.clamp(0, 30),
+          target: 30,
+        ),
+        _MilestoneRow(
+          title: '50 sessions',
+          subtitle: '평생 누적 50회',
+          current: totalLifetime.clamp(0, 50),
+          target: 50,
+        ),
+        _MilestoneRow(
+          title: '100 sessions',
+          subtitle: '평생 누적 100회',
+          current: totalLifetime.clamp(0, 100),
+          target: 100,
+        ),
+        _MilestoneRow(
+          title: '365 sessions',
+          subtitle: '평생 누적 365회',
+          current: totalLifetime.clamp(0, 365),
+          target: 365,
+        ),
+        const SizedBox(height: FacingTokens.sp5),
+
+        // 4. THIS MONTH — 월별 요약 (기존 캘린더)
+        const Text('THIS MONTH', style: FacingTokens.sectionLabel),
+        const SizedBox(height: FacingTokens.sp2),
+        Text('$attendedDays / $daysInMonth 일 · $attendancePct%',
+            style: FacingTokens.body),
+        const SizedBox(height: FacingTokens.sp3),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -169,8 +274,7 @@ class _AttendanceBody extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: FacingTokens.sp3),
-        // 요일 헤더 (일~토)
+        const SizedBox(height: FacingTokens.sp2),
         Row(
           children: const [
             _WeekdayLabel('일'),
@@ -183,7 +287,6 @@ class _AttendanceBody extends StatelessWidget {
           ],
         ),
         const SizedBox(height: FacingTokens.sp2),
-        // 날짜 그리드
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -206,69 +309,123 @@ class _AttendanceBody extends StatelessWidget {
             return _DayCell(day: dayNum, count: count, isToday: isToday);
           },
         ),
-        const SizedBox(height: FacingTokens.sp5),
-        const Text('이번 달 세션', style: FacingTokens.sectionLabel),
-        const SizedBox(height: FacingTokens.sp2),
-        ..._monthSessions(counts, month),
       ],
     );
   }
 
-  List<Widget> _monthSessions(Map<int, int> counts, DateTime month) {
-    if (counts.isEmpty) {
-      return [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp3),
-          child: Text('세션 없음', style: FacingTokens.caption),
-        ),
-      ];
-    }
-    final days = counts.keys.toList()..sort();
-    return days.map((d) {
-      final c = counts[d]!;
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp1),
-        child: Row(
+}
+
+/// v1.16: Streak 숫자 블록 (CURRENT · LONGEST).
+class _StatBlock extends StatelessWidget {
+  final String label;
+  final String value;
+  final String unit;
+  const _StatBlock({
+    required this.label,
+    required this.value,
+    required this.unit,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label,
+            style: FacingTokens.micro.copyWith(
+              color: FacingTokens.muted,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.2,
+            )),
+        const SizedBox(height: FacingTokens.sp1),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
           children: [
-            SizedBox(
-              width: 40,
-              child: Text('$d일',
+            Text(value,
+                style: FacingTokens.h1.copyWith(
+                  fontSize: 36,
+                  fontFeatures: FacingTokens.tabular,
+                )),
+            const SizedBox(width: 4),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Text(unit, style: FacingTokens.caption),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+/// v1.16: 마일스톤 row — 진행 바 + 해금 여부.
+class _MilestoneRow extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final int current;
+  final int target;
+  const _MilestoneRow({
+    required this.title,
+    required this.subtitle,
+    required this.current,
+    required this.target,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final unlocked = current >= target;
+    final pct = (current / target).clamp(0.0, 1.0);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp2),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  title,
                   style: FacingTokens.body.copyWith(
                     fontWeight: FontWeight.w700,
-                  )),
-            ),
-            const SizedBox(width: FacingTokens.sp3),
-            Expanded(
-              child: Container(
-                height: 6,
-                decoration: BoxDecoration(
-                  color: FacingTokens.accent.withValues(alpha: 0.25),
-                  borderRadius:
-                      BorderRadius.circular(FacingTokens.r1.toDouble()),
-                ),
-                child: FractionallySizedBox(
-                  alignment: Alignment.centerLeft,
-                  widthFactor: (c / 3).clamp(0.15, 1.0),
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: FacingTokens.accent,
-                      borderRadius:
-                          BorderRadius.circular(FacingTokens.r1.toDouble()),
-                    ),
+                    color: unlocked ? FacingTokens.fg : FacingTokens.muted,
                   ),
                 ),
               ),
-            ),
-            const SizedBox(width: FacingTokens.sp3),
-            Text('$c',
-                style: FacingTokens.body.copyWith(
+              Text(
+                unlocked ? 'UNLOCKED' : '$current / $target',
+                style: FacingTokens.micro.copyWith(
+                  color: unlocked ? FacingTokens.accent : FacingTokens.muted,
                   fontWeight: FontWeight.w800,
+                  letterSpacing: 0.8,
                   fontFeatures: FacingTokens.tabular,
-                )),
-          ],
-        ),
-      );
-    }).toList();
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: FacingTokens.sp1),
+          Text(subtitle, style: FacingTokens.caption),
+          const SizedBox(height: FacingTokens.sp2),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(FacingTokens.r1),
+            child: Stack(
+              children: [
+                Container(height: 4, color: FacingTokens.border),
+                FractionallySizedBox(
+                  widthFactor: pct,
+                  child: Container(
+                    height: 4,
+                    color: unlocked
+                        ? FacingTokens.accent
+                        : FacingTokens.accent.withValues(alpha: 0.55),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
