@@ -18,21 +18,22 @@ class CalcEntryScreen extends StatelessWidget {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(FacingTokens.sp4),
+          padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: FacingTokens.sp3),
+              const SizedBox(height: FacingTokens.sp4),
               const Text('PICK A WOD', style: FacingTokens.sectionLabel),
-              const SizedBox(height: FacingTokens.sp2),
+              const SizedBox(height: FacingTokens.sp1),
               const Text(
-                'Split · Burst 전략을 계산하려면 WOD 선택.',
+                'Split · Burst 전략을 계산할 WOD 선택.',
                 style: FacingTokens.caption,
               ),
-              const SizedBox(height: FacingTokens.sp5),
-              _ChoiceCard(
-                title: 'GIRLS',
-                subtitle: 'Fran · Grace · Helen · Diane ...',
+              const SizedBox(height: FacingTokens.sp4),
+              const Divider(height: 1, color: FacingTokens.border),
+              _ChoiceRow(
+                title: 'Girls',
+                subtitle: 'Fran · Grace · Helen · Diane',
                 onTap: () {
                   Haptic.medium();
                   Navigator.of(context).push(MaterialPageRoute(
@@ -44,10 +45,10 @@ class CalcEntryScreen extends StatelessWidget {
                   ));
                 },
               ),
-              const SizedBox(height: FacingTokens.sp3),
-              _ChoiceCard(
-                title: 'HEROES',
-                subtitle: 'Murph · DT · JT · Michael ...',
+              const Divider(height: 1, color: FacingTokens.border),
+              _ChoiceRow(
+                title: 'Heroes',
+                subtitle: 'Murph · DT · JT · Michael',
                 onTap: () {
                   Haptic.medium();
                   Navigator.of(context).push(MaterialPageRoute(
@@ -59,10 +60,10 @@ class CalcEntryScreen extends StatelessWidget {
                   ));
                 },
               ),
-              const SizedBox(height: FacingTokens.sp3),
-              _ChoiceCard(
-                title: 'CUSTOM',
-                subtitle: '동작·횟수·중량 직접 구성. For Time 전용.',
+              const Divider(height: 1, color: FacingTokens.border),
+              _ChoiceRow(
+                title: 'Custom',
+                subtitle: '동작·횟수 직접 구성. For Time 전용.',
                 onTap: () {
                   Haptic.medium();
                   Navigator.of(context).push(MaterialPageRoute(
@@ -70,13 +71,16 @@ class CalcEntryScreen extends StatelessWidget {
                   ));
                 },
               ),
+              const Divider(height: 1, color: FacingTokens.border),
               const Spacer(),
-              const Text(
-                'All types supported on Presets.\nCustom = For Time only.',
-                style: FacingTokens.caption,
-                textAlign: TextAlign.center,
+              const Padding(
+                padding: EdgeInsets.only(bottom: FacingTokens.sp2),
+                child: Text(
+                  'Custom = For Time only.',
+                  style: FacingTokens.caption,
+                  textAlign: TextAlign.center,
+                ),
               ),
-              const SizedBox(height: FacingTokens.sp2),
             ],
           ),
         ),
@@ -85,11 +89,11 @@ class CalcEntryScreen extends StatelessWidget {
   }
 }
 
-class _ChoiceCard extends StatelessWidget {
+class _ChoiceRow extends StatelessWidget {
   final String title;
   final String subtitle;
   final VoidCallback onTap;
-  const _ChoiceCard({
+  const _ChoiceRow({
     required this.title,
     required this.subtitle,
     required this.onTap,
@@ -99,31 +103,27 @@ class _ChoiceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(FacingTokens.r3),
-      child: Container(
-        padding: const EdgeInsets.all(FacingTokens.sp4),
-        decoration: BoxDecoration(
-          color: FacingTokens.surface,
-          border: Border.all(color: FacingTokens.border),
-          borderRadius: BorderRadius.circular(FacingTokens.r3),
-        ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp3),
         child: Row(
           children: [
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title,
-                      style: FacingTokens.h2.copyWith(
-                        fontWeight: FontWeight.w800,
-                      )),
-                  const SizedBox(height: FacingTokens.sp1),
+                  Text(
+                    title,
+                    style: FacingTokens.h3.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
                   Text(subtitle, style: FacingTokens.caption),
                 ],
               ),
             ),
-            const Icon(Icons.arrow_forward,
-                color: FacingTokens.muted, size: 22),
+            const Icon(Icons.chevron_right,
+                color: FacingTokens.muted, size: 20),
           ],
         ),
       ),
