@@ -5,6 +5,7 @@ import '../../core/haptic.dart';
 import '../../core/shell_nav_bus.dart';
 import '../../core/theme.dart';
 import '../../models/gym.dart';
+import '../leaderboard/box_leaderboard_screen.dart';
 import '../wod_session/wod_session_screen.dart';
 import 'coach_dashboard_screen.dart';
 import 'gym_search_screen.dart';
@@ -42,6 +43,17 @@ class BoxWodScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('WOD'),
         actions: [
+          if (gs.hasGym && gs.membership.isApprovedMember || gs.isOwner)
+            IconButton(
+              tooltip: 'Leaderboard',
+              icon: const Icon(Icons.emoji_events_outlined),
+              onPressed: () {
+                Haptic.light();
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => const BoxLeaderboardScreen(),
+                ));
+              },
+            ),
           if (canViewDashboard)
             IconButton(
               tooltip: 'Coach Dashboard',

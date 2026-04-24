@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/api_client.dart';
+import '../../core/athletes.dart';
 import '../../core/haptic.dart';
 import '../../core/scoring.dart';
 import '../../core/theme.dart';
@@ -14,6 +15,7 @@ import '../../core/unit_state.dart';
 import '../../core/weak_insight.dart';
 import '../../widgets/tier_badge.dart';
 import '../auth/auth_state.dart';
+import '../goals/goals_screen.dart';
 import '../gym/coach_dashboard_screen.dart';
 import '../gym/gym_state.dart';
 import '../history/history_models.dart';
@@ -36,7 +38,11 @@ class MyPageScreen extends StatelessWidget {
           children: const [
             _TierSnapshot(),
             _SectionDivider(),
+            _TierRoadmap(),
+            _SectionDivider(),
             _EngineTrend(),
+            _SectionDivider(),
+            _RoleModelCard(),
             _SectionDivider(),
             _CategoryTiers(),
             _SectionDivider(),
@@ -982,6 +988,14 @@ class _ActionsSection extends StatelessWidget {
             child: const Text('Import Data'),
           ),
           const SizedBox(height: FacingTokens.sp3),
+          // v1.16 Sprint 13: 목표 관리 (P1-P4 공통).
+          OutlinedButton(
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => const GoalsScreen(),
+            )),
+            child: const Text('Goals'),
+          ),
+          const SizedBox(height: FacingTokens.sp3),
           // v1.16 Sprint 11: Engine 계산식 투명성 (P9 Q9-Q15).
           OutlinedButton(
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
@@ -1069,5 +1083,262 @@ class _ActionsSection extends StatelessWidget {
     await context.read<AuthState>().signOut();
     if (!context.mounted) return;
     Navigator.of(context).pushNamedAndRemoveUntil('/signup', (_) => false);
+  }
+}
+
+/// v1.16 Sprint 13: Tier 승급 로드맵 (P3/P6 요구).
+/// 현재 Engine score → 다음 Tier 임계까지 필요 점수 + 약한 카테고리 표시.
+class _TierRoadmap extends StatelessWidget {
+  const _TierRoadmap();
+
+  // overallNumber 1-6 → next threshold (backend scale 1.0-6.0).
+  // UI 100-point mapping: 1→0-17, 2→17-33, 3→33-50, 4→50-67, 5→67-83, 6→83-100.
+  static const List<int> _tierThresholds = [17, 33, 50, 67, 83, 100];
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.watch<ProfileState>();
+    final g = p.gradeResult;
+    final num? n =
+        g?['overall_number'] is num ? g!['overall_number'] as num : null;
+    if (n == null) return const SizedBox.shrink();
+    final rawScore = g?['overall_score'];
+    final currentScore100 = engineScoreTo100(rawScore);
+    final current = Tier.fromOverallNumber(n);
+    final nextIdx = n.toInt().clamp(1, 5);
+    final nextThreshold = _tierThresholds[nextIdx - 1];
+    final nextTierLabel = Tier.fromOverallNumber(nextIdx + 1).label;
+    final gap = (nextThreshold - currentScore100).clamp(0, 100);
+
+    // 약점 카테고리 표시 (weak_insight 재활용).
+    final categoryScores = <String, int>{
+      'POWER': engineScoreTo100(g?['power_score']),
+      'OLYMPIC': engineScoreTo100(g?['olympic_score']),
+      'GYMNASTICS': engineScoreTo100(g?['gymnastics_score']),
+      'CARDIO': engineScoreTo100(g?['cardio_score']),
+      'METCON': engineScoreTo100(g?['metcon_score']),
+    };
+    final weak = analyzeWeakness(categoryScores);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('TIER ROADMAP', style: FacingTokens.sectionLabel),
+          const SizedBox(height: FacingTokens.sp2),
+          if (n >= 6)
+            Text(
+              '최고 Tier Games 도달. 유지에 집중.',
+              style: FacingTokens.body.copyWith(
+                color: FacingTokens.tierGames,
+                fontWeight: FontWeight.w700,
+              ),
+            )
+          else ...[
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                TierBadge(tier: current, fontSize: 12),
+                const SizedBox(width: FacingTokens.sp2),
+                const Icon(Icons.arrow_forward,
+                    size: 16, color: FacingTokens.muted),
+                const SizedBox(width: FacingTokens.sp2),
+                Text(
+                  nextTierLabel,
+                  style: FacingTokens.body.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: FacingTokens.accent,
+                    letterSpacing: 0.4,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  '+$gap',
+                  style: FacingTokens.h3.copyWith(
+                    fontFeatures: FacingTokens.tabular,
+                    color: FacingTokens.accent,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: FacingTokens.sp1),
+            Text('$currentScore100 / $nextThreshold 까지', style: FacingTokens.caption),
+            const SizedBox(height: FacingTokens.sp2),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(FacingTokens.r1),
+              child: Stack(
+                children: [
+                  Container(height: 6, color: FacingTokens.border),
+                  FractionallySizedBox(
+                    widthFactor: (currentScore100 / nextThreshold).clamp(0, 1),
+                    child: Container(height: 6, color: FacingTokens.accent),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: FacingTokens.sp3),
+            if (weak != null) ...[
+              Text('FOCUS · ${weak.weakestCategory.toUpperCase()}',
+                  style: FacingTokens.micro.copyWith(
+                    color: FacingTokens.accent,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.2,
+                  )),
+              const SizedBox(height: 2),
+              Text(weak.comment, style: FacingTokens.caption),
+            ],
+            const SizedBox(height: FacingTokens.sp2),
+            Text(
+              '⚠️ 가상 · Tier 도달 추정. 실제 진도는 주간 세션·약점 집중에 따라 변동.',
+              style: FacingTokens.micro.copyWith(color: FacingTokens.muted),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// v1.16 Sprint 13: 롤모델 (P9 요구).
+/// SharedPreferences로 즐겨찾기 1명 · 철학·대표 WOD 카드 표시.
+class _RoleModelCard extends StatefulWidget {
+  const _RoleModelCard();
+
+  @override
+  State<_RoleModelCard> createState() => _RoleModelCardState();
+}
+
+class _RoleModelCardState extends State<_RoleModelCard> {
+  Athlete? _selected;
+  bool _loaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final a = await FavoriteAthleteStore.get();
+    if (!mounted) return;
+    setState(() {
+      _selected = a;
+      _loaded = true;
+    });
+  }
+
+  Future<void> _openPicker() async {
+    Haptic.light();
+    final picked = await showModalBottomSheet<Athlete>(
+      context: context,
+      backgroundColor: FacingTokens.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(FacingTokens.r4)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(FacingTokens.sp4),
+              child: Text('SELECT ROLE MODEL',
+                  style: FacingTokens.sectionLabel),
+            ),
+            ...kAthletes.map(
+              (a) => ListTile(
+                title: Text(a.name,
+                    style: FacingTokens.body.copyWith(
+                      fontWeight: FontWeight.w700,
+                    )),
+                subtitle: Text(a.tier, style: FacingTokens.caption),
+                onTap: () => Navigator.of(ctx).pop(a),
+              ),
+            ),
+            const SizedBox(height: FacingTokens.sp3),
+          ],
+        ),
+      ),
+    );
+    if (picked != null) {
+      await FavoriteAthleteStore.set(picked.id);
+      if (!mounted) return;
+      setState(() => _selected = picked);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_loaded) return const SizedBox.shrink();
+    final a = _selected;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Text('MY ROLE MODEL', style: FacingTokens.sectionLabel),
+              const Spacer(),
+              TextButton(
+                onPressed: _openPicker,
+                child: Text(a == null ? 'Select' : 'Change'),
+              ),
+            ],
+          ),
+          const SizedBox(height: FacingTokens.sp2),
+          if (a == null)
+            const Text(
+              '엘리트 선수 선택 · 철학과 대표 WOD 참고.',
+              style: FacingTokens.caption,
+            )
+          else ...[
+            Text(a.name,
+                style: FacingTokens.h3.copyWith(
+                  fontWeight: FontWeight.w800,
+                )),
+            const SizedBox(height: 2),
+            Text(a.tier,
+                style: FacingTokens.caption.copyWith(
+                  color: FacingTokens.accent,
+                  fontWeight: FontWeight.w700,
+                )),
+            const SizedBox(height: FacingTokens.sp2),
+            Text('"${a.philosophy}"',
+                style: FacingTokens.body
+                    .copyWith(fontStyle: FontStyle.italic)),
+            const SizedBox(height: FacingTokens.sp3),
+            Container(
+              padding: const EdgeInsets.all(FacingTokens.sp3),
+              decoration: BoxDecoration(
+                color: FacingTokens.surfaceOverlay,
+                borderRadius: BorderRadius.circular(FacingTokens.r2),
+                border: Border.all(color: FacingTokens.border),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('SIGNATURE WOD',
+                      style: FacingTokens.micro.copyWith(
+                        color: FacingTokens.muted,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.2,
+                      )),
+                  const SizedBox(height: 2),
+                  Text(a.signatureWod, style: FacingTokens.caption),
+                ],
+              ),
+            ),
+            const SizedBox(height: FacingTokens.sp2),
+            Text(
+              '⚠️ 가상 · 공개 브랜드·HWPO·CompTrain 기반 큐레이션.',
+              style: FacingTokens.micro.copyWith(color: FacingTokens.muted),
+            ),
+          ],
+        ],
+      ),
+    );
   }
 }

@@ -6,6 +6,7 @@ import 'core/api_client.dart';
 import 'core/connectivity_state.dart';
 import 'core/movements_repository.dart';
 import 'core/theme.dart';
+import 'core/goals_state.dart';
 import 'core/shell_nav_bus.dart';
 import 'core/ui_prefs_state.dart';
 import 'core/unit_state.dart';
@@ -43,12 +44,14 @@ Future<void> main() async {
   final connectivity = ConnectivityState();
   final auth = AuthState();
   final uiPrefs = UiPrefsState();
+  final goals = GoalsState();
   await Future.wait([
     profile.load(),
     unit.load(),
     connectivity.init(),
     auth.load(),
     uiPrefs.load(),
+    goals.load(),
   ]);
   connectivity.bindRetryQueue(api);
 
@@ -59,6 +62,7 @@ Future<void> main() async {
     connectivity: connectivity,
     auth: auth,
     uiPrefs: uiPrefs,
+    goals: goals,
   ));
 }
 
@@ -69,6 +73,7 @@ class FacingApp extends StatelessWidget {
   final ConnectivityState connectivity;
   final AuthState auth;
   final UiPrefsState uiPrefs;
+  final GoalsState goals;
   const FacingApp({
     super.key,
     required this.api,
@@ -77,6 +82,7 @@ class FacingApp extends StatelessWidget {
     required this.connectivity,
     required this.auth,
     required this.uiPrefs,
+    required this.goals,
   });
 
   @override
@@ -103,6 +109,7 @@ class FacingApp extends StatelessWidget {
         ChangeNotifierProvider<UiPrefsState>.value(value: uiPrefs),
         ChangeNotifierProvider<WodSessionBus>(create: (_) => WodSessionBus()),
         ChangeNotifierProvider<ShellNavBus>(create: (_) => ShellNavBus()),
+        ChangeNotifierProvider<GoalsState>.value(value: goals),
       ],
       child: Consumer<UiPrefsState>(
         builder: (ctx, ui, _) => MaterialApp(
