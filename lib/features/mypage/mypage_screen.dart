@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../core/scoring.dart';
 import '../../core/theme.dart';
 import '../../core/tier.dart';
 import '../../core/unit_state.dart';
@@ -20,6 +21,8 @@ class MyPageScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp3),
           children: const [
             _TierSnapshot(),
+            _SectionDivider(),
+            _CategoryTiers(),
             _SectionDivider(),
             _BodyStats(),
             _SectionDivider(),
@@ -51,7 +54,9 @@ class _TierSnapshot extends StatelessWidget {
     final g = p.gradeResult;
     final num? n = g?['overall_number'] is num ? g!['overall_number'] as num : null;
     final tier = Tier.fromOverallNumber(n);
-    final score = g?['overall_score']?.toString() ?? '-';
+    final rawScore = g?['overall_score'];
+    final score100 = engineScoreTo100(rawScore);
+    final topPct = engineScoreToTopPercent(rawScore);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
       child: Column(
@@ -60,24 +65,168 @@ class _TierSnapshot extends StatelessWidget {
           const Text('CURRENT TIER', style: FacingTokens.sectionLabel),
           const SizedBox(height: FacingTokens.sp3),
           Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
+              Text(n == null ? '-' : '$score100',
+                  style: FacingTokens.displayCompact),
+              const SizedBox(width: FacingTokens.sp2),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Text('/ 100', style: FacingTokens.caption),
+              ),
+              const Spacer(),
               TierBadge(tier: tier, fontSize: 24),
-              const SizedBox(width: FacingTokens.sp4),
+            ],
+          ),
+          const SizedBox(height: FacingTokens.sp1),
+          if (n == null)
+            const Text('데이터 없음. 온보딩 완료 후 표시.',
+                style: FacingTokens.caption)
+          else
+            Text(
+              formatTopPercent(topPct),
+              style: FacingTokens.caption.copyWith(
+                color: FacingTokens.fg,
+                fontWeight: FontWeight.w700,
+                fontFeatures: FacingTokens.tabular,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// v1.15.3: 카테고리별(5개) Tier + Score(0~100) + Top%(백분위 근사).
+/// 각 카테고리는 `gradeResult[key] = {number, score, items_used, missing}`.
+class _CategoryTiers extends StatelessWidget {
+  const _CategoryTiers();
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.watch<ProfileState>();
+    final g = p.gradeResult;
+    if (g == null) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: const [
+            Text('CATEGORY TIERS', style: FacingTokens.sectionLabel),
+            SizedBox(height: FacingTokens.sp2),
+            Text('온보딩 완료 후 표시.', style: FacingTokens.caption),
+          ],
+        ),
+      );
+    }
+    final specs = <(String, String)>[
+      ('POWER', 'power'),
+      ('OLYMPIC', 'olympic'),
+      ('GYMNASTICS', 'gymnastics'),
+      ('CARDIO', 'cardio'),
+      ('METCON', 'metcon'),
+    ];
+    final rows = <Widget>[];
+    for (final (title, key) in specs) {
+      final data = g[key];
+      if (data is! Map) continue;
+      final num? scoreNum = data['score'] is num ? data['score'] as num : null;
+      final num? catNum = data['number'] is num ? data['number'] as num : null;
+      if (scoreNum == null) continue;
+      rows.add(_CategoryTierRow(
+        title: title,
+        tier: Tier.fromOverallNumber(catNum),
+        score100: engineScoreTo100(scoreNum),
+        topPct: engineScoreToTopPercent(scoreNum),
+      ));
+    }
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('CATEGORY TIERS', style: FacingTokens.sectionLabel),
+          const SizedBox(height: FacingTokens.sp1),
+          Text('백분위는 CrossFit 커뮤니티 분포 근사값',
+              style: FacingTokens.caption),
+          const SizedBox(height: FacingTokens.sp3),
+          if (rows.isEmpty)
+            const Text('카테고리 데이터 없음', style: FacingTokens.caption)
+          else
+            ...rows,
+        ],
+      ),
+    );
+  }
+}
+
+class _CategoryTierRow extends StatelessWidget {
+  final String title;
+  final Tier tier;
+  final int score100;
+  final double topPct;
+  const _CategoryTierRow({
+    required this.title,
+    required this.tier,
+    required this.score100,
+    required this.topPct,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp3),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(title, style: FacingTokens.sectionLabel),
+              ),
+              TierBadge(tier: tier),
+              const SizedBox(width: FacingTokens.sp3),
               Text(
-                n == null ? 'Score -' : 'Score $score / 100',
-                style: FacingTokens.body.copyWith(
+                formatTopPercent(topPct),
+                style: FacingTokens.caption.copyWith(
+                  color: FacingTokens.fg,
                   fontWeight: FontWeight.w700,
                   fontFeatures: FacingTokens.tabular,
                 ),
               ),
             ],
           ),
-          if (n == null) ...[
-            const SizedBox(height: FacingTokens.sp2),
-            const Text('데이터 없음. 온보딩 완료 후 표시.',
-                style: FacingTokens.caption),
-          ],
+          const SizedBox(height: FacingTokens.sp2),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 44,
+                child: Text(
+                  '$score100',
+                  style: FacingTokens.lead.copyWith(
+                    fontWeight: FontWeight.w800,
+                    fontFeatures: FacingTokens.tabular,
+                  ),
+                ),
+              ),
+              const SizedBox(width: FacingTokens.sp2),
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(FacingTokens.r1),
+                  child: Stack(
+                    children: [
+                      Container(height: 6, color: FacingTokens.border),
+                      FractionallySizedBox(
+                        widthFactor: (score100 / 100).clamp(0.02, 1.0),
+                        child: Container(height: 6, color: tier.color),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
