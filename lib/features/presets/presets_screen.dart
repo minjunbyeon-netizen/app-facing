@@ -6,7 +6,7 @@ import '../../core/movements_repository.dart';
 import '../../core/theme.dart';
 import '../../models/movement.dart';
 import '../../models/preset_wod.dart';
-import '../wod_builder/wod_draft_state.dart';
+import 'preset_detail_screen.dart';
 
 class PresetsScreen extends StatefulWidget {
   /// v1.16: 진입 시 적용할 카테고리 필터. 'girl' | 'hero' | 'all'(기본).
@@ -91,10 +91,14 @@ class _PresetsScreenState extends State<PresetsScreen> {
                     final p = filtered[i];
                     return InkWell(
                       onTap: () {
-                        // v1.16: 프리셋 선택 = medium haptic (중요 CTA).
-                        Haptic.medium();
-                        context.read<WodDraftState>().loadFromPreset(p, movMap);
-                        Navigator.of(context).pushNamed('/result');
+                        // v1.16: 프리셋 선택 → 상세 화면으로. draft 로드는 상세의 CTA에서.
+                        Haptic.light();
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) => PresetDetailScreen(
+                            preset: p,
+                            movementBySlug: movMap,
+                          ),
+                        ));
                       },
                       child: _PresetRow(preset: p),
                     );
