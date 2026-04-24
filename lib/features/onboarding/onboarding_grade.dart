@@ -9,10 +9,32 @@ import '../../core/tier.dart';
 import '../../widgets/grain_overlay.dart';
 import '../../widgets/quote_card.dart';
 import '../../widgets/tier_badge.dart';
+import '../achievement/achievement_state.dart';
+import '../achievement/unlock_toast.dart';
 import '../profile/profile_state.dart';
 
-class OnboardingGradeScreen extends StatelessWidget {
+class OnboardingGradeScreen extends StatefulWidget {
   const OnboardingGradeScreen({super.key});
+
+  @override
+  State<OnboardingGradeScreen> createState() => _OnboardingGradeScreenState();
+}
+
+class _OnboardingGradeScreenState extends State<OnboardingGradeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // v1.16: Grade 화면 진입 시 /achievements/check 호출.
+    // 스냅샷 save가 fire-and-forget이라 1초 지연 후 호출 (DB commit 시간 확보).
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future.delayed(const Duration(milliseconds: 1200));
+      if (!mounted) return;
+      final achState = context.read<AchievementState>();
+      final newly = await achState.check();
+      if (!mounted || newly.isEmpty) return;
+      UnlockToast.showAll(context, newly);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

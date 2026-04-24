@@ -8,6 +8,7 @@ import '../../core/theme.dart';
 import '../../core/tier.dart';
 import '../../core/unit_state.dart';
 import '../../widgets/tier_badge.dart';
+import '../achievement/achievement_section.dart';
 import '../gym/coach_dashboard_screen.dart';
 import '../gym/gym_state.dart';
 import '../profile/profile_state.dart';
@@ -32,6 +33,8 @@ class MyPageScreen extends StatelessWidget {
             _BodyStats(),
             _SectionDivider(),
             _SettingsSection(),
+            _SectionDivider(),
+            AchievementSection(),
             _SectionDivider(),
             _ActionsSection(),
           ],

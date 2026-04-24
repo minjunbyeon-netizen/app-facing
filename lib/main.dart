@@ -19,6 +19,8 @@ import 'features/profile/profile_state.dart';
 import 'features/splash/splash_screen.dart';
 import 'features/history/history_detail_screen.dart';
 import 'features/history/history_screen.dart';
+import 'features/achievement/achievement_repository.dart';
+import 'features/achievement/achievement_state.dart';
 import 'features/gym/gym_repository.dart';
 import 'features/gym/gym_state.dart';
 import 'features/mypage/mypage_screen.dart';
@@ -75,6 +77,12 @@ class FacingApp extends StatelessWidget {
         ChangeNotifierProvider<WodDraftState>(create: (_) => WodDraftState()),
         ChangeNotifierProvider<GymState>(
           create: (ctx) => GymState(GymRepository(api))..loadMine(),
+        ),
+        Provider<AchievementRepository>(
+          create: (_) => AchievementRepository(api),
+        ),
+        ChangeNotifierProvider<AchievementState>(
+          create: (_) => AchievementState(AchievementRepository(api))..load(),
         ),
       ],
       child: MaterialApp(
