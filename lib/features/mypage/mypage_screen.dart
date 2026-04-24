@@ -10,6 +10,7 @@ import '../../core/tier.dart';
 import '../../core/unit_state.dart';
 import '../../widgets/tier_badge.dart';
 import '../achievement/achievement_section.dart';
+import '../auth/auth_state.dart';
 import '../gym/coach_dashboard_screen.dart';
 import '../gym/gym_state.dart';
 import '../history/history_models.dart';
@@ -528,6 +529,32 @@ class _ActionsSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // v1.16: 계정 섹션 (로그인 상태 표시 + 로그아웃)
+          Consumer<AuthState>(
+            builder: (ctx, auth, _) {
+              if (!auth.isSignedIn) return const SizedBox.shrink();
+              return Padding(
+                padding: const EdgeInsets.only(bottom: FacingTokens.sp3),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        '${auth.provider?.toUpperCase() ?? '-'} · ${auth.displayName ?? ''}',
+                        style: FacingTokens.caption,
+                      ),
+                    ),
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        foregroundColor: FacingTokens.muted,
+                      ),
+                      onPressed: () => _confirmSignOut(context),
+                      child: const Text('Sign out'),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
           OutlinedButton(
             onPressed: () =>
                 Navigator.of(context).pushNamed('/onboarding/basic'),
@@ -583,5 +610,39 @@ class _ActionsSection extends StatelessWidget {
     await prefs.clear();
     if (!context.mounted) return;
     Navigator.of(context).pushNamedAndRemoveUntil('/splash', (_) => false);
+  }
+
+  Future<void> _confirmSignOut(BuildContext context) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        backgroundColor: FacingTokens.surfaceOverlay,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(FacingTokens.r5),
+        ),
+        title: const Text('Sign out?'),
+        content: const Text(
+          '로그아웃하면 다시 Naver·Kakao로 재가입이 필요합니다.\n'
+          '프로필·기록은 유지됩니다.',
+          style: FacingTokens.caption,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogCtx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            style: TextButton.styleFrom(foregroundColor: FacingTokens.muted),
+            onPressed: () => Navigator.pop(dialogCtx, true),
+            child: const Text('Sign out'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    if (!context.mounted) return;
+    await context.read<AuthState>().signOut();
+    if (!context.mounted) return;
+    Navigator.of(context).pushNamedAndRemoveUntil('/signup', (_) => false);
   }
 }

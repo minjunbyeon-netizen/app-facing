@@ -8,6 +8,7 @@ import '../../core/quotes.dart';
 import '../../core/theme.dart';
 import '../../widgets/hero_background.dart';
 import '../../widgets/quote_card.dart';
+import '../auth/auth_state.dart';
 import '../profile/profile_state.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -44,11 +45,20 @@ class _SplashScreenState extends State<SplashScreen> {
     setState(() => _ready = true);
   }
 
-  /// v1.15.2: '시작하기' 탭 → grade 있으면 홈, 없으면 바로 onboarding (intro 3장 bypass).
+  /// v1.16: 로그인 상태 분기. 비로그인 → /signup (데모 OAuth).
+  /// 로그인 + grade 있음 → /shell. 로그인 + grade 없음 → /onboarding/basic.
   void _onStart() {
     final profile = context.read<ProfileState>();
+    final auth = context.read<AuthState>();
     Haptic.medium();
-    final next = profile.hasGrade ? '/shell' : '/onboarding/basic';
+    final String next;
+    if (!auth.isSignedIn) {
+      next = '/signup';
+    } else if (profile.hasGrade) {
+      next = '/shell';
+    } else {
+      next = '/onboarding/basic';
+    }
     Navigator.of(context).pushReplacementNamed(next);
   }
 

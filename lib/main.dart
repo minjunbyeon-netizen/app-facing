@@ -21,6 +21,8 @@ import 'features/history/history_detail_screen.dart';
 import 'features/history/history_screen.dart';
 import 'features/achievement/achievement_repository.dart';
 import 'features/achievement/achievement_state.dart';
+import 'features/auth/auth_state.dart';
+import 'features/auth/signup_screen.dart';
 import 'features/gym/gym_repository.dart';
 import 'features/gym/gym_state.dart';
 import 'features/mypage/mypage_screen.dart';
@@ -36,10 +38,12 @@ Future<void> main() async {
   final profile = ProfileState();
   final unit = UnitState();
   final connectivity = ConnectivityState();
+  final auth = AuthState();
   await Future.wait([
     profile.load(),
     unit.load(),
     connectivity.init(),
+    auth.load(),
   ]);
   connectivity.bindRetryQueue(api);
 
@@ -48,6 +52,7 @@ Future<void> main() async {
     profile: profile,
     unit: unit,
     connectivity: connectivity,
+    auth: auth,
   ));
 }
 
@@ -56,12 +61,14 @@ class FacingApp extends StatelessWidget {
   final ProfileState profile;
   final UnitState unit;
   final ConnectivityState connectivity;
+  final AuthState auth;
   const FacingApp({
     super.key,
     required this.api,
     required this.profile,
     required this.unit,
     required this.connectivity,
+    required this.auth,
   });
 
   @override
@@ -84,6 +91,7 @@ class FacingApp extends StatelessWidget {
         ChangeNotifierProvider<AchievementState>(
           create: (_) => AchievementState(AchievementRepository(api))..load(),
         ),
+        ChangeNotifierProvider<AuthState>.value(value: auth),
       ],
       child: MaterialApp(
         title: 'FACING',
@@ -92,6 +100,7 @@ class FacingApp extends StatelessWidget {
         initialRoute: '/splash',
         routes: {
           '/splash': (_) => const SplashScreen(),
+          '/signup': (_) => const SignupScreen(),
           '/intro': (_) => const IntroScreen(),
           '/onboarding/basic': (_) => const OnboardingBasicScreen(),
           '/onboarding/benchmarks': (_) => const OnboardingBenchmarksScreen(),
