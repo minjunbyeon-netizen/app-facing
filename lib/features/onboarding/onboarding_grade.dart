@@ -3,21 +3,13 @@ import 'package:provider/provider.dart';
 
 import '../../core/haptic.dart';
 import '../../core/quotes.dart';
+import '../../core/scoring.dart';
 import '../../core/theme.dart';
 import '../../core/tier.dart';
 import '../../widgets/grain_overlay.dart';
 import '../../widgets/quote_card.dart';
 import '../../widgets/tier_badge.dart';
 import '../profile/profile_state.dart';
-
-/// v1.15.3: 백엔드 점수 스케일(1.0~6.0) → 0~100 만점 환산.
-/// 1.0=0, 6.0=100 기준 선형 매핑. 음수 방지 clamp.
-int _to100(dynamic raw) {
-  if (raw is! num) return 0;
-  final s = raw.toDouble();
-  final pct = ((s - 1.0) / 5.0 * 100).round();
-  return pct.clamp(0, 100);
-}
 
 class OnboardingGradeScreen extends StatelessWidget {
   const OnboardingGradeScreen({super.key});
@@ -111,7 +103,7 @@ class OnboardingGradeScreen extends StatelessWidget {
                     children: [
                       TierBadge(tier: tier, fontSize: 24),
                       const SizedBox(width: FacingTokens.sp4),
-                      Text('Score ${_to100(score)} / 100',
+                      Text('Score ${engineScoreTo100(score)} / 100',
                           style: FacingTokens.body.copyWith(
                             fontWeight: FontWeight.w700,
                             fontFeatures: FacingTokens.tabular,
@@ -205,10 +197,9 @@ class _CategoryCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Text('${_to100(score)}',
-                  style: FacingTokens.body.copyWith(
+              Text('${engineScoreTo100(score)}',
+                  style: FacingTokens.lead.copyWith(
                     fontWeight: FontWeight.w800,
-                    fontSize: 18,
                     fontFeatures: FacingTokens.tabular,
                   )),
               const SizedBox(width: FacingTokens.sp1),

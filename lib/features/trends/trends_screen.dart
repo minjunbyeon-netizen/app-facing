@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
 import '../../core/exception.dart';
+import '../../core/scoring.dart';
 import '../../core/theme.dart';
 import '../../core/tier.dart';
 import '../../widgets/tier_badge.dart';
@@ -36,15 +38,11 @@ class _TrendsScreenState extends State<TrendsScreen> {
     });
   }
 
-  /// 1~6 → 0~100 스케일 환산 (Grade 화면과 동일 공식).
-  int _to100(double s) =>
-      (((s - 1.0) / 5.0) * 100).round().clamp(0, 100);
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('변화추이'),
+        title: const Text('TRENDS'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -75,7 +73,7 @@ class _TrendsScreenState extends State<TrendsScreen> {
             if (records.isEmpty) {
               return const _EmptyState();
             }
-            return _TrendsBody(records: records, to100: _to100);
+            return _TrendsBody(records: records, to100: engineScoreTo100);
           },
         ),
       ),
@@ -109,8 +107,7 @@ class _TrendsBody extends StatelessWidget {
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text('$currentScore',
-                style: FacingTokens.display.copyWith(fontSize: 56)),
+            Text('$currentScore', style: FacingTokens.displayCompact),
             const SizedBox(width: FacingTokens.sp2),
             Padding(
               padding: const EdgeInsets.only(bottom: 10),
@@ -138,18 +135,105 @@ class _TrendsBody extends StatelessWidget {
         const SizedBox(height: FacingTokens.sp3),
         SizedBox(
           height: 140,
-          child: CustomPaint(
-            painter: _SparklinePainter(
-              values: sorted.map((r) => to100(r.overallScore)).toList(),
+          child: Semantics(
+            label: 'Engine 점수 추이 차트, 최근 ${sorted.length}개 데이터',
+            child: CustomPaint(
+              painter: _SparklinePainter(
+                values: sorted.map((r) => to100(r.overallScore)).toList(),
+              ),
+              child: const SizedBox.expand(),
             ),
-            child: const SizedBox.expand(),
           ),
         ),
+        const SizedBox(height: FacingTokens.sp5),
+        const Text('CATEGORY BREAKDOWN', style: FacingTokens.sectionLabel),
+        const SizedBox(height: FacingTokens.sp3),
+        ..._categoryRows(sorted),
         const SizedBox(height: FacingTokens.sp5),
         const Text('히스토리', style: FacingTokens.sectionLabel),
         const SizedBox(height: FacingTokens.sp2),
         ...records.take(10).map((r) => _RecordRow(r: r, to100: to100)),
       ],
+    );
+  }
+
+  /// 카테고리별(5개) mini sparkline. 데이터 0건인 카테고리는 스킵.
+  /// EngineSnapshotRecord의 category score 필드는 nullable — 누락은 제외.
+  List<Widget> _categoryRows(List<EngineSnapshotRecord> sorted) {
+    final specs = <_CategorySpec>[
+      _CategorySpec('POWER', (r) => r.powerScore),
+      _CategorySpec('OLYMPIC', (r) => r.olympicScore),
+      _CategorySpec('GYMNASTICS', (r) => r.gymnasticsScore),
+      _CategorySpec('CARDIO', (r) => r.cardioScore),
+      _CategorySpec('METCON', (r) => r.metconScore),
+    ];
+    final widgets = <Widget>[];
+    for (final spec in specs) {
+      final values = sorted
+          .map((r) => spec.extract(r))
+          .where((v) => v != null)
+          .map((v) => to100(v!))
+          .toList();
+      if (values.isEmpty) continue;
+      widgets.add(_CategoryRow(title: spec.title, values: values));
+    }
+    if (widgets.isEmpty) {
+      return [
+        Text('카테고리 데이터 없음', style: FacingTokens.caption),
+      ];
+    }
+    return widgets;
+  }
+}
+
+class _CategorySpec {
+  final String title;
+  final double? Function(EngineSnapshotRecord) extract;
+  const _CategorySpec(this.title, this.extract);
+}
+
+class _CategoryRow extends StatelessWidget {
+  final String title;
+  final List<int> values;
+  const _CategoryRow({required this.title, required this.values});
+
+  @override
+  Widget build(BuildContext context) {
+    final latest = values.last;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp2),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 84,
+            child: Text(title, style: FacingTokens.sectionLabel),
+          ),
+          Expanded(
+            child: SizedBox(
+              height: 28,
+              child: Semantics(
+                label: '$title 추이, ${values.length}개 데이터, 최신 $latest',
+                child: CustomPaint(
+                  painter: _SparklinePainter(values: values),
+                  child: const SizedBox.expand(),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: FacingTokens.sp3),
+          SizedBox(
+            width: 36,
+            child: Text(
+              '$latest',
+              textAlign: TextAlign.right,
+              style: FacingTokens.body.copyWith(
+                fontWeight: FontWeight.w800,
+                fontFeatures: FacingTokens.tabular,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -217,7 +301,7 @@ class _SparklinePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _SparklinePainter old) =>
-      old.values != values;
+      !listEquals(old.values, values);
 }
 
 class _RecordRow extends StatelessWidget {

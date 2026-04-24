@@ -50,6 +50,18 @@ class FacingTokens {
     color: fg,
   );
 
+  /// v1.15.3 신규 — display(64sp) 대비 한 단계 작은 히어로 숫자.
+  /// 화면당 1개, 카드 내 display 대체 시 사용 (Trends/Attendance 요약).
+  static const TextStyle displayCompact = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 56,
+    fontWeight: FontWeight.w800,
+    height: 1.05,
+    letterSpacing: -1.4,
+    fontFeatures: tabular,
+    color: fg,
+  );
+
   static const TextStyle h1 = TextStyle(
     fontFamily: fontFamily,
     fontSize: 44,
@@ -111,25 +123,26 @@ class FacingTokens {
     color: muted,
   );
 
-  /// 티어 배지 전용 라벨. 대문자 — 자간은 타이트 유지 (v1.15.3).
+  /// 티어 배지 전용 라벨. 대문자 tracking (v1.15.3 복원).
+  /// 대문자 all-caps는 자간을 넓혀야 덩어리 인상 완화 — HWPO/NOBULL 기준.
   static const TextStyle tierLabel = TextStyle(
     fontFamily: fontFamily,
     fontSize: 12,
     fontWeight: FontWeight.w800,
     height: 1.0,
-    letterSpacing: 0.2,
+    letterSpacing: 1.4,
     color: fg,
   );
 
   /// v1.14.0 신규 — 섹션 구분 라벨 전용. 코드에서 toUpperCase 필수.
   /// micro·caption·inline body.w800을 섹션 헤더로 쓰는 것 금지.
-  /// v1.15.3: 자간 타이트 (1.6 → 0.2).
+  /// v1.15.3: 대문자 가독성 복원 — 0.2 → 1.2.
   static const TextStyle sectionLabel = TextStyle(
     fontFamily: fontFamily,
     fontSize: 11,
     fontWeight: FontWeight.w700,
     height: 1.20,
-    letterSpacing: 0.2,
+    letterSpacing: 1.2,
     color: muted,
   );
 
@@ -144,12 +157,13 @@ class FacingTokens {
   );
 
   /// v1.14.0 신규 — Offline 배너 등 단어 라벨 전용.
+  /// v1.15.3: 대문자 가독성 복원 — 0.2 → 1.0.
   static const TextStyle bannerLabel = TextStyle(
     fontFamily: fontFamily,
     fontSize: 12,
     fontWeight: FontWeight.w700,
     height: 1.0,
-    letterSpacing: 0.2,
+    letterSpacing: 1.0,
     color: fg,
   );
 

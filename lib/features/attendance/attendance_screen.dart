@@ -48,7 +48,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('출석률'),
+        title: const Text('ATTENDANCE'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -133,8 +133,7 @@ class _AttendanceBody extends StatelessWidget {
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text('$attendancePct%',
-                style: FacingTokens.display.copyWith(fontSize: 56)),
+            Text('$attendancePct%', style: FacingTokens.displayCompact),
             const SizedBox(width: FacingTokens.sp2),
             Padding(
               padding: const EdgeInsets.only(bottom: 10),
@@ -304,41 +303,47 @@ class _DayCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasSession = count > 0;
-    return Container(
-      decoration: BoxDecoration(
-        color: hasSession
-            ? FacingTokens.accent.withValues(alpha: 0.15)
-            : FacingTokens.surface,
-        border: Border.all(
-          color: isToday ? FacingTokens.fg : FacingTokens.border,
-          width: isToday ? 1.5 : 1,
-        ),
-        borderRadius: BorderRadius.circular(FacingTokens.r2),
-      ),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Text(
-            '$day',
-            style: FacingTokens.body.copyWith(
-              fontWeight: FontWeight.w700,
-              fontSize: 13,
-              color: hasSession ? FacingTokens.fg : FacingTokens.muted,
-            ),
+    final sessionLabel = hasSession ? '$count 세션' : '세션 없음';
+    final todayLabel = isToday ? ', 오늘' : '';
+    return Semantics(
+      label: '$day일$todayLabel, $sessionLabel',
+      excludeSemantics: true,
+      child: Container(
+        decoration: BoxDecoration(
+          color: hasSession
+              ? FacingTokens.accent.withValues(alpha: 0.15)
+              : FacingTokens.surface,
+          border: Border.all(
+            color: isToday ? FacingTokens.fg : FacingTokens.border,
+            width: isToday ? 1.5 : 1,
           ),
-          if (hasSession)
-            Positioned(
-              bottom: 4,
-              child: Container(
-                width: 5,
-                height: 5,
-                decoration: const BoxDecoration(
-                  color: FacingTokens.accent,
-                  shape: BoxShape.circle,
-                ),
+          borderRadius: BorderRadius.circular(FacingTokens.r2),
+        ),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Text(
+              '$day',
+              style: FacingTokens.body.copyWith(
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
+                color: hasSession ? FacingTokens.fg : FacingTokens.muted,
               ),
             ),
-        ],
+            if (hasSession)
+              Positioned(
+                bottom: 4,
+                child: Container(
+                  width: 5,
+                  height: 5,
+                  decoration: const BoxDecoration(
+                    color: FacingTokens.accent,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

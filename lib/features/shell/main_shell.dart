@@ -23,41 +23,42 @@ class _MainShellState extends State<MainShell> {
   static const int _centerIndex = 2;
   int _index = _centerIndex;
 
+  // v1.15.3: 탭 라벨 영문화 (HWPO/NOBULL 톤 정합).
   static const List<_TabDef> _tabs = [
     _TabDef(
       icon: Icons.calculate_outlined,
       selectedIcon: Icons.calculate,
-      label: '계산기',
+      label: 'Calc',
     ),
     _TabDef(
       icon: Icons.list_alt_outlined,
       selectedIcon: Icons.list_alt,
-      label: '와드확인',
+      label: 'WOD',
     ),
     _TabDef(
       icon: Icons.show_chart_outlined,
       selectedIcon: Icons.show_chart,
-      label: '변화추이',
+      label: 'Trends',
     ),
     _TabDef(
       icon: Icons.calendar_month_outlined,
       selectedIcon: Icons.calendar_month,
-      label: '출석률',
+      label: 'Attend',
     ),
     _TabDef(
       icon: Icons.person_outline,
       selectedIcon: Icons.person,
-      label: '프로필',
+      label: 'Profile',
     ),
   ];
 
-  List<Widget> _buildPages() => const [
-        WodBuilderScreen(),
-        PresetsScreen(),
-        TrendsScreen(),
-        AttendanceScreen(),
-        MyPageScreen(),
-      ];
+  static const List<Widget> _pages = [
+    WodBuilderScreen(),
+    PresetsScreen(),
+    TrendsScreen(),
+    AttendanceScreen(),
+    MyPageScreen(),
+  ];
 
   void _onTap(int i) {
     if (i == _index) return;
@@ -80,7 +81,7 @@ class _MainShellState extends State<MainShell> {
         }
       },
       child: Scaffold(
-        body: IndexedStack(index: _index, children: _buildPages()),
+        body: IndexedStack(index: _index, children: _pages),
         bottomNavigationBar: NavigationBarTheme(
           data: NavigationBarThemeData(
             backgroundColor: FacingTokens.bg,
