@@ -20,6 +20,7 @@ import 'features/splash/splash_screen.dart';
 import 'features/history/history_detail_screen.dart';
 import 'features/history/history_screen.dart';
 import 'features/mypage/mypage_screen.dart';
+import 'features/shell/main_shell.dart';
 import 'features/wod_builder/wod_builder_screen.dart';
 import 'features/wod_builder/wod_draft_state.dart';
 
@@ -82,6 +83,7 @@ class FacingApp extends StatelessWidget {
           '/onboarding/benchmarks': (_) => const OnboardingBenchmarksScreen(),
           '/onboarding/grade': (_) => const OnboardingGradeScreen(),
           '/home': (_) => const HomeScreen(),
+          '/shell': (_) => const MainShell(),
           '/profile': (_) => const ProfileScreen(),
           '/mypage': (_) => const MyPageScreen(),
           '/history': (_) => const HistoryScreen(),

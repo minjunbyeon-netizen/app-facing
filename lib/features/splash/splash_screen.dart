@@ -48,7 +48,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void _onStart() {
     final profile = context.read<ProfileState>();
     Haptic.medium();
-    final next = profile.hasGrade ? '/home' : '/onboarding/basic';
+    final next = profile.hasGrade ? '/shell' : '/onboarding/basic';
     Navigator.of(context).pushReplacementNamed(next);
   }
 

@@ -152,7 +152,7 @@ class OnboardingGradeScreen extends StatelessWidget {
                   onPressed: () {
                     Haptic.medium();
                     Navigator.of(context)
-                        .pushNamedAndRemoveUntil('/home', (_) => false);
+                        .pushNamedAndRemoveUntil('/shell', (_) => false);
                   },
                   child: const Text('Start WOD'),
                 ),
