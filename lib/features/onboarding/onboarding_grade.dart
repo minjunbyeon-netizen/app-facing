@@ -81,6 +81,23 @@ class _OnboardingGradeScreenState extends State<OnboardingGradeScreen> {
       appBar: AppBar(
         title: const Text('YOUR TIER'),
         automaticallyImplyLeading: false,
+        // v1.16 Sprint 8 U2: 결과 공유 placeholder.
+        actions: [
+          IconButton(
+            tooltip: 'Share',
+            icon: const Icon(Icons.share, size: 20),
+            onPressed: () {
+              Haptic.light();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Tier 카드 공유는 Phase 2에서 지원 예정.'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+              // TODO(go): Phase 2 — Tier 카드 이미지 + SNS 공유.
+            },
+          ),
+        ],
       ),
       body: Stack(
         fit: StackFit.expand,

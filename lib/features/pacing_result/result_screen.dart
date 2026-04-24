@@ -83,7 +83,26 @@ class _ResultScreenState extends State<ResultScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('PACING STRATEGY')),
+      appBar: AppBar(
+        title: const Text('PACING STRATEGY'),
+        actions: [
+          // v1.16 Sprint 8 U2: 결과 공유 placeholder.
+          IconButton(
+            tooltip: 'Share',
+            icon: const Icon(Icons.share, size: 20),
+            onPressed: () {
+              Haptic.light();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('결과 카드 공유는 Phase 2에서 지원 예정.'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+              // TODO(go): Phase 2 — RepaintBoundary로 카드 캡처 + Share API 연결.
+            },
+          ),
+        ],
+      ),
       body: FutureBuilder<PacingPlan>(
         future: _future,
         builder: (ctx, snap) {

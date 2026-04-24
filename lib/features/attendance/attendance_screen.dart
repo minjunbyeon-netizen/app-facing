@@ -141,6 +141,15 @@ class _AttendanceBody extends StatelessWidget {
     return count;
   }
 
+  /// v1.16 Sprint 8 U3: 이달 세션 수 (챌린지 진행도용).
+  int currentMonthSessionsCount(List<WodHistoryItem> rs) {
+    final now = DateTime.now();
+    return rs.where((r) {
+      final d = r.createdAt.toLocal();
+      return d.year == now.year && d.month == now.month;
+    }).length;
+  }
+
   /// 최장 streak — 전체 기록 중 최장 연속 일수.
   int _longestStreak() {
     final days = _uniqueDays().toList()..sort();
@@ -251,6 +260,35 @@ class _AttendanceBody extends StatelessWidget {
         ),
         const SizedBox(height: FacingTokens.sp5),
 
+        // v1.16 Sprint 8 U3: 월별 챌린지 mock 3건.
+        const Text('CHALLENGES', style: FacingTokens.sectionLabel),
+        const SizedBox(height: FacingTokens.sp1),
+        Text('이달의 도전 · ${DateTime.now().month}월',
+            style: FacingTokens.caption),
+        const SizedBox(height: FacingTokens.sp3),
+        _ChallengeRow(
+          title: '10 SESSIONS THIS MONTH',
+          subtitle: '이달 WOD 10회 완주',
+          current: currentMonthSessionsCount(records),
+          target: 10,
+        ),
+        _ChallengeRow(
+          title: 'HIT 3 CATEGORIES',
+          subtitle: '카테고리별 WOD 고르게 1회 이상',
+          current: (totalLifetime / 10).clamp(0, 3).round(),
+          target: 3,
+        ),
+        _ChallengeRow(
+          title: '7-DAY STREAK',
+          subtitle: '7일 연속 출석',
+          current: currentStreak.clamp(0, 7),
+          target: 7,
+        ),
+        const SizedBox(height: FacingTokens.sp1),
+        Text('⚠️ 챌린지는 가상 데이터 · 실제 집계 연결은 Phase 2',
+            style: FacingTokens.micro),
+        const SizedBox(height: FacingTokens.sp5),
+
         // 4. THIS MONTH — 월별 요약 (기존 캘린더)
         const Text('THIS MONTH', style: FacingTokens.sectionLabel),
         const SizedBox(height: FacingTokens.sp2),
@@ -355,6 +393,72 @@ class _StatBlock extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+/// v1.16 Sprint 8 U3: 월별 챌린지 row (마일스톤과 동일 시각, 다른 이름).
+class _ChallengeRow extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final int current;
+  final int target;
+  const _ChallengeRow({
+    required this.title,
+    required this.subtitle,
+    required this.current,
+    required this.target,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final done = current >= target;
+    final pct = (current / target).clamp(0.0, 1.0);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp2),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(title,
+                    style: FacingTokens.body.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: done ? FacingTokens.fg : FacingTokens.muted,
+                    )),
+              ),
+              Text(done ? 'COMPLETE' : '$current / $target',
+                  style: FacingTokens.micro.copyWith(
+                    color: done ? FacingTokens.accent : FacingTokens.muted,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.8,
+                    fontFeatures: FacingTokens.tabular,
+                  )),
+            ],
+          ),
+          const SizedBox(height: FacingTokens.sp1),
+          Text(subtitle, style: FacingTokens.caption),
+          const SizedBox(height: FacingTokens.sp2),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(FacingTokens.r1),
+            child: Stack(
+              children: [
+                Container(height: 4, color: FacingTokens.border),
+                FractionallySizedBox(
+                  widthFactor: pct,
+                  child: Container(
+                    height: 4,
+                    color: done
+                        ? FacingTokens.accent
+                        : FacingTokens.accent.withValues(alpha: 0.55),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

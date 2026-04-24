@@ -27,7 +27,7 @@ class _SplashScreenState extends State<SplashScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _bootstrap());
   }
 
-  /// v1.15.2: auto-advance 제거. backend health + device id 준비 후 '시작하기' 버튼 활성화.
+  /// v1.16 Sprint 8 U1: 자동 진입 복원. 버튼 없이 backend health 준비 후 1.2s 뒤 자동 전환.
   Future<void> _bootstrap() async {
     final api = context.read<ApiClient>();
 
@@ -43,6 +43,11 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (!mounted) return;
     setState(() => _ready = true);
+
+    // 준비 후 1.2s 추가 대기하여 로고·카피 노출 보장 후 자동 전환.
+    await Future.delayed(const Duration(milliseconds: 1200));
+    if (!mounted) return;
+    _onStart();
   }
 
   /// v1.16: 로그인 상태 분기. 비로그인 → /signup (데모 OAuth).
@@ -91,24 +96,15 @@ class _SplashScreenState extends State<SplashScreen> {
                 const Spacer(),
                 QuoteCard(quote: q, compact: true),
                 const SizedBox(height: FacingTokens.sp5),
-                // v1.15.2: auto-advance 제거. 준비 전엔 spinner, 준비되면 '시작하기' CTA.
-                if (!_ready)
-                  const SizedBox(
-                    width: 22,
-                    height: 22,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: FacingTokens.muted,
-                    ),
-                  )
-                else
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _onStart,
-                      child: const Text('시작하기'),
-                    ),
+                // v1.16 Sprint 8 U1: 자동 진입. 로딩 spinner만 노출.
+                const SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: FacingTokens.muted,
                   ),
+                ),
                 const SizedBox(height: FacingTokens.sp3),
               ],
             ),

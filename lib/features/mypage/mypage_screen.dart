@@ -18,6 +18,7 @@ import '../gym/gym_state.dart';
 import '../history/history_models.dart';
 import '../history/history_repository.dart';
 import '../profile/profile_state.dart';
+import 'import_screen.dart';
 import 'privacy_screen.dart';
 
 class MyPageScreen extends StatelessWidget {
@@ -911,6 +912,14 @@ class _ActionsSection extends StatelessWidget {
               builder: (_) => const PrivacyScreen(),
             )),
             child: const Text('Privacy Policy'),
+          ),
+          const SizedBox(height: FacingTokens.sp3),
+          // v1.16 Sprint 8 U5: Import 진입점.
+          OutlinedButton(
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => const ImportScreen(),
+            )),
+            child: const Text('Import Data'),
           ),
           const SizedBox(height: FacingTokens.sp3),
           TextButton(

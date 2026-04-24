@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/api_client.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../widgets/hero_background.dart';
 import '../profile/profile_state.dart';
 import 'auth_state.dart';
+import 'demo_accounts.dart';
 
 /// v1.16: 최초 진입 회원가입 화면.
 /// 데모: Naver·Kakao 버튼 탭 시 AuthState.signIn만 기록하고 다음 단계로 이동.
@@ -36,6 +38,39 @@ class _SignupScreenState extends State<SignupScreen> {
     Navigator.of(context).pushReplacementNamed(next);
   }
 
+  /// v1.16 Sprint 8 U1: 데모 계정 선택 → 프로필 프리로드 + grade 계산 + Shell 진입.
+  Future<void> _useDemo(DemoAccount demo) async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    Haptic.heavy();
+    final auth = context.read<AuthState>();
+    final profile = context.read<ProfileState>();
+    await auth.signIn('demo', displayName: demo.nameLabel);
+    profile.setBasic(
+      bodyWeightKg: demo.bodyWeightKg,
+      heightCm: demo.heightCm.toDouble(),
+      ageYears: demo.ageYears.toDouble(),
+      gender: demo.gender,
+      experienceYears: demo.experienceYears,
+    );
+    for (final entry in demo.benchmarks.entries) {
+      profile.setBenchmark(entry.key, entry.value);
+    }
+    // Grade 계산 시도 (실패해도 Shell 진입).
+    try {
+      final api = context.read<ApiClient>();
+      final result = await api
+          .post('/api/v1/profile/grade', profile.toGradePayload())
+          .timeout(const Duration(seconds: 5));
+      profile.setGradeResult(result);
+    } catch (_) {
+      // 백엔드 미가동 시에도 onboarding으로 유도.
+    }
+    if (!mounted) return;
+    final next = profile.hasGrade ? '/shell' : '/onboarding/basic';
+    Navigator.of(context).pushReplacementNamed(next);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,12 +80,12 @@ class _SignupScreenState extends State<SignupScreen> {
         strongGrain: true,
         darkenStrength: 0.72,
         child: SafeArea(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(FacingTokens.sp5),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Spacer(),
+                const SizedBox(height: FacingTokens.sp5),
                 Text('FACING', style: FacingTokens.brandSerif),
                 const SizedBox(height: FacingTokens.sp2),
                 const Text(
@@ -63,7 +98,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   style: FacingTokens.caption,
                   textAlign: TextAlign.center,
                 ),
-                const Spacer(),
+                const SizedBox(height: FacingTokens.sp5),
 
                 // Naver
                 _SocialButton(
@@ -106,6 +141,50 @@ class _SignupScreenState extends State<SignupScreen> {
                   style: FacingTokens.caption,
                   textAlign: TextAlign.center,
                 ),
+                const SizedBox(height: FacingTokens.sp4),
+                // v1.16 Sprint 8 U1: 데모 계정 5개 빠른 진입.
+                const Text('DEMO ACCOUNTS',
+                    style: FacingTokens.sectionLabel),
+                const SizedBox(height: FacingTokens.sp1),
+                const Text(
+                  '테스트용 가상 프로필 5종. 선택 시 자동 온보딩 완료.',
+                  style: FacingTokens.caption,
+                ),
+                const SizedBox(height: FacingTokens.sp2),
+                ...kDemoAccounts.map((d) => Padding(
+                      padding: const EdgeInsets.only(bottom: FacingTokens.sp1),
+                      child: OutlinedButton(
+                        onPressed: _busy ? null : () => _useDemo(d),
+                        style: OutlinedButton.styleFrom(
+                          alignment: Alignment.centerLeft,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: FacingTokens.sp4,
+                            vertical: FacingTokens.sp3,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                children: [
+                                  Text(d.nameLabel,
+                                      style: FacingTokens.body.copyWith(
+                                        fontWeight: FontWeight.w700,
+                                      )),
+                                  const SizedBox(height: 2),
+                                  Text(d.hintTier,
+                                      style: FacingTokens.caption),
+                                ],
+                              ),
+                            ),
+                            const Icon(Icons.chevron_right,
+                                color: FacingTokens.muted, size: 18),
+                          ],
+                        ),
+                      ),
+                    )),
                 const SizedBox(height: FacingTokens.sp2),
                 // v1.16 Sprint 7a: 약관·개인정보 placeholder 링크.
                 Row(
