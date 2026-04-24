@@ -6,6 +6,7 @@ import 'core/api_client.dart';
 import 'core/connectivity_state.dart';
 import 'core/movements_repository.dart';
 import 'core/theme.dart';
+import 'core/ui_prefs_state.dart';
 import 'core/unit_state.dart';
 import 'features/home/home_screen.dart';
 import 'features/intro/intro_screen.dart';
@@ -39,11 +40,13 @@ Future<void> main() async {
   final unit = UnitState();
   final connectivity = ConnectivityState();
   final auth = AuthState();
+  final uiPrefs = UiPrefsState();
   await Future.wait([
     profile.load(),
     unit.load(),
     connectivity.init(),
     auth.load(),
+    uiPrefs.load(),
   ]);
   connectivity.bindRetryQueue(api);
 
@@ -53,6 +56,7 @@ Future<void> main() async {
     unit: unit,
     connectivity: connectivity,
     auth: auth,
+    uiPrefs: uiPrefs,
   ));
 }
 
@@ -62,6 +66,7 @@ class FacingApp extends StatelessWidget {
   final UnitState unit;
   final ConnectivityState connectivity;
   final AuthState auth;
+  final UiPrefsState uiPrefs;
   const FacingApp({
     super.key,
     required this.api,
@@ -69,6 +74,7 @@ class FacingApp extends StatelessWidget {
     required this.unit,
     required this.connectivity,
     required this.auth,
+    required this.uiPrefs,
   });
 
   @override
@@ -92,11 +98,20 @@ class FacingApp extends StatelessWidget {
           create: (_) => AchievementState(AchievementRepository(api))..load(),
         ),
         ChangeNotifierProvider<AuthState>.value(value: auth),
+        ChangeNotifierProvider<UiPrefsState>.value(value: uiPrefs),
       ],
-      child: MaterialApp(
+      child: Consumer<UiPrefsState>(
+        builder: (ctx, ui, _) => MaterialApp(
         title: 'FACING',
         theme: FacingTheme.light,
         debugShowCheckedModeBanner: false,
+        // v1.16 Sprint 9a: 폰트 확대 옵션 (Masters 접근성).
+        builder: (ctx2, child) => MediaQuery(
+          data: MediaQuery.of(ctx2).copyWith(
+            textScaler: TextScaler.linear(ui.textScale),
+          ),
+          child: child ?? const SizedBox.shrink(),
+        ),
         initialRoute: '/splash',
         routes: {
           '/splash': (_) => const SplashScreen(),
@@ -126,6 +141,7 @@ class FacingApp extends StatelessWidget {
           }
           return null;
         },
+      ),
       ),
     );
   }

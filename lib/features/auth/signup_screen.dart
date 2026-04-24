@@ -24,7 +24,9 @@ class _SignupScreenState extends State<SignupScreen> {
 
   static const Color _naverGreen = Color(0xFF03C75A);
   static const Color _kakaoYellow = Color(0xFFFEE500);
-  static const Color _kakaoBrown = Color(0xFF191600);
+  // v1.16 Sprint 9b: WCAG AA 대비 강화 — 기존 #191600(갈색) → 순검정 #000000.
+  // #FEE500(노랑) vs #000000 대비비 19.56:1 (AAA).
+  static const Color _kakaoBrown = Color(0xFF000000);
 
   Future<void> _signIn(String provider) async {
     if (_busy) return;
@@ -87,6 +89,26 @@ class _SignupScreenState extends State<SignupScreen> {
               children: [
                 const SizedBox(height: FacingTokens.sp5),
                 Text('FACING', style: FacingTokens.brandSerif),
+                const SizedBox(height: FacingTokens.sp1),
+                // v1.16 Sprint 9b: Beta Preview 배지.
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: FacingTokens.sp2,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: FacingTokens.accent, width: 1),
+                    borderRadius: BorderRadius.circular(FacingTokens.r1),
+                  ),
+                  child: Text(
+                    'BETA PREVIEW',
+                    style: FacingTokens.micro.copyWith(
+                      color: FacingTokens.accent,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                ),
                 const SizedBox(height: FacingTokens.sp2),
                 const Text(
                   'Engine · Split · Burst',

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/theme.dart';
 import '../../models/achievement.dart';
+import '../achievement/achievement_card.dart';
 import '../achievement/achievement_state.dart';
 
 /// v1.16: TRENDS = Achievement 갤러리 전용.
@@ -45,8 +46,9 @@ class _TrendsScreenState extends State<TrendsScreen> {
     locked.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
 
     return Scaffold(
+      // v1.16 Sprint 9a: EARN으로 이름 변경 (Achievement 갤러리 의미 일치).
       appBar: AppBar(
-        title: const Text('TRENDS'),
+        title: const Text('EARN'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -67,6 +69,33 @@ class _TrendsScreenState extends State<TrendsScreen> {
             : ListView(
                 padding: const EdgeInsets.all(FacingTokens.sp4),
                 children: [
+                  // v1.16 Sprint 9a: Profile 점수·Radar 진입 브릿지.
+                  InkWell(
+                    onTap: () =>
+                        Navigator.of(context).pushNamed('/mypage'),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: FacingTokens.sp2),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.show_chart,
+                              size: 18, color: FacingTokens.muted),
+                          const SizedBox(width: FacingTokens.sp2),
+                          const Expanded(
+                            child: Text(
+                              'Engine Score · Radar · 카테고리 추이는 Profile',
+                              style: FacingTokens.caption,
+                            ),
+                          ),
+                          const Icon(Icons.chevron_right,
+                              size: 16, color: FacingTokens.muted),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const Divider(height: 1, color: FacingTokens.border),
+                  const SizedBox(height: FacingTokens.sp3),
+
                   // Summary header
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -209,7 +238,11 @@ class _BadgeCard extends StatelessWidget {
           ),
           const SizedBox(height: FacingTokens.sp1),
           Text(
-            unlocked ? catalog.description : '· · ·',
+            unlocked
+                ? catalog.description
+                : (catalog.isHidden
+                    ? '· · · (조건 공개 안 됨)'
+                    : AchievementCard.triggerHint(catalog.code)),
             style: FacingTokens.caption,
           ),
           if (isDemo) ...[

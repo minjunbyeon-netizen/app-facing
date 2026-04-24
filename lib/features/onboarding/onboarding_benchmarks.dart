@@ -489,6 +489,15 @@ class _OnboardingBenchmarksScreenState
           '아는 것만 입력. 빈 칸은 자동 추론.',
           style: FacingTokens.caption,
         ),
+        const SizedBox(height: FacingTokens.sp1),
+        // v1.16 Sprint 9b: Skip 경로 안내.
+        Text(
+          '전부 선택 입력 · 모두 빈 칸이어도 Next. 언제든 Profile에서 수정.',
+          style: FacingTokens.caption.copyWith(
+            color: FacingTokens.muted,
+            fontStyle: FontStyle.italic,
+          ),
+        ),
         const SizedBox(height: FacingTokens.sp4),
         ...cat.fields.map((k) {
           final m = _meta[k]!;

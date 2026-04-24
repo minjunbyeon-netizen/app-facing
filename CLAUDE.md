@@ -2,6 +2,32 @@
 
 ⚠️ **UI·디자인·카피 관련 모든 결정은 먼저 `docs/VISUAL_CONCEPT.md` v1.0 (흑백·전사·Obsession 컨셉) → `docs/DESIGN_PLAYBOOK.md` v1.0 → 이 문서 순으로 확인**. 충돌 시 VISUAL_CONCEPT가 이김. 톤앤매너·스타일·컨셉 전부 SSOT는 VISUAL_CONCEPT.
 
+## 🚫 배포 금지 규칙 (v1.16.1 · 최상위 강제)
+
+**사용자가 명시적으로 "배포해"라고 말하기 전까지 어떤 형태의 배포도 절대 수행하지 말 것.**
+
+구체적으로 금지되는 행위:
+- `git push` 원격 푸시 (origin/main 포함 전체 브랜치)
+- Railway·Vercel·Fly 등 **PaaS 배포 명령** (`railway up`, `vercel deploy`, `fly deploy` 등)
+- `gh pr create`, `gh pr merge` · main 브랜치 병합
+- `flutter build apk --release` 후 **배포 경로 복사·업로드**
+- Google Play · App Store 등 **스토어 업로드**
+- 프로덕션 DB 마이그레이션 실행
+- 외부 배포 채널 공유 (APK 링크 · TestFlight 초대 등)
+
+**허용되는 행위** (배포가 아님):
+- 로컬 `git commit` (로컬 레포만 영향)
+- 로컬 백엔드 재기동 (`python app.py`)
+- 에뮬레이터 재실행 (`flutter run`)
+- 로컬 APK 디버그 빌드 후 **에뮬레이터·연결된 디바이스에 한정** 설치
+- 파일 편집 · 로컬 테스트 · 문서 작성
+
+**사용자 배포 의사 확인 방법**:
+"배포하자" · "push" · "출시" · "릴리즈" · "store 올리자" 같은 명시적 키워드 있을 때만 착수.
+모호한 "진행해줘" · "해줘" 는 **로컬 작업만** 의미로 해석할 것.
+
+**위반 시**: 롤백 · 사용자에게 즉시 보고 · `/handoff` 로 세션 기록.
+
 # facing-app -- WOD 페이싱 전략 모바일 앱
 
 > Flutter 기반 Android+iOS 앱. 백엔드 `services/facing/` API와 JSON 통신. UI/UX만 담당, 계산 로직 0%.

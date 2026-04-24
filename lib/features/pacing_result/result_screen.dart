@@ -419,17 +419,24 @@ class _SegmentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // v1.16 Sprint 9a: BURST 구간 구분력 강화.
+    // line 2→4px · accent 배경 0.06 alpha · 상·하 공백 확장.
     final accent = segment.isExplosion;
     return Container(
       margin: const EdgeInsets.only(bottom: FacingTokens.sp4),
       padding: const EdgeInsets.only(
         left: FacingTokens.sp3,
+        top: FacingTokens.sp2,
+        bottom: FacingTokens.sp2,
       ),
       decoration: BoxDecoration(
+        color: accent
+            ? FacingTokens.accent.withValues(alpha: 0.06)
+            : Colors.transparent,
         border: Border(
           left: BorderSide(
             color: accent ? FacingTokens.accent : FacingTokens.border,
-            width: accent ? 2 : 1,
+            width: accent ? 4 : 1,
           ),
         ),
       ),

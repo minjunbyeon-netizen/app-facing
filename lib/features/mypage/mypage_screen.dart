@@ -9,6 +9,7 @@ import '../../core/haptic.dart';
 import '../../core/scoring.dart';
 import '../../core/theme.dart';
 import '../../core/tier.dart';
+import '../../core/ui_prefs_state.dart';
 import '../../core/unit_state.dart';
 import '../../core/weak_insight.dart';
 import '../../widgets/tier_badge.dart';
@@ -793,8 +794,66 @@ class _SettingsSection extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: FacingTokens.sp3),
+          // v1.16 Sprint 9a: 폰트 확대 옵션 (Masters 접근성).
+          Consumer<UiPrefsState>(
+            builder: (ctx, ui, _) => Row(
+              children: [
+                const Expanded(
+                    child: Text('Font Size', style: FacingTokens.body)),
+                _TextScaleToggle(current: ui.textScale, state: ui),
+              ],
+            ),
+          ),
         ],
       ),
+    );
+  }
+}
+
+/// v1.16 Sprint 9a: 폰트 확대 3단계 토글 (100/115/130%).
+class _TextScaleToggle extends StatelessWidget {
+  final double current;
+  final UiPrefsState state;
+  const _TextScaleToggle({required this.current, required this.state});
+
+  @override
+  Widget build(BuildContext context) {
+    const options = [(1.0, 'A'), (1.15, 'A+'), (1.30, 'A++')];
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: options.map((o) {
+        final selected = (current - o.$1).abs() < 0.01;
+        return Padding(
+          padding: const EdgeInsets.only(left: FacingTokens.sp1),
+          child: InkWell(
+            onTap: () {
+              Haptic.light();
+              state.setTextScale(o.$1);
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: FacingTokens.sp3,
+                vertical: FacingTokens.sp2,
+              ),
+              decoration: BoxDecoration(
+                color: selected ? FacingTokens.fg : FacingTokens.bg,
+                border: Border.all(
+                  color: selected ? FacingTokens.fg : FacingTokens.border,
+                ),
+                borderRadius: BorderRadius.circular(FacingTokens.r2),
+              ),
+              child: Text(
+                o.$2,
+                style: FacingTokens.body.copyWith(
+                  color: selected ? FacingTokens.bg : FacingTokens.fg,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 }
@@ -888,7 +947,7 @@ class _ActionsSection extends StatelessWidget {
                         foregroundColor: FacingTokens.muted,
                       ),
                       onPressed: () => _confirmSignOut(context),
-                      child: const Text('Sign out'),
+                      child: const Text('로그아웃'),
                     ),
                   ],
                 ),
@@ -976,21 +1035,22 @@ class _ActionsSection extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(FacingTokens.r5),
         ),
-        title: const Text('Sign out?'),
+        title: const Text('로그아웃'),
         content: const Text(
-          '로그아웃하면 다시 Naver·Kakao로 재가입이 필요합니다.\n'
-          '프로필·기록은 유지됩니다.',
+          '로그아웃해도 프로필·기록은 이 기기에 그대로 유지됩니다.\n'
+          '같은 provider로 다시 로그인하면 모든 데이터 복구.\n'
+          '계정 자체를 지우려면 Privacy Policy → 계정 탈퇴.',
           style: FacingTokens.caption,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogCtx, false),
-            child: const Text('Cancel'),
+            child: const Text('취소'),
           ),
           TextButton(
             style: TextButton.styleFrom(foregroundColor: FacingTokens.muted),
             onPressed: () => Navigator.pop(dialogCtx, true),
-            child: const Text('Sign out'),
+            child: const Text('로그아웃'),
           ),
         ],
       ),
