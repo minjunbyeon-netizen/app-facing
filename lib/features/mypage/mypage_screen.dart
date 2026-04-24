@@ -1,4 +1,5 @@
-import 'package:flutter/foundation.dart';
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -292,7 +293,7 @@ class _MyBoxSection extends StatelessWidget {
   }
 }
 
-/// v1.16: Engine 점수 + delta + 스파크라인. Trends에서 이관.
+/// v1.16: Engine 점수 + delta + 5축 radar 차트 (POWER·OLYMPIC·GYMNASTICS·CARDIO·METCON).
 class _EngineTrend extends StatefulWidget {
   const _EngineTrend();
 
@@ -307,11 +308,13 @@ class _EngineTrendState extends State<_EngineTrend> {
   void initState() {
     super.initState();
     final repo = HistoryRepository(context.read<ApiClient>());
-    _future = repo.listEngineSnapshots(limit: 30);
+    _future = repo.listEngineSnapshots(limit: 10);
   }
 
   @override
   Widget build(BuildContext context) {
+    final profile = context.watch<ProfileState>();
+    final grade = profile.gradeResult;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
       child: Column(
@@ -326,18 +329,26 @@ class _EngineTrendState extends State<_EngineTrend> {
                 return const Text('Loading.', style: FacingTokens.caption);
               }
               final records = snap.data ?? const [];
-              if (records.isEmpty) {
-                return const Text('기록 없음. 측정 후 표시.',
-                    style: FacingTokens.caption);
-              }
-              final sorted = [...records]
-                ..sort((a, b) => a.scoredAt.compareTo(b.scoredAt));
-              final latest = records.first;
+              // Overall 숫자·delta는 history snapshot에서, radar 값은 gradeResult에서.
+              final latest = records.isNotEmpty ? records.first : null;
               final prev = records.length > 1 ? records[1] : null;
-              final current = engineScoreTo100(latest.overallScore);
-              final delta = prev != null
+              final current = latest == null
+                  ? 0
+                  : engineScoreTo100(latest.overallScore);
+              final delta = (latest != null && prev != null)
                   ? current - engineScoreTo100(prev.overallScore)
                   : 0;
+
+              // Radar 데이터 (5축) — gradeResult에서 카테고리 score 추출.
+              final radarValues = <_RadarAxis>[
+                _RadarAxis('POWER', _catScore(grade, 'power')),
+                _RadarAxis('OLYMPIC', _catScore(grade, 'olympic')),
+                _RadarAxis('GYMNASTICS', _catScore(grade, 'gymnastics')),
+                _RadarAxis('CARDIO', _catScore(grade, 'cardio')),
+                _RadarAxis('METCON', _catScore(grade, 'metcon')),
+              ];
+              final hasRadarData = radarValues.any((a) => a.value > 0);
+
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -348,8 +359,7 @@ class _EngineTrendState extends State<_EngineTrend> {
                       const SizedBox(width: FacingTokens.sp2),
                       Padding(
                         padding: const EdgeInsets.only(bottom: 10),
-                        child:
-                            Text('/ 100', style: FacingTokens.caption),
+                        child: Text('/ 100', style: FacingTokens.caption),
                       ),
                       const Spacer(),
                       if (prev != null)
@@ -368,18 +378,22 @@ class _EngineTrendState extends State<_EngineTrend> {
                         ),
                     ],
                   ),
-                  const SizedBox(height: FacingTokens.sp3),
-                  SizedBox(
-                    height: 100,
-                    child: CustomPaint(
-                      painter: _SparklinePainter(
-                        values: sorted
-                            .map((r) => engineScoreTo100(r.overallScore))
-                            .toList(),
+                  const SizedBox(height: FacingTokens.sp4),
+                  if (!hasRadarData)
+                    const Padding(
+                      padding:
+                          EdgeInsets.symmetric(vertical: FacingTokens.sp4),
+                      child: Text('카테고리 데이터 없음.',
+                          style: FacingTokens.caption),
+                    )
+                  else
+                    AspectRatio(
+                      aspectRatio: 1.0,
+                      child: CustomPaint(
+                        painter: _RadarPainter(axes: radarValues),
+                        child: const SizedBox.expand(),
                       ),
-                      child: const SizedBox.expand(),
                     ),
-                  ),
                 ],
               );
             },
@@ -388,55 +402,165 @@ class _EngineTrendState extends State<_EngineTrend> {
       ),
     );
   }
+
+  /// gradeResult[key].score → 0~100 환산.
+  int _catScore(Map<String, dynamic>? grade, String key) {
+    if (grade == null) return 0;
+    final data = grade[key];
+    if (data is! Map) return 0;
+    final s = data['score'];
+    if (s is! num) return 0;
+    return engineScoreTo100(s);
+  }
 }
 
-class _SparklinePainter extends CustomPainter {
-  final List<int> values;
-  _SparklinePainter({required this.values});
+class _RadarAxis {
+  final String label;
+  final int value; // 0~100
+  const _RadarAxis(this.label, this.value);
+}
+
+/// v1.16: N축 radar 차트 (기본 5축 pentagon).
+/// - 배경 polygon 3단계 (33/66/100%)
+/// - 축선 5개
+/// - 사용자 폴리곤 (accent fill + stroke)
+/// - 각 꼭짓점에 레이블
+class _RadarPainter extends CustomPainter {
+  final List<_RadarAxis> axes;
+  _RadarPainter({required this.axes});
+
+  static const double _topAngle = -3.14159265 / 2; // 정상(위)부터 시작
 
   @override
   void paint(Canvas canvas, Size size) {
-    final gridPaint = Paint()
+    final n = axes.length;
+    if (n < 3) return;
+    final center = Offset(size.width / 2, size.height / 2);
+    // 레이블 여유 공간 고려해 반경 축소.
+    final radius = size.shortestSide / 2 - 28;
+    final angleStep = 2 * 3.14159265 / n;
+
+    // 1) 배경 polygon — 3단계 (33 · 66 · 100).
+    final bgPaint = Paint()
       ..color = FacingTokens.border
-      ..strokeWidth = 0.5;
-    for (final v in [0, 50, 100]) {
-      final y = size.height - (v / 100 * size.height);
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
+      ..strokeWidth = 1
+      ..style = PaintingStyle.stroke;
+    for (final ratio in [0.33, 0.66, 1.0]) {
+      final path = Path();
+      for (int i = 0; i < n; i++) {
+        final angle = _topAngle + angleStep * i;
+        final x = center.dx + radius * ratio * math.cos(angle);
+        final y = center.dy + radius * ratio * math.sin(angle);
+        if (i == 0) {
+          path.moveTo(x, y);
+        } else {
+          path.lineTo(x, y);
+        }
+      }
+      path.close();
+      canvas.drawPath(path, bgPaint);
     }
-    if (values.isEmpty) return;
-    if (values.length == 1) {
-      final y = size.height - (values[0] / 100 * size.height);
-      canvas.drawCircle(Offset(size.width / 2, y), 4,
-          Paint()..color = FacingTokens.accent);
-      return;
+
+    // 2) 축 선 (center → 꼭짓점)
+    final axisPaint = Paint()
+      ..color = FacingTokens.border
+      ..strokeWidth = 1;
+    for (int i = 0; i < n; i++) {
+      final angle = _topAngle + angleStep * i;
+      final x = center.dx + radius * math.cos(angle);
+      final y = center.dy + radius * math.sin(angle);
+      canvas.drawLine(center, Offset(x, y), axisPaint);
     }
-    final stepX = size.width / (values.length - 1);
-    final linePaint = Paint()
-      ..color = FacingTokens.accent
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-    final path = Path();
-    for (int i = 0; i < values.length; i++) {
-      final x = stepX * i;
-      final y = size.height - (values[i] / 100 * size.height);
+
+    // 3) 사용자 폴리곤
+    final userPath = Path();
+    for (int i = 0; i < n; i++) {
+      final angle = _topAngle + angleStep * i;
+      final ratio = (axes[i].value / 100).clamp(0.02, 1.0);
+      final x = center.dx + radius * ratio * math.cos(angle);
+      final y = center.dy + radius * ratio * math.sin(angle);
       if (i == 0) {
-        path.moveTo(x, y);
+        userPath.moveTo(x, y);
       } else {
-        path.lineTo(x, y);
+        userPath.lineTo(x, y);
       }
     }
-    canvas.drawPath(path, linePaint);
-    final lastX = stepX * (values.length - 1);
-    final lastY = size.height - (values.last / 100 * size.height);
-    canvas.drawCircle(Offset(lastX, lastY), 4,
-        Paint()..color = FacingTokens.accent);
+    userPath.close();
+    canvas.drawPath(
+      userPath,
+      Paint()
+        ..color = FacingTokens.accent.withValues(alpha: 0.22)
+        ..style = PaintingStyle.fill,
+    );
+    canvas.drawPath(
+      userPath,
+      Paint()
+        ..color = FacingTokens.accent
+        ..strokeWidth = 2
+        ..style = PaintingStyle.stroke
+        ..strokeJoin = StrokeJoin.round,
+    );
+    // 꼭짓점 작은 원
+    for (int i = 0; i < n; i++) {
+      final angle = _topAngle + angleStep * i;
+      final ratio = (axes[i].value / 100).clamp(0.02, 1.0);
+      final x = center.dx + radius * ratio * math.cos(angle);
+      final y = center.dy + radius * ratio * math.sin(angle);
+      canvas.drawCircle(
+        Offset(x, y),
+        3,
+        Paint()..color = FacingTokens.accent,
+      );
+    }
+
+    // 4) 레이블
+    for (int i = 0; i < n; i++) {
+      final angle = _topAngle + angleStep * i;
+      final lx = center.dx + (radius + 16) * math.cos(angle);
+      final ly = center.dy + (radius + 16) * math.sin(angle);
+      final tp = TextPainter(
+        text: TextSpan(
+          text: axes[i].label,
+          style: const TextStyle(
+            fontFamily: FacingTokens.fontFamily,
+            fontSize: 10,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.8,
+            color: FacingTokens.muted,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+        textAlign: TextAlign.center,
+      )..layout(maxWidth: 80);
+      final offset = Offset(lx - tp.width / 2, ly - tp.height / 2);
+      tp.paint(canvas, offset);
+      // 값 한 줄 아래
+      final vp = TextPainter(
+        text: TextSpan(
+          text: '${axes[i].value}',
+          style: const TextStyle(
+            fontFamily: FacingTokens.fontFamily,
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: FacingTokens.fg,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      final vOffset = Offset(lx - vp.width / 2, ly + tp.height / 2 + 1);
+      vp.paint(canvas, vOffset);
+    }
   }
 
   @override
-  bool shouldRepaint(covariant _SparklinePainter old) =>
-      !listEquals(old.values, values);
+  bool shouldRepaint(covariant _RadarPainter old) {
+    if (old.axes.length != axes.length) return true;
+    for (int i = 0; i < axes.length; i++) {
+      if (old.axes[i].value != axes[i].value) return true;
+      if (old.axes[i].label != axes[i].label) return true;
+    }
+    return false;
+  }
 }
 
 /// v1.16: 최근 측정 기록 — Trends에서 이관. 깔끔 row 5개.
