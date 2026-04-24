@@ -103,6 +103,7 @@ class GymState extends ChangeNotifier {
     required String postDate,
     required String wodType,
     required String content,
+    String? scaleGuide,
     int? rounds,
     int? timeCapSec,
   }) async {
@@ -114,6 +115,7 @@ class GymState extends ChangeNotifier {
         postDate: postDate,
         wodType: wodType,
         content: content,
+        scaleGuide: scaleGuide,
         rounds: rounds,
         timeCapSec: timeCapSec,
       );

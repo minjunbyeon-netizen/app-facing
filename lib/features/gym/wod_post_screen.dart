@@ -15,6 +15,7 @@ class WodPostScreen extends StatefulWidget {
 
 class _WodPostScreenState extends State<WodPostScreen> {
   final _contentCtrl = TextEditingController();
+  final _scaleGuideCtrl = TextEditingController();
   final _roundsCtrl = TextEditingController();
   final _timeCapCtrl = TextEditingController();
 
@@ -25,9 +26,39 @@ class _WodPostScreenState extends State<WodPostScreen> {
   @override
   void dispose() {
     _contentCtrl.dispose();
+    _scaleGuideCtrl.dispose();
     _roundsCtrl.dispose();
     _timeCapCtrl.dispose();
     super.dispose();
+  }
+
+  /// v1.16 Sprint 12: 어제 게시한 WOD를 현재 폼에 prefill.
+  void _duplicateYesterday() {
+    final yestWods = context.read<GymState>().todayWods; // 같은 리스트 재활용 (최근 50개)
+    // todayWods는 "오늘" 필터로 loadMine 하지만 실제로는 전체 최근 WOD를 가져오도록 loadMine 구조 필요.
+    // 간소 구현: 가장 최근 WOD 1개를 복제.
+    if (yestWods.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('복제할 기존 WOD 없음.')),
+      );
+      return;
+    }
+    final w = yestWods.first;
+    Haptic.medium();
+    setState(() {
+      _wodType = w.wodType;
+      _contentCtrl.text = w.content;
+      if (w.rounds != null) _roundsCtrl.text = '${w.rounds}';
+      if (w.timeCapSec != null) {
+        _timeCapCtrl.text = '${(w.timeCapSec! / 60).round()}';
+      }
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('이전 WOD 복제. 필요 시 수정 후 Post.'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   String get _dateIso =>
@@ -47,6 +78,9 @@ class _WodPostScreenState extends State<WodPostScreen> {
           postDate: _dateIso,
           wodType: _wodType,
           content: content,
+          scaleGuide: _scaleGuideCtrl.text.trim().isEmpty
+              ? null
+              : _scaleGuideCtrl.text.trim(),
           rounds: int.tryParse(_roundsCtrl.text.trim()),
           timeCapSec: _parseTimeCap(_timeCapCtrl.text.trim()),
         );
@@ -90,7 +124,16 @@ class _WodPostScreenState extends State<WodPostScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('POST WOD')),
+      appBar: AppBar(
+        title: const Text('POST WOD'),
+        actions: [
+          TextButton.icon(
+            onPressed: _duplicateYesterday,
+            icon: const Icon(Icons.copy, size: 16),
+            label: const Text('Duplicate'),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(FacingTokens.sp4),
@@ -148,6 +191,18 @@ class _WodPostScreenState extends State<WodPostScreen> {
               ),
               maxLines: 6,
               maxLength: 2000,
+            ),
+            const SizedBox(height: FacingTokens.sp3),
+            const Text('SCALE GUIDE (선택)', style: FacingTokens.sectionLabel),
+            const SizedBox(height: FacingTokens.sp2),
+            TextField(
+              controller: _scaleGuideCtrl,
+              decoration: const InputDecoration(
+                labelText: 'RX vs Scaled 무게·대체 동작',
+                hintText: 'RX: Thruster 95/65lb · Pull-up\nScaled: 65/45lb · Ring Row',
+              ),
+              maxLines: 3,
+              maxLength: 500,
             ),
             const SizedBox(height: FacingTokens.sp3),
             Row(

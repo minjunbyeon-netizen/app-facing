@@ -438,6 +438,19 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
                         )),
                     const SizedBox(height: FacingTokens.sp2),
                     Text(widget.wod.content, style: FacingTokens.body),
+                    if (widget.wod.scaleGuide != null &&
+                        widget.wod.scaleGuide!.isNotEmpty) ...[
+                      const SizedBox(height: FacingTokens.sp3),
+                      Text('SCALE',
+                          style: FacingTokens.micro.copyWith(
+                            color: FacingTokens.muted,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1.2,
+                          )),
+                      const SizedBox(height: 2),
+                      Text(widget.wod.scaleGuide!,
+                          style: FacingTokens.caption),
+                    ],
                   ],
                 ),
               ),

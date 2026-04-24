@@ -60,6 +60,10 @@ class GymMember {
   final String status;
   final DateTime requestedAt;
   final DateTime? decidedAt;
+  // v1.16 Sprint 12: 코치 대시보드 활동 통계.
+  final DateTime? lastWodAt;
+  final int totalSessions;
+  final int streakDays;
 
   const GymMember({
     required this.id,
@@ -67,11 +71,22 @@ class GymMember {
     required this.status,
     required this.requestedAt,
     this.decidedAt,
+    this.lastWodAt,
+    this.totalSessions = 0,
+    this.streakDays = 0,
   });
 
   bool get isPending => status == 'pending';
   bool get isApproved => status == 'approved';
   bool get isRejected => status == 'rejected';
+
+  /// 오늘·어제 활동 여부. streak 끊김 경고용.
+  int get daysSinceLastWod {
+    if (lastWodAt == null) return 999;
+    return DateTime.now().difference(lastWodAt!).inDays;
+  }
+
+  bool get isDormant => isApproved && daysSinceLastWod >= 14;
 
   factory GymMember.fromJson(Map<String, dynamic> j) => GymMember(
         id: (j['id'] as num).toInt(),
@@ -81,6 +96,11 @@ class GymMember {
         decidedAt: j['decided_at'] == null
             ? null
             : DateTime.parse(j['decided_at'] as String),
+        lastWodAt: j['last_wod_at'] == null
+            ? null
+            : DateTime.parse(j['last_wod_at'] as String),
+        totalSessions: ((j['total_sessions'] ?? 0) as num).toInt(),
+        streakDays: ((j['streak_days'] ?? 0) as num).toInt(),
       );
 }
 
@@ -89,6 +109,7 @@ class GymWodPost {
   final String postDate; // YYYY-MM-DD
   final String wodType;
   final String content;
+  final String? scaleGuide;
   final int? rounds;
   final int? timeCapSec;
   final DateTime createdAt;
@@ -98,6 +119,7 @@ class GymWodPost {
     required this.postDate,
     required this.wodType,
     required this.content,
+    this.scaleGuide,
     this.rounds,
     this.timeCapSec,
     required this.createdAt,
@@ -116,6 +138,7 @@ class GymWodPost {
         postDate: (j['post_date'] ?? '').toString(),
         wodType: (j['wod_type'] ?? '').toString(),
         content: (j['content'] ?? '').toString(),
+        scaleGuide: j['scale_guide']?.toString(),
         rounds: (j['rounds'] as num?)?.toInt(),
         timeCapSec: (j['time_cap_sec'] as num?)?.toInt(),
         createdAt: DateTime.parse(j['created_at'] as String),

@@ -57,6 +57,7 @@ class GymRepository {
     required String postDate,
     required String wodType,
     required String content,
+    String? scaleGuide,
     int? rounds,
     int? timeCapSec,
   }) async {
@@ -64,6 +65,7 @@ class GymRepository {
       'post_date': postDate,
       'wod_type': wodType,
       'content': content,
+      if (scaleGuide != null && scaleGuide.isNotEmpty) 'scale_guide': scaleGuide,
       if (rounds != null) 'rounds': rounds,
       if (timeCapSec != null) 'time_cap_sec': timeCapSec,
     });

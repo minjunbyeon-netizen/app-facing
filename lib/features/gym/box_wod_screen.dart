@@ -34,13 +34,17 @@ class BoxWodScreen extends StatelessWidget {
       body = _WodList(gymState: gs);
     }
 
+    // v1.16 Sprint 12: FACING 공식 박스는 승인 멤버도 코치 대시보드 접근 허용 (demo).
+    final isFacingMember = gs.membership.gym?.name == 'FACING' &&
+        gs.membership.isApprovedMember;
+    final canViewDashboard = gs.isOwner || isFacingMember;
     return Scaffold(
       appBar: AppBar(
         title: const Text('WOD'),
         actions: [
-          if (gs.isOwner)
+          if (canViewDashboard)
             IconButton(
-              tooltip: 'Manage Members',
+              tooltip: 'Coach Dashboard',
               icon: const Icon(Icons.people_outline),
               onPressed: () {
                 Haptic.light();
@@ -369,6 +373,30 @@ class _WodCard extends StatelessWidget {
                 ),
                 const SizedBox(height: FacingTokens.sp2),
                 Text(wod.content, style: FacingTokens.body),
+                if (wod.scaleGuide != null && wod.scaleGuide!.isNotEmpty) ...[
+                  const SizedBox(height: FacingTokens.sp3),
+                  Container(
+                    padding: const EdgeInsets.all(FacingTokens.sp3),
+                    decoration: BoxDecoration(
+                      color: FacingTokens.surfaceOverlay,
+                      borderRadius: BorderRadius.circular(FacingTokens.r2),
+                      border: Border.all(color: FacingTokens.border),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('SCALE GUIDE',
+                            style: FacingTokens.micro.copyWith(
+                              color: FacingTokens.muted,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 1.2,
+                            )),
+                        const SizedBox(height: 2),
+                        Text(wod.scaleGuide!, style: FacingTokens.caption),
+                      ],
+                    ),
+                  ),
+                ],
                 const SizedBox(height: FacingTokens.sp3),
                 Row(
                   children: [
