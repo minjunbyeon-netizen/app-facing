@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../core/api_client.dart';
 import '../../core/haptic.dart';
 import '../../core/scoring.dart';
 import '../../core/theme.dart';
@@ -11,6 +12,8 @@ import '../../widgets/tier_badge.dart';
 import '../achievement/achievement_section.dart';
 import '../gym/coach_dashboard_screen.dart';
 import '../gym/gym_state.dart';
+import '../history/history_models.dart';
+import '../history/history_repository.dart';
 import '../profile/profile_state.dart';
 
 class MyPageScreen extends StatelessWidget {
@@ -27,6 +30,8 @@ class MyPageScreen extends StatelessWidget {
             _TierSnapshot(),
             _SectionDivider(),
             _CategoryTiers(),
+            _SectionDivider(),
+            _RecentRecords(),
             _SectionDivider(),
             _MyBoxSection(),
             _SectionDivider(),
@@ -53,6 +58,7 @@ class _SectionDivider extends StatelessWidget {
       );
 }
 
+/// v1.16: 한 줄로 축소 — 큰 숫자는 Trends로 이관. 여기는 간결 요약.
 class _TierSnapshot extends StatelessWidget {
   const _TierSnapshot();
 
@@ -71,33 +77,31 @@ class _TierSnapshot extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('CURRENT TIER', style: FacingTokens.sectionLabel),
-          const SizedBox(height: FacingTokens.sp3),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(n == null ? '-' : '$score100',
-                  style: FacingTokens.displayCompact),
-              const SizedBox(width: FacingTokens.sp2),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: Text('/ 100', style: FacingTokens.caption),
-              ),
-              const Spacer(),
-              TierBadge(tier: tier, fontSize: 24),
-            ],
-          ),
-          const SizedBox(height: FacingTokens.sp1),
+          const SizedBox(height: FacingTokens.sp2),
           if (n == null)
             const Text('데이터 없음. 온보딩 완료 후 표시.',
                 style: FacingTokens.caption)
           else
-            Text(
-              formatTopPercent(topPct),
-              style: FacingTokens.caption.copyWith(
-                color: FacingTokens.fg,
-                fontWeight: FontWeight.w700,
-                fontFeatures: FacingTokens.tabular,
-              ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                TierBadge(tier: tier, fontSize: 16),
+                const SizedBox(width: FacingTokens.sp3),
+                Text('$score100 / 100',
+                    style: FacingTokens.h3.copyWith(
+                      fontFeatures: FacingTokens.tabular,
+                    )),
+                const SizedBox(width: FacingTokens.sp3),
+                Text(
+                  formatTopPercent(topPct),
+                  style: FacingTokens.caption.copyWith(
+                    color: FacingTokens.muted,
+                    fontWeight: FontWeight.w700,
+                    fontFeatures: FacingTokens.tabular,
+                  ),
+                ),
+              ],
             ),
         ],
       ),
@@ -280,6 +284,91 @@ class _MyBoxSection extends StatelessWidget {
               ),
             ],
           ],
+        ],
+      ),
+    );
+  }
+}
+
+/// v1.16: 최근 측정 기록 — Trends에서 이관. 깔끔 row 5개.
+class _RecentRecords extends StatefulWidget {
+  const _RecentRecords();
+
+  @override
+  State<_RecentRecords> createState() => _RecentRecordsState();
+}
+
+class _RecentRecordsState extends State<_RecentRecords> {
+  Future<List<EngineSnapshotRecord>>? _future;
+
+  @override
+  void initState() {
+    super.initState();
+    final repo = HistoryRepository(context.read<ApiClient>());
+    _future = repo.listEngineSnapshots(limit: 5);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('RECENT RECORDS', style: FacingTokens.sectionLabel),
+          const SizedBox(height: FacingTokens.sp2),
+          FutureBuilder<List<EngineSnapshotRecord>>(
+            future: _future,
+            builder: (ctx, snap) {
+              if (snap.connectionState != ConnectionState.done) {
+                return const Text('Loading.', style: FacingTokens.caption);
+              }
+              final records = snap.data ?? const [];
+              if (records.isEmpty) {
+                return const Text('기록 없음.', style: FacingTokens.caption);
+              }
+              return Column(
+                children: records
+                    .map((r) => _RecordRow(r: r))
+                    .toList(),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RecordRow extends StatelessWidget {
+  final EngineSnapshotRecord r;
+  const _RecordRow({required this.r});
+
+  @override
+  Widget build(BuildContext context) {
+    final tier = Tier.fromOverallNumber(r.overallNumber);
+    final d = r.scoredAt.toLocal();
+    final date =
+        '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+    final score100 = engineScoreTo100(r.overallScore);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp2),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(date, style: FacingTokens.body),
+          ),
+          TierBadge(tier: tier),
+          const SizedBox(width: FacingTokens.sp3),
+          SizedBox(
+            width: 40,
+            child: Text('$score100',
+                textAlign: TextAlign.right,
+                style: FacingTokens.body.copyWith(
+                  fontWeight: FontWeight.w800,
+                  fontFeatures: FacingTokens.tabular,
+                )),
+          ),
         ],
       ),
     );

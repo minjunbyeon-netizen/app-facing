@@ -7,13 +7,14 @@ import '../../core/exception.dart';
 import '../../core/scoring.dart';
 import '../../core/theme.dart';
 import '../../core/tier.dart';
+import '../../models/achievement.dart';
 import '../../widgets/tier_badge.dart';
+import '../achievement/achievement_state.dart';
 import '../history/history_models.dart';
 import '../history/history_repository.dart';
 
-/// v1.15.3: 변화추이 — Engine 점수 시계열.
-/// 데이터 소스: /api/v1/history/engine (기존 HistoryRepository 재활용).
-/// 표시: 상단 최신 스냅샷 요약 + 스파크라인(CustomPainter) + 최근 5건 리스트.
+/// v1.16: TRENDS — 자극·모멘텀 중심. 상세 기록은 Profile 탭으로 이관.
+/// 3블록: 점수+delta / 스파크라인 / NEXT + MOMENTUM.
 class TrendsScreen extends StatefulWidget {
   const TrendsScreen({super.key});
 
@@ -70,10 +71,8 @@ class _TrendsScreenState extends State<TrendsScreen> {
               return _ErrorState(message: msg, onRetry: _reload);
             }
             final records = snap.data ?? [];
-            if (records.isEmpty) {
-              return const _EmptyState();
-            }
-            return _TrendsBody(records: records, to100: engineScoreTo100);
+            if (records.isEmpty) return const _EmptyState();
+            return _TrendsBody(records: records);
           },
         ),
       ),
@@ -83,46 +82,43 @@ class _TrendsScreenState extends State<TrendsScreen> {
 
 class _TrendsBody extends StatelessWidget {
   final List<EngineSnapshotRecord> records;
-  final int Function(double) to100;
-  const _TrendsBody({required this.records, required this.to100});
+  const _TrendsBody({required this.records});
 
   @override
   Widget build(BuildContext context) {
-    // 최신 → 과거 정렬 가정. 차트는 오래된→최신 순.
-    final sorted = [...records]..sort((a, b) => a.scoredAt.compareTo(b.scoredAt));
+    final sorted = [...records]
+      ..sort((a, b) => a.scoredAt.compareTo(b.scoredAt));
     final latest = records.first;
     final prev = records.length > 1 ? records[1] : null;
     final tier = Tier.fromOverallNumber(latest.overallNumber);
-    final currentScore = to100(latest.overallScore);
-    final delta = prev != null
-        ? currentScore - to100(prev.overallScore)
-        : 0;
+    final current = engineScoreTo100(latest.overallScore);
+    final delta =
+        prev != null ? current - engineScoreTo100(prev.overallScore) : 0;
+    final sessionsLast30 = _countRecent(records, const Duration(days: 30));
 
     return ListView(
       padding: const EdgeInsets.all(FacingTokens.sp4),
       children: [
-        const SizedBox(height: FacingTokens.sp2),
-        const Text('ENGINE SCORE', style: FacingTokens.sectionLabel),
-        const SizedBox(height: FacingTokens.sp2),
+        // 1. 현재 점수 + delta chip + tier
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text('$currentScore', style: FacingTokens.displayCompact),
+            Text('$current', style: FacingTokens.displayCompact),
             const SizedBox(width: FacingTokens.sp2),
             Padding(
               padding: const EdgeInsets.only(bottom: 10),
               child: Text('/ 100', style: FacingTokens.caption),
             ),
             const Spacer(),
-            TierBadge(tier: tier, fontSize: 18),
+            TierBadge(tier: tier, fontSize: 16),
           ],
         ),
         const SizedBox(height: FacingTokens.sp1),
         if (prev != null)
           Text(
             delta == 0
-                ? '변화 없음'
-                : (delta > 0 ? '▲ +$delta' : '▼ $delta'),
+                ? 'Hold. 변화 없음.'
+                : (delta > 0 ? '▲ +$delta · 전 측정 대비' : '▼ $delta · 전 측정 대비'),
             style: FacingTokens.caption.copyWith(
               color: delta > 0
                   ? FacingTokens.success
@@ -130,111 +126,116 @@ class _TrendsBody extends StatelessWidget {
               fontWeight: FontWeight.w700,
             ),
           ),
-        const SizedBox(height: FacingTokens.sp5),
-        const Text('최근 추이', style: FacingTokens.sectionLabel),
-        const SizedBox(height: FacingTokens.sp3),
+        const SizedBox(height: FacingTokens.sp4),
+
+        // 2. 스파크라인 — 전체 폭, 키 증가.
         SizedBox(
-          height: 140,
+          height: 160,
           child: Semantics(
-            label: 'Engine 점수 추이 차트, 최근 ${sorted.length}개 데이터',
+            label: 'Engine 점수 추이, ${sorted.length}개 데이터',
             child: CustomPaint(
               painter: _SparklinePainter(
-                values: sorted.map((r) => to100(r.overallScore)).toList(),
+                values: sorted
+                    .map((r) => engineScoreTo100(r.overallScore))
+                    .toList(),
               ),
               child: const SizedBox.expand(),
             ),
           ),
         ),
         const SizedBox(height: FacingTokens.sp5),
-        const Text('CATEGORY BREAKDOWN', style: FacingTokens.sectionLabel),
-        const SizedBox(height: FacingTokens.sp3),
-        ..._categoryRows(sorted),
+
+        // 3. NEXT — 다음 목표 (미해금 배지 1개).
+        const _NextTarget(),
         const SizedBox(height: FacingTokens.sp5),
-        const Text('히스토리', style: FacingTokens.sectionLabel),
+
+        // 4. MOMENTUM — 최근 30일 세션 수.
+        const Text('MOMENTUM', style: FacingTokens.sectionLabel),
         const SizedBox(height: FacingTokens.sp2),
-        ...records.take(10).map((r) => _RecordRow(r: r, to100: to100)),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: [
+            Text('$sessionsLast30',
+                style: FacingTokens.h1.copyWith(fontSize: 36)),
+            const SizedBox(width: FacingTokens.sp2),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Text('sessions · 30d', style: FacingTokens.caption),
+            ),
+          ],
+        ),
+        const SizedBox(height: FacingTokens.sp4),
+        Text(
+          '상세 기록은 Profile에서.',
+          style: FacingTokens.caption.copyWith(color: FacingTokens.muted),
+        ),
       ],
     );
   }
 
-  /// 카테고리별(5개) mini sparkline. 데이터 0건인 카테고리는 스킵.
-  /// EngineSnapshotRecord의 category score 필드는 nullable — 누락은 제외.
-  List<Widget> _categoryRows(List<EngineSnapshotRecord> sorted) {
-    final specs = <_CategorySpec>[
-      _CategorySpec('POWER', (r) => r.powerScore),
-      _CategorySpec('OLYMPIC', (r) => r.olympicScore),
-      _CategorySpec('GYMNASTICS', (r) => r.gymnasticsScore),
-      _CategorySpec('CARDIO', (r) => r.cardioScore),
-      _CategorySpec('METCON', (r) => r.metconScore),
-    ];
-    final widgets = <Widget>[];
-    for (final spec in specs) {
-      final values = sorted
-          .map((r) => spec.extract(r))
-          .where((v) => v != null)
-          .map((v) => to100(v!))
-          .toList();
-      if (values.isEmpty) continue;
-      widgets.add(_CategoryRow(title: spec.title, values: values));
-    }
-    if (widgets.isEmpty) {
-      return [
-        Text('카테고리 데이터 없음', style: FacingTokens.caption),
-      ];
-    }
-    return widgets;
+  int _countRecent(List<EngineSnapshotRecord> rs, Duration window) {
+    final cutoff = DateTime.now().subtract(window);
+    return rs.where((r) => r.scoredAt.isAfter(cutoff)).length;
   }
 }
 
-class _CategorySpec {
-  final String title;
-  final double? Function(EngineSnapshotRecord) extract;
-  const _CategorySpec(this.title, this.extract);
-}
-
-class _CategoryRow extends StatelessWidget {
-  final String title;
-  final List<int> values;
-  const _CategoryRow({required this.title, required this.values});
+/// v1.16: 다음 목표 — AchievementState의 미해금 배지 중 sort_order 최저 1개.
+class _NextTarget extends StatelessWidget {
+  const _NextTarget();
 
   @override
   Widget build(BuildContext context) {
-    final latest = values.last;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp2),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 84,
-            child: Text(title, style: FacingTokens.sectionLabel),
+    final ach = context.watch<AchievementState>();
+    final snap = ach.snapshot;
+    AchievementCatalog? next;
+    for (final c in snap.catalog) {
+      if (!snap.isUnlocked(c.code)) {
+        next = c;
+        break;
+      }
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('NEXT', style: FacingTokens.sectionLabel),
+        const SizedBox(height: FacingTokens.sp2),
+        if (next == null)
+          Text('All visible unlocked. Hidden milestones remain.',
+              style: FacingTokens.caption)
+        else ...[
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text(next.name, style: FacingTokens.h3),
+              const SizedBox(width: FacingTokens.sp2),
+              Text(next.rarity.toUpperCase(),
+                  style: FacingTokens.micro.copyWith(
+                    color: _rarityColor(next.rarity),
+                    fontWeight: FontWeight.w800,
+                  )),
+            ],
           ),
-          Expanded(
-            child: SizedBox(
-              height: 28,
-              child: Semantics(
-                label: '$title 추이, ${values.length}개 데이터, 최신 $latest',
-                child: CustomPaint(
-                  painter: _SparklinePainter(values: values),
-                  child: const SizedBox.expand(),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: FacingTokens.sp3),
-          SizedBox(
-            width: 36,
-            child: Text(
-              '$latest',
-              textAlign: TextAlign.right,
-              style: FacingTokens.body.copyWith(
-                fontWeight: FontWeight.w800,
-                fontFeatures: FacingTokens.tabular,
-              ),
-            ),
-          ),
+          const SizedBox(height: FacingTokens.sp1),
+          Text(next.description, style: FacingTokens.caption),
         ],
-      ),
+      ],
     );
+  }
+
+  Color _rarityColor(String rarity) {
+    switch (rarity) {
+      case 'Rare':
+        return FacingTokens.accent;
+      case 'Epic':
+        return FacingTokens.tierElite;
+      case 'Legendary':
+        return FacingTokens.tierGames;
+      case 'Common':
+      default:
+        return FacingTokens.muted;
+    }
   }
 }
 
@@ -244,10 +245,10 @@ class _SparklinePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    // 기준선 3개 — 매우 얇게.
     final gridPaint = Paint()
       ..color = FacingTokens.border
-      ..strokeWidth = 1;
-    // 100·50·0 기준선
+      ..strokeWidth = 0.5;
     for (final v in [0, 50, 100]) {
       final y = size.height - (v / 100 * size.height);
       canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
@@ -257,8 +258,11 @@ class _SparklinePainter extends CustomPainter {
 
     if (values.length == 1) {
       final y = size.height - (values[0] / 100 * size.height);
-      final dotPaint = Paint()..color = FacingTokens.accent;
-      canvas.drawCircle(Offset(size.width / 2, y), 4, dotPaint);
+      canvas.drawCircle(
+        Offset(size.width / 2, y),
+        4,
+        Paint()..color = FacingTokens.accent,
+      );
       return;
     }
 
@@ -281,7 +285,6 @@ class _SparklinePainter extends CustomPainter {
     }
     canvas.drawPath(path, linePaint);
 
-    // 최신 포인트 강조
     final lastX = stepX * (values.length - 1);
     final lastY = size.height - (values.last / 100 * size.height);
     canvas.drawCircle(
@@ -302,47 +305,6 @@ class _SparklinePainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _SparklinePainter old) =>
       !listEquals(old.values, values);
-}
-
-class _RecordRow extends StatelessWidget {
-  final EngineSnapshotRecord r;
-  final int Function(double) to100;
-  const _RecordRow({required this.r, required this.to100});
-
-  @override
-  Widget build(BuildContext context) {
-    final tier = Tier.fromOverallNumber(r.overallNumber);
-    final d = r.scoredAt.toLocal();
-    final date =
-        '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp2),
-      child: Row(
-        children: [
-          Container(width: 3, height: 24, color: tier.color),
-          const SizedBox(width: FacingTokens.sp3),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(date, style: FacingTokens.body),
-                Text('${r.itemsUsed} items', style: FacingTokens.caption),
-              ],
-            ),
-          ),
-          TierBadge(tier: tier),
-          const SizedBox(width: FacingTokens.sp3),
-          Text(
-            '${to100(r.overallScore)}',
-            style: FacingTokens.body.copyWith(
-              fontWeight: FontWeight.w800,
-              fontFeatures: FacingTokens.tabular,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class _EmptyState extends StatelessWidget {
