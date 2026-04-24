@@ -10,6 +10,7 @@ import '../../core/scoring.dart';
 import '../../core/theme.dart';
 import '../../core/tier.dart';
 import '../../core/unit_state.dart';
+import '../../core/weak_insight.dart';
 import '../../widgets/tier_badge.dart';
 import '../auth/auth_state.dart';
 import '../gym/coach_dashboard_screen.dart';
@@ -17,6 +18,7 @@ import '../gym/gym_state.dart';
 import '../history/history_models.dart';
 import '../history/history_repository.dart';
 import '../profile/profile_state.dart';
+import 'privacy_screen.dart';
 
 class MyPageScreen extends StatelessWidget {
   const MyPageScreen({super.key});
@@ -96,7 +98,7 @@ class _TierSnapshot extends StatelessWidget {
                     )),
                 const SizedBox(width: FacingTokens.sp3),
                 Text(
-                  formatTopPercent(topPct),
+                  formatTopPercentMock(topPct),
                   style: FacingTokens.caption.copyWith(
                     color: FacingTokens.muted,
                     fontWeight: FontWeight.w700,
@@ -403,7 +405,7 @@ class _EngineTrendState extends State<_EngineTrend> {
                       child: Text('카테고리 데이터 없음.',
                           style: FacingTokens.caption),
                     )
-                  else
+                  else ...[
                     AspectRatio(
                       aspectRatio: 1.0,
                       child: CustomPaint(
@@ -411,6 +413,55 @@ class _EngineTrendState extends State<_EngineTrend> {
                         child: const SizedBox.expand(),
                       ),
                     ),
+                    // v1.16 Sprint 7b U4: 약점 자동 강조 + mock AI 코멘트.
+                    const SizedBox(height: FacingTokens.sp3),
+                    Builder(builder: (ctx) {
+                      final insight = analyzeWeakness({
+                        for (final a in radarValues) a.label: a.value,
+                      });
+                      if (insight == null) return const SizedBox.shrink();
+                      final isBalanced =
+                          insight.weakestCategory == 'BALANCED';
+                      return Container(
+                        padding: const EdgeInsets.fromLTRB(
+                          FacingTokens.sp3,
+                          FacingTokens.sp3,
+                          FacingTokens.sp3,
+                          FacingTokens.sp3,
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border(
+                            left: BorderSide(
+                              color: isBalanced
+                                  ? FacingTokens.success
+                                  : FacingTokens.accent,
+                              width: 3,
+                            ),
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              isBalanced
+                                  ? 'BALANCED'
+                                  : '${insight.weakestCategory} · WEAKEST',
+                              style: FacingTokens.micro.copyWith(
+                                color: isBalanced
+                                    ? FacingTokens.success
+                                    : FacingTokens.accent,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 1.0,
+                              ),
+                            ),
+                            const SizedBox(height: FacingTokens.sp1),
+                            Text(insight.comment,
+                                style: FacingTokens.caption),
+                          ],
+                        ),
+                      );
+                    }),
+                  ],
                 ],
               );
             },
@@ -852,6 +903,14 @@ class _ActionsSection extends StatelessWidget {
           OutlinedButton(
             onPressed: () => Navigator.of(context).pushNamed('/history'),
             child: const Text('View History'),
+          ),
+          const SizedBox(height: FacingTokens.sp3),
+          // v1.16 Sprint 7b U2: 프라이버시 정책 + 탈퇴 진입점.
+          OutlinedButton(
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => const PrivacyScreen(),
+            )),
+            child: const Text('Privacy Policy'),
           ),
           const SizedBox(height: FacingTokens.sp3),
           TextButton(

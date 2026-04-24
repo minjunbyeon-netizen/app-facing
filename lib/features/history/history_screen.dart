@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
 import '../../core/exception.dart';
+import '../../core/scoring.dart';
 import '../../core/theme.dart';
 import '../../core/tier.dart';
 import '../../widgets/tier_badge.dart';
@@ -116,6 +117,8 @@ class _EngineTab extends StatelessWidget {
   }
 }
 
+/// v1.16 Sprint 7b U3: 시간축 Engine 라인차트.
+/// 기존 56px sparkline → 160px 정식 차트 (0~100 스케일 · 날짜 라벨).
 class _EngineSparkline extends StatelessWidget {
   final List<EngineSnapshotRecord> records;
   const _EngineSparkline({required this.records});
@@ -123,12 +126,18 @@ class _EngineSparkline extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (records.isEmpty) return const SizedBox.shrink();
-    // records는 scored_at DESC. sparkline은 시간 오름차순으로 뒤집어 사용.
-    final ordered = records.reversed.toList();
-    final scores = ordered.map((r) => r.overallScore).toList();
-    final minV = scores.reduce((a, b) => a < b ? a : b);
-    final maxV = scores.reduce((a, b) => a > b ? a : b);
+    final ordered = [...records]
+      ..sort((a, b) => a.scoredAt.compareTo(b.scoredAt));
+    final scores100 =
+        ordered.map((r) => engineScoreTo100(r.overallScore)).toList();
+    final firstDate = ordered.first.scoredAt.toLocal();
+    final lastDate = ordered.last.scoredAt.toLocal();
     final latest = ordered.last;
+    final first = ordered.first;
+    final deltaFromStart =
+        engineScoreTo100(latest.overallScore) -
+            engineScoreTo100(first.overallScore);
+
     return Container(
       padding: const EdgeInsets.all(FacingTokens.sp4),
       decoration: BoxDecoration(
@@ -141,7 +150,7 @@ class _EngineSparkline extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('OVERALL SCORE', style: FacingTokens.sectionLabel),
+              const Text('ENGINE SCORE', style: FacingTokens.sectionLabel),
               Text('${records.length} points', style: FacingTokens.micro),
             ],
           ),
@@ -150,89 +159,124 @@ class _EngineSparkline extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Text(latest.overallScore.toStringAsFixed(1),
-                  style: FacingTokens.display),
+              Text('${engineScoreTo100(latest.overallScore)}',
+                  style: FacingTokens.displayCompact),
               const SizedBox(width: FacingTokens.sp2),
-              Text('latest', style: FacingTokens.caption),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text('/ 100', style: FacingTokens.caption),
+              ),
+              const Spacer(),
+              if (records.length > 1)
+                Text(
+                  deltaFromStart > 0
+                      ? '▲ +$deltaFromStart'
+                      : (deltaFromStart < 0
+                          ? '▼ $deltaFromStart'
+                          : 'Hold.'),
+                  style: FacingTokens.caption.copyWith(
+                    color: deltaFromStart > 0
+                        ? FacingTokens.success
+                        : (deltaFromStart < 0
+                            ? FacingTokens.warning
+                            : FacingTokens.muted),
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
             ],
           ),
-          const SizedBox(height: FacingTokens.sp3),
+          const SizedBox(height: FacingTokens.sp4),
           SizedBox(
-            height: 56,
+            height: 160,
             child: CustomPaint(
-              painter: _SparkPainter(
-                points: scores,
-                minV: minV,
-                maxV: maxV == minV ? minV + 1 : maxV,
-              ),
-              size: const Size(double.infinity, 56),
+              painter: _TimeSeriesPainter(points: scores100),
+              size: const Size(double.infinity, 160),
             ),
           ),
           const SizedBox(height: FacingTokens.sp2),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('min ${minV.toStringAsFixed(1)}',
-                  style: FacingTokens.micro),
-              Text('max ${maxV.toStringAsFixed(1)}',
-                  style: FacingTokens.micro),
+              Text(_formatShort(firstDate), style: FacingTokens.micro),
+              Text('since start', style: FacingTokens.micro),
+              Text(_formatShort(lastDate), style: FacingTokens.micro),
             ],
           ),
         ],
       ),
     );
   }
+
+  String _formatShort(DateTime d) =>
+      '${d.year.toString().substring(2)}.${d.month.toString().padLeft(2, '0')}.${d.day.toString().padLeft(2, '0')}';
 }
 
-class _SparkPainter extends CustomPainter {
-  final List<double> points;
-  final double minV;
-  final double maxV;
-  _SparkPainter({required this.points, required this.minV, required this.maxV});
+/// v1.16 Sprint 7b U3: 고정 0~100 스케일 시간축 차트.
+/// 기준선(0·50·100) + 외곽 그리드 + accent 라인 + 최신 포인트 강조.
+class _TimeSeriesPainter extends CustomPainter {
+  final List<int> points;
+  _TimeSeriesPainter({required this.points});
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (points.length < 2) {
-      // 단일 포인트 → 가운데 점
-      final p = Paint()
-        ..color = FacingTokens.accent
-        ..style = PaintingStyle.fill;
-      canvas.drawCircle(Offset(size.width / 2, size.height / 2), 3, p);
+    final grid = Paint()
+      ..color = FacingTokens.border
+      ..strokeWidth = 0.5;
+    for (final v in [0, 50, 100]) {
+      final y = size.height - (v / 100 * size.height);
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), grid);
+    }
+    if (points.isEmpty) return;
+    if (points.length == 1) {
+      final y = size.height - (points[0] / 100 * size.height);
+      canvas.drawCircle(
+        Offset(size.width / 2, y),
+        4,
+        Paint()..color = FacingTokens.accent,
+      );
       return;
     }
-    final range = maxV - minV;
     final stepX = size.width / (points.length - 1);
     final path = Path();
-    for (var i = 0; i < points.length; i++) {
-      final x = i * stepX;
-      final norm = (points[i] - minV) / range;
-      final y = size.height - norm * size.height;
+    for (int i = 0; i < points.length; i++) {
+      final x = stepX * i;
+      final y = size.height - (points[i] / 100 * size.height);
       if (i == 0) {
         path.moveTo(x, y);
       } else {
         path.lineTo(x, y);
       }
     }
-    final line = Paint()
-      ..color = FacingTokens.accent
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-    canvas.drawPath(path, line);
-
-    final dot = Paint()
-      ..color = FacingTokens.accent
-      ..style = PaintingStyle.fill;
-    final lastX = (points.length - 1) * stepX;
-    final lastNorm = (points.last - minV) / range;
-    final lastY = size.height - lastNorm * size.height;
-    canvas.drawCircle(Offset(lastX, lastY), 3.5, dot);
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = FacingTokens.accent
+        ..strokeWidth = 2
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round,
+    );
+    // 최신 포인트 강조
+    final lastX = stepX * (points.length - 1);
+    final lastY = size.height - (points.last / 100 * size.height);
+    canvas.drawCircle(
+        Offset(lastX, lastY), 4, Paint()..color = FacingTokens.accent);
+    canvas.drawCircle(
+      Offset(lastX, lastY),
+      7,
+      Paint()
+        ..color = FacingTokens.accent.withValues(alpha: 0.25)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2,
+    );
   }
 
   @override
-  bool shouldRepaint(covariant _SparkPainter old) =>
-      old.points != points || old.minV != minV || old.maxV != maxV;
+  bool shouldRepaint(covariant _TimeSeriesPainter old) =>
+      old.points != points;
 }
+
+// v1.16 Sprint 7b U3: _SparkPainter 제거 — _TimeSeriesPainter로 대체.
 
 class _EngineRow extends StatelessWidget {
   final EngineSnapshotRecord record;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
@@ -21,7 +22,28 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   static const int _centerIndex = 2;
+  static const String _kTabHintShown = 'shell_tab_hint_shown_v1';
   int _index = _centerIndex;
+  bool _showTabHint = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // v1.16 Sprint 7b U1: 첫 실행 시 1회 탭 힌트 오버레이.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final prefs = await SharedPreferences.getInstance();
+      if (prefs.getBool(_kTabHintShown) == true) return;
+      if (!mounted) return;
+      setState(() => _showTabHint = true);
+    });
+  }
+
+  Future<void> _dismissHint() async {
+    if (!_showTabHint) return;
+    setState(() => _showTabHint = false);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_kTabHintShown, true);
+  }
 
   // v1.15.3: 탭 라벨 영문화 (HWPO/NOBULL 톤 정합).
   static const List<_TabDef> _tabs = [
@@ -81,7 +103,12 @@ class _MainShellState extends State<MainShell> {
         }
       },
       child: Scaffold(
-        body: IndexedStack(index: _index, children: _pages),
+        body: Stack(
+          children: [
+            IndexedStack(index: _index, children: _pages),
+            if (_showTabHint) _TabHintOverlay(onDismiss: _dismissHint),
+          ],
+        ),
         bottomNavigationBar: NavigationBarTheme(
           data: NavigationBarThemeData(
             backgroundColor: FacingTokens.bg,
@@ -140,4 +167,74 @@ class _TabDef {
     required this.selectedIcon,
     required this.label,
   });
+}
+
+/// v1.16 Sprint 7b U1: 첫 실행 탭 힌트 풀스크린 오버레이.
+/// 5탭 한 줄 설명 + '확인' 버튼. 이후 SharedPreferences 플래그로 숨김.
+class _TabHintOverlay extends StatelessWidget {
+  final VoidCallback onDismiss;
+  const _TabHintOverlay({required this.onDismiss});
+
+  static const List<(String, String)> _hints = [
+    ('Calc', 'WOD 골라 Split · Burst 계산'),
+    ('WOD', '내 박스 코치의 오늘 WOD'),
+    ('Trends', '업적 배지 15개 갤러리'),
+    ('Attend', '출석 streak · 마일스톤'),
+    ('Profile', '내 Tier · 기록 · 설정'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned.fill(
+      child: Material(
+        color: Colors.black.withValues(alpha: 0.88),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(FacingTokens.sp5),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: FacingTokens.sp5),
+                const Text('5 TABS', style: FacingTokens.sectionLabel),
+                const SizedBox(height: FacingTokens.sp2),
+                const Text('하단 내비게이션 구성',
+                    style: FacingTokens.caption),
+                const SizedBox(height: FacingTokens.sp5),
+                ..._hints.map((h) => Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: FacingTokens.sp3),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            width: 72,
+                            child: Text(h.$1,
+                                style: FacingTokens.body.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  color: FacingTokens.accent,
+                                  letterSpacing: 0.4,
+                                )),
+                          ),
+                          Expanded(
+                            child: Text(h.$2,
+                                style: FacingTokens.body.copyWith(
+                                  color: FacingTokens.fg,
+                                )),
+                          ),
+                        ],
+                      ),
+                    )),
+                const Spacer(),
+                ElevatedButton(
+                  onPressed: onDismiss,
+                  child: const Text('확인'),
+                ),
+                const SizedBox(height: FacingTokens.sp3),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

@@ -12,10 +12,11 @@ int engineScoreTo100(dynamic raw) {
   return pct.clamp(0, 100);
 }
 
-/// v1.15.3: Tier 기반 CrossFit 커뮤니티 근사 백분위.
+/// ⚠️ **가상 데이터**: Tier 기반 근사 백분위.
 ///
-/// 진짜 percentile은 population data가 필요. 여기서는 Tier 구조를
-/// 공개 등급 분포(Open·Quarterfinal 통계 근사)에 매핑해 추정값 반환.
+/// v1.15.3: Tier 구조를 공개 등급 분포(Open·Quarterfinal 통계 근사)에
+/// 매핑해 추정값 반환. **실제 유저 집계 아님**.
+/// Phase 2에서 서버 `/api/v1/stats/distribution` 엔드포인트로 대체 예정.
 ///
 /// 매핑:
 ///   - score 1.0 → 0%ile
@@ -43,9 +44,15 @@ double engineScoreToTopPercent(dynamic raw) {
 }
 
 /// "Top 12%" 표기용 라벨 — 값이 너무 작으면 "Top <1%".
+/// ⚠️ 가상 근사값 (실제 유저 집계 아님).
 String formatTopPercent(double topPercent) {
   if (topPercent < 1.0) return 'Top <1%';
   return 'Top ${topPercent.round()}%';
+}
+
+/// v1.16 Sprint 7b U5: 백분위 UI에 "가상" 명시 suffix.
+String formatTopPercentMock(double topPercent) {
+  return '${formatTopPercent(topPercent)} · mock';
 }
 
 /// v1.16 버그 fix: 백엔드 grade 문자열 → number(1~6) fallback.
