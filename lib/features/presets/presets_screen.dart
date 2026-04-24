@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/haptic.dart';
 import '../../core/movements_repository.dart';
 import '../../core/theme.dart';
 import '../../models/movement.dart';
@@ -90,6 +91,8 @@ class _PresetsScreenState extends State<PresetsScreen> {
                     final p = filtered[i];
                     return InkWell(
                       onTap: () {
+                        // v1.16: 프리셋 선택 = medium haptic (중요 CTA).
+                        Haptic.medium();
                         context.read<WodDraftState>().loadFromPreset(p, movMap);
                         Navigator.of(context).pushNamed('/result');
                       },
