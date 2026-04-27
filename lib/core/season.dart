@@ -52,13 +52,13 @@ SeasonInfo currentSeason([DateTime? now]) {
       endDate: DateTime(n.year, 3, 15),
     );
   }
-  // Quarterfinals: 4월 전체 (가상)
-  if (month == 4) {
+  // Quarterfinals: 4월 1~21 (가상, 3주). v1.19 차수 5 (B-LW-7) day 범위 적용.
+  if (month == 4 && day <= 21) {
     return SeasonInfo(
       current: CrossFitSeason.quarterfinals,
       label: 'QUARTERFINALS',
       description: '쿼터파이널 · 상위 10% 대상.',
-      endDate: DateTime(n.year, 4, 30),
+      endDate: DateTime(n.year, 4, 21),
     );
   }
   // Semifinals: 5~6월 (가상)

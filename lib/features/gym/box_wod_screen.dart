@@ -141,7 +141,7 @@ class _NoGymEmpty extends StatelessWidget {
           const Text('NO BOX', style: FacingTokens.sectionLabel),
           const SizedBox(height: FacingTokens.sp2),
           const Text(
-            '박스에 가입하면 코치의 오늘 WOD을 볼 수 있다.',
+            '박스 가입 시 코치 WOD 공개.',
             style: FacingTokens.caption,
           ),
           const SizedBox(height: FacingTokens.sp5),
@@ -435,7 +435,8 @@ class _WodCard extends StatelessWidget {
                           final ok = await _confirmDelete(context);
                           if (ok == true && context.mounted) {
                             Haptic.medium();
-                            context.read<GymState>().deleteWod(wod.id);
+                            // v1.19 차수 5 (B-ST-6): fire-and-forget 제거.
+                            await context.read<GymState>().deleteWod(wod.id);
                           }
                         },
                       ),

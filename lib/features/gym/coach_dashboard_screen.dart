@@ -534,7 +534,13 @@ class _MemberDetailSheet extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 final body = bodyCtrl.text.trim();
-                if (body.isEmpty) return;
+                // v1.19 차수 5 (B-IN-11): 빈 / 공백 / 너무 짧음 차단.
+                if (body.length < 4) {
+                  ScaffoldMessenger.of(ctx).showSnackBar(
+                    const SnackBar(content: Text('노트 4자 이상 필요.')),
+                  );
+                  return;
+                }
                 try {
                   await context.read<GymRepository>().upsertCoachFeedback(
                         gymId: gym.id,

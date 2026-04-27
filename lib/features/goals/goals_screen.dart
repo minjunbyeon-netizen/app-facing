@@ -28,8 +28,10 @@ class _GoalsScreenState extends State<GoalsScreen> {
   }
 
   int _sessionsThisWeek(List<WodHistoryItem> list) {
+    // v1.19 차수 5 (B-LW-12): attendance(일요일 시작)와 통일.
+    // DateTime.weekday: 1=Mon..7=Sun. weekday%7: Sun→0 → 이번주 시작.
     final now = DateTime.now();
-    final weekStart = now.subtract(Duration(days: now.weekday - 1));
+    final weekStart = now.subtract(Duration(days: now.weekday % 7));
     final weekStartDate =
         DateTime(weekStart.year, weekStart.month, weekStart.day);
     return list

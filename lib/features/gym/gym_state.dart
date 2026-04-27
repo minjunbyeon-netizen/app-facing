@@ -57,6 +57,8 @@ class GymState extends ChangeNotifier {
     required String name,
     String location = '',
   }) async {
+    // v1.19 차수 5 (B-ST-3): 시작 시 _error 초기화로 stale error 표시 방지.
+    _error = null;
     try {
       await repo.createGym(name: name, location: location);
       await loadMine();
@@ -69,6 +71,7 @@ class GymState extends ChangeNotifier {
   }
 
   Future<bool> joinGym(int gymId) async {
+    _error = null;
     try {
       await repo.join(gymId);
       await loadMine();

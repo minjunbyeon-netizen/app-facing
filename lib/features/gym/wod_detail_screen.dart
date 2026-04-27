@@ -355,7 +355,7 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
                   child: TextField(
                     controller: _commentCtrl,
                     decoration: const InputDecoration(
-                      hintText: '댓글 입력 · "헐 진짜 빡세겠다..."',
+                      hintText: '댓글 입력.',
                       isDense: true,
                     ),
                     maxLines: 3,

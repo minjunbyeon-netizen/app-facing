@@ -17,9 +17,12 @@ class QuoteCard extends StatelessWidget {
       children: [
         Text(
           '"${quote.text}"',
-          style: FacingTokens.quote.copyWith(
-            fontSize: compact ? 12 : 14,
-          ),
+          style: compact
+              ? FacingTokens.caption.copyWith(
+                  fontStyle: FontStyle.italic,
+                  letterSpacing: 0.1,
+                )
+              : FacingTokens.quote,
           textAlign: TextAlign.center,
         ),
         SizedBox(height: compact ? FacingTokens.sp1 : FacingTokens.sp2),

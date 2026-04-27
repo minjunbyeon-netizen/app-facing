@@ -23,13 +23,23 @@ class OfflineBanner extends StatelessWidget {
           child: SafeArea(
             top: false,
             bottom: false,
-            child: Text(
-              'OFFLINE · 연결 시 동기화',
-              style: FacingTokens.bannerLabel.copyWith(
-                color: FacingTokens.accent,
-                fontWeight: FontWeight.w800,
-              ),
-              textAlign: TextAlign.center,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'OFFLINE',
+                  style: FacingTokens.bannerLabel.copyWith(
+                    color: FacingTokens.accent,
+                    fontWeight: FontWeight.w800,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                Text(
+                  '연결 시 동기화.',
+                  style: FacingTokens.caption,
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
           ),
         );

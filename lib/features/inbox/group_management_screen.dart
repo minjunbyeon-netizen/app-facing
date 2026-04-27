@@ -180,6 +180,33 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
       );
       return;
     }
+    // v1.19 차수 5 fix (B-IN-3,4,6): time/capacity/color 형식 검증.
+    final timeText = timeCtrl.text.trim();
+    if (timeText.isNotEmpty &&
+        !RegExp(r'^([01]\d|2[0-3]):[0-5]\d$').hasMatch(timeText)) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Time 형식 오류 (HH:MM).')),
+      );
+      return;
+    }
+    final capText = capCtrl.text.trim();
+    if (capText.isNotEmpty) {
+      final cap = int.tryParse(capText);
+      if (cap == null || cap <= 0) {
+        messenger.showSnackBar(
+          const SnackBar(content: Text('Capacity는 양수만.')),
+        );
+        return;
+      }
+    }
+    final colorText = colorCtrl.text.trim();
+    if (colorText.isNotEmpty &&
+        !RegExp(r'^#[0-9A-Fa-f]{6}$').hasMatch(colorText)) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Color 형식 오류 (#RRGGBB).')),
+      );
+      return;
+    }
     try {
       await repo.createGroup(
         gymId: gym.id,
@@ -266,10 +293,10 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
     );
     if (ok != true) return;
     final h = hashCtrl.text.trim();
-    // QA B-IN-5: hash 길이 검증.
-    if (h.length < 8) {
+    // v1.19 차수 5 (B-IN-5): hex 형식 + 길이 검증.
+    if (h.length < 8 || !RegExp(r'^[a-f0-9]+$').hasMatch(h)) {
       messenger.showSnackBar(
-        const SnackBar(content: Text('Hash 8자 이상 필요.')),
+        const SnackBar(content: Text('Hash 형식 오류 (hex 8자 이상).')),
       );
       return;
     }
@@ -330,8 +357,14 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
             final items = snap.data ?? const [];
             if (items.isEmpty) {
               return const Center(
-                child: Text('그룹 없음. + 버튼으로 추가.',
-                    style: FacingTokens.caption),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('No groups', style: FacingTokens.sectionLabel),
+                    SizedBox(height: FacingTokens.sp1),
+                    Text('우상단 + 버튼으로 추가.', style: FacingTokens.caption),
+                  ],
+                ),
               );
             }
             return ListView.separated(

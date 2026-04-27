@@ -609,12 +609,9 @@ class _RadarPainter extends CustomPainter {
       final tp = TextPainter(
         text: TextSpan(
           text: axes[i].label,
-          style: const TextStyle(
-            fontFamily: FacingTokens.fontFamily,
-            fontSize: 10,
+          style: FacingTokens.sectionLabel.copyWith(
             fontWeight: FontWeight.w800,
             letterSpacing: 0.8,
-            color: FacingTokens.muted,
           ),
         ),
         textDirection: TextDirection.ltr,
@@ -626,11 +623,9 @@ class _RadarPainter extends CustomPainter {
       final vp = TextPainter(
         text: TextSpan(
           text: '${axes[i].value}',
-          style: const TextStyle(
-            fontFamily: FacingTokens.fontFamily,
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
+          style: FacingTokens.sectionLabel.copyWith(
             color: FacingTokens.fg,
+            letterSpacing: 0,
           ),
         ),
         textDirection: TextDirection.ltr,
@@ -1122,12 +1117,21 @@ class _TierRoadmap extends StatelessWidget {
     final gap = (nextThreshold - currentScore100).clamp(0, 100);
 
     // 약점 카테고리 표시 (weak_insight 재활용).
+    // v1.19 차수 5 fix (B-LG-2): gradeResult 구조는 nested {category: {score: N}}.
+    // 이전 'power_score' flat key 는 항상 null → 모든 카테고리 점수 0 표시.
+    int catScore(String key) {
+      final data = g?[key];
+      if (data is! Map) return 0;
+      final s = data['score'];
+      if (s is! num) return 0;
+      return engineScoreTo100(s);
+    }
     final categoryScores = <String, int>{
-      'POWER': engineScoreTo100(g?['power_score']),
-      'OLYMPIC': engineScoreTo100(g?['olympic_score']),
-      'GYMNASTICS': engineScoreTo100(g?['gymnastics_score']),
-      'CARDIO': engineScoreTo100(g?['cardio_score']),
-      'METCON': engineScoreTo100(g?['metcon_score']),
+      'POWER': catScore('power'),
+      'OLYMPIC': catScore('olympic'),
+      'GYMNASTICS': catScore('gymnastics'),
+      'CARDIO': catScore('cardio'),
+      'METCON': catScore('metcon'),
     };
     final weak = analyzeWeakness(categoryScores);
 
@@ -1594,11 +1598,8 @@ class _InboxEntry extends StatelessWidget {
                   alignment: Alignment.center,
                   child: Text(
                     unread > 9 ? '9+' : '$unread',
-                    style: const TextStyle(
-                      fontFamily: FacingTokens.fontFamily,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                      color: FacingTokens.fg,
+                    style: FacingTokens.tierLabel.copyWith(
+                      letterSpacing: 0,
                       height: 1.0,
                     ),
                   ),

@@ -394,7 +394,7 @@ class _AttendanceBody extends StatelessWidget {
         // v1.16 Sprint 8 U3: 월별 챌린지 mock 3건.
         const Text('CHALLENGES', style: FacingTokens.sectionLabel),
         const SizedBox(height: FacingTokens.sp1),
-        Text('이달의 도전 · ${DateTime.now().month}월',
+        Text('${DateTime.now().month}월. 매월 자동 리셋.',
             style: FacingTokens.caption),
         const SizedBox(height: FacingTokens.sp3),
         _ChallengeRow(
@@ -704,9 +704,8 @@ class _DayCell extends StatelessWidget {
             // 큰 일자 숫자 — 출석 시 굵게 흰색.
             Text(
               '$day',
-              style: TextStyle(
-                fontFamily: 'Pretendard',
-                fontSize: hasSession ? 16 : 13,
+              style: (hasSession ? FacingTokens.body : FacingTokens.caption)
+                  .copyWith(
                 fontWeight:
                     hasSession ? FontWeight.w800 : FontWeight.w500,
                 color: textColor,
@@ -731,9 +730,7 @@ class _DayCell extends StatelessWidget {
                 bottom: 2,
                 child: Text(
                   '×$count',
-                  style: TextStyle(
-                    fontFamily: 'Pretendard',
-                    fontSize: 9,
+                  style: FacingTokens.sectionLabel.copyWith(
                     fontWeight: FontWeight.w800,
                     color: FacingTokens.fg.withValues(alpha: 0.95),
                     letterSpacing: 0.2,

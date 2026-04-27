@@ -93,7 +93,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
         title: Text(
           widget.withHash == null
               ? 'MESSAGES'
-              : 'TO ${widget.withLabel ?? widget.withHash!.substring(0, 8)}',
+              : 'TO ${widget.withLabel ?? (widget.withHash!.length >= 8 ? widget.withHash!.substring(0, 8) : widget.withHash!)}',
         ),
         actions: [
           IconButton(
@@ -212,7 +212,7 @@ class _MessageBubble extends StatelessWidget {
         children: [
           if (!mine)
             Text(
-              'from ${msg.fromHash.substring(0, 8)}',
+              'from ${msg.fromHash.length >= 8 ? msg.fromHash.substring(0, 8) : msg.fromHash}',
               style: FacingTokens.micro.copyWith(
                 color: FacingTokens.muted,
                 fontWeight: FontWeight.w700,
@@ -234,10 +234,14 @@ class _MessageBubble extends StatelessWidget {
           ? bubble
           : InkWell(
               onTap: () {
+                // v1.19 차수 5 (B-PF-15): substring 길이 안전. !mine 이미 자기 차단.
+                final label = msg.fromHash.length >= 8
+                    ? msg.fromHash.substring(0, 8)
+                    : msg.fromHash;
                 Navigator.of(context).push(MaterialPageRoute(
                   builder: (_) => MessagesScreen(
                     withHash: msg.fromHash,
-                    withLabel: msg.fromHash.substring(0, 8),
+                    withLabel: label,
                   ),
                 ));
               },

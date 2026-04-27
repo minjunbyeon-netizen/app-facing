@@ -72,7 +72,22 @@ class _GymSearchScreenState extends State<GymSearchScreen> {
 
   Future<void> _join(GymSummary gym) async {
     Haptic.medium();
-    final ok = await context.read<GymState>().joinGym(gym.id);
+    // v1.19 차수 5 (B-ST-9): 이미 소속된 박스 재가입 요청 차단.
+    final state = context.read<GymState>();
+    final currentGym = state.membership.gym;
+    if (currentGym != null && currentGym.id == gym.id) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('이미 소속된 박스.')),
+      );
+      return;
+    }
+    if (currentGym != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('다른 박스 소속 중. 먼저 탈퇴.')),
+      );
+      return;
+    }
+    final ok = await state.joinGym(gym.id);
     if (!mounted) return;
     if (ok) {
       final msg = gym.isOfficial

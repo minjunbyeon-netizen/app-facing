@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
+import '../../core/unit_state.dart';
 import '../../models/coach_note.dart';
 import '../../widgets/avatar.dart';
 import '../profile/profile_state.dart';
@@ -603,7 +604,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 2),
                 child: Text(
                   'SET ${a.setIndex + 1} · '
-                  '${a.actualLoad ?? '-'} · '
+                  '${a.actualLoad != null ? '${a.actualLoad}${context.read<UnitState>().weightSuffix}' : '-'} · '
                   '${a.actualReps ?? '-'} reps · '
                   'RPE ${a.rpe ?? '-'}',
                   style: FacingTokens.body,

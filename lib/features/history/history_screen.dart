@@ -169,10 +169,11 @@ class _EngineSparkline extends StatelessWidget {
               const Spacer(),
               if (records.length > 1)
                 Text(
+                  // v1.19 차수 5 (B-LW-9): V4 그래픽 기호 → 화살표만 허용.
                   deltaFromStart > 0
-                      ? '▲ +$deltaFromStart'
+                      ? '→ +$deltaFromStart'
                       : (deltaFromStart < 0
-                          ? '▼ $deltaFromStart'
+                          ? '→ $deltaFromStart'
                           : 'Hold.'),
                   style: FacingTokens.caption.copyWith(
                     color: deltaFromStart > 0

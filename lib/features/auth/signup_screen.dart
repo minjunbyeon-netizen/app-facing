@@ -225,8 +225,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         foregroundColor: FacingTokens.muted,
                         minimumSize: const Size(0, 32),
                       ),
-                      child: const Text('이용약관',
-                          style: TextStyle(fontSize: 12)),
+                      child: Text('이용약관', style: FacingTokens.caption),
                     ),
                     const Text(' · ',
                         style: TextStyle(color: FacingTokens.muted)),
@@ -242,8 +241,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         foregroundColor: FacingTokens.muted,
                         minimumSize: const Size(0, 32),
                       ),
-                      child: const Text('개인정보처리방침',
-                          style: TextStyle(fontSize: 12)),
+                      child: Text('개인정보처리방침', style: FacingTokens.caption),
                     ),
                   ],
                 ),
@@ -327,9 +325,8 @@ class _SocialButton extends StatelessWidget {
                 child: Center(
                   child: Text(
                     markText,
-                    style: TextStyle(
+                    style: FacingTokens.h3.copyWith(
                       color: foreground,
-                      fontSize: 20,
                       fontWeight: FontWeight.w900,
                     ),
                   ),
@@ -338,9 +335,8 @@ class _SocialButton extends StatelessWidget {
               Expanded(
                 child: Text(
                   label,
-                  style: TextStyle(
+                  style: FacingTokens.body.copyWith(
                     color: foreground,
-                    fontSize: 15,
                     fontWeight: FontWeight.w700,
                     letterSpacing: -0.2,
                   ),

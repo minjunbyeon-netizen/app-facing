@@ -45,8 +45,9 @@ class ProfileState extends ChangeNotifier {
   String? get avatarColor => _avatarColor;
   String? get injuryNotes => _injuryNotes;
 
+  // v1.19 차수 5 (B-PF-12): 키 일관성. overall_number 가 SSOT (백엔드 응답).
   bool get hasGrade => _gradeResult != null &&
-      _gradeResult!['overall'] != null;
+      _gradeResult!['overall_number'] != null;
 
   bool get isEmpty =>
       _bodyWeightKg == null && _benchmarks.isEmpty && _maxRecords.isEmpty;
@@ -106,46 +107,51 @@ class ProfileState extends ChangeNotifier {
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (_bodyWeightKg != null) {
-      await prefs.setDouble(_kBody, _bodyWeightKg!);
-    } else {
-      await prefs.remove(_kBody);
+    // v1.19 차수 5 (B-PF-9): setBasic/setMax fire-and-forget. catch 로그.
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (_bodyWeightKg != null) {
+        await prefs.setDouble(_kBody, _bodyWeightKg!);
+      } else {
+        await prefs.remove(_kBody);
+      }
+      if (_heightCm != null) {
+        await prefs.setDouble(_kHeight, _heightCm!);
+      } else {
+        await prefs.remove(_kHeight);
+      }
+      if (_ageYears != null) {
+        await prefs.setDouble(_kAge, _ageYears!);
+      } else {
+        await prefs.remove(_kAge);
+      }
+      await prefs.setString(_kGender, _gender);
+      await prefs.setDouble(_kExp, _experienceYears);
+      if (_displayName != null) {
+        await prefs.setString(_kDisplayName, _displayName!);
+      } else {
+        await prefs.remove(_kDisplayName);
+      }
+      if (_avatarColor != null) {
+        await prefs.setString(_kAvatarColor, _avatarColor!);
+      } else {
+        await prefs.remove(_kAvatarColor);
+      }
+      if (_injuryNotes != null) {
+        await prefs.setString(_kInjuryNotes, _injuryNotes!);
+      } else {
+        await prefs.remove(_kInjuryNotes);
+      }
+      await prefs.setString(_kBenchmarks, jsonEncode(_benchmarks));
+      if (_gradeResult != null) {
+        await prefs.setString(_kGrade, jsonEncode(_gradeResult));
+      } else {
+        await prefs.remove(_kGrade);
+      }
+      await prefs.setString(_kMaxes, jsonEncode(_maxRecords));
+    } catch (e) {
+      debugPrint('[ProfileState] save error: $e');
     }
-    if (_heightCm != null) {
-      await prefs.setDouble(_kHeight, _heightCm!);
-    } else {
-      await prefs.remove(_kHeight);
-    }
-    if (_ageYears != null) {
-      await prefs.setDouble(_kAge, _ageYears!);
-    } else {
-      await prefs.remove(_kAge);
-    }
-    await prefs.setString(_kGender, _gender);
-    await prefs.setDouble(_kExp, _experienceYears);
-    if (_displayName != null) {
-      await prefs.setString(_kDisplayName, _displayName!);
-    } else {
-      await prefs.remove(_kDisplayName);
-    }
-    if (_avatarColor != null) {
-      await prefs.setString(_kAvatarColor, _avatarColor!);
-    } else {
-      await prefs.remove(_kAvatarColor);
-    }
-    if (_injuryNotes != null) {
-      await prefs.setString(_kInjuryNotes, _injuryNotes!);
-    } else {
-      await prefs.remove(_kInjuryNotes);
-    }
-    await prefs.setString(_kBenchmarks, jsonEncode(_benchmarks));
-    if (_gradeResult != null) {
-      await prefs.setString(_kGrade, jsonEncode(_gradeResult));
-    } else {
-      await prefs.remove(_kGrade);
-    }
-    await prefs.setString(_kMaxes, jsonEncode(_maxRecords));
   }
 
   // ---- mutation ----

@@ -74,7 +74,10 @@ class _IntroScreenState extends State<IntroScreen> {
   @override
   Widget build(BuildContext context) {
     final isLast = _page >= _pages.length - 1;
-    return Scaffold(
+    return PopScope(
+      // v1.19 차수 5 (B-LW-10): 뒤로가기로 Splash 복귀 차단. Intro 종료는 Skip/Next.
+      canPop: false,
+      child: Scaffold(
       body: Stack(
         children: [
           PageView.builder(
@@ -143,6 +146,7 @@ class _IntroScreenState extends State<IntroScreen> {
             ),
           ),
         ],
+      ),
       ),
     );
   }

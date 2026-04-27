@@ -288,9 +288,16 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
     String? targetId;
     if (_targetType == 'individual') {
       targetId = _individualHashCtrl.text.trim();
+      // v1.19 차수 5 fix (B-IN-1): 디바이스 hash는 SHA-256 hex 64자 또는 prefix(8~64자).
       if (targetId.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('수신자 hash 필요.')),
+        );
+        return;
+      }
+      if (targetId.length < 8 || !RegExp(r'^[a-f0-9]+$').hasMatch(targetId)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('hash 형식 오류 (hex 8자 이상).')),
         );
         return;
       }
@@ -302,6 +309,23 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
         return;
       }
       targetId = _selectedGroup!.id.toString();
+    }
+    // v1.19 차수 5 fix (B-IN-2): YYYY-MM-DD 형식 검증.
+    final dateRe = RegExp(r'^\d{4}-\d{2}-\d{2}$');
+    final dueDate = _dueCtrl.text.trim();
+    final dueStart = _dueStartCtrl.text.trim();
+    final dueEnd = _dueEndCtrl.text.trim();
+    for (final entry in [
+      ['Due Date', dueDate],
+      ['Due Start', dueStart],
+      ['Due End', dueEnd],
+    ]) {
+      if (entry[1].isNotEmpty && !dateRe.hasMatch(entry[1])) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${entry[0]} 형식 오류 (YYYY-MM-DD).')),
+        );
+        return;
+      }
     }
     setState(() => _sending = true);
     Haptic.medium();
@@ -500,7 +524,7 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
               const SizedBox(height: FacingTokens.sp5),
               ElevatedButton(
                 onPressed: _sending ? null : _send,
-                child: Text(_sending ? 'Sending…' : 'Send'),
+                child: Text(_sending ? 'Sending.' : 'Send'),
               ),
             ],
           ),

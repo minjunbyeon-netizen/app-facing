@@ -87,8 +87,7 @@ class Avatar extends StatelessWidget {
       ),
       child: Text(
         letter,
-        style: TextStyle(
-          fontFamily: FacingTokens.fontFamily,
+        style: FacingTokens.body.copyWith(
           fontSize: size * 0.42,
           fontWeight: FontWeight.w800,
           color: base,
