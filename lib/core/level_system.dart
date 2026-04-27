@@ -3,11 +3,13 @@
 // ⚠️ XP는 현재 ProfileState / HistoryRepository의 기존 데이터로 **파생 계산**.
 //    백엔드 컬럼 추가 없이 앱 내부에서 산출 (Phase 2에서 user.experience_points 도입).
 //
-// XP 소스 (MVP):
+// XP 소스 (MVP + Phase 2):
 //  - 세션 완료: +100 per WOD history record
 //  - Streak 유지: +50 per day (현재 streak)
 //  - Tier 승급: +500 × overall_number (누적 보너스)
 //  - 주간 목표 챌린지: +300 × 달성 주수 (이번 세션은 계산 생략)
+//  - PR (Personal Record) 갱신: +250 × PR 횟수 (v1.20 Phase 2)
+//      reference/gamification.md §3-2. 백엔드 is_pr 플래그 또는 클라이언트 비교.
 //
 // Level 1~50 하이브리드 곡선:
 //   Lv1~20 선형: cumulative = 500 * L
@@ -59,23 +61,28 @@ class LevelSystem {
     return ((xp - currentCumulative) / span).clamp(0.0, 1.0);
   }
 
-  /// MVP: 세션 수 · streak · tier number · weekly goal 달성 주수로 총 XP 계산.
+  /// MVP + Phase 2: 세션 수 · streak · tier · weekly · PR XP 합산.
+  ///
+  /// `prCount`: 누적 PR 갱신 횟수 (v1.20 Phase 2). 미지정 시 0.
   static LevelXpBreakdown compute({
     required int totalSessions,
     required int currentStreakDays,
     required int tierNumber,
     int weeklyGoalHitWeeks = 0,
+    int prCount = 0,
   }) {
     final sessionXp = totalSessions * 100;
     final streakXp = currentStreakDays * 50;
     final tierXp = (tierNumber.clamp(0, 6)) * 500;
     final weeklyXp = weeklyGoalHitWeeks * 300;
-    final total = sessionXp + streakXp + tierXp + weeklyXp;
+    final prXp = prCount * 250;
+    final total = sessionXp + streakXp + tierXp + weeklyXp + prXp;
     return LevelXpBreakdown(
       sessionXp: sessionXp,
       streakXp: streakXp,
       tierXp: tierXp,
       weeklyXp: weeklyXp,
+      prXp: prXp,
       totalXp: total,
       level: levelFromXp(total),
       progress: levelProgress(total),
@@ -89,6 +96,7 @@ class LevelXpBreakdown {
   final int streakXp;
   final int tierXp;
   final int weeklyXp;
+  final int prXp;
   final int totalXp;
   final int level;
   final double progress;
@@ -99,6 +107,7 @@ class LevelXpBreakdown {
     required this.streakXp,
     required this.tierXp,
     required this.weeklyXp,
+    this.prXp = 0,
     required this.totalXp,
     required this.level,
     required this.progress,

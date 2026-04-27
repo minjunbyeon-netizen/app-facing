@@ -49,7 +49,7 @@ void main() {
       expect(LevelSystem.levelProgress(-100), inInclusiveRange(0.0, 1.0));
     });
 
-    test('compute breakdown — 누적합 일치', () {
+    test('compute breakdown — 누적합 일치 (PR 미포함)', () {
       final bd = LevelSystem.compute(
         totalSessions: 10,
         currentStreakDays: 5,
@@ -61,7 +61,21 @@ void main() {
       expect(bd.streakXp, 250);
       expect(bd.tierXp, 1500);
       expect(bd.weeklyXp, 600);
+      expect(bd.prXp, 0);
       expect(bd.totalXp, 3350);
+    });
+
+    test('Phase 2: PR XP +250 per PR, total 합산 정상', () {
+      final bd = LevelSystem.compute(
+        totalSessions: 0,
+        currentStreakDays: 0,
+        tierNumber: 0,
+        prCount: 4,
+      );
+      expect(bd.prXp, 1000); // 4 × 250
+      expect(bd.totalXp, 1000);
+      // 1000 XP → Lv3 (linear 500/lv → Lv3=1000)
+      expect(bd.level, 3);
     });
   });
 }
