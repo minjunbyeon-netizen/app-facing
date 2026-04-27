@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/api_client.dart';
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
+import '../../core/streak_freeze.dart';
 import '../../core/theme.dart';
 import '../../core/wod_session_bus.dart';
 import '../history/history_models.dart';
@@ -354,6 +355,9 @@ class _AttendanceBody extends StatelessWidget {
         ),
         const SizedBox(height: FacingTokens.sp2),
         Text(streakNote, style: FacingTokens.caption),
+        const SizedBox(height: FacingTokens.sp4),
+        // v1.20 Phase 2.5: Streak Freeze 버튼.
+        const _StreakFreezeRow(),
         const SizedBox(height: FacingTokens.sp5),
 
         // 3. MILESTONES — 단계별 진행도
@@ -754,6 +758,127 @@ class _DayCell extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// v1.20 Phase 2.5: 주 1회 무료 Streak Freeze 토큰 사용 UI.
+class _StreakFreezeRow extends StatefulWidget {
+  const _StreakFreezeRow();
+
+  @override
+  State<_StreakFreezeRow> createState() => _StreakFreezeRowState();
+}
+
+class _StreakFreezeRowState extends State<_StreakFreezeRow> {
+  Future<bool>? _availableFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _refresh();
+  }
+
+  void _refresh() {
+    setState(() {
+      _availableFuture = StreakFreezeStore.available();
+    });
+  }
+
+  Future<void> _useFreeze() async {
+    Haptic.medium();
+    final ok = await StreakFreezeStore.consume();
+    if (!mounted) return;
+    if (ok) {
+      Haptic.achievementUnlock();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Freeze used. Streak protected this week.'),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Already used this week. Refills Monday.'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+    _refresh();
+  }
+
+  String _refillLabel(DateTime next) {
+    return 'Refills ${next.year}-'
+        '${next.month.toString().padLeft(2, '0')}-'
+        '${next.day.toString().padLeft(2, '0')}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<bool>(
+      future: _availableFuture,
+      builder: (ctx, snap) {
+        final available = snap.data ?? false;
+        final next = StreakFreezeStore.nextRefill();
+        return Container(
+          padding: const EdgeInsets.all(FacingTokens.sp3),
+          decoration: BoxDecoration(
+            color: FacingTokens.surface,
+            border: Border.all(
+              color: available ? FacingTokens.accent : FacingTokens.border,
+              width: 1,
+            ),
+            borderRadius: BorderRadius.circular(FacingTokens.r2),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.ac_unit_outlined,
+                size: 18,
+                color: available ? FacingTokens.accent : FacingTokens.muted,
+              ),
+              const SizedBox(width: FacingTokens.sp2),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'STREAK FREEZE',
+                      style: FacingTokens.sectionLabel.copyWith(
+                        color: available
+                            ? FacingTokens.fg
+                            : FacingTokens.muted,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      available
+                          ? '주 1회 무료. 사용 시 이번 주 streak 보호.'
+                          : _refillLabel(next),
+                      style: FacingTokens.caption,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: FacingTokens.sp2),
+              ElevatedButton(
+                onPressed: available ? _useFreeze : null,
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(96, 40),
+                  backgroundColor: available
+                      ? FacingTokens.accent
+                      : FacingTokens.border,
+                  foregroundColor: available
+                      ? FacingTokens.fg
+                      : FacingTokens.muted,
+                ),
+                child: Text(available ? 'Use' : 'Used'),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

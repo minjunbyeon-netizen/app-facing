@@ -19,6 +19,7 @@ import '../../core/theme.dart';
 import '../../models/achievement.dart';
 import 'achievement_card.dart';
 import 'achievement_state.dart';
+import 'panel_b_screen.dart';
 
 class AchievementsScreen extends StatefulWidget {
   const AchievementsScreen({super.key});
@@ -103,6 +104,14 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('ACHIEVEMENTS'),
+        actions: [
+          // v1.20 Phase 2.5: Panel B 20-title 진입.
+          IconButton(
+            tooltip: 'Panel B Titles',
+            icon: const Icon(Icons.workspace_premium_outlined, size: 20),
+            onPressed: () => openPanelB(context),
+          ),
+        ],
       ),
       body: SafeArea(
         child: Column(

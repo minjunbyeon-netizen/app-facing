@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
 import '../../core/level_system.dart';
+import '../../core/pr_detector.dart';
 import '../../core/theme.dart';
 import '../../models/achievement.dart';
 import '../achievement/achievement_card.dart';
@@ -114,10 +115,13 @@ class _TrendsScreenState extends State<TrendsScreen> {
                           ? g!['overall_number'] as num
                           : null;
                       final tierNum = (n ?? 0).toInt();
+                      // v1.20 Phase 2.5: PR 카운트 클라이언트 추론.
+                      final prCount = PrDetector.countPrs(history);
                       final bd = LevelSystem.compute(
                         totalSessions: history.length,
                         currentStreakDays: streak,
                         tierNumber: tierNum,
+                        prCount: prCount,
                       );
                       return _LevelCard(bd: bd);
                     },

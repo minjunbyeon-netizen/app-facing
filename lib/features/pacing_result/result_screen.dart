@@ -7,6 +7,7 @@ import '../../core/api_client.dart';
 import '../../core/exception.dart';
 import '../../core/formula_references.dart';
 import '../../core/haptic.dart';
+import '../../core/season_badges.dart';
 import '../../core/theme.dart';
 import '../../models/pacing_plan.dart';
 import '../history/history_repository.dart';
@@ -69,6 +70,8 @@ class _ResultScreenState extends State<ResultScreen> {
           'segments': planData['segments'],
         },
       });
+      // v1.20 Phase 2.5: 시즌 active 시 자동 배지 unlock (best-effort).
+      await SeasonBadgeService.recordSessionToday();
     } catch (_) {
       // 저장 실패 무시.
     }

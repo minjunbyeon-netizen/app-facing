@@ -14,6 +14,7 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import '../../core/api_client.dart';
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
+import '../../core/season_badges.dart';
 import '../../core/theme.dart';
 import '../../core/wod_session_bus.dart';
 import '../../models/gym.dart';
@@ -378,6 +379,24 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
 
       if (!mounted) return true;
       context.read<WodSessionBus>().bump();
+
+      // v1.20 Phase 2.5: 시즌 배지 자동 unlock (active 시즌일 때만).
+      try {
+        final newBadge = await SeasonBadgeService.recordSessionToday();
+        if (newBadge != null && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Season badge unlocked · ${newBadge.label}'),
+              duration: const Duration(seconds: 3),
+            ),
+          );
+          Haptic.achievementUnlock();
+        }
+      } catch (_) {
+        // 배지 실패는 사용자에게 노출 안 함.
+      }
+
+      if (!mounted) return true;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('기록 저장. 출석 · 박스 리더보드 자동 반영.'),
