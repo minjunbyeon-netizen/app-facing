@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,6 +11,7 @@ import '../../core/haptic.dart';
 import '../../core/scoring.dart';
 import '../../core/theme.dart';
 import '../../core/tier.dart';
+import '../_debug/persona_switcher_screen.dart';
 import '../../core/ui_prefs_state.dart';
 import '../../core/unit_state.dart';
 import '../../core/weak_insight.dart';
@@ -1017,6 +1019,25 @@ class _ActionsSection extends StatelessWidget {
             onPressed: () => _confirmReset(context),
             child: const Text('Reset data'),
           ),
+          // v1.19 차수 5+ 트랙 A: 디버그 빌드 한정 페르소나 스위처.
+          if (kDebugMode) ...[
+            const SizedBox(height: FacingTokens.sp5),
+            const Divider(),
+            const SizedBox(height: FacingTokens.sp3),
+            const Text('DEBUG', style: FacingTokens.sectionLabel),
+            const SizedBox(height: FacingTokens.sp1),
+            const Text(
+              'Debug 빌드 전용. Release 자동 차단.',
+              style: FacingTokens.caption,
+            ),
+            const SizedBox(height: FacingTokens.sp2),
+            OutlinedButton(
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => const PersonaSwitcherScreen(),
+              )),
+              child: const Text('Persona Switcher'),
+            ),
+          ],
         ],
       ),
     );
