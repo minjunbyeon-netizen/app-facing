@@ -29,6 +29,8 @@ import 'features/auth/auth_state.dart';
 import 'features/auth/signup_screen.dart';
 import 'features/gym/gym_repository.dart';
 import 'features/gym/gym_state.dart';
+import 'features/inbox/inbox_repository.dart';
+import 'features/inbox/inbox_state.dart';
 import 'features/mypage/mypage_screen.dart';
 import 'features/shell/main_shell.dart';
 import 'features/wod_builder/wod_builder_screen.dart';
@@ -92,12 +94,16 @@ class FacingApp extends StatelessWidget {
         Provider<ApiClient>.value(value: api),
         Provider<MovementsRepository>(create: (_) => MovementsRepository(api)),
         Provider<GymRepository>(create: (_) => GymRepository(api)),
+        Provider<InboxRepository>(create: (_) => InboxRepository(api)),
         ChangeNotifierProvider<ProfileState>.value(value: profile),
         ChangeNotifierProvider<UnitState>.value(value: unit),
         ChangeNotifierProvider<ConnectivityState>.value(value: connectivity),
         ChangeNotifierProvider<WodDraftState>(create: (_) => WodDraftState()),
         ChangeNotifierProvider<GymState>(
           create: (ctx) => GymState(GymRepository(api))..loadMine(),
+        ),
+        ChangeNotifierProvider<InboxState>(
+          create: (_) => InboxState(InboxRepository(api)),
         ),
         Provider<AchievementRepository>(
           create: (_) => AchievementRepository(api),

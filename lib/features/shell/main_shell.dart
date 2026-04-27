@@ -8,6 +8,8 @@ import '../../core/shell_nav_bus.dart';
 import '../../core/theme.dart';
 import '../attendance/attendance_screen.dart';
 import '../gym/box_wod_screen.dart';
+import '../gym/gym_state.dart';
+import '../inbox/inbox_state.dart';
 import '../mypage/mypage_screen.dart';
 import '../trends/trends_screen.dart';
 import '../wod_builder/calc_entry_screen.dart';
@@ -43,6 +45,14 @@ class _MainShellState extends State<MainShell> {
     // v1.16 Sprint 11: 딥링크 탭 전환 요청 리스닝.
     _navBus = context.read<ShellNavBus>();
     _navBus?.addListener(_onNavRequest);
+    // v1.18 Sprint 19: GymState 로드 후 InboxState 자동 bind.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      final gs = context.read<GymState>();
+      if (gs.membership.gym != null) {
+        await context.read<InboxState>().bind(gs.membership.gym!.id);
+      }
+    });
   }
 
   void _onNavRequest() {
@@ -164,15 +174,24 @@ class _MainShellState extends State<MainShell> {
                 height: 64,
                 labelBehavior:
                     NavigationDestinationLabelBehavior.alwaysShow,
-                destinations: _tabs
-                    .map((t) => NavigationDestination(
-                          icon: Icon(t.icon,
-                              size: 22, color: FacingTokens.muted),
-                          selectedIcon: Icon(t.selectedIcon,
-                              size: 22, color: FacingTokens.fg),
-                          label: t.label,
-                        ))
-                    .toList(),
+                destinations: [
+                  for (int i = 0; i < _tabs.length; i++)
+                    NavigationDestination(
+                      icon: _IconWithDot(
+                        icon: _tabs[i].icon,
+                        showDot: i == 4 &&
+                            context.watch<InboxState>().unreadCount > 0,
+                        color: FacingTokens.muted,
+                      ),
+                      selectedIcon: _IconWithDot(
+                        icon: _tabs[i].selectedIcon,
+                        showDot: i == 4 &&
+                            context.watch<InboxState>().unreadCount > 0,
+                        color: FacingTokens.fg,
+                      ),
+                      label: _tabs[i].label,
+                    ),
+                ],
               ),
             ),
           ),
@@ -191,6 +210,41 @@ class _TabDef {
     required this.selectedIcon,
     required this.label,
   });
+}
+
+/// v1.18 Sprint 19: 탭 아이콘 우상단 빨간 dot (카톡식). InboxState 미읽음 표시.
+class _IconWithDot extends StatelessWidget {
+  final IconData icon;
+  final bool showDot;
+  final Color color;
+  const _IconWithDot({
+    required this.icon,
+    required this.showDot,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Icon(icon, size: 22, color: color),
+        if (showDot)
+          Positioned(
+            right: -3,
+            top: -2,
+            child: Container(
+              width: 8,
+              height: 8,
+              decoration: const BoxDecoration(
+                color: FacingTokens.accent,
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
 }
 
 /// v1.16 Sprint 7b U1: 첫 실행 탭 힌트 풀스크린 오버레이.

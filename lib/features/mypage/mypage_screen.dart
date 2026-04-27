@@ -18,6 +18,8 @@ import '../../models/achievement.dart';
 import '../achievement/achievement_card.dart';
 import '../achievement/achievement_section.dart';
 import '../achievement/achievement_state.dart';
+import '../inbox/inbox_screen.dart';
+import '../inbox/inbox_state.dart';
 import '../../widgets/tier_badge.dart';
 import '../auth/auth_state.dart';
 import '../goals/goals_screen.dart';
@@ -43,6 +45,7 @@ class MyPageScreen extends StatelessWidget {
           children: const [
             _TierSnapshot(),
             _WornTitleLine(),
+            _InboxEntry(),
             _SectionDivider(),
             _TierRoadmap(),
             _SectionDivider(),
@@ -1501,6 +1504,102 @@ class _WornTitleLineState extends State<_WornTitleLine> {
             const Icon(Icons.chevron_right,
                 color: FacingTokens.muted, size: 18),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// v1.18 Sprint 19: Inbox 진입 카드 — 미읽음 카운트 카톡식 빨간 dot.
+class _InboxEntry extends StatelessWidget {
+  const _InboxEntry();
+
+  @override
+  Widget build(BuildContext context) {
+    final state = context.watch<InboxState>();
+    final unread = state.unreadCount;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        FacingTokens.sp4,
+        FacingTokens.sp3,
+        FacingTokens.sp4,
+        0,
+      ),
+      child: InkWell(
+        onTap: () {
+          Haptic.light();
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => const InboxScreen(),
+          ));
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: unread > 0 ? FacingTokens.accent : FacingTokens.border,
+              width: unread > 0 ? 1.5 : 1,
+            ),
+            borderRadius: BorderRadius.circular(FacingTokens.r2),
+          ),
+          padding: const EdgeInsets.symmetric(
+            horizontal: FacingTokens.sp3,
+            vertical: FacingTokens.sp3,
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.inbox_outlined,
+                size: 20,
+                color: unread > 0 ? FacingTokens.accent : FacingTokens.muted,
+              ),
+              const SizedBox(width: FacingTokens.sp3),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('INBOX',
+                        style: FacingTokens.sectionLabel.copyWith(
+                          color: unread > 0
+                              ? FacingTokens.accent
+                              : FacingTokens.muted,
+                        )),
+                    const SizedBox(height: 2),
+                    Text(
+                      unread > 0
+                          ? '코치 쪽지 · 박스 공지'
+                          : '코치 쪽지 · 박스 공지',
+                      style: FacingTokens.caption,
+                    ),
+                  ],
+                ),
+              ),
+              if (unread > 0)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
+                  constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                  decoration: const BoxDecoration(
+                    color: FacingTokens.accent,
+                    shape: BoxShape.circle,
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    unread > 9 ? '9+' : '$unread',
+                    style: const TextStyle(
+                      fontFamily: FacingTokens.fontFamily,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      color: FacingTokens.fg,
+                      height: 1.0,
+                    ),
+                  ),
+                ),
+              const SizedBox(width: FacingTokens.sp1),
+              const Icon(Icons.chevron_right,
+                  color: FacingTokens.muted, size: 18),
+            ],
+          ),
         ),
       ),
     );
