@@ -299,16 +299,42 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
                 return Container(
                   decoration: BoxDecoration(
                     color: FacingTokens.surface,
-                    border: Border(
-                      left: BorderSide(color: color, width: 4),
-                      top: const BorderSide(color: FacingTokens.border),
-                      right: const BorderSide(color: FacingTokens.border),
-                      bottom: const BorderSide(color: FacingTokens.border),
-                    ),
+                    border: Border.all(color: FacingTokens.border, width: 1),
                     borderRadius: BorderRadius.circular(FacingTokens.r2),
                   ),
-                  padding: const EdgeInsets.all(FacingTokens.sp3),
-                  child: Column(
+                  clipBehavior: Clip.antiAlias,
+                  child: IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Container(width: 4, color: color),
+                        Expanded(child: Padding(
+                          padding: const EdgeInsets.all(FacingTokens.sp3),
+                          child: _buildGroupCardBody(g, color, slotLabel, cap),
+                        )),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: FacingTokens.accent,
+        foregroundColor: FacingTokens.fg,
+        onPressed: _openCreate,
+        icon: const Icon(Icons.add),
+        label: const Text('New'),
+      ),
+    );
+  }
+
+  Widget _buildGroupCardBody(
+    CoachGroup g, Color color, String slotLabel, String cap,
+  ) {
+    return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
@@ -342,20 +368,6 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
                         child: const Text('Add Member'),
                       ),
                     ],
-                  ),
-                );
-              },
-            );
-          },
-        ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: FacingTokens.accent,
-        foregroundColor: FacingTokens.fg,
-        onPressed: _openCreate,
-        icon: const Icon(Icons.add),
-        label: const Text('New'),
-      ),
-    );
+                  );
   }
 }

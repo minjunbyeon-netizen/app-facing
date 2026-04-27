@@ -196,23 +196,38 @@ class CoachDossierTile extends StatelessWidget {
         }
       },
       child: Container(
+        // v1.19 페르소나 P0-2: 비균일 border 는 borderRadius 와 충돌. 좌측 stripe 는
+        // child 로 그려서 회피.
         decoration: BoxDecoration(
           color: FacingTokens.surface,
-          border: Border(
-            left: BorderSide(color: stripeColor, width: 4),
-            top: const BorderSide(color: FacingTokens.border),
-            right: const BorderSide(color: FacingTokens.border),
-            bottom: const BorderSide(color: FacingTokens.border),
-          ),
+          border: Border.all(color: FacingTokens.border, width: 1),
           borderRadius: BorderRadius.circular(FacingTokens.r2),
         ),
-        padding: const EdgeInsets.fromLTRB(
-          FacingTokens.sp3,
-          FacingTokens.sp3,
-          FacingTokens.sp3,
-          FacingTokens.sp3,
+        clipBehavior: Clip.antiAlias,
+        padding: EdgeInsets.zero,
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(width: 4, color: stripeColor),
+              Expanded(child: Padding(
+                padding: const EdgeInsets.all(FacingTokens.sp3),
+                child: _buildBody(stripeColor, dueLabel, senderLabel, isUnread),
+              )),
+            ],
+          ),
         ),
-        child: Row(
+      ),
+    );
+  }
+
+  Widget _buildBody(
+    Color stripeColor,
+    _DueBadge? dueLabel,
+    String senderLabel,
+    bool isUnread,
+  ) {
+    return Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // v1.19 페르소나 P0-2: hash 이니셜 → display_name + 색상 아바타.
@@ -326,9 +341,7 @@ class CoachDossierTile extends StatelessWidget {
             ),
             // v1.19 페르소나 P2-20: 카드 dot 제거. 좌측 4px stripe 만으로 미읽음 표시 충분.
           ],
-        ),
-      ),
-    );
+        );
   }
 
   static Color _statusColor(String s) {

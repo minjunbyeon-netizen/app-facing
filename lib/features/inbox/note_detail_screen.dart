@@ -495,29 +495,30 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
           if (n.rationale != null && n.rationale!.isNotEmpty) ...[
             const SizedBox(height: FacingTokens.sp1),
             Container(
-              padding: const EdgeInsets.fromLTRB(
-                FacingTokens.sp3,
-                FacingTokens.sp3,
-                FacingTokens.sp3,
-                FacingTokens.sp3,
-              ),
               decoration: BoxDecoration(
                 color: FacingTokens.surface,
-                border: Border(
-                  left: BorderSide(color: FacingTokens.accent, width: 3),
-                  top: const BorderSide(color: FacingTokens.border),
-                  right: const BorderSide(color: FacingTokens.border),
-                  bottom: const BorderSide(color: FacingTokens.border),
-                ),
+                border: Border.all(color: FacingTokens.border, width: 1),
                 borderRadius: BorderRadius.circular(FacingTokens.r2),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('WHY', style: FacingTokens.sectionLabel),
-                  const SizedBox(height: 4),
-                  Text(n.rationale!, style: FacingTokens.body),
-                ],
+              clipBehavior: Clip.antiAlias,
+              child: IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Container(width: 3, color: FacingTokens.accent),
+                    Expanded(child: Padding(
+                      padding: const EdgeInsets.all(FacingTokens.sp3),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('WHY', style: FacingTokens.sectionLabel),
+                          const SizedBox(height: 4),
+                          Text(n.rationale!, style: FacingTokens.body),
+                        ],
+                      ),
+                    )),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: FacingTokens.sp3),
