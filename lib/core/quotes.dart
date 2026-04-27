@@ -31,7 +31,10 @@ Quote randomQuote() {
 }
 
 /// seed 기반 결정론적 선택. 같은 등급이면 같은 명언을 고정 노출.
+/// QA B-LW-3: int.minValue.abs() == int.minValue (음수 유지) → 음수 % 양수 = 음수.
+/// 음수 인덱스 방지 위해 한 번 더 abs + remainder.
 Quote stableQuote(int seed) {
-  final i = seed.abs() % kQuotes.length;
+  final raw = seed.abs();
+  final i = (raw < 0 ? -(raw + 1) : raw) % kQuotes.length;
   return kQuotes[i];
 }

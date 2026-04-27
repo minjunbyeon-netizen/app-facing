@@ -390,7 +390,13 @@ class CoachDossierTile extends StatelessWidget {
     if (d.inHours < 24) return '${d.inHours}h';
     if (d.inDays < 7) return '${d.inDays}d';
     final l = created.toLocal();
-    return '${l.month.toString().padLeft(2, '0')}/${l.day.toString().padLeft(2, '0')}';
+    final mm = l.month.toString().padLeft(2, '0');
+    final dd = l.day.toString().padLeft(2, '0');
+    // QA B-LW-1: 1년 이상 지난 항목은 YYYY-MM-DD 로 연도 명시.
+    if (l.year != DateTime.now().year) {
+      return '${l.year}-$mm-$dd';
+    }
+    return '$mm/$dd';
   }
 }
 
@@ -524,7 +530,9 @@ class _OutboxViewState extends State<_OutboxView> {
       case 'all':
         return 'ALL MEMBERS';
       case 'group':
-        return 'GROUP ${n.targetId ?? '-'}';
+        // QA B-LW-2: group ID 노출은 코치에게도 무의미. 'GROUP' 라벨만.
+        // 그룹 이름 매핑은 별도 caller(_OutboxView)에서 plumb 가능 → 향후 개선.
+        return 'GROUP';
       case 'individual':
       default:
         final id = (n.targetId ?? '').toString();

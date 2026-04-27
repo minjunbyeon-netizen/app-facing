@@ -87,10 +87,16 @@ class _AchievementSectionState extends State<AchievementSection> {
 
   List<Widget> _buildCards(AchievementSnapshot snap) {
     if (snap.catalog.isEmpty) {
+      // QA B-PF-19: snap 만으로는 로딩/실패/빈 catalog 구분 불가.
+      // 부모 AchievementsScreen 이 isLoading 체크 후 진입 → 여기 도달 시 사실상 로딩 완료 상태.
+      // '카탈로그 없음' 으로 명시.
       return [
         const Padding(
           padding: EdgeInsets.symmetric(vertical: FacingTokens.sp2),
-          child: Text('카탈로그 로딩 중.', style: FacingTokens.caption),
+          child: Text(
+            'No catalog. Pull to refresh.',
+            style: FacingTokens.caption,
+          ),
         ),
       ];
     }

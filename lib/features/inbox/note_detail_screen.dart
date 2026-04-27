@@ -382,6 +382,8 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                   ActionChip(
                     label: Text(t, style: FacingTokens.micro),
                     onPressed: () {
+                      // QA B-ST-12: 같은 템플릿 중복 append 방지.
+                      if (ctrl.text.contains(t)) return;
                       ctrl.text = ctrl.text.isEmpty ? t : '${ctrl.text}\n$t';
                     },
                   ),

@@ -115,7 +115,10 @@ class WodDraftState extends ChangeNotifier {
   void loadFromPreset(PresetWod preset, Map<String, Movement> movementBySlug) {
     _items.clear();
     _presetSlug = preset.slug;
-    _presetNameKo = preset.nameKo;
+    // QA B-LW-11: nameKo 비어있으면 slug 대문자 fallback (Result/Builder 'Custom' 회피).
+    _presetNameKo = preset.nameKo.trim().isNotEmpty
+        ? preset.nameKo
+        : preset.slug.toUpperCase().replaceAll('_', ' ');
     _type = WodType.values.firstWhere(
       (t) => t.slug == preset.wodType,
       orElse: () => WodType.forTime,

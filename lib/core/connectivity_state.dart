@@ -17,7 +17,9 @@ class ConnectivityState extends ChangeNotifier {
     try {
       final result = await _connectivity.checkConnectivity();
       _isOnline = _interpret(result);
-    } catch (_) {
+    } catch (e) {
+      // QA B-LW-16: 초기화 실패 시 디버깅용 로그. 사용자 영향 없도록 isOnline=true 유지.
+      debugPrint('[ConnectivityState.init] checkConnectivity failed: $e');
       _isOnline = true;
     }
     _sub = _connectivity.onConnectivityChanged.listen((result) {

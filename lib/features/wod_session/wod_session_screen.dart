@@ -554,8 +554,9 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
                             child: const Text('Pause'),
                           )
                         : ElevatedButton(
-                            onPressed:
-                                _elapsedSec == 0 ? _start : _start,
+                            // QA B-PF-5: _start/_resume 동일 함수였음. 단일 호출로 정리.
+                            // 라벨만 시작/재개로 분기.
+                            onPressed: _start,
                             child:
                                 Text(_elapsedSec == 0 ? 'Start' : 'Resume'),
                           ),

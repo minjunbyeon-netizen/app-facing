@@ -520,7 +520,11 @@ class _SplitText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final joined = splits.join('-');
-    if (!lastIsExplosion) return Text(joined, style: FacingTokens.h1);
+    // QA B-LW-14: splits 1개 / 0개일 때 lastIndexOf=-1 → +1=0 으로 head 빈문자 + tail 전체 강조.
+    // 폭발 강조는 분할이 2개 이상일 때만 의미. 1개면 일반 텍스트로 노출.
+    if (!lastIsExplosion || splits.length < 2) {
+      return Text(joined, style: FacingTokens.h1);
+    }
     final lastIndex = joined.lastIndexOf('-') + 1;
     final head = joined.substring(0, lastIndex);
     final tail = joined.substring(lastIndex);

@@ -278,13 +278,15 @@ class ProfileState extends ChangeNotifier {
   }
 
   Map<String, dynamic> toGradePayload() {
-    return {
-      'body_weight_kg': _bodyWeightKg,
-      'height_cm': _heightCm,
-      'age_years': _ageYears,
+    // QA B-PF-10: null 필드는 백엔드가 0/None 으로 잘못 추론 가능. 명시 입력만 전송.
+    final out = <String, dynamic>{
       'gender': _gender,
       'experience_years': _experienceYears,
       ..._benchmarks,
     };
+    if (_bodyWeightKg != null) out['body_weight_kg'] = _bodyWeightKg;
+    if (_heightCm != null) out['height_cm'] = _heightCm;
+    if (_ageYears != null) out['age_years'] = _ageYears;
+    return out;
   }
 }

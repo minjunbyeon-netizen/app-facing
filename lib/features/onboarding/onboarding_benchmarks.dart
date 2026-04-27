@@ -542,9 +542,11 @@ class _OnboardingBenchmarksScreenState
 
   String _lbHintToKgHint(String lbHint) {
     // "e.g. 315" → lb 숫자를 대략 kg로 치환. 힌트라 반올림 허용.
-    final match = RegExp(r'(\d+)').firstMatch(lbHint);
-    if (match == null) return lbHint;
-    final lb = int.parse(match.group(1)!);
+    // QA B-LW-8: replaceFirst(\d+) 는 멀티-숫자 힌트("3:30 / 315")의 첫 번째만 치환 → 의미 깨짐.
+    // 단일 숫자 힌트만 변환, 그 외엔 lb 원문 유지.
+    final all = RegExp(r'\d+').allMatches(lbHint).toList();
+    if (all.length != 1) return lbHint;
+    final lb = int.parse(all.first.group(0)!);
     final kg = (lb * 0.4536).round();
     return lbHint.replaceFirst(RegExp(r'\d+'), '$kg');
   }

@@ -273,8 +273,16 @@ class _TimeSeriesPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _TimeSeriesPainter old) =>
-      old.points != points;
+  bool shouldRepaint(covariant _TimeSeriesPainter old) {
+    // QA B-PF-3: 리스트 참조(==) 비교 시 매 build 마다 새 List 가 들어와 항상 repaint.
+    // 동일 길이 + 모든 원소 동일 시 skip.
+    if (identical(old.points, points)) return false;
+    if (old.points.length != points.length) return true;
+    for (var i = 0; i < points.length; i++) {
+      if (old.points[i] != points[i]) return true;
+    }
+    return false;
+  }
 }
 
 // v1.16 Sprint 7b U3: _SparkPainter 제거 — _TimeSeriesPainter로 대체.

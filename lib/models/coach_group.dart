@@ -45,14 +45,21 @@ class CoachGroup {
     final weekdayRaw = j['weekday_slot'];
     final wdays = <int>[];
     if (weekdayRaw is String && weekdayRaw.isNotEmpty) {
+      // backend 가 JSON 문자열로 저장. 잘못된 페이로드라도 그룹 객체 자체는 살아남도록 try.
+      // QA B-ST-14: 파싱 실패 시 debug 빌드에서만 로그 (모델은 dart:io / dart:foundation 의존 회피).
       try {
-        // backend 가 JSON 문자열로 저장.
         final cleaned = weekdayRaw.replaceAll('[', '').replaceAll(']', '');
         for (final part in cleaned.split(',')) {
           final n = int.tryParse(part.trim());
           if (n != null) wdays.add(n);
         }
-      } catch (_) {}
+      } catch (e) {
+        assert(() {
+          // ignore: avoid_print
+          print('[CoachGroup.fromJson] weekday_slot parse failed: $weekdayRaw / $e');
+          return true;
+        }());
+      }
     } else if (weekdayRaw is List) {
       for (final n in weekdayRaw) {
         if (n is num) wdays.add(n.toInt());
