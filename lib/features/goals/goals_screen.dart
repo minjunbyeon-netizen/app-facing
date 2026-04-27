@@ -157,6 +157,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
   }
 
   void _editFran(BuildContext context, GoalsState goals) {
+    // QA B-ML-8: ctrl dispose 보장.
     final ctrl = TextEditingController(text: goals.franPrDisplay);
     showDialog<void>(
       context: context,
@@ -191,7 +192,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
           ),
         ],
       ),
-    );
+    ).whenComplete(ctrl.dispose);
   }
 
   void _editBackSquat(BuildContext context, GoalsState goals) {
@@ -223,7 +224,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
           ),
         ],
       ),
-    );
+    ).whenComplete(ctrl.dispose);
   }
 }
 

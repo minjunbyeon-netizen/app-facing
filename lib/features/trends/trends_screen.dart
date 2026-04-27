@@ -102,6 +102,10 @@ class _TrendsScreenState extends State<TrendsScreen> {
                   FutureBuilder<List<WodHistoryItem>>(
                     future: _historyFuture,
                     builder: (ctx, snap) {
+                      // QA B-FB-3: 로딩 중에도 빈 배열로 처리되어 streak=0 표시되는 문제.
+                      if (snap.connectionState != ConnectionState.done) {
+                        return const SizedBox(height: 100);
+                      }
                       final history = snap.data ?? const <WodHistoryItem>[];
                       final streak = _currentStreakDays(history);
                       final p = context.watch<ProfileState>();

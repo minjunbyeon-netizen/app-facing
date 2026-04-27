@@ -40,6 +40,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
 
   Future<void> _openCreate() async {
     Haptic.light();
+    // QA B-ML-3: 6개 controller dispose 보장.
     final nameCtrl = TextEditingController();
     final descCtrl = TextEditingController();
     final timeCtrl = TextEditingController();
@@ -50,8 +51,17 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
     final gym = context.read<GymState>().membership.gym;
     final repo = context.read<InboxRepository>();
     final messenger = ScaffoldMessenger.of(context);
-    if (gym == null) return;
-    final ok = await showModalBottomSheet<bool>(
+    if (gym == null) {
+      nameCtrl.dispose();
+      descCtrl.dispose();
+      timeCtrl.dispose();
+      capCtrl.dispose();
+      colorCtrl.dispose();
+      notesCtrl.dispose();
+      return;
+    }
+    try {
+      final ok = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: FacingTokens.surface,
@@ -164,7 +174,12 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
     );
     if (ok != true) return;
     final name = nameCtrl.text.trim();
-    if (name.isEmpty) return;
+    if (name.isEmpty) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('그룹 이름 필요.')),
+      );
+      return;
+    }
     try {
       await repo.createGroup(
         gymId: gym.id,
@@ -184,16 +199,29 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
         SnackBar(content: Text('생성 실패: ${e.messageKo}')),
       );
     }
+    } finally {
+      nameCtrl.dispose();
+      descCtrl.dispose();
+      timeCtrl.dispose();
+      capCtrl.dispose();
+      colorCtrl.dispose();
+      notesCtrl.dispose();
+    }
   }
 
   Future<void> _openAddMember(CoachGroup g) async {
     Haptic.light();
+    // QA B-ML-4: hashCtrl dispose 보장.
     final hashCtrl = TextEditingController();
     final gym = context.read<GymState>().membership.gym;
     final repo = context.read<InboxRepository>();
     final messenger = ScaffoldMessenger.of(context);
-    if (gym == null) return;
-    final ok = await showModalBottomSheet<bool>(
+    if (gym == null) {
+      hashCtrl.dispose();
+      return;
+    }
+    try {
+      final ok = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: FacingTokens.surface,
@@ -238,7 +266,13 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
     );
     if (ok != true) return;
     final h = hashCtrl.text.trim();
-    if (h.isEmpty) return;
+    // QA B-IN-5: hash 길이 검증.
+    if (h.length < 8) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Hash 8자 이상 필요.')),
+      );
+      return;
+    }
     try {
       await repo.addGroupMember(
         gymId: gym.id,
@@ -252,6 +286,9 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
       messenger.showSnackBar(
         SnackBar(content: Text('추가 실패: ${e.messageKo}')),
       );
+    }
+    } finally {
+      hashCtrl.dispose();
     }
   }
 
@@ -275,6 +312,19 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
               return const Center(
                 child: CircularProgressIndicator(
                     color: FacingTokens.muted, strokeWidth: 2),
+              );
+            }
+            // QA B-FB-1: hasError 분기.
+            if (snap.hasError) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(FacingTokens.sp4),
+                  child: Text(
+                    '그룹 목록 로딩 실패. 새로고침 필요.',
+                    style: FacingTokens.caption
+                        .copyWith(color: FacingTokens.warning),
+                  ),
+                ),
               );
             }
             final items = snap.data ?? const [];

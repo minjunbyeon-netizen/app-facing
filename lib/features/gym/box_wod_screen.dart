@@ -38,15 +38,16 @@ class BoxWodScreen extends StatelessWidget {
       body = _WodList(gymState: gs);
     }
 
-    // v1.16 Sprint 12: FACING 공식 박스는 승인 멤버도 코치 대시보드 접근 허용 (demo).
-    final isFacingMember = gs.membership.gym?.name == 'FACING' &&
-        gs.membership.isApprovedMember;
-    final canViewDashboard = gs.isOwner || isFacingMember;
+    // QA B-SEC-1: 박스명 'FACING' 스푸핑 가능. isOwner 단독 조건으로 강화.
+    // (Phase 2: 백엔드 role 필드 도입 시 admin role 추가)
+    final canViewDashboard = gs.isOwner;
+    // QA B-ST-7: && / || 우선순위 괄호 명시.
+    final canMessage = (gs.hasGym && gs.membership.isApprovedMember) || gs.isOwner;
     return Scaffold(
       appBar: AppBar(
         title: const Text('WOD'),
         actions: [
-          if (gs.hasGym && gs.membership.isApprovedMember || gs.isOwner)
+          if (canMessage)
             IconButton(
               tooltip: 'Messages',
               icon: const Icon(Icons.mail_outline),
@@ -57,7 +58,7 @@ class BoxWodScreen extends StatelessWidget {
                 ));
               },
             ),
-          if (gs.hasGym && gs.membership.isApprovedMember || gs.isOwner)
+          if (canMessage)
             IconButton(
               tooltip: 'Announcements',
               icon: const Icon(Icons.campaign_outlined),
@@ -68,7 +69,7 @@ class BoxWodScreen extends StatelessWidget {
                 ));
               },
             ),
-          if (gs.hasGym && gs.membership.isApprovedMember || gs.isOwner)
+          if (canMessage)
             IconButton(
               tooltip: 'Leaderboard',
               icon: const Icon(Icons.emoji_events_outlined),

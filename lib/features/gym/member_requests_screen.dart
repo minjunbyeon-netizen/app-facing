@@ -24,13 +24,21 @@ class _MemberRequestsScreenState extends State<MemberRequestsScreen> {
   @override
   void initState() {
     super.initState();
-    _reload();
+    // QA B-SEC-2: 비코치 접근 차단.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (!context.read<GymState>().isOwner) {
+        Navigator.of(context).pop();
+        return;
+      }
+      _reload();
+    });
   }
 
   void _reload() {
     final gs = context.read<GymState>();
     final gym = gs.membership.gym;
-    if (gym == null) {
+    if (gym == null || !gs.isOwner) {
       setState(() => _future = Future.value(const []));
       return;
     }
@@ -42,9 +50,11 @@ class _MemberRequestsScreenState extends State<MemberRequestsScreen> {
   }
 
   Future<void> _respond(MemberRequest r) async {
+    // QA B-ML-6: bodyCtrl dispose 보장.
     final bodyCtrl = TextEditingController(text: r.coachResponse ?? '');
     Haptic.light();
-    await showModalBottomSheet<void>(
+    try {
+      await showModalBottomSheet<void>(
       context: context,
       backgroundColor: FacingTokens.surface,
       isScrollControlled: true,
@@ -111,6 +121,9 @@ class _MemberRequestsScreenState extends State<MemberRequestsScreen> {
         ),
       ),
     );
+    } finally {
+      bodyCtrl.dispose();
+    }
   }
 
   Future<void> _patch(MemberRequest r, String? body, String? status) async {

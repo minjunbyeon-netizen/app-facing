@@ -490,11 +490,13 @@ class _MemberDetailSheet extends StatelessWidget {
         ),
       );
     }
+    // QA B-AS-2: 이중 mounted 체크 데드코드 제거.
     if (pickedWod == null || !context.mounted) return;
 
-    if (!context.mounted) return;
+    // QA B-ML-5: bodyCtrl dispose 보장.
     final bodyCtrl = TextEditingController();
-    await showModalBottomSheet<void>(
+    try {
+      await showModalBottomSheet<void>(
       context: context,
       backgroundColor: FacingTokens.surface,
       isScrollControlled: true,
@@ -561,6 +563,9 @@ class _MemberDetailSheet extends StatelessWidget {
         ),
       ),
     );
+    } finally {
+      bodyCtrl.dispose();
+    }
   }
 
   Widget _kv(String k, String v) {

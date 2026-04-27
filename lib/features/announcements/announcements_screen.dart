@@ -40,10 +40,12 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
 
   Future<void> _openCompose() async {
     Haptic.light();
+    // QA B-ML-7: titleCtrl, bodyCtrl dispose 보장.
     final titleCtrl = TextEditingController();
     final bodyCtrl = TextEditingController();
     String priority = 'normal';
-    await showModalBottomSheet<void>(
+    try {
+      await showModalBottomSheet<void>(
       context: context,
       backgroundColor: FacingTokens.surface,
       isScrollControlled: true,
@@ -132,6 +134,10 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
         );
       }),
     );
+    } finally {
+      titleCtrl.dispose();
+      bodyCtrl.dispose();
+    }
   }
 
   @override

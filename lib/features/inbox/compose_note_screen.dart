@@ -12,6 +12,7 @@ import '../../core/theme.dart';
 import '../../models/coach_group.dart';
 import '../../models/coach_note.dart';
 import '../gym/gym_state.dart';
+import 'group_management_screen.dart';
 import 'inbox_repository.dart';
 
 class ComposeNoteScreen extends StatefulWidget {
@@ -62,6 +63,7 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
 
   Future<void> _addItem() async {
     Haptic.light();
+    // QA B-ML-2: 9개 controller 모달 종료 후 dispose 보장.
     final movementCtrl = TextEditingController();
     final altCtrl = TextEditingController();
     final setsCtrl = TextEditingController();
@@ -72,7 +74,9 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
     final timecapCtrl = TextEditingController();
     final noteCtrl = TextEditingController();
     String unit = 'pct_1rm';
-    final ok = await showModalBottomSheet<bool>(
+    bool? ok;
+    try {
+      ok = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: FacingTokens.surface,
@@ -239,6 +243,17 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
         note: noteCtrl.text.trim().isEmpty ? null : noteCtrl.text.trim(),
       ));
     });
+    } finally {
+      movementCtrl.dispose();
+      altCtrl.dispose();
+      setsCtrl.dispose();
+      repsCtrl.dispose();
+      loadCtrl.dispose();
+      restCtrl.dispose();
+      tempoCtrl.dispose();
+      timecapCtrl.dispose();
+      noteCtrl.dispose();
+    }
   }
 
   String _loadHint(String unit) {
@@ -504,6 +519,16 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
             child: Text('Loading groups.', style: FacingTokens.caption),
           );
         }
+        // QA B-FB-2: hasError 분기 추가.
+        if (snap.hasError) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp2),
+            child: Text(
+              '그룹 목록 로딩 실패. 새로고침 필요.',
+              style: FacingTokens.caption.copyWith(color: FacingTokens.warning),
+            ),
+          );
+        }
         final groups = snap.data ?? const [];
         if (groups.isEmpty) {
           return Padding(
@@ -516,7 +541,12 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                     style: FacingTokens.caption),
                 const SizedBox(height: FacingTokens.sp2),
                 OutlinedButton(
-                  onPressed: () => Navigator.of(ctx).pop(),
+                  // QA B-NAV-1: 작성 화면을 닫는 대신 GroupManagement 화면 push.
+                  onPressed: () => Navigator.of(ctx).push(
+                    MaterialPageRoute(
+                      builder: (_) => const GroupManagementScreen(),
+                    ),
+                  ),
                   child: const Text('Manage Groups'),
                 ),
               ],

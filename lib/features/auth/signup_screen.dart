@@ -45,9 +45,12 @@ class _SignupScreenState extends State<SignupScreen> {
     if (_busy) return;
     setState(() => _busy = true);
     Haptic.heavy();
+    // QA B-AS-1: await 전 context.read 일괄 캡처. mounted 체크 정확화.
     final auth = context.read<AuthState>();
     final profile = context.read<ProfileState>();
+    final api = context.read<ApiClient>();
     await auth.signIn('demo', displayName: demo.nameLabel);
+    if (!mounted) return;
     profile.setBasic(
       bodyWeightKg: demo.bodyWeightKg,
       heightCm: demo.heightCm.toDouble(),
@@ -60,7 +63,6 @@ class _SignupScreenState extends State<SignupScreen> {
     }
     // Grade 계산 시도 (실패해도 Shell 진입).
     try {
-      final api = context.read<ApiClient>();
       final result = await api
           .post('/api/v1/profile/grade', profile.toGradePayload())
           .timeout(const Duration(seconds: 5));

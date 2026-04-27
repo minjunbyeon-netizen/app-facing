@@ -36,6 +36,10 @@ class _WodPostScreenState extends State<WodPostScreen> {
     _scaleGuideCtrl.dispose();
     _roundsCtrl.dispose();
     _timeCapCtrl.dispose();
+    // QA B-ML-1: _RoundDraft controller 누수 방지.
+    for (final r in _rounds) {
+      r.dispose();
+    }
     super.dispose();
   }
 

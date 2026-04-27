@@ -42,9 +42,25 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
               child: Text(msg, style: FacingTokens.body),
             );
           }
-          final d = snap.data!;
-          final wod = d['wod'] as Map<String, dynamic>;
-          final plan = d['plan'] as Map<String, dynamic>?;
+          // QA B-FB-4: snap.data null 방어.
+          final d = snap.data;
+          if (d == null) {
+            return const Padding(
+              padding: EdgeInsets.all(FacingTokens.sp4),
+              child: Text('History 데이터 없음.', style: FacingTokens.body),
+            );
+          }
+          final wodRaw = d['wod'];
+          if (wodRaw is! Map<String, dynamic>) {
+            return const Padding(
+              padding: EdgeInsets.all(FacingTokens.sp4),
+              child: Text('History 형식 오류.', style: FacingTokens.body),
+            );
+          }
+          final wod = wodRaw;
+          final plan = d['plan'] is Map<String, dynamic>
+              ? d['plan'] as Map<String, dynamic>
+              : null;
           return ListView(
             padding: const EdgeInsets.all(FacingTokens.sp4),
             children: [
