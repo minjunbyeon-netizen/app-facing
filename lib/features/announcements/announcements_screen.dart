@@ -184,7 +184,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
                   return ListView.separated(
                     padding: const EdgeInsets.all(FacingTokens.sp4),
                     itemCount: items.length,
-                    separatorBuilder: (_, __) =>
+                    separatorBuilder: (_, _) =>
                         const SizedBox(height: FacingTokens.sp3),
                     itemBuilder: (_, i) => _AnnouncementCard(item: items[i]),
                   );

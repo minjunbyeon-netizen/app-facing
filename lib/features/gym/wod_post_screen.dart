@@ -109,8 +109,15 @@ class _WodPostScreenState extends State<WodPostScreen> {
               ? null
               : _scaleGuideCtrl.text.trim(),
           roundsData: roundsData,
-          rounds: int.tryParse(_roundsCtrl.text.trim()),
-          timeCapSec: _parseTimeCap(_timeCapCtrl.text.trim()),
+          // QA B-IN-9, B-IN-10: 양수 검증.
+          rounds: () {
+            final r = int.tryParse(_roundsCtrl.text.trim());
+            return (r != null && r > 0) ? r : null;
+          }(),
+          timeCapSec: () {
+            final t = _parseTimeCap(_timeCapCtrl.text.trim());
+            return (t != null && t > 0) ? t : null;
+          }(),
         );
     if (!mounted) return;
     setState(() => _submitting = false);

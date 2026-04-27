@@ -51,8 +51,11 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
 
   // v1.10.1: 모든 필드 선택. 체중만 있으면 진행 가능(등급 산정 최소 기준).
   // 비우면 다음 단계에서 평균값 추론.
-  bool get _canContinue =>
-      double.tryParse(_weight.text.trim()) != null;
+  // QA B-IN-7: 체중 양수+합리적 범위 검증.
+  bool get _canContinue {
+    final v = double.tryParse(_weight.text.trim());
+    return v != null && v > 0 && v < 500;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -173,10 +176,17 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
     final p = context.read<ProfileState>();
     final unit = context.read<UnitState>();
     final weightDisplay = double.tryParse(_weight.text.trim());
+    final heightVal = double.tryParse(_height.text.trim());
+    final ageVal = double.tryParse(_age.text.trim());
     p.setBasic(
       bodyWeightKg: unit.displayToKg(weightDisplay),
-      heightCm: double.tryParse(_height.text.trim()),
-      ageYears: double.tryParse(_age.text.trim()),
+      // QA B-IN-8: 신장 100~250cm, 나이 10~80 범위 외 입력은 null 처리.
+      heightCm: (heightVal != null && heightVal >= 100 && heightVal <= 250)
+          ? heightVal
+          : null,
+      ageYears: (ageVal != null && ageVal >= 10 && ageVal <= 80)
+          ? ageVal
+          : null,
       gender: _gender,
       experienceYears: double.tryParse(_years.text.trim()) ?? 0,
     );

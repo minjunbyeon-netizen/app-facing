@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/movements_repository.dart';
 import '../../core/theme.dart';
@@ -64,9 +65,14 @@ class _PresetsScreenState extends State<PresetsScreen> {
             return const Center(child: Text('Loading', style: FacingTokens.body));
           }
           if (snap.hasError) {
+            // QA B-ER-1: 기술 정보 노출 차단. AppException 만 messageKo 노출.
+            final e = snap.error;
+            final msg = e is AppException
+                ? e.messageKo
+                : '프리셋 로딩 실패. 다시 시도해주세요.';
             return Padding(
               padding: const EdgeInsets.all(FacingTokens.sp4),
-              child: Text('${snap.error}', style: FacingTokens.body),
+              child: Text(msg, style: FacingTokens.body),
             );
           }
           final (presets, movMap) = snap.data!;
@@ -86,7 +92,7 @@ class _PresetsScreenState extends State<PresetsScreen> {
                 child: ListView.separated(
                   padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp2),
                   itemCount: filtered.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  separatorBuilder: (_, _) => const Divider(height: 1),
                   itemBuilder: (_, i) {
                     final p = filtered[i];
                     return InkWell(

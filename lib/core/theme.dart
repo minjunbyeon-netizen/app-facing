@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:ui';
 import 'package:google_fonts/google_fonts.dart';
 
 /// facing 디자인 토큰 단일 진원지 (v1.11.0 CrossFit Elite / Dark).

@@ -109,7 +109,9 @@ class FacingApp extends StatelessWidget {
           create: (_) => AchievementRepository(api),
         ),
         ChangeNotifierProvider<AchievementState>(
-          create: (_) => AchievementState(AchievementRepository(api))..load(),
+          // QA B-PF-4: AchievementRepository 단일 인스턴스 공유.
+          create: (ctx) =>
+              AchievementState(ctx.read<AchievementRepository>())..load(),
         ),
         ChangeNotifierProvider<AuthState>.value(value: auth),
         ChangeNotifierProvider<UiPrefsState>.value(value: uiPrefs),

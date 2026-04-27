@@ -195,7 +195,7 @@ class _MemberRequestsScreenState extends State<MemberRequestsScreen> {
                   return ListView.separated(
                     padding: const EdgeInsets.all(FacingTokens.sp4),
                     itemCount: list.length,
-                    separatorBuilder: (_, __) =>
+                    separatorBuilder: (_, _) =>
                         const SizedBox(height: FacingTokens.sp2),
                     itemBuilder: (_, i) => _RequestRow(
                       req: list[i],

@@ -139,7 +139,7 @@ class _CategorySheetState extends State<_CategorySheet> {
                     )
                   : ListView.separated(
                       itemCount: filtered.length,
-                      separatorBuilder: (_, __) =>
+                      separatorBuilder: (_, _) =>
                           const Divider(height: 1),
                       itemBuilder: (_, i) {
                         final m = filtered[i];

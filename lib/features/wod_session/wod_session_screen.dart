@@ -354,12 +354,15 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
       });
 
       // v1.16 Sprint 16: 박스 WOD인 경우 참가자 기록 리더보드 POST (best-effort).
+      // QA A-18: await 후 context.read 전 mounted 검사.
+      if (!mounted) return true;
       try {
         final gs = context.read<GymState>();
         final gym = gs.membership.gym;
+        final gymRepo = context.read<GymRepository>();
         if (gym != null &&
             (gs.isOwner || gs.membership.isApprovedMember)) {
-          await context.read<GymRepository>().submitWodResult(
+          await gymRepo.submitWodResult(
                 gymId: gym.id,
                 wodId: widget.wod.id,
                 timeSec: _mode == _TimerMode.forTime ? totalSec : null,
@@ -434,11 +437,12 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
       canPop: false,
       onPopInvokedWithResult: (didPop, _) async {
         if (didPop) return;
+        final navigator = Navigator.of(context);
         final ok = await _confirmExitIfRunning();
         if (ok && mounted) {
           _tick?.cancel();
           WakelockPlus.disable().catchError((_) {});
-          Navigator.of(context).pop();
+          navigator.pop();
         }
       },
       child: Scaffold(

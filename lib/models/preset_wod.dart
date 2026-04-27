@@ -74,6 +74,6 @@ class PresetWod {
   String get timeCapLabelKo {
     if (timeCapSec == null) return '';
     final m = timeCapSec! ~/ 60;
-    return '${m}분';
+    return '$m분';
   }
 }

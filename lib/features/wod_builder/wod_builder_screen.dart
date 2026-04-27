@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/exception.dart';
 import '../../core/movements_repository.dart';
 import '../../core/theme.dart';
 import '../../models/movement.dart';
@@ -58,7 +59,12 @@ class _WodBuilderScreenState extends State<WodBuilderScreen> {
             return const Center(child: Text('Loading', style: FacingTokens.body));
           }
           if (snap.hasError) {
-            return Center(child: Text('${snap.error}', style: FacingTokens.body));
+            // QA B-ER-2: 기술 정보 노출 차단.
+            final e = snap.error;
+            final msg = e is AppException
+                ? e.messageKo
+                : '동작 카탈로그 로딩 실패. 다시 시도해주세요.';
+            return Center(child: Text(msg, style: FacingTokens.body));
           }
           final cats = snap.data ?? [];
           return _Body(

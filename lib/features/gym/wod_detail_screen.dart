@@ -54,17 +54,8 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
     });
   }
 
-  Future<void> _leaveCoachNote(GymWodResult r) async {
-    Haptic.light();
-    // 멤버 전체 해시는 리더보드에 없음 → prefix로 검색해 full hash 필요.
-    // 일단 prefix로 upsert 시도 (백엔드는 전체 hash 필요). 간단 구현: 코치는
-    // Coach Dashboard 멤버 sheet에서 진입하는 게 정석. 여기선 안내.
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Coach Dashboard → 멤버 탭에서 노트 작성.'),
-      ),
-    );
-  }
+  // QA A-10: 사용 안 되는 _leaveCoachNote 제거.
+  // 코치는 Coach Dashboard 멤버 sheet에서 노트 작성. 리더보드 행에는 진입점 없음.
 
   Future<void> _sendRequest() async {
     Haptic.medium();
@@ -130,7 +121,8 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
                       );
                   if (!ctx.mounted) return;
                   Navigator.of(ctx).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  // QA A-11: 부모 context는 ctx.mounted로는 보호 불가. ScaffoldMessenger를 ctx 기준으로 사용.
+                  ScaffoldMessenger.of(ctx).showSnackBar(
                     const SnackBar(content: Text('건의 전송. 코치 응답 대기.')),
                   );
                 } on AppException catch (e) {

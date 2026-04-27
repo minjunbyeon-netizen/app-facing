@@ -129,7 +129,7 @@ class _GymSearchScreenState extends State<GymSearchScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: FacingTokens.sp4),
                         itemCount: _results.length,
-                        separatorBuilder: (_, __) => const Divider(
+                        separatorBuilder: (_, _) => const Divider(
                             height: 1, color: FacingTokens.border),
                         itemBuilder: (_, i) {
                           final g = _results[i];

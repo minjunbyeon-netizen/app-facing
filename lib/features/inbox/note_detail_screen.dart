@@ -95,6 +95,11 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
     final reason = await _openDeclineModal();
     if (!mounted) return;
     if (reason == null) return;
+    // QA B-IN-12: 빈 reason 차단.
+    if (reason.trim().isEmpty) {
+      _toast('거절 사유 1개 이상 선택 필요.');
+      return;
+    }
     final ok =
         await context.read<InboxState>().decline(widget.noteId, reason: reason);
     if (!mounted) return;
@@ -279,11 +284,12 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                 spacing: FacingTokens.sp2,
                 runSpacing: FacingTokens.sp2,
                 children: [
+                  // QA B-IN-13: V8 위반 — chip 라벨 영문 단독.
                   for (final r in const [
-                    '부상',
-                    '컨디션',
-                    '시간 부족',
-                    '대체 동작 요청',
+                    'INJURY',
+                    'CONDITION',
+                    'TIME',
+                    'SUBSTITUTE',
                   ])
                     ChoiceChip(
                       label: Text(r),
@@ -293,7 +299,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                       onSelected: (_) {
                         setSheet(() {
                           selectedReason = r;
-                          if (r == '부상' &&
+                          if (r == 'INJURY' &&
                               injuryNotes != null &&
                               injuryNotes.isNotEmpty &&
                               freeCtrl.text.isEmpty) {

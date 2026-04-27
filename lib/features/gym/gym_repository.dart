@@ -77,8 +77,8 @@ class GymRepository {
       if (scaleGuide != null && scaleGuide.isNotEmpty) 'scale_guide': scaleGuide,
       if (roundsData.isNotEmpty)
         'rounds_data': roundsData.map((r) => r.toJson()).toList(),
-      if (rounds != null) 'rounds': rounds,
-      if (timeCapSec != null) 'time_cap_sec': timeCapSec,
+      'rounds': ?rounds,
+      'time_cap_sec': ?timeCapSec,
     });
     return (data['wod_post_id'] as num).toInt();
   }
@@ -105,9 +105,9 @@ class GymRepository {
     String notes = '',
   }) async {
     final data = await api.post('/api/v1/gyms/$gymId/wods/$wodId/results', {
-      if (timeSec != null) 'time_sec': timeSec,
-      if (rounds != null) 'rounds': rounds,
-      if (extraReps != null) 'extra_reps': extraReps,
+      'time_sec': ?timeSec,
+      'rounds': ?rounds,
+      'extra_reps': ?extraReps,
       'scale_level': scaleLevel,
       'notes': notes,
     });
@@ -267,7 +267,7 @@ class GymRepository {
     final data = await api.post('/api/v1/gyms/$gymId/requests', {
       'subject': subject,
       'body': body,
-      if (wodPostId != null) 'wod_post_id': wodPostId,
+      'wod_post_id': ?wodPostId,
     });
     return (data['request_id'] as num).toInt();
   }
@@ -279,8 +279,8 @@ class GymRepository {
     String? status,
   }) async {
     await api.patch('/api/v1/gyms/$gymId/requests/$requestId', {
-      if (coachResponse != null) 'coach_response': coachResponse,
-      if (status != null) 'status': status,
+      'coach_response': ?coachResponse,
+      'status': ?status,
     });
   }
 }

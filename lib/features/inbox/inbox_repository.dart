@@ -97,9 +97,9 @@ class InboxRepository {
     String? injuryNotes,
   }) =>
       api.post('/api/v1/profile/info', {
-        if (displayName != null) 'display_name': displayName,
-        if (avatarColor != null) 'avatar_color': avatarColor,
-        if (injuryNotes != null) 'injury_notes': injuryNotes,
+        'display_name': ?displayName,
+        'avatar_color': ?avatarColor,
+        'injury_notes': ?injuryNotes,
       });
 
   // ---- Gym invite code ----
@@ -141,7 +141,7 @@ class InboxRepository {
       'name': name,
       'description': description,
       if (colorHex != null && colorHex.isNotEmpty) 'color_hex': colorHex,
-      if (capacity != null) 'capacity': capacity,
+      'capacity': ?capacity,
       if (weekdaySlot.isNotEmpty) 'weekday_slot': weekdaySlot,
       if (timeSlot != null && timeSlot.isNotEmpty) 'time_slot': timeSlot,
       if (notes != null && notes.isNotEmpty) 'notes': notes,

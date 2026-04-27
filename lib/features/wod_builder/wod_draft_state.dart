@@ -32,7 +32,7 @@ class WodItemDraft {
   String get summary {
     final parts = <String>[];
     if (distanceM != null) parts.add('${distanceM}m');
-    if (reps != null) parts.add('${reps}회');
+    if (reps != null) parts.add('$reps회');
     if (loadValue != null) parts.add('${loadValue!.toStringAsFixed(0)}$loadUnit');
     return parts.join(' · ');
   }

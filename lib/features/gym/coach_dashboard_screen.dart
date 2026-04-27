@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
-import '../../models/coach_feedback.dart';
 import '../../models/gym.dart';
 import '../messages/messages_screen.dart';
 import 'gym_repository.dart';
@@ -463,8 +462,7 @@ class _MemberDetailSheet extends StatelessWidget {
     }
     // WOD 선택 (today 1개면 스킵).
     GymWodPost? pickedWod = wods.length == 1 ? wods.first : null;
-    if (pickedWod == null) {
-      pickedWod = await showModalBottomSheet<GymWodPost>(
+    pickedWod ??= await showModalBottomSheet<GymWodPost>(
         context: context,
         backgroundColor: FacingTokens.surface,
         builder: (ctx) => SafeArea(
@@ -489,7 +487,6 @@ class _MemberDetailSheet extends StatelessWidget {
           ),
         ),
       );
-    }
     // QA B-AS-2: 이중 mounted 체크 데드코드 제거.
     if (pickedWod == null || !context.mounted) return;
 

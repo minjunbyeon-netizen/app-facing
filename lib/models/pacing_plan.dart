@@ -103,7 +103,7 @@ extension PacingPlanStrategy on PacingPlan {
         .map((s) => s.restBetweenSec)
         .fold<int>(0, (a, b) => a > b ? a : b);
     if (maxRest >= 15) {
-      lines.add('세트 간 ${maxRest}초 레스트. 페이스 유지.');
+      lines.add('세트 간 $maxRest초 레스트. 페이스 유지.');
     } else if (maxRest == 0) {
       lines.add('중간 레스트 없음.');
     }
