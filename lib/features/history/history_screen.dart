@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
+import '../../core/engine_decay.dart';
 import '../../core/exception.dart';
 import '../../core/scoring.dart';
 import '../../core/theme.dart';
@@ -138,6 +139,14 @@ class _EngineSparkline extends StatelessWidget {
         engineScoreTo100(latest.overallScore) -
             engineScoreTo100(first.overallScore);
 
+    // v1.20 Phase 2.5: EngineDecay 표시. 최신 측정 30일 초과 시 STALE + 감산 안내.
+    final daysSinceLast = DateTime.now()
+        .toUtc()
+        .difference(latest.scoredAt.toUtc())
+        .inDays;
+    final decayLabel = EngineDecay.statusLabel(daysSinceLast);
+    final decayCaption = EngineDecay.statusCaption(daysSinceLast);
+
     return Container(
       padding: const EdgeInsets.all(FacingTokens.sp4),
       decoration: BoxDecoration(
@@ -151,9 +160,38 @@ class _EngineSparkline extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text('ENGINE SCORE', style: FacingTokens.sectionLabel),
-              Text('${records.length} points', style: FacingTokens.micro),
+              Row(
+                children: [
+                  if (decayLabel != null) ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        border:
+                            Border.all(color: FacingTokens.warning, width: 1),
+                        borderRadius: BorderRadius.circular(FacingTokens.r1),
+                      ),
+                      child: Text(
+                        decayLabel,
+                        style: FacingTokens.micro.copyWith(
+                          color: FacingTokens.warning,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.0,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: FacingTokens.sp2),
+                  ],
+                  Text('${records.length} points',
+                      style: FacingTokens.micro),
+                ],
+              ),
             ],
           ),
+          if (decayCaption != null) ...[
+            const SizedBox(height: 2),
+            Text(decayCaption, style: FacingTokens.caption),
+          ],
           const SizedBox(height: FacingTokens.sp2),
           Row(
             crossAxisAlignment: CrossAxisAlignment.baseline,

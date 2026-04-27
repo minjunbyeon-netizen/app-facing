@@ -13,8 +13,11 @@ class AchievementState extends ChangeNotifier {
   final AchievementRepository repo;
   AchievementState(this.repo);
 
-  /// v1.16 데모: 실제 trigger 미구현 배지를 시각적으로 해금 상태로 노출.
-  /// streak_days · preset_count · preset_all 기반 배지는 Phase 2에서 실제 trigger 연동.
+  /// v1.16 데모: 실제 trigger 미구현 배지 3건을 시각적으로 해금 상태로 노출.
+  /// 백엔드 catalog 의 STREAK_10 / GIRLS_5_COMPLETE / HEROES_3 는 trigger 가
+  /// 아직 도입되지 않아 데모 해금으로 표시. 실제 unlock 흐름이 동작하는 칭호는
+  /// Panel B 20-title (lib/core/titles_catalog.dart) 로 분리됨.
+  /// 백엔드 trigger 도입 시 이 const 제거 + 백엔드 unlocked 응답에 위임.
   static const Set<String> demoUnlockedCodes = {
     'STREAK_10',
     'GIRLS_5_COMPLETE',
