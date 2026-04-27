@@ -36,15 +36,18 @@ class UnlockToast {
       if (!context.mounted) return;
       final u = unlocks[i];
       final color = _rarityColor(u.rarity);
-      // v1.17 Sprint 18 (Plan D): heavyImpact + confetti.
-      // Epic/Legendary 등급에만 confetti 발사 (Common/Rare 은 toast + heavy haptic).
-      Haptic.heavy();
-      if (u.rarity == 'Epic' || u.rarity == 'Legendary') {
-        // unawaited — toast 와 동시 진행.
+      // v1.19+ reference/gamification.md §6-3 (HWPO 톤, 조용한 만족감).
+      // Common/Rare = light haptic 1회 (조용)
+      // Epic/Legendary = light + heavy 80ms (강조) + confetti
+      final isEmphasize = u.rarity == 'Epic' || u.rarity == 'Legendary';
+      // unawaited — toast 와 동시 진행.
+      Haptic.achievementUnlock(emphasize: isEmphasize);
+      if (isEmphasize) {
         ConfettiOverlay.burst(context, rarity: u.rarity);
       }
       messenger.showSnackBar(SnackBar(
-        duration: const Duration(seconds: 3),
+        // v1.19+ duration 3s → 2s (reference §6-3: 짧게)
+        duration: const Duration(seconds: 2),
         backgroundColor: FacingTokens.surface,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
@@ -57,7 +60,8 @@ class UnlockToast {
             const SizedBox(width: FacingTokens.sp3),
             Expanded(
               child: Text(
-                '${u.name} Unlocked.',
+                // v1.19+ "Earned." 간결화. 영문 마침표 1개.
+                '${u.name} Earned.',
                 style: FacingTokens.body.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
