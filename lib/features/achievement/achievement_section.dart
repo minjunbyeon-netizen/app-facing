@@ -6,6 +6,7 @@ import '../../core/theme.dart';
 import '../../models/achievement.dart';
 import 'achievement_card.dart';
 import 'achievement_state.dart';
+import 'achievements_screen.dart';
 
 /// v1.16: Profile 탭 하단 ACHIEVEMENTS 섹션. 기본 collapsed.
 class AchievementSection extends StatefulWidget {
@@ -31,27 +32,49 @@ class _AchievementSectionState extends State<AchievementSection> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          InkWell(
-            onTap: () {
-              Haptic.light();
-              setState(() => _expanded = !_expanded);
-            },
-            child: Row(
-              children: [
-                const Expanded(
-                  child: Text('ACHIEVEMENTS',
-                      style: FacingTokens.sectionLabel),
+          Row(
+            children: [
+              Expanded(
+                child: InkWell(
+                  onTap: () {
+                    Haptic.light();
+                    setState(() => _expanded = !_expanded);
+                  },
+                  child: Row(
+                    children: [
+                      const Expanded(
+                        child: Text('ACHIEVEMENTS',
+                            style: FacingTokens.sectionLabel),
+                      ),
+                      Text('$unlocked / $total',
+                          style: FacingTokens.caption),
+                      const SizedBox(width: FacingTokens.sp2),
+                      Icon(
+                        _expanded ? Icons.expand_less : Icons.expand_more,
+                        size: 18,
+                        color: FacingTokens.muted,
+                      ),
+                    ],
+                  ),
                 ),
-                Text('$unlocked / $total unlocked',
-                    style: FacingTokens.caption),
-                const SizedBox(width: FacingTokens.sp2),
-                Icon(
-                  _expanded ? Icons.expand_less : Icons.expand_more,
-                  size: 18,
-                  color: FacingTokens.muted,
+              ),
+              const SizedBox(width: FacingTokens.sp2),
+              TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: FacingTokens.accent,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: FacingTokens.sp2,
+                  ),
                 ),
-              ],
-            ),
+                onPressed: () {
+                  Haptic.light();
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => const AchievementsScreen(),
+                  ));
+                },
+                child: const Text('View All'),
+              ),
+            ],
           ),
           if (_expanded) ...[
             const SizedBox(height: FacingTokens.sp3),

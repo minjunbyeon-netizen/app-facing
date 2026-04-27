@@ -151,6 +151,50 @@ class AchievementCard extends StatelessWidget {
         return '100일 연속 출석.';
       case 'TITLE_UNDEFEATED':
         return '한 주 모든 기록 갱신 (주 7회).';
+      // v1.17 Sprint 18: 시즌 한정.
+      case 'SEASON_SPRING':
+        return '봄(3-5월) Engine 70+ 측정.';
+      case 'SEASON_SUMMER':
+        return '여름(6-8월) Engine 70+ 측정.';
+      case 'SEASON_FALL':
+        return '가을(9-11월) Engine 70+ 측정.';
+      case 'SEASON_WINTER':
+        return '겨울(12-2월) WOD 20회.';
+      case 'SEASON_YEAREND':
+        return '12월 30일 연속 출석.';
+      // v1.17 이스터에그 (잠금 상태에선 hidden).
+      case 'EGG_WITCHING':
+        return '심야 측정 시 발현.';
+      case 'EGG_DOOMSDAY':
+        return '특정 날짜 측정 시 발현.';
+      case 'EGG_SUNDAY':
+        return '주간 패턴 발현.';
+      case 'EGG_PI':
+        return '특정 점수 도달 시 발현.';
+      case 'EGG_TRIPLE':
+        return '카테고리 패턴 발현.';
+      // v1.17 PR.
+      case 'PR_FIRST':
+        return '동일 WOD 시간 단축 1회.';
+      case 'PR_HUNTER':
+        return 'PR 10회 누적.';
+      case 'PR_LIFT_KING':
+        return 'Power/Olympic 카테고리 PR 5개.';
+      case 'PR_ENGINE':
+        return 'Cardio 카테고리 PR 5개.';
+      case 'PR_BODY_IRON':
+        return '1RM 체중의 2배 도달.';
+      // v1.17 Volume / Discipline.
+      case 'VOL_100_WODS':
+        return 'WOD 100회 누적.';
+      case 'VOL_200_WODS':
+        return 'WOD 200회 누적.';
+      case 'VOL_TRIPLE_STREAK':
+        return '3주 연속 주 4회 출석.';
+      case 'VOL_COMEBACK':
+        return '30일 휴식 후 복귀.';
+      case 'VOL_EQUAL':
+        return '6 카테고리 70+ 동시.';
       default:
         return '미공개 조건.';
     }
@@ -199,6 +243,50 @@ class AchievementCard extends StatelessWidget {
         return '끝을 모르는';
       case 'TITLE_UNDEFEATED':
         return '불패 일주일';
+      // v1.17 Sprint 18: 시즌 한정.
+      case 'SEASON_SPRING':
+        return '봄의 약진';
+      case 'SEASON_SUMMER':
+        return '여름의 엔진';
+      case 'SEASON_FALL':
+        return '가을의 단련';
+      case 'SEASON_WINTER':
+        return '겨울의 적재';
+      case 'SEASON_YEAREND':
+        return '연말의 전사';
+      // v1.17 이스터에그.
+      case 'EGG_WITCHING':
+        return '마녀의 시간';
+      case 'EGG_DOOMSDAY':
+        return '운명의 날';
+      case 'EGG_SUNDAY':
+        return '일요 리셋';
+      case 'EGG_PI':
+        return '강철의 원주율';
+      case 'EGG_TRIPLE':
+        return '삼중의 위협';
+      // v1.17 PR.
+      case 'PR_FIRST':
+        return '첫 PR';
+      case 'PR_HUNTER':
+        return 'PR 헌터';
+      case 'PR_LIFT_KING':
+        return '리프트 왕';
+      case 'PR_ENGINE':
+        return '카디오 상승';
+      case 'PR_BODY_IRON':
+        return '강철의 몸';
+      // v1.17 Volume.
+      case 'VOL_100_WODS':
+        return '백 단위';
+      case 'VOL_200_WODS':
+        return '이백 돌파';
+      case 'VOL_TRIPLE_STREAK':
+        return '삼중 위협 주';
+      case 'VOL_COMEBACK':
+        return '돌아온 자';
+      case 'VOL_EQUAL':
+        return '균등의 기둥';
       default:
         return '칭호';
     }

@@ -16,6 +16,7 @@ import '../../core/weak_insight.dart';
 import '../../core/worn_title_store.dart';
 import '../../models/achievement.dart';
 import '../achievement/achievement_card.dart';
+import '../achievement/achievement_section.dart';
 import '../achievement/achievement_state.dart';
 import '../../widgets/tier_badge.dart';
 import '../auth/auth_state.dart';
@@ -52,6 +53,8 @@ class MyPageScreen extends StatelessWidget {
             _CategoryTiers(),
             _SectionDivider(),
             _RecentRecords(),
+            _SectionDivider(),
+            AchievementSection(),
             _SectionDivider(),
             _MyBoxSection(),
             _SectionDivider(),

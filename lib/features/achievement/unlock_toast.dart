@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/achievement.dart';
+import 'confetti_overlay.dart';
 
 /// v1.16: unlock 순간 알림. 3초 자동 소멸, 이모지 없음.
 /// 여러 건이면 스택 (위에서 아래로 0.5초 간격).
@@ -34,6 +36,13 @@ class UnlockToast {
       if (!context.mounted) return;
       final u = unlocks[i];
       final color = _rarityColor(u.rarity);
+      // v1.17 Sprint 18 (Plan D): heavyImpact + confetti.
+      // Epic/Legendary 등급에만 confetti 발사 (Common/Rare 은 toast + heavy haptic).
+      Haptic.heavy();
+      if (u.rarity == 'Epic' || u.rarity == 'Legendary') {
+        // unawaited — toast 와 동시 진행.
+        ConfettiOverlay.burst(context, rarity: u.rarity);
+      }
       messenger.showSnackBar(SnackBar(
         duration: const Duration(seconds: 3),
         backgroundColor: FacingTokens.surface,
