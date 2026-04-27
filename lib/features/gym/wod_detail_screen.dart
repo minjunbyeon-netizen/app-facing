@@ -70,7 +70,9 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
     Haptic.medium();
     final subjectCtrl = TextEditingController();
     final bodyCtrl = TextEditingController();
-    await showModalBottomSheet<void>(
+    // QA B-GYM-2: 모달 닫힌 후 controller dispose 보장.
+    try {
+      await showModalBottomSheet<void>(
       context: context,
       backgroundColor: FacingTokens.surface,
       isScrollControlled: true,
@@ -144,6 +146,10 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
         ),
       ),
     );
+    } finally {
+      subjectCtrl.dispose();
+      bodyCtrl.dispose();
+    }
   }
 
   Future<void> _sendComment() async {

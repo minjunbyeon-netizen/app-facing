@@ -294,7 +294,7 @@ class _LevelCard extends StatelessWidget {
             _XpLine(label: 'Weekly Goals', value: bd.weeklyXp),
           const SizedBox(height: FacingTokens.sp2),
           Text(
-            '⚠️ XP는 현재 세션·Streak·Tier로 파생 계산. PR·주간목표 자동 연동은 Phase 2.',
+            '* XP는 현재 세션·Streak·Tier로 파생 계산. PR·주간목표 자동 연동은 Phase 2.',
             style: FacingTokens.micro.copyWith(color: FacingTokens.muted),
           ),
         ],

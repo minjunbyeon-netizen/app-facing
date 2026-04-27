@@ -19,8 +19,6 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  bool _ready = false;
-
   @override
   void initState() {
     super.initState();
@@ -33,16 +31,17 @@ class _SplashScreenState extends State<SplashScreen> {
 
     try {
       await DeviceIdService.get();
-    } catch (_) {}
+    } catch (_) {
+      // device_id 생성 실패해도 ApiClient 인터셉터가 재시도 가능. UI는 진행.
+    }
+    if (!mounted) return;
 
     try {
       await api.get('/health').timeout(const Duration(seconds: 2));
     } catch (_) {
       // health 실패해도 UI는 진행. 오프라인 배너가 알려줌.
     }
-
     if (!mounted) return;
-    setState(() => _ready = true);
 
     // 준비 후 1.2s 추가 대기하여 로고·카피 노출 보장 후 자동 전환.
     await Future.delayed(const Duration(milliseconds: 1200));

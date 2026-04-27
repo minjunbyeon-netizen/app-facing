@@ -56,11 +56,17 @@ class _InboxScreenState extends State<InboxScreen>
     final state = context.watch<InboxState>();
     final gs = context.watch<GymState>();
     final isCoach = gs.isOwner;
-    // 코치 토글 변동 시 컨트롤러 재생성 (앱 lifecycle 내 드물어 setState 한 번만).
+    // QA B-INB-1: build() 안 dispose+재생성 → assertion. PostFrameCallback 으로 다음 프레임에 setState.
     if (isCoach != _isCoach) {
-      _tabs.dispose();
-      _isCoach = isCoach;
-      _tabs = TabController(length: isCoach ? 4 : 3, vsync: this);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        if (gs.isOwner == _isCoach) return; // 이미 동기화됨
+        setState(() {
+          _tabs.dispose();
+          _isCoach = gs.isOwner;
+          _tabs = TabController(length: _isCoach ? 4 : 3, vsync: this);
+        });
+      });
     }
     final items = state.inbox.items;
 
@@ -364,7 +370,8 @@ class CoachDossierTile extends StatelessWidget {
     if (dueDate == null || dueDate.isEmpty) return null;
     final due = DateTime.tryParse('${dueDate}T00:00:00');
     if (due == null) return null;
-    final now = DateTime.now();
+    // QA B-TZ-1: due_date 는 백엔드 KST 기준 YYYY-MM-DD. 로컬 시간으로 비교.
+    final now = DateTime.now().toLocal();
     final today = DateTime(now.year, now.month, now.day);
     final diff = due.difference(today).inDays;
     // v1.19 페르소나 P2-22: OVERDUE 색을 accent → overdue (warning) 로 분리.
@@ -375,8 +382,9 @@ class CoachDossierTile extends StatelessWidget {
   }
 
   static String _agoLabel(DateTime created) {
-    final now = DateTime.now();
-    final d = now.difference(created);
+    // QA B-TZ-2: created 는 UTC. now 도 UTC 로 통일해 차이 계산.
+    final now = DateTime.now().toUtc();
+    final d = now.difference(created.isUtc ? created : created.toUtc());
     if (d.inMinutes < 1) return 'now';
     if (d.inMinutes < 60) return '${d.inMinutes}m';
     if (d.inHours < 24) return '${d.inHours}h';

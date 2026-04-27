@@ -74,7 +74,11 @@ class AchievementState extends ChangeNotifier {
       _error = e.messageKo;
       notifyListeners();
       return const [];
-    } catch (_) {
+    } catch (e) {
+      // QA B-EX-7: 일반 예외도 사용자에게 알림.
+      _error = '업적 확인 실패. 잠시 후 다시 시도.';
+      notifyListeners();
+      debugPrint('[AchievementState.check] $e');
       return const [];
     }
   }

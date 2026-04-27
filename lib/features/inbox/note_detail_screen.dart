@@ -421,7 +421,14 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                     padding: const EdgeInsets.all(FacingTokens.sp4),
                     child: Text(_error!, style: FacingTokens.body),
                   )
-                : _buildBody(_note!),
+                : _note != null
+                    // QA B-INB-5: _note null 시 강제 unwrap 크래시 방지.
+                    ? _buildBody(_note!)
+                    : const Padding(
+                        padding: EdgeInsets.all(FacingTokens.sp4),
+                        child: Text('Note unavailable.',
+                            style: FacingTokens.caption),
+                      ),
       ),
     );
   }

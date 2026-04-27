@@ -1201,7 +1201,7 @@ class _TierRoadmap extends StatelessWidget {
             ],
             const SizedBox(height: FacingTokens.sp2),
             Text(
-              '⚠️ 가상 · Tier 도달 추정. 실제 진도는 주간 세션·약점 집중에 따라 변동.',
+              '* 가상. Tier 도달 추정. 실제 진도는 주간 세션·약점 집중에 따라 변동.',
               style: FacingTokens.micro.copyWith(color: FacingTokens.muted),
             ),
           ],
@@ -1344,7 +1344,7 @@ class _RoleModelCardState extends State<_RoleModelCard> {
             ),
             const SizedBox(height: FacingTokens.sp2),
             Text(
-              '⚠️ 가상 · 공개 브랜드·HWPO·CompTrain 기반 큐레이션.',
+              '* 가상. 공개 브랜드·HWPO·CompTrain 기반 큐레이션.',
               style: FacingTokens.micro.copyWith(color: FacingTokens.muted),
             ),
           ],

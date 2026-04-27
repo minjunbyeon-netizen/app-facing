@@ -23,7 +23,8 @@ class GymState extends ChangeNotifier {
   bool get hasGym => _membership.hasGym;
 
   String get todayIso {
-    final now = DateTime.now();
+    // QA B-TZ-3: 박스 WOD 날짜 기준은 KST. UTC 사용 시 자정 전후 9시간 오차.
+    final now = DateTime.now().toLocal();
     return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
   }
 

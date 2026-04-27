@@ -12,7 +12,9 @@ class InboxRepository {
 
   Future<InboxResult> listInbox(int gymId) async {
     final data = await api.get('/api/v1/gym/$gymId/inbox');
-    final raw = (data['items'] as List? ?? const [])
+    // QA B-INB-4: items 가 List 가 아닌 응답이면 silent 무시 대신 빈 결과 (서버 형 변경 알림은 unread_count 0 으로).
+    final itemsRaw = data['items'];
+    final raw = (itemsRaw is List ? itemsRaw : const [])
         .whereType<Map<String, dynamic>>()
         .map(CoachNote.fromJson)
         .toList();
@@ -22,7 +24,8 @@ class InboxRepository {
 
   Future<List<OutboxNote>> listOutbox(int gymId) async {
     final data = await api.get('/api/v1/gym/$gymId/outbox');
-    final raw = (data['items'] as List? ?? const []);
+    final itemsRaw = data['items'];
+    final raw = (itemsRaw is List ? itemsRaw : const []);
     return raw
         .whereType<Map<String, dynamic>>()
         .map((j) => OutboxNote(

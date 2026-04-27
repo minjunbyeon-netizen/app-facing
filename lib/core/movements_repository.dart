@@ -18,15 +18,9 @@ class MovementsRepository {
     return _presetsCache!;
   }
 
-  Future<List<MovementCategory>> fetchCategories({bool force = false}) async {
-    if (_cache != null && !force) return _cache!;
-    final data = await _api.get('/api/v1/movements/categories');
-    // API returns {data: [...]} and _unwrap gives back a Map,
-    // but this endpoint returns a List inside data. _unwrap returns Map<>.
-    // Adapt: the pacing endpoint returns Map; movements returns List.
-    // We need a list variant.
-    throw StateError('Use fetchCategoriesList()');
-  }
+  // QA B-COR-8: 사문화된 throw 제거. fetchCategoriesList 로 위임.
+  Future<List<MovementCategory>> fetchCategories({bool force = false}) =>
+      fetchCategoriesList(force: force);
 
   Future<List<MovementCategory>> fetchCategoriesList({bool force = false}) async {
     if (_cache != null && !force) return _cache!;

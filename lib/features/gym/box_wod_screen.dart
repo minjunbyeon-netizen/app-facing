@@ -170,6 +170,7 @@ class _NoGymEmpty extends StatelessWidget {
 void _showCreateGymSheet(BuildContext context) {
   final nameCtrl = TextEditingController();
   final locCtrl = TextEditingController();
+  // QA B-GYM-1: 모달 닫힌 후 controller dispose 보장.
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -230,7 +231,10 @@ void _showCreateGymSheet(BuildContext context) {
         ),
       );
     },
-  );
+  ).whenComplete(() {
+    nameCtrl.dispose();
+    locCtrl.dispose();
+  });
 }
 
 class _PendingState extends StatelessWidget {

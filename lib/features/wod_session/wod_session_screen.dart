@@ -89,18 +89,17 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
     setState(() => _running = true);
     _tick = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) return;
+      // QA B-COR-4: setState 안에서 _autoStop() 호출 시 setState 중첩.
+      // tick 처리는 setState로, 종료 트리거는 별도 호출.
       setState(() {
         _elapsedSec++;
         if (_mode == _TimerMode.emom && _elapsedSec % 60 == 0) {
           Haptic.light();
         }
-        if (_mode != _TimerMode.forTime && _capSec > 0 && _elapsedSec >= _capSec) {
-          _autoStop();
-        }
-        if (_mode == _TimerMode.forTime && _capSec > 0 && _elapsedSec >= _capSec) {
-          _autoStop();
-        }
       });
+      if (_capSec > 0 && _elapsedSec >= _capSec) {
+        _autoStop();
+      }
     });
   }
 
@@ -160,7 +159,9 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
     final timeCtrl = TextEditingController(text: _formatMMSS(_elapsedSec));
     final roundsCtrl = TextEditingController();
     final repsCtrl = TextEditingController();
-    await showModalBottomSheet<void>(
+    // QA B-COR-2: 모달 닫힌 후 controller dispose 보장.
+    try {
+      await showModalBottomSheet<void>(
       context: context,
       backgroundColor: FacingTokens.surface,
       isScrollControlled: true,
@@ -292,6 +293,11 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
         });
       },
     );
+    } finally {
+      timeCtrl.dispose();
+      roundsCtrl.dispose();
+      repsCtrl.dispose();
+    }
   }
 
   int _parseTimeToSec(String s) {
@@ -310,9 +316,11 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
     int? rounds,
     int? extraReps,
   }) async {
+    // QA B-COR-3: 시작 시점 mounted 확인. 모달 콜백 호출 타이밍에 dispose 가능.
+    if (!mounted) return false;
+    final api = context.read<ApiClient>();
     setState(() => _saving = true);
     try {
-      final api = context.read<ApiClient>();
       final repo = HistoryRepository(api);
       final totalSec = _mode == _TimerMode.forTime
           ? _parseTimeToSec(timeStr)

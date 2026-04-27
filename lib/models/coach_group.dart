@@ -63,7 +63,10 @@ class CoachGroup {
       name: (j['name'] ?? '').toString(),
       description: (j['description'] ?? '').toString(),
       memberCount: ((j['member_count'] ?? 0) as num).toInt(),
-      createdAt: DateTime.parse(j['created_at'] as String),
+      createdAt: j['created_at'] is String
+          ? DateTime.tryParse(j['created_at'] as String) ??
+              DateTime.now().toUtc()
+          : DateTime.now().toUtc(),
       colorHex: j['color_hex']?.toString(),
       capacity: j['capacity'] is num ? (j['capacity'] as num).toInt() : null,
       weekdaySlot: wdays,

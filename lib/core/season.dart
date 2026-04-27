@@ -30,7 +30,8 @@ class SeasonInfo {
 /// ⚠️ 가상 일정 — 실제 CrossFit 공식 일정과 무관.
 /// 매년 2월 말~3월 초 Open / 4월 Quarterfinals / 5-6월 Semifinals / 7-8월 Games 패턴.
 SeasonInfo currentSeason([DateTime? now]) {
-  final n = now ?? DateTime.now();
+  // QA B-TZ-5: 시즌 경계 판단은 사용자 로컬 시간 기준.
+  final n = now ?? DateTime.now().toLocal();
   final month = n.month;
   final day = n.day;
 

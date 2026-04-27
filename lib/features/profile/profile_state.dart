@@ -68,14 +68,20 @@ class ProfileState extends ChangeNotifier {
       try {
         final m = jsonDecode(bRaw) as Map<String, dynamic>;
         m.forEach((k, v) => _benchmarks[k] = (v as num).toDouble());
-      } catch (_) {}
+      } catch (e) {
+        // QA B-EX-3: 손상된 SharedPreferences 데이터. 디버깅용 로그.
+        debugPrint('[ProfileState] load parse error: $e');
+      }
     }
 
     final gRaw = prefs.getString(_kGrade);
     if (gRaw != null && gRaw.isNotEmpty) {
       try {
         _gradeResult = jsonDecode(gRaw) as Map<String, dynamic>;
-      } catch (_) {}
+      } catch (e) {
+        // QA B-EX-3: 손상된 SharedPreferences 데이터. 디버깅용 로그.
+        debugPrint('[ProfileState] load parse error: $e');
+      }
     }
 
     _maxRecords.clear();
@@ -89,7 +95,10 @@ class ProfileState extends ChangeNotifier {
             (k, val) => MapEntry(k, (val as num).toDouble()),
           );
         });
-      } catch (_) {}
+      } catch (e) {
+        // QA B-EX-3: 손상된 SharedPreferences 데이터. 디버깅용 로그.
+        debugPrint('[ProfileState] load parse error: $e');
+      }
     }
 
     _loaded = true;

@@ -416,7 +416,7 @@ class _AttendanceBody extends StatelessWidget {
           target: 7,
         ),
         const SizedBox(height: FacingTokens.sp1),
-        Text('⚠️ 챌린지는 가상 데이터 · 실제 집계 연결은 Phase 2',
+        Text('* 챌린지는 가상 데이터. 실제 집계 연결은 Phase 2.',
             style: FacingTokens.micro),
       ],
     );

@@ -144,7 +144,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                 ),
                 const SizedBox(height: FacingTokens.sp4),
                 const Text(
-                  '⚠️ 가상 · 목표·진행률 데이터는 로컬 저장. 서버 sync는 Phase 2.',
+                  '* 가상. 목표·진행률 데이터는 로컬 저장. 서버 sync는 Phase 2.',
                   style: FacingTokens.caption,
                   textAlign: TextAlign.center,
                 ),

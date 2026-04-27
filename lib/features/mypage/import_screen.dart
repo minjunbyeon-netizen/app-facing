@@ -87,7 +87,7 @@ class ImportScreen extends StatelessWidget {
             const SizedBox(height: FacingTokens.sp5),
 
             Text(
-              '⚠️ 현재 Beta Preview — 위 외부 서비스 연동 없음.\n'
+              '* 현재 Beta Preview. 위 외부 서비스 연동 없음.\n'
               '모든 데이터는 수동 입력 or 데모 계정 프리로드.',
               style: FacingTokens.caption,
             ),

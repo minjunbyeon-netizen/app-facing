@@ -97,7 +97,10 @@ class CoachNote {
       dueEnd: j['due_end']?.toString(),
       voiceMemoPath: j['voice_memo_path']?.toString(),
       autoKind: j['auto_kind']?.toString(),
-      createdAt: DateTime.parse(j['created_at'] as String),
+      createdAt: j['created_at'] is String
+          ? DateTime.tryParse(j['created_at'] as String) ??
+              DateTime.now().toUtc()
+          : DateTime.now().toUtc(),
       my: j['my'] is Map
           ? RecipientStatus.fromJson(Map<String, dynamic>.from(j['my'] as Map))
           : null,

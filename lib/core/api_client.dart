@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 import 'device_id.dart';
 import 'exception.dart';
@@ -18,12 +19,18 @@ class ApiClient {
     if (_retryQueue.isEmpty) return;
     final pending = List<Future<void> Function()>.from(_retryQueue);
     _retryQueue.clear();
+    var failed = 0;
     for (final task in pending) {
       try {
         await task();
-      } catch (_) {
-        // 실패해도 나머지 계속. 영구 실패는 호출부 책임.
+      } catch (e) {
+        // QA B-EX-4: 실패해도 나머지 계속. 디버깅용 카운트·로그 유지.
+        failed++;
+        debugPrint('[ApiClient.flushRetryQueue] task failed: $e');
       }
+    }
+    if (failed > 0) {
+      debugPrint('[ApiClient.flushRetryQueue] $failed/${pending.length} failed');
     }
   }
 

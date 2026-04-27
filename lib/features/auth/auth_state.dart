@@ -35,7 +35,7 @@ class AuthState extends ChangeNotifier {
     _signedIn = true;
     _provider = provider;
     _displayName = displayName ?? _defaultName(provider);
-    _signedAt = DateTime.now();
+    _signedAt = DateTime.now().toUtc(); // QA B-TZ-4: UTC 저장.
     await prefs.setBool(_kSignedIn, true);
     await prefs.setString(_kProvider, provider);
     await prefs.setString(_kDisplayName, _displayName!);

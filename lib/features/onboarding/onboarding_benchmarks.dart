@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
+import '../../core/exception.dart';
 import '../../core/glossary.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
@@ -170,6 +171,8 @@ class _OnboardingBenchmarksScreenState
     super.initState();
     final p = context.read<ProfileState>();
     final unit = context.read<UnitState>();
+    // QA B-COR-6: dispose 시 context.read 위험 → initState에서 참조 보관.
+    _unitState = unit;
     _lastIsKg = unit.isKg;
     _ctrls = {
       for (final k in _allFields)
@@ -180,6 +183,8 @@ class _OnboardingBenchmarksScreenState
     // v1.15 P1-5: kg↔lb 토글 시 이미 입력된 weight 값을 즉시 재변환.
     unit.addListener(_onUnitChanged);
   }
+
+  late final UnitState _unitState;
 
   void _onUnitChanged() {
     if (!mounted) return;
@@ -281,12 +286,26 @@ class _OnboardingBenchmarksScreenState
         Haptic.heavy(); // Tier 확정 결과 진입 — 결과 공개 피드백
         Navigator.of(context).pushReplacementNamed('/onboarding/grade');
       }
-    } catch (_) {
+    } on AppException catch (e) {
+      // QA B-EX-6: AppException은 messageKo 노출.
+      await minShow;
+      if (mounted && !_cancelled) {
+        _hideLoadingOverlay();
+        setState(() => _error = e.messageKo);
+      }
+    } on TimeoutException {
+      await minShow;
+      if (mounted && !_cancelled) {
+        _hideLoadingOverlay();
+        setState(() => _error = '연결 시간 초과. 다시 시도.');
+      }
+    } catch (e) {
       await minShow;
       if (mounted && !_cancelled) {
         _hideLoadingOverlay();
         setState(() => _error = 'Calc failed. Retry.');
       }
+      debugPrint('[Benchmarks._compute] $e');
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
@@ -352,6 +371,8 @@ class _OnboardingBenchmarksScreenState
   void _hideLoadingOverlay() {
     if (!_overlayShown) return;
     _overlayShown = false;
+    // QA B-COR-5: dispose 후 호출 시 Navigator.of(context) 크래시.
+    if (!mounted) return;
     Navigator.of(context, rootNavigator: true).pop();
   }
 
@@ -530,10 +551,8 @@ class _OnboardingBenchmarksScreenState
 
   @override
   void dispose() {
-    // v1.15 P1-5: unit 리스너 제거.
-    try {
-      context.read<UnitState>().removeListener(_onUnitChanged);
-    } catch (_) {/* context already dead */}
+    // v1.15 P1-5: unit 리스너 제거. QA B-COR-6: 보관된 참조 사용.
+    _unitState.removeListener(_onUnitChanged);
     _pc.dispose();
     for (final c in _ctrls.values) {
       c.dispose();

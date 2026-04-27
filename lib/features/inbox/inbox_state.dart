@@ -63,69 +63,55 @@ class InboxState extends ChangeNotifier {
     } on AppException catch (e) {
       _error = e.messageKo;
       notifyListeners();
+    } catch (e) {
+      // QA B-EX-1: 일반 예외도 사용자 알림.
+      _error = '아웃박스 로딩 실패';
+      notifyListeners();
+      debugPrint('[InboxState.refreshOutbox] $e');
     }
   }
 
-  Future<bool> markRead(int noteId) async {
+  // QA B-EX-2: 5개 액션 메서드 일반 catch 추가.
+  Future<bool> _runAction(
+    String label,
+    Future<void> Function() action,
+    int noteId,
+    String newStatus,
+  ) async {
     try {
-      await repo.markRead(noteId);
-      _localStatusUpdate(noteId, 'read');
+      await action();
+      _localStatusUpdate(noteId, newStatus);
       return true;
     } on AppException catch (e) {
       _error = e.messageKo;
       notifyListeners();
       return false;
-    }
-  }
-
-  Future<bool> accept(int noteId) async {
-    try {
-      await repo.accept(noteId);
-      _localStatusUpdate(noteId, 'accepted');
-      return true;
-    } on AppException catch (e) {
-      _error = e.messageKo;
+    } catch (e) {
+      _error = '$label 실패. 다시 시도.';
       notifyListeners();
+      debugPrint('[InboxState.$label] $e');
       return false;
     }
   }
 
-  Future<bool> complete(int noteId, {List<ActualSet> actual = const []}) async {
-    try {
-      await repo.complete(noteId, actual: actual);
-      _localStatusUpdate(noteId, 'completed');
-      return true;
-    } on AppException catch (e) {
-      _error = e.messageKo;
-      notifyListeners();
-      return false;
-    }
-  }
+  Future<bool> markRead(int noteId) =>
+      _runAction('읽음 처리', () => repo.markRead(noteId), noteId, 'read');
 
-  Future<bool> decline(int noteId, {String? reason}) async {
-    try {
-      await repo.decline(noteId, reason: reason);
-      _localStatusUpdate(noteId, 'declined');
-      return true;
-    } on AppException catch (e) {
-      _error = e.messageKo;
-      notifyListeners();
-      return false;
-    }
-  }
+  Future<bool> accept(int noteId) =>
+      _runAction('수락', () => repo.accept(noteId), noteId, 'accepted');
+
+  Future<bool> complete(int noteId, {List<ActualSet> actual = const []}) =>
+      _runAction('완료 기록',
+          () => repo.complete(noteId, actual: actual), noteId, 'completed');
+
+  Future<bool> decline(int noteId, {String? reason}) =>
+      _runAction('거절',
+          () => repo.decline(noteId, reason: reason), noteId, 'declined');
 
   /// v1.19 페르소나 P1-15 (M2 신입 정): Ask Coach.
-  Future<bool> askCoach(int noteId, String body) async {
-    try {
-      await repo.askCoach(noteId, body);
-      _localStatusUpdate(noteId, 'asked');
-      return true;
-    } on AppException catch (e) {
-      _error = e.messageKo;
-      notifyListeners();
-      return false;
-    }
-  }
+  Future<bool> askCoach(int noteId, String body) =>
+      _runAction('질문 전송',
+          () => repo.askCoach(noteId, body), noteId, 'asked');
 
   /// 낙관적 갱신: 서버 200 후 _inbox 내 해당 note의 my.status 교체.
   void _localStatusUpdate(int noteId, String newStatus) {
@@ -170,7 +156,10 @@ class InboxState extends ChangeNotifier {
       } else {
         updated.add(n);
       }
-      if (updated.last.my?.status == 'sent') unread++;
+    }
+    // QA B-LG-1 / B-ST-2: 매 루프 마지막만 검사 → 전체 스캔으로 교정.
+    for (final n in updated) {
+      if (n.my != null && n.my!.status == 'sent') unread++;
     }
     _inbox = InboxResult(items: updated, unreadCount: unread);
     notifyListeners();

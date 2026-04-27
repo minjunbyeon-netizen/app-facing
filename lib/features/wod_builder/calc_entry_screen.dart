@@ -52,7 +52,7 @@ class CalcEntryScreen extends StatelessWidget {
                               )),
                           const Spacer(),
                           Text(
-                            '⚠️ 가상 일정',
+                            '* 가상 일정',
                             style: FacingTokens.micro.copyWith(
                               color: FacingTokens.muted,
                               letterSpacing: 0.4,
