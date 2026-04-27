@@ -1574,11 +1574,19 @@ class _InboxEntry extends StatelessWidget {
               ),
               if (unread > 0)
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
+                  // v1.19 페르소나 P1-16 (M3 윤): dot 8 → 12 + textScale 동기.
+                  // textScaleFactor 적용으로 폰트 확대 시 dot 도 같이 커짐.
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 7 *
+                        MediaQuery.of(context).textScaler.scale(1.0),
                     vertical: 2,
                   ),
-                  constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                  constraints: BoxConstraints(
+                    minWidth:
+                        20 * MediaQuery.of(context).textScaler.scale(1.0),
+                    minHeight:
+                        20 * MediaQuery.of(context).textScaler.scale(1.0),
+                  ),
                   decoration: const BoxDecoration(
                     color: FacingTokens.accent,
                     shape: BoxShape.circle,
@@ -1588,7 +1596,7 @@ class _InboxEntry extends StatelessWidget {
                     unread > 9 ? '9+' : '$unread',
                     style: const TextStyle(
                       fontFamily: FacingTokens.fontFamily,
-                      fontSize: 11,
+                      fontSize: 12,
                       fontWeight: FontWeight.w800,
                       color: FacingTokens.fg,
                       height: 1.0,

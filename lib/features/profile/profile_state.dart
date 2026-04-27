@@ -12,12 +12,19 @@ class ProfileState extends ChangeNotifier {
   static const _kBenchmarks = 'profile_benchmarks_json';
   static const _kGrade = 'profile_grade_json';
   static const _kMaxes = 'profile_max_records_json';
+  // v1.19 페르소나 P0-2 / P1-17: 닉네임·아바타·의료 프로필.
+  static const _kDisplayName = 'profile_display_name';
+  static const _kAvatarColor = 'profile_avatar_color';
+  static const _kInjuryNotes = 'profile_injury_notes';
 
   double? _bodyWeightKg;
   double? _heightCm;
   double? _ageYears;
   String _gender = 'male';
   double _experienceYears = 0;
+  String? _displayName;
+  String? _avatarColor;
+  String? _injuryNotes;
 
   final Map<String, double> _benchmarks = {};
   Map<String, dynamic>? _gradeResult;
@@ -34,6 +41,9 @@ class ProfileState extends ChangeNotifier {
   Map<String, dynamic>? get gradeResult => _gradeResult;
   Map<String, Map<String, double>> get maxRecords => _maxRecords;
   bool get isLoaded => _loaded;
+  String? get displayName => _displayName;
+  String? get avatarColor => _avatarColor;
+  String? get injuryNotes => _injuryNotes;
 
   bool get hasGrade => _gradeResult != null &&
       _gradeResult!['overall'] != null;
@@ -48,6 +58,9 @@ class ProfileState extends ChangeNotifier {
     _ageYears = prefs.getDouble(_kAge);
     _gender = prefs.getString(_kGender) ?? 'male';
     _experienceYears = prefs.getDouble(_kExp) ?? 0;
+    _displayName = prefs.getString(_kDisplayName);
+    _avatarColor = prefs.getString(_kAvatarColor);
+    _injuryNotes = prefs.getString(_kInjuryNotes);
 
     _benchmarks.clear();
     final bRaw = prefs.getString(_kBenchmarks);
@@ -102,6 +115,21 @@ class ProfileState extends ChangeNotifier {
     }
     await prefs.setString(_kGender, _gender);
     await prefs.setDouble(_kExp, _experienceYears);
+    if (_displayName != null) {
+      await prefs.setString(_kDisplayName, _displayName!);
+    } else {
+      await prefs.remove(_kDisplayName);
+    }
+    if (_avatarColor != null) {
+      await prefs.setString(_kAvatarColor, _avatarColor!);
+    } else {
+      await prefs.remove(_kAvatarColor);
+    }
+    if (_injuryNotes != null) {
+      await prefs.setString(_kInjuryNotes, _injuryNotes!);
+    } else {
+      await prefs.remove(_kInjuryNotes);
+    }
     await prefs.setString(_kBenchmarks, jsonEncode(_benchmarks));
     if (_gradeResult != null) {
       await prefs.setString(_kGrade, jsonEncode(_gradeResult));
@@ -124,6 +152,25 @@ class ProfileState extends ChangeNotifier {
     if (ageYears != null) _ageYears = ageYears;
     if (gender != null) _gender = gender;
     if (experienceYears != null) _experienceYears = experienceYears;
+    _save();
+    notifyListeners();
+  }
+
+  /// v1.19 페르소나 P0-2 / P1-17: 닉네임·아바타·부상 메모 setter.
+  void setIdentity({
+    String? displayName,
+    String? avatarColor,
+    String? injuryNotes,
+  }) {
+    if (displayName != null) {
+      _displayName = displayName.trim().isEmpty ? null : displayName.trim();
+    }
+    if (avatarColor != null) {
+      _avatarColor = avatarColor.trim().isEmpty ? null : avatarColor.trim();
+    }
+    if (injuryNotes != null) {
+      _injuryNotes = injuryNotes.trim().isEmpty ? null : injuryNotes.trim();
+    }
     _save();
     notifyListeners();
   }

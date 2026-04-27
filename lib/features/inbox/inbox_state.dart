@@ -90,9 +90,9 @@ class InboxState extends ChangeNotifier {
     }
   }
 
-  Future<bool> complete(int noteId) async {
+  Future<bool> complete(int noteId, {List<ActualSet> actual = const []}) async {
     try {
-      await repo.complete(noteId);
+      await repo.complete(noteId, actual: actual);
       _localStatusUpdate(noteId, 'completed');
       return true;
     } on AppException catch (e) {
@@ -102,10 +102,23 @@ class InboxState extends ChangeNotifier {
     }
   }
 
-  Future<bool> decline(int noteId) async {
+  Future<bool> decline(int noteId, {String? reason}) async {
     try {
-      await repo.decline(noteId);
+      await repo.decline(noteId, reason: reason);
       _localStatusUpdate(noteId, 'declined');
+      return true;
+    } on AppException catch (e) {
+      _error = e.messageKo;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// v1.19 페르소나 P1-15 (M2 신입 정): Ask Coach.
+  Future<bool> askCoach(int noteId, String body) async {
+    try {
+      await repo.askCoach(noteId, body);
+      _localStatusUpdate(noteId, 'asked');
       return true;
     } on AppException catch (e) {
       _error = e.messageKo;
@@ -125,13 +138,20 @@ class InboxState extends ChangeNotifier {
           gymId: n.gymId,
           senderHash: n.senderHash,
           senderShort: n.senderShort,
+          senderName: n.senderName,
+          senderColor: n.senderColor,
           targetType: n.targetType,
           targetId: n.targetId,
           kind: n.kind,
           title: n.title,
           body: n.body,
+          rationale: n.rationale,
           structured: n.structured,
           dueDate: n.dueDate,
+          dueStart: n.dueStart,
+          dueEnd: n.dueEnd,
+          voiceMemoPath: n.voiceMemoPath,
+          autoKind: n.autoKind,
           createdAt: n.createdAt,
           my: RecipientStatus(
             status: newStatus,
@@ -142,6 +162,8 @@ class InboxState extends ChangeNotifier {
             completedAt: newStatus == 'completed'
                 ? DateTime.now()
                 : n.my!.completedAt,
+            declineReason: n.my!.declineReason,
+            actual: n.my!.actual,
           ),
           recipients: n.recipients,
         ));

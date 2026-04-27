@@ -28,7 +28,12 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
   String _kind = 'note';
   final _titleCtrl = TextEditingController();
   final _bodyCtrl = TextEditingController();
+  // v1.19 페르소나 P0-4 (M1 송): WHY rationale 입력.
+  final _rationaleCtrl = TextEditingController();
   final _dueCtrl = TextEditingController(); // YYYY-MM-DD
+  // v1.19 페르소나 P2-26 (M6 이): 윈도우형 due (선택).
+  final _dueStartCtrl = TextEditingController();
+  final _dueEndCtrl = TextEditingController();
 
   final List<AssignmentItem> _items = [];
   bool _sending = false;
@@ -48,17 +53,25 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
     _individualHashCtrl.dispose();
     _titleCtrl.dispose();
     _bodyCtrl.dispose();
+    _rationaleCtrl.dispose();
     _dueCtrl.dispose();
+    _dueStartCtrl.dispose();
+    _dueEndCtrl.dispose();
     super.dispose();
   }
 
   Future<void> _addItem() async {
     Haptic.light();
     final movementCtrl = TextEditingController();
+    final altCtrl = TextEditingController();
     final setsCtrl = TextEditingController();
     final repsCtrl = TextEditingController();
     final loadCtrl = TextEditingController();
+    final restCtrl = TextEditingController();
+    final tempoCtrl = TextEditingController();
+    final timecapCtrl = TextEditingController();
     final noteCtrl = TextEditingController();
+    String unit = 'pct_1rm';
     final ok = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
@@ -68,66 +81,136 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
           top: Radius.circular(FacingTokens.r4),
         ),
       ),
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.only(
-          left: FacingTokens.sp4,
-          right: FacingTokens.sp4,
-          top: FacingTokens.sp4,
-          bottom: MediaQuery.of(ctx).viewInsets.bottom + FacingTokens.sp4,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text('ADD MOVEMENT', style: FacingTokens.sectionLabel),
-            const SizedBox(height: FacingTokens.sp2),
-            TextField(
-              controller: movementCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Movement (slug)',
-                hintText: 'back-squat / clean / run',
-              ),
-            ),
-            const SizedBox(height: FacingTokens.sp2),
-            Row(children: [
-              Expanded(
-                child: TextField(
-                  controller: setsCtrl,
-                  decoration: const InputDecoration(labelText: 'Sets'),
-                  keyboardType: TextInputType.number,
+      builder: (ctx) => StatefulBuilder(builder: (innerCtx, setSheet) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: FacingTokens.sp4,
+            right: FacingTokens.sp4,
+            top: FacingTokens.sp4,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + FacingTokens.sp4,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text('ADD MOVEMENT', style: FacingTokens.sectionLabel),
+                const SizedBox(height: FacingTokens.sp2),
+                TextField(
+                  controller: movementCtrl,
+                  decoration: const InputDecoration(
+                    labelText: 'Movement (slug)',
+                    hintText: 'back-squat / clean / run',
+                  ),
                 ),
-              ),
-              const SizedBox(width: FacingTokens.sp2),
-              Expanded(
-                child: TextField(
-                  controller: repsCtrl,
-                  decoration: const InputDecoration(labelText: 'Reps'),
-                  keyboardType: TextInputType.number,
+                const SizedBox(height: FacingTokens.sp2),
+                // v1.19 페르소나 P1-17: Substitute 옵션.
+                TextField(
+                  controller: altCtrl,
+                  decoration: const InputDecoration(
+                    labelText: 'Substitute (선택, 부상자용)',
+                    hintText: '예: dumbbell-thruster',
+                  ),
                 ),
-              ),
-              const SizedBox(width: FacingTokens.sp2),
-              Expanded(
-                child: TextField(
+                const SizedBox(height: FacingTokens.sp2),
+                Row(children: [
+                  Expanded(
+                    child: TextField(
+                      controller: setsCtrl,
+                      decoration: const InputDecoration(labelText: 'Sets'),
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
+                  const SizedBox(width: FacingTokens.sp2),
+                  Expanded(
+                    child: TextField(
+                      controller: repsCtrl,
+                      decoration: const InputDecoration(labelText: 'Reps'),
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
+                ]),
+                const SizedBox(height: FacingTokens.sp3),
+                // v1.19 페르소나 P0-3: Load 단위 picker.
+                Text('LOAD UNIT', style: FacingTokens.sectionLabel),
+                const SizedBox(height: FacingTokens.sp1),
+                Wrap(
+                  spacing: FacingTokens.sp1,
+                  runSpacing: FacingTokens.sp1,
+                  children: [
+                    for (final u in const [
+                      ('pct_1rm', '%1RM'),
+                      ('rpe', 'RPE'),
+                      ('kg', 'kg'),
+                      ('lb', 'lb'),
+                      ('sec_per_500m', 'sec/500m'),
+                      ('feel', 'feel'),
+                    ])
+                      ChoiceChip(
+                        label: Text(u.$2),
+                        selected: unit == u.$1,
+                        backgroundColor: FacingTokens.surface,
+                        selectedColor: FacingTokens.accent,
+                        onSelected: (_) => setSheet(() => unit = u.$1),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: FacingTokens.sp2),
+                TextField(
                   controller: loadCtrl,
-                  decoration: const InputDecoration(labelText: 'Load %'),
-                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: _loadHint(unit),
+                    hintText: _loadHint(unit),
+                  ),
+                  keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true),
                 ),
-              ),
-            ]),
-            const SizedBox(height: FacingTokens.sp2),
-            TextField(
-              controller: noteCtrl,
-              decoration: const InputDecoration(labelText: 'Note (선택)'),
-              maxLength: 100,
+                const SizedBox(height: FacingTokens.sp2),
+                Row(children: [
+                  Expanded(
+                    child: TextField(
+                      controller: restCtrl,
+                      decoration:
+                          const InputDecoration(labelText: 'Rest (s)'),
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
+                  const SizedBox(width: FacingTokens.sp2),
+                  Expanded(
+                    child: TextField(
+                      controller: tempoCtrl,
+                      decoration: const InputDecoration(
+                        labelText: 'Tempo',
+                        hintText: '3-1-1-0',
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: FacingTokens.sp2),
+                  Expanded(
+                    child: TextField(
+                      controller: timecapCtrl,
+                      decoration:
+                          const InputDecoration(labelText: 'Time cap (s)'),
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
+                ]),
+                const SizedBox(height: FacingTokens.sp2),
+                TextField(
+                  controller: noteCtrl,
+                  decoration: const InputDecoration(labelText: 'Note (선택)'),
+                  maxLength: 100,
+                ),
+                const SizedBox(height: FacingTokens.sp3),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(ctx).pop(true),
+                  child: const Text('Add'),
+                ),
+              ],
             ),
-            const SizedBox(height: FacingTokens.sp3),
-            ElevatedButton(
-              onPressed: () => Navigator.of(ctx).pop(true),
-              child: const Text('Add'),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      }),
     );
     if (ok != true) return;
     final slug = movementCtrl.text.trim();
@@ -135,16 +218,46 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
     setState(() {
       _items.add(AssignmentItem(
         movementSlug: slug,
+        alternateMovement: altCtrl.text.trim().isEmpty
+            ? null
+            : altCtrl.text.trim(),
         sets: int.tryParse(setsCtrl.text.trim()),
         reps: int.tryParse(repsCtrl.text.trim()),
-        loadPct: () {
+        loadValue: () {
           final raw = double.tryParse(loadCtrl.text.trim());
           if (raw == null) return null;
-          return raw > 1.5 ? raw / 100 : raw;
+          // pct_1rm 입력 50 → 0.5 자동 변환.
+          if (unit == 'pct_1rm' && raw > 1.5) return raw / 100;
+          return raw;
         }(),
+        unit: unit,
+        restSec: int.tryParse(restCtrl.text.trim()),
+        tempoPattern: tempoCtrl.text.trim().isEmpty
+            ? null
+            : tempoCtrl.text.trim(),
+        timeCapSec: int.tryParse(timecapCtrl.text.trim()),
         note: noteCtrl.text.trim().isEmpty ? null : noteCtrl.text.trim(),
       ));
     });
+  }
+
+  String _loadHint(String unit) {
+    switch (unit) {
+      case 'pct_1rm':
+        return '%1RM (예: 75)';
+      case 'rpe':
+        return 'RPE 1~10 (예: 7.5)';
+      case 'kg':
+        return 'kg';
+      case 'lb':
+        return 'lb';
+      case 'sec_per_500m':
+        return 'sec/500m';
+      case 'feel':
+        return '0=lighter 1=same 2=heavier';
+      default:
+        return 'Load';
+    }
   }
 
   Future<void> _send() async {
@@ -185,8 +298,17 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
             kind: _kind,
             title: _titleCtrl.text.trim(),
             body: body,
+            rationale: _rationaleCtrl.text.trim().isEmpty
+                ? null
+                : _rationaleCtrl.text.trim(),
             structured: _kind == 'assignment' ? _items : const [],
             dueDate: _dueCtrl.text.trim().isEmpty ? null : _dueCtrl.text.trim(),
+            dueStart: _dueStartCtrl.text.trim().isEmpty
+                ? null
+                : _dueStartCtrl.text.trim(),
+            dueEnd: _dueEndCtrl.text.trim().isEmpty
+                ? null
+                : _dueEndCtrl.text.trim(),
           );
       if (!mounted) return;
       Navigator.of(context).pop(true);
@@ -270,6 +392,17 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                 maxLines: 5,
                 maxLength: 2000,
               ),
+              const SizedBox(height: FacingTokens.sp3),
+              // v1.19 페르소나 P0-4 (M1 송): WHY rationale.
+              TextField(
+                controller: _rationaleCtrl,
+                decoration: InputDecoration(
+                  labelText: _kind == 'assignment' ? 'Why this · 권장' : 'Why this · 선택',
+                  hintText: '예: 지난 Fran 4R grip 풀림 → unbroken 회복',
+                ),
+                maxLines: 3,
+                maxLength: 500,
+              ),
               if (_kind == 'assignment') ...[
                 const SizedBox(height: FacingTokens.sp4),
                 Row(
@@ -327,6 +460,27 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                     labelText: 'Due date (YYYY-MM-DD, 선택)',
                   ),
                 ),
+                const SizedBox(height: FacingTokens.sp2),
+                // v1.19 페르소나 P2-26 (M6 이): 윈도우형 due (이번 주 내 1회).
+                Row(children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _dueStartCtrl,
+                      decoration: const InputDecoration(
+                        labelText: 'Due start (선택)',
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: FacingTokens.sp2),
+                  Expanded(
+                    child: TextField(
+                      controller: _dueEndCtrl,
+                      decoration: const InputDecoration(
+                        labelText: 'Due end (선택)',
+                      ),
+                    ),
+                  ),
+                ]),
               ],
               const SizedBox(height: FacingTokens.sp5),
               ElevatedButton(

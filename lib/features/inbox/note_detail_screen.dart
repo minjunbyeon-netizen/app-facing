@@ -1,5 +1,10 @@
-// v1.18 Sprint 19: Note 상세 — 본문 + Assignment items + Accept/Decline/Complete.
-// 진입 즉시 read 처리 (본인 미읽음일 때만).
+// v1.19 Sprint 20: Note 상세 — 페르소나 P0-4/P0-5/P0-6/P1-15 반영.
+//
+// 추가:
+// - WHY 섹션 (rationale) 본문 위 고정 노출
+// - Ask Coach 버튼 (자유 질문 → 코치에게 새 노트 발송)
+// - Complete 모달 (set별 actual_load/reps/rpe 입력)
+// - Decline 모달 (사유 chip 4개 + 자유 입력)
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -8,6 +13,8 @@ import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/coach_note.dart';
+import '../../widgets/avatar.dart';
+import '../profile/profile_state.dart';
 import 'inbox_repository.dart';
 import 'inbox_state.dart';
 
@@ -38,7 +45,6 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
         _note = n;
         _loading = false;
       });
-      // 미읽음 → read 자동 마킹.
       if (n.my != null && n.my!.isUnread) {
         await context.read<InboxState>().markRead(widget.noteId);
       }
@@ -57,50 +63,347 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
     }
   }
 
-  Future<void> _act(String action) async {
+  Future<void> _accept() async {
     Haptic.medium();
-    final state = context.read<InboxState>();
-    bool ok;
-    if (action == 'accept') {
-      ok = await state.accept(widget.noteId);
-    } else if (action == 'complete') {
-      ok = await state.complete(widget.noteId);
-    } else {
-      ok = await state.decline(widget.noteId);
-    }
+    final ok = await context.read<InboxState>().accept(widget.noteId);
     if (!mounted) return;
     if (ok) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: FacingTokens.surface,
-          content: Text('${_actionLabel(action)} done.',
-              style: FacingTokens.body),
-        ),
-      );
-      // 상세 새로고침.
+      _toast('Accepted.');
       await _load();
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: FacingTokens.surface,
-          content: Text('실패. ${state.error ?? ''}',
-              style: FacingTokens.body),
-        ),
-      );
     }
   }
 
-  String _actionLabel(String a) {
-    switch (a) {
-      case 'accept':
-        return 'Accepted';
-      case 'complete':
-        return 'Completed';
-      case 'decline':
-        return 'Declined';
-      default:
-        return 'Done';
+  Future<void> _complete() async {
+    Haptic.medium();
+    final n = _note;
+    if (n == null) return;
+    final actuals = await _openCompleteModal(n);
+    if (!mounted) return;
+    if (actuals == null) return; // 취소
+    final ok = await context
+        .read<InboxState>()
+        .complete(widget.noteId, actual: actuals);
+    if (!mounted) return;
+    if (ok) {
+      _toast('Completed.');
+      await _load();
     }
+  }
+
+  Future<void> _decline() async {
+    Haptic.medium();
+    final reason = await _openDeclineModal();
+    if (!mounted) return;
+    if (reason == null) return;
+    final ok =
+        await context.read<InboxState>().decline(widget.noteId, reason: reason);
+    if (!mounted) return;
+    if (ok) {
+      _toast('Declined.');
+      await _load();
+    }
+  }
+
+  Future<void> _ask() async {
+    Haptic.medium();
+    final body = await _openAskModal();
+    if (!mounted) return;
+    if (body == null || body.trim().isEmpty) return;
+    final ok = await context.read<InboxState>().askCoach(widget.noteId, body);
+    if (!mounted) return;
+    if (ok) {
+      _toast('Sent to Coach.');
+      await _load();
+    }
+  }
+
+  void _toast(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      backgroundColor: FacingTokens.surface,
+      content: Text(msg, style: FacingTokens.body),
+    ));
+  }
+
+  Future<List<ActualSet>?> _openCompleteModal(CoachNote n) async {
+    final controllers = <int, _ActualCtrls>{};
+    final setsHint = n.structured.isNotEmpty
+        ? (n.structured.first.sets ?? 1)
+        : 1;
+    final totalSets = setsHint.clamp(1, 10);
+    for (int i = 0; i < totalSets; i++) {
+      controllers[i] = _ActualCtrls();
+    }
+    final result = await showModalBottomSheet<List<ActualSet>?>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: FacingTokens.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(FacingTokens.r4)),
+      ),
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(
+          left: FacingTokens.sp4,
+          right: FacingTokens.sp4,
+          top: FacingTokens.sp4,
+          bottom: MediaQuery.of(ctx).viewInsets.bottom + FacingTokens.sp4,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text('LOG ACTUAL', style: FacingTokens.sectionLabel),
+            const SizedBox(height: FacingTokens.sp1),
+            Text('세트별 실제 무게·횟수·RPE 기록 (선택).',
+                style: FacingTokens.caption),
+            const SizedBox(height: FacingTokens.sp3),
+            for (int i = 0; i < totalSets; i++)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 36,
+                      child: Text('SET ${i + 1}',
+                          style: FacingTokens.micro.copyWith(
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.6,
+                          )),
+                    ),
+                    Expanded(
+                      child: TextField(
+                        controller: controllers[i]!.load,
+                        decoration: const InputDecoration(
+                          labelText: 'Load',
+                          isDense: true,
+                        ),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: FacingTokens.sp2),
+                    Expanded(
+                      child: TextField(
+                        controller: controllers[i]!.reps,
+                        decoration: const InputDecoration(
+                          labelText: 'Reps',
+                          isDense: true,
+                        ),
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                    const SizedBox(width: FacingTokens.sp2),
+                    Expanded(
+                      child: TextField(
+                        controller: controllers[i]!.rpe,
+                        decoration: const InputDecoration(
+                          labelText: 'RPE',
+                          isDense: true,
+                        ),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            const SizedBox(height: FacingTokens.sp3),
+            ElevatedButton(
+              onPressed: () {
+                final list = <ActualSet>[];
+                controllers.forEach((idx, c) {
+                  final load = double.tryParse(c.load.text.trim());
+                  final reps = int.tryParse(c.reps.text.trim());
+                  final rpe = double.tryParse(c.rpe.text.trim());
+                  if (load != null || reps != null || rpe != null) {
+                    list.add(ActualSet(
+                      setIndex: idx,
+                      actualLoad: load,
+                      actualReps: reps,
+                      rpe: rpe,
+                    ));
+                  }
+                });
+                Navigator.of(ctx).pop(list);
+              },
+              child: const Text('Complete'),
+            ),
+            const SizedBox(height: FacingTokens.sp1),
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(<ActualSet>[]),
+              child: const Text('Skip log'),
+            ),
+          ],
+        ),
+      ),
+    );
+    for (final c in controllers.values) {
+      c.dispose();
+    }
+    return result;
+  }
+
+  Future<String?> _openDeclineModal() async {
+    String? selectedReason;
+    final freeCtrl = TextEditingController();
+    // v1.19 페르소나 P0-6: 회원이 거절 사유 선택 가능. P1-17: '부상' 선택 시 의료 메모 prefill.
+    final injuryNotes = context.read<ProfileState>().injuryNotes;
+    final result = await showModalBottomSheet<String?>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: FacingTokens.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(FacingTokens.r4)),
+      ),
+      builder: (ctx) => StatefulBuilder(builder: (innerCtx, setSheet) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: FacingTokens.sp4,
+            right: FacingTokens.sp4,
+            top: FacingTokens.sp4,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + FacingTokens.sp4,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text('DECLINE REASON', style: FacingTokens.sectionLabel),
+              const SizedBox(height: FacingTokens.sp1),
+              Text('이유를 알려주면 코치가 다음 처방 조정.',
+                  style: FacingTokens.caption),
+              const SizedBox(height: FacingTokens.sp3),
+              Wrap(
+                spacing: FacingTokens.sp2,
+                runSpacing: FacingTokens.sp2,
+                children: [
+                  for (final r in const [
+                    '부상',
+                    '컨디션',
+                    '시간 부족',
+                    '대체 동작 요청',
+                  ])
+                    ChoiceChip(
+                      label: Text(r),
+                      selected: selectedReason == r,
+                      backgroundColor: FacingTokens.surface,
+                      selectedColor: FacingTokens.accent,
+                      onSelected: (_) {
+                        setSheet(() {
+                          selectedReason = r;
+                          if (r == '부상' &&
+                              injuryNotes != null &&
+                              injuryNotes.isNotEmpty &&
+                              freeCtrl.text.isEmpty) {
+                            freeCtrl.text = injuryNotes;
+                          }
+                        });
+                      },
+                    ),
+                ],
+              ),
+              const SizedBox(height: FacingTokens.sp3),
+              TextField(
+                controller: freeCtrl,
+                decoration: const InputDecoration(
+                  labelText: '추가 설명 (선택)',
+                ),
+                maxLines: 3,
+                maxLength: 300,
+              ),
+              const SizedBox(height: FacingTokens.sp3),
+              ElevatedButton(
+                onPressed: () {
+                  final parts = <String>[];
+                  if (selectedReason != null) parts.add(selectedReason!);
+                  final free = freeCtrl.text.trim();
+                  if (free.isNotEmpty) parts.add(free);
+                  Navigator.of(ctx).pop(parts.join(' · '));
+                },
+                child: const Text('Decline'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(null),
+                child: const Text('Cancel'),
+              ),
+            ],
+          ),
+        );
+      }),
+    );
+    freeCtrl.dispose();
+    return result;
+  }
+
+  Future<String?> _openAskModal() async {
+    final ctrl = TextEditingController();
+    final result = await showModalBottomSheet<String?>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: FacingTokens.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(FacingTokens.r4)),
+      ),
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(
+          left: FacingTokens.sp4,
+          right: FacingTokens.sp4,
+          top: FacingTokens.sp4,
+          bottom: MediaQuery.of(ctx).viewInsets.bottom + FacingTokens.sp4,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text('ASK COACH', style: FacingTokens.sectionLabel),
+            const SizedBox(height: FacingTokens.sp1),
+            Text('거절 대신 질문 1줄. 코치 인박스로 발송.',
+                style: FacingTokens.caption),
+            const SizedBox(height: FacingTokens.sp2),
+            // 빠른 템플릿 chip.
+            Wrap(
+              spacing: FacingTokens.sp1,
+              children: [
+                for (final t in const [
+                  '무게 낮춰도 되나요?',
+                  '동작 대체 가능?',
+                  '날짜 조정 부탁',
+                ])
+                  ActionChip(
+                    label: Text(t, style: FacingTokens.micro),
+                    onPressed: () {
+                      ctrl.text = ctrl.text.isEmpty ? t : '${ctrl.text}\n$t';
+                    },
+                  ),
+              ],
+            ),
+            const SizedBox(height: FacingTokens.sp2),
+            TextField(
+              controller: ctrl,
+              decoration: const InputDecoration(
+                labelText: '질문 내용',
+              ),
+              maxLines: 4,
+              maxLength: 500,
+            ),
+            const SizedBox(height: FacingTokens.sp3),
+            ElevatedButton(
+              onPressed: () => Navigator.of(ctx).pop(ctrl.text),
+              child: const Text('Send'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(null),
+              child: const Text('Cancel'),
+            ),
+          ],
+        ),
+      ),
+    );
+    ctrl.dispose();
+    return result;
   }
 
   @override
@@ -132,9 +435,35 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 헤더 — kind + 발신자 + 시간
+          // 발신자 — Avatar + name + ago
           Row(
             children: [
+              Avatar(
+                hash: n.senderShort,
+                displayName: n.senderName,
+                colorHex: n.senderColor,
+                size: 44,
+              ),
+              const SizedBox(width: FacingTokens.sp3),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'COACH',
+                      style: FacingTokens.micro.copyWith(
+                        color: FacingTokens.muted,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(n.displayLabel(),
+                        style: FacingTokens.h3
+                            .copyWith(fontWeight: FontWeight.w800)),
+                  ],
+                ),
+              ),
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: FacingTokens.sp2,
@@ -145,47 +474,72 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                   borderRadius: BorderRadius.circular(FacingTokens.r1),
                 ),
                 child: Text(
-                  n.kind.toUpperCase(),
+                  n.isAuto
+                      ? 'AUTO'
+                      : (n.kind == 'assignment' ? 'ASSIGNMENT' : 'NOTE'),
                   style: FacingTokens.micro.copyWith(
-                    color: color,
+                    color: n.isAuto ? FacingTokens.success : color,
                     fontWeight: FontWeight.w800,
                     letterSpacing: 1.2,
                   ),
                 ),
               ),
-              const SizedBox(width: FacingTokens.sp2),
-              Text(
-                'COACH · ${n.senderShort.toUpperCase()}',
-                style: FacingTokens.micro.copyWith(
-                  color: FacingTokens.muted,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1.0,
-                ),
-              ),
             ],
           ),
-          const SizedBox(height: FacingTokens.sp3),
-          // 제목
+          const SizedBox(height: FacingTokens.sp4),
           if (n.title.isNotEmpty)
             Text(n.title,
                 style: FacingTokens.h2.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: FacingTokens.sp2),
-          // 본문
+          // v1.19 페르소나 P0-4 (M1 송): WHY 섹션 — 본문 위 고정.
+          if (n.rationale != null && n.rationale!.isNotEmpty) ...[
+            const SizedBox(height: FacingTokens.sp1),
+            Container(
+              padding: const EdgeInsets.fromLTRB(
+                FacingTokens.sp3,
+                FacingTokens.sp3,
+                FacingTokens.sp3,
+                FacingTokens.sp3,
+              ),
+              decoration: BoxDecoration(
+                color: FacingTokens.surface,
+                border: Border(
+                  left: BorderSide(color: FacingTokens.accent, width: 3),
+                  top: const BorderSide(color: FacingTokens.border),
+                  right: const BorderSide(color: FacingTokens.border),
+                  bottom: const BorderSide(color: FacingTokens.border),
+                ),
+                borderRadius: BorderRadius.circular(FacingTokens.r2),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('WHY', style: FacingTokens.sectionLabel),
+                  const SizedBox(height: 4),
+                  Text(n.rationale!, style: FacingTokens.body),
+                ],
+              ),
+            ),
+            const SizedBox(height: FacingTokens.sp3),
+          ],
           if (n.body.isNotEmpty)
             Text(n.body, style: FacingTokens.lead),
-          // due
           if (n.dueDate != null && n.dueDate!.isNotEmpty) ...[
             const SizedBox(height: FacingTokens.sp4),
-            Text('DUE',
-                style: FacingTokens.sectionLabel),
+            Text('DUE', style: FacingTokens.sectionLabel),
             const SizedBox(height: 2),
             Text(n.dueDate!, style: FacingTokens.body),
           ],
-          // structured items
+          if (n.dueStart != null && n.dueEnd != null) ...[
+            const SizedBox(height: FacingTokens.sp1),
+            Text(
+              '${n.dueStart} ~ ${n.dueEnd}',
+              style: FacingTokens.caption,
+            ),
+          ],
           if (n.structured.isNotEmpty) ...[
             const SizedBox(height: FacingTokens.sp4),
-            Text('PRESCRIPTION',
-                style: FacingTokens.sectionLabel),
+            Text('PRESCRIPTION', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp2),
             for (final it in n.structured)
               Padding(
@@ -204,6 +558,17 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                       Text(it.displayLine(),
                           style: FacingTokens.body.copyWith(
                               fontWeight: FontWeight.w700)),
+                      if (it.alternateMovement != null &&
+                          it.alternateMovement!.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Text(
+                            'Substitute: ${it.alternateMovement!}',
+                            style: FacingTokens.caption.copyWith(
+                              color: FacingTokens.success,
+                            ),
+                          ),
+                        ),
                       if (it.note != null && it.note!.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: 2),
@@ -214,23 +579,40 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                 ),
               ),
           ],
+          // 액션 결과(actual / decline_reason) 표시.
+          if (n.my?.actual.isNotEmpty == true) ...[
+            const SizedBox(height: FacingTokens.sp4),
+            Text('LOGGED', style: FacingTokens.sectionLabel),
+            const SizedBox(height: FacingTokens.sp1),
+            for (final a in n.my!.actual)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: Text(
+                  'SET ${a.setIndex + 1} · '
+                  '${a.actualLoad ?? '-'} · '
+                  '${a.actualReps ?? '-'} reps · '
+                  'RPE ${a.rpe ?? '-'}',
+                  style: FacingTokens.body,
+                ),
+              ),
+          ],
+          if (n.my?.declineReason != null &&
+              n.my!.declineReason!.isNotEmpty) ...[
+            const SizedBox(height: FacingTokens.sp4),
+            Text('DECLINE REASON', style: FacingTokens.sectionLabel),
+            const SizedBox(height: 2),
+            Text(n.my!.declineReason!, style: FacingTokens.body),
+          ],
           const SizedBox(height: FacingTokens.sp5),
-          if (n.my != null) _MyActions(note: n, onAct: _act),
+          if (n.my != null) _buildActions(n),
           if (n.recipients.isNotEmpty) _RecipientsList(items: n.recipients),
         ],
       ),
     );
   }
-}
 
-class _MyActions extends StatelessWidget {
-  final CoachNote note;
-  final Future<void> Function(String) onAct;
-  const _MyActions({required this.note, required this.onAct});
-
-  @override
-  Widget build(BuildContext context) {
-    final status = note.my!.status;
+  Widget _buildActions(CoachNote n) {
+    final status = n.my!.status;
     if (status == 'completed' || status == 'declined') {
       return Container(
         width: double.infinity,
@@ -256,32 +638,59 @@ class _MyActions extends StatelessWidget {
         ),
       );
     }
-    if (note.kind == 'note') {
-      // 일반 쪽지는 read 후 별도 액션 없음.
-      return const SizedBox.shrink();
+    if (n.kind == 'note') {
+      // v1.19 페르소나 P1-15: 일반 노트도 Ask Coach 가능.
+      if (n.isAuto) return const SizedBox.shrink(); // 자동 칭찬은 답장 불필요.
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          OutlinedButton(
+            onPressed: _ask,
+            child: const Text('Ask Coach'),
+          ),
+        ],
+      );
     }
-    // assignment — Accept / Decline / (이미 accepted면 Complete)
     final isAccepted = status == 'accepted';
+    final isAsked = status == 'asked';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (isAccepted)
           ElevatedButton(
-            onPressed: () => onAct('complete'),
+            onPressed: _complete,
             child: const Text('Complete'),
           )
         else
           ElevatedButton(
-            onPressed: () => onAct('accept'),
+            onPressed: _accept,
             child: const Text('Accept'),
           ),
         const SizedBox(height: FacingTokens.sp2),
+        // v1.19 페르소나 P1-15: Accept/Decline 사이 Ask Coach.
         OutlinedButton(
-          onPressed: () => onAct('decline'),
+          onPressed: _ask,
+          child: Text(isAsked ? 'Asked · Ask again' : 'Ask Coach'),
+        ),
+        const SizedBox(height: FacingTokens.sp2),
+        TextButton(
+          style: TextButton.styleFrom(foregroundColor: FacingTokens.muted),
+          onPressed: _decline,
           child: const Text('Decline'),
         ),
       ],
     );
+  }
+}
+
+class _ActualCtrls {
+  final TextEditingController load = TextEditingController();
+  final TextEditingController reps = TextEditingController();
+  final TextEditingController rpe = TextEditingController();
+  void dispose() {
+    load.dispose();
+    reps.dispose();
+    rpe.dispose();
   }
 }
 
@@ -304,22 +713,24 @@ class _RecipientsList extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 2),
               child: Row(
                 children: [
-                  SizedBox(
-                    width: 80,
-                    child: Text(r.hash.toUpperCase(),
-                        style: FacingTokens.body.copyWith(
-                            fontWeight: FontWeight.w700,
-                            fontFeatures: FacingTokens.tabular)),
+                  Avatar(
+                    hash: r.hash,
+                    displayName: r.name,
+                    colorHex: r.color,
+                    size: 28,
                   ),
                   const SizedBox(width: FacingTokens.sp2),
                   Expanded(
-                    child: Text(
-                      r.status.toUpperCase(),
-                      style: FacingTokens.micro.copyWith(
-                        color: _statusColor(r.status),
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.6,
-                      ),
+                    child: Text(r.displayLabel(),
+                        style: FacingTokens.body.copyWith(
+                            fontWeight: FontWeight.w700)),
+                  ),
+                  Text(
+                    r.status.toUpperCase(),
+                    style: FacingTokens.micro.copyWith(
+                      color: _statusColor(r.status),
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.6,
                     ),
                   ),
                 ],
@@ -336,6 +747,8 @@ class _RecipientsList extends StatelessWidget {
         return FacingTokens.success;
       case 'accepted':
         return FacingTokens.fg;
+      case 'asked':
+        return FacingTokens.warning;
       case 'read':
         return FacingTokens.muted;
       case 'declined':

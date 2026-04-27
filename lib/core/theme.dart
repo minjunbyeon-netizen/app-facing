@@ -23,6 +23,8 @@ class FacingTokens {
   static const Color success = Color(0xFF22C55E);
   static const Color warning = Color(0xFFF59E0B);
   static const Color error = Color(0xFFEE2B2B);
+  /// v1.19 페르소나 P2-22: OVERDUE 전용 (warning 활용, accent 와 분리).
+  static const Color overdue = Color(0xFFF59E0B);
 
   // ---- Tier 색상 (v1.15 흑백 재배치 - VISUAL_CONCEPT.md 3.2) ----
   // 명도: 어두움(Motivation) → 빛(Obsession). RX만 유일한 유채색.
@@ -114,9 +116,11 @@ class FacingTokens {
     color: muted,
   );
 
+  /// v1.19 페르소나 P0-8 (M3 윤): 11sp 노안 가독성 부족 → 13sp 상향.
+  /// letter-spacing 0.4 유지, 색상·height 동일.
   static const TextStyle micro = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: FontWeight.w500,
     height: 1.40,
     letterSpacing: 0.4,

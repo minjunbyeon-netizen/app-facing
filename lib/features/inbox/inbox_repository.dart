@@ -47,8 +47,11 @@ class InboxRepository {
     required String kind,
     required String title,
     required String body,
+    String? rationale,
     List<AssignmentItem> structured = const [],
     String? dueDate,
+    String? dueStart,
+    String? dueEnd,
   }) async {
     final payload = <String, dynamic>{
       'target_type': targetType,
@@ -56,9 +59,12 @@ class InboxRepository {
       'title': title,
       'body': body,
       if (targetId != null && targetId.isNotEmpty) 'target_id': targetId,
+      if (rationale != null && rationale.isNotEmpty) 'rationale': rationale,
       if (structured.isNotEmpty)
         'structured': structured.map((s) => s.toJson()).toList(),
       if (dueDate != null && dueDate.isNotEmpty) 'due_date': dueDate,
+      if (dueStart != null && dueStart.isNotEmpty) 'due_start': dueStart,
+      if (dueEnd != null && dueEnd.isNotEmpty) 'due_end': dueEnd,
     };
     final data = await api.post('/api/v1/gym/$gymId/notes', payload);
     return ((data['note_id'] ?? 0) as num).toInt();
@@ -68,10 +74,45 @@ class InboxRepository {
       api.post('/api/v1/gym/notes/$noteId/read', const {});
   Future<void> accept(int noteId) =>
       api.post('/api/v1/gym/notes/$noteId/accept', const {});
-  Future<void> complete(int noteId) =>
-      api.post('/api/v1/gym/notes/$noteId/complete', const {});
-  Future<void> decline(int noteId) =>
-      api.post('/api/v1/gym/notes/$noteId/decline', const {});
+  Future<void> complete(int noteId, {List<ActualSet> actual = const []}) =>
+      api.post('/api/v1/gym/notes/$noteId/complete', {
+        if (actual.isNotEmpty) 'actual': actual.map((a) => a.toJson()).toList(),
+      });
+  Future<void> decline(int noteId, {String? reason}) =>
+      api.post('/api/v1/gym/notes/$noteId/decline', {
+        if (reason != null && reason.isNotEmpty) 'reason': reason,
+      });
+  Future<void> askCoach(int noteId, String body) =>
+      api.post('/api/v1/gym/notes/$noteId/ask', {'body': body});
+
+  // ---- Profile info (display_name 등) ----
+  Future<Map<String, dynamic>> getProfileInfo() =>
+      api.get('/api/v1/profile/info');
+  Future<void> updateProfileInfo({
+    String? displayName,
+    String? avatarColor,
+    String? injuryNotes,
+  }) =>
+      api.post('/api/v1/profile/info', {
+        if (displayName != null) 'display_name': displayName,
+        if (avatarColor != null) 'avatar_color': avatarColor,
+        if (injuryNotes != null) 'injury_notes': injuryNotes,
+      });
+
+  // ---- Gym invite code ----
+  Future<String?> getInviteCode(int gymId) async {
+    final data = await api.get('/api/v1/gym/$gymId/invite-code');
+    return data['invite_code']?.toString();
+  }
+
+  Future<String?> regenerateInviteCode(int gymId) async {
+    final data =
+        await api.post('/api/v1/gym/$gymId/invite-code/regenerate', const {});
+    return data['invite_code']?.toString();
+  }
+
+  Future<Map<String, dynamic>> joinByCode(String code) =>
+      api.post('/api/v1/gym/join-by-code', {'code': code});
 
   // ---- Groups ----
 
@@ -87,10 +128,20 @@ class InboxRepository {
     required int gymId,
     required String name,
     String description = '',
+    String? colorHex,
+    int? capacity,
+    List<int> weekdaySlot = const [],
+    String? timeSlot,
+    String? notes,
   }) async {
     final data = await api.post('/api/v1/gym/$gymId/groups', {
       'name': name,
       'description': description,
+      if (colorHex != null && colorHex.isNotEmpty) 'color_hex': colorHex,
+      if (capacity != null) 'capacity': capacity,
+      if (weekdaySlot.isNotEmpty) 'weekday_slot': weekdaySlot,
+      if (timeSlot != null && timeSlot.isNotEmpty) 'time_slot': timeSlot,
+      if (notes != null && notes.isNotEmpty) 'notes': notes,
     });
     return ((data['id'] ?? 0) as num).toInt();
   }

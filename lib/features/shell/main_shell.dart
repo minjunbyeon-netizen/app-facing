@@ -225,20 +225,24 @@ class _IconWithDot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // v1.19 페르소나 P1-16 (M3 윤): dot 8 → 12 + textScale 동기.
+    final scale = MediaQuery.of(context).textScaler.scale(1.0);
+    final dotSize = 12 * scale;
     return Stack(
       clipBehavior: Clip.none,
       children: [
         Icon(icon, size: 22, color: color),
         if (showDot)
           Positioned(
-            right: -3,
-            top: -2,
+            right: -4,
+            top: -3,
             child: Container(
-              width: 8,
-              height: 8,
-              decoration: const BoxDecoration(
+              width: dotSize,
+              height: dotSize,
+              decoration: BoxDecoration(
                 color: FacingTokens.accent,
                 shape: BoxShape.circle,
+                border: Border.all(color: FacingTokens.bg, width: 1.5),
               ),
             ),
           ),

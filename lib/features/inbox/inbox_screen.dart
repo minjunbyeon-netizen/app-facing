@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/coach_note.dart';
+import '../../widgets/avatar.dart';
 import '../gym/gym_state.dart';
 import 'compose_note_screen.dart';
 import 'group_management_screen.dart';
@@ -27,11 +28,15 @@ class InboxScreen extends StatefulWidget {
 class _InboxScreenState extends State<InboxScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabs;
+  bool _isCoach = false;
 
   @override
   void initState() {
     super.initState();
-    _tabs = TabController(length: 4, vsync: this);
+    final isCoach = context.read<GymState>().isOwner;
+    _isCoach = isCoach;
+    // v1.19 페르소나 P2-27: Outbox 탭은 코치만 노출 → 회원은 3탭, 코치는 4탭.
+    _tabs = TabController(length: isCoach ? 4 : 3, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final gym = context.read<GymState>().membership.gym;
       if (gym != null) {
@@ -51,10 +56,23 @@ class _InboxScreenState extends State<InboxScreen>
     final state = context.watch<InboxState>();
     final gs = context.watch<GymState>();
     final isCoach = gs.isOwner;
+    // 코치 토글 변동 시 컨트롤러 재생성 (앱 lifecycle 내 드물어 setState 한 번만).
+    if (isCoach != _isCoach) {
+      _tabs.dispose();
+      _isCoach = isCoach;
+      _tabs = TabController(length: isCoach ? 4 : 3, vsync: this);
+    }
     final items = state.inbox.items;
 
     final notes = items.where((n) => n.kind == 'note').toList();
     final assignments = items.where((n) => n.kind == 'assignment').toList();
+
+    final tabs = <Tab>[
+      Tab(text: 'ALL · ${items.length}'),
+      Tab(text: 'NOTES · ${notes.length}'),
+      Tab(text: 'ASSIGNMENTS · ${assignments.length}'),
+      if (isCoach) const Tab(text: 'OUTBOX'),
+    ];
 
     return Scaffold(
       appBar: AppBar(
@@ -70,12 +88,7 @@ class _InboxScreenState extends State<InboxScreen>
             fontWeight: FontWeight.w800,
             letterSpacing: 1.2,
           ),
-          tabs: [
-            Tab(text: 'ALL · ${items.length}'),
-            Tab(text: 'NOTES · ${notes.length}'),
-            Tab(text: 'ASSIGNMENTS · ${assignments.length}'),
-            const Tab(text: 'OUTBOX'),
-          ],
+          tabs: tabs,
         ),
         actions: [
           IconButton(
@@ -109,7 +122,7 @@ class _InboxScreenState extends State<InboxScreen>
                   _NoteList(notes: items),
                   _NoteList(notes: notes),
                   _NoteList(notes: assignments),
-                  _OutboxView(visible: isCoach),
+                  if (isCoach) _OutboxView(visible: isCoach),
                 ],
               ),
       ),
@@ -169,9 +182,8 @@ class CoachDossierTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final isUnread = note.my?.isUnread ?? false;
     final stripeColor = isUnread ? FacingTokens.accent : FacingTokens.muted;
-    final initial = (note.senderShort.isEmpty ? 'C' : note.senderShort[0])
-        .toUpperCase();
     final dueLabel = _dueLabel(note.dueDate);
+    final senderLabel = note.displayLabel();
 
     return InkWell(
       onTap: () async {
@@ -203,24 +215,11 @@ class CoachDossierTile extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 이니셜 모노그램
-            Container(
-              width: 36,
-              height: 36,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                border: Border.all(color: stripeColor, width: 1),
-                borderRadius: BorderRadius.circular(FacingTokens.r1),
-                color: FacingTokens.bg,
-              ),
-              child: Text(
-                initial,
-                style: FacingTokens.body.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: stripeColor,
-                  letterSpacing: 0.4,
-                ),
-              ),
+            // v1.19 페르소나 P0-2: hash 이니셜 → display_name + 색상 아바타.
+            Avatar(
+              hash: note.senderShort,
+              displayName: note.senderName,
+              colorHex: note.senderColor,
             ),
             const SizedBox(width: FacingTokens.sp3),
             Expanded(
@@ -230,20 +229,27 @@ class CoachDossierTile extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        note.kind == 'assignment' ? 'ASSIGNMENT' : 'NOTE',
+                        note.isAuto
+                            ? 'AUTO'
+                            : (note.kind == 'assignment' ? 'ASSIGNMENT' : 'NOTE'),
                         style: FacingTokens.micro.copyWith(
-                          color: stripeColor,
+                          color: note.isAuto
+                              ? FacingTokens.success
+                              : stripeColor,
                           fontWeight: FontWeight.w800,
                           letterSpacing: 1.2,
                         ),
                       ),
                       const SizedBox(width: FacingTokens.sp2),
-                      Text(
-                        'COACH · ${note.senderShort.toUpperCase()}',
-                        style: FacingTokens.micro.copyWith(
-                          color: FacingTokens.muted,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 1.0,
+                      Flexible(
+                        child: Text(
+                          'COACH · ${senderLabel.toUpperCase()}',
+                          style: FacingTokens.micro.copyWith(
+                            color: FacingTokens.muted,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1.0,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       const Spacer(),
@@ -288,9 +294,7 @@ class CoachDossierTile extends StatelessWidget {
                             ),
                             decoration: BoxDecoration(
                               border: Border.all(
-                                color: dueLabel.urgent
-                                    ? FacingTokens.accent
-                                    : FacingTokens.border,
+                                color: dueLabel.color,
                               ),
                               borderRadius:
                                   BorderRadius.circular(FacingTokens.r1),
@@ -298,9 +302,7 @@ class CoachDossierTile extends StatelessWidget {
                             child: Text(
                               dueLabel.text,
                               style: FacingTokens.micro.copyWith(
-                                color: dueLabel.urgent
-                                    ? FacingTokens.accent
-                                    : FacingTokens.muted,
+                                color: dueLabel.color,
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: 0.6,
                               ),
@@ -322,18 +324,7 @@ class CoachDossierTile extends StatelessWidget {
                 ],
               ),
             ),
-            if (isUnread)
-              Padding(
-                padding: const EdgeInsets.only(left: FacingTokens.sp2),
-                child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                    color: FacingTokens.accent,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
+            // v1.19 페르소나 P2-20: 카드 dot 제거. 좌측 4px stripe 만으로 미읽음 표시 충분.
           ],
         ),
       ),
@@ -363,10 +354,11 @@ class CoachDossierTile extends StatelessWidget {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final diff = due.difference(today).inDays;
-    if (diff < 0) return _DueBadge('OVERDUE', urgent: true);
-    if (diff == 0) return _DueBadge('TODAY', urgent: true);
-    if (diff <= 3) return _DueBadge('D-$diff', urgent: true);
-    return _DueBadge('D-$diff', urgent: false);
+    // v1.19 페르소나 P2-22: OVERDUE 색을 accent → overdue (warning) 로 분리.
+    if (diff < 0) return _DueBadge('OVERDUE', color: FacingTokens.overdue);
+    if (diff == 0) return _DueBadge('TODAY', color: FacingTokens.accent);
+    if (diff <= 3) return _DueBadge('D-$diff', color: FacingTokens.accent);
+    return _DueBadge('D-$diff', color: FacingTokens.muted);
   }
 
   static String _agoLabel(DateTime created) {
@@ -383,8 +375,8 @@ class CoachDossierTile extends StatelessWidget {
 
 class _DueBadge {
   final String text;
-  final bool urgent;
-  const _DueBadge(this.text, {required this.urgent});
+  final Color color;
+  const _DueBadge(this.text, {required this.color});
 }
 
 class _OutboxView extends StatefulWidget {
@@ -514,12 +506,8 @@ class _OutboxViewState extends State<_OutboxView> {
         return 'GROUP ${n.targetId ?? '-'}';
       case 'individual':
       default:
-        return (n.targetId ?? '').toString().substring(
-              0,
-              (n.targetId ?? '').toString().length < 8
-                  ? (n.targetId ?? '').toString().length
-                  : 8,
-            );
+        final id = (n.targetId ?? '').toString();
+        return id.length < 8 ? id : id.substring(0, 8);
     }
   }
 }
