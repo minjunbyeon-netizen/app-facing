@@ -122,6 +122,8 @@ apps/facing-app/
 
 언어 결정이 애매할 때 순서: (1) HWPO가 쓸 것 같은가? (2) NOBULL에서 잘릴까? (3) Mayhem 수치 기준 통과? (4) CompTrain 근거 있는가?
 
+> **4 벤치마크 충돌 시 우선순위**: 카피 결정은 **HWPO** 톤이 이긴다. 비주얼 결정은 **NOBULL**이 이긴다. 단, 실제 SSOT 순서는 `VISUAL_CONCEPT.md > DESIGN_PLAYBOOK.md > CLAUDE.md` (위가 우위). — §9 Differentiation 6-pager FAQ Q7.
+
 ## Voice & Tone (어투 11원칙 — v1.13.0 미니멀 패스)
 V1. **명령형 기본.** "~하세요" 금지.
     - 단어 1개 라벨(버튼·탭·배지·헤더 단어 1개) = **마침표 없음**: "Enter" "Confirm" "Calculate" "Save" "Next" "Back" "Skip"

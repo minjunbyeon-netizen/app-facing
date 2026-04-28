@@ -130,7 +130,7 @@ const Map<String, GlossaryEntry> kGlossary = {
   'WOD': GlossaryEntry(
     term: 'WOD',
     nameKo: 'Workout of the Day',
-    description: '오늘의 운동. 하루 단위 CrossFit 트레이닝 세션.',
+    description: '하루 단위 CrossFit 트레이닝 세션.',
   ),
   'PR': GlossaryEntry(
     term: 'PR',

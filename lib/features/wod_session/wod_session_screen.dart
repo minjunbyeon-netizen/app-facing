@@ -500,7 +500,7 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('계속 운동'),
+            child: const Text('계속'),
           ),
           TextButton(
             style: TextButton.styleFrom(foregroundColor: FacingTokens.accent),

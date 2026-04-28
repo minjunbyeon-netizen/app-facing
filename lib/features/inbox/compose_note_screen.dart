@@ -472,7 +472,7 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                   const Padding(
                     padding: EdgeInsets.symmetric(
                         vertical: FacingTokens.sp2),
-                    child: Text('운동 항목 없음. 자유 텍스트 쪽지로도 발송 가능.',
+                    child: Text('동작 없음. 자유 텍스트 쪽지로도 발송 가능.',
                         style: FacingTokens.caption),
                   )
                 else
