@@ -1,7 +1,10 @@
 # §2 Pacing Intelligence — 6-Pager
 
 > **FACING · Internal Brief · 2026-04-28**
+> **버전: v1.1**
 > 독자: VC · PM · Eng. 본 문서는 Pacing Intelligence 의 원리·수치·로드맵을 단일 진원지로 정리한다.
+>
+> **v1.1 변경점**: (1) Engine Score 표기 통일 — 백엔드 `overall_score` 0~6 (float), UI 표시 0~100 (`floor(overall_score / 6 × 100)`), `overall_number` 1~6 (Tier 매핑용) 3 변수 분리 명시. (2) Solo 모드 (ModeSelect 도입) 가 Pacing 알고리즘에 영향 없음 명시 — Calc 탭은 전 페르소나 동등 사용. (3) §4-2 Tier 매핑 색상 토큰 = `FacingTokens` 코드 정합 확인.
 
 ---
 
@@ -12,6 +15,8 @@ FACING 은 6 개 Engine 카테고리(Power / Olympic / Gymnastics / Cardio / Met
 사용자 역량을 Tier(Scaled → Games)로 매핑하고, Tier·WOD 타입·시간 영역을 3축으로 교차한
 결정론적 알고리즘으로 결과를 산출한다. 외부 LLM 없음. 응답 1.8초. WODsmith·SugarWOD 처럼
 "기록만" 관리하는 경쟁 앱은 시작 전 전략을 주지 않는다. 이것이 FACING 의 유일한 1순위 가치다.
+
+**모드 무관**: Calc 탭은 Coach / Member / Solo 전 모드 동일 사용 가능. ModeSelect (v1.1 도입) 는 Pacing 알고리즘에 영향을 주지 않는다 — 박스 가입 여부와 무관하게 페이싱 전략 산출.
 
 ---
 
@@ -125,6 +130,16 @@ CrossFit Open 통계·NSCA 기준·WMA 2023 Age Grading Factor 를 임계값 기
 6. 데이터 있는 카테고리만 가중 평균 — 빈 카테고리는 기여 제외.
 
 전체 Engine Score(overall_score) → `_bucket()` → overall_number 1~6.
+
+**Engine Score 표기 3 변수** (v1.1 정합):
+
+| 변수 | 범위 | 용도 | 표시 위치 |
+|---|---|---|---|
+| `overall_score` | 0~6 (float) | 백엔드 카테고리 가중 평균 결과값 | 내부 (UI 미노출) |
+| **UI Engine Score** | **0~100 (int)** | 사용자 친숙 표기 = `floor(overall_score / 6 × 100)` | TierSnapshot / Trends 탭 / TitleUnlockSignals.engineScore80PlusCount |
+| `overall_number` | 1~6 (int) | Tier 5단계 매핑 입력값 | 내부 (UI는 Tier 라벨로 변환 후 표시) |
+
+> v1.0까지 §2와 §6 / ABOUT 사이 0~6 vs 0~100 표기 충돌이 있었다. v1.1은 백엔드 원본은 0~6, UI 표시는 0~100, Tier 매핑은 1~6 으로 3 변수를 분리해 정합한다. 사용자에게는 0~100 만 노출.
 
 ### 4-2. Tier 매핑
 
