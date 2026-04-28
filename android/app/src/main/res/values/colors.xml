@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- FacingTokens.bg (#0A0A0A) — Flutter native splash 검은 배경 SSOT.
+         Dart core/theme.dart 와 동기 유지. 변경 시 양쪽 같이. -->
+    <color name="facing_bg">#0A0A0A</color>
+    <color name="facing_fg">#F5F5F5</color>
+</resources>

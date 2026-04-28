@@ -8,7 +8,6 @@ import '../../core/device_id.dart';
 import '../../core/haptic.dart';
 import '../../core/quotes.dart';
 import '../../core/theme.dart';
-import '../../widgets/hero_background.dart';
 import '../../widgets/quote_card.dart';
 import '../auth/auth_state.dart';
 import '../profile/profile_state.dart';
@@ -65,8 +64,8 @@ class _SplashScreenState extends State<SplashScreen> {
     }
     if (!mounted) return;
 
-    // 준비 후 1.2s 추가 대기하여 로고·카피 노출 보장 후 자동 전환.
-    await Future.delayed(const Duration(milliseconds: 1200));
+    // 준비 후 2.5s 대기 — Flutter 첫 frame ~2s 소요 후 splash 노출 1.5s+ 보장.
+    await Future.delayed(const Duration(milliseconds: 2500));
     if (!mounted) return;
     _onStart(introSeen: introSeen, mode: mode);
   }
@@ -95,50 +94,45 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     final q = randomQuote();
+    // v1.20: HeroBackground (어두운 hero_splash.jpg + 강한 grain) 제거 → 단색 검정.
+    // 이유: native splash 검정 → Flutter splash 검정 끊김 없음 + FACING 타이포 콘트라스트 보장.
     return Scaffold(
       backgroundColor: FacingTokens.bg,
-      body: HeroBackground(
-        imageAsset: 'assets/images/hero_splash.jpg',
-        strongGrain: true,
-        darkenStrength: 0.65,
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(FacingTokens.sp5),
-            child: Column(
-              children: [
-                const Spacer(),
-                Text('FACING', style: FacingTokens.brandLogo),
-                const SizedBox(height: FacingTokens.sp2),
-                const Text('Engine · Split · Burst',
-                    style: FacingTokens.micro),
-                const SizedBox(height: FacingTokens.sp3),
-                // v1.15.2: 앱 정체성 한 줄 (Games-Player 전용).
-                const Text(
-                  'WOD Pacing Intelligence.',
-                  style: FacingTokens.body,
-                  textAlign: TextAlign.center,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(FacingTokens.sp5),
+          child: Column(
+            children: [
+              const Spacer(),
+              Text('FACING', style: FacingTokens.brandLogo),
+              const SizedBox(height: FacingTokens.sp2),
+              const Text('Engine · Split · Burst',
+                  style: FacingTokens.micro),
+              const SizedBox(height: FacingTokens.sp3),
+              const Text(
+                'WOD Pacing Intelligence.',
+                style: FacingTokens.body,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: FacingTokens.sp1),
+              const Text(
+                'CrossFit Games-Player 전용.',
+                style: FacingTokens.caption,
+                textAlign: TextAlign.center,
+              ),
+              const Spacer(),
+              QuoteCard(quote: q, compact: true),
+              const SizedBox(height: FacingTokens.sp5),
+              const SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: FacingTokens.muted,
                 ),
-                const SizedBox(height: FacingTokens.sp1),
-                const Text(
-                  'CrossFit Games-Player 전용.',
-                  style: FacingTokens.caption,
-                  textAlign: TextAlign.center,
-                ),
-                const Spacer(),
-                QuoteCard(quote: q, compact: true),
-                const SizedBox(height: FacingTokens.sp5),
-                // v1.16 Sprint 8 U1: 자동 진입. 로딩 spinner만 노출.
-                const SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: FacingTokens.muted,
-                  ),
-                ),
-                const SizedBox(height: FacingTokens.sp3),
-              ],
-            ),
+              ),
+              const SizedBox(height: FacingTokens.sp3),
+            ],
           ),
         ),
       ),

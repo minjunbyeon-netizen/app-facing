@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- v1.20: Android 12+ Splash Screen API용 빈 아이콘.
+     windowSplashScreenAnimatedIcon 자리를 투명 1x1 로 채워 시스템이 launcher 아이콘 자동
+     표시하지 못하게 차단. Flutter SplashScreen이 단독 dominant. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="1dp"
+    android:height="1dp"
+    android:viewportWidth="1"
+    android:viewportHeight="1">
+    <path android:fillColor="#000A0A0A" android:pathData="M0,0L1,0L1,1L0,1Z" />
+</vector>
