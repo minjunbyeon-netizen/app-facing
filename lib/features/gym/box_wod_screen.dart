@@ -5,6 +5,7 @@ import '../../core/haptic.dart';
 import '../../core/shell_nav_bus.dart';
 import '../../core/theme.dart';
 import '../../models/gym.dart';
+import '../../widgets/coach_badge.dart';
 import '../announcements/announcements_screen.dart';
 import '../leaderboard/box_leaderboard_screen.dart';
 import '../messages/messages_screen.dart';
@@ -47,6 +48,7 @@ class BoxWodScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('WOD'),
         actions: [
+          if (canViewDashboard) const CoachBadgeAction(),
           if (canMessage)
             IconButton(
               tooltip: 'Messages',

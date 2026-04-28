@@ -7,6 +7,7 @@ import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/coach_feedback.dart';
+import '../../widgets/coach_badge.dart';
 import '../../models/gym.dart';
 import '../wod_session/wod_session_screen.dart';
 import 'gym_repository.dart';
@@ -210,10 +211,12 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
     final hasScaled = wod.scaledVersion != null && wod.scaledVersion!.isNotEmpty;
     final hasBeginner =
         wod.beginnerVersion != null && wod.beginnerVersion!.isNotEmpty;
+    final isOwner = context.watch<GymState>().isOwner;
     return Scaffold(
       appBar: AppBar(
         title: Text(wod.wodType.toUpperCase()),
         actions: [
+          if (isOwner) const CoachBadgeAction(),
           IconButton(icon: const Icon(Icons.refresh), onPressed: _reload),
         ],
       ),

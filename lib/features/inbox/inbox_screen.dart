@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/coach_note.dart';
+import '../../widgets/coach_badge.dart';
 import '../../widgets/avatar.dart';
 import '../gym/gym_state.dart';
 import 'compose_note_screen.dart';
@@ -97,6 +98,7 @@ class _InboxScreenState extends State<InboxScreen>
           tabs: tabs,
         ),
         actions: [
+          if (isCoach) const CoachBadgeAction(),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () => state.refresh(),

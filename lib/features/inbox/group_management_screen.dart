@@ -10,6 +10,7 @@ import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/coach_group.dart';
+import '../../widgets/coach_badge.dart';
 import '../../widgets/avatar.dart';
 import '../gym/gym_state.dart';
 import 'inbox_repository.dart';
@@ -325,6 +326,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
       appBar: AppBar(
         title: const Text('GROUPS'),
         actions: [
+          const CoachBadgeAction(),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _reload,

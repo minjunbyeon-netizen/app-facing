@@ -7,6 +7,7 @@ import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/gym.dart';
+import '../../widgets/coach_badge.dart';
 import '../messages/messages_screen.dart';
 import 'gym_repository.dart';
 import 'gym_state.dart';
@@ -77,6 +78,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
       appBar: AppBar(
         title: const Text('COACH DASHBOARD'),
         actions: [
+          const CoachBadgeAction(),
           IconButton(icon: const Icon(Icons.refresh), onPressed: _reload),
         ],
       ),

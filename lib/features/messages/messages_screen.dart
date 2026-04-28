@@ -7,6 +7,7 @@ import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/announcement.dart';
+import '../../widgets/coach_badge.dart';
 import '../gym/gym_repository.dart';
 import '../gym/gym_state.dart';
 
@@ -96,6 +97,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
               : 'TO ${widget.withLabel ?? (widget.withHash!.length >= 8 ? widget.withHash!.substring(0, 8) : widget.withHash!)}',
         ),
         actions: [
+          if (gs.isOwner) const CoachBadgeAction(),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _reload,

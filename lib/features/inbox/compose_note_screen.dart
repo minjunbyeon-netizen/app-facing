@@ -10,6 +10,7 @@ import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/coach_group.dart';
+import '../../widgets/coach_badge.dart';
 import '../../models/coach_note.dart';
 import '../gym/gym_state.dart';
 import 'group_management_screen.dart';
@@ -371,7 +372,10 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('NEW NOTE')),
+      appBar: AppBar(
+        title: const Text('NEW NOTE'),
+        actions: const [CoachBadgeAction()],
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(FacingTokens.sp4),

@@ -7,6 +7,7 @@ import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/coach_feedback.dart';
+import '../../widgets/coach_badge.dart';
 import 'gym_repository.dart';
 import 'gym_state.dart';
 
@@ -160,6 +161,7 @@ class _MemberRequestsScreenState extends State<MemberRequestsScreen> {
       appBar: AppBar(
         title: const Text('MEMBER REQUESTS'),
         actions: [
+          const CoachBadgeAction(),
           IconButton(icon: const Icon(Icons.refresh), onPressed: _reload),
         ],
       ),
