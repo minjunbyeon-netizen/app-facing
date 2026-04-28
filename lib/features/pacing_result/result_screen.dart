@@ -71,7 +71,17 @@ class _ResultScreenState extends State<ResultScreen> {
         },
       });
       // v1.20 Phase 2.5: 시즌 active 시 자동 배지 unlock (best-effort).
-      await SeasonBadgeService.recordSessionToday();
+      // /go 페르소나 검증: wod_session 과 동일하게 unlock 발생 시 toast+Haptic 알림 일관성.
+      final newBadge = await SeasonBadgeService.recordSessionToday();
+      if (newBadge != null && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Season badge unlocked · ${newBadge.label}'),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+        Haptic.achievementUnlock();
+      }
     } catch (_) {
       // 저장 실패 무시.
     }
