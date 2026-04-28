@@ -18,9 +18,11 @@ import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
 import '../../core/haptic.dart';
+import '../../core/scoring.dart';
 import '../../core/season_badges.dart';
 import '../../core/theme.dart';
 import '../../core/titles_catalog.dart';
+import '../../core/worn_title_store.dart';
 import '../gym/gym_state.dart';
 import '../history/history_models.dart';
 import '../history/history_repository.dart';
@@ -35,18 +37,44 @@ class PanelBScreen extends StatefulWidget {
 
 class _PanelBScreenState extends State<PanelBScreen> {
   Future<List<WodHistoryItem>>? _historyFuture;
+  Future<List<EngineSnapshotRecord>>? _engineFuture;
   Future<List<String>>? _seasonBadgesFuture;
+  /// /go Tier 3: 현재 착용 칭호 코드.
+  String? _wornCode;
 
   @override
   void initState() {
     super.initState();
     final api = context.read<ApiClient>();
     _historyFuture = HistoryRepository(api).listWodHistory(limit: 500);
+    // /go Tier 3: engine 80+ count signal 추출용 — engine snapshot 로드.
+    _engineFuture = HistoryRepository(api).listEngineSnapshots(limit: 100);
     _seasonBadgesFuture = SeasonBadgeService.unlockedCodes();
+    _loadWornCode();
+  }
+
+  Future<void> _loadWornCode() async {
+    final code = await WornTitleStore.get();
+    if (!mounted) return;
+    setState(() => _wornCode = code);
+  }
+
+  Future<void> _toggleWorn(String code) async {
+    Haptic.medium();
+    if (_wornCode == code) {
+      await WornTitleStore.clear();
+      if (!mounted) return;
+      setState(() => _wornCode = null);
+    } else {
+      await WornTitleStore.set(code);
+      if (!mounted) return;
+      setState(() => _wornCode = code);
+    }
   }
 
   TitleUnlockSignals _buildSignals(
     List<WodHistoryItem> history,
+    List<EngineSnapshotRecord> engine,
     ProfileState profile,
     GymState gym,
   ) {
@@ -61,11 +89,18 @@ class _PanelBScreenState extends State<PanelBScreen> {
         weekend++;
       }
     }
+    // /go Tier 3: engine 80+ 측정 횟수 (PB_IRON_LUNG signal).
+    int engine80Plus = 0;
+    for (final r in engine) {
+      if (engineScoreTo100(r.overallScore) >= 80) engine80Plus++;
+    }
     final bs = profile.benchmarks['back_squat_1rm_lb'];
     final fs = profile.benchmarks['front_squat_1rm_lb'];
     final sn = profile.benchmarks['snatch_1rm_lb'];
     final fiveKm = profile.benchmarks['run_5km_sec'];
     final twoKmRow = profile.benchmarks['row_2km_sec'];
+    // /go Tier 3: Fran 1RM 키 사용 (benchmarks 에 'fran_sec' 있는 경우).
+    final fran = profile.benchmarks['fran_sec'];
     return TitleUnlockSignals(
       totalSessions: history.length,
       benchmarkCount: profile.benchmarks.length,
@@ -73,11 +108,13 @@ class _PanelBScreenState extends State<PanelBScreen> {
       sessionsBefore6am: beforeSix,
       sessionsAfter10pm: afterTen,
       weekendSessions: weekend,
+      engineScore80PlusCount: engine80Plus,
       backSquat1rmKg: bs == null ? null : bs * 0.4536,
       frontSquat1rmKg: fs == null ? null : fs * 0.4536,
       snatch1rmKg: sn == null ? null : sn * 0.4536,
       fiveKmSub25: fiveKm != null && fiveKm < 1500, // 25:00 = 1500s
       twoKmRowSub730: twoKmRow != null && twoKmRow < 450, // 7:30 = 450s
+      franSec: fran?.toInt(),
     );
   }
 
@@ -105,28 +142,79 @@ class _PanelBScreenState extends State<PanelBScreen> {
                 ),
               );
             }
-            final history = snap.data ?? const <WodHistoryItem>[];
-            final signals = _buildSignals(history, profile, gym);
-            final unlocked = PanelBUnlocker.unlockedCodes(signals);
-            final sorted = [...kPanelBTitles]
-              ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
-            return ListView(
-              padding: const EdgeInsets.all(FacingTokens.sp4),
-              children: [
-                _Header(
-                  unlocked: unlocked.length,
-                  total: kPanelBTitles.length,
+            // /go Tier 3: hasError 분기.
+            if (snap.hasError) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(FacingTokens.sp5),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text('칭호 로딩 실패',
+                          style: FacingTokens.sectionLabel),
+                      const SizedBox(height: FacingTokens.sp2),
+                      const Text('네트워크 확인 후 다시 시도.',
+                          style: FacingTokens.caption),
+                      const SizedBox(height: FacingTokens.sp3),
+                      OutlinedButton(
+                        onPressed: () {
+                          setState(() {
+                            final api = context.read<ApiClient>();
+                            _historyFuture = HistoryRepository(api)
+                                .listWodHistory(limit: 500);
+                            _engineFuture = HistoryRepository(api)
+                                .listEngineSnapshots(limit: 100);
+                          });
+                        },
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: FacingTokens.sp4),
-                _SeasonBadgesPanel(future: _seasonBadgesFuture),
-                const SizedBox(height: FacingTokens.sp4),
-                const Text('TITLES', style: FacingTokens.sectionLabel),
-                const SizedBox(height: FacingTokens.sp2),
-                ...sorted.map((t) => _TitleCard(
-                      title: t,
-                      unlocked: unlocked.contains(t.code),
-                    )),
-              ],
+              );
+            }
+            final history = snap.data ?? const <WodHistoryItem>[];
+            // /go Tier 3: engine snapshots — 별도 FutureBuilder 또는 nested fetch.
+            return FutureBuilder<List<EngineSnapshotRecord>>(
+              future: _engineFuture,
+              builder: (ctx2, eSnap) {
+                final engine =
+                    eSnap.data ?? const <EngineSnapshotRecord>[];
+                final signals =
+                    _buildSignals(history, engine, profile, gym);
+                final unlocked = PanelBUnlocker.unlockedCodes(signals);
+                final sorted = [...kPanelBTitles]
+                  ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+                return ListView(
+                  padding: const EdgeInsets.all(FacingTokens.sp4),
+                  children: [
+                    _Header(
+                      unlocked: unlocked.length,
+                      total: kPanelBTitles.length,
+                    ),
+                    const SizedBox(height: FacingTokens.sp4),
+                    _SeasonBadgesPanel(future: _seasonBadgesFuture),
+                    const SizedBox(height: FacingTokens.sp4),
+                    // /go Tier 3: 착용 안내.
+                    const Text('TITLES',
+                        style: FacingTokens.sectionLabel),
+                    const SizedBox(height: 2),
+                    const Text(
+                      '해금된 칭호를 탭하면 Profile 상단에 표시. 다시 탭하면 해제.',
+                      style: FacingTokens.caption,
+                    ),
+                    const SizedBox(height: FacingTokens.sp2),
+                    ...sorted.map((t) => _TitleCard(
+                          title: t,
+                          unlocked: unlocked.contains(t.code),
+                          worn: _wornCode == t.code,
+                          onTap: unlocked.contains(t.code)
+                              ? () => _toggleWorn(t.code)
+                              : null,
+                        )),
+                  ],
+                );
+              },
             );
           },
         ),
@@ -185,7 +273,16 @@ class _Header extends StatelessWidget {
 class _TitleCard extends StatelessWidget {
   final PanelBTitle title;
   final bool unlocked;
-  const _TitleCard({required this.title, required this.unlocked});
+  /// /go Tier 3: 현재 착용 중 여부.
+  final bool worn;
+  /// /go Tier 3: 탭 콜백 — 해금된 경우만 non-null. unlocked=false → null (비활성).
+  final VoidCallback? onTap;
+  const _TitleCard({
+    required this.title,
+    required this.unlocked,
+    this.worn = false,
+    this.onTap,
+  });
 
   Color _rarityColor() {
     switch (title.rarity) {
@@ -204,70 +301,122 @@ class _TitleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = unlocked ? _rarityColor() : FacingTokens.border;
-    return Container(
-      margin: const EdgeInsets.only(bottom: FacingTokens.sp2),
-      padding: const EdgeInsets.fromLTRB(
-        FacingTokens.sp4,
-        FacingTokens.sp3,
-        FacingTokens.sp4,
-        FacingTokens.sp3,
-      ),
-      decoration: BoxDecoration(
-        color: FacingTokens.surface,
-        border: Border(
-          left: BorderSide(color: color, width: 3),
-          top: BorderSide(color: FacingTokens.border, width: 1),
-          right: BorderSide(color: FacingTokens.border, width: 1),
-          bottom: BorderSide(color: FacingTokens.border, width: 1),
-        ),
-        borderRadius: BorderRadius.circular(FacingTokens.r2),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: FacingTokens.sp2),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(FacingTokens.r2),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(
+              FacingTokens.sp4,
+              FacingTokens.sp3,
+              FacingTokens.sp4,
+              FacingTokens.sp3,
+            ),
+            decoration: BoxDecoration(
+              color: worn
+                  ? FacingTokens.accent.withValues(alpha: 0.08)
+                  : FacingTokens.surface,
+              border: Border(
+                left: BorderSide(color: color, width: worn ? 4 : 3),
+                top: BorderSide(
+                    color: worn
+                        ? FacingTokens.accent
+                        : FacingTokens.border,
+                    width: 1),
+                right: BorderSide(
+                    color: worn
+                        ? FacingTokens.accent
+                        : FacingTokens.border,
+                    width: 1),
+                bottom: BorderSide(
+                    color: worn
+                        ? FacingTokens.accent
+                        : FacingTokens.border,
+                    width: 1),
+              ),
+              borderRadius: BorderRadius.circular(FacingTokens.r2),
+            ),
+            child: Row(
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        title.label,
-                        style: FacingTokens.h3.copyWith(
-                          color: unlocked
-                              ? FacingTokens.fg
-                              : FacingTokens.muted,
-                          fontWeight: FontWeight.w800,
-                        ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              title.label,
+                              style: FacingTokens.h3.copyWith(
+                                color: unlocked
+                                    ? FacingTokens.fg
+                                    : FacingTokens.muted,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                          if (worn) ...[
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: FacingTokens.accent,
+                                borderRadius: BorderRadius.circular(
+                                    FacingTokens.r1),
+                              ),
+                              child: const Text(
+                                'WORN',
+                                style: TextStyle(
+                                  color: FacingTokens.fg,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 1.0,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: FacingTokens.sp2),
+                          ],
+                          Text(
+                            title.rarity.toUpperCase(),
+                            style: FacingTokens.micro.copyWith(
+                              color: _rarityColor(),
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    Text(
-                      title.rarity.toUpperCase(),
-                      style: FacingTokens.micro.copyWith(
-                        color: _rarityColor(),
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 1.2,
+                      const SizedBox(height: 2),
+                      Text(
+                        unlocked
+                            ? title.captionKo
+                            : '잠금 — ${title.requirement}',
+                        style: FacingTokens.caption,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  unlocked
-                      ? title.captionKo
-                      : '잠금 — ${title.requirement}',
-                  style: FacingTokens.caption,
+                const SizedBox(width: FacingTokens.sp3),
+                Icon(
+                  worn
+                      ? Icons.star
+                      : (unlocked
+                          ? Icons.check_circle
+                          : Icons.lock_outline),
+                  size: 18,
+                  color: worn
+                      ? FacingTokens.accent
+                      : (unlocked
+                          ? FacingTokens.success
+                          : FacingTokens.muted),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: FacingTokens.sp3),
-          Icon(
-            unlocked ? Icons.check_circle : Icons.lock_outline,
-            size: 18,
-            color: unlocked ? FacingTokens.success : FacingTokens.muted,
-          ),
-        ],
+        ),
       ),
     );
   }
