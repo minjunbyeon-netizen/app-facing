@@ -8,6 +8,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../../core/app_mode.dart';
 import '../../core/device_id.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
@@ -160,6 +161,13 @@ class _PersonaSwitcherScreenState extends State<PersonaSwitcherScreen> {
     setState(() => _busy = true);
     Haptic.medium();
     await DeviceIdService.overrideForDebug(p.deviceIdSeed);
+    // 페르소나 role 기반 app_mode 자동 매핑.
+    final autoMode = switch (p.role) {
+      'coach_owner' => AppMode.coach,
+      'member' => AppMode.member,
+      _ => AppMode.solo, // admin / app_user 등
+    };
+    await AppModeStore.set(autoMode);
     if (!mounted) return;
     setState(() {
       _appliedSeed = p.deviceIdSeed;

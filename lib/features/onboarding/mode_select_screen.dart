@@ -6,13 +6,22 @@ import '../../core/theme.dart';
 
 /// Tier 부여 후 진입. 3 모드 (Coach / Member / Solo) 중 선택.
 /// 선택 시 SharedPreferences 저장 + 다음 분기 진입.
+/// Settings 에서 재진입 시 (arguments == 'settings') 뒤로가기 허용 + pop.
 class ModeSelectScreen extends StatelessWidget {
   const ModeSelectScreen({super.key});
 
+  bool _isFromSettings(BuildContext context) =>
+      ModalRoute.of(context)?.settings.arguments == 'settings';
+
   Future<void> _select(BuildContext context, AppMode mode) async {
     Haptic.medium();
+    final fromSettings = _isFromSettings(context);
     await AppModeStore.set(mode);
     if (!context.mounted) return;
+    if (fromSettings) {
+      Navigator.of(context).pop();
+      return;
+    }
     final next = switch (mode) {
       AppMode.coach => '/onboarding/create-gym',
       AppMode.member => '/onboarding/find-gym',
@@ -23,10 +32,11 @@ class ModeSelectScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fromSettings = _isFromSettings(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('YOUR ROLE'),
-        automaticallyImplyLeading: false,
+        automaticallyImplyLeading: fromSettings,
       ),
       body: SafeArea(
         child: SingleChildScrollView(

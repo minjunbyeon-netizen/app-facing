@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/api_client.dart';
+import '../../core/app_mode.dart';
 import '../../core/athletes.dart';
 import '../../core/engine_decay.dart';
 import '../../core/haptic.dart';
@@ -856,6 +857,8 @@ class _SettingsSection extends StatelessWidget {
         children: [
           const Text('SETTINGS', style: FacingTokens.sectionLabel),
           const SizedBox(height: FacingTokens.sp2),
+          const _ModeRow(),
+          const SizedBox(height: FacingTokens.sp3),
           Row(
             children: [
               const Expanded(child: Text('Unit', style: FacingTokens.body)),
@@ -1692,6 +1695,65 @@ class _InboxEntry extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Settings 섹션 'Mode' Row — Coach / Member / Solo 표시 + 변경 진입.
+class _ModeRow extends StatefulWidget {
+  const _ModeRow();
+
+  @override
+  State<_ModeRow> createState() => _ModeRowState();
+}
+
+class _ModeRowState extends State<_ModeRow> {
+  AppMode? _mode;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final m = await AppModeStore.get();
+    if (!mounted) return;
+    setState(() => _mode = m);
+  }
+
+  String _label(AppMode? m) => switch (m) {
+        AppMode.coach => 'COACH',
+        AppMode.member => 'MEMBER',
+        AppMode.solo => 'SOLO',
+        null => '미설정',
+      };
+
+  Future<void> _open() async {
+    Haptic.light();
+    await Navigator.of(context).pushNamed(
+      '/onboarding/mode',
+      arguments: 'settings',
+    );
+    if (!mounted) return;
+    _load();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const Expanded(child: Text('Mode', style: FacingTokens.body)),
+        TextButton(
+          onPressed: _open,
+          style: TextButton.styleFrom(
+            foregroundColor: FacingTokens.muted,
+            padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp2),
+          ),
+          child: Text(_label(_mode), style: FacingTokens.body),
+        ),
+        const Icon(Icons.chevron_right, color: FacingTokens.muted, size: 18),
+      ],
     );
   }
 }
