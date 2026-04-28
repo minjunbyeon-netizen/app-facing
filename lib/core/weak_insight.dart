@@ -69,43 +69,47 @@ double _sqrt(double x) {
 String _weakComment(String category, int score) {
   switch (category) {
     case 'POWER':
-      return '$score/100 — SBD + OHP 1RM 보강. '
-          '체중 대비 Back Squat 1.5x, Deadlift 2.0x 우선.\n'
-          '(샘플 코멘트 — 실제 AI 분석은 Phase 2)';
+      return '$score/100 — SBD + OHP 1RM weak. '
+          'Priority: BS 1.5×BW, DL 2.0×BW.\n'
+          '(Sample comment · Real AI analysis Phase 2)';
     case 'OLYMPIC':
-      return '$score/100 — Clean·Snatch 기술 정체 신호. '
-          '가벼운 무게로 Tall 드릴·Position 반복.\n'
-          '(샘플 코멘트 — 실제 AI 분석은 Phase 2)';
+      return '$score/100 — Clean/Snatch technique plateau. '
+          'Light weight Tall drills + position reps.\n'
+          '(Sample comment · Real AI analysis Phase 2)';
     case 'GYMNASTICS':
-      return '$score/100 — Pull-up·HSPU Max UB 부족. '
-          'Strict + 볼륨 주 3회. Ring/Bar MU 단계 진입 체크.\n'
-          '(샘플 코멘트 — 실제 AI 분석은 Phase 2)';
+      return '$score/100 — Pull-up/HSPU Max UB low. '
+          'Strict volume 3×/week. Check Ring/Bar MU progression.\n'
+          '(Sample comment · Real AI analysis Phase 2)';
     case 'CARDIO':
-      return '$score/100 — Engine 용량 부족. '
-          'Z2 지속주 주 2회 + Row 2K 타임 트라이얼 월 1회.\n'
-          '(샘플 코멘트 — 실제 AI 분석은 Phase 2)';
+      return '$score/100 — Engine capacity low. '
+          'Z2 base 2×/week + Row 2K time trial monthly.\n'
+          '(Sample comment · Real AI analysis Phase 2)';
     case 'METCON':
-      return '$score/100 — 1분 max 출력 부족. '
-          'Burpee·DU·Wall Ball 분당 max 테스트 주기적 체크.\n'
-          '(샘플 코멘트 — 실제 AI 분석은 Phase 2)';
+      return '$score/100 — 1-min max output weak. '
+          'Burpee · DU · Wall Ball per-min tests periodic.\n'
+          '(Sample comment · Real AI analysis Phase 2)';
+    case 'BODY':
+      return '$score/100 — Body composition needs work. '
+          'InBody Score / SMM ratio / BF% optimization.\n'
+          '(Sample comment · Real AI analysis Phase 2)';
     default:
-      return '$score/100 — 약점 카테고리 개선 필요.\n'
-          '(샘플 코멘트 — 실제 AI 분석은 Phase 2)';
+      return '$score/100 — Weak category improvement needed.\n'
+          '(Sample comment · Real AI analysis Phase 2)';
   }
 }
 
 String _balancedComment(int avg) {
   if (avg >= 80) {
-    return '모든 카테고리 80+ — Complete Athlete 수준.\n'
-        'Elite 구간 진입. 상위 3 카테고리 Peaking 전략 고려.\n'
-        '(샘플 코멘트 — 실제 AI 분석은 Phase 2)';
+    return 'All categories 80+ — Complete Athlete tier.\n'
+        'Elite zone reached. Top 3 categories peaking strategy.\n'
+        '(Sample comment · Real AI analysis Phase 2)';
   }
   if (avg >= 60) {
-    return '전 카테고리 균형. 극적 약점 없음. '
-        '전체 강도 5% 상향 또는 볼륨 10% 상향.\n'
-        '(샘플 코멘트 — 실제 AI 분석은 Phase 2)';
+    return 'Categories balanced. No dramatic weakness. '
+        'Increase total intensity 5% or volume 10%.\n'
+        '(Sample comment · Real AI analysis Phase 2)';
   }
-  return '전 카테고리 균형이나 절대값 낮음. '
-      '주 3회 기본 프로그래밍 + 벤치마크 월 1회.\n'
-      '(샘플 코멘트 — 실제 AI 분석은 Phase 2)';
+  return 'Categories balanced but absolute values low. '
+      '3 sessions/week + monthly benchmark.\n'
+      '(Sample comment · Real AI analysis Phase 2)';
 }

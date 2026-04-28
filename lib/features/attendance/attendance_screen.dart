@@ -239,7 +239,7 @@ class _AttendanceBody extends StatelessWidget {
     final longestStreak = _longestStreak();
 
     final streakNote = currentStreak == 0
-        ? '오늘 세션하면 streak 시작.'
+        ? 'Start streak today.'
         : (currentStreak == longestStreak && currentStreak > 1)
             ? '최장 streak 갱신 중. 멈추지 말 것.'
             : currentStreak >= 7
@@ -371,7 +371,7 @@ class _AttendanceBody extends StatelessWidget {
         const SizedBox(height: FacingTokens.sp2),
         _StatLine(
           label: 'THIS MONTH',
-          value: '$attendedDays / $daysInMonth 일',
+          value: '$attendedDays / $daysInMonth days',
           trailing: '$attendancePct%',
         ),
         _StatLine(
@@ -381,12 +381,12 @@ class _AttendanceBody extends StatelessWidget {
         ),
         _StatLine(
           label: 'CURRENT STREAK',
-          value: '$currentStreak 일',
+          value: '$currentStreak days',
           trailing: null,
         ),
         _StatLine(
           label: 'LONGEST STREAK',
-          value: '$longestStreak 일',
+          value: '$longestStreak days',
           trailing: null,
           isLast: true,
         ),
@@ -884,7 +884,7 @@ class _StreakFreezeRowState extends State<_StreakFreezeRow> {
                     const SizedBox(height: 2),
                     Text(
                       available
-                          ? '주 1회 무료. 사용 시 이번 주 streak 보호.'
+                          ? '1 free / week. Saves this week\'s streak.'
                           : _refillLabel(next),
                       style: FacingTokens.caption,
                     ),

@@ -58,7 +58,7 @@ SeasonInfo currentSeason([DateTime? now]) {
     return SeasonInfo(
       current: CrossFitSeason.quarterfinals,
       label: 'QUARTERFINALS',
-      description: '쿼터파이널 · 상위 10% 대상.',
+      description: 'Quarterfinals · Top 10%.',
       endDate: DateTime(n.year, 4, 30),
     );
   }

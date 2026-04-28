@@ -182,6 +182,7 @@ class _CategoryTiers extends StatelessWidget {
       ('GYMNASTICS', 'gymnastics'),
       ('CARDIO', 'cardio'),
       ('METCON', 'metcon'),
+      ('BODY', 'body_composition'),
     ];
     final rows = <Widget>[];
     for (final (title, key) in specs) {
@@ -205,7 +206,7 @@ class _CategoryTiers extends StatelessWidget {
         children: [
           const Text('CATEGORY TIERS', style: FacingTokens.sectionLabel),
           const SizedBox(height: FacingTokens.sp1),
-          Text('백분위는 CrossFit 커뮤니티 분포 근사값',
+          Text('Percentiles · CrossFit community distribution.',
               style: FacingTokens.caption),
           const SizedBox(height: FacingTokens.sp3),
           if (rows.isEmpty)
@@ -307,7 +308,7 @@ class _MyBoxSection extends StatelessWidget {
           const Text('MY BOX', style: FacingTokens.sectionLabel),
           const SizedBox(height: FacingTokens.sp2),
           if (gym == null)
-            const Text('박스 미가입. WOD 탭에서 Find Box.',
+            const Text('No Box. Find Box on WOD tab.',
                 style: FacingTokens.caption)
           else ...[
             Text(gym.name,
@@ -397,13 +398,14 @@ class _EngineTrendState extends State<_EngineTrend> {
               final decayLabel = EngineDecay.statusLabel(daysSinceLast);
               final decayCaption = EngineDecay.statusCaption(daysSinceLast);
 
-              // Radar 데이터 (5축) — gradeResult에서 카테고리 score 추출.
+              // v3.1 Radar 데이터 (6축) — body_composition 신규 카테고리 추가.
               final radarValues = <_RadarAxis>[
                 _RadarAxis('POWER', _catScore(grade, 'power')),
                 _RadarAxis('OLYMPIC', _catScore(grade, 'olympic')),
                 _RadarAxis('GYMNASTICS', _catScore(grade, 'gymnastics')),
                 _RadarAxis('CARDIO', _catScore(grade, 'cardio')),
                 _RadarAxis('METCON', _catScore(grade, 'metcon')),
+                _RadarAxis('BODY', _catScore(grade, 'body_composition')),
               ];
               final hasRadarData = radarValues.any((a) => a.value > 0);
 
@@ -475,7 +477,7 @@ class _EngineTrendState extends State<_EngineTrend> {
                     const Padding(
                       padding:
                           EdgeInsets.symmetric(vertical: FacingTokens.sp4),
-                      child: Text('카테고리 데이터 없음.',
+                      child: Text('No category data.',
                           style: FacingTokens.caption),
                     )
                   else ...[
@@ -739,7 +741,7 @@ class _RecentRecordsState extends State<_RecentRecords> {
               }
               final records = snap.data ?? const [];
               if (records.isEmpty) {
-                return const Text('기록 없음.', style: FacingTokens.caption);
+                return const Text('No records.', style: FacingTokens.caption);
               }
               return Column(
                 children: records
@@ -1211,6 +1213,7 @@ class _TierRoadmap extends StatelessWidget {
       'GYMNASTICS': catScore('gymnastics'),
       'CARDIO': catScore('cardio'),
       'METCON': catScore('metcon'),
+      'BODY': catScore('body_composition'),
     };
     final weak = analyzeWeakness(categoryScores);
 
@@ -1257,7 +1260,7 @@ class _TierRoadmap extends StatelessWidget {
               ],
             ),
             const SizedBox(height: FacingTokens.sp1),
-            Text('$currentScore100 / $nextThreshold 까지', style: FacingTokens.caption),
+            Text('$currentScore100 / $nextThreshold to next', style: FacingTokens.caption),
             const SizedBox(height: FacingTokens.sp2),
             ClipRRect(
               borderRadius: BorderRadius.circular(FacingTokens.r1),
@@ -1284,7 +1287,7 @@ class _TierRoadmap extends StatelessWidget {
             ],
             const SizedBox(height: FacingTokens.sp2),
             Text(
-              '* 가상. Tier 도달 추정. 실제 진도는 주간 세션·약점 집중에 따라 변동.',
+              '* Mock estimate. Real progress depends on weekly sessions + weak focus.',
               style: FacingTokens.micro.copyWith(color: FacingTokens.muted),
             ),
           ],
@@ -1385,7 +1388,7 @@ class _RoleModelCardState extends State<_RoleModelCard> {
           const SizedBox(height: FacingTokens.sp2),
           if (a == null)
             const Text(
-              '엘리트 선수 선택 · 철학과 대표 WOD 참고.',
+              'Pick elite. Philosophy + signature WOD.',
               style: FacingTokens.caption,
             )
           else ...[
@@ -1570,7 +1573,7 @@ class _WornTitleLineState extends State<_WornTitleLine> {
             Expanded(
               child: Text(
                 current == null
-                    ? '칭호 선택 · 해금 시 노출'
+                    ? 'Pick title · Unlock first'
                     : AchievementCard.koreanTitle(current.code),
                 style: FacingTokens.body.copyWith(
                   fontWeight: FontWeight.w800,
@@ -1649,8 +1652,8 @@ class _InboxEntry extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       unread > 0
-                          ? '코치 쪽지 · 박스 공지'
-                          : '코치 쪽지 · 박스 공지',
+                          ? 'Coach notes · Box announcements'
+                          : 'Coach notes · Box announcements',
                       style: FacingTokens.caption,
                     ),
                   ],

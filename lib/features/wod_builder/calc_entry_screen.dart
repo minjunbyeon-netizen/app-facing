@@ -52,7 +52,7 @@ class CalcEntryScreen extends StatelessWidget {
                               )),
                           const Spacer(),
                           Text(
-                            '* 가상 일정',
+                            '* Mock schedule',
                             style: FacingTokens.micro.copyWith(
                               color: FacingTokens.muted,
                               letterSpacing: 0.4,
@@ -70,7 +70,7 @@ class CalcEntryScreen extends StatelessWidget {
               const Text('PICK A WOD', style: FacingTokens.sectionLabel),
               const SizedBox(height: FacingTokens.sp1),
               const Text(
-                'Split · Burst 전략을 계산할 WOD 선택.',
+                'Pick a WOD. Split · Burst auto-calc.',
                 style: FacingTokens.caption,
               ),
               const SizedBox(height: FacingTokens.sp4),
@@ -122,7 +122,7 @@ class CalcEntryScreen extends StatelessWidget {
               const Divider(height: 1, color: FacingTokens.border),
               _ChoiceRow(
                 title: 'Custom',
-                subtitle: '동작·횟수 직접 구성. For Time 전용.',
+                subtitle: 'Build movements/reps. For Time only.',
                 onTap: () {
                   Haptic.medium();
                   Navigator.of(context).push(MaterialPageRoute(
