@@ -146,7 +146,7 @@ RATIONALE: Open 대비 leg drive 강화. 5주 누적 후 1RM 테스트.
 **Lv 차감 없음** — 비활성 사용자도 보유 Lv 보존.
 
 ### 6-3. 칭호 / 시즌 배지 / PR / Streak Freeze
-- **20종 칭호** (Common 6 / Rare 8 / Epic 4 / Legendary 2) — 결정론적 임계 (e.g., Engine 80+ 5회 → IRON LUNG).
+- **50종 칭호** (Common 15 / Rare 20 / Epic 10 / Legendary 5) — 결정론적 임계 (e.g., Engine 80+ 5회 → IRON LUNG).
 - **시즌 배지**: CrossFit 공식 시즌 (Open / QF / SF / Games) 1회 이상 세션 시 자동 unlock. 매년 새 배지.
 - **PR 자동 감지**: 같은 WOD 두 번째 완료 시 시간 단축되면 즉시 알림.
 - **Streak Freeze**: 주 1회 무료 'Freeze' 토큰. 사용자 자율 선택. 회복 결제 X.
