@@ -21,6 +21,7 @@ import '../../core/haptic.dart';
 import '../../core/pr_detector.dart';
 import '../../core/scoring.dart';
 import '../../core/season_badges.dart';
+import '../../core/share_count_store.dart';
 import '../../core/theme.dart';
 import '../../core/titles_catalog.dart';
 import '../../core/worn_title_store.dart';
@@ -43,6 +44,8 @@ class _PanelBScreenState extends State<PanelBScreen> {
   Future<List<String>>? _seasonBadgesFuture;
   /// /go Tier 3: 현재 착용 칭호 코드.
   String? _wornCode;
+  /// /go 7 (B2): 누적 공유 횟수 (PB_PHOTO_FINISH 등 signal).
+  int _shareCount = 0;
 
   @override
   void initState() {
@@ -53,6 +56,13 @@ class _PanelBScreenState extends State<PanelBScreen> {
     _engineFuture = HistoryRepository(api).listEngineSnapshots(limit: 100);
     _seasonBadgesFuture = SeasonBadgeService.unlockedCodes();
     _loadWornCode();
+    _loadShareCount();
+  }
+
+  Future<void> _loadShareCount() async {
+    final n = await ShareCountStore.get();
+    if (!mounted) return;
+    setState(() => _shareCount = n);
   }
 
   Future<void> _loadWornCode() async {
@@ -154,6 +164,7 @@ class _PanelBScreenState extends State<PanelBScreen> {
       deadlift1rmKg: dl == null ? null : dl * 0.4536,
       pressStrict1rmKg: sp == null ? null : sp * 0.4536,
       doubleSessionDayCount: doubleSessionDays,
+      shareCount: _shareCount,
     );
   }
 
