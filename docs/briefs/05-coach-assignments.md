@@ -1,10 +1,12 @@
 # §5 Coach Assignments — 6-Pager
 
 > **분류**: Product Brief · Internal  
-> **버전**: v1.0  
+> **버전**: v1.1  
 > **작성일**: 2026-04-28  
 > **작성자**: facing-app Product  
 > **대상 독자**: VC · PM · Eng · 박스 코치
+>
+> **v1.1 변경점**: 코드 정합 대규모. (1) API endpoint = `/api/v1/inbox/assignments` (별도) → `/api/v1/gym/{gymId}/notes` (kind='assignment' 통합). (2) 거절 사유 = `injury/schedule/intensity/other` → `INJURY/CONDITION/TIME/SUBSTITUTE` (§4 Coach Notes 정합). (3) 데이터 모델 = `AssignmentRecord` 단일 → `CoachNote + AssignmentItem + ActualSet` 3 클래스 분리. (4) Schema 6 필드 → 11 필드 (alternateMovement / tempoPattern / timeCapSec / restSec 추가). (5) Load unit 6종 → 8종 (sec_per_500m / time_cap_sec 추가). (6) RecipientStatus 6종 (sent/read/accepted/completed/declined/asked) 명시.
 
 ---
 
@@ -76,26 +78,33 @@ FACING Coach Assignments 기능은 다음 4원칙을 모든 설계 결정의 기
               └─ 거절(Decline) → 사유 선택 → Coach 확인 → 재처방 or 종료
 ```
 
-### 4-2. Coach 처방 작성 화면 (ComposeAssignmentScreen)
+### 4-2. Coach 처방 작성 화면 (ComposeNoteScreen — kind=assignment 모드)
 
-코치는 Inbox → Compose → "Assignment" 타입을 선택한 뒤 아래 Schema를 입력한다.
+코치는 Inbox → Compose → "Assignment" 타입을 선택한 뒤 아래 Schema를 입력한다. 입력값은 `AssignmentItem` 객체로 구조화되어 `CoachNote.structured: List<AssignmentItem>` 에 담긴다.
 
-| 필드 | 입력 형식 | 예시 |
+**AssignmentItem 11 필드 (v1.1 코드 정합)**:
+
+| 필드 (코드) | 입력 형식 | 예시 |
 |---|---|---|
-| Movement | 드롭다운 (MovementPicker 재사용) | Back Squat |
-| Sets × Reps | 숫자 입력 (세트 / 횟수) | 5 × 5 |
-| Load Type | 단위 선택 (6종) | %1RM |
-| Load Value | 단위별 입력 | 80 |
-| Substitute | 동작 선택 + 조건 텍스트 | Front Squat (어깨 부상 시) |
-| Tempo | 4자리 표기 (optional) | 3-1-1-0 |
-| Rest | 초 단위 (optional) | 180s |
-| Due Date | 날짜 피커 | 2026-05-02 |
-| Rationale | 텍스트 (최소 10자) | Open 대비 leg drive 강화. 5주 누적 후 1RM 테스트. |
-| Target | 개인 / 그룹 / 전체 | 개인: 김도윤 |
+| `movementSlug` | MovementPicker | Back Squat |
+| `alternateMovement` | Substitute 선택 + 조건 텍스트 | Front Squat (어깨 부상 시) |
+| `sets` | int? | 5 |
+| `reps` | int? | 5 |
+| `unit` | 단위 칩 8종 | `pct_1rm` |
+| `loadValue` | num? | 80 |
+| `restSec` | int? (sec) | 180 |
+| `tempoPattern` | String? (4자리) | "3-1-1-0" |
+| `timeCapSec` | int? (sec) | 720 |
+| `rounds` | int? | 5 |
+| `note` | String? (최대 100자) | "warmup 후 진행" |
 
-Load Type 6종: `%1RM` · `RPE` · `kg` · `lb` · `sec/500m` · `tempo` · `feel`.
+CoachNote level (top-level) 필드 추가: `dueDate` (YYYY-MM-DD) · `dueStart` / `dueEnd` (window variant) · `rationale` (T2 의무 — 최소 10자).
 
-Validate 실패 시 저장 차단 + 누락 필드 강조. 초안(draft) 상태로 임시 저장 가능.
+**Load unit 8종** (v1.1 코드 정합): `pct_1rm` · `rpe` · `kg` · `lb` · `sec_per_500m` · `time_cap_sec` · `tempo` · `feel`.
+
+> v1.0의 6종 → 8종으로 확장. `sec_per_500m` 은 카디오 페이스 처방용, `time_cap_sec` 은 For Time WOD 처방의 cap 명시.
+
+Validate 실패 시 저장 차단 + 누락 필드 강조. 초안(draft) 상태로 임시 저장 가능 (`my.status == 'sent'` 미발송).
 
 ### 4-3. 멤버 수신 화면 (AssignmentDetailScreen)
 
@@ -130,18 +139,21 @@ Open 대비 leg drive 강화. 5주 누적 후 1RM 테스트.
 
 완료 입력 시 상태: `accepted` → `completed`. 코치에게 Push 알림 발송.
 
-### 4-5. 거절 흐름
+### 4-5. 거절 흐름 (v1.1 §4 정합)
 
-"Decline" 선택 시 사유 선택 필수.
+"Decline" 선택 시 사유 선택 필수. **§4 Coach Notes 와 동일 코드값** 사용 — 통합 4종.
 
-| 사유 코드 | 표시 라벨 |
-|---|---|
-| `injury` | Injury |
-| `schedule` | Schedule conflict |
-| `intensity` | Too heavy / Too light |
-| `other` | Other |
+| 사유 코드 | 한글 표시 | 영문 표시 |
+|---|---|---|
+| `INJURY` | 부상 | Injury |
+| `CONDITION` | 컨디션 (피로 / 회복 부족) | Condition |
+| `TIME` | 시간 부족 / 일정 충돌 | Schedule conflict |
+| `SUBSTITUTE` | 대체 동작 요청 (강도 / 동작 변경) | Substitute requested |
+| (free text) | 직접 입력 | Free text |
 
-거절 후 코치는 인박스에서 확인, 재처방(re-assign) 또는 종료 선택.
+> v1.0의 4종 (`injury / schedule / intensity / other`) 은 코드 정합으로 위 4종 + free text 로 전환. `intensity` 분리 → `SUBSTITUTE` 통합 (멤버가 강도/동작 모두 변경 요청 가능).
+
+거절 후 코치는 인박스에서 확인, 재처방(re-assign) 또는 종료 선택. `InboxState.decline(noteId, reason: 'INJURY')` 메서드 호출 → `POST /api/v1/gym/notes/{noteId}/decline` 발송.
 
 ### 4-6. 코치 피드백
 
@@ -153,62 +165,88 @@ FEEDBACK — 박지훈
 5주차 종료 시 1RM 테스트 예정.
 ```
 
-### 4-7. API 설계 (신규 endpoint)
+### 4-7. API 설계 (v1.1 — Notes endpoint 통합)
 
-| Method | Path | 설명 |
-|---|---|---|
-| POST | /api/v1/inbox/assignments | 처방 생성 (coach_owner 만) |
-| GET | /api/v1/inbox/assignments | 처방 목록 (role별 필터) |
-| GET | /api/v1/inbox/assignments/{id} | 처방 상세 |
-| PATCH | /api/v1/inbox/assignments/{id}/accept | 수락 |
-| PATCH | /api/v1/inbox/assignments/{id}/complete | 완료 + 결과 입력 |
-| PATCH | /api/v1/inbox/assignments/{id}/decline | 거절 + 사유 |
-| PATCH | /api/v1/inbox/assignments/{id}/feedback | 코치 피드백 |
+> **v1.1 정합**: v1.0의 `/api/v1/inbox/assignments/*` 별도 endpoint 가 아닌, **§4 Coach Notes 의 `/api/v1/gym/{gymId}/notes/*` 통합 endpoint** 에서 `kind='assignment'` 분기로 처리한다. 별도 라우트 없음.
+
+| Method | Path | 설명 | InboxState 메서드 |
+|---|---|---|---|
+| POST | /api/v1/gym/{gymId}/notes | 처방 생성 (kind='assignment', structured: List\<AssignmentItem\>) | `repo.postNote(...)` |
+| GET | /api/v1/gym/{gymId}/notes | 인박스 통합 목록 (note + assignment) | `refresh()` |
+| POST | /api/v1/gym/notes/{noteId}/accept | 수락 | `accept(noteId)` |
+| POST | /api/v1/gym/notes/{noteId}/complete | 완료 + List\<ActualSet\> 결과 | `complete(noteId, actual: ...)` |
+| POST | /api/v1/gym/notes/{noteId}/decline | 거절 + 사유 코드 | `decline(noteId, reason: ...)` |
+| POST | /api/v1/gym/notes/{noteId}/ask | Ask Coach 질문 | `askCoach(noteId, body)` |
+
+코치 피드백은 별도 endpoint 가 아닌 `kind='note'` 회신 발송으로 처리 (v1.1 단순화). v2 에서 `/feedback` 별도 분리 검토.
 
 모든 응답은 Envelope `{ok, data, error?, code?}`.
 
-### 4-8. 데이터 모델 (AssignmentRecord)
+### 4-8. 데이터 모델 (v1.1 — 3 클래스 분리)
+
+> **v1.1 정합**: v1.0의 단일 `AssignmentRecord` 가 아닌, **`CoachNote + AssignmentItem + ActualSet` 3 클래스 분리** 모델 (`lib/models/coach_note.dart` 단일 진원지). Note 와 Assignment 가 같은 컨테이너 (`CoachNote`) 안에 `kind` 필드로 구분된다.
 
 ```dart
-class AssignmentRecord {
-  final String id;
-  final String coachId;
-  final String memberId;
-  final String gymId;
-
-  // 처방 Schema
-  final String movement;       // "Back Squat"
-  final int sets;
-  final int reps;
-  final String loadType;       // "%1RM" | "RPE" | "kg" | "lb" | "sec/500m" | "tempo" | "feel"
-  final double loadValue;
-  final String substitute;     // "Front Squat (어깨 부상 시)"
-  final String? tempo;         // "3-1-1-0"
-  final int? restSeconds;      // 180
-  final DateTime dueDate;
-  final String rationale;
-
-  // 상태
-  final AssignmentStatus status;  // draft | sent | accepted | completed | declined
-
-  // 수행 결과 (멤버)
-  final double? actualLoad;
-  final List<int>? actualReps;   // 세트별 횟수
-  final double? rpe;
-  final String? memberNote;
-  final bool substituteUsed;
-  final DateTime? completedAt;
-
-  // 거절
-  final String? declineReason;   // "injury" | "schedule" | "intensity" | "other"
-
-  // 코치 피드백
-  final String? coachFeedback;
-  final DateTime? feedbackAt;
-
+class CoachNote {
+  final int id;
+  final int gymId;
+  final String kind;            // 'note' | 'assignment'
+  final int senderDeviceId;
+  final String? senderName;
+  final String body;
+  final List<AssignmentItem> structured;  // assignment 시 채워짐
+  final String? dueDate;        // YYYY-MM-DD (single-date)
+  final String? dueStart;       // YYYY-MM-DD (window-start, v2)
+  final String? dueEnd;         // YYYY-MM-DD (window-end, v2)
+  final String? rationale;      // WHY (T2 의무, 최소 10자)
+  final String? autoKind;       // v1.19 achievement type
+  final RecipientStatus? my;    // 본인 액션 상태
   final DateTime createdAt;
 }
+
+class AssignmentItem {
+  final String movementSlug;
+  final String? alternateMovement;
+  final int? sets;
+  final int? reps;
+  final String? unit;           // pct_1rm | rpe | kg | lb | sec_per_500m | time_cap_sec | tempo | feel
+  final num? loadValue;
+  final int? restSec;
+  final String? tempoPattern;   // "3-1-1-0"
+  final int? timeCapSec;
+  final int? rounds;
+  final String? note;           // 100자 제한
+}
+
+class ActualSet {
+  final int setIndex;           // 0-based
+  final num? actualLoad;
+  final int? actualReps;
+  final num? rpe;               // 1~10
+  final String? note;
+}
+
+class RecipientStatus {
+  final String status;          // 'sent' | 'read' | 'accepted' | 'completed' | 'declined' | 'asked'
+  final List<ActualSet>? actualSets;
+  final String? declineReason;  // 'INJURY' | 'CONDITION' | 'TIME' | 'SUBSTITUTE' | free text
+  final DateTime? statusAt;
+}
 ```
+
+**상태 전이**:
+```
+sent → read → accepted → completed   (정상 처방 loop)
+              ↓
+              declined (사유 1개 + free text)
+sent → asked (Ask Coach 질문, kind='note' 만)
+```
+
+InboxState 메서드 시그니처 (코드 정합):
+- `Future<bool> accept(int noteId)` — 수락
+- `Future<bool> complete(int noteId, {List<ActualSet> actual = const []})` — 완료 + 세트별 결과
+- `Future<bool> decline(int noteId, {String? reason})` — 거절 + 사유
+- `Future<bool> askCoach(int noteId, String body)` — 질문 (note 만, assignment 미지원)
 
 ---
 
