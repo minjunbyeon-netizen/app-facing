@@ -13,8 +13,9 @@ import '../../core/unit_state.dart';
 import '../history/history_repository.dart';
 import '../profile/profile_state.dart';
 
-/// v1.10.0 위저드 — 5 카테고리(파워/역도/짐내/카디오/메타콘) PageView.
+/// v3.1 위저드 — 6 카테고리 (파워·역도·짐내·카디오·메타콘·바디) PageView.
 /// 신체(Step 1)는 onboarding_basic.dart에서 별도 입력.
+/// SSOT: ~/.claude/reference/study/fitness/ + InBody 기반 body_composition 신규 카테고리.
 class OnboardingBenchmarksScreen extends StatefulWidget {
   const OnboardingBenchmarksScreen({super.key});
 
@@ -54,11 +55,12 @@ class _OnboardingBenchmarksScreenState
     _Category(
       key: 'olympic',
       title: 'OLYMPIC',
-      hint: 'Clean · Snatch · 1RM',
+      hint: 'Clean · Snatch · OHS · 1RM',
       fields: [
         'clean_1rm_lb',
         'clean_and_jerk_1rm_lb',
         'snatch_1rm_lb',
+        'overhead_squat_1rm_lb',
         'power_clean_1rm_lb',
         'power_snatch_1rm_lb',
       ],
@@ -91,13 +93,25 @@ class _OnboardingBenchmarksScreenState
     _Category(
       key: 'metcon',
       title: 'METCON',
-      hint: '1-min Max · Capacity',
+      hint: '1-min Max · Benchmark WOD',
       fields: [
         'burpee_per_min',
         'double_under_per_min',
         'assault_bike_per_min',
         'wall_ball_per_min',
         'box_jump_per_min',
+        'fran_time_sec',
+        'helen_time_sec',
+      ],
+    ),
+    _Category(
+      key: 'body',
+      title: 'BODY',
+      hint: 'InBody 골격근량·체지방률·Score',
+      fields: [
+        'inbody_smm_kg',
+        'inbody_bf_pct',
+        'inbody_score',
       ],
     ),
   ];
@@ -126,6 +140,8 @@ class _OnboardingBenchmarksScreenState
         ('Power Clean 1RM', 'lb', '예: 195', 'High catch'),
     'power_snatch_1rm_lb':
         ('Power Snatch 1RM', 'lb', '예: 145', 'High catch'),
+    'overhead_squat_1rm_lb':
+        ('Overhead Squat 1RM', 'lb', '예: 155', 'Mobility + Snatch top hold'),
     // Gymnastics
     'strict_pull_up_max_ub':
         ('Strict Pull-up Max', 'reps', '예: 12', 'Kipping 없는 순수 strict'),
@@ -152,7 +168,7 @@ class _OnboardingBenchmarksScreenState
         ('Cooper 12-min (m)', 'm', '예: 2800', '12분 달린 거리'),
     // Metcon
     'burpee_per_min':
-        ('Burpee 1-min Max', 'reps', '예: 22', '전신 메콘'),
+        ('Burpee 1-min Max', 'reps', '예: 27', 'Games 30+ / Elite 26-29 / RX+ 22-25'),
     'double_under_per_min':
         ('Double-under 1-min Max', 'reps', '예: 110', '코디네이션'),
     'assault_bike_per_min':
@@ -161,6 +177,18 @@ class _OnboardingBenchmarksScreenState
         ('Wall Ball 1-min Max', 'reps', '예: 22', '@20lb / 14lb'),
     'box_jump_per_min':
         ('Box Jump 1-min Max', 'reps', '예: 18', '@24" / 20"'),
+    // v3.1 Benchmark WOD
+    'fran_time_sec':
+        ('Fran (sec)', 'sec', '예: 230 (3:50)', '21-15-9 Thruster 95/65 + Pull-up'),
+    'helen_time_sec':
+        ('Helen (sec)', 'sec', '예: 660 (11:00)', '3 round 400m + KB swing 21 + Pull-up 12'),
+    // v3.1 InBody Body Composition
+    'inbody_smm_kg':
+        ('골격근량 (SMM)', 'kg', '예: 36', 'InBody 측정 — 평균 32-34 / Athlete 35+'),
+    'inbody_bf_pct':
+        ('체지방률', '%', '예: 14', 'InBody 측정 — Athlete 6-13 / Fitness 14-17'),
+    'inbody_score':
+        ('InBody Score', '점', '예: 90', 'InBody 종합 점수 0-100. Athlete 80-85 / Elite 85+'),
   };
 
   static List<String> get _allFields =>
