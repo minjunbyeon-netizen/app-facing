@@ -35,4 +35,30 @@ class PrDetector {
     }
     return count;
   }
+
+  /// 신규 기록 1건이 prior best 대비 PR 인지 판정 (forTime 전용).
+  /// wod_session_screen 저장 직후 unlock 모먼트 발화 판정용.
+  ///
+  /// 정책:
+  /// - newTotalSec ≤ 0 → false (의미 있는 시간 아님)
+  /// - wodType 빈 문자열 → false (분류 불가)
+  /// - prior history 에 동일 wod_type 기록 없음 → false (첫 기록은 PR 아님)
+  /// - prior best 존재 + newTotalSec < best (strict) → true
+  static bool isPrAgainst({
+    required List<WodHistoryItem> priorHistory,
+    required String wodType,
+    required int newTotalSec,
+  }) {
+    if (newTotalSec <= 0) return false;
+    final key = wodType.trim().toLowerCase();
+    if (key.isEmpty) return false;
+    int? best;
+    for (final h in priorHistory) {
+      if (h.wodType.trim().toLowerCase() != key) continue;
+      final s = h.estimatedTotalSec;
+      if (s == null || s <= 0) continue;
+      if (best == null || s < best) best = s;
+    }
+    return best != null && newTotalSec < best;
+  }
 }

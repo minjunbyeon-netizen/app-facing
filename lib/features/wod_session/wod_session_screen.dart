@@ -16,6 +16,7 @@ import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/season_badges.dart';
 import '../../core/theme.dart';
+import '../../core/pr_detector.dart';
 import '../../core/wod_session_bus.dart';
 import '../../models/gym.dart';
 import '../achievement/achievement_state.dart';
@@ -329,21 +330,17 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
           ? _parseTimeToSec(timeStr)
           : _elapsedSec;
 
-      // /go Phase 2.5+: PR 감지 — 저장 전에 prior best 캐시.
-      // 동일 wod_type 의 estimatedTotalSec 최저값과 비교 (forTime 모드 한정).
-      int? priorBestSec;
-      if (_mode == _TimerMode.forTime &&
-          totalSec > 0 &&
-          widget.wod.wodType.trim().isNotEmpty) {
+      // /go Phase 2.5+: PR 감지 — 저장 전에 prior history 캐시.
+      // 판정은 PrDetector.isPrAgainst (forTime 모드 한정).
+      bool isPr = false;
+      if (_mode == _TimerMode.forTime && totalSec > 0) {
         try {
           final prior = await repo.listWodHistory(limit: 200);
-          final wodTypeLower = widget.wod.wodType.trim().toLowerCase();
-          for (final h in prior) {
-            if (h.wodType.trim().toLowerCase() != wodTypeLower) continue;
-            final s = h.estimatedTotalSec;
-            if (s == null || s <= 0) continue;
-            if (priorBestSec == null || s < priorBestSec) priorBestSec = s;
-          }
+          isPr = PrDetector.isPrAgainst(
+            priorHistory: prior,
+            wodType: widget.wod.wodType,
+            newTotalSec: totalSec,
+          );
         } catch (_) {
           // 네트워크 실패 시 PR 감지 skip — 저장 흐름은 계속.
         }
@@ -403,9 +400,11 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
       if (!mounted) return true;
       context.read<WodSessionBus>().bump();
 
-      // /go Phase 2.5+: PR 감지 unlock 모먼트 — 저장 직후 prior best 비교.
-      // forTime + totalSec 의미 있을 때만. emphasize=true 로 heavy haptic.
-      final isPr = priorBestSec != null && totalSec > 0 && totalSec < priorBestSec;
+      // /go Phase 2.5+ (toast 가독성): unlock 발화 추적 → 마지막 '기록 저장.' toast 중복 회피.
+      // SnackBar duration 도 3s → 2s 로 통일 (ScaffoldMessenger 자동 큐 누적 시간 단축).
+      var anyUnlockShown = false;
+
+      // PR unlock 모먼트 (forTime + 신규 best).
       if (isPr && mounted) {
         final m = totalSec ~/ 60;
         final s = totalSec % 60;
@@ -416,9 +415,10 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
               'PR · ${widget.wod.wodType.toUpperCase()} '
               '$m:${s.toString().padLeft(2, '0')}',
             ),
-            duration: const Duration(seconds: 3),
+            duration: const Duration(seconds: 2),
           ),
         );
+        anyUnlockShown = true;
       }
 
       // v1.20 Phase 2.5: 시즌 배지 자동 unlock (active 시즌일 때만).
@@ -428,24 +428,26 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Season badge unlocked · ${newBadge.label}'),
-              duration: const Duration(seconds: 3),
+              duration: const Duration(seconds: 2),
             ),
           );
           Haptic.achievementUnlock();
+          anyUnlockShown = true;
         }
       } catch (_) {
         // 배지 실패는 사용자에게 노출 안 함.
       }
 
       // /go Phase 2.5+: AchievementState.check() 호출 — 백엔드 trigger 신규 unlock 즉시 노출.
-      // 이전엔 onboarding_grade 1곳에서만 호출 → WOD 세션 종료 시점에도 trigger.
+      // throttle=true 로 10분 간격 제한 (백엔드 부하 + 중복 toast 방지).
       if (mounted) {
         try {
           final achState = context.read<AchievementState>();
-          final newly = await achState.check();
+          final newly = await achState.check(throttle: true);
           if (newly.isNotEmpty && mounted) {
             // ignore: use_build_context_synchronously — UnlockToast 내부 mounted 가드.
             UnlockToast.showAll(context, newly);
+            anyUnlockShown = true;
           }
         } catch (_) {
           // achievement 실패는 사용자에게 노출 안 함.
@@ -453,12 +455,15 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
       }
 
       if (!mounted) return true;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('기록 저장. 출석 · 박스 리더보드 자동 반영.'),
-          duration: Duration(seconds: 2),
-        ),
-      );
+      // unlock 발화 시 '기록 저장.' toast 생략 — 사용자에 이미 완료 신호 전달됨.
+      if (!anyUnlockShown) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('기록 저장. 출석 · 박스 리더보드 자동 반영.'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
       Navigator.of(context).pop(); // 세션 스크린 종료
       return true;
     } on AppException catch (e) {
