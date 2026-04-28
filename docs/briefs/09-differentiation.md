@@ -3,7 +3,9 @@
 
 > 대상 독자: VC / Angel · 내부 PM · UX 디자이너 · 카피라이터
 > 작성일: 2026-04-28
-> 버전: v1.0
+> 버전: v1.1
+>
+> **v1.1 점검 결과**: ModeSelect (Coach/Member/Solo) 도입 / Panel B 50 확장 / Engine Score 표기 통일 / Coach Notes 5 액션 등 코드 변경은 §9 차별화 본문에 영향 없음. 차별화 축 (HWPO·NOBULL·Mayhem·CompTrain 4 벤치마크 / 화이트햇 7원칙 / 영문 단독 카피) 은 v1.0 기준 유효. 헤더만 갱신, 본문 v1.0 유지.
 
 ---
 
