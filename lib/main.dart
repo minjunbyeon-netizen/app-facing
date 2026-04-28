@@ -13,6 +13,8 @@ import 'core/unit_state.dart';
 import 'core/wod_session_bus.dart';
 import 'features/home/home_screen.dart';
 import 'features/intro/intro_screen.dart';
+import 'features/onboarding/create_gym_screen.dart';
+import 'features/onboarding/mode_select_screen.dart';
 import 'features/onboarding/onboarding_basic.dart';
 import 'features/onboarding/onboarding_benchmarks.dart';
 import 'features/onboarding/onboarding_grade.dart';
@@ -28,6 +30,7 @@ import 'features/achievement/achievement_state.dart';
 import 'features/auth/auth_state.dart';
 import 'features/auth/signup_screen.dart';
 import 'features/gym/gym_repository.dart';
+import 'features/gym/gym_search_screen.dart';
 import 'features/gym/gym_state.dart';
 import 'features/inbox/inbox_repository.dart';
 import 'features/inbox/inbox_state.dart';
@@ -139,6 +142,9 @@ class FacingApp extends StatelessWidget {
           '/onboarding/basic': (_) => const OnboardingBasicScreen(),
           '/onboarding/benchmarks': (_) => const OnboardingBenchmarksScreen(),
           '/onboarding/grade': (_) => const OnboardingGradeScreen(),
+          '/onboarding/mode': (_) => const ModeSelectScreen(),
+          '/onboarding/create-gym': (_) => const CreateGymScreen(),
+          '/onboarding/find-gym': (_) => const GymSearchScreen(),
           '/home': (_) => const HomeScreen(),
           '/shell': (_) => const MainShell(),
           '/profile': (_) => const ProfileScreen(),

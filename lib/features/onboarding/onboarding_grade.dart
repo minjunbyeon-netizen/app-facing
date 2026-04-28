@@ -221,9 +221,9 @@ class _OnboardingGradeScreenState extends State<OnboardingGradeScreen> {
                   onPressed: () {
                     Haptic.medium();
                     Navigator.of(context)
-                        .pushNamedAndRemoveUntil('/shell', (_) => false);
+                        .pushNamedAndRemoveUntil('/onboarding/mode', (_) => false);
                   },
-                  child: const Text('Start WOD'),
+                  child: const Text('Next'),
                 ),
               ),
             ),

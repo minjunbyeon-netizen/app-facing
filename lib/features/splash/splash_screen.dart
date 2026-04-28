@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/api_client.dart';
+import '../../core/app_mode.dart';
 import '../../core/device_id.dart';
 import '../../core/haptic.dart';
 import '../../core/quotes.dart';
@@ -55,16 +56,26 @@ class _SplashScreenState extends State<SplashScreen> {
     }
     if (!mounted) return;
 
+    // app_mode 사전 로드 (Tier 부여 후 ModeSelect 분기용).
+    AppMode? mode;
+    try {
+      mode = await AppModeStore.get();
+    } catch (_) {
+      mode = null;
+    }
+    if (!mounted) return;
+
     // 준비 후 1.2s 추가 대기하여 로고·카피 노출 보장 후 자동 전환.
     await Future.delayed(const Duration(milliseconds: 1200));
     if (!mounted) return;
-    _onStart(introSeen: introSeen);
+    _onStart(introSeen: introSeen, mode: mode);
   }
 
   /// v1.16: 로그인 상태 분기. 비로그인 → /signup (데모 OAuth).
-  /// 로그인 + grade 있음 → /shell. 로그인 + grade 없음 → /onboarding/basic.
-  /// /go Tier 3: 신규 가입 후 grade 미측정 + intro 미시청 → /intro 우선.
-  void _onStart({required bool introSeen}) {
+  /// 로그인 + grade 있음 + mode 있음 → /shell.
+  /// 로그인 + grade 있음 + mode 없음 → /onboarding/mode (3 모드 선택).
+  /// 로그인 + grade 없음 → /onboarding/basic. intro 미시청 시 /intro 우선.
+  void _onStart({required bool introSeen, required AppMode? mode}) {
     final profile = context.read<ProfileState>();
     final auth = context.read<AuthState>();
     Haptic.medium();
@@ -72,7 +83,7 @@ class _SplashScreenState extends State<SplashScreen> {
     if (!auth.isSignedIn) {
       next = '/signup';
     } else if (profile.hasGrade) {
-      next = '/shell';
+      next = mode == null ? '/onboarding/mode' : '/shell';
     } else if (!introSeen) {
       next = '/intro';
     } else {
