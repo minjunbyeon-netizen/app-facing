@@ -1745,9 +1745,11 @@ class _ModeRowState extends State<_ModeRow> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text('Mode', style: FacingTokens.body),
             const SizedBox(width: FacingTokens.sp2),
@@ -1765,6 +1767,7 @@ class _ModeRowState extends State<_ModeRow> {
         const SizedBox(height: FacingTokens.sp2),
         // v1.20: 3 mode 인라인 segmented (요청: 코치 ↔ 멤버 토글 쉽게).
         Wrap(
+          alignment: WrapAlignment.center,
           spacing: FacingTokens.sp2,
           children: [
             for (final m in AppMode.values)
