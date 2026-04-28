@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../../core/api_client.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
-import '../../widgets/hero_background.dart';
 import '../profile/profile_state.dart';
 import 'auth_state.dart';
 import 'demo_accounts.dart';
@@ -76,16 +75,13 @@ class _SignupScreenState extends State<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // v1.20: HeroBackground 제거 → Splash 와 동일한 단색 검정 배경 (일관성).
     return Scaffold(
       backgroundColor: FacingTokens.bg,
-      body: HeroBackground(
-        imageAsset: 'assets/images/hero_splash.jpg',
-        strongGrain: true,
-        darkenStrength: 0.72,
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(FacingTokens.sp5),
-            child: Column(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(FacingTokens.sp5),
+          child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: FacingTokens.sp5),
@@ -249,7 +245,6 @@ class _SignupScreenState extends State<SignupScreen> {
             ),
           ),
         ),
-      ),
     );
   }
 }
