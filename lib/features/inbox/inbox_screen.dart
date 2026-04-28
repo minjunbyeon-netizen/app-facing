@@ -122,15 +122,36 @@ class _InboxScreenState extends State<InboxScreen>
                   strokeWidth: 2,
                 ),
               )
-            : TabBarView(
-                controller: _tabs,
-                children: [
-                  _NoteList(notes: items),
-                  _NoteList(notes: notes),
-                  _NoteList(notes: assignments),
-                  if (isCoach) _OutboxView(visible: isCoach),
-                ],
-              ),
+            // /go 전수조사: state.error 노출 + Retry — 이전엔 빈 화면만 표시.
+            : (state.error != null && items.isEmpty)
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(FacingTokens.sp5),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text('인박스 로딩 실패',
+                              style: FacingTokens.sectionLabel),
+                          const SizedBox(height: FacingTokens.sp2),
+                          Text(state.error!, style: FacingTokens.caption),
+                          const SizedBox(height: FacingTokens.sp3),
+                          OutlinedButton(
+                            onPressed: () => state.refresh(),
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : TabBarView(
+                    controller: _tabs,
+                    children: [
+                      _NoteList(notes: items),
+                      _NoteList(notes: notes),
+                      _NoteList(notes: assignments),
+                      if (isCoach) _OutboxView(visible: isCoach),
+                    ],
+                  ),
       ),
       floatingActionButton: isCoach
           ? FloatingActionButton.extended(

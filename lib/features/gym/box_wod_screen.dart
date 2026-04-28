@@ -181,56 +181,69 @@ void _showCreateGymSheet(BuildContext context) {
           BorderRadius.vertical(top: Radius.circular(FacingTokens.r4)),
     ),
     builder: (sheetCtx) {
-      return Padding(
-        padding: EdgeInsets.only(
-          left: FacingTokens.sp4,
-          right: FacingTokens.sp4,
-          top: FacingTokens.sp4,
-          bottom: MediaQuery.of(sheetCtx).viewInsets.bottom + FacingTokens.sp4,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text('CREATE BOX', style: FacingTokens.sectionLabel),
-            const SizedBox(height: FacingTokens.sp1),
-            const Text('코치가 자기 박스를 생성합니다.',
-                style: FacingTokens.caption),
-            const SizedBox(height: FacingTokens.sp4),
-            TextField(
-              controller: nameCtrl,
-              decoration: const InputDecoration(labelText: 'Box Name'),
-              maxLength: 80,
-            ),
-            const SizedBox(height: FacingTokens.sp2),
-            TextField(
-              controller: locCtrl,
-              decoration: const InputDecoration(labelText: 'Location (optional)'),
-              maxLength: 200,
-            ),
-            const SizedBox(height: FacingTokens.sp4),
-            ElevatedButton(
-              onPressed: () async {
-                final name = nameCtrl.text.trim();
-                if (name.isEmpty) return;
-                Haptic.medium();
-                final ok = await sheetCtx.read<GymState>().createGym(
-                      name: name,
-                      location: locCtrl.text.trim(),
-                    );
-                if (!sheetCtx.mounted) return;
-                Navigator.of(sheetCtx).pop();
-                if (!ok) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('박스 생성 실패. 이름 중복 확인.')),
-                  );
-                }
-              },
-              child: const Text('Create'),
-            ),
-          ],
-        ),
-      );
+      // /go 전수조사: 더블 탭 시 createGym API 중복 호출 방지 — _creating 플래그.
+      var creating = false;
+      return StatefulBuilder(builder: (innerCtx, setSheet) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: FacingTokens.sp4,
+            right: FacingTokens.sp4,
+            top: FacingTokens.sp4,
+            bottom:
+                MediaQuery.of(sheetCtx).viewInsets.bottom + FacingTokens.sp4,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text('CREATE BOX', style: FacingTokens.sectionLabel),
+              const SizedBox(height: FacingTokens.sp1),
+              const Text('코치가 자기 박스를 생성합니다.',
+                  style: FacingTokens.caption),
+              const SizedBox(height: FacingTokens.sp4),
+              TextField(
+                controller: nameCtrl,
+                enabled: !creating,
+                decoration: const InputDecoration(labelText: 'Box Name'),
+                maxLength: 80,
+              ),
+              const SizedBox(height: FacingTokens.sp2),
+              TextField(
+                controller: locCtrl,
+                enabled: !creating,
+                decoration: const InputDecoration(
+                    labelText: 'Location (optional)'),
+                maxLength: 200,
+              ),
+              const SizedBox(height: FacingTokens.sp4),
+              ElevatedButton(
+                onPressed: creating
+                    ? null
+                    : () async {
+                        final name = nameCtrl.text.trim();
+                        if (name.isEmpty) return;
+                        Haptic.medium();
+                        setSheet(() => creating = true);
+                        final ok =
+                            await sheetCtx.read<GymState>().createGym(
+                                  name: name,
+                                  location: locCtrl.text.trim(),
+                                );
+                        if (!sheetCtx.mounted) return;
+                        Navigator.of(sheetCtx).pop();
+                        if (!ok) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('박스 생성 실패. 이름 중복 확인.')),
+                          );
+                        }
+                      },
+                child: Text(creating ? 'Creating.' : 'Create'),
+              ),
+            ],
+          ),
+        );
+      });
     },
   ).whenComplete(() {
     nameCtrl.dispose();

@@ -101,6 +101,11 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
       );
     }
 
+    // /go 전수조사: 로딩/에러 분기 — 이전엔 빈 catalog 로 stats '0/0' 표시되어
+    // 사용자가 '업적 없음' 으로 오해.
+    final isLoading = state.isLoading && all.isEmpty;
+    final hasError = state.error != null && all.isEmpty;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('ACHIEVEMENTS'),
@@ -114,7 +119,36 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
         ],
       ),
       body: SafeArea(
-        child: Column(
+        child: isLoading
+            ? const Center(
+                child: SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                      strokeWidth: 2, color: FacingTokens.muted),
+                ),
+              )
+            : hasError
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(FacingTokens.sp5),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text('업적 로딩 실패',
+                              style: FacingTokens.sectionLabel),
+                          const SizedBox(height: FacingTokens.sp2),
+                          Text(state.error!, style: FacingTokens.caption),
+                          const SizedBox(height: FacingTokens.sp3),
+                          OutlinedButton(
+                            onPressed: () => state.load(),
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : Column(
           children: [
             _StatsHeader(unlocked: unlockedCount, total: totalCount),
             _FilterRow(
