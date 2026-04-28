@@ -428,7 +428,23 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
             : _error != null
                 ? Padding(
                     padding: const EdgeInsets.all(FacingTokens.sp4),
-                    child: Text(_error!, style: FacingTokens.body),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(_error!, style: FacingTokens.body),
+                        const SizedBox(height: FacingTokens.sp3),
+                        OutlinedButton(
+                          onPressed: () {
+                            setState(() {
+                              _loading = true;
+                              _error = null;
+                            });
+                            _load();
+                          },
+                          child: const Text('Retry'),
+                        ),
+                      ],
+                    ),
                   )
                 : _note != null
                     // QA B-INB-5: _note null 시 강제 unwrap 크래시 방지.

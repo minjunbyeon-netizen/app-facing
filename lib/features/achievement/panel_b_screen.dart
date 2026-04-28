@@ -377,11 +377,10 @@ class _TitleCard extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(
                                     FacingTokens.r1),
                               ),
-                              child: const Text(
+                              child: Text(
                                 'WORN',
-                                style: TextStyle(
+                                style: FacingTokens.sectionLabel.copyWith(
                                   color: FacingTokens.fg,
-                                  fontSize: 10,
                                   fontWeight: FontWeight.w800,
                                   letterSpacing: 1.0,
                                 ),

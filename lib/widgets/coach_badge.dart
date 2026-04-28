@@ -15,14 +15,11 @@ class CoachBadge extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border.all(color: FacingTokens.tierElite, width: 1),
       ),
-      child: const Text(
+      child: Text(
         'COACH',
-        style: TextStyle(
-          fontFamily: FacingTokens.fontFamily,
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 1.6,
+        style: FacingTokens.sectionLabel.copyWith(
           color: FacingTokens.tierElite,
+          letterSpacing: 1.6,
           height: 1.0,
         ),
       ),
