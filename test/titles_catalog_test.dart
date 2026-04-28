@@ -5,24 +5,24 @@ import 'package:facing_app/core/titles_catalog.dart';
 
 void main() {
   group('Panel B catalog', () {
-    test('총 20개 칭호', () {
-      expect(kPanelBTitles.length, 20);
+    test('총 50개 칭호 (v1.21 확장)', () {
+      expect(kPanelBTitles.length, 50);
     });
 
     test('각 code 고유', () {
       final codes = kPanelBTitles.map((t) => t.code).toSet();
-      expect(codes.length, 20);
+      expect(codes.length, 50);
     });
 
-    test('rarity 분포 — Common 6 / Rare 8 / Epic 4 / Legendary 2', () {
+    test('rarity 분포 — Common 15 / Rare 20 / Epic 10 / Legendary 5', () {
       final by = <String, int>{};
       for (final t in kPanelBTitles) {
         by[t.rarity] = (by[t.rarity] ?? 0) + 1;
       }
-      expect(by['Common'], 6);
-      expect(by['Rare'], 8);
-      expect(by['Epic'], 4);
-      expect(by['Legendary'], 2);
+      expect(by['Common'], 15);
+      expect(by['Rare'], 20);
+      expect(by['Epic'], 10);
+      expect(by['Legendary'], 5);
     });
 
     test('모든 라벨 영문 단독 (한글 미포함)', () {

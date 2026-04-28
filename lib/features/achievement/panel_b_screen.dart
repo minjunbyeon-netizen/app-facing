@@ -18,6 +18,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
 import '../../core/haptic.dart';
+import '../../core/pr_detector.dart';
 import '../../core/scoring.dart';
 import '../../core/season_badges.dart';
 import '../../core/theme.dart';
@@ -83,6 +84,8 @@ class _PanelBScreenState extends State<PanelBScreen> {
     int beforeSix = 0;
     int afterTen = 0;
     int weekend = 0;
+    bool freshStart = false;
+    final dayMap = <String, int>{};
     for (final h in history) {
       final d = h.createdAt.toLocal();
       if (d.hour < 6) beforeSix++;
@@ -90,15 +93,29 @@ class _PanelBScreenState extends State<PanelBScreen> {
       if (d.weekday == DateTime.saturday || d.weekday == DateTime.sunday) {
         weekend++;
       }
+      if (d.month == 1 && d.day <= 7) freshStart = true;
+      final key = '${d.year}-${d.month}-${d.day}';
+      dayMap[key] = (dayMap[key] ?? 0) + 1;
     }
+    final doubleSessionDays = dayMap.values.where((c) => c >= 2).length;
+
     // /go Tier 3: engine 80+ 측정 횟수 (PB_IRON_LUNG signal).
     int engine80Plus = 0;
     for (final r in engine) {
       if (engineScoreTo100(r.overallScore) >= 80) engine80Plus++;
     }
+
+    // v1.21 Streak 일수 계산 (오늘 또는 어제까지 연속).
+    final streakDays = _computeStreakDays(history);
+
+    // v1.21 PR 누적 카운트 (PrDetector 위임).
+    final prCount = PrDetector.countPrs(history);
+
     final bs = profile.benchmarks['back_squat_1rm_lb'];
     final fs = profile.benchmarks['front_squat_1rm_lb'];
     final sn = profile.benchmarks['snatch_1rm_lb'];
+    final dl = profile.benchmarks['deadlift_1rm_lb'];
+    final sp = profile.benchmarks['strict_press_1rm_lb'];
     final fiveKm = profile.benchmarks['run_5km_sec'];
     final twoKmRow = profile.benchmarks['row_2km_sec'];
     // /go Tier 3: Fran 1RM 키 사용 (benchmarks 에 'fran_sec' 있는 경우).
@@ -108,6 +125,11 @@ class _PanelBScreenState extends State<PanelBScreen> {
     final coachNotesSent = inbox.outbox.length;
     final coachNotesReceived =
         inbox.inbox.items.where((n) => n.kind == 'note').length;
+
+    // v1.21 프로필 완성도: bodyWeightKg + 5+ benchmarks.
+    final profileComplete =
+        profile.bodyWeightKg != null && profile.benchmarks.length >= 5;
+
     return TitleUnlockSignals(
       totalSessions: history.length,
       benchmarkCount: profile.benchmarks.length,
@@ -124,7 +146,46 @@ class _PanelBScreenState extends State<PanelBScreen> {
       fiveKmSub25: fiveKm != null && fiveKm < 1500, // 25:00 = 1500s
       twoKmRowSub730: twoKmRow != null && twoKmRow < 450, // 7:30 = 450s
       franSec: fran?.toInt(),
+      streakDays: streakDays,
+      prCount: prCount,
+      profileComplete: profileComplete,
+      freshStartSession: freshStart,
+      bodyWeightKg: profile.bodyWeightKg,
+      deadlift1rmKg: dl == null ? null : dl * 0.4536,
+      pressStrict1rmKg: sp == null ? null : sp * 0.4536,
+      doubleSessionDayCount: doubleSessionDays,
     );
+  }
+
+  /// 가장 최근 세션부터 역순 일자 연속 카운트.
+  /// 어제까지 한 번도 안 한 경우 0. 같은 날 여러 세션은 1일로 카운트.
+  int _computeStreakDays(List<WodHistoryItem> history) {
+    if (history.isEmpty) return 0;
+    final sorted = [...history]
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    final today = DateTime.now().toLocal();
+    final todayKey = DateTime(today.year, today.month, today.day);
+    final mostRecent = sorted.first.createdAt.toLocal();
+    final mostRecentKey =
+        DateTime(mostRecent.year, mostRecent.month, mostRecent.day);
+    final daysSinceLast = todayKey.difference(mostRecentKey).inDays;
+    if (daysSinceLast > 1) return 0;
+
+    var streak = 1;
+    var cursor = mostRecentKey;
+    for (var i = 1; i < sorted.length; i++) {
+      final d = sorted[i].createdAt.toLocal();
+      final dKey = DateTime(d.year, d.month, d.day);
+      if (dKey.isAtSameMomentAs(cursor)) continue;
+      final diff = cursor.difference(dKey).inDays;
+      if (diff == 1) {
+        streak++;
+        cursor = dKey;
+      } else {
+        break;
+      }
+    }
+    return streak;
   }
 
   @override
