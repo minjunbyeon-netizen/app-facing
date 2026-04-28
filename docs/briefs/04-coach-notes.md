@@ -1,5 +1,8 @@
 # §4 Coach Notes — 6-Pager
 > facing-app · 2026-04-28 · 작성자: Product / 검토: Eng + Coach
+> **버전: v1.1**
+>
+> **v1.1 변경점**: ASSIGNMENTS 액션에 `Complete (actualLoad / reps / RPE 입력)` 5번째 액션 명시. 거절 사유 영문 코드값 (`INJURY/CONDITION/TIME/SUBSTITUTE`) 정합. ModeSelect 도입에 따라 부록 A 권한 매트릭스에 `client mode` 컬럼 추가 (Coach/Member/Solo). InboxState 코드 메서드 (`bind / refresh / refreshOutbox / markRead / accept / complete / decline / askCoach`) 와 6-pager 액션 5종 정합 확정.
 
 ---
 
@@ -7,11 +10,11 @@
 
 박스 코치와 멤버 간 직접 통신 채널을 앱 안에 내장한다.
 
-카카오톡 단톡방을 대체하는 것이 아니라, **박스 컨텍스트가 붙은 구조화 통신**을 새로 정의한다. 코치는 개인 / 그룹 / 전체 세 범위 중 하나를 선택해 Note 를 발송한다. 멤버는 4 탭 (ALL / NOTES / ASSIGNMENTS / OUTBOX) 인박스에서 수신하고, 읽음·수락·거절·Ask Coach 네 가지 액션을 취한다. 미읽음은 빨간 dot 으로 즉시 표시되며, Phase 3 에서 FCM Push 로 전환된다.
+카카오톡 단톡방을 대체하는 것이 아니라, **박스 컨텍스트가 붙은 구조화 통신**을 새로 정의한다. 코치는 개인 / 그룹 / 전체 세 범위 중 하나를 선택해 Note 를 발송한다. 멤버는 4 탭 (ALL / NOTES / ASSIGNMENTS / OUTBOX) 인박스에서 수신하고, **5 가지 액션** (markRead / Accept / Decline / **Complete** / Ask Coach) 을 취한다. 미읽음은 빨간 dot 으로 즉시 표시되며, Phase 3 에서 FCM Push 로 전환된다.
 
-**권한 게이트는 엄격하다.** `isOwner || isApprovedMember` 만 인박스를 열 수 있다. Pending·Rejected·no-gym 사용자는 인박스 진입점 자체가 차단된다.
+**권한 게이트는 엄격하다.** `isOwner || isApprovedMember` 만 인박스를 열 수 있다. Pending·Rejected·no-gym 사용자는 인박스 진입점 자체가 차단된다. **클라이언트 mode 기준** 으로는 Coach 모드 (전 탭 + Compose) / Member 모드 (3 탭, Approved 만 활성화) / Solo 모드 (인박스 자체 비표시) 로 분기된다.
 
-**핵심 수치 목표:** 발송 후 4시간 이내 읽음률 70%, Ask Coach 답장 전환율 20%.
+**핵심 수치 목표:** 발송 후 4시간 이내 읽음률 70%, Ask Coach 답장 전환율 20%, ASSIGNMENTS 수락률 60% / 완료율 50%.
 
 ---
 
@@ -129,19 +132,36 @@ Response: { notes: [...], unreadCount: N }
 
 ---
 
-### 4-3. 멤버 액션 4종
+### 4-3. 멤버 액션 5종 (v1.1 정합)
 
 각 Note Detail 화면 하단 액션 바:
 
-| 액션 | 조건 | API |
-|---|---|---|
-| markRead | 미읽음 상태 | PATCH /api/v1/inbox/notes/{id}/read |
-| Accept | ASSIGNMENTS + PENDING | PATCH /api/v1/inbox/notes/{id}/accept |
-| Decline | ASSIGNMENTS + PENDING | PATCH /api/v1/inbox/notes/{id}/decline + 사유 선택 |
-| Ask Coach | 모든 Note | POST /api/v1/inbox/notes/{id}/ask + 텍스트 |
+| 액션 | 조건 | API | InboxState 메서드 |
+|---|---|---|---|
+| markRead | 미읽음 상태 | PATCH /api/v1/inbox/notes/{id}/read | `markRead(noteId)` |
+| Accept | ASSIGNMENTS + PENDING | PATCH /api/v1/inbox/notes/{id}/accept | `accept(noteId)` |
+| **Complete** | ASSIGNMENTS + ACCEPTED | PATCH /api/v1/inbox/notes/{id}/complete + actualSets[] | `complete(noteId, List<ActualSet>)` |
+| Decline | ASSIGNMENTS + PENDING | PATCH /api/v1/inbox/notes/{id}/decline + 사유 코드 | `decline(noteId, reasonCode?)` |
+| Ask Coach | 모든 Note | POST /api/v1/inbox/notes/{id}/ask + 텍스트 | `askCoach(noteId, text)` |
 
-**거절 사유 팔레트 (선택 + 직접 입력 선택):**
-부상 / 일정 충돌 / 장비 미보유 / 기타
+**Complete 입력 필드** (세트 단위 반복):
+- actualLoad (kg / lb / %1RM 단위 시 단위 일치)
+- actualReps (실제 수행 횟수)
+- RPE (1~10, 옵셔널)
+- 자유 메모 (옵셔널, 60자 이내)
+
+세트 수만큼 입력 후 Submit → status `completed` 로 전환. 코치 OUTBOX 에서 actualSets 가 표시된다.
+
+**거절 사유 코드값 (코드 정합)** — 칩 + 자유 텍스트:
+| 코드 | 한글 표시 |
+|---|---|
+| `INJURY` | 부상 |
+| `CONDITION` | 컨디션 (피로 / 회복 부족) |
+| `TIME` | 시간 부족 / 일정 충돌 |
+| `SUBSTITUTE` | 대체 동작 요청 |
+| (free text) | 직접 입력 |
+
+> v1.0 에서 "장비 미보유 / 기타" 항목은 코드 정합으로 `SUBSTITUTE` (대체 동작 요청) + 자유 텍스트로 통합. UI 한글 라벨은 위 표 우측 컬럼 사용.
 
 **Ask Coach 플로우:**
 1. "Ask Coach" 버튼 탭 → 텍스트 입력창 (placeholder: "Question.")
@@ -331,15 +351,23 @@ MVP 에서는 무기한. Phase 4 에서 90일 아카이브 정책 검토 (멤버
 
 ---
 
-## 부록 A — 권한 매트릭스
+## 부록 A — 권한 매트릭스 (v1.1 mode 컬럼 추가)
 
-| 사용자 역할 | 인박스 탭 | Compose | Ask Coach | 인박스 진입점 |
-|---|---|---|---|---|
-| isOwner (coach) | ALL / NOTES / ASSIGNMENTS / OUTBOX | 가능 | 해당 없음 | 노출 |
-| isApprovedMember | ALL / NOTES / ASSIGNMENTS | 불가 | 가능 | 노출 |
-| Pending | 없음 | 불가 | 불가 | 차단 |
-| Rejected | 없음 | 불가 | 불가 | 차단 |
-| no-gym (app_user) | 없음 | 불가 | 불가 | 차단 |
+| 사용자 역할 | 자동 매핑 mode | 인박스 탭 | Compose | Ask Coach | Complete | 인박스 진입점 |
+|---|---|---|---|---|---|---|
+| isOwner (coach) | Coach | ALL / NOTES / ASSIGNMENTS / OUTBOX | 가능 | 해당 없음 | 해당 없음 | 노출 |
+| isApprovedMember | Member | ALL / NOTES / ASSIGNMENTS | 불가 | 가능 | 가능 | 노출 |
+| Pending | Member | 없음 | 불가 | 불가 | 불가 | 차단 (대기 안내) |
+| Rejected | Member | 없음 | 불가 | 불가 | 불가 | 차단 (재신청 CTA) |
+| no-gym (app_user) | Solo | 없음 | 불가 | 불가 | 불가 | 차단 (가입 CTA) |
+| admin (debug) | Coach | 전체 | 가능 | 해당 없음 | 해당 없음 | 노출 |
+
+**Mode 분기 보강** (v1.1):
+- `Coach` 모드: `coach_owner` / `admin` 매핑. 4 탭 + Compose + 그룹 관리 IconButton 노출.
+- `Member` 모드: `member` (gym_status 무관) 매핑. 3 탭 (OUTBOX 미노출). Approved 만 액션 가능.
+- `Solo` 모드: `app_user` 매핑. 인박스 탭(메인 5 탭의 Inbox) 자체가 비활성. 박스 가입 CTA 카드만 노출.
+
+**클라이언트 mode 변경으로 백엔드 권한 escalation 없음**. 예: Solo 사용자가 Settings 에서 모드를 Coach 로 변경해도 백엔드 role 이 `app_user` 라서 `POST /api/v1/inbox/notes` 가 거절. UI 만 Coach 화면을 보여줄 뿐 발송 불가.
 
 ---
 

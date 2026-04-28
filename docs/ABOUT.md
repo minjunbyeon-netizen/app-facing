@@ -86,8 +86,9 @@ WOD: Fran (21-15-9 Thruster + Pull-up)
 - **전체** — 박스 모든 멤버
 
 ### 멤버 액션
-- 읽음 / 수락 / 거절 / **Ask Coach** (질문 답장)
+- 읽음 / 수락 / **완료 (actualLoad/reps/RPE 입력)** / 거절 / **Ask Coach** (질문 답장)
 - 미읽음은 빨간 dot 으로 즉시 알림
+- Mode 게이트: Coach (전 탭 + 발송) / Member (3 탭, Approved 만 활성) / Solo (인박스 비표시)
 
 ---
 
