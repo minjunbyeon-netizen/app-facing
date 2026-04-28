@@ -20,6 +20,10 @@ class AttendanceScreen extends StatefulWidget {
 }
 
 class _AttendanceScreenState extends State<AttendanceScreen> {
+  /// QA B-PF-6: 매직 200 제거. ~6개월 일일 1세션 가정 — 캘린더 + streak 계산에 충분.
+  /// 200 초과 사용자는 페이지네이션 도입 시점 (Phase 2.5 backlog).
+  static const int _kHistoryLimit = 200;
+
   late final HistoryRepository _repo;
   WodSessionBus? _bus;
   Future<List<WodHistoryItem>>? _future;
@@ -50,7 +54,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
 
   void _reload() {
     setState(() {
-      _future = _repo.listWodHistory(limit: 200);
+      _future = _repo.listWodHistory(limit: _kHistoryLimit);
     });
   }
 

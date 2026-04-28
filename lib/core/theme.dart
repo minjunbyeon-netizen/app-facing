@@ -184,6 +184,10 @@ class FacingTokens {
   // ---- v1.15 Serif 토큰 (Bodoni Moda Italic, Google Fonts 런타임 fetch) ----
   // 영문 선언 헤드라인·명언 전용. 한글·UI 라벨·숫자는 Pretendard 유지.
   // 주의: const 불가 (GoogleFonts 런타임 resolve). 호출 시점 반환.
+  // QA B-LW-5: GoogleFonts 런타임 fetch 실패 시 Pretendard 로 즉시 폴백.
+  // 오프라인/검열망/캐시 미스 상황에서 화면 안전 보장 — italic 유지 (Pretendard도 italic 합성).
+
+  static const List<String> _serifFallback = [fontFamily];
 
   /// Splash "FACING" 세리프 대응 (기존 brandLogo와 교체 가능).
   static TextStyle get brandSerif => GoogleFonts.bodoniModa(
@@ -193,7 +197,7 @@ class FacingTokens {
         height: 1.0,
         letterSpacing: -2.0,
         color: fg,
-      );
+      ).copyWith(fontFamilyFallback: _serifFallback);
 
   /// 영문 hero 헤드라인 (Intro 1/2/3, Grade 'Your Tier.' 등).
   static TextStyle get h1Serif => GoogleFonts.bodoniModa(
@@ -203,7 +207,7 @@ class FacingTokens {
         height: 1.12,
         letterSpacing: -0.8,
         color: fg,
-      );
+      ).copyWith(fontFamilyFallback: _serifFallback);
 
   /// 히어로 숫자 (64sp display) serif 버전. tabular 고정.
   static TextStyle get displaySerif => GoogleFonts.bodoniModa(
@@ -214,7 +218,7 @@ class FacingTokens {
         letterSpacing: -1.2,
         color: fg,
         fontFeatures: tabular,
-      );
+      ).copyWith(fontFamilyFallback: _serifFallback);
 
   /// 명언 카드용 serif italic.
   static TextStyle get quoteSerif => GoogleFonts.bodoniModa(
@@ -224,7 +228,7 @@ class FacingTokens {
         height: 1.45,
         letterSpacing: 0.2,
         color: fg,
-      );
+      ).copyWith(fontFamilyFallback: _serifFallback);
 
   static const double sp1 = 4;
   static const double sp2 = 8;

@@ -158,6 +158,8 @@ class _TrendsScreenState extends State<TrendsScreen> {
                   const SizedBox(height: FacingTokens.sp3),
 
                   // Summary header
+                  // QA B-PF-7: visible catalog 만 분모로 사용. hidden 배지(서버 노출 전)는
+                  // 본 화면 분모에서 제외 — 표기와 표시 카드 갯수 일치 보장.
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
@@ -167,7 +169,7 @@ class _TrendsScreenState extends State<TrendsScreen> {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 10),
                         child: Text(
-                          '/ ${snap.catalog.length + _hiddenLockedCount(snap, state)} titles',
+                          '/ ${snap.catalog.length} titles',
                           style: FacingTokens.caption,
                         ),
                       ),
@@ -228,13 +230,6 @@ class _TrendsScreenState extends State<TrendsScreen> {
     );
   }
 
-  /// hidden 배지는 해금 전 catalog에서 제외되어 visible 카운트에 포함 안됨.
-  /// 총합 카운트 보정 위해 대략 추가. 정확한 총 15개 고정값 노출해도 OK.
-  int _hiddenLockedCount(AchievementSnapshot snap, AchievementState state) {
-    // 총합 고정 15로 표기.
-    final visibleTotal = snap.catalog.length;
-    return (15 - visibleTotal).clamp(0, 15);
-  }
 }
 
 /// v1.16 Sprint 14: Level 카드 — Panel A 스펙.

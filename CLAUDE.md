@@ -206,7 +206,7 @@ V11. **번역 판단 기준:** 동작명/등급명/시스템명/메트릭명은 
 | `lead` | 18sp w400 | intro body, segment estimated time |
 | `body` | 15sp w400 | 본문 |
 | `caption` | 13sp w400 muted | 부연 설명 |
-| `micro` | 11sp w500 ls+0.4 muted | 수치 보조(items, %, points) 전용 |
+| `micro` | 13sp w500 ls+0.4 muted | 수치 보조(items, %, points) 전용. v1.19 P0-8 노안 가독성 11→13 상향 |
 | `sectionLabel` | **11sp w700 ls+1.6 muted** | **섹션 구분 라벨 전용. 대문자 필수(코드에서 toUpperCase).** |
 | `tierLabel` | 12sp w800 ls+1.8 | TierBadge 내부 전용 |
 | `brandLogo` | **72sp w800 ls-2.4** | **Splash "FACING" 전용** |
