@@ -22,8 +22,7 @@ import 'package:facing_app/models/achievement.dart';
 class _FakeAchievementRepo extends AchievementRepository {
   final AchievementSnapshot? snap;
   final Object? listError;
-  _FakeAchievementRepo(ApiClient api, {this.snap, this.listError})
-      : super(api);
+  _FakeAchievementRepo(super.api, {this.snap, this.listError});
 
   @override
   Future<AchievementSnapshot> list() async {

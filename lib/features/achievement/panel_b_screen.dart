@@ -26,6 +26,7 @@ import '../../core/worn_title_store.dart';
 import '../gym/gym_state.dart';
 import '../history/history_models.dart';
 import '../history/history_repository.dart';
+import '../inbox/inbox_state.dart';
 import '../profile/profile_state.dart';
 
 class PanelBScreen extends StatefulWidget {
@@ -77,6 +78,7 @@ class _PanelBScreenState extends State<PanelBScreen> {
     List<EngineSnapshotRecord> engine,
     ProfileState profile,
     GymState gym,
+    InboxState inbox,
   ) {
     int beforeSix = 0;
     int afterTen = 0;
@@ -101,6 +103,11 @@ class _PanelBScreenState extends State<PanelBScreen> {
     final twoKmRow = profile.benchmarks['row_2km_sec'];
     // /go Tier 3: Fran 1RM 키 사용 (benchmarks 에 'fran_sec' 있는 경우).
     final fran = profile.benchmarks['fran_sec'];
+    // /go Phase 3: 코치 노트 송신/수신 카운트 — InboxState 가 bind 된 상태에서만 의미.
+    // 미바인드(no-gym/pending/rejected) 시 0 → PB_TEACHER/PB_STUDENT 잠금 유지.
+    final coachNotesSent = inbox.outbox.length;
+    final coachNotesReceived =
+        inbox.inbox.items.where((n) => n.kind == 'note').length;
     return TitleUnlockSignals(
       totalSessions: history.length,
       benchmarkCount: profile.benchmarks.length,
@@ -109,6 +116,8 @@ class _PanelBScreenState extends State<PanelBScreen> {
       sessionsAfter10pm: afterTen,
       weekendSessions: weekend,
       engineScore80PlusCount: engine80Plus,
+      coachNotesSent: coachNotesSent,
+      coachNotesReceived: coachNotesReceived,
       backSquat1rmKg: bs == null ? null : bs * 0.4536,
       frontSquat1rmKg: fs == null ? null : fs * 0.4536,
       snatch1rmKg: sn == null ? null : sn * 0.4536,
@@ -122,6 +131,7 @@ class _PanelBScreenState extends State<PanelBScreen> {
   Widget build(BuildContext context) {
     final profile = context.watch<ProfileState>();
     final gym = context.watch<GymState>();
+    final inbox = context.watch<InboxState>();
     return Scaffold(
       appBar: AppBar(
         title: const Text('PANEL B · TITLES'),
@@ -181,7 +191,7 @@ class _PanelBScreenState extends State<PanelBScreen> {
                 final engine =
                     eSnap.data ?? const <EngineSnapshotRecord>[];
                 final signals =
-                    _buildSignals(history, engine, profile, gym);
+                    _buildSignals(history, engine, profile, gym, inbox);
                 final unlocked = PanelBUnlocker.unlockedCodes(signals);
                 final sorted = [...kPanelBTitles]
                   ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
