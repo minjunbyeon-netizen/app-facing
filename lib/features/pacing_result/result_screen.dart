@@ -9,6 +9,7 @@ import '../../core/exception.dart';
 import '../../core/formula_references.dart';
 import '../../core/haptic.dart';
 import '../../core/season_badges.dart';
+import '../../core/share_count_store.dart';
 import '../../core/theme.dart';
 import '../../models/pacing_plan.dart';
 import '../history/history_repository.dart';
@@ -71,6 +72,8 @@ class _ResultScreenState extends State<ResultScreen> {
     lines.add('#facing #crossfit');
     final text = lines.join('\n');
     await Share.share(text);
+    // /go 8 (B3): 공유 카운트 증가 → Panel B PB_PHOTO_FINISH 등 signal.
+    await ShareCountStore.increment();
   }
 
   Future<PacingPlan> _calculate() async {
