@@ -1597,7 +1597,54 @@ class _InboxEntry extends StatelessWidget {
   Widget build(BuildContext context) {
     final gs = context.watch<GymState>();
     final canAccessInbox = gs.isOwner || gs.membership.isApprovedMember;
-    if (!canAccessInbox) return const SizedBox.shrink();
+    if (!canAccessInbox) {
+      // v1.20: 박스 미가입 사용자에게도 INBOX 진입점 발견 가능하도록 dim placeholder.
+      // 기존 SizedBox.shrink() → 신규 사용자는 쪽지 기능 자체를 못 찾음 (BLOCKER B1).
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(
+          FacingTokens.sp4,
+          FacingTokens.sp3,
+          FacingTokens.sp4,
+          0,
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: FacingTokens.border, width: 1),
+            borderRadius: BorderRadius.circular(FacingTokens.r2),
+          ),
+          padding: const EdgeInsets.symmetric(
+            horizontal: FacingTokens.sp3,
+            vertical: FacingTokens.sp3,
+          ),
+          child: Row(
+            children: [
+              const Icon(
+                Icons.inbox_outlined,
+                size: 20,
+                color: FacingTokens.muted,
+              ),
+              const SizedBox(width: FacingTokens.sp3),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('INBOX',
+                        style: FacingTokens.sectionLabel.copyWith(
+                          color: FacingTokens.muted,
+                        )),
+                    const SizedBox(height: 2),
+                    const Text(
+                      '박스 가입 후 코치 쪽지가 여기로.',
+                      style: FacingTokens.caption,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     final state = context.watch<InboxState>();
     final unread = state.unreadCount;
     return Padding(
@@ -1766,23 +1813,33 @@ class _ModeRowState extends State<_ModeRow> {
         ),
         const SizedBox(height: FacingTokens.sp2),
         // v1.20: 3 mode 인라인 segmented (요청: 코치 ↔ 멤버 토글 쉽게).
-        Wrap(
-          alignment: WrapAlignment.center,
-          spacing: FacingTokens.sp2,
-          children: [
-            for (final m in AppMode.values)
-              ChoiceChip(
-                label: Text(_label(m)),
-                selected: _mode == m,
-                backgroundColor: FacingTokens.surface,
-                selectedColor: FacingTokens.accent,
-                labelStyle: FacingTokens.caption.copyWith(
-                  color: _mode == m ? FacingTokens.fg : FacingTokens.muted,
-                  fontWeight: FontWeight.w700,
+        Semantics(
+          explicitChildNodes: true,
+          container: true,
+          child: Wrap(
+            alignment: WrapAlignment.center,
+            spacing: FacingTokens.sp2,
+            children: [
+              for (final m in AppMode.values)
+                Semantics(
+                  label: 'Mode ${_label(m)}${_mode == m ? " selected" : ""}',
+                  button: true,
+                  selected: _mode == m,
+                  container: true,
+                  child: ChoiceChip(
+                  label: Text(_label(m)),
+                  selected: _mode == m,
+                  backgroundColor: FacingTokens.surface,
+                  selectedColor: FacingTokens.accent,
+                  labelStyle: FacingTokens.caption.copyWith(
+                    color: _mode == m ? FacingTokens.fg : FacingTokens.muted,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  onSelected: _saving ? null : (_) => _setMode(m),
                 ),
-                onSelected: _saving ? null : (_) => _setMode(m),
               ),
-          ],
+            ],
+          ),
         ),
       ],
     );
