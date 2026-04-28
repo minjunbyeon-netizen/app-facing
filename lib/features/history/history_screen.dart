@@ -7,6 +7,7 @@ import '../../core/exception.dart';
 import '../../core/scoring.dart';
 import '../../core/theme.dart';
 import '../../core/tier.dart';
+import '../../core/wod_session_bus.dart';
 import '../../widgets/tier_badge.dart';
 import 'history_models.dart';
 import 'history_repository.dart';
@@ -24,12 +25,21 @@ class _HistoryScreenState extends State<HistoryScreen>
   late final HistoryRepository _repo;
   Future<List<EngineSnapshotRecord>>? _engineFuture;
   Future<List<WodHistoryItem>>? _wodFuture;
+  /// /go Tier 3: WOD 세션 종료 시 자동 reload — attendance_screen 패턴 동일.
+  WodSessionBus? _bus;
 
   @override
   void initState() {
     super.initState();
     _tc = TabController(length: 2, vsync: this);
     _repo = HistoryRepository(context.read<ApiClient>());
+    _reload();
+    _bus = context.read<WodSessionBus>();
+    _bus?.addListener(_onSessionBump);
+  }
+
+  void _onSessionBump() {
+    if (!mounted) return;
     _reload();
   }
 
@@ -42,6 +52,7 @@ class _HistoryScreenState extends State<HistoryScreen>
 
   @override
   void dispose() {
+    _bus?.removeListener(_onSessionBump);
     _tc.dispose();
     super.dispose();
   }

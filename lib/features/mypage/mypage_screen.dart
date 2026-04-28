@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/api_client.dart';
 import '../../core/athletes.dart';
+import '../../core/engine_decay.dart';
 import '../../core/haptic.dart';
 import '../../core/scoring.dart';
 import '../../core/theme.dart';
@@ -384,6 +385,16 @@ class _EngineTrendState extends State<_EngineTrend> {
               final delta = (latest != null && prev != null)
                   ? current - engineScoreTo100(prev.overallScore)
                   : 0;
+              // /go Tier 3: EngineDecay 연결 — history_screen 와 동일 패턴.
+              // 30일+ 무측정 시 STALE 라벨 + 감산 안내. 원본 점수 보존, 표시값만 변환.
+              final daysSinceLast = latest == null
+                  ? 0
+                  : DateTime.now()
+                      .toUtc()
+                      .difference(latest.scoredAt.toUtc())
+                      .inDays;
+              final decayLabel = EngineDecay.statusLabel(daysSinceLast);
+              final decayCaption = EngineDecay.statusCaption(daysSinceLast);
 
               // Radar 데이터 (5축) — gradeResult에서 카테고리 score 추출.
               final radarValues = <_RadarAxis>[
@@ -398,6 +409,40 @@ class _EngineTrendState extends State<_EngineTrend> {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // /go Tier 3: STALE 라벨 + 감산 안내 (decay 활성 시).
+                  if (decayLabel != null) ...[
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                                color: FacingTokens.warning, width: 1),
+                            borderRadius:
+                                BorderRadius.circular(FacingTokens.r1),
+                          ),
+                          child: Text(
+                            decayLabel,
+                            style: FacingTokens.micro.copyWith(
+                              color: FacingTokens.warning,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 1.0,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: FacingTokens.sp2),
+                        Expanded(
+                          child: Text(
+                            decayCaption ?? '',
+                            style: FacingTokens.caption,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: FacingTokens.sp2),
+                  ],
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [

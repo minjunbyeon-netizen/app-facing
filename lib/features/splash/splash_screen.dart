@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/api_client.dart';
 import '../../core/device_id.dart';
@@ -43,15 +44,27 @@ class _SplashScreenState extends State<SplashScreen> {
     }
     if (!mounted) return;
 
+    // /go Tier 3: intro_seen 사전 로드 (IntroScreen dead route 해소).
+    bool introSeen = false;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      introSeen = prefs.getBool('intro_seen') ?? false;
+    } catch (_) {
+      // prefs 로드 실패 시 intro 스킵 (이전 동작 유지).
+      introSeen = true;
+    }
+    if (!mounted) return;
+
     // 준비 후 1.2s 추가 대기하여 로고·카피 노출 보장 후 자동 전환.
     await Future.delayed(const Duration(milliseconds: 1200));
     if (!mounted) return;
-    _onStart();
+    _onStart(introSeen: introSeen);
   }
 
   /// v1.16: 로그인 상태 분기. 비로그인 → /signup (데모 OAuth).
   /// 로그인 + grade 있음 → /shell. 로그인 + grade 없음 → /onboarding/basic.
-  void _onStart() {
+  /// /go Tier 3: 신규 가입 후 grade 미측정 + intro 미시청 → /intro 우선.
+  void _onStart({required bool introSeen}) {
     final profile = context.read<ProfileState>();
     final auth = context.read<AuthState>();
     Haptic.medium();
@@ -60,6 +73,8 @@ class _SplashScreenState extends State<SplashScreen> {
       next = '/signup';
     } else if (profile.hasGrade) {
       next = '/shell';
+    } else if (!introSeen) {
+      next = '/intro';
     } else {
       next = '/onboarding/basic';
     }
