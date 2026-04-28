@@ -1,0 +1,221 @@
+{
+  "files": [
+    {
+      "file": "lib/features/mypage/mypage_screen.dart",
+      "loc": 1760,
+      "issues": [
+        {
+          "severity": "P0",
+          "type": "typography_token_violation",
+          "line": 450,
+          "current": "Text('$current', style: FacingTokens.displayCompact)",
+          "should_be": "FacingTokens.display (64sp) — ENGINE SCORE 히어로 숫자는 display 고정. R4: 동일 지표 동일 토큰. displayCompact는 카드 내 대체 시 사용, 메인 숫자는 display.",
+          "rule_ref": "CLAUDE.md 타이포그래피 R4, display 토큰 용도 정의"
+        },
+        {
+          "severity": "P0",
+          "type": "copy_V9_mixed_language",
+          "line": 1260,
+          "current": "'$currentScore100 / $nextThreshold 까지'",
+          "should_be": "'$currentScore100 / $nextThreshold to next Tier.' — 한 문장 내 영문숫자+한글 조사('까지') 혼용. V9: 한 문장 내 영문-한글 혼합 금지.",
+          "rule_ref": "CLAUDE.md Voice & Tone V9"
+        },
+        {
+          "severity": "P0",
+          "type": "copy_V8_punctuation",
+          "line": 1024,
+          "current": "Text('로그아웃')",
+          "should_be": "'Sign Out' — 버튼 라벨은 영문 단독(V8). 단어 1개 라벨 → 마침표 없음.",
+          "rule_ref": "CLAUDE.md Voice & Tone V8, 카피 템플릿 버튼"
+        },
+        {
+          "severity": "P1",
+          "type": "copy_V8_button_label",
+          "line": 1153,
+          "current": "Text('취소')",
+          "should_be": "'Cancel' — 다이얼로그 버튼 라벨은 영문 단독(V8). 단어 1개 → 마침표 없음.",
+          "rule_ref": "CLAUDE.md Voice & Tone V8, 마침표 3분류"
+        },
+        {
+          "severity": "P1",
+          "type": "copy_V8_button_label",
+          "line": 1161,
+          "current": "Text('로그아웃') [dialog action]",
+          "should_be": "'Sign Out' — 다이얼로그 액션 버튼도 영문 단독(V8).",
+          "rule_ref": "CLAUDE.md Voice & Tone V8"
+        },
+        {
+          "severity": "P1",
+          "type": "copy_dialog_title_korean",
+          "line": 1146,
+          "current": "title: const Text('로그아웃')",
+          "should_be": "'Sign Out.' — 다이얼로그 타이틀은 1줄 선언(동사 포함) → 마침표 유지. V8 영문 단독.",
+          "rule_ref": "CLAUDE.md Voice & Tone V8, 마침표 3분류"
+        },
+        {
+          "severity": "P1",
+          "type": "typography_R3_section_header",
+          "line": 1418,
+          "current": "Text('SIGNATURE WOD', style: FacingTokens.micro.copyWith(color: FacingTokens.muted, fontWeight: FontWeight.w700, letterSpacing: 1.2))",
+          "should_be": "FacingTokens.sectionLabel — 섹션 헤더는 sectionLabel 단독(R3). micro 커스텀 변형으로 섹션 헤더 사용 금지.",
+          "rule_ref": "CLAUDE.md 타이포그래피 R3"
+        },
+        {
+          "severity": "P2",
+          "type": "copy_V9_mixed_language",
+          "line": 1388,
+          "current": "'엘리트 선수 선택 · 철학과 대표 WOD 참고.'",
+          "should_be": "V9 위반 없음(한글 문장 단독이고 전문용어 WOD는 영문 그대로 허용). — 단, '대표 WOD' → V10 한글 허용 패턴 OK. 실제 위반 없음. (무시 가능)",
+          "rule_ref": "CLAUDE.md Voice & Tone V9, V10"
+        }
+      ],
+      "estimated_diff_loc": 12
+    },
+    {
+      "file": "lib/features/mypage/algorithm_screen.dart",
+      "loc": 178,
+      "issues": [
+        {
+          "severity": "P0",
+          "type": "copy_V9_mixed_language",
+          "line": 23,
+          "current": "'6 카테고리 개별 점수(1.0-6.0)의 가중 평균.'",
+          "should_be": "V9 판단: 한글 문장 단독(영문 수식 포함). 허용 패턴(V10) — 실제 위반 없음. 단, line 30 '_FormulaLine(label: UI 변환, value: ...)' 내 'UI 변환'은 한글 라벨로 micro 사용 → sectionLabel 아님이 맞으나 섹션 헤더 오용 여부 확인 필요. label 84px 고정폭 내 'UI 변환' 한글 혼용. V9: 한 줄 내 영문 라벨과 한글 혼용. label 'UI 변환' → 'UI Map' 으로 영문화.",
+          "rule_ref": "CLAUDE.md Voice & Tone V9"
+        },
+        {
+          "severity": "P1",
+          "type": "copy_V8_label_korean",
+          "line": 30,
+          "current": "_FormulaLine(label: 'UI 변환', value: '0–100 선형 매핑 (engineScoreTo100)')",
+          "should_be": "label: 'UI MAP' — 라벨 영문 단독(V8). 단어 1~3개 레이블은 영문.",
+          "rule_ref": "CLAUDE.md Voice & Tone V8"
+        },
+        {
+          "severity": "P1",
+          "type": "copy_period_rule",
+          "line": 91,
+          "current": "'Beta Preview · 논문 PDF 링크·Split 시뮬레이터는 Phase 2 예정.'",
+          "should_be": "내용 자체는 허용(V10 한글 설명). 단 'Beta Preview' 뒤 중점(·)과 한글 혼용 — 문장 전체를 한글로 쓰거나 영문으로. V9: 한 문장 내 영-한 혼합. '* Phase 2: 논문 PDF 링크·Split 시뮬레이터 추가 예정.' 또는 전체 영문.",
+          "rule_ref": "CLAUDE.md Voice & Tone V9"
+        },
+        {
+          "severity": "P2",
+          "type": "typography_R3_section_header",
+          "line": 115,
+          "current": "Text(label, style: FacingTokens.micro.copyWith(color: FacingTokens.muted, fontWeight: FontWeight.w700, letterSpacing: 1.2))",
+          "should_be": "_FormulaLine 내 label 텍스트가 섹션 헤더 역할을 하면 sectionLabel 사용해야 하나, 인라인 KV 라벨용이므로 micro 사용은 허용. 단 sectionLabel(11sp)과 micro(13sp) 혼용 시각 혼동 주의.",
+          "rule_ref": "CLAUDE.md 타이포그래피 R3, micro 토큰 용도"
+        }
+      ],
+      "estimated_diff_loc": 4
+    },
+    {
+      "file": "lib/features/mypage/import_screen.dart",
+      "loc": 144,
+      "issues": [
+        {
+          "severity": "P0",
+          "type": "copy_V8_button_label_mixed",
+          "line": 71,
+          "current": "Text('BTWB 계정 연결 (Coming soon)')",
+          "should_be": "'Connect BTWB (Coming soon)' — 버튼 라벨 한글 혼용(V8·V9). 영문 단독 또는 단어 1~3개 영문 라벨. 'BTWB 계정' → 'BTWB Account'.",
+          "rule_ref": "CLAUDE.md Voice & Tone V8, V9"
+        },
+        {
+          "severity": "P0",
+          "type": "copy_V8_button_label_mixed",
+          "line": 85,
+          "current": "Text('CSV 파일 업로드 (Coming soon)')",
+          "should_be": "'Upload CSV (Coming soon)' — 버튼 라벨 한글 혼용. V8: 버튼은 영문 단독.",
+          "rule_ref": "CLAUDE.md Voice & Tone V8"
+        },
+        {
+          "severity": "P1",
+          "type": "copy_V9_mixed_language",
+          "line": 37,
+          "current": "_SourceRow(name: 'Apple Health · Google Fit', hint: 'Cardio / 체중 동기화 · Phase 2')",
+          "should_be": "hint: 'Cardio / Weight Sync · Phase 2' — '체중 동기화'가 한 문장 내 영-한 혼합(V9). '체중' → 'Weight'.",
+          "rule_ref": "CLAUDE.md Voice & Tone V9"
+        },
+        {
+          "severity": "P1",
+          "type": "copy_V9_mixed_language",
+          "line": 40,
+          "current": "_SourceRow(name: 'Whoop · Oura', hint: 'HRV · 회복 데이터 · Phase 2')",
+          "should_be": "hint: 'HRV · Recovery Data · Phase 2' — '회복 데이터'가 한 문장 내 영-한 혼합(V9). 영문화.",
+          "rule_ref": "CLAUDE.md Voice & Tone V9"
+        },
+        {
+          "severity": "P2",
+          "type": "copy_V9_mixed_language_note",
+          "line": 47,
+          "current": "_Note('1. BTWB 계정 OAuth 연동 → 동작별 PR 자동 임포트')",
+          "should_be": "V10 허용 여부: 2줄 이상 설명은 한글 허용. 그러나 'BTWB 계정'에서 'BTWB'는 영문, '계정'은 한글 — V9 한 문장 내 혼합. '1. BTWB Account OAuth → PR 자동 임포트' 또는 전체 한글로.",
+          "rule_ref": "CLAUDE.md Voice & Tone V9, V10"
+        }
+      ],
+      "estimated_diff_loc": 6
+    },
+    {
+      "file": "lib/features/mypage/privacy_screen.dart",
+      "loc": 146,
+      "issues": [
+        {
+          "severity": "P0",
+          "type": "copy_V8_button_label_mixed",
+          "line": 65,
+          "current": "Text('계정 탈퇴 (Delete Account)')",
+          "should_be": "'Delete Account' — 버튼 라벨은 영문 단독(V8). 한-영 병기 불필요. 단어 라벨 마침표 없음.",
+          "rule_ref": "CLAUDE.md Voice & Tone V8, 마침표 3분류"
+        },
+        {
+          "severity": "P0",
+          "type": "copy_dialog_title_korean",
+          "line": 93,
+          "current": "title: const Text('계정 탈퇴')",
+          "should_be": "'Delete Account.' — 다이얼로그 타이틀 1줄 선언 → 영문 + 마침표 유지(V8, 마침표 3분류).",
+          "rule_ref": "CLAUDE.md Voice & Tone V8, 마침표 3분류"
+        },
+        {
+          "severity": "P1",
+          "type": "copy_dialog_action_korean",
+          "line": 100,
+          "current": "Text('취소')",
+          "should_be": "'Cancel' — 다이얼로그 버튼 영문 단독(V8). 단어 1개 → 마침표 없음.",
+          "rule_ref": "CLAUDE.md Voice & Tone V8"
+        },
+        {
+          "severity": "P1",
+          "type": "copy_dialog_action_korean",
+          "line": 104,
+          "current": "Text('탈퇴')",
+          "should_be": "'Delete' — 다이얼로그 파괴적 액션 버튼 영문 단독(V8). 단어 1개 → 마침표 없음.",
+          "rule_ref": "CLAUDE.md Voice & Tone V8"
+        },
+        {
+          "severity": "P2",
+          "type": "copy_V9_mixed_language",
+          "line": 46,
+          "current": "'백분위·랭킹 UI 수치는 **현재 가상 데이터** — 정식 출시 시 익명 집계로 대체 예정.'",
+          "should_be": "V10 허용(2줄+ 설명). 단, '**...**' 마크다운 bold 마크업이 Flutter Text에 그대로 렌더링됨 → 시각 버그. RichText 또는 bold style 분리 필요.",
+          "rule_ref": "CLAUDE.md 디자인 원칙, Flutter Text 마크다운 미지원"
+        }
+      ],
+      "estimated_diff_loc": 6
+    }
+  ],
+  "summary": {
+    "total_issues": 19,
+    "p0": 7,
+    "p1": 8,
+    "p2": 4,
+    "common_patterns": [
+      "V8 위반: 버튼·다이얼로그 타이틀·액션 버튼에 한글 라벨 사용 (4개 파일 공통)",
+      "V9 위반: 한 문장 내 영-한 혼합 (hint 문자열, 버튼 텍스트, 진행 상태 텍스트)",
+      "R4 위반: ENGINE SCORE 히어로 숫자에 displayCompact 사용 (display가 정규 토큰)",
+      "R3 위반: SIGNATURE WOD 섹션 헤더에 micro.copyWith 사용 (sectionLabel 사용해야 함)",
+      "마침표 3분류 위반: 다이얼로그 타이틀이 한글이어서 영문+마침표 규칙 미적용"
+    ]
+  }
+}

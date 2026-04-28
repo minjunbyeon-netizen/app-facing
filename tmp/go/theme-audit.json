@@ -1,0 +1,218 @@
+{
+  "current_tokens": {
+    "colors": [
+      "bg #0A0A0A",
+      "surface #141414",
+      "surfaceOverlay #1E1E1E",
+      "fg #F5F5F5",
+      "muted #9E9E9E (실제) vs CLAUDE.md #8A8A8A (명세) — v1.14 WCAG AA 상향",
+      "border #2A2A2A",
+      "accent #EE2B2B",
+      "accentPressed #CC2020",
+      "success #22C55E",
+      "warning #F59E0B",
+      "error #EE2B2B (accent 동일값)",
+      "overdue #F59E0B (warning 동일값)",
+      "tierScaled #4A4A4A (명세 #5A5A5A와 불일치 — v1.15 재배치)",
+      "tierRx #EE2B2B",
+      "tierRxPlus #929292 (명세 #FF6B00와 불일치 — v1.15 흑백 재배치)",
+      "tierElite #C8C8C8 (명세 #C8A84B 금색과 불일치 — v1.15 흑백 재배치)",
+      "tierGames #F5F5F5 (명세 #E8E8E8 실버와 불일치 — v1.15 흑백 재배치)"
+    ],
+    "typography": [
+      "display: 64sp w800 ls-1.6 tabular",
+      "displayCompact: 56sp w800 ls-1.4 tabular (CLAUDE.md 미명세 — v1.15.3 신규)",
+      "h1: 44sp w800 ls-1.1 tabular",
+      "h2: 30sp w700 ls-0.6",
+      "h3: 20sp w700 ls-0.2",
+      "lead: 18sp w400",
+      "body: 15sp w400",
+      "caption: 13sp w400 muted",
+      "micro: 13sp w500 ls+0.4 muted (v1.19 11sp→13sp 상향, CLAUDE.md는 여전히 13sp로 기재됨)",
+      "tierLabel: 12sp w800 ls+1.4 (CLAUDE.md ls+1.8 명세와 불일치)",
+      "sectionLabel: 11sp w700 ls+1.2 (CLAUDE.md ls+1.6 명세와 불일치 — v1.15.3 조정)",
+      "brandLogo: 72sp w800 ls-2.4",
+      "bannerLabel: 12sp w700 ls+1.0 (CLAUDE.md ls+1.2 명세와 불일치 — v1.15.3 조정)",
+      "quote: 14sp w500 italic muted",
+      "brandSerif: 72sp BodoniModa w800 italic ls-2.0 (getter, const 불가)",
+      "h1Serif: 44sp BodoniModa w700 italic ls-0.8 (getter)",
+      "displaySerif: 64sp BodoniModa w800 italic tabular ls-1.2 (getter)",
+      "quoteSerif: 16sp BodoniModa w400 italic ls+0.2 fg (CLAUDE.md 명세 없음)"
+    ],
+    "spacing": [
+      "sp1=4, sp2=8, sp3=12, sp4=16, sp5=24, sp6=32, sp7=48, sp8=64",
+      "r1=4, r2=8, r3=12, r4=16, r5=28",
+      "touchMin=48, buttonH=52, appBarH=52"
+    ],
+    "missing_vs_claude_md": [
+      "displayCompact(56sp): CLAUDE.md 미명세. 토큰 존재하나 스펙 문서에 없음",
+      "quoteSerif: CLAUDE.md 미명세. quote(14sp) 와 별도 serif 버전(16sp) 공존",
+      "brandSerif / h1Serif / displaySerif: CLAUDE.md v1.15 세리프 섹션 미반영",
+      "surfaceOverlay: CLAUDE.md 컬러 9토큰 목록에 미포함",
+      "error / overdue: CLAUDE.md 미명세 (accent·warning 재사용 별칭이지만 토큰화됨)"
+    ]
+  },
+  "violations_found": [
+    {
+      "file": "lib/features/pacing_result/result_screen.dart",
+      "line": 359,
+      "type": "inline_textstyle",
+      "snippet": "style: TextStyle(color: FacingTokens.accent)",
+      "note": "BurstPoints '·' 기호 색상. 별도 토큰 없이 인라인 TextStyle 생성. R5 경계선 위반은 아니나(fontSize 없음) 스타일 파편화."
+    },
+    {
+      "file": "lib/features/pacing_result/result_screen.dart",
+      "line": 586,
+      "type": "inline_textstyle",
+      "snippet": "style: const TextStyle(color: FacingTokens.accent)",
+      "note": "_SplitText 내 tail(폭발 마지막 숫자) 강조. 동일하게 fontSize 없어 R5 위반 아님. 그러나 body.copyWith 또는 h1.copyWith로 통일 권장."
+    },
+    {
+      "file": "lib/features/pacing_result/result_screen.dart",
+      "line": 404,
+      "type": "inline_textstyle",
+      "snippet": "FacingTokens.micro.copyWith(color: FacingTokens.muted, fontWeight: FontWeight.w800, letterSpacing: 1.0)",
+      "note": "RATIONALE 내 'PACING FORMULA' / 'REFERENCES' 섹션 헤더. sectionLabel(11sp w700 ls+1.2)과 유사한 용도이나 micro.copyWith로 구현. sectionLabel 사용으로 교체 권장."
+    },
+    {
+      "file": "lib/features/pacing_result/result_screen.dart",
+      "line": 422,
+      "type": "inline_textstyle",
+      "snippet": "FacingTokens.micro.copyWith(color: FacingTokens.muted, fontWeight: FontWeight.w800, letterSpacing: 1.0)",
+      "note": "위 line 404와 동일 패턴 반복. 'REFERENCES' 헤더."
+    },
+    {
+      "file": "lib/features/pacing_result/result_screen.dart",
+      "line": 415,
+      "type": "inline_textstyle",
+      "snippet": "FacingTokens.caption.copyWith(fontFamily: 'monospace')",
+      "note": "수식 블록 monospace 처리. fontFamily 하드코딩. code 전용 토큰(예: FacingTokens.codeBlock) 미존재로 발생."
+    },
+    {
+      "file": "lib/features/pacing_result/result_screen.dart",
+      "line": 381,
+      "type": "hardcoded_color",
+      "snippet": "Theme.of(context).copyWith(dividerColor: Colors.transparent)",
+      "note": "ExpansionTile divider 숨김 목적. Colors.transparent는 Flutter 내장 상수라 hex 하드코딩은 아님. 허용 범위."
+    },
+    {
+      "file": "lib/core/theme.dart",
+      "line": 332,
+      "type": "hardcoded_color",
+      "snippet": "shadowColor: WidgetStateProperty.all(Colors.transparent)",
+      "note": "ElevatedButton 그림자 제거. Colors.transparent 내장 상수로 허용."
+    },
+    {
+      "file": "lib/core/theme.dart",
+      "line": 31,
+      "type": "token_value_drift",
+      "snippet": "tierScaled = Color(0xFF4A4A4A) — CLAUDE.md 명세 #5A5A5A",
+      "note": "v1.15 흑백 재배치로 값 변경됨. CLAUDE.md 티어 색상 테이블이 구버전(v1.12) 기준. 코드가 최신, 문서가 구버전."
+    },
+    {
+      "file": "lib/core/theme.dart",
+      "line": 33,
+      "type": "token_value_drift",
+      "snippet": "tierRxPlus = Color(0xFF929292) — CLAUDE.md 명세 #FF6B00",
+      "note": "v1.15 흑백 재배치. RxPlus가 주황→회색으로 변경됨. 문서 미반영."
+    },
+    {
+      "file": "lib/core/theme.dart",
+      "line": 34,
+      "type": "token_value_drift",
+      "snippet": "tierElite = Color(0xFFC8C8C8) — CLAUDE.md 명세 #C8A84B",
+      "note": "v1.15 흑백 재배치. Elite가 금색→밝은회색으로 변경됨. 문서 미반영."
+    },
+    {
+      "file": "lib/core/theme.dart",
+      "line": 35,
+      "type": "token_value_drift",
+      "snippet": "tierGames = Color(0xFFF5F5F5) — CLAUDE.md 명세 #E8E8E8",
+      "note": "v1.15 흑백 재배치. Games가 실버→밝은흰색으로 변경됨. 문서 미반영."
+    },
+    {
+      "file": "lib/core/theme.dart",
+      "line": 143,
+      "type": "token_value_drift",
+      "snippet": "sectionLabel letterSpacing: 1.2 — CLAUDE.md 명세 ls+1.6",
+      "note": "v1.15.3 대문자 가독성 복원 조정(0.2→1.2). CLAUDE.md는 여전히 ls+1.6 기재."
+    },
+    {
+      "file": "lib/core/theme.dart",
+      "line": 131,
+      "type": "token_value_drift",
+      "snippet": "tierLabel letterSpacing: 1.4 — CLAUDE.md 명세 ls+1.8",
+      "note": "v1.15.3 복원 조정. CLAUDE.md는 ls+1.8 기재."
+    },
+    {
+      "file": "lib/core/theme.dart",
+      "line": 164,
+      "type": "token_value_drift",
+      "snippet": "bannerLabel letterSpacing: 1.0 — CLAUDE.md 명세 ls+1.2",
+      "note": "v1.15.3 조정. CLAUDE.md는 ls+1.2 기재."
+    }
+  ],
+  "recommended_changes": [
+    {
+      "priority": "P0",
+      "id": "R1",
+      "target": "CLAUDE.md 티어 색상 테이블",
+      "action": "v1.15 흑백 재배치 결과 반영: tierScaled #4A4A4A / tierRxPlus #929292 / tierElite #C8C8C8 / tierGames #F5F5F5. 현재 코드가 정본, 문서가 구버전."
+    },
+    {
+      "priority": "P0",
+      "id": "R2",
+      "target": "CLAUDE.md 타이포 letterSpacing 테이블",
+      "action": "sectionLabel ls+1.2 / tierLabel ls+1.4 / bannerLabel ls+1.0 으로 실제 코드 기준 갱신. 현재 ls 값이 코드와 불일치."
+    },
+    {
+      "priority": "P1",
+      "id": "R3",
+      "target": "result_screen.dart:404,422 (RATIONALE 섹션 헤더)",
+      "action": "micro.copyWith(w800, ls:1.0) → FacingTokens.sectionLabel 로 교체. sectionLabel 설계 목적과 일치하며 R3 규칙 준수."
+    },
+    {
+      "priority": "P1",
+      "id": "R4",
+      "target": "result_screen.dart:359,586 (인라인 TextStyle accent 색상)",
+      "action": "TextStyle(color: FacingTokens.accent) → FacingTokens.body.copyWith(color: FacingTokens.accent) 또는 h1.copyWith. 베이스 토큰 계승으로 fontSize·weight 일관성 보장."
+    },
+    {
+      "priority": "P1",
+      "id": "R5",
+      "target": "lib/core/theme.dart — codeBlock 토큰 추가",
+      "action": "caption.copyWith(fontFamily: 'monospace') 패턴 재사용. FacingTokens.codeBlock = caption.copyWith(fontFamily: 'monospace') 상수 추가 권장. RATIONALE 수식 블록 전용."
+    },
+    {
+      "priority": "P1",
+      "id": "R6",
+      "target": "CLAUDE.md 타이포 테이블 — displayCompact 추가",
+      "action": "56sp w800 ls-1.4 tabular. result_screen.dart에서 사용 중이나 CLAUDE.md에 미명세. 스펙 추가 필요."
+    },
+    {
+      "priority": "P1",
+      "id": "R7",
+      "target": "CLAUDE.md 컬러 목록 — surfaceOverlay / error / overdue 추가",
+      "action": "theme.dart에 정의된 surfaceOverlay(#1E1E1E), error(accent 별칭), overdue(warning 별칭) 3개가 CLAUDE.md 9토큰 목록에 누락. 명세 동기화 필요."
+    },
+    {
+      "priority": "P2",
+      "id": "R8",
+      "target": "CLAUDE.md muted 색상 값",
+      "action": "명세 #8A8A8A → 실제 코드 #9E9E9E (v1.14 WCAG AA 상향). CLAUDE.md 컬러 테이블 갱신."
+    },
+    {
+      "priority": "P2",
+      "id": "R9",
+      "target": "CLAUDE.md 타이포 테이블 — quoteSerif / brandSerif / h1Serif / displaySerif 추가",
+      "action": "v1.15 serif 토큰 4개(getter)가 theme.dart에 존재하나 CLAUDE.md에 미반영. 별도 '세리프 토큰' 서브섹션으로 명세 추가."
+    },
+    {
+      "priority": "P2",
+      "id": "R10",
+      "target": "theme.dart — google_fonts import 의존성 명시",
+      "action": "brandSerif 등 GoogleFonts.bodoniModa getter는 런타임 fetch. pubspec.yaml에 google_fonts 버전 고정 확인. 오프라인 폴백은 이미 _serifFallback = [fontFamily] 로 구현되어 있어 안전."
+    }
+  ],
+  "preserves_logic": true
+}

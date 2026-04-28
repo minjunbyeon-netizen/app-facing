@@ -1,0 +1,546 @@
+{
+  "files": [
+    {
+      "file": "lib/features/gym/coach_dashboard_screen.dart",
+      "loc": 608,
+      "issues": [
+        {
+          "severity": "P0",
+          "type": "hard-coded fontSize / R5 violation",
+          "line": 295,
+          "current": "_numBlock label uses FacingTokens.micro.copyWith(fontWeight, letterSpacing) BUT SESSIONS/STREAK are numeric-metric labels — should use sectionLabel token for group header or confirm token is correct. Also: _kv SizedBox(width: 110) hard-codes layout width without token.",
+          "should_be": "Width constant should reference a spacing token or named constant; confirm SESSIONS/STREAK label token is micro (OK) vs sectionLabel",
+          "rule_ref": "R5 — 하드코드 fontSize/width 금지"
+        },
+        {
+          "severity": "P0",
+          "type": "boxShadow on DayCell — not in this file; here: multiple box-shadow absent but check _MemberDetailSheet container uses surfaceOverlay border — OK. ACTUAL P0: _coachNoteFlow uses `const SnackBar(content: Text('이전 WOD 복제. 필요 시 수정 후 Post.'))` — Korean text in a SnackBar: 이 패턴은 V8 위반 아님 (2줄+ 한글 허용). Re-scan: line 79 AppBar title 'COACH DASHBOARD' OK. Real P0: line 55 SnackBar content Text '처리 실패' — bare Korean fallback OK. RECHECK: attendance_screen _DayCell line 734–739 boxShadow with blurRadius 6 — that is in attendance_screen NOT this file. In THIS file: no gradient / no multi-boxShadow. Downgrade. Actual distinct P0 for THIS file: sectionLabel used as section header inline in _WodCard (different file). In coach_dashboard: line 300 _numBlock uses FacingTokens.micro.copyWith with custom letterSpacing 1.2 — sectionLabel should be used for section grouping headers ONLY; SESSIONS/STREAK are data sub-labels so micro is correct. Genuine P0: line 300–302 letterSpacing 1.2 inline on micro — token already defines letterSpacing for micro (ls+0.4 per spec). Overriding letterSpacing in copyWith = R5 violation (custom non-token value).",
+          "should_be": "Remove letterSpacing override; use FacingTokens.micro directly (token already carries ls+0.4). If 1.2 is needed, add a named variant to FacingTokens.",
+          "rule_ref": "R5 — 토큰 외 인라인 letterSpacing 금지"
+        },
+        {
+          "severity": "P1",
+          "type": "V11 / mixed-language button label",
+          "line": 444,
+          "current": "TextButton child const Text('닫기')",
+          "should_be": "const Text('Close') — 단어 1개 버튼 라벨은 영문 단독 (V8/V11)",
+          "rule_ref": "V8 — 버튼·탭·배지(단어 1개) = 영문 단독"
+        },
+        {
+          "severity": "P2",
+          "type": "CoachBadgeAction AppBar integration — confirm pattern",
+          "line": 81,
+          "current": "actions: [const CoachBadgeAction(), IconButton(refresh)]",
+          "should_be": "CoachBadgeAction present — OK. No issue.",
+          "rule_ref": "CoachBadge AppBar 통합 확인 — PASS"
+        },
+        {
+          "severity": "P1",
+          "type": "sectionLabel override color — R3 violation",
+          "line": 259,
+          "current": "FacingTokens.sectionLabel used as base then .copyWith(color: FacingTokens.accent) in _WodCard (box_wod_screen) but also in _MemberDetailSheet: Text('COACH NOTES', style: FacingTokens.sectionLabel) — clean. However line 518 inside _coachNoteFlow: Text('COACH NOTE → ...', style: FacingTokens.sectionLabel) — dynamic string as sectionLabel headline contains '→' arrow which is allowed (→ is in allowed set). Clean.",
+          "should_be": "No change needed for sectionLabel usage; already follows R3.",
+          "rule_ref": "R3 — 섹션 헤더는 sectionLabel 단독 PASS"
+        },
+        {
+          "severity": "P2",
+          "type": "inline letterSpacing 1.2 duplication across _statusChip, _kv",
+          "line": 591,
+          "current": "micro.copyWith(color: FacingTokens.muted, fontWeight: FontWeight.w700, letterSpacing: 1.2) — repeated pattern in 4 places",
+          "should_be": "Extract to a named style constant e.g. FacingTokens.microLabel to avoid repeated inline overrides",
+          "rule_ref": "R5 — 반복 인라인 스타일 토큰화 권장"
+        }
+      ],
+      "estimated_diff_loc": 8
+    },
+    {
+      "file": "lib/features/gym/member_requests_screen.dart",
+      "loc": 306,
+      "issues": [
+        {
+          "severity": "P1",
+          "type": "V8 — Korean button label",
+          "line": 89,
+          "current": "InputDecoration(labelText: '응답') — hint/label in Korean inside modal: this is a 2-line hint context, so Korean is allowed per V10. Check buttons: 'Dismiss' (OK), 'Send & Resolve' (OK).",
+          "should_be": "No violation — Korean hint/label in form fields is allowed under V10. PASS.",
+          "rule_ref": "V10 — 힌트·캡션 한글 허용 PASS"
+        },
+        {
+          "severity": "P0",
+          "type": "inline letterSpacing override on micro token",
+          "line": 251,
+          "current": "FacingTokens.micro.copyWith(color: ..., fontWeight: FontWeight.w800, letterSpacing: 1.2)",
+          "should_be": "Use token-defined letterSpacing (ls+0.4). Remove inline letterSpacing: 1.2 override or add named variant.",
+          "rule_ref": "R5 — 토큰 외 인라인 letterSpacing 금지"
+        },
+        {
+          "severity": "P1",
+          "type": "R1 — AppBar title present + no extra headline in body (PASS), but SegmentedButton labels use capitalized Text('Open') etc — should match V8 (single word = no period, English). 'All' is English, 'Open'/'Resolved' are English — PASS. Genuine P1: SnackBar '요청 없음.' at line 200 — this is a caption-level empty state, Korean allowed. ACTUAL P1: missing CoachBadgeAction on AppBar when non-coach might reach this screen — but screen has isOwner guard at initState. Check: AppBar line 163 has CoachBadgeAction — PASS.",
+          "should_be": "CoachBadgeAction present on AppBar — PASS. No R1 violation.",
+          "rule_ref": "CoachBadge AppBar 통합 — PASS"
+        },
+        {
+          "severity": "P2",
+          "type": "micro letterSpacing 1.2 repeated in _RequestRow (3 occurrences)",
+          "line": 265,
+          "current": "FacingTokens.micro.copyWith(color: FacingTokens.muted) — some without letterSpacing (clean), some with letterSpacing: 1.2 (violation)",
+          "should_be": "Standardize: either remove letterSpacing override or define named constant",
+          "rule_ref": "R5 — 인라인 non-token 값 금지"
+        }
+      ],
+      "estimated_diff_loc": 4
+    },
+    {
+      "file": "lib/features/gym/gym_search_screen.dart",
+      "loc": 211,
+      "issues": [
+        {
+          "severity": "P1",
+          "type": "V8 — Korean TextField label",
+          "line": 120,
+          "current": "InputDecoration(labelText: '박스 이름 검색')",
+          "should_be": "labelText: 'Search Box' — 단어 라벨은 영문 단독 (V8). 단, 1줄 form hint는 V10 한글 허용 예외 — 여기는 labelText(라벨)이므로 영문 권장",
+          "rule_ref": "V8 — UI 라벨 영문 단독"
+        },
+        {
+          "severity": "P1",
+          "type": "V11 — Korean inline with English noun",
+          "line": 191,
+          "current": "'${g.location} · ${g.memberCount} members' — location value may be Korean mixed with 'members' suffix in same string",
+          "should_be": "If location is Korean text, separate label: show location in Korean caption line, 'members' count in separate widget — avoid Korean+English in same sentence",
+          "rule_ref": "V9 — 한 문장 내 영문-한글 혼합 금지"
+        },
+        {
+          "severity": "P2",
+          "type": "AppBar missing CoachBadgeAction",
+          "line": 110,
+          "current": "AppBar(title: const Text('FIND BOX')) — no CoachBadgeAction in actions",
+          "should_be": "FIND BOX is a member screen (no coach context expected here). Coach reaching this screen would be unusual. Acceptable omission — P2 for consistency with other screens.",
+          "rule_ref": "CoachBadge AppBar 통합 — 비코치 화면 예외"
+        }
+      ],
+      "estimated_diff_loc": 3
+    },
+    {
+      "file": "lib/features/gym/wod_post_screen.dart",
+      "loc": 400,
+      "issues": [
+        {
+          "severity": "P0",
+          "type": "sectionLabel mixed with Korean parenthetical — R3 + V9",
+          "line": 220,
+          "current": "const Text('RX (기본)', style: FacingTokens.sectionLabel)",
+          "should_be": "const Text('RX', style: FacingTokens.sectionLabel) — sectionLabel must be uppercase English only. Korean '(기본)' must move to separate caption widget below",
+          "rule_ref": "R3 — 섹션 헤더는 sectionLabel 단독; V9 — 한 문장 영-한 혼합 금지"
+        },
+        {
+          "severity": "P0",
+          "type": "sectionLabel mixed with Korean parenthetical — multiple occurrences",
+          "line": 232,
+          "current": "const Text('SCALED (선택)', style: FacingTokens.sectionLabel) and 'BEGINNER (선택)', 'SCALE GUIDE (선택)', 'ROUNDS (선택)'",
+          "should_be": "Remove Korean from sectionLabel text. Use plain 'SCALED', 'BEGINNER', 'SCALE GUIDE', 'ROUNDS'. Add FacingTokens.caption below if needed.",
+          "rule_ref": "R3 — sectionLabel 단독 / V9 한-영 혼합 금지"
+        },
+        {
+          "severity": "P1",
+          "type": "V8 — Korean form label in InputDecoration",
+          "line": 225,
+          "current": "InputDecoration(labelText: 'RX 버전', hintText: '21-15-9 Thruster ...')",
+          "should_be": "labelText: 'RX Version' or 'RX' — form field labels should be English per V8; Korean hint in hintText is acceptable under V10",
+          "rule_ref": "V8 — UI 라벨 영문 단독"
+        },
+        {
+          "severity": "P1",
+          "type": "AppBar missing CoachBadgeAction",
+          "line": 163,
+          "current": "AppBar(title: const Text('POST WOD'), actions: [TextButton.icon(Duplicate)])",
+          "should_be": "Add CoachBadgeAction() to actions — WodPost is a coach-only screen",
+          "rule_ref": "CoachBadge AppBar 통합 — 코치 전용 화면 필수"
+        },
+        {
+          "severity": "P2",
+          "type": "V8 — 'Posting...' loading state text has ellipsis — V3 violation (10단어 이하 OK but '...' style)",
+          "line": 365,
+          "current": "Text(_submitting ? 'Posting...' : 'Post WOD')",
+          "should_be": "Text(_submitting ? 'Posting.' : 'Post WOD') — use period not ellipsis per V8 declarative pattern (선언문 = 마침표 1개)",
+          "rule_ref": "V8 / 마침표 3분류 — 선언문은 마침표 1개"
+        }
+      ],
+      "estimated_diff_loc": 12
+    },
+    {
+      "file": "lib/features/gym/wod_detail_screen.dart",
+      "loc": 584,
+      "issues": [
+        {
+          "severity": "P1",
+          "type": "V8 — Korean empty-state caption mixed with instruction",
+          "line": 332,
+          "current": "const Text('아직 기록 없음. Start Timer → Done으로 첫 기록 제출.', style: FacingTokens.caption)",
+          "should_be": "Split: English headline 'No records.' + Korean caption '타이머 시작 후 Done으로 첫 기록 제출.' (V10 허용 패턴) — current mixes English action ('Start Timer → Done') in Korean sentence",
+          "rule_ref": "V9 — 한 문장 내 영-한 혼합 금지"
+        },
+        {
+          "severity": "P1",
+          "type": "V8 — Korean SnackBar with English WOD term",
+          "line": 300,
+          "current": "const Text('코치 피드백 없음. Coach Dashboard에서 작성.', style: FacingTokens.caption)",
+          "should_be": "'Coach Dashboard' embedded in Korean sentence — V9 violation. Use: '코치 피드백 없음.' as caption + separate note 'Add via Coach Dashboard.' or fully Korean with no embedded English proper noun",
+          "rule_ref": "V9 — 한 문장 내 영-한 혼합 금지"
+        },
+        {
+          "severity": "P2",
+          "type": "inline letterSpacing 1.2 on micro in _ResultRow and _FeedbackCard",
+          "line": 458,
+          "current": "FacingTokens.micro.copyWith(color: FacingTokens.muted, fontWeight: FontWeight.w700, letterSpacing: 1.2)",
+          "should_be": "Remove inline letterSpacing override — use token value",
+          "rule_ref": "R5 — 인라인 non-token letterSpacing 금지"
+        }
+      ],
+      "estimated_diff_loc": 6
+    },
+    {
+      "file": "lib/features/gym/box_wod_screen.dart",
+      "loc": 612,
+      "issues": [
+        {
+          "severity": "P0",
+          "type": "boxShadow absent in this file — PASS. ACTUAL P0: _WodCard SCALE GUIDE section uses micro.copyWith with letterSpacing 1.2 (line 533) — R5 violation",
+          "line": 533,
+          "current": "FacingTokens.micro.copyWith(color: FacingTokens.muted, fontWeight: FontWeight.w700, letterSpacing: 1.2)",
+          "should_be": "Remove letterSpacing: 1.2 inline — token micro already defines ls+0.4",
+          "rule_ref": "R5 — 인라인 non-token letterSpacing 금지"
+        },
+        {
+          "severity": "P1",
+          "type": "V9 — Korean+English mixed caption in SnackBar",
+          "line": 572,
+          "current": "const SnackBar(content: Text('Calc 탭 이동. WOD 구성 후 Split·Burst 계산.'))",
+          "should_be": "'Calc 탭' = English embedded in Korean. Rewrite fully: '계산 탭으로 이동. WOD 구성 후 Split·Burst 계산.' or 'Moved to Calc. Build WOD then calculate Split·Burst.'",
+          "rule_ref": "V9 — 한 문장 내 영-한 혼합 금지"
+        },
+        {
+          "severity": "P1",
+          "type": "R1 violation — AppBar 'WOD' title + _WodList renders gym.name as h3 headline inside body",
+          "line": 339,
+          "current": "Text(gym.name, style: FacingTokens.h3.copyWith(fontWeight: FontWeight.w800)) — gym name as h3 inside ListView when AppBar already has 'WOD' title",
+          "should_be": "R1: AppBar title이 있으면 화면 내 h2/h3 헤드라인 제거. Gym name should use caption or body style, not h3 — or move gym name to AppBar subtitle",
+          "rule_ref": "R1 — 화면당 h1 1개; AppBar title 있으면 내 헤드라인 h2 제거"
+        },
+        {
+          "severity": "P2",
+          "type": "micro.copyWith inline pattern repeated in _WodCard round labels (line 501)",
+          "line": 501,
+          "current": "FacingTokens.micro.copyWith(color: FacingTokens.accent, fontWeight: FontWeight.w800, letterSpacing: 1.2)",
+          "should_be": "Extract to named constant; remove inline letterSpacing",
+          "rule_ref": "R5 — 반복 인라인 non-token 값"
+        }
+      ],
+      "estimated_diff_loc": 8
+    },
+    {
+      "file": "lib/features/inbox/inbox_screen.dart",
+      "loc": 566,
+      "issues": [
+        {
+          "severity": "P0",
+          "type": "sectionLabel used as error headline with Korean text",
+          "line": 136,
+          "current": "const Text('인박스 로딩 실패', style: FacingTokens.sectionLabel)",
+          "should_be": "sectionLabel must be uppercase English only (대문자 필수 + 코드에서 toUpperCase). Use: const Text('LOAD FAILED', style: FacingTokens.sectionLabel) or body style for Korean error message",
+          "rule_ref": "sectionLabel 대문자 필수 규칙; R3 — 섹션 헤더는 sectionLabel 단독"
+        },
+        {
+          "severity": "P1",
+          "type": "Tab labels use dot notation 'ALL · N' — V3 (10단어 이하) OK but dots in tab labels mix English·numbers — check V8: Tab(text: 'ALL · N') has number, which is allowed. ACTUAL P1: Tab(text: 'OUTBOX') — single word, no period — PASS per V8. Genuine P1: inline micro override letterSpacing 1.0 in _OutboxView line 499",
+          "line": 499,
+          "current": "FacingTokens.micro.copyWith(color: FacingTokens.muted, fontWeight: FontWeight.w800, letterSpacing: 1.0)",
+          "should_be": "Remove inline letterSpacing; use token value (ls+0.4)",
+          "rule_ref": "R5 — 인라인 non-token letterSpacing"
+        },
+        {
+          "severity": "P2",
+          "type": "CoachDossierTile — micro.copyWith letterSpacing 1.2 in _buildBody (line 284)",
+          "line": 284,
+          "current": "FacingTokens.micro.copyWith(color: ..., fontWeight: FontWeight.w800, letterSpacing: 1.2)",
+          "should_be": "Remove inline letterSpacing override",
+          "rule_ref": "R5"
+        }
+      ],
+      "estimated_diff_loc": 5
+    },
+    {
+      "file": "lib/features/inbox/note_detail_screen.dart",
+      "loc": 795,
+      "issues": [
+        {
+          "severity": "P1",
+          "type": "V9 — Korean ask-coach template chips mix English and Korean",
+          "line": 377,
+          "current": "ActionChip labels: '무게 낮춰도 되나요?', '동작 대체 가능?', '날짜 조정 부탁' — Korean-only, but '동작 대체' contains domain term that should be English per V11. '동작' = movement (V11: 동작명은 영문 단독).",
+          "should_be": "'무게 낮춰도 되나요?' → OK (full Korean sentence). '동작 대체 가능?' → 'Movement 대체?' or 'Substitute movement?' — dynamic chip templates should follow V11",
+          "rule_ref": "V11 — 동작명/시스템명은 영문 단독"
+        },
+        {
+          "severity": "P1",
+          "type": "R1 — AppBar title 'NOTE' (single word, no period — correct) but _buildBody renders n.title with FacingTokens.h2 — AppBar title present, so h2 inside body is R1 violation",
+          "line": 524,
+          "current": "Text(n.title, style: FacingTokens.h2.copyWith(fontWeight: FontWeight.w800))",
+          "should_be": "With AppBar title present, note title inside body should use h3 or lead, not h2. R1: AppBar title → 화면 내 h2 제거.",
+          "rule_ref": "R1 — AppBar title 있으면 화면 내 헤드라인 h2 제거"
+        },
+        {
+          "severity": "P2",
+          "type": "micro letterSpacing 1.2 inline in _buildBody sender row (line 489)",
+          "line": 489,
+          "current": "FacingTokens.micro.copyWith(color: FacingTokens.muted, fontWeight: FontWeight.w800, letterSpacing: 1.2)",
+          "should_be": "Remove inline letterSpacing",
+          "rule_ref": "R5"
+        }
+      ],
+      "estimated_diff_loc": 5
+    },
+    {
+      "file": "lib/features/inbox/compose_note_screen.dart",
+      "loc": 609,
+      "issues": [
+        {
+          "severity": "P0",
+          "type": "sectionLabel used with non-uppercase label in _addItem modal",
+          "line": 140,
+          "current": "Text('LOAD UNIT', style: FacingTokens.sectionLabel) — but this is inside a StatefulBuilder modal, not calling .toUpperCase() explicitly. String is already uppercase — PASS. ACTUAL P0: line 140 'LOAD UNIT' style applied directly without toUpperCase() — per CLAUDE.md rule '대문자 필수(코드에서 toUpperCase)'. Static all-caps string literal is borderline; truly dynamic values need toUpperCase(). This is a static literal — PASS. Re-examine: genuine P0 in this file: inline letterSpacing on micro at line 441 (multiple places).",
+          "line": 499,
+          "current": "FacingTokens.micro.copyWith(fontWeight: FontWeight.w800, letterSpacing: 1.2) in _OutboxView equivalent sections",
+          "should_be": "Remove inline letterSpacing on micro tokens throughout compose screen",
+          "rule_ref": "R5 — 인라인 non-token letterSpacing"
+        },
+        {
+          "severity": "P1",
+          "type": "V9 — Korean+English mixed SnackBar / validation messages",
+          "line": 296,
+          "current": "const SnackBar(content: Text('수신자 hash 필요.')) — 'hash' English embedded in Korean",
+          "should_be": "'수신자 필요.' or 'Recipient hash required.' — avoid single English technical term in Korean sentence",
+          "rule_ref": "V9 — 한 문장 내 영-한 혼합 금지"
+        },
+        {
+          "severity": "P2",
+          "type": "InputDecoration labelText Korean mixed: 'Substitute (선택, 부상자용)' — label has Korean parenthetical",
+          "line": 115,
+          "current": "labelText: 'Substitute (선택, 부상자용)'",
+          "should_be": "labelText: 'Substitute' (단독 영문); move Korean hint to hintText field (V10 허용)",
+          "rule_ref": "V8 — UI 라벨 영문 단독; V10 — 힌트는 한글 허용"
+        }
+      ],
+      "estimated_diff_loc": 6
+    },
+    {
+      "file": "lib/features/inbox/group_management_screen.dart",
+      "loc": 459,
+      "issues": [
+        {
+          "severity": "P0",
+          "type": "InputDecoration labelText with Korean parenthetical",
+          "line": 99,
+          "current": "labelText: 'Description (선택)'",
+          "should_be": "labelText: 'Description' — move Korean to hintText or separate caption (V8: UI 라벨 영문 단독)",
+          "rule_ref": "V8 — UI 라벨 영문 단독"
+        },
+        {
+          "severity": "P1",
+          "type": "Multiple InputDecoration labels with Korean parentheticals (선택/optional markers)",
+          "line": 151,
+          "current": "labelText: 'Color (#RRGGBB, 선택)', 'Notes (선택)', 'Due date (YYYY-MM-DD, 선택)' — Korean in label fields across compose_note and group_management",
+          "should_be": "All labelText values: English only. Korean annotations → hintText or separate caption widget",
+          "rule_ref": "V8 — UI 라벨 영문 단독"
+        },
+        {
+          "severity": "P2",
+          "type": "micro.copyWith letterSpacing 0.6 inline in group card slotLabel (line 440)",
+          "line": 440,
+          "current": "FacingTokens.micro.copyWith(color: color, fontWeight: FontWeight.w800, letterSpacing: 0.6)",
+          "should_be": "Remove inline letterSpacing; use token default",
+          "rule_ref": "R5"
+        }
+      ],
+      "estimated_diff_loc": 8
+    },
+    {
+      "file": "lib/features/messages/messages_screen.dart",
+      "loc": 261,
+      "issues": [
+        {
+          "severity": "P1",
+          "type": "V9 — Korean SnackBar with English term 'Snackbar'",
+          "line": 63,
+          "current": "const SnackBar(content: Text('스레드 열어 답장하세요. 수신함 직접 송신 미지원.'))",
+          "should_be": "'스레드' is a Korean transliteration of English 'thread' — V11: 시스템명은 영문 단독. Rewrite: 'Open a thread to reply. Direct send from inbox not supported.' or fully Korean: '스레드를 열어 답장하세요. 수신함 직접 발송 미지원.'",
+          "rule_ref": "V11 — 시스템명 영문 단독"
+        },
+        {
+          "severity": "P1",
+          "type": "AppBar dynamic title '`TO ${withLabel}`' — label is hash prefix. V8: heading includes 'TO' + hash = mixed OK (English). Check: no Korean in AppBar title — PASS. Genuine P1: InputDecoration hintText '메시지 입력' — Korean hint in text field: V10 허용 (2+줄 설명). This is 1줄 hint — borderline but acceptable.",
+          "line": 164,
+          "current": "hintText: '메시지 입력'",
+          "should_be": "Acceptable under V10 (hint/caption 한글 허용). No change required.",
+          "rule_ref": "V10 PASS"
+        },
+        {
+          "severity": "P2",
+          "type": "micro.copyWith letterSpacing 0.8 inline in _MessageBubble (line 220)",
+          "line": 220,
+          "current": "FacingTokens.micro.copyWith(color: FacingTokens.muted, fontWeight: FontWeight.w700, letterSpacing: 0.8)",
+          "should_be": "Remove inline letterSpacing",
+          "rule_ref": "R5"
+        }
+      ],
+      "estimated_diff_loc": 3
+    },
+    {
+      "file": "lib/features/announcements/announcements_screen.dart",
+      "loc": 271,
+      "issues": [
+        {
+          "severity": "P1",
+          "type": "InputDecoration labelText Korean",
+          "line": 76,
+          "current": "labelText: '제목 (선택)'",
+          "should_be": "labelText: 'Title' — Korean annotation to hintText or separate caption",
+          "rule_ref": "V8 — UI 라벨 영문 단독"
+        },
+        {
+          "severity": "P1",
+          "type": "InputDecoration hintText Korean + English mixed",
+          "line": 85,
+          "current": "hintText: '멤버에게 전달할 내용' — pure Korean, V10 허용. But labelText '본문' is Korean.",
+          "should_be": "labelText: 'Body' (영문). hintText Korean is OK.",
+          "rule_ref": "V8 — UI 라벨 영문 단독"
+        },
+        {
+          "severity": "P2",
+          "type": "CoachBadgeAction conditional — only shown when isOwner. Non-owner sees no badge — PASS. No issue.",
+          "line": 159,
+          "current": "if (gs.isOwner) const CoachBadgeAction() — PASS",
+          "should_be": "No change",
+          "rule_ref": "CoachBadge AppBar 통합 PASS"
+        }
+      ],
+      "estimated_diff_loc": 4
+    },
+    {
+      "file": "lib/features/leaderboard/box_leaderboard_screen.dart",
+      "loc": 221,
+      "issues": [
+        {
+          "severity": "P1",
+          "type": "R1 — body has gym.name as h3 while AppBar title is 'LEADERBOARD'",
+          "line": 81,
+          "current": "Text(gym.name, style: FacingTokens.h3.copyWith(fontWeight: FontWeight.w800))",
+          "should_be": "AppBar title present → gym.name should be body or caption, not h3",
+          "rule_ref": "R1 — AppBar title 있으면 화면 내 h3 헤드라인 downgrade"
+        },
+        {
+          "severity": "P1",
+          "type": "V9 — Korean caption with English 'sessions'",
+          "line": 85,
+          "current": "Text('${members.length} approved · 익명 랭킹', style: FacingTokens.caption)",
+          "should_be": "'approved' English in Korean context. Rewrite: '${members.length} members · 익명 랭킹' (keep 'members' as accepted English domain term) — or full English: '${members.length} approved · Anonymous ranking'",
+          "rule_ref": "V9 — 한 문장 내 영-한 혼합 금지"
+        },
+        {
+          "severity": "P2",
+          "type": "micro letterSpacing 1.2 inline in _LeaderRow metricLabel (line 204)",
+          "line": 204,
+          "current": "FacingTokens.micro.copyWith(color: FacingTokens.muted, fontWeight: FontWeight.w700, letterSpacing: 1.2)",
+          "should_be": "Remove inline letterSpacing",
+          "rule_ref": "R5"
+        }
+      ],
+      "estimated_diff_loc": 4
+    },
+    {
+      "file": "lib/features/attendance/attendance_screen.dart",
+      "loc": 948,
+      "issues": [
+        {
+          "severity": "P0",
+          "type": "boxShadow on _DayCell — design rule violation",
+          "line": 734,
+          "current": "boxShadow: hasSession && count >= 2 ? [BoxShadow(color: FacingTokens.accent.withValues(alpha: 0.35), blurRadius: 6, spreadRadius: -1)] : null",
+          "should_be": "Remove boxShadow entirely — 다중 box-shadow / 그라디언트 금지 (CLAUDE.md §2 절대 차단). Single subtle glow = still a box-shadow = block.",
+          "rule_ref": "§2 절대 차단 — 다중 box-shadow 금지"
+        },
+        {
+          "severity": "P0",
+          "type": "sectionLabel token misused for '×N' count label in _DayCell",
+          "line": 777,
+          "current": "style: FacingTokens.sectionLabel.copyWith(fontWeight: FontWeight.w800, color: FacingTokens.fg.withValues(alpha: 0.95), letterSpacing: 0.2)",
+          "should_be": "sectionLabel (11sp w700 ls+1.6) is for section divider labels only (R3). Day cell count '×N' should use micro or caption token. Replace with FacingTokens.micro.",
+          "rule_ref": "R3 — sectionLabel 섹션 구분 라벨 전용"
+        },
+        {
+          "severity": "P1",
+          "type": "Korean weekday labels in calendar — mixed with English stat labels",
+          "line": 296,
+          "current": "_WeekdayLabel('일'), _WeekdayLabel('월')... Korean day abbreviations",
+          "should_be": "Weekday labels '일/월/화/수/목/금/토' are Korean. V8 states UI labels = English. Should be 'Sun/Mon/Tue/Wed/Thu/Fri/Sat' for calendar header. These are single-word labels → English required.",
+          "rule_ref": "V8 — UI 라벨 영문 단독"
+        },
+        {
+          "severity": "P1",
+          "type": "V9 — Korean streakNote mixes Korean + English numbers",
+          "line": 244,
+          "current": "'$currentStreak일 연속. 페이스 유지.' — contains numeric variable but text is fully Korean — PASS. Check '최장 streak 갱신 중' — 'streak' English embedded in Korean sentence",
+          "should_be": "'최장 Streak 갱신 중. 멈추지 말 것.' — either fully English or avoid mixing. Or: 'Longest streak active. Keep going.'",
+          "rule_ref": "V9 — 한 문장 내 영-한 혼합 금지"
+        }
+      ],
+      "estimated_diff_loc": 12
+    },
+    {
+      "file": "lib/features/goals/goals_screen.dart",
+      "loc": 394,
+      "issues": [
+        {
+          "severity": "P1",
+          "type": "V8 — Korean AlertDialog title",
+          "line": 169,
+          "current": "title: const Text('Fran PR 목표') — Korean '목표' in title",
+          "should_be": "title: const Text('Fran PR Target') or 'Fran PR Goal' — UI 제목은 영문 (V8)",
+          "rule_ref": "V8 — UI 라벨 영문 단독"
+        },
+        {
+          "severity": "P1",
+          "type": "V8 — Korean AlertDialog title second occurrence",
+          "line": 205,
+          "current": "title: const Text('Back Squat 목표 (kg)')",
+          "should_be": "title: const Text('Back Squat Target (kg)') — Korean '목표' → 'Target'",
+          "rule_ref": "V8 — UI 라벨 영문 단독"
+        },
+        {
+          "severity": "P2",
+          "type": "V9 — _TargetSlider label: '주간 타겟 · ${goals.weeklyTargetSessions}회' — '회' Korean unit mixed with English 'target'",
+          "line": 77,
+          "current": "label: '주간 타겟 · ${goals.weeklyTargetSessions}회'",
+          "should_be": "label: 'Weekly Target · ${goals.weeklyTargetSessions}x' — fully English label, or use separate Korean caption",
+          "rule_ref": "V9 — 한 문장 내 영-한 혼합"
+        }
+      ],
+      "estimated_diff_loc": 4
+    }
+  ],
+  "summary": {
+    "total_issues": 49,
+    "p0": 10,
+    "p1": 25,
+    "p2": 14,
+    "common_patterns": [
+      "R5: micro.copyWith(letterSpacing: 1.2/1.0/0.8/0.6) — inline non-token letterSpacing 전 파일 공통 (13개 이상 사례)",
+      "V8: InputDecoration labelText에 Korean 또는 Korean parenthetical (선택/optional) 혼입 — wod_post, group_management, announcements, compose_note 4파일",
+      "V9: 한 문장 내 영문 기술 용어 + 한글 조사/동사 혼합 — box_wod SnackBar, leaderboard caption, attendance streakNote, messages 등",
+      "R1: AppBar title 존재 시 body 내 h3 headline 중복 — box_wod _WodList, leaderboard 2파일",
+      "R3: sectionLabel 토큰에 한글 텍스트 혼입 (wod_post '선택' 패턴) 또는 비-섹션 용도 오용 (attendance _DayCell ×N label)",
+      "P0 박스섀도: attendance _DayCell boxShadow — §2 절대 차단 위반",
+      "CoachBadge AppBar: wod_post_screen 코치 전용 화면에 CoachBadgeAction 누락"
+    ]
+  }
+}

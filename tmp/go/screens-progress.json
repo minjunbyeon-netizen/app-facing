@@ -1,0 +1,353 @@
+{
+  "files": [
+    {
+      "file": "lib/features/achievement/achievements_screen.dart",
+      "loc": 606,
+      "issues": [
+        {
+          "severity": "P1",
+          "type": "typography_rule_violation",
+          "line": 111,
+          "current": "title: const Text('ACHIEVEMENTS')",
+          "should_be": "AppBar title → h3 token 자동 적용. 단어 1개 라벨 확인 OK. 그러나 AppBar가 있는 화면에서 _FeaturedPanel line 368에 h2 사용 중 — R1 위반 (AppBar있으면 화면내 h2 제거)",
+          "rule_ref": "R1: AppBar title이 있으면 화면 내 헤드라인 h2 제거"
+        },
+        {
+          "severity": "P1",
+          "type": "typography_rule_violation",
+          "line": 368,
+          "current": "Text(isHidden ? '???' : catalog.name, style: FacingTokens.h2.copyWith(...))",
+          "should_be": "FacingTokens.h3 — AppBar 있는 화면에서 h2 사용 금지 (R1)",
+          "rule_ref": "R1: 화면당 h1 1개. AppBar title이 있으면 화면 내 헤드라인 h2 제거"
+        },
+        {
+          "severity": "P1",
+          "type": "typography_token_violation",
+          "line": 229,
+          "current": "Text('$unlocked', style: FacingTokens.h1)",
+          "should_be": "FacingTokens.displayCompact 또는 FacingTokens.display — 히어로 숫자는 display 토큰. h1은 화면 단일 히어로 헤드라인 전용 (R4)",
+          "rule_ref": "R4: 동일 지표 동일 토큰. 히어로 숫자=display"
+        },
+        {
+          "severity": "P2",
+          "type": "interaction_missing",
+          "line": 287,
+          "current": "InkWell(onTap: () => onTap(code), child: Container(...))",
+          "should_be": "GestureDetector + AnimatedScale(scale: pressed ? 0.97 : 1.0, duration: 100ms) 추가 — 버튼 press scale 0.97 → 1.0 (100ms) 인터랙션 누락",
+          "rule_ref": "인터랙션: 버튼 press scale 0.97 → 1.0 (100ms)"
+        },
+        {
+          "severity": "P2",
+          "type": "copy_violation",
+          "line": 138,
+          "current": "Text('업적 로딩 실패', style: FacingTokens.sectionLabel)",
+          "should_be": "\"Load failed. Retry.\" — 에러 토스트/상태 문구는 영문 단독 (V7: 실패도 전술적으로, V8: 짧은 UI 라벨 영문 고정)",
+          "rule_ref": "V7, V8: 에러 상태 영문 전환"
+        }
+      ],
+      "estimated_diff_loc": 18
+    },
+    {
+      "file": "lib/features/achievement/achievement_card.dart",
+      "loc": 300,
+      "issues": [
+        {
+          "severity": "P1",
+          "type": "typography_rule_violation",
+          "line": 62,
+          "current": "Text(koreanTitle(catalog.code), style: FacingTokens.h3.copyWith(fontWeight: FontWeight.w800))",
+          "should_be": "한글 칭호가 h3 헤드라인 슬롯 점유. 영문 헤드라인 + 한글 캡션 수직 스택 구조로 변경 필요 (V9/V10). 예: catalog.name(영문) → h3, koreanTitle → caption",
+          "rule_ref": "V9: 한 문장 내 영문-한글 혼합 금지. V10: 영문 헤드라인 + 한글 캡션 수직 스택"
+        },
+        {
+          "severity": "P2",
+          "type": "copy_violation",
+          "line": 94,
+          "current": "'· · · (조건 공개 안 됨)'",
+          "should_be": "\"Hidden. Conditions undisclosed.\" — 2줄 미만 설명도 V7 전술적 프레이밍 적용. 현재 한글 혼용+괄호 표기 비일관",
+          "rule_ref": "V7: 실패도 전술적으로. 카피 템플릿 일관성"
+        },
+        {
+          "severity": "P2",
+          "type": "redundant_code",
+          "line": 71,
+          "current": "color: unlocked ? FacingTokens.muted : FacingTokens.muted",
+          "should_be": "color: FacingTokens.muted — 삼항 조건이 양쪽 동일값. 데드코드",
+          "rule_ref": "coding-style: 가독성 있는 코드"
+        }
+      ],
+      "estimated_diff_loc": 10
+    },
+    {
+      "file": "lib/features/achievement/achievement_section.dart",
+      "loc": 154,
+      "issues": [
+        {
+          "severity": "P2",
+          "type": "copy_violation",
+          "line": 144,
+          "current": "Text(_showLocked ? 'Hide locked' : 'Show locked (${lockedList.length})')",
+          "should_be": "\"Hide\" / \"Show (N)\" — TextButton 라벨은 단어 1~2개 영문 단독, 마침표 없음 (V8). 현재 'Hide locked'/'Show locked' 는 불필요하게 길고 소문자 혼용",
+          "rule_ref": "V8: 버튼·탭·배지 단어 1개, 마침표 없음"
+        },
+        {
+          "severity": "P2",
+          "type": "copy_violation",
+          "line": 74,
+          "current": "child: const Text('View All')",
+          "should_be": "\"View All\" → 2단어 라벨 OK이나 소문자 'l' — \"VIEW ALL\" 대문자 통일 또는 \"All\" 단독으로 정리 (HWPO/NOBULL 패턴: 단어 라벨 대문자)",
+          "rule_ref": "V8, micro token letterSpacing+1.2 기준 — 필터칩과 스타일 불일치"
+        }
+      ],
+      "estimated_diff_loc": 4
+    },
+    {
+      "file": "lib/features/achievement/panel_b_screen.dart",
+      "loc": 595,
+      "issues": [
+        {
+          "severity": "P1",
+          "type": "copy_violation",
+          "line": 285,
+          "current": "Text('해금된 칭호를 탭하면 Profile 상단에 표시. 다시 탭하면 해제.', style: FacingTokens.caption)",
+          "should_be": "V9 위반: 한글 단독은 OK (V10 허용). 그러나 'Profile'(영문 명사) + 한글 조사 없이 쓰여 있어 OK. 실제 문제는 '탭하면'이 V9 허용 범위. 이슈 없음. → 실제 P1: line 209 AppBar 'PANEL B · TITLES' — AppBar가 있으므로 _Header(line 323)의 h1 숫자는 display 토큰이어야 함 (R4)",
+          "should_be": "FacingTokens.display — _Header line 323: Text('$unlocked', style: FacingTokens.h1) → displayCompact (히어로 숫자 R4)",
+          "rule_ref": "R4: 히어로 숫자=display 토큰 고정"
+        },
+        {
+          "severity": "P1",
+          "type": "typography_token_violation",
+          "line": 323,
+          "current": "Text('$unlocked', style: FacingTokens.h1)",
+          "should_be": "FacingTokens.displayCompact — achievements_screen _StatsHeader line 229 동일 패턴. R4 동일 지표 동일 토큰",
+          "rule_ref": "R4: 동일 지표 동일 토큰. 히어로 숫자=display/displayCompact"
+        },
+        {
+          "severity": "P2",
+          "type": "copy_violation",
+          "line": 549,
+          "current": "Text('No season badge yet. 시즌 active 시 세션 1회로 자동 unlock.', style: FacingTokens.caption)",
+          "should_be": "한 문장 내 영-한 혼용: 'No season badge yet.'(영문) + '시즌 active 시...'(한글) — 두 문장 분리 또는 전체 한글 변환. V9 위반",
+          "rule_ref": "V9: 한 문장 내 영문-한글 혼합 금지"
+        },
+        {
+          "severity": "P2",
+          "type": "interaction_missing",
+          "line": 390,
+          "current": "InkWell(onTap: onTap, borderRadius: ...) — _TitleCard 탭 인터랙션",
+          "should_be": "scale 0.97 → 1.0 (100ms) press animation 누락. GestureDetector + AnimatedScale 또는 TweenAnimationBuilder 추가",
+          "rule_ref": "인터랙션: 버튼 press scale 0.97 → 1.0 (100ms)"
+        }
+      ],
+      "estimated_diff_loc": 12
+    },
+    {
+      "file": "lib/features/achievement/confetti_overlay.dart",
+      "loc": 193,
+      "issues": [
+        {
+          "severity": "P0",
+          "type": "interaction_timing_violation",
+          "line": 30,
+          "current": "await Future.delayed(const Duration(milliseconds: 1500));",
+          "should_be": "1500ms → 1400ms — AnimationController duration(line 68)은 1400ms인데 overlay는 1500ms 유지. 100ms 동안 빈 overlay가 화면 위에 떠 있음 (IgnorePointer라 터치는 통과하나 불필요한 레이어)",
+          "rule_ref": "인터랙션 duration: overlay lifecycle = animation duration 일치 권장"
+        },
+        {
+          "severity": "P1",
+          "type": "interaction_timing_violation",
+          "line": 52,
+          "current": "List.generate(34, ...)",
+          "should_be": "입자 34개 — CLAUDE.md 스펙 \"입자 30개\" 대비 +4. 성능 예산 초과 가능. 30개로 맞출 것",
+          "rule_ref": "CLAUDE.md confetti 스펙: 입자 30개"
+        },
+        {
+          "severity": "P2",
+          "type": "interaction_timing_violation",
+          "line": 68,
+          "current": "duration: const Duration(milliseconds: 1400)",
+          "should_be": "1400ms — CLAUDE.md '1.4초 후 자동 dismiss' 스펙 OK. 다만 entry.remove()가 animation 완료 전 오버레이 위에 100ms 빈 레이어 잔존 (P0 이슈와 연동). 추가로 fade-out 없이 t=1 시 즉시 사라짐 — 250ms fade tail 권장",
+          "rule_ref": "인터랙션: duration 100~250ms 범위 준수"
+        }
+      ],
+      "estimated_diff_loc": 6
+    },
+    {
+      "file": "lib/features/achievement/unlock_toast.dart",
+      "loc": 86,
+      "issues": [
+        {
+          "severity": "P1",
+          "type": "interaction_timing_violation",
+          "line": 51,
+          "current": "duration: const Duration(seconds: 2)",
+          "should_be": "2000ms SnackBar — CLAUDE.md 인터랙션 기준 duration 100~250ms (버튼 scale 기준). SnackBar 자체 duration은 별도 UX 결정이므로 OK. 실제 P1: Toast content에 scale/press 애니메이션 없음. SnackBar content Row 자체에 스케일 인(scale 0.97→1.0 100ms) 진입 애니 누락",
+          "should_be": "SnackBar content에 SlideTransition 또는 AnimatedContainer 진입 애니(100~250ms) 추가 권장",
+          "rule_ref": "인터랙션: scale 0.97~1.0 + duration 100~250ms"
+        },
+        {
+          "severity": "P2",
+          "type": "copy_violation",
+          "line": 65,
+          "current": "'${u.name} Earned.'",
+          "should_be": "\"Earned. ${u.name}\" — V1 명령형/선언 기준: 동사 먼저(선언문 패턴). 현재 이름+동사 순서. HWPO 패턴 'Earned.' 선언문이 이김 (카피 결정 HWPO 우선)",
+          "rule_ref": "V1: HWPO 톤. 카피 결정 HWPO 우선"
+        }
+      ],
+      "estimated_diff_loc": 8
+    },
+    {
+      "file": "lib/features/history/history_screen.dart",
+      "loc": 501,
+      "issues": [
+        {
+          "severity": "P0",
+          "type": "typography_token_violation",
+          "line": 98,
+          "current": "Text('Loading', style: FacingTokens.body)",
+          "should_be": "CircularProgressIndicator(strokeWidth:2, color:FacingTokens.muted) — 다른 화면(achievements_screen, panel_b_screen)과 일관성 없음. 'Loading' 텍스트는 V8 위반 아니나 스피너로 통일 필요",
+          "rule_ref": "R4: 동일 패턴 동일 토큰 — 로딩 상태 UI 일관성"
+        },
+        {
+          "severity": "P1",
+          "type": "copy_violation",
+          "line": 64,
+          "current": "title: const Text('History')",
+          "should_be": "'HISTORY' — AppBar title은 대문자 단어 라벨 패턴 (ACHIEVEMENTS, PANEL B · TITLES 등과 일관성). 현재 mixed-case",
+          "rule_ref": "V8: 단어 1개 라벨 대문자 (micro token letterSpacing 패턴)"
+        },
+        {
+          "severity": "P1",
+          "type": "typography_token_violation",
+          "line": 211,
+          "current": "Text('${engineScoreTo100(latest.overallScore)}', style: FacingTokens.displayCompact)",
+          "should_be": "FacingTokens.display (64sp) — '총시간/히어로 숫자'는 display 토큰. displayCompact 토큰이 theme.dart에 정의되어 있는지 확인 필요. R4: 히어로 숫자 display 고정",
+          "rule_ref": "R4: 총시간=display 화면 막론 고정"
+        },
+        {
+          "severity": "P2",
+          "type": "copy_violation",
+          "line": 396,
+          "current": "Text('No WOD records', style: FacingTokens.h3)",
+          "should_be": "h3 토큰 사용 OK. 그러나 'records' → R5 하드코드 fontSize 없음 확인 OK. 실제 이슈: 빈 상태 title 'No WOD records'는 선언문(동사 포함 2단어+) 패턴 → 마침표 필요. \"No WOD records.\"",
+          "rule_ref": "마침표 3분류: 1줄 선언·헤드라인(동사 포함 2단어+) = 마침표 유지"
+        }
+      ],
+      "estimated_diff_loc": 10
+    },
+    {
+      "file": "lib/features/history/history_detail_screen.dart",
+      "loc": 204,
+      "issues": [
+        {
+          "severity": "P0",
+          "type": "copy_violation",
+          "line": 30,
+          "current": "appBar: AppBar(title: Text('Record #${widget.recordId}'))",
+          "should_be": "\"WOD #N\" 또는 \"RECORD #N\" — 대문자 패턴 위반. 기술적 ID 노출(recordId 숫자) 허용이나 'Record'는 mixed-case. V8: 헤드라인/AppBar title 영문 단독 대문자 일관성",
+          "rule_ref": "V8: AppBar title 대문자 단어 라벨"
+        },
+        {
+          "severity": "P1",
+          "type": "typography_rule_violation",
+          "line": 69,
+          "current": "Text((wod['wod_type'] ?? '').toString().toUpperCase(), style: FacingTokens.h2)",
+          "should_be": "AppBar('Record #N')이 있으므로 화면 내 h2 사용 금지(R1). FacingTokens.h3으로 변경",
+          "rule_ref": "R1: AppBar title이 있으면 화면 내 헤드라인 h2 제거"
+        },
+        {
+          "severity": "P1",
+          "type": "typography_token_violation",
+          "line": 80,
+          "current": "Text(_fmtTime(plan['estimated_total_sec']), style: FacingTokens.display)",
+          "should_be": "display(64sp) 사용 OK — R4 총 예상시간=display 준수. 단, AppBar있는 화면에서 h2(line 69)와 display가 함께 쓰여 계층 과밀. h2 → h3 전환 후 display 단독 히어로로 배치",
+          "rule_ref": "R1+R4 연동: h2 제거 + display 단독 히어로"
+        },
+        {
+          "severity": "P2",
+          "type": "typography_token_violation",
+          "line": 143,
+          "current": "Text(splits.join('-'), style: FacingTokens.h1)",
+          "should_be": "Split pattern 숫자(예: 15-12-10-8-5)는 h1(44sp) → 스펙 'split pattern = h1' R4 OK. 다만 AppBar있는 화면에서 h1이 화면 내 유일 히어로인지 확인 — display(line 80)와 h1 두 개 존재 → R1 '화면당 h1 1개' 위반 가능성",
+          "rule_ref": "R1: 화면당 h1 1개"
+        }
+      ],
+      "estimated_diff_loc": 8
+    },
+    {
+      "file": "lib/features/trends/trends_screen.dart",
+      "loc": 434,
+      "issues": [
+        {
+          "severity": "P1",
+          "type": "typography_rule_violation",
+          "line": 181,
+          "current": "Text('${unlocked.length}', style: FacingTokens.displayCompact)",
+          "should_be": "FacingTokens.display — R4 히어로 숫자=display. displayCompact 사용 이유 불명. achievements_screen과 불일치",
+          "rule_ref": "R4: 동일 지표 동일 토큰"
+        },
+        {
+          "severity": "P1",
+          "type": "copy_violation",
+          "line": 163,
+          "current": "Text('Engine Score · Radar · 카테고리 추이는 Profile', style: FacingTokens.caption)",
+          "should_be": "V9 위반: 'Engine Score · Radar'(영문) + '카테고리 추이는 Profile'(한글+영문 명사) 한 문장 혼용. 분리: \"Engine Score · Radar · Category trends\" (영문) 또는 두 문장으로 분리",
+          "rule_ref": "V9: 한 문장 내 영문-한글 혼합 금지"
+        },
+        {
+          "severity": "P2",
+          "type": "copy_violation",
+          "line": 200,
+          "current": "Text('해금된 배지 없음. Engine 측정부터 시작.', style: FacingTokens.caption)",
+          "should_be": "V9 범위 내이나 'Engine'(영문 명사) 포함 한글 문장 — V10 2줄 이상 설명 한글 허용 범주. 1줄이면 V9 경계. 허용으로 볼 수 있으나 'Engine 측정'은 영문명사+한글동사 조합 → V9 위반 소지. \"No badges. Measure Engine first.\"로 전환 권장",
+          "rule_ref": "V9: 한 문장 내 영문-한글 혼합 금지"
+        },
+        {
+          "severity": "P2",
+          "type": "typography_token_violation",
+          "line": 303,
+          "current": "Text('$pct% · next Lv${bd.level + 1} · ${bd.xpToNext} XP 남음', style: FacingTokens.caption)",
+          "should_be": "한글('남음') + 영문/숫자 혼용 한 문장 — V9 위반. \"$pct% · Lv${bd.level + 1} · ${bd.xpToNext} XP to next\" 전환",
+          "rule_ref": "V9: 한 문장 내 영문-한글 혼합 금지"
+        }
+      ],
+      "estimated_diff_loc": 8
+    },
+    {
+      "file": "lib/features/_debug/persona_switcher_screen.dart",
+      "loc": 350,
+      "issues": [
+        {
+          "severity": "P2",
+          "type": "copy_violation",
+          "line": 183,
+          "current": "Text('페르소나: ${p.displayName} (${p.role})\\n앱을 종료 후 재시작하면 새 페르소나로 진입합니다.', style: FacingTokens.body)",
+          "should_be": "AlertDialog body — Debug 전용 화면이라 한글 허용 범위. V10(2줄+ 한글 허용) OK. 다만 '페르소나'는 영문 'Persona'로 통일 권장. 낮은 우선순위",
+          "rule_ref": "V6: 영문 전문 용어 번역 금지 (Persona)"
+        },
+        {
+          "severity": "P2",
+          "type": "copy_violation",
+          "line": 305,
+          "current": "Text('${persona.role} · ${persona.box ?? '무소속'}' '${persona.status != null ? ' · ${persona.status}' : ''}' ' · WOD ${persona.wodHistoryCount}', style: FacingTokens.caption)",
+          "should_be": "한글('무소속') + 영문(role, status, WOD) 혼용 한 문장 — V9 위반. Debug 화면 예외 적용 가능하나 일관성 위해 '무소속' → 'No Box' 전환 권장",
+          "rule_ref": "V9: 한 문장 내 영문-한글 혼합 금지"
+        }
+      ],
+      "estimated_diff_loc": 4
+    }
+  ],
+  "summary": {
+    "total_issues": 30,
+    "p0": 3,
+    "p1": 14,
+    "p2": 13,
+    "common_patterns": [
+      "R1 위반: AppBar 있는 화면에서 h2 사용 (detail, achievements_screen, history_detail)",
+      "R4 위반: 히어로 숫자에 h1 대신 display/displayCompact 미사용 (achievements, panel_b, trends)",
+      "V9 위반: 한 문장 내 영문명사+한글동사/조사 혼용 (trends, panel_b, history, detail)",
+      "인터랙션 누락: press scale 0.97→1.0 (100ms) — _GridCell, _TitleCard에 AnimatedScale 없음",
+      "confetti_overlay: 입자 34개(스펙 30개 초과) + overlay lifetime > animation duration 100ms 불일치"
+    ]
+  }
+}
