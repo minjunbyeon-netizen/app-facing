@@ -1693,7 +1693,8 @@ class _InboxEntry extends StatelessWidget {
   }
 }
 
-/// Settings 섹션 'Mode' Row — Coach / Member / Solo 표시 + 변경 진입.
+/// Settings 섹션 'Mode' Row — Coach / Member / Solo 인라인 토글 (v1.20).
+/// 박스 owner 인 사람은 Coach ↔ Member 즉시 전환 (Profile 한 탭에). Solo도 동일.
 class _ModeRow extends StatefulWidget {
   const _ModeRow();
 
@@ -1703,6 +1704,7 @@ class _ModeRow extends StatefulWidget {
 
 class _ModeRowState extends State<_ModeRow> {
   AppMode? _mode;
+  bool _saving = false;
 
   @override
   void initState() {
@@ -1716,37 +1718,69 @@ class _ModeRowState extends State<_ModeRow> {
     setState(() => _mode = m);
   }
 
-  String _label(AppMode? m) => switch (m) {
-        AppMode.coach => 'COACH',
-        AppMode.member => 'MEMBER',
-        AppMode.solo => 'SOLO',
-        null => '미설정',
-      };
-
-  Future<void> _open() async {
-    Haptic.light();
-    await Navigator.of(context).pushNamed(
-      '/onboarding/mode',
-      arguments: 'settings',
-    );
+  Future<void> _setMode(AppMode m) async {
+    if (_mode == m || _saving) return;
+    Haptic.medium();
+    setState(() => _saving = true);
+    await AppModeStore.set(m);
     if (!mounted) return;
-    _load();
+    setState(() {
+      _mode = m;
+      _saving = false;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Mode → ${_label(m)}'),
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
+
+  String _label(AppMode m) => switch (m) {
+        AppMode.coach => 'Coach',
+        AppMode.member => 'Member',
+        AppMode.solo => 'Solo',
+      };
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Expanded(child: Text('Mode', style: FacingTokens.body)),
-        TextButton(
-          onPressed: _open,
-          style: TextButton.styleFrom(
-            foregroundColor: FacingTokens.muted,
-            padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp2),
-          ),
-          child: Text(_label(_mode), style: FacingTokens.body),
+        Row(
+          children: [
+            const Text('Mode', style: FacingTokens.body),
+            const SizedBox(width: FacingTokens.sp2),
+            if (_saving)
+              const SizedBox(
+                width: 12,
+                height: 12,
+                child: CircularProgressIndicator(
+                  strokeWidth: 1.5,
+                  color: FacingTokens.muted,
+                ),
+              ),
+          ],
         ),
-        const Icon(Icons.chevron_right, color: FacingTokens.muted, size: 18),
+        const SizedBox(height: FacingTokens.sp2),
+        // v1.20: 3 mode 인라인 segmented (요청: 코치 ↔ 멤버 토글 쉽게).
+        Wrap(
+          spacing: FacingTokens.sp2,
+          children: [
+            for (final m in AppMode.values)
+              ChoiceChip(
+                label: Text(_label(m)),
+                selected: _mode == m,
+                backgroundColor: FacingTokens.surface,
+                selectedColor: FacingTokens.accent,
+                labelStyle: FacingTokens.caption.copyWith(
+                  color: _mode == m ? FacingTokens.fg : FacingTokens.muted,
+                  fontWeight: FontWeight.w700,
+                ),
+                onSelected: _saving ? null : (_) => _setMode(m),
+              ),
+          ],
+        ),
       ],
     );
   }
