@@ -1,7 +1,11 @@
-// v2.0 (2026-04-28): SSOT를 ~/.claude/reference/study/fitness.md 로 통합.
-// 폐기: services/facing/docs/refer/* (10개 카테고리, 38 파일 일괄 삭제).
-// fitness.md = Tier 1+2 통합 (ACSM, NHANES, Cooper Institute, NSCA, ExRx, Strength Level,
-// IWF, World Athletics, openpowerlifting, crossfit.com, WMA).
+// v3.0 (2026-04-29): SSOT를 ~/.claude/reference/study/fitness/ 5 sub-file 로 통합.
+// 폐기: services/facing/docs/refer/* (38 파일) + 단일 fitness.md 시절 인용.
+// fitness/ 5 sub-file = Tier 1+2 통합, 290 출처, T1 50%+:
+//   - power.md (Strength Level 2024 / OpenPowerlifting / IPF / Sayers)
+//   - olympic-lifting.md (IWF / strengthlevel.com / Catalyst Athletics / KWA)
+//   - cardio.md (ACSM 11th / Cooper Institute / Daniels VDOT / Karvonen / Tanaka)
+//   - gymnastics.md (USMC PFT / ACFT / FIG / GymnasticBodies / Steven Low OG)
+//   - physical-norms.md (NHANES / NIH Toolbox / KCDC / KSPO 국민체력100)
 
 class FormulaReference {
   final String title;
@@ -16,74 +20,74 @@ class FormulaReference {
   });
 }
 
-/// fitness.md 단일 SSOT 기반 reference 8개.
+/// fitness/ 5 sub-file SSOT 기반 reference 8개.
 const List<FormulaReference> kFormulaReferences = [
   FormulaReference(
-    title: 'ACSM Health-Related Physical Fitness Assessment Manual',
-    authors: 'American College of Sports Medicine, 11th ed. (2024)',
-    relevance: 'VO2max·근지구력·유연성 percentile 표준. Cooper 12-min run.',
-    section: 'fitness.md §3 (Tier 1)',
+    title: 'Strength Level 2024 — Lift Standards Database',
+    authors: 'Strength Level (100M+ aggregated lifts)',
+    relevance: '체중 대비 1RM 비율 5-tier (Beginner=5th → Elite=95th percentile).',
+    section: 'fitness/power.md §A3 (Tier 2)',
   ),
   FormulaReference(
-    title: 'NHANES + FRIEND Registry',
-    authors: 'CDC NHANES 2011–2014 + FRIEND (n=7,800) + Cooper Institute Longitudinal',
-    relevance: '연령·성별 VO2max·grip strength percentile 모집단 norm.',
-    section: 'fitness.md §3.1, §3.2, §3.7 (Tier 1)',
+    title: 'IPF Bylaws + DOTS Coefficients 2020',
+    authors: 'International Powerlifting Federation + OpenPowerlifting',
+    relevance: '파워리프팅 점수 보정 (Wilks → DOTS → IPF GL). 체급 간 비교 SSOT.',
+    section: 'fitness/power.md §A4 (Tier 1)',
   ),
   FormulaReference(
-    title: 'ExRx + Strength Level + USAW Strength Standards',
-    authors: 'ExRx.net + strengthlevel.com (n>10⁵) + USA Weightlifting',
-    relevance: '체중 대비 1RM 비율 (Untrained/Novice/Intermediate/Advanced/Elite).',
-    section: 'fitness.md §4 (Tier 2)',
+    title: 'IWF Technical Rules 2025 + World Records',
+    authors: 'International Weightlifting Federation (iwf.sport)',
+    relevance: 'Snatch/C&J protocol + 세계기록 (Lasha 225/267/492 +109).',
+    section: 'fitness/olympic-lifting.md §3, §5 (Tier 1)',
   ),
   FormulaReference(
-    title: 'Run Pace Standards by Level',
-    authors: 'World Athletics + Running Level + Runners Connect',
-    relevance: 'Mile/5K/Marathon 페이스 (Recreational→Elite/world).',
-    section: 'fitness.md §5.3 (Tier 1+2)',
+    title: 'ACSM Guidelines 11th ed. + Cooper Institute',
+    authors: 'American College of Sports Medicine (2021) + Cooper KH (JAMA 1968)',
+    relevance: 'VO2max percentile (연령·성별 6 군) + Cooper 12-min 식 = 22.351×km−11.288.',
+    section: 'fitness/cardio.md §3, §7 (Tier 1)',
   ),
   FormulaReference(
-    title: 'Karvonen 5-Zone Heart Rate',
-    authors: 'Karvonen et al. 1957 + ACSM',
-    relevance: 'HR target = HRrest + intensity × (HRmax − HRrest). 페이싱 zone 매핑.',
-    section: 'fitness.md §5.4 (Tier 1)',
+    title: 'Daniels VDOT + Karvonen HRR + Tanaka HRmax',
+    authors: 'Daniels & Gilbert 1979 / Karvonen 1957 / Tanaka 2001 (JACC PMID 11153730)',
+    relevance: '레이스 페이스 → 트레이닝 zone 5단계 (E/M/T/I/R) + 개인화 target HR.',
+    section: 'fitness/cardio.md §4, §5 (Tier 1)',
+  ),
+  FormulaReference(
+    title: 'USMC PFT + US Army ACFT Scoring',
+    authors: 'MARADMIN 595/22 (marines.mil) + army.mil',
+    relevance: 'Pull-up 23=max points / HRP 60=100pts. 군 표준 reps.',
+    section: 'fitness/gymnastics.md §2 (Tier 1)',
+  ),
+  FormulaReference(
+    title: 'Sayers Power + Wingate Anaerobic',
+    authors: 'Sayers et al. 1999 (PMID:10331897) + Inbar/Bar-Or/Skinner 1996',
+    relevance: '수직점프 → Peak Power(W) 환산 + 30s anaerobic W/kg 5-tier.',
+    section: 'fitness/power.md §B1, §B4 (Tier 1)',
   ),
   FormulaReference(
     title: 'Central Governor + W-prime Balance',
     authors: 'Noakes (2004, 2012) + Skiba et al. (2012)',
-    relevance: 'Burst 후반 W-prime 85% 전소 + 분할/휴식 회복 계산.',
-    section: 'PMC + JAP (Tier 1, fitness.md 미수록 — pacing 전용)',
-  ),
-  FormulaReference(
-    title: 'IWF World Records + Powerlifting WR',
-    authors: 'iwf.sport + openpowerlifting.org',
-    relevance: 'Olympic·Powerlifting 역대 max — Lasha 225kg snatch +109 (2.06× BW).',
-    section: 'fitness.md §6.1, §6.3 (Tier 1+2)',
-  ),
-  FormulaReference(
-    title: 'WMA Age Grading Factor 2023',
-    authors: 'World Masters Athletics',
-    relevance: 'Masters 35+/45+/55+ 연령 보정 (cardio 임계값 1/factor 완화).',
-    section: 'worldmastersathletics.org (Tier 1, fitness.md 미수록)',
+    relevance: 'Burst 후반 W-prime 85% 전소 + 분할/휴식 회복 (Pacing 전용).',
+    section: 'PMC + JAP (Tier 1, fitness/ 미수록)',
   ),
 ];
 
-/// 카테고리별 기여도 설명 (fitness.md 섹션 매핑).
+/// 카테고리별 기여도 설명 (fitness/ sub-file 매핑).
 String categoryContribution(String category) {
   switch (category.toLowerCase()) {
     case 'power':
-      return 'BS·DL·Bench·OHP·FS 1RM 대비 BW 비율 (fitness.md §4.1–4.4).';
+      return 'BS·DL·Bench·OHP·FS 1RM 대비 BW 비율 (power.md §A3 Strength Level 95th%ile).';
     case 'olympic':
-      return 'Snatch·C&J·Clean·Power Clean·Power Snatch BW 비율 (fitness.md §4.5–4.8).';
+      return 'Snatch·C&J·Power Clean BW 비율 (olympic-lifting.md §5–6 strengthlevel.com + IWF).';
     case 'gymnastics':
-      return 'Pull-up·HSPU·MU·T2B Max UB + push-up (ACSM §3.3 정렬).';
+      return 'Pull-up·HSPU·MU·Push-up Max UB (gymnastics.md §2 USMC PFT + ACFT).';
     case 'cardio':
-      return 'Run·Row·Cooper 페이스 (fitness.md §3.9, §5.3).';
+      return 'Run·Row·Cooper 페이스 (cardio.md §3 Cooper, §5 Daniels VDOT).';
     case 'metcon':
-      return '1분 max (Burpee·DU·KB·Wall Ball) + 멘탈 보너스.';
+      return '1분 max (Burpee·DU·KB·Wall Ball) — CrossFit Games 영상 분석 추정.';
     case 'weightlifting':
       return 'Power + Olympic 평균 (deprecated v1.10+).';
     default:
-      return '6 카테고리 가중 평균 (fitness.md SSOT).';
+      return '6 카테고리 가중 평균 (fitness/ 5 sub-file SSOT).';
   }
 }

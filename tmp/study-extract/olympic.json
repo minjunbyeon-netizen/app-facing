@@ -1,0 +1,135 @@
+{
+  "section_index": {
+    "§1": "종목 정의 (Snatch/C&J/Power variants)",
+    "§2": "기술 Phase 분해 (Snatch 6-phase, Clean 6-phase, Jerk 3-phase)",
+    "§3": "IWF 세계기록 (구 2018-2025 + 신 2025- 체급)",
+    "§4": "레전드 선수 (Talakhadze/Naim/Rezazadeh 등)",
+    "§5": "BW Ratio 기준 (strengthlevel.com 글로벌 데이터)",
+    "§6": "Power lift vs Full lift 비율",
+    "§7": "한국 역도 (KWA/KOR 올림픽 메달/개인 기록)",
+    "§8": "보조운동 비율 매트릭스 (Squat/Pull/Overhead)",
+    "§9": "Jerk 변형 선택 가이드",
+    "§10": "Negative findings / 함정",
+    "§11": "출처 요약 (Tier1 30개 + Tier2 32개)"
+  },
+  "ratios_male": {
+    "snatch": [1.40, 1.10, 0.80, 0.55, 0.35],
+    "clean_and_jerk": [1.70, 1.35, 1.00, 0.70, 0.45],
+    "power_clean": {
+      "NOTE": "strengthlevel.com에 Power Clean 독립 표 없음. §6에서 full clean 대비 비율만 수록.",
+      "derived_from_full_clean": "Power Clean = Full Clean × 0.80~0.88 (elite 80~85%, intermediate 85~90%, beginner 90~100%). grading.py 현재값 [1.60, 1.40, 1.20, 1.00, 0.65]는 §5 C&J elite 1.70 × 0.88 ≈ 1.50 기준으로 상단이 과대 추정될 수 있음. 파생식: full_clean_ratio × 0.84 권장.",
+      "ratios": [1.43, 1.13, 0.84, 0.59, 0.38]
+    },
+    "power_snatch": {
+      "NOTE": "strengthlevel.com에 Power Snatch 독립 표 없음. §6-2에서 full snatch 대비 80~88% 명시.",
+      "derived_from_full_snatch": "Power Snatch = Full Snatch × 0.80~0.88 (동일 패턴). 파생식: full_snatch_ratio × 0.84 권장.",
+      "ratios": [1.18, 0.92, 0.67, 0.46, 0.29]
+    },
+    "full_clean": {
+      "NOTE": "§8-1 Mash Elite 비율표: Clean = Front Squat × 85~90%, Front Squat = Back Squat × 85~90%. 따라서 Clean ≈ Back Squat × 0.75. strengthlevel.com §5 C&J와 동일 출처로 취급 가능 (full clean ≈ C&J 클린 단계). §5 C&J 값 참조.",
+      "ratios": [1.70, 1.35, 1.00, 0.70, 0.45]
+    }
+  },
+  "ratios_female": {
+    "snatch": [1.10, 0.80, 0.55, 0.35, 0.20],
+    "clean_and_jerk": [1.40, 1.05, 0.75, 0.50, 0.30],
+    "power_clean": {
+      "NOTE": "female power clean 독립 표 없음. female C&J × 0.84 파생.",
+      "ratios": [1.18, 0.88, 0.63, 0.42, 0.25]
+    },
+    "power_snatch": {
+      "NOTE": "female power snatch 독립 표 없음. female snatch × 0.84 파생.",
+      "ratios": [0.92, 0.67, 0.46, 0.29, 0.17]
+    },
+    "full_clean": {
+      "NOTE": "female full clean ≈ female C&J 동일 취급. §5 female C&J 참조.",
+      "ratios": [1.40, 1.05, 0.75, 0.50, 0.30]
+    }
+  },
+  "thruster_estimate": {
+    "status": "NOT_FOUND_IN_SOURCE",
+    "derivation_possible": true,
+    "derivation_method": "§8-1 Front Squat = Back Squat × 85~90%. §8-3 Strict Press = Jerk × ~50%, Push Press = Jerk × ~70%. Thruster는 Front Squat 하단에서 Push Press로 연결되는 복합동작. 추정식: Thruster ≈ min(Front Squat, Push Press) × 0.85~0.90. 즉 Back Squat 기준 → Thruster ≈ BS × 0.87 × 0.87 ≈ BS × 0.76. C&J 기준 → Thruster ≈ C&J × (0.75/0.87) × 0.87 ≈ C&J × 0.75. 단, CrossFit 권 Thruster는 보통 Front Squat 1RM의 65~75%로 처방됨 (CrossFit.com Benchmark WOD 기준). grading.py 현재값 [1.65, 1.35, 1.10, 0.90, 0.70]은 male C&J elite 1.70 대비 적정 범위 내이나 upper tier가 다소 높게 설정된 편. 권장 재검토값 없음 — 전용 Thruster 데이터 출처 필요."
+  },
+  "iwf_protocol": "IWF Technical Rules 2025 기준. 각 선수는 Snatch·C&J 각각 3회씩 시도. 최초 무게는 자신이 신고 (1st attempt = 등록 무게). 실패 시 같거나 높은 무게만 재시도 가능 (낮추기 불가). 연속 2번 실패는 3번째 시도 기회 있음. 세계기록 도전 시 4th attempt 허용 (순위 점수 불포함). Clean phase 성공 후 Jerk 실패도 '실패'로 기록. 총점 = 유효 Snatch 최고 + 유효 C&J 최고.",
+  "world_records": [
+    "Snatch M+109 Lasha Talakhadze (GEO) 225kg, 2021 IWF World Championships Tashkent",
+    "C&J M+109 Lasha Talakhadze (GEO) 267kg, 2021 IWF World Championships Tashkent",
+    "Total M+109 Lasha Talakhadze (GEO) 492kg, 2021 IWF World Championships Tashkent",
+    "Snatch M89kg Karlos Nasar (BUL) 178kg, Paris 2024 Olympics",
+    "C&J M89kg Karlos Nasar (BUL) 224kg, Paris 2024 Olympics (+ 2025 94kg 222kg C&J WR)",
+    "C&J M81kg Lü Xiaojun (CHN) 207kg (구 체급 2018-2025)",
+    "Snatch F+87kg Li Wenwen (CHN) 148kg (구 체급 2018-2025)",
+    "C&J F+87kg Li Wenwen (CHN) 187kg (구 체급 2018-2025)",
+    "Total F+87kg Li Wenwen (CHN) 335kg (구 체급 2018-2025)",
+    "Snatch F77kg Olivia Reeves (USA) 123kg, 2025 IWF Worlds",
+    "C&J F77kg Olivia Reeves (USA) 155kg, 2025 IWF Worlds",
+    "Total F77kg Olivia Reeves (USA) 278kg, 2025 IWF Worlds",
+    "C&J historical M+105kg Hossein Rezazadeh (IRI) 263.5kg (18년간 깨지지 않은 기록)",
+    "C&J historical M+110kg Leonid Taranenko (URS) 266kg, 1988-09-26 Canberra (33년 불패)"
+  ],
+  "korean_records": {
+    "사재혁": {
+      "체급": "남 -77kg",
+      "snatch": 163,
+      "cj": 203,
+      "total": 366,
+      "대회": "2008 Beijing Olympics (금메달)",
+      "비고": "한국 남자 역도 마지막 올림픽 금메달"
+    },
+    "장미란": {
+      "체급": "여 +75kg",
+      "snatch": 140,
+      "cj": 186,
+      "total": 326,
+      "대회": "2008 Beijing Olympics (금메달)",
+      "비고": "당시 세계기록 동률. 2009 Worlds total 327 (세계기록). 현 문화체육관광부 제2차관"
+    },
+    "윤진희": {
+      "체급": "여 -53kg",
+      "snatch": 94,
+      "cj": 119,
+      "total": 213,
+      "대회": "2008 Beijing Olympics (은메달)"
+    },
+    "박혜정": {
+      "체급": "여 +81kg (최중량급)",
+      "snatch": 131,
+      "cj": 168,
+      "total": 299,
+      "대회": "2024 Paris Olympics (은메달)",
+      "비고": "한국신기록. 2016 이후 8년만의 올림픽 메달"
+    }
+  },
+  "sinclair_formula": "Sinclair Coefficient = 10^(A × (log10(x/b))^2) for x ≤ b; 1.0 for x > b. 여기서 x = 선수 체중(kg), b = 현행 최중량급 상한 체중 (남 +110kg → 175.508kg, 여 +86kg 기준), A = IWF가 매 올림픽 주기마다 갱신하는 계수. Sinclair Total = 실제 Total × Sinclair Coefficient. 체급이 다른 선수 간 절대 강도 비교에 사용. Naim Süleymanoğlu 60kg × 3.17 BW ratio C&J가 역대 최고 Sinclair 기록 보유자 중 하나로 평가됨. (출처: 가벼운 일반 sport science 합의, IWF 공식 Sinclair 계수표)",
+  "section_citations": [
+    "IWF Technical Rules 2025 — iwf.sport (snatch/C&J 정의, 시도 프로토콜, 체급 변경)",
+    "strengthlevel.com 'Snatch Standards' / 'Clean and Jerk Standards' — BW ratio 5-level (Beginner/Novice/Intermediate/Advanced/Elite)",
+    "Catalyst Athletics Greg Everett — 'Do We Need the Magic Front Squat to Back Squat Ratio?' (보조운동 비율)",
+    "USAW USA Weightlifting 'IWF Adjusts Bodyweight Categories' 2025-11-04 (신 체급 확정)",
+    "BTWB CrossFit Blog 'Snatch vs Clean & Jerk Part 1' — CrossFit 권 Snatch/C&J 비율 0.76 (남) / 0.75 (여)"
+  ],
+  "_meta": {
+    "source_file": "C:/Users/USER/.claude/reference/study/fitness/olympic-lifting.md",
+    "source_lines": 483,
+    "sections_read": 11,
+    "extraction_date": "2026-04-28",
+    "grading_py_update_notes": {
+      "_SNATCH_RATIO_male": {
+        "current": [1.88, 1.45, 1.08, 0.75, 0.50],
+        "source_value": [1.40, 1.10, 0.80, 0.55, 0.35],
+        "verdict": "현재값이 출처값보다 전체적으로 34% 높음. CrossFit 권 기준(Games급 = RX+ 이상)으로 상향 적용 중일 수 있으나, 출처 대비 과대 추정 위험. Games tier를 elite×1.3으로 가정했을 때 1.40×1.3≈1.82 → 현재 1.88에 근접. 단, intermediate/novice 구간 격차는 출처 기반으로 재조정 권장."
+      },
+      "_CLEAN_AND_JERK_RATIO_male": {
+        "current": [2.00, 1.50, 1.25, 0.75, 0.50],
+        "source_value": [1.70, 1.35, 1.00, 0.70, 0.45],
+        "verdict": "현재 elite 2.00은 출처 1.70 대비 18% 높음. CrossFit Games tier 보정 감안하면 1.70×1.2=2.04 — 수용 가능 범위 내."
+      },
+      "_POWER_CLEAN_RATIO": {
+        "current": [1.60, 1.40, 1.20, 1.00, 0.65],
+        "derived_value": [1.43, 1.13, 0.84, 0.59, 0.38],
+        "verdict": "strengthlevel.com에 Power Clean 독립 데이터 없음. 현재값은 full C&J 출처값 대비 전반적으로 과대. full_clean × 0.84 파생값 사용 권장하나, CrossFit Games 맥락에서 power clean은 skill 기반이라 상향 보정 논거 있음."
+      }
+    }
+  }
+}

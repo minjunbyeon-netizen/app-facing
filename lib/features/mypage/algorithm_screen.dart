@@ -1,6 +1,7 @@
 // Algorithm 투명성 화면.
-// SSOT: ~/.claude/reference/study/fitness.md (ACSM, NHANES, ExRx, World Athletics 통합).
-// 폐기: services/facing/docs/refer/* (2026-04-28).
+// SSOT: ~/.claude/reference/study/fitness/ 5 sub-file (290 출처, T1 50%+).
+//   power.md / olympic-lifting.md / cardio.md / gymnastics.md / physical-norms.md
+// 폐기: services/facing/docs/refer/* (2026-04-28) + 단일 fitness.md (2026-04-29).
 
 import 'package:flutter/material.dart';
 
@@ -28,7 +29,7 @@ class AlgorithmScreen extends StatelessWidget {
             const _FormulaLine(
                 label: 'Scale', value: '1.0 (Untrained) → 6.0 (Elite/Games)'),
             const _FormulaLine(
-                label: 'Source', value: 'fitness.md §4 (ExRx + Strength Level + USAW)'),
+                label: 'Source', value: 'fitness/power.md §A3 + olympic-lifting.md §5 (Strength Level 2024 + IWF)'),
             const _FormulaLine(
                 label: 'UI MAP', value: '0–100 선형 매핑 (engineScoreTo100)'),
             const SizedBox(height: FacingTokens.sp5),
@@ -95,7 +96,7 @@ class AlgorithmScreen extends StatelessWidget {
             ),
             const SizedBox(height: FacingTokens.sp4),
             const Text(
-              'SSOT: ~/.claude/reference/study/fitness.md',
+              'SSOT: ~/.claude/reference/study/fitness/ (5 sub-file)',
               style: FacingTokens.micro,
               textAlign: TextAlign.center,
             ),

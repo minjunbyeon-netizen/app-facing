@@ -1,0 +1,305 @@
+{
+  "section_index": {
+    "A1": "종목 정의 & 룰 차이 (IPF/USAPL/USPA, Raw vs Equipped, Conventional vs Sumo)",
+    "A2": "IPF 세계기록 — 체급별 Raw/Equipped (Men/Women)",
+    "A3": "BW Ratio 표준 — 일반 트레이니 percentile (Strength Level 2024)",
+    "A4": "점수화 공식 비교 — Wilks / DOTS / IPF GL",
+    "A5": "한국 KPF / KPC 한국기록",
+    "B1": "Vertical Jump — Sargent Test 계열 (CMJ/SJ/DJ, Sayers equation)",
+    "B2": "Broad Jump — NFL Combine / NSCA Standards",
+    "B3": "Sprint — 30m / 40yd / 100m",
+    "B4": "Wingate Anaerobic Test — Peak Power / Mean Power (W/kg)",
+    "B5": "RSI (Reactive Strength Index) — Drop Jump",
+    "B6": "Force-Velocity Profile (Samozino-Morin)",
+    "C": "요약·통합 — 자가진단 기준치 (75kg 남성 / 60kg 여성)",
+    "D": "출처 목록 (T1: 38 / T2: 18, 총 56)"
+  },
+  "ratios_male": {
+    "_source": "Strength Level 2024 §A3 — 100M+ lift database. BW별 다르므로 대표값은 BW 80kg 기준 (CrossFit 선수 평균 체중 근접). 원본은 BW 60~120kg 범위 전체 표 제공.",
+    "_percentile_mapping": "Elite=95th, Advanced=80th, Intermediate=50th, Novice=20th, Beginner=5th (Strength Level methodology §A3)",
+    "back_squat": {
+      "_note": "BW 80kg 기준 (§A3 Squat Men table). 원본 배열: [Beg, Novice, Int, Adv, Elite]",
+      "bw_80kg": [2.95, 2.45, 1.90, 1.35, 0.85],
+      "bw_70kg": [2.90, 2.40, 1.85, 1.30, 0.80],
+      "bw_90kg": [2.85, 2.40, 1.90, 1.35, 0.85],
+      "bw_100kg": [2.75, 2.30, 1.85, 1.30, 0.85],
+      "facing_app_order_elite_to_beginner_bw80": [2.95, 2.45, 1.90, 1.35, 0.85],
+      "_facing_note": "facing-app grading.py 형식 [elite, advanced, intermediate, novice, beginner] — lower bound. Below beginner→scaled."
+    },
+    "bench_press": {
+      "_note": "§A3 Bench Press Men — BW 80kg 기준",
+      "bw_80kg": [2.25, 1.80, 1.35, 0.95, 0.60],
+      "bw_70kg": [2.20, 1.75, 1.30, 0.90, 0.55],
+      "bw_90kg": [2.25, 1.85, 1.40, 1.00, 0.60],
+      "bw_100kg": [2.25, 1.85, 1.40, 1.00, 0.65],
+      "facing_app_order_elite_to_beginner_bw80": [2.25, 1.80, 1.35, 0.95, 0.60]
+    },
+    "deadlift": {
+      "_note": "§A3 Deadlift Men — BW 80kg 기준",
+      "bw_80kg": [3.55, 2.95, 2.35, 1.70, 1.10],
+      "bw_70kg": [3.55, 2.95, 2.30, 1.65, 1.05],
+      "bw_90kg": [3.50, 2.95, 2.35, 1.70, 1.10],
+      "bw_100kg": [3.40, 2.85, 2.30, 1.65, 1.10],
+      "facing_app_order_elite_to_beginner_bw80": [3.55, 2.95, 2.35, 1.70, 1.10]
+    },
+    "ohp": {
+      "_note": "OHP BW ratio 데이터 power.md §A3에 없음. 기존 grading.py 값 [1.30, 1.05, 0.80, 0.55, 0.35] 유지 권장 또는 ExRx.net / Strength Level OHP 별도 조회 필요.",
+      "facing_app_order_elite_to_beginner": null,
+      "_fallback": "power.md에 OHP 표 미포함. 다음 참조: ExRx.net OHP standards 또는 Strength Level (strengthlevel.com/overhead-press)"
+    },
+    "front_squat": {
+      "_note": "Front Squat BW ratio 데이터 power.md §A3에 없음. 일반 경험칙: Front Squat ≈ Back Squat × 0.85~0.90.",
+      "facing_app_order_elite_to_beginner": null,
+      "_estimation": "Back Squat 값 × 0.87 rough approximation (ExRx.net / coaching standard)"
+    }
+  },
+  "ratios_female": {
+    "_source": "Strength Level 2024 §A3 — BW 60kg 기준 대표값",
+    "_percentile_mapping": "Elite=95th, Advanced=80th, Intermediate=50th, Novice=20th, Beginner=5th",
+    "back_squat": {
+      "_note": "§A3 Squat Women — BW 60kg 기준",
+      "bw_60kg": [2.30, 1.85, 1.40, 0.95, 0.50],
+      "bw_50kg": [2.30, 1.80, 1.30, 0.85, 0.45],
+      "bw_70kg": [2.30, 1.90, 1.45, 1.00, 0.55],
+      "bw_80kg": [2.30, 1.90, 1.50, 1.05, 0.60],
+      "facing_app_order_elite_to_beginner_bw60": [2.30, 1.85, 1.40, 0.95, 0.50]
+    },
+    "bench_press": {
+      "_note": "§A3 Bench Press Women — BW 60kg 기준",
+      "bw_60kg": [1.55, 1.20, 0.85, 0.55, 0.25],
+      "bw_50kg": [1.50, 1.10, 0.75, 0.45, 0.20],
+      "bw_70kg": [1.60, 1.25, 0.90, 0.60, 0.30],
+      "bw_80kg": [1.60, 1.25, 0.90, 0.60, 0.30],
+      "facing_app_order_elite_to_beginner_bw60": [1.55, 1.20, 0.85, 0.55, 0.25]
+    },
+    "deadlift": {
+      "_note": "§A3 Deadlift Women — BW 60kg 기준",
+      "bw_60kg": [2.95, 2.35, 1.75, 1.20, 0.75],
+      "bw_50kg": [2.90, 2.25, 1.65, 1.10, 0.65],
+      "bw_70kg": [3.00, 2.45, 1.85, 1.30, 0.80],
+      "bw_80kg": [3.00, 2.45, 1.90, 1.35, 0.85],
+      "facing_app_order_elite_to_beginner_bw60": [2.95, 2.35, 1.75, 1.20, 0.75]
+    },
+    "ohp": {
+      "_note": "OHP women 데이터 power.md 미포함",
+      "facing_app_order_elite_to_beginner": null
+    },
+    "front_squat": {
+      "_note": "Front Squat women 데이터 power.md 미포함",
+      "facing_app_order_elite_to_beginner": null
+    }
+  },
+  "scoring_formulas": {
+    "wilks": {
+      "location": "§A4 — Robert Wilks 1994",
+      "formula": "Total × 500 / poly5(BW, coef)",
+      "men_coef": "a=-216.0475144, b=16.2606339, c=-0.002388645, d=-0.00113732, e=7.01863e-6, f=-1.291e-8",
+      "women_coef": "a=594.31747775582, b=-27.23842536447, c=0.82112226871, d=-0.00930733913, e=4.731582e-5, f=-9.054e-8",
+      "note": "70~110kg 남자에게 유리. 2019 이전 historical 비교에 사용. IPF는 2020년 이후 DOTS 채택."
+    },
+    "wilks2": {
+      "location": "§A4 — Robert Wilks 2020 update",
+      "formula": "동일 5차 다항식 구조",
+      "women_coef_update": "a=759.78809, b=-33.0142, c=0.943776, d=-0.0102, e=4.94e-5, f=-9.038e-8",
+      "note": "여성·가벼운 체급 과대평가 감소 목적. IPF 미채택 (DOTS 채택)."
+    },
+    "dots": {
+      "location": "§A4 — IPF 2020년 1월 공식 채택",
+      "formula": "(500 / poly4(BW, coef)) × Total",
+      "men_coef": "a=-307.75076, b=24.0900756, c=-0.1918759221, d=0.0007391293, e=-1.093e-6",
+      "women_coef": "a=-57.96288, b=13.6175032, c=-0.1126655495, d=0.0005158568, e=-1.0706e-6",
+      "note": "IPF 모든 국제 대회 공식 점수. 70~90kg 남성·60~75kg 여성 가장 균형. 여성 비교 1순위."
+    },
+    "ipf_gl": {
+      "location": "§A4 — IPF GoodLift Points, IPF 2020년 5월 공식 채택",
+      "formula": "100 × Total / (A − B × exp(−C × BW))",
+      "example_men_raw_sbd": "A=1199.72839, B=1025.18162, C=0.00921",
+      "example_women_raw_sbd": "A=610.32796, B=1045.59282, C=0.03048",
+      "note": "Equipped/Raw + SBD/Bench-only 별도 계수. 종목별 점수 계산 가능. DOTS와 함께 IPF 공식."
+    },
+    "sayers_power": {
+      "location": "§B1 Sayers Power Equation",
+      "formula": "Peak_Power_W = (60.7 × jump_cm) + (45.3 × BW_kg) − 2055",
+      "example": "BW 75kg, CMJ 45cm → 4074 W",
+      "validation": "Sayers et al. 1999 (Med Sci Sports Exerc, PMID:10331897), r²=0.88 vs force plate",
+      "note": "일반 트레이니 권장. Elite(CMJ 60cm+)에선 약간 underestimate. Alternative: Harman 1991 (61.9×jump_cm + 36.0×BW + 1822), Johnson 1996 (78.6×jump_cm + 60.3×BW − 15.3×age − 1308)"
+    }
+  },
+  "vertical_jump_thresholds_cm": {
+    "_source": "§B1 — Tønnessen 2015 / Norwegian Olympic Center (일반 인구 percentile CMJ)",
+    "_note": "facing-app 5-tier 매핑: Elite=95th, Advanced=90th, Intermediate=75th, Novice=50th, Beginner=25th",
+    "male_18_25": {
+      "percentile": {"25th": 40, "50th": 48, "75th": 56, "90th": 65, "95th": 71},
+      "facing_app_order_elite_to_beginner": [71, 65, 56, 48, 40]
+    },
+    "male_26_35": {
+      "percentile": {"25th": 36, "50th": 44, "75th": 52, "90th": 60, "95th": 66},
+      "facing_app_order_elite_to_beginner": [66, 60, 52, 44, 36]
+    },
+    "male_36_45": {
+      "percentile": {"25th": 31, "50th": 38, "75th": 46, "90th": 54, "95th": 60},
+      "facing_app_order_elite_to_beginner": [60, 54, 46, 38, 31]
+    },
+    "female_18_25": {
+      "percentile": {"25th": 26, "50th": 32, "75th": 38, "90th": 45, "95th": 50},
+      "facing_app_order_elite_to_beginner": [50, 45, 38, 32, 26]
+    },
+    "female_26_35": {
+      "percentile": {"25th": 23, "50th": 29, "75th": 35, "90th": 42, "95th": 47},
+      "facing_app_order_elite_to_beginner": [47, 42, 35, 29, 23]
+    },
+    "female_36_45": {
+      "percentile": {"25th": 19, "50th": 25, "75th": 31, "90th": 38, "95th": 43},
+      "facing_app_order_elite_to_beginner": [43, 38, 31, 25, 19]
+    },
+    "crossfit_context_note": "CrossFit 선수는 일반 인구 대비 CMJ 유의미하게 높음. §C 자가진단표 (남성 75kg): Beg=35cm, Avg=45cm, Strong=55cm, Elite=65cm+"
+  },
+  "sprint_30m_sec": {
+    "_source": "§B3 — Topend Sports / FIFA YMCA Sprint Norms 2018",
+    "_note": "lower time = better. facing-app 5-tier [elite, advanced, intermediate, novice, beginner] upper bound (아래 시간 이하면 해당 티어)",
+    "male": {
+      "elite_upper": 3.95,
+      "advanced_upper": 4.10,
+      "intermediate_upper": 4.30,
+      "novice_upper": 4.60,
+      "beginner_upper": 5.00,
+      "facing_app_order_thresholds": [3.95, 4.10, 4.30, 4.60, 5.00],
+      "_label": "Elite(<3.95s), VeryGood(<4.10s), Good(<4.30s), Average(<4.60s), BelowAvg(>4.60s)"
+    },
+    "female": {
+      "elite_upper": 4.55,
+      "advanced_upper": 4.75,
+      "intermediate_upper": 5.00,
+      "novice_upper": 5.30,
+      "beginner_upper": 5.70,
+      "facing_app_order_thresholds": [4.55, 4.75, 5.00, 5.30, 5.70],
+      "_label": "Elite(<4.55s), VeryGood(<4.75s), Good(<5.00s), Average(<5.30s), BelowAvg(>5.30s)"
+    }
+  },
+  "wingate_30s_w_per_kg": {
+    "_source": "§B4 — Bar-Or 1987 / Inbar 1996 / NSCA 2016 — Peak Power W/kg",
+    "_note": "facing-app 5-tier: Elite=elite power athlete, Advanced=trained athlete, Intermediate=recreationally trained, Novice=sedentary upper, Beginner=sedentary lower",
+    "male": {
+      "elite_lower": 16,
+      "advanced_lower": 12,
+      "intermediate_lower": 10,
+      "novice_lower": 8,
+      "beginner_lower": 0,
+      "facing_app_order_lower_bound": [16, 12, 10, 8, 0],
+      "_label": "Sedentary(8~10), Recreational(10~12), Trained(12~14), Elite endurance(13~16), Elite power(16~22+)"
+    },
+    "female": {
+      "elite_lower": 13,
+      "advanced_lower": 10,
+      "intermediate_lower": 8,
+      "novice_lower": 6,
+      "beginner_lower": 0,
+      "facing_app_order_lower_bound": [13, 10, 8, 6, 0],
+      "_label": "Sedentary(6~8), Recreational(8~10), Trained(10~12), Elite endurance(10~13), Elite power(13~16)"
+    },
+    "mean_power_male": {
+      "_note": "Mean Power (30s average) W/kg",
+      "elite_lower": 10.0,
+      "trained_lower": 8.5,
+      "recreational_lower": 7.0,
+      "sedentary_lower": 5.5
+    },
+    "mean_power_female": {
+      "elite_lower": 8.5,
+      "trained_lower": 7.0,
+      "recreational_lower": 5.5,
+      "sedentary_lower": 4.5
+    }
+  },
+  "world_records": [
+    "IPF Raw Total Men: 1170.0kg — Jesus Olivares USA (2024 World Classic, 120+kg)",
+    "IPF Raw Squat Men: 490.5kg — Jesus Olivares USA (2024, 120+kg)",
+    "IPF Raw Bench Men: 335.0kg — Bryce Krawczyk CAN (120+kg)",
+    "IPF Raw Deadlift Men: 440.5kg — Danny Grigsby USA (120+kg)",
+    "Non-IPF Bench Raw: 355.0kg — Julius Maddox USA (USPA 2020)",
+    "Deadlift with straps (strongman): 501.0kg — Hafþór Björnsson ISL (2020, elephant bar)",
+    "IPF Raw Total Women: 740.0kg — Brittany Schlater CAN (84+kg)",
+    "IPF Raw Squat Women: 305.0kg — Brittany Schlater CAN (84+kg)"
+  ],
+  "tier_label_mapping": {
+    "power_md_5level": ["Elite(95th%)", "Advanced(80th%)", "Intermediate(50th%)", "Novice(20th%)", "Beginner(5th%)"],
+    "facing_app_6tier": ["Games", "Elite", "RX+", "RX", "Scaled", "(below Scaled)"],
+    "recommended_mapping": {
+      "Elite(95th)": "Games",
+      "Advanced(80th)": "Elite",
+      "Intermediate(50th)": "RX+",
+      "Novice(20th)": "RX",
+      "Beginner(5th)": "Scaled",
+      "below_beginner": "(below Scaled — not shown in app)"
+    },
+    "rationale": "power.md 5단계(Beginner~Elite)가 facing-app 6단계(Scaled~Games)보다 1단계 적음. CrossFit 맥락에서 Elite(95th percentile)는 Games tier (top ~0.5% CrossFit 출전자)에 해당. Advanced(80th%) → Elite tier. RX 기준은 Intermediate(50th%)로 설정이 보수적이나 일반 CrossFit RX 기준(~3년차)과 부합. RX+(4~5년차 고강도)는 50th~80th 사이 임의 분리 — 65th% 근사값 권장.",
+    "alternative_mapping_if_6tier_needed": {
+      "_note": "6티어 완전 매핑 위해 percentile 분할 제안",
+      "Games": "99th+ (IPF DOTS 530+ 참조)",
+      "Elite": "95th",
+      "RX_plus": "80th",
+      "RX": "50th",
+      "Scaled": "20th",
+      "below_scaled": "<5th"
+    }
+  },
+  "section_citations": [
+    {
+      "id": 1,
+      "title": "Strength Level 2024 — Lift Standards Database",
+      "authors": "Strength Level (aggregated, 100M+ lifts)",
+      "section": "§A3 BW Ratio Standards",
+      "use_case": "grading.py BW ratio threshold 갱신 SSOT. Squat/Bench/DL 5-tier percentile 전체 BW 범위 커버.",
+      "dart_ref": "source: 'Strength Level 2024', url: 'https://strengthlevel.com'"
+    },
+    {
+      "id": 2,
+      "title": "Sayers et al. 1999 — Predicting Peak Power from Vertical Jump",
+      "authors": "Sayers SP, Harackiewicz DV, Harman EA, Frykman PN, Rosenstein MT",
+      "section": "§B1 Sayers Power Equation",
+      "use_case": "수직점프(cm) + 체중(kg) → Peak Power(W) 변환. facing-app에서 Vertical Jump metric을 Watt로 환산 시 사용.",
+      "dart_ref": "source: 'Sayers et al. 1999 (PMID:10331897)', journal: 'Med Sci Sports Exerc', r2: 0.88"
+    },
+    {
+      "id": 3,
+      "title": "Inbar, Bar-Or, Skinner 1996 — The Wingate Anaerobic Test",
+      "authors": "Inbar O, Bar-Or O, Skinner JS",
+      "section": "§B4 Wingate 30s normative data",
+      "use_case": "Wingate Peak Power W/kg 5-tier 기준. facing-app anaerobic power 등급화 근거.",
+      "dart_ref": "source: 'Inbar, Bar-Or, Skinner 1996 (Human Kinetics)'"
+    },
+    {
+      "id": 4,
+      "title": "Flanagan & Comyns 2008 — RSI grading scale",
+      "authors": "Flanagan EP, Comyns TM",
+      "section": "§B5 RSI Drop Jump 등급",
+      "use_case": "RSI(jump_height_m / contact_time_s) 6등급 분류. facing-app 폭발력 reactive strength 지표.",
+      "dart_ref": "source: 'Flanagan & Comyns 2008, Strength Cond J'"
+    },
+    {
+      "id": 5,
+      "title": "OpenPowerlifting + IPF DOTS Percentile Distribution 2024",
+      "authors": "IPF Bylaws 2020 / OpenPowerlifting.org",
+      "section": "§A3 OpenPowerlifting Wilks/DOTS percentile + §A4 DOTS formula",
+      "use_case": "대회 등록 lifter 기준 DOTS 점수 tier 매핑. grading.py의 점수 정규화에 DOTS 채택 시 계수 직접 인용 가능.",
+      "dart_ref": "source: 'IPF Bylaws 2020, OpenPowerlifting 2024', doi: 'IPF official'"
+    }
+  ],
+  "_meta": {
+    "extracted_from": "C:/Users/USER/.claude/reference/study/fitness/power.md",
+    "total_lines": 931,
+    "sections_covered": 12,
+    "extraction_date": "2026-04-28",
+    "grading_py_update_summary": {
+      "back_squat_male_current": [2.75, 2.25, 1.75, 1.25, 0.70],
+      "back_squat_male_power_md_bw80": [2.95, 2.45, 1.90, 1.35, 0.85],
+      "deadlift_male_current": [3.00, 2.50, 2.00, 1.50, 1.00],
+      "deadlift_male_power_md_bw80": [3.55, 2.95, 2.35, 1.70, 1.10],
+      "bench_male_current": [2.00, 1.60, 1.25, 0.85, 0.50],
+      "bench_male_power_md_bw80": [2.25, 1.80, 1.35, 0.95, 0.60],
+      "ohp_male_current": [1.30, 1.05, 0.80, 0.55, 0.35],
+      "ohp_male_power_md": "미포함 — 별도 조회 필요",
+      "direction": "power.md 값이 현행 grading.py 대비 전반적으로 높음 (특히 DL +0.55~0.60xBW). Strength Level 95th%ile 기준이 엄격함. facing-app Elite 티어 기준 상향 검토 필요."
+    }
+  }
+}

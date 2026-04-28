@@ -1,0 +1,353 @@
+{
+  "section_index": "gymnastics.md §2(Pull-up/HSPU/Push-up) §3(Muscle-up) §9(Female standards)",
+  "max_ub_reps_male": {
+    "pull_up_kipping": {
+      "note": "Kipping pull-up UB reps not explicitly listed. Strict pull-up norms used as conservative proxy. CrossFit kipping typically 1.5-2x strict reps for same athlete.",
+      "strict_dead_hang_levels": {
+        "beginner": "3-5",
+        "intermediate": "6-12",
+        "advanced": "13-20",
+        "elite_usmc_max": 23,
+        "source": "ExRx pull-up norms T2 / USMC PFT MARADMIN 595/22 T1"
+      },
+      "tier_mapping_for_grading_py": {
+        "games": 30,
+        "elite": 23,
+        "rxplus_advanced": 15,
+        "rx_intermediate": 10,
+        "scaled_beginner": 5,
+        "comment": "games=30 추정(USMC 23 + kipping bonus), elite=23(USMC max), advanced=15(ExRx upper-intermediate), intermediate=10, beginner=5"
+      }
+    },
+    "pull_up_strict": {
+      "beginner": "3-5",
+      "intermediate": "6-12",
+      "advanced": "13-20",
+      "elite": 23,
+      "source": "ExRx T2 / USMC PFT 2024 T1",
+      "tier_mapping_for_grading_py": {
+        "games": 25,
+        "elite": 20,
+        "rxplus_advanced": 15,
+        "rx_intermediate": 10,
+        "scaled_beginner": 5
+      }
+    },
+    "chest_to_bar_kipping": {
+      "prerequisites_for_strict_bar_mu": "12-15 strict CTB recommended",
+      "tier_mapping_for_grading_py": {
+        "games": 30,
+        "elite": 22,
+        "rxplus_advanced": 15,
+        "rx_intermediate": 9,
+        "scaled_beginner": 4,
+        "source": "§3-2 CTB 12-15 = bar muscle-up prerequisite level → extrapolated"
+      }
+    },
+    "toes_to_bar": {
+      "note": "No direct T2B UB data in gymnastics.md. CrossFit gymnastics §1-3 lists T2B as category movement. No peer-reviewed UB norms found.",
+      "tier_mapping_for_grading_py": {
+        "games": 30,
+        "elite": 22,
+        "rxplus_advanced": 14,
+        "rx_intermediate": 8,
+        "scaled_beginner": 3,
+        "source": "추정: kipping pull-up 약 80% 수준 기준 + CrossFit competition observation"
+      }
+    },
+    "hspu_strict": {
+      "beginner_wall_partial_rom": "3-5",
+      "intermediate_strict_wall_full_rom": 10,
+      "advanced_kipping_amrap": "30+",
+      "elite_freestanding": "5-10 free",
+      "source": "§2-5 GymnasticBodies Foundation 1 T2 / CrossFit Diane benchmark T2",
+      "tier_mapping_for_grading_py": {
+        "games": 25,
+        "elite": 18,
+        "rxplus_advanced": 10,
+        "rx_intermediate": 5,
+        "scaled_beginner": 2,
+        "note": "strict wall HSPU 기준. kipping HSPU는 ~2x"
+      }
+    },
+    "bar_muscle_up": {
+      "prerequisites": "Pull-up 12-15 strict + Dip 15+ strict",
+      "strict_bar_mu_wr_female_consecutive": "Maja Trochimczyk 23 strict bar MU (WSWCF 2019 T2/Reuters T1)",
+      "tier_mapping_for_grading_py": {
+        "games": 15,
+        "elite": 10,
+        "rxplus_advanced": 6,
+        "rx_intermediate": 3,
+        "scaled_beginner": 1,
+        "source": "§3-2 prerequisites: 12-15 strict pullup = MU prereq. Games-level ~15 UB kipping BMU based on CrossFit Games event observation"
+      }
+    },
+    "ring_muscle_up": {
+      "prerequisites": "False grip ring row 10 + False grip pull-up 5 + Ring dip 10 + Transition negative 5x3s",
+      "tier_mapping_for_grading_py": {
+        "games": 12,
+        "elite": 8,
+        "rxplus_advanced": 5,
+        "rx_intermediate": 2,
+        "scaled_beginner": 1,
+        "source": "§3-3 strict ring MU harder than bar MU. ~80% of bar MU volume. CrossFit Games Amanda (9-7-5) = games level"
+      }
+    }
+  },
+  "max_ub_reps_female": {
+    "pull_up_strict": {
+      "beginner": 1,
+      "intermediate": "3-5",
+      "advanced": "6-10",
+      "elite_usmc_max": 12,
+      "general_population_1rep_rate": "1-5% of adult women",
+      "crossfit_1yr_women_1rep_rate": "30-40%",
+      "source": "§2-2 USMC PFT / §9-2 Pirolo et al. T1",
+      "tier_mapping_for_grading_py": {
+        "games": 18,
+        "elite": 12,
+        "rxplus_advanced": 8,
+        "rx_intermediate": 4,
+        "scaled_beginner": 1
+      }
+    },
+    "pull_up_kipping": {
+      "tier_mapping_for_grading_py": {
+        "games": 22,
+        "elite": 15,
+        "rxplus_advanced": 10,
+        "rx_intermediate": 6,
+        "scaled_beginner": 2
+      }
+    },
+    "chest_to_bar_kipping": {
+      "tier_mapping_for_grading_py": {
+        "games": 20,
+        "elite": 14,
+        "rxplus_advanced": 9,
+        "rx_intermediate": 5,
+        "scaled_beginner": 2
+      }
+    },
+    "toes_to_bar": {
+      "tier_mapping_for_grading_py": {
+        "games": 22,
+        "elite": 15,
+        "rxplus_advanced": 10,
+        "rx_intermediate": 6,
+        "scaled_beginner": 2
+      }
+    },
+    "hspu_strict": {
+      "beginner_wall_partial": "1-3",
+      "intermediate_strict_wall_full": 5,
+      "advanced_kipping": "15+",
+      "elite_freestanding": "3-5 free",
+      "source": "§2-5",
+      "tier_mapping_for_grading_py": {
+        "games": 18,
+        "elite": 12,
+        "rxplus_advanced": 7,
+        "rx_intermediate": 3,
+        "scaled_beginner": 1
+      }
+    },
+    "bar_muscle_up": {
+      "wr_consecutive_strict": "Maja Trochimczyk 23 (WSWCF 2019)",
+      "general_fit_female_kipping_rate": "2-5%",
+      "general_fit_female_strict_rate": "<0.5%",
+      "source": "§9-4 WSWCF records T2 / Reuters T1",
+      "tier_mapping_for_grading_py": {
+        "games": 10,
+        "elite": 7,
+        "rxplus_advanced": 4,
+        "rx_intermediate": 2,
+        "scaled_beginner": 1
+      }
+    },
+    "ring_muscle_up": {
+      "tier_mapping_for_grading_py": {
+        "games": 8,
+        "elite": 5,
+        "rxplus_advanced": 3,
+        "rx_intermediate": 1,
+        "scaled_beginner": 0,
+        "note": "scaled_beginner=0: ring MU at beginner level unrealistic for women"
+      }
+    }
+  },
+  "push_up_per_min_thresholds": {
+    "source_in_gymnastics_md": "§2-4 1분 max push-up (남성 17-25)",
+    "male_1min": {
+      "failed": "0-10",
+      "beginner": "20-30",
+      "intermediate": "40-55",
+      "advanced": "60-80",
+      "elite": "100+",
+      "acft_100pts": 60,
+      "kr_army_max_20s": 72,
+      "kr_police_max": 58,
+      "source": "US Army ACFT army.mil T1 / 국방부 군인복지기본계획 T1 / 경찰청 채용공고 T1"
+    },
+    "female_1min": {
+      "failed": "0-5",
+      "beginner": "10-15",
+      "intermediate": "20-30",
+      "advanced": "35-50",
+      "elite": "60+",
+      "kr_army_max_20s": 32,
+      "kr_police_max_modified_knee": 50,
+      "source": "FITNESSGRAM / ACFT / 국방부 T1"
+    },
+    "acsm_superior_note": "ACSM fitness.md §3.3 Superior 기준: 남 60+ / 여 33+. gymnastics.md §2-4 와 일치. 별도 gymnastics.md push-up/min 표 없음 — fitness.md §3.3 ACSM 값이 SSOT.",
+    "grading_py_tier_mapping_male": {
+      "games": 70,
+      "elite": 55,
+      "rxplus_advanced": 45,
+      "rx_intermediate": 35,
+      "scaled_beginner": 20,
+      "note": "1분 max. ACFT 60=100pts 기준. CrossFit는 push-up/min 별도 기준 없어 ACFT+ACSM 보간"
+    },
+    "grading_py_tier_mapping_female": {
+      "games": 50,
+      "elite": 40,
+      "rxplus_advanced": 32,
+      "rx_intermediate": 25,
+      "scaled_beginner": 12
+    }
+  },
+  "skill_progressions": {
+    "planche": {
+      "stages": ["Tuck planche", "Advanced tuck planche", "Straddle planche", "Full planche", "Maltese cross"],
+      "avg_months_from_pullup10": [3.5, 9, 18, 36, 90],
+      "hold_standard_sec": 5,
+      "source": "§5-1 GymnasticBodies T2 / Steven Low OG 2nd T2"
+    },
+    "front_lever": {
+      "stages": ["Tuck FL 5s", "Advanced tuck FL 5s", "Straddle FL 5s", "Half-lay 5s", "Full FL 5s"],
+      "avg_months_from_pullup10": [2, 4.5, 9, 13.5, 21],
+      "source": "§6-1 FBE tutorial T2 / Steven Low OG T2"
+    },
+    "back_lever": {
+      "stages": ["Tuck BL 5s", "Advanced tuck BL 5s", "Straddle BL 5s", "Full BL 5s"],
+      "avg_months_from_pullup10": [1.5, 3, 6, 10.5],
+      "note": "Back lever 진행이 front lever보다 빠름 — lat/bicep 부담 적음",
+      "source": "§6-2"
+    },
+    "one_arm_pullup": {
+      "stages": ["Archer pull-up 5r", "Typewriter pull-up 5r", "Assisted OAP 3r", "Strict OAP 1r", "OAP 5r"],
+      "avg_months_from_pullup15": [4.5, 9, 18, 36, 72],
+      "source": "§8-2 Pavel Tsatsouline Naked Warrior T2 / Convict Conditioning T2"
+    },
+    "l_sit_v_sit_manna": {
+      "l_sit": {"beginner": "5s tuck", "intermediate": "30s straight", "advanced": "60s straight", "elite": "60s+ rings"},
+      "v_sit": {"intermediate": "5s", "advanced": "30s", "elite": "60s"},
+      "manna": {"advanced": "5s", "elite": "30s"},
+      "source": "§4-1 GST F1-F4 T2"
+    }
+  },
+  "fig_difficulty": {
+    "scale": "A=0.1 to J=1.0 (FIG MAG Code of Points 2025-2028)",
+    "rings_static_elements": {
+      "L_sit_2s": {"letter": "A", "value": 0.1},
+      "V_sit_2s": {"letter": "B", "value": 0.2},
+      "iron_cross_2s": {"letter": "B", "value": 0.2},
+      "front_lever_2s": {"letter": "B", "value": 0.2},
+      "back_lever_straight_2s": {"letter": "B", "value": 0.2},
+      "press_to_handstand_from_L": {"letter": "C", "value": 0.3},
+      "L_cross_2s": {"letter": "C", "value": 0.3},
+      "front_lever_to_inverted": {"letter": "D", "value": 0.4},
+      "manna_2s": {"letter": "D", "value": 0.4},
+      "V_cross_2s": {"letter": "D", "value": 0.4},
+      "inverted_cross_2s": {"letter": "D", "value": 0.4},
+      "maltese_cross_2s": {"letter": "D", "value": 0.4},
+      "victorian_cross_2s": {"letter": "E", "value": 0.5},
+      "azarian_cross_to_L_sit_pull": {"letter": "E", "value": 0.5},
+      "nakayama_cross_to_inverted": {"letter": "F", "value": 0.6}
+    },
+    "source": "§1-2 §4-2 §6-3 §7-1 FIG MAG Code of Points 2025-2028 T1"
+  },
+  "world_records": {
+    "pull_up_consecutive_strict": {
+      "note": "gymnastics.md에 명시된 pull-up WR 없음. USMC 23회 max-points 기준이 실용 최고치로 표기됨.",
+      "bar_muscle_up_consecutive_female_strict": "Maja Trochimczyk 23 (WSWCF 2019, Reuters T1)",
+      "source": "§9-4"
+    },
+    "olympic_rings_gold_recent": {
+      "paris_2024": "Liu Yang CHN — MAG Rings 15.300",
+      "all_time_notable": ["Eleftherios Petrounias GRE (2016 Olympic gold, 3x World gold)", "Liu Yang CHN (2020+2024 Olympic gold)", "Arthur Zanetti BRA (2012 Olympic gold)", "Yuri van Gelder NED (2005 World gold)"],
+      "source": "§7-3 Olympic.org T1 / §10-4 Paris 2024 T1"
+    },
+    "korean_gymnasts": {
+      "yang_hak_seon": "2012 London Olympic gold Vault — handspring triple twist (Yang Hak Seon vault named)",
+      "yeo_hong_chul": "1996 Atlanta silver Vault — Yeo I/II vault named after him",
+      "source": "§10-5 대한체조협회 T1 / Olympic.org T1"
+    }
+  },
+  "korean_data": {
+    "army_push_up_2min": {"male_20s_max": 72, "female_20s_max": 32, "source": "국방부 군인복지기본계획 T1"},
+    "police_push_up": {"male_max": 58, "female_max_modified_knee": 50, "source": "경찰청 채용공고 T1"},
+    "gymnastics_notable": {
+      "yang_hak_seon": "2012 Olympic gold Vault",
+      "yeo_hong_chul": "1996 Olympic silver Vault + Yeo vault naming",
+      "source": "§10-5 대한체조협회 T1"
+    },
+    "pull_up_not_in_kr_military": "한국 군/경 체력검정에 pull-up 항목 없음. 팔굽혀펴기(push-up)·윗몸일으키기·달리기 3종이 표준."
+  },
+  "tier_mapping_caveat": {
+    "thruster_not_in_gymnastics_md": "Thruster(바벨 프런트스쿼트+푸시프레스)는 gymnastics.md 미수록. weightlifting+conditioning 복합 동작으로 weightlifting reference에서 처리 권장. 임시: Clean 1RM 70-80% 기준 AMRAP 추정 또는 별도 설문.",
+    "pistol_squat_not_in_gymnastics_md": "Pistol squat도 CrossFit gymnastics 카테고리이나 이 파일에 횟수 표준 없음. r/bodyweightfitness wiki 기준 5회=중급, 10회=상급, 20+=elite 추정 필요.",
+    "rope_climb_not_in_gymnastics_md": "Rope climb 횟수 표준 없음. 별도 추가 필요.",
+    "kipping_vs_strict_multiplier": "일반적으로 kipping UB reps ≈ strict UB reps × 1.5-2.0. grading.py 값 조정 시 이 배율 적용 권장."
+  },
+  "section_citations": {
+    "tier1_key_sources": [
+      "USMC PFT MARADMIN 595/22 (marines.mil) — pull-up 23 max points male, 12 female",
+      "US Army ACFT scoring scales (army.mil) — HRP 60 = 100pts",
+      "FIG MAG Code of Points 2025-2028 (gymnastics.sport) — difficulty values A-J",
+      "FITNESSGRAM Reference Guide 5th ed (Cooper Institute) — age-adjusted pull-up norms",
+      "Paris 2024 Official Olympic Results (olympics.com) — rings gold Liu Yang 15.300",
+      "Pirolo et al. Med Sci Sports Exerc 2014 — female pull-up performance",
+      "CrossFit Games Amanda (2010) — 9-7-5 muscle-up + snatch benchmark",
+      "국방부 군인복지기본계획 — push-up 72/32 max",
+      "경찰청 채용공고 — push-up 58/50 max",
+      "Bishop et al. Am J Phys Anthropol 1987 — sex differences muscle cross-sectional area"
+    ],
+    "tier2_key_sources": [
+      "GymnasticBodies (Coach Christopher Sommer) — planche/FL/ring MU progressions",
+      "Steven Low Overcoming Gravity 2nd ed — OAP/OAC/injury chapter",
+      "ExRx pull-up norms — beginner/intermediate/advanced brackets",
+      "WSWCF records — Maja Trochimczyk female bar MU 23 strict"
+    ]
+  },
+  "grading_py_recommended_updates": {
+    "note": "gymnastics.md 데이터 기반 grading.py 갱신 권장값. 배열=[games, elite, rxplus, rx, scaled] lower bound",
+    "_PULLUP_UB_current": [30, 20, 12, 7, 3],
+    "_PULLUP_UB_recommended": [23, 18, 12, 7, 3],
+    "_PULLUP_UB_note": "games=30→23 (USMC max가 실증 최고치. 30은 과대추정). 나머지 유지.",
+    "_STRICT_PULLUP_UB_current": [20, 15, 10, 6, 3],
+    "_STRICT_PULLUP_UB_recommended": [20, 15, 10, 6, 3],
+    "_STRICT_PULLUP_UB_note": "현재값 USMC 기준과 일치. 유지.",
+    "_CTB_UB_current": [25, 18, 12, 7, 3],
+    "_CTB_UB_recommended": [25, 18, 12, 7, 3],
+    "_CTB_UB_note": "직접 데이터 없음. 현재 추정치 합리적. 유지.",
+    "_T2B_UB_current": [25, 17, 10, 5, 2],
+    "_T2B_UB_recommended": [25, 17, 10, 5, 2],
+    "_T2B_UB_note": "직접 데이터 없음. 현재 추정치 유지.",
+    "_HSPU_UB_current": [25, 15, 8, 4, 1],
+    "_HSPU_UB_recommended": [25, 15, 8, 4, 1],
+    "_HSPU_UB_note": "§2-5 kipping 30+가 advanced이므로 elite=25~30 범위. 현재값 합리적. 유지.",
+    "_BAR_MUSCLE_UP_UB_current": [15, 10, 6, 3, 1],
+    "_BAR_MUSCLE_UP_UB_recommended": [15, 10, 6, 3, 1],
+    "_BAR_MUSCLE_UP_UB_note": "§3-2 prereq 기반. 현재값 합리적. 유지.",
+    "_RING_MUSCLE_UP_UB_current": [12, 8, 5, 2, 1],
+    "_RING_MUSCLE_UP_UB_recommended": [12, 8, 5, 2, 1],
+    "_RING_MUSCLE_UP_UB_note": "BMU 약 80% 수준. 현재값 합리적. 유지.",
+    "_PUSHUP_UB_current": [70, 50, 35, 20, 10],
+    "_PUSHUP_UB_recommended": [70, 55, 40, 28, 15],
+    "_PUSHUP_UB_note": "§2-4: ACFT 100pts=60, 상급=60-80, 중급=40-55. elite=60+이면 rxplus=55, rx=40이 더 정확. scaled=15(군 최소 기준).",
+    "_PUSHUP_PER_MIN_current": [55, 45, 35, 25, 15],
+    "_PUSHUP_PER_MIN_recommended": [65, 55, 42, 30, 18],
+    "_PUSHUP_PER_MIN_note": "§2-4 ACFT: 상급 60-80(100점=60). games=65~70, elite=55, rxplus=42, rx=30, scaled=18 이 더 정확."
+  }
+}
