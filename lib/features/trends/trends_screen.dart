@@ -8,6 +8,7 @@ import '../../core/theme.dart';
 import '../../models/achievement.dart';
 import '../achievement/achievement_card.dart';
 import '../achievement/achievement_state.dart';
+import '../achievement/panel_b_screen.dart';
 import '../history/history_models.dart';
 import '../history/history_repository.dart';
 import '../profile/profile_state.dart';
@@ -80,6 +81,12 @@ class _TrendsScreenState extends State<TrendsScreen> {
       appBar: AppBar(
         title: const Text('LEVEL & TITLES'),
         actions: [
+          // /go Phase 2.5+: Panel B 직접 진입 (이전엔 Achievements 화면 경유, 깊이 2).
+          IconButton(
+            tooltip: 'Panel B Titles',
+            icon: const Icon(Icons.workspace_premium_outlined, size: 20),
+            onPressed: () => openPanelB(context),
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () => context.read<AchievementState>().load(),
