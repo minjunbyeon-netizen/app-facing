@@ -161,7 +161,11 @@ RATIONALE: Open 대비 leg drive 강화. 5주 누적 후 1RM 테스트.
    - 체중 · 키 · 나이 · 성별 (필수)
    - 1RM · UB · 카디오 (아는 것만)
 4. Engine 측정 → Tier 부여
-5. 메인:
+5. 역할 선택 (Coach / Member / Solo) — Settings 에서 변경 가능
+   - Coach → 박스 등록 (스킵 허용)
+   - Member → 박스 검색 + 가입 신청 (스킵 허용)
+   - Solo → 즉시 메인 (박스 미사용)
+6. 메인:
    a. Calc 탭   → WOD 직접 입력 → 페이싱 전략 받기
    b. WOD 탭    → 박스 가입 → 코치 WOD 받기
    c. Trends 탭 → Engine 추이 + 업적 갤러리 + Panel B 칭호
