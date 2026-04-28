@@ -27,6 +27,8 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   late final HistoryRepository _repo;
   WodSessionBus? _bus;
   Future<List<WodHistoryItem>>? _future;
+  /// /go Tier 3: Streak Freeze 통합 — 마지막 사용일을 _currentStreak 계산 시 활용.
+  DateTime? _freezeUse;
   late DateTime _month; // 1일 00:00 기준
 
   @override
@@ -55,6 +57,11 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   void _reload() {
     setState(() {
       _future = _repo.listWodHistory(limit: _kHistoryLimit);
+    });
+    // /go Tier 3: freeze 사용 기록 비동기 로드.
+    StreakFreezeStore.lastUse().then((dt) {
+      if (!mounted) return;
+      setState(() => _freezeUse = dt);
     });
   }
 
@@ -100,6 +107,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
             return _AttendanceBody(
               records: records,
               month: _month,
+              freezeUse: _freezeUse,
               onPrevMonth: () => _shiftMonth(-1),
               onNextMonth: () => _shiftMonth(1),
             );
@@ -113,11 +121,14 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
 class _AttendanceBody extends StatelessWidget {
   final List<WodHistoryItem> records;
   final DateTime month;
+  /// /go Tier 3: 이번 주 freeze 사용 기록. 있으면 streak 1일 보호.
+  final DateTime? freezeUse;
   final VoidCallback onPrevMonth;
   final VoidCallback onNextMonth;
   const _AttendanceBody({
     required this.records,
     required this.month,
+    required this.freezeUse,
     required this.onPrevMonth,
     required this.onNextMonth,
   });
@@ -143,6 +154,7 @@ class _AttendanceBody extends StatelessWidget {
   }
 
   /// 현재 streak — 오늘(또는 가장 최근 세션일)부터 연속된 일수.
+  /// /go Tier 3: freezeUse 가 있으면 missing day 1일 보호 (streak 카운트에 포함).
   int _currentStreak() {
     final days = _uniqueDays();
     if (days.isEmpty) return 0;
@@ -154,12 +166,33 @@ class _AttendanceBody extends StatelessWidget {
       cursor = cursor.subtract(const Duration(days: 1));
       if (!days.contains(cursor)) return 0;
     }
+    bool freezeAvailable = freezeUse != null;
     int count = 0;
-    while (days.contains(cursor)) {
-      count++;
-      cursor = cursor.subtract(const Duration(days: 1));
+    while (true) {
+      if (days.contains(cursor)) {
+        count++;
+        cursor = cursor.subtract(const Duration(days: 1));
+      } else if (freezeAvailable) {
+        // freeze 1회 적용: 이 missing day 를 streak 1일로 보호 + skip.
+        freezeAvailable = false;
+        count++;
+        cursor = cursor.subtract(const Duration(days: 1));
+      } else {
+        break;
+      }
     }
     return count;
+  }
+
+  /// /go Tier 3: distinct wod_type count — HIT 3 CATEGORIES 집계용.
+  /// for_time / amrap / emom / chipper / manual_session 등 다양한 포맷 시도 횟수.
+  int _distinctWodTypes() {
+    final set = <String>{};
+    for (final r in records) {
+      final t = r.wodType.trim().toLowerCase();
+      if (t.isNotEmpty) set.add(t);
+    }
+    return set.length;
   }
 
   /// v1.16 Sprint 8 U3: 이달 세션 수 (챌린지 진행도용).
@@ -411,10 +444,12 @@ class _AttendanceBody extends StatelessWidget {
           current: currentMonthSessionsCount(records),
           target: 10,
         ),
+        // /go Tier 3: 이전 (totalLifetime/10) 대체 → distinct wod_type 집계.
+        // wod_type ∈ {for_time, amrap, emom, chipper, manual_session 등} 중 3종 이상.
         _ChallengeRow(
-          title: 'HIT 3 CATEGORIES',
-          subtitle: '카테고리별 WOD 고르게 1회 이상',
-          current: (totalLifetime / 10).clamp(0, 3).round(),
+          title: 'HIT 3 WOD TYPES',
+          subtitle: 'For Time · AMRAP · EMOM 등 3종 이상 시도',
+          current: _distinctWodTypes().clamp(0, 3),
           target: 3,
         ),
         _ChallengeRow(
