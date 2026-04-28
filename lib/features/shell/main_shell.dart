@@ -269,7 +269,7 @@ class _TabHintOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     return Positioned.fill(
       child: Material(
-        color: Colors.black.withValues(alpha: 0.88),
+        color: FacingTokens.bg.withValues(alpha: 0.88),
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(FacingTokens.sp5),

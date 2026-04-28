@@ -292,13 +292,13 @@ class _AttendanceBody extends StatelessWidget {
         const SizedBox(height: FacingTokens.sp3),
         Row(
           children: const [
-            _WeekdayLabel('일'),
-            _WeekdayLabel('월'),
-            _WeekdayLabel('화'),
-            _WeekdayLabel('수'),
-            _WeekdayLabel('목'),
-            _WeekdayLabel('금'),
-            _WeekdayLabel('토'),
+            _WeekdayLabel('Sun'),
+            _WeekdayLabel('Mon'),
+            _WeekdayLabel('Tue'),
+            _WeekdayLabel('Wed'),
+            _WeekdayLabel('Thu'),
+            _WeekdayLabel('Fri'),
+            _WeekdayLabel('Sat'),
           ],
         ),
         const SizedBox(height: FacingTokens.sp2),
@@ -765,10 +765,9 @@ class _DayCell extends StatelessWidget {
                 bottom: 2,
                 child: Text(
                   '×$count',
-                  style: FacingTokens.sectionLabel.copyWith(
+                  style: FacingTokens.micro.copyWith(
                     fontWeight: FontWeight.w800,
                     color: FacingTokens.fg.withValues(alpha: 0.95),
-                    letterSpacing: 0.2,
                   ),
                 ),
               ),

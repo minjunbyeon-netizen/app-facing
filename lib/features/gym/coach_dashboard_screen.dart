@@ -441,7 +441,7 @@ class _MemberDetailSheet extends StatelessWidget {
               alignment: Alignment.centerRight,
               child: TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('닫기'),
+                child: const Text('Close'),
               ),
             ),
           ],

@@ -132,7 +132,7 @@ class _InboxScreenState extends State<InboxScreen>
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Text('인박스 로딩 실패',
+                          const Text('LOAD FAILED',
                               style: FacingTokens.sectionLabel),
                           const SizedBox(height: FacingTokens.sp2),
                           Text(state.error!, style: FacingTokens.caption),

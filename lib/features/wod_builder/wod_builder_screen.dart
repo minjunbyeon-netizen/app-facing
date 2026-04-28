@@ -56,7 +56,7 @@ class _WodBuilderScreenState extends State<WodBuilderScreen> {
         future: _future,
         builder: (ctx, snap) {
           if (snap.connectionState != ConnectionState.done) {
-            return const Center(child: Text('Loading', style: FacingTokens.body));
+            return const Center(child: Text('Loading.', style: FacingTokens.body));
           }
           if (snap.hasError) {
             // QA B-ER-2: 기술 정보 노출 차단.

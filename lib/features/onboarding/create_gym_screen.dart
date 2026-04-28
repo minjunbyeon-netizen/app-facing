@@ -72,10 +72,10 @@ class _CreateGymScreenState extends State<CreateGymScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: FacingTokens.sp2),
-              const Text('박스 등록', style: FacingTokens.h2),
+              const Text('Register Box.', style: FacingTokens.h2),
               const SizedBox(height: FacingTokens.sp2),
               const Text(
-                '코치가 자기 박스를 만들고 WOD 를 게시할 수 있습니다.',
+                '코치가 자기 Box를 만들고 WOD를 게시할 수 있습니다.',
                 style: FacingTokens.caption,
               ),
               const SizedBox(height: FacingTokens.sp5),

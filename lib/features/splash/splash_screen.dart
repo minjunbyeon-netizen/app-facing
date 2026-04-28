@@ -114,7 +114,13 @@ class _SplashScreenState extends State<SplashScreen> {
                 const SizedBox(height: FacingTokens.sp3),
                 // v1.15.2: 앱 정체성 한 줄 (Games-Player 전용).
                 const Text(
-                  'CrossFit Games-Player 전용\nWOD Pacing Intelligence',
+                  'WOD Pacing Intelligence.',
+                  style: FacingTokens.body,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: FacingTokens.sp1),
+                const Text(
+                  'CrossFit Games-Player 전용.',
                   style: FacingTokens.caption,
                   textAlign: TextAlign.center,
                 ),

@@ -62,7 +62,7 @@ class _PresetsScreenState extends State<PresetsScreen> {
         future: _future,
         builder: (ctx, snap) {
           if (snap.connectionState != ConnectionState.done) {
-            return const Center(child: Text('Loading', style: FacingTokens.body));
+            return const Center(child: Text('Loading.', style: FacingTokens.body));
           }
           if (snap.hasError) {
             // QA B-ER-1: 기술 정보 노출 차단. AppException 만 messageKo 노출.

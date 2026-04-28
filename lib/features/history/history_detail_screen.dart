@@ -66,7 +66,7 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
             padding: const EdgeInsets.all(FacingTokens.sp4),
             children: [
               Text((wod['wod_type'] ?? '').toString().toUpperCase(),
-                  style: FacingTokens.h2),
+                  style: FacingTokens.h3),
               const SizedBox(height: FacingTokens.sp1),
               Text(_formatDate(wod['created_at']?.toString()),
                   style: FacingTokens.caption),

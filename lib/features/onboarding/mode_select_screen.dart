@@ -45,10 +45,10 @@ class ModeSelectScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: FacingTokens.sp2),
-              const Text('역할 선택', style: FacingTokens.h2),
+              const Text('Select Role.', style: FacingTokens.h2),
               const SizedBox(height: FacingTokens.sp2),
               const Text(
-                '코치는 박스를 운영합니다. 멤버는 박스에 가입합니다. Solo 는 혼자 트레이닝.',
+                '코치는 Box를 운영합니다. 멤버는 Box에 가입합니다. Solo 트레이닝도 가능.',
                 style: FacingTokens.caption,
               ),
               const SizedBox(height: FacingTokens.sp5),

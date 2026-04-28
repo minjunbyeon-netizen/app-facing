@@ -320,7 +320,7 @@ class _Header extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.baseline,
           textBaseline: TextBaseline.alphabetic,
           children: [
-            Text('$unlocked', style: FacingTokens.h1),
+            Text('$unlocked', style: FacingTokens.display),
             const SizedBox(width: FacingTokens.sp1),
             Text('/ $total',
                 style: FacingTokens.h3.copyWith(color: FacingTokens.muted)),

@@ -103,7 +103,7 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
               const SizedBox(height: FacingTokens.sp3),
               Row(
                 children: const [
-                  Text('BODY', style: FacingTokens.h2),
+                  Text('BODY', style: FacingTokens.sectionLabel),
                   SizedBox(width: FacingTokens.sp2),
                   TermTip(term: 'Tier', iconSize: 16),
                 ],

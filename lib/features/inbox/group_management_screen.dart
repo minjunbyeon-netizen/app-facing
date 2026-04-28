@@ -97,7 +97,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
                 TextField(
                   controller: descCtrl,
                   decoration: const InputDecoration(
-                    labelText: 'Description (선택)',
+                    labelText: 'Description',
                   ),
                   maxLength: 200,
                 ),
@@ -150,7 +150,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
                 TextField(
                   controller: colorCtrl,
                   decoration: const InputDecoration(
-                    labelText: 'Color (#RRGGBB, 선택)',
+                    labelText: 'Color (#RRGGBB)',
                     hintText: '#EE2B2B',
                   ),
                 ),

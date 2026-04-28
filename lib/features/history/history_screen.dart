@@ -209,7 +209,7 @@ class _EngineSparkline extends StatelessWidget {
             textBaseline: TextBaseline.alphabetic,
             children: [
               Text('${engineScoreTo100(latest.overallScore)}',
-                  style: FacingTokens.displayCompact),
+                  style: FacingTokens.display),
               const SizedBox(width: FacingTokens.sp2),
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),

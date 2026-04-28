@@ -447,7 +447,7 @@ class _EngineTrendState extends State<_EngineTrend> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text('$current', style: FacingTokens.displayCompact),
+                      Text('$current', style: FacingTokens.display),
                       const SizedBox(width: FacingTokens.sp2),
                       Padding(
                         padding: const EdgeInsets.only(bottom: 10),
@@ -1020,7 +1020,7 @@ class _ActionsSection extends StatelessWidget {
                         foregroundColor: FacingTokens.muted,
                       ),
                       onPressed: () => _confirmSignOut(context),
-                      child: const Text('로그아웃'),
+                      child: const Text('Sign Out'),
                     ),
                   ],
                 ),
@@ -1143,22 +1143,22 @@ class _ActionsSection extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(FacingTokens.r5),
         ),
-        title: const Text('로그아웃'),
+        title: const Text('Sign Out.'),
         content: const Text(
           '로그아웃해도 프로필·기록은 이 기기에 그대로 유지됩니다.\n'
           '같은 provider로 다시 로그인하면 모든 데이터 복구.\n'
-          '계정 자체를 지우려면 Privacy Policy → 계정 탈퇴.',
+          '계정 자체를 지우려면 Privacy Policy → Delete Account.',
           style: FacingTokens.caption,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogCtx, false),
-            child: const Text('취소'),
+            child: const Text('Cancel'),
           ),
           TextButton(
             style: TextButton.styleFrom(foregroundColor: FacingTokens.muted),
             onPressed: () => Navigator.pop(dialogCtx, true),
-            child: const Text('로그아웃'),
+            child: const Text('Sign Out'),
           ),
         ],
       ),
@@ -1414,12 +1414,8 @@ class _RoleModelCardState extends State<_RoleModelCard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('SIGNATURE WOD',
-                      style: FacingTokens.micro.copyWith(
-                        color: FacingTokens.muted,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.2,
-                      )),
+                  const Text('SIGNATURE WOD',
+                      style: FacingTokens.sectionLabel),
                   const SizedBox(height: 2),
                   Text(a.signatureWod, style: FacingTokens.caption),
                 ],

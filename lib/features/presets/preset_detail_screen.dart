@@ -82,7 +82,7 @@ class PresetDetailScreen extends StatelessWidget {
                         .loadFromPreset(preset, movementBySlug);
                     Navigator.of(context).pushNamed('/result');
                   },
-                  child: const Text('계산하기'),
+                  child: const Text('Measure Engine'),
                 ),
               ),
             ),

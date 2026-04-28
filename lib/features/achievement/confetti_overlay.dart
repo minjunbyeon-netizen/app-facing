@@ -27,7 +27,7 @@ class ConfettiOverlay {
       builder: (ctx) => _ConfettiAnim(rarity: rarity),
     );
     overlay.insert(entry);
-    await Future.delayed(const Duration(milliseconds: 1500));
+    await Future.delayed(const Duration(milliseconds: 1400));
     entry.remove();
   }
 }
@@ -49,7 +49,7 @@ class _ConfettiAnimState extends State<_ConfettiAnim>
   void initState() {
     super.initState();
     final rng = math.Random();
-    _particles = List.generate(34, (i) {
+    _particles = List.generate(30, (i) {
       final angle = rng.nextDouble() * 2 * math.pi;
       final speed = 220 + rng.nextDouble() * 240; // px/sec
       return _Particle(

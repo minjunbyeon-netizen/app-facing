@@ -179,7 +179,7 @@ class _TrendsScreenState extends State<TrendsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text('${unlocked.length}',
-                          style: FacingTokens.displayCompact),
+                          style: FacingTokens.display),
                       const SizedBox(width: FacingTokens.sp2),
                       Padding(
                         padding: const EdgeInsets.only(bottom: 10),

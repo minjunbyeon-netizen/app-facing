@@ -71,7 +71,7 @@ class _CategorySheetState extends State<_CategorySheet> {
             const SizedBox(height: FacingTokens.sp3),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
-              child: Text('동작 선택', style: FacingTokens.h3),
+              child: Text('Select Movement.', style: FacingTokens.h3),
             ),
             const SizedBox(height: FacingTokens.sp3),
             // v1.16 Sprint 7a: 검색 필드.
@@ -124,7 +124,7 @@ class _CategorySheetState extends State<_CategorySheet> {
                   horizontal: FacingTokens.sp4,
                 ),
                 child: Text(
-                  '"$_query" 검색 결과 ${filtered.length}',
+                  '${filtered.length} results for "$_query"',
                   style: FacingTokens.caption,
                 ),
               ),
@@ -134,7 +134,7 @@ class _CategorySheetState extends State<_CategorySheet> {
                   ? const Center(
                       child: Padding(
                         padding: EdgeInsets.all(FacingTokens.sp5),
-                        child: Text('검색 결과 없음', style: FacingTokens.caption),
+                        child: Text('No results.', style: FacingTokens.caption),
                       ),
                     )
                   : ListView.separated(
@@ -312,7 +312,7 @@ class _ItemParamsSheetState extends State<_ItemParamsSheet> {
                 );
                 Navigator.of(context).pop(item);
               },
-              child: const Text('추가'),
+              child: const Text('Add'),
             ),
           ],
         ),

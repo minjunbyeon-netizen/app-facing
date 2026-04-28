@@ -521,7 +521,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
           const SizedBox(height: FacingTokens.sp4),
           if (n.title.isNotEmpty)
             Text(n.title,
-                style: FacingTokens.h2.copyWith(fontWeight: FontWeight.w800)),
+                style: FacingTokens.h3.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: FacingTokens.sp2),
           // v1.19 페르소나 P0-4 (M1 송): WHY 섹션 — 본문 위 고정.
           if (n.rationale != null && n.rationale!.isNotEmpty) ...[

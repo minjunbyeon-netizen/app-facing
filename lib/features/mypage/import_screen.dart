@@ -68,7 +68,7 @@ class ImportScreen extends StatelessWidget {
                 );
                 // TODO(go): Phase 2 — BTWB OAuth SDK 연결.
               },
-              child: const Text('BTWB 계정 연결 (Coming soon)'),
+              child: const Text('Connect BTWB (Coming soon)'),
             ),
             const SizedBox(height: FacingTokens.sp3),
             OutlinedButton(
@@ -82,7 +82,7 @@ class ImportScreen extends StatelessWidget {
                 );
                 // TODO(go): Phase 2 — file_picker + CSV 파서.
               },
-              child: const Text('CSV 파일 업로드 (Coming soon)'),
+              child: const Text('Upload CSV (Coming soon)'),
             ),
             const SizedBox(height: FacingTokens.sp5),
 

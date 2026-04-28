@@ -165,7 +165,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: FacingTokens.surfaceOverlay,
-        title: const Text('Fran PR 목표'),
+        title: const Text('Fran PR Target'),
         content: TextField(
           controller: ctrl,
           autofocus: true,
@@ -204,7 +204,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: FacingTokens.surfaceOverlay,
-        title: const Text('Back Squat 목표 (kg)'),
+        title: const Text('Back Squat Target (kg)'),
         content: TextField(
           controller: ctrl,
           autofocus: true,

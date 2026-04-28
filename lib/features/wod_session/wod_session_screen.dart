@@ -272,7 +272,7 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
                               if (!sheetCtx.mounted) return;
                               if (ok) Navigator.of(sheetCtx).pop();
                             },
-                      child: Text(_saving ? 'Saving…' : 'Save'),
+                      child: Text(_saving ? 'Saving.' : 'Save'),
                     ),
                   ),
                 ],

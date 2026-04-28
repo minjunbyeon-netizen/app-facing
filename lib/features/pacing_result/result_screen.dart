@@ -318,7 +318,7 @@ class _ResultBody extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(plan.estimatedTotalDisplay,
-                style: FacingTokens.displayCompact),
+                style: FacingTokens.display),
             const SizedBox(width: FacingTokens.sp2),
             Padding(
               padding: const EdgeInsets.only(bottom: 10),
@@ -401,29 +401,19 @@ class _ResultBody extends StatelessWidget {
                     ),
                     const SizedBox(height: FacingTokens.sp4),
                     // 핵심 공식 요약.
-                    Text('PACING FORMULA',
-                        style: FacingTokens.micro.copyWith(
-                          color: FacingTokens.muted,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 1.0,
-                        )),
+                    const Text('PACING FORMULA',
+                        style: FacingTokens.sectionLabel),
                     const SizedBox(height: FacingTokens.sp2),
                     Text(
                       'Split = max_ub × first_ratio × (descending_step)^n\n'
                       'Burst: T ≥ T_boundary (등급별 0.75~0.95)\n'
                       'Rest = base × phase × category × load × wod_type',
-                      style: FacingTokens.caption.copyWith(
-                        fontFamily: 'monospace',
-                      ),
+                      style: FacingTokens.codeBlock,
                     ),
                     const SizedBox(height: FacingTokens.sp4),
                     // 근거 논문·표준.
-                    Text('REFERENCES',
-                        style: FacingTokens.micro.copyWith(
-                          color: FacingTokens.muted,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 1.0,
-                        )),
+                    const Text('REFERENCES',
+                        style: FacingTokens.sectionLabel),
                     const SizedBox(height: FacingTokens.sp2),
                     ...kFormulaReferences.map((r) => Padding(
                           padding: const EdgeInsets.symmetric(

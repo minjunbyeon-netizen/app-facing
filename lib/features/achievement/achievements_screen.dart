@@ -226,7 +226,7 @@ class _StatsHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Text('$unlocked', style: FacingTokens.h1),
+              Text('$unlocked', style: FacingTokens.display),
               const SizedBox(width: FacingTokens.sp1),
               Text('/ $total',
                   style: FacingTokens.h3.copyWith(color: FacingTokens.muted)),
@@ -365,7 +365,7 @@ class _FeaturedPanel extends StatelessWidget {
           const SizedBox(height: FacingTokens.sp1),
           Text(
             isHidden ? '???' : catalog.name,
-            style: FacingTokens.h2.copyWith(
+            style: FacingTokens.h3.copyWith(
               color: unlockedInUi ? FacingTokens.fg : FacingTokens.muted,
             ),
           ),

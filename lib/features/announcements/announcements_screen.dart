@@ -73,7 +73,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
               TextField(
                 controller: titleCtrl,
                 decoration: const InputDecoration(
-                  labelText: '제목 (선택)',
+                  labelText: 'Title',
                 ),
                 maxLength: 120,
               ),
@@ -81,7 +81,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
               TextField(
                 controller: bodyCtrl,
                 decoration: const InputDecoration(
-                  labelText: '본문',
+                  labelText: 'Body',
                   hintText: '멤버에게 전달할 내용',
                 ),
                 maxLines: 5,

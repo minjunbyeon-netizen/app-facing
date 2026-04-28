@@ -217,7 +217,7 @@ class _WodPostScreenState extends State<WodPostScreen> {
               }).toList(),
             ),
             const SizedBox(height: FacingTokens.sp4),
-            const Text('RX (기본)', style: FacingTokens.sectionLabel),
+            const Text('RX', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp2),
             TextField(
               controller: _contentCtrl,
@@ -229,7 +229,7 @@ class _WodPostScreenState extends State<WodPostScreen> {
               maxLength: 2000,
             ),
             const SizedBox(height: FacingTokens.sp3),
-            const Text('SCALED (선택)', style: FacingTokens.sectionLabel),
+            const Text('SCALED', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp2),
             TextField(
               controller: _scaledCtrl,
@@ -241,7 +241,7 @@ class _WodPostScreenState extends State<WodPostScreen> {
               maxLength: 2000,
             ),
             const SizedBox(height: FacingTokens.sp3),
-            const Text('BEGINNER (선택)', style: FacingTokens.sectionLabel),
+            const Text('BEGINNER', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp2),
             TextField(
               controller: _beginnerCtrl,
@@ -362,7 +362,7 @@ class _WodPostScreenState extends State<WodPostScreen> {
             const SizedBox(height: FacingTokens.sp4),
             ElevatedButton(
               onPressed: _submitting ? null : _submit,
-              child: Text(_submitting ? 'Posting...' : 'Post WOD'),
+              child: Text(_submitting ? 'Posting.' : 'Post WOD'),
             ),
           ],
         ),

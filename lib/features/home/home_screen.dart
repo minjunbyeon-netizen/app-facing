@@ -68,11 +68,11 @@ class HomeScreen extends StatelessWidget {
                 },
               ),
               // v1.15.3: 제목 영역 대문자 + 마침표 제거.
-              const Text("TODAY'S WOD\nPULL YOUR SPLIT",
+              const Text("Today's WOD.\nPull your Split.",
                   style: FacingTokens.h1),
               const SizedBox(height: FacingTokens.sp2),
               const Text(
-                'RX부터 Games까지. Split과 Burst 자동 계산.',
+                'RX to Games. Auto Split · Burst.',
                 style: FacingTokens.caption,
               ),
               const Spacer(),
@@ -84,7 +84,7 @@ class HomeScreen extends StatelessWidget {
                     children: [
                       if (missing) ...[
                         const Text(
-                          '1RM 없음. 먼저 입력.',
+                          'No 1RM. Enter first.',
                           style: FacingTokens.caption,
                         ),
                         const SizedBox(height: FacingTokens.sp3),

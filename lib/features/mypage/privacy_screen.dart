@@ -62,7 +62,7 @@ class PrivacyScreen extends StatelessWidget {
                 side: const BorderSide(color: FacingTokens.error),
               ),
               onPressed: () => _confirmDelete(context),
-              child: const Text('계정 탈퇴 (Delete Account)'),
+              child: const Text('Delete Account'),
             ),
             const SizedBox(height: FacingTokens.sp3),
             const Text(
@@ -89,7 +89,7 @@ class PrivacyScreen extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(FacingTokens.r5),
         ),
-        title: const Text('계정 탈퇴'),
+        title: const Text('Delete Account.'),
         content: const Text(
           '서버·로컬 모든 데이터가 영구 삭제됩니다.\n'
           '복구 불가. 계속하시겠습니까?',
@@ -98,12 +98,12 @@ class PrivacyScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('취소'),
+            child: const Text('Cancel'),
           ),
           TextButton(
             style: TextButton.styleFrom(foregroundColor: FacingTokens.error),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('탈퇴'),
+            child: const Text('Delete'),
           ),
         ],
       ),

@@ -51,9 +51,9 @@ class _OnboardingGradeScreenState extends State<OnboardingGradeScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text('1RM 없음.', style: FacingTokens.h2),
+                const Text('No 1RM.', style: FacingTokens.h2),
                 const SizedBox(height: FacingTokens.sp2),
-                const Text('먼저 입력. Benchmarks 완료하면 Tier 확정.',
+                const Text('Enter first. Benchmarks 완료하면 Tier 확정.',
                     style: FacingTokens.caption),
                 const SizedBox(height: FacingTokens.sp6),
                 ElevatedButton(
