@@ -200,12 +200,7 @@ class _LeaderRow extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(metricLabel,
-                  style: FacingTokens.micro.copyWith(
-                    color: FacingTokens.muted,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.2,
-                  )),
+              Text(metricLabel, style: FacingTokens.microLabel),
               Text(metric,
                   style: FacingTokens.h3.copyWith(
                     fontFeatures: FacingTokens.tabular,

@@ -257,7 +257,6 @@ class _ProgressRow extends StatelessWidget {
               style: FacingTokens.micro.copyWith(
                 color: done ? FacingTokens.accent : FacingTokens.muted,
                 fontWeight: FontWeight.w800,
-                letterSpacing: 0.8,
                 fontFeatures: FacingTokens.tabular,
               ),
             ),

@@ -492,10 +492,9 @@ class _SegmentCard extends StatelessWidget {
               ),
               if (accent) ...[
                 Text('BURST',
-                    style: FacingTokens.micro.copyWith(
+                    style: FacingTokens.microLabel.copyWith(
                       color: FacingTokens.accent,
                       fontWeight: FontWeight.w800,
-                      letterSpacing: 1.0,
                     )),
                 const SizedBox(width: FacingTokens.sp2),
               ],

@@ -296,12 +296,7 @@ class _RosterRow extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Text(label,
-            style: FacingTokens.micro.copyWith(
-              color: FacingTokens.muted,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 1.2,
-            )),
+        Text(label, style: FacingTokens.microLabel),
         Text(value,
             style: FacingTokens.body.copyWith(
               fontFeatures: FacingTokens.tabular,
@@ -320,10 +315,9 @@ class _RosterRow extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: FacingTokens.micro.copyWith(
+        style: FacingTokens.microLabel.copyWith(
           color: color,
           fontWeight: FontWeight.w800,
-          letterSpacing: 1.2,
         ),
       ),
     );
@@ -371,10 +365,9 @@ class _MemberDetailSheet extends StatelessWidget {
                 ),
                 Text(
                   member.status.toUpperCase(),
-                  style: FacingTokens.micro.copyWith(
+                  style: FacingTokens.microLabel.copyWith(
                     color: FacingTokens.accent,
                     fontWeight: FontWeight.w800,
-                    letterSpacing: 1.2,
                   ),
                 ),
               ],
@@ -587,12 +580,7 @@ class _MemberDetailSheet extends StatelessWidget {
         children: [
           SizedBox(
             width: 110,
-            child: Text(k,
-                style: FacingTokens.micro.copyWith(
-                  color: FacingTokens.muted,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.2,
-                )),
+            child: Text(k, style: FacingTokens.microLabel),
           ),
           Expanded(
             child: Text(v,

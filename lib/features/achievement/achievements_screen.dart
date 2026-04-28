@@ -301,10 +301,9 @@ class _FilterRow extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 label.toUpperCase(),
-                style: FacingTokens.micro.copyWith(
+                style: FacingTokens.microLabel.copyWith(
                   color: selected ? FacingTokens.bg : FacingTokens.muted,
                   fontWeight: FontWeight.w800,
-                  letterSpacing: 1.2,
                 ),
               ),
             ),
@@ -356,10 +355,9 @@ class _FeaturedPanel extends StatelessWidget {
           const SizedBox(height: FacingTokens.sp3),
           Text(
             catalog.rarity.toUpperCase(),
-            style: FacingTokens.micro.copyWith(
+            style: FacingTokens.microLabel.copyWith(
               color: color,
               fontWeight: FontWeight.w800,
-              letterSpacing: 1.6,
             ),
           ),
           const SizedBox(height: FacingTokens.sp1),
@@ -402,7 +400,6 @@ class _FeaturedPanel extends StatelessWidget {
                   style: FacingTokens.micro.copyWith(
                     color: FacingTokens.success,
                     fontWeight: FontWeight.w700,
-                    letterSpacing: 0.6,
                   ),
                 ),
               ],
@@ -411,19 +408,13 @@ class _FeaturedPanel extends StatelessWidget {
             // demoUnlocked (백엔드 trigger 미연동) — 'Demo' 표시.
             const Divider(height: 1, color: FacingTokens.border),
             const SizedBox(height: FacingTokens.sp2),
-            Text('Demo unlocked.',
-                style: FacingTokens.micro.copyWith(
-                  color: FacingTokens.muted,
-                  letterSpacing: 0.6,
-                )),
+            Text('Demo unlocked.', style: FacingTokens.micro),
           ] else ...[
             const Divider(height: 1, color: FacingTokens.border),
             const SizedBox(height: FacingTokens.sp2),
             Text('LOCKED',
-                style: FacingTokens.micro.copyWith(
-                  color: FacingTokens.muted,
+                style: FacingTokens.microLabel.copyWith(
                   fontWeight: FontWeight.w800,
-                  letterSpacing: 1.6,
                 )),
           ],
         ],
@@ -543,7 +534,6 @@ class _GridCell extends StatelessWidget {
                 style: FacingTokens.micro.copyWith(
                   color: unlocked ? FacingTokens.fg : FacingTokens.muted,
                   fontWeight: FontWeight.w800,
-                  letterSpacing: 0.6,
                 ),
               ),
             ),

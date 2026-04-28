@@ -139,10 +139,8 @@ class _TierSnapshot extends StatelessWidget {
                 padding: const EdgeInsets.only(top: FacingTokens.sp2),
                 child: Text(
                   label,
-                  style: FacingTokens.micro.copyWith(
-                    color: FacingTokens.muted,
+                  style: FacingTokens.microLabel.copyWith(
                     fontWeight: FontWeight.w800,
-                    letterSpacing: 1.0,
                   ),
                 ),
               );
@@ -381,12 +379,15 @@ class _EngineTrendState extends State<_EngineTrend> {
               // Overall 숫자·delta는 history snapshot에서, radar 값은 gradeResult에서.
               final latest = records.isNotEmpty ? records.first : null;
               final prev = records.length > 1 ? records[1] : null;
-              final current = latest == null
-                  ? 0
-                  : engineScoreTo100(latest.overallScore);
+              // /go: history 없을 시 gradeResult.overall_score 로 fallback.
+              // 이전엔 records 비어있으면 0/100 표시되어 _TierSnapshot(69/100)과 불일치.
+              final current = latest != null
+                  ? engineScoreTo100(latest.overallScore)
+                  : engineScoreTo100(grade?['overall_score']);
               final delta = (latest != null && prev != null)
                   ? current - engineScoreTo100(prev.overallScore)
                   : 0;
+              final hasScore = current > 0;
               // /go Tier 3: EngineDecay 연결 — history_screen 와 동일 패턴.
               // 30일+ 무측정 시 STALE 라벨 + 감산 안내. 원본 점수 보존, 표시값만 변환.
               final daysSinceLast = latest == null
@@ -427,10 +428,9 @@ class _EngineTrendState extends State<_EngineTrend> {
                           ),
                           child: Text(
                             decayLabel,
-                            style: FacingTokens.micro.copyWith(
+                            style: FacingTokens.microLabel.copyWith(
                               color: FacingTokens.warning,
                               fontWeight: FontWeight.w800,
-                              letterSpacing: 1.0,
                             ),
                           ),
                         ),
@@ -449,7 +449,8 @@ class _EngineTrendState extends State<_EngineTrend> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text('$current', style: FacingTokens.display),
+                      Text(hasScore ? '$current' : '—',
+                          style: FacingTokens.display),
                       const SizedBox(width: FacingTokens.sp2),
                       Padding(
                         padding: const EdgeInsets.only(bottom: 10),
@@ -526,7 +527,7 @@ class _EngineTrendState extends State<_EngineTrend> {
                                     ? FacingTokens.success
                                     : FacingTokens.accent,
                                 fontWeight: FontWeight.w800,
-                                letterSpacing: 1.0,
+                                letterSpacing: 1.2,
                               ),
                             ),
                             const SizedBox(height: FacingTokens.sp1),
@@ -1277,10 +1278,8 @@ class _TierRoadmap extends StatelessWidget {
             const SizedBox(height: FacingTokens.sp3),
             if (weak != null) ...[
               Text('FOCUS · ${weak.weakestCategory.toUpperCase()}',
-                  style: FacingTokens.micro.copyWith(
+                  style: FacingTokens.microLabel.copyWith(
                     color: FacingTokens.accent,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.2,
                   )),
               const SizedBox(height: 2),
               Text(weak.comment, style: FacingTokens.caption),
@@ -1563,11 +1562,7 @@ class _WornTitleLineState extends State<_WornTitleLine> {
               width: 96,
               child: Text(
                 'WORN TITLE',
-                style: FacingTokens.micro.copyWith(
-                  color: FacingTokens.muted,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.2,
-                ),
+                style: FacingTokens.microLabel,
               ),
             ),
             Expanded(

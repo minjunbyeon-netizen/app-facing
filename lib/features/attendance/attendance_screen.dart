@@ -334,12 +334,7 @@ class _AttendanceBody extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('LESS',
-                style: FacingTokens.micro.copyWith(
-                  color: FacingTokens.muted,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.2,
-                )),
+            Text('LESS', style: FacingTokens.microLabel),
             const SizedBox(width: FacingTokens.sp2),
             ...List.generate(4, (i) {
               final intensity = (i + 1) * 0.25;
@@ -357,10 +352,8 @@ class _AttendanceBody extends StatelessWidget {
             }),
             const SizedBox(width: FacingTokens.sp2),
             Text('MORE',
-                style: FacingTokens.micro.copyWith(
+                style: FacingTokens.microLabel.copyWith(
                   color: FacingTokens.accent,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.2,
                 )),
           ],
         ),
@@ -498,11 +491,7 @@ class _StatLine extends StatelessWidget {
             width: 140,
             child: Text(
               label,
-              style: FacingTokens.micro.copyWith(
-                color: FacingTokens.muted,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1.2,
-              ),
+              style: FacingTokens.microLabel,
             ),
           ),
           Expanded(
@@ -675,7 +664,6 @@ class _WeekdayLabel extends StatelessWidget {
         child: Text(label,
             style: FacingTokens.micro.copyWith(
               fontWeight: FontWeight.w700,
-              letterSpacing: 0.1,
             )),
       ),
     );

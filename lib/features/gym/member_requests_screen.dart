@@ -248,12 +248,11 @@ class _RequestRow extends StatelessWidget {
               children: [
                 Text(
                   req.status.toUpperCase(),
-                  style: FacingTokens.micro.copyWith(
+                  style: FacingTokens.microLabel.copyWith(
                     color: isOpen
                         ? FacingTokens.accent
                         : FacingTokens.muted,
                     fontWeight: FontWeight.w800,
-                    letterSpacing: 1.2,
                   ),
                 ),
                 const SizedBox(width: FacingTokens.sp2),

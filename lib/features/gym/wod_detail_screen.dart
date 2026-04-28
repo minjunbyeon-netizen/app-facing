@@ -453,11 +453,7 @@ class _ResultRow extends StatelessWidget {
                 if (result.scaleLevel != 'rx')
                   Text(
                     result.scaleLevel.toUpperCase(),
-                    style: FacingTokens.micro.copyWith(
-                      color: FacingTokens.muted,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 1.2,
-                    ),
+                    style: FacingTokens.microLabel,
                   ),
               ],
             ),
@@ -503,10 +499,9 @@ class _FeedbackCard extends StatelessWidget {
             children: [
               Text(
                 fb.isMine ? 'COACH → YOU' : 'COACH → ${fb.memberHashPrefix}',
-                style: FacingTokens.micro.copyWith(
+                style: FacingTokens.microLabel.copyWith(
                   color: FacingTokens.accent,
                   fontWeight: FontWeight.w800,
-                  letterSpacing: 1.2,
                 ),
               ),
               const Spacer(),
@@ -553,12 +548,11 @@ class _CommentRow extends StatelessWidget {
             children: [
               Text(
                 comment.isMine ? 'You' : 'user:${comment.authorPrefix}',
-                style: FacingTokens.micro.copyWith(
+                style: FacingTokens.microLabel.copyWith(
                   color: comment.isMine
                       ? FacingTokens.accent
                       : FacingTokens.muted,
                   fontWeight: FontWeight.w800,
-                  letterSpacing: 1.2,
                 ),
               ),
               const Spacer(),

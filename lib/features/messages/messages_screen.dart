@@ -218,7 +218,6 @@ class _MessageBubble extends StatelessWidget {
               style: FacingTokens.micro.copyWith(
                 color: FacingTokens.muted,
                 fontWeight: FontWeight.w700,
-                letterSpacing: 0.8,
               ),
             ),
           Text(msg.body, style: FacingTokens.body),

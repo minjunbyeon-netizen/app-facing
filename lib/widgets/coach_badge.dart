@@ -19,7 +19,6 @@ class CoachBadge extends StatelessWidget {
         'COACH',
         style: FacingTokens.sectionLabel.copyWith(
           color: FacingTokens.tierElite,
-          letterSpacing: 1.6,
           height: 1.0,
         ),
       ),

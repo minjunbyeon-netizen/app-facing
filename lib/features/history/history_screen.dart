@@ -184,10 +184,9 @@ class _EngineSparkline extends StatelessWidget {
                       ),
                       child: Text(
                         decayLabel,
-                        style: FacingTokens.micro.copyWith(
+                        style: FacingTokens.microLabel.copyWith(
                           color: FacingTokens.warning,
                           fontWeight: FontWeight.w800,
-                          letterSpacing: 1.0,
                         ),
                       ),
                     ),

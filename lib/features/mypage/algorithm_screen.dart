@@ -127,14 +127,7 @@ class _FormulaLine extends StatelessWidget {
         children: [
           SizedBox(
             width: 84,
-            child: Text(
-              label,
-              style: FacingTokens.micro.copyWith(
-                color: FacingTokens.muted,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1.2,
-              ),
-            ),
+            child: Text(label, style: FacingTokens.microLabel),
           ),
           Expanded(
             child: Text(value,
@@ -177,10 +170,9 @@ class _TierRow extends StatelessWidget {
             ),
             child: Text(
               tier.toUpperCase(),
-              style: FacingTokens.micro.copyWith(
+              style: FacingTokens.microLabel.copyWith(
                 color: color,
                 fontWeight: FontWeight.w800,
-                letterSpacing: 1.6,
               ),
             ),
           ),

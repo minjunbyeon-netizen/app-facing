@@ -271,7 +271,7 @@ class _PendingState extends StatelessWidget {
               style: FacingTokens.h3.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: FacingTokens.sp2),
           const Text(
-            '코치 승인 대기 중. 승인되면 오늘의 WOD이 표시됨.',
+            '코치 승인 대기 중. 승인되면 오늘의 WOD 표시.',
             style: FacingTokens.caption,
           ),
           const SizedBox(height: FacingTokens.sp5),
@@ -383,10 +383,9 @@ class _WodCard extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: FacingTokens.micro.copyWith(
+        style: FacingTokens.microLabel.copyWith(
           color: accent ? FacingTokens.accent : FacingTokens.muted,
           fontWeight: FontWeight.w800,
-          letterSpacing: 1.0,
         ),
       ),
     );
@@ -498,10 +497,9 @@ class _WodCard extends StatelessWidget {
                             r.label.isEmpty
                                 ? 'ROUND ${i + 1}'
                                 : r.label.toUpperCase(),
-                            style: FacingTokens.micro.copyWith(
+                            style: FacingTokens.microLabel.copyWith(
                               color: FacingTokens.accent,
                               fontWeight: FontWeight.w800,
-                              letterSpacing: 1.2,
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -530,11 +528,7 @@ class _WodCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('SCALE GUIDE',
-                            style: FacingTokens.micro.copyWith(
-                              color: FacingTokens.muted,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 1.2,
-                            )),
+                            style: FacingTokens.microLabel),
                         const SizedBox(height: 2),
                         Text(wod.scaleGuide!, style: FacingTokens.caption),
                       ],

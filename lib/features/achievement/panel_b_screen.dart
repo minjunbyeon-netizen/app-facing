@@ -454,7 +454,6 @@ class _TitleCard extends StatelessWidget {
                                 style: FacingTokens.sectionLabel.copyWith(
                                   color: FacingTokens.fg,
                                   fontWeight: FontWeight.w800,
-                                  letterSpacing: 1.0,
                                 ),
                               ),
                             ),
@@ -462,10 +461,9 @@ class _TitleCard extends StatelessWidget {
                           ],
                           Text(
                             title.rarity.toUpperCase(),
-                            style: FacingTokens.micro.copyWith(
+                            style: FacingTokens.microLabel.copyWith(
                               color: _rarityColor(),
                               fontWeight: FontWeight.w800,
-                              letterSpacing: 1.2,
                             ),
                           ),
                         ],
@@ -568,10 +566,9 @@ class _SeasonBadgesPanel extends StatelessWidget {
                       ),
                       child: Text(
                         code.replaceFirst('SEASON_', ''),
-                        style: FacingTokens.micro.copyWith(
+                        style: FacingTokens.microLabel.copyWith(
                           color: FacingTokens.fg,
                           fontWeight: FontWeight.w800,
-                          letterSpacing: 1.0,
                         ),
                       ),
                     );

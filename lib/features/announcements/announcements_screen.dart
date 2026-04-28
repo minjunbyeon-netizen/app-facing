@@ -237,10 +237,9 @@ class _AnnouncementCard extends StatelessWidget {
             children: [
               Text(
                 item.priority.toUpperCase(),
-                style: FacingTokens.micro.copyWith(
+                style: FacingTokens.microLabel.copyWith(
                   color: accent,
                   fontWeight: FontWeight.w800,
-                  letterSpacing: 1.2,
                 ),
               ),
               const Spacer(),

@@ -173,7 +173,6 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                       child: Text('SET ${i + 1}',
                           style: FacingTokens.micro.copyWith(
                             fontWeight: FontWeight.w800,
-                            letterSpacing: 0.6,
                           )),
                     ),
                     Expanded(
@@ -483,10 +482,8 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                   children: [
                     Text(
                       'COACH',
-                      style: FacingTokens.micro.copyWith(
-                        color: FacingTokens.muted,
+                      style: FacingTokens.microLabel.copyWith(
                         fontWeight: FontWeight.w800,
-                        letterSpacing: 1.2,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -509,10 +506,9 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                   n.isAuto
                       ? 'AUTO'
                       : (n.kind == 'assignment' ? 'ASSIGNMENT' : 'NOTE'),
-                  style: FacingTokens.micro.copyWith(
+                  style: FacingTokens.microLabel.copyWith(
                     color: n.isAuto ? FacingTokens.success : color,
                     fontWeight: FontWeight.w800,
-                    letterSpacing: 1.2,
                   ),
                 ),
               ),
@@ -666,7 +662,6 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                 ? FacingTokens.success
                 : FacingTokens.muted,
             fontWeight: FontWeight.w800,
-            letterSpacing: 0.4,
           ),
         ),
       );
@@ -763,7 +758,6 @@ class _RecipientsList extends StatelessWidget {
                     style: FacingTokens.micro.copyWith(
                       color: _statusColor(r.status),
                       fontWeight: FontWeight.w800,
-                      letterSpacing: 0.6,
                     ),
                   ),
                 ],

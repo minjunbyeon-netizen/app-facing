@@ -91,9 +91,8 @@ class _InboxScreenState extends State<InboxScreen>
           indicatorColor: FacingTokens.accent,
           labelColor: FacingTokens.fg,
           unselectedLabelColor: FacingTokens.muted,
-          labelStyle: FacingTokens.micro.copyWith(
+          labelStyle: FacingTokens.microLabel.copyWith(
             fontWeight: FontWeight.w800,
-            letterSpacing: 1.2,
           ),
           tabs: tabs,
         ),
@@ -276,23 +275,18 @@ class CoachDossierTile extends StatelessWidget {
                         note.isAuto
                             ? 'AUTO'
                             : (note.kind == 'assignment' ? 'ASSIGNMENT' : 'NOTE'),
-                        style: FacingTokens.micro.copyWith(
+                        style: FacingTokens.microLabel.copyWith(
                           color: note.isAuto
                               ? FacingTokens.success
                               : stripeColor,
                           fontWeight: FontWeight.w800,
-                          letterSpacing: 1.2,
                         ),
                       ),
                       const SizedBox(width: FacingTokens.sp2),
                       Flexible(
                         child: Text(
                           'COACH · ${senderLabel.toUpperCase()}',
-                          style: FacingTokens.micro.copyWith(
-                            color: FacingTokens.muted,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 1.0,
-                          ),
+                          style: FacingTokens.microLabel,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -493,19 +487,16 @@ class _OutboxViewState extends State<_OutboxView> {
                 children: [
                   Text(
                     'TO ${_targetLabel(o.note)}',
-                    style: FacingTokens.micro.copyWith(
-                      color: FacingTokens.muted,
+                    style: FacingTokens.microLabel.copyWith(
                       fontWeight: FontWeight.w800,
-                      letterSpacing: 1.0,
                     ),
                   ),
                   const Spacer(),
                   Text(
                     o.note.kind.toUpperCase(),
-                    style: FacingTokens.micro.copyWith(
+                    style: FacingTokens.microLabel.copyWith(
                       color: FacingTokens.accent,
                       fontWeight: FontWeight.w800,
-                      letterSpacing: 1.0,
                     ),
                   ),
                 ],
