@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../core/api_client.dart';
 import '../../core/exception.dart';
@@ -26,11 +27,50 @@ class ResultScreen extends StatefulWidget {
 class _ResultScreenState extends State<ResultScreen> {
   late Future<PacingPlan> _future;
   bool _hapticFired = false;
+  /// /go Phase 3: Share 버튼 → 캐시된 plan 사용 (FutureBuilder 외부 접근).
+  PacingPlan? _resolvedPlan;
 
   @override
   void initState() {
     super.initState();
     _future = _calculate();
+  }
+
+  /// /go Phase 3: WOD 결과 텍스트 공유.
+  /// 형식: 'FACING WOD\n예상 완주 M:SS\n분할: 15-12-10\n#facing #crossfit'
+  Future<void> _shareResult() async {
+    Haptic.light();
+    final plan = _resolvedPlan;
+    if (plan == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('계산 완료 후 공유 가능.'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+    final draft = context.read<WodDraftState>();
+    final profile = context.read<ProfileState>();
+    final lines = <String>[];
+    lines.add('FACING WOD');
+    if (draft.presetNameKo != null) {
+      lines.add('${draft.presetNameKo}');
+    }
+    lines.add('예상 완주 ${plan.estimatedTotalDisplay}');
+    if (plan.segments.isNotEmpty) {
+      final firstSeg = plan.segments.first;
+      if (firstSeg.splitPattern.isNotEmpty) {
+        lines.add('분할: ${firstSeg.splitPattern.join('-')}');
+      }
+    }
+    if (profile.overallGrade != null) {
+      lines.add('Tier: ${profile.overallGrade}');
+    }
+    lines.add('');
+    lines.add('#facing #crossfit');
+    final text = lines.join('\n');
+    await Share.share(text);
   }
 
   Future<PacingPlan> _calculate() async {
@@ -99,20 +139,12 @@ class _ResultScreenState extends State<ResultScreen> {
       appBar: AppBar(
         title: const Text('PACING STRATEGY'),
         actions: [
-          // v1.16 Sprint 8 U2: 결과 공유 placeholder.
+          // /go Phase 3: 결과 공유 — share_plus 텍스트 공유.
+          // RepaintBoundary 카드 캡처는 후속 트랙 (이미지 공유).
           IconButton(
             tooltip: 'Share',
             icon: const Icon(Icons.share, size: 20),
-            onPressed: () {
-              Haptic.light();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('결과 카드 공유는 Phase 2에서 지원 예정.'),
-                  duration: Duration(seconds: 2),
-                ),
-              );
-              // TODO(go): Phase 2 — RepaintBoundary로 카드 캡처 + Share API 연결.
-            },
+            onPressed: _shareResult,
           ),
         ],
       ),
@@ -139,6 +171,7 @@ class _ResultScreenState extends State<ResultScreen> {
             );
           }
           final plan = snap.data!;
+          _resolvedPlan = plan; // /go Phase 3: Share 버튼이 접근.
           _fireResultHaptic();
           return _ResultBody(plan: plan);
         },

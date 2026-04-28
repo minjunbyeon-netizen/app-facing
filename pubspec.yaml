@@ -18,6 +18,8 @@ dependencies:
   google_fonts: ^6.2.1
   flutter_svg: ^2.0.10+1
   wakelock_plus: ^1.2.8
+  # /go Phase 3: SNS 공유 (WOD 결과 카드 텍스트 공유).
+  share_plus: ^10.0.0
 
 dev_dependencies:
   flutter_test:
