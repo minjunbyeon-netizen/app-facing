@@ -3,7 +3,8 @@
     "allow": [
       "PowerShell(adb *)",
       "Skill(schedule)",
-      "PowerShell(Start-Process \"docs\\\\ABOUT.md\")"
+      "PowerShell(Start-Process \"docs\\\\ABOUT.md\")",
+      "PowerShell(New-Item *)"
     ]
   }
 }
