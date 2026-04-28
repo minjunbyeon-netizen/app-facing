@@ -177,14 +177,16 @@ RATIONALE: Open 대비 leg drive 강화. 5주 누적 후 1RM 테스트.
 
 ## 8. 박스 / 멤버 / 코치 구조 (양방향 lock-in)
 
-| 역할 | 권한 | 비즈니스 가치 |
-|---|---|---|
-| **혼자 사용자** (no-gym) | 페이싱 · Engine 측정 · 업적 | B2C 진입점, 박스 가입 funnel |
-| **박스 멤버 (Pending)** | 가입 신청 후 코치 승인 대기 | 멤버 ↔ 박스 양방향 lock-in 시작 |
-| **박스 멤버 (Approved)** | 코치 WOD · 인박스 · 숙제 · 리더보드 | retention 극대화 |
-| **코치 (Owner)** | WOD 등록 · 인박스 발송 · 숙제 · 멤버 관리 | B2B SaaS 기반 |
+| 역할 | 클라이언트 mode | 권한 | 비즈니스 가치 |
+|---|---|---|---|
+| **혼자 사용자** (no-gym) | Solo | 페이싱 · Engine 측정 · 업적 | B2C 진입점, 박스 가입 funnel |
+| **박스 멤버 (Pending)** | Member | 가입 신청 후 코치 승인 대기 | 멤버 ↔ 박스 양방향 lock-in 시작 |
+| **박스 멤버 (Approved)** | Member | 코치 WOD · 인박스 · 숙제 · 리더보드 | retention 극대화 |
+| **코치 (Owner)** | Coach | WOD 등록 · 인박스 발송 · 숙제 · 멤버 관리 | B2B SaaS 기반 |
 
 박스 멤버 retention ↑ → 코치 도구 의존도 ↑ → **양방향 lock-in**.
+
+Solo→Member 전환율(월 ≥ 10%) = lock-in 루프의 첫 dial. 미달 시 박스 검색 진입점 디자인 재검토.
 
 ---
 
