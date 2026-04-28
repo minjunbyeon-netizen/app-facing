@@ -42,7 +42,7 @@ class ApiClient {
   static ApiClient create() {
     final dio = Dio(BaseOptions(
       baseUrl: baseUrl,
-      connectTimeout: const Duration(seconds: 5),
+      connectTimeout: const Duration(seconds: 3),
       receiveTimeout: const Duration(seconds: 10),
       contentType: 'application/json',
       responseType: ResponseType.json,
@@ -131,12 +131,15 @@ class ApiClient {
   Map<String, dynamic> _unwrap(Response res) => _unwrapMap(res);
 
   AppException _mapDio(DioException e) {
+    // v1.20: connect 실패(=백엔드 OFF/네트워크 차단)와 receive 지연(=요청 후 응답 지연)을 분리.
+    // 기존 connectionTimeout이 TIMEOUT 메시지로 떨어져 "백엔드 OFF" 상황을 가렸음.
     if (e.type == DioExceptionType.connectionTimeout ||
-        e.type == DioExceptionType.receiveTimeout) {
-      return AppException('서버 응답이 지연됩니다', code: 'TIMEOUT');
+        e.type == DioExceptionType.connectionError) {
+      return AppException('백엔드 OFF · 잠시 후 재시도', code: 'NETWORK');
     }
-    if (e.type == DioExceptionType.connectionError) {
-      return AppException('서버에 연결할 수 없습니다', code: 'NETWORK');
+    if (e.type == DioExceptionType.receiveTimeout ||
+        e.type == DioExceptionType.sendTimeout) {
+      return AppException('서버 응답이 지연됩니다', code: 'TIMEOUT');
     }
     final data = e.response?.data;
     if (data is Map && data['error'] != null) {
