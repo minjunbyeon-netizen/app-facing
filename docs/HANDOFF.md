@@ -1,98 +1,100 @@
-# HANDOFF - 2026-04-28 09:30 (v1.20 · /go A→B→C 완료)
+# HANDOFF — 2026-04-28 16:38
 
-## 완료 (이번 세션 — /go 파이프라인)
+## 완료
 
-### 트랙 A — QA v1.20 잔여 4건 (`f015e3e`)
-- **B-LW-5** theme: GoogleFonts.bodoniModa 4건 fontFamilyFallback=Pretendard. 오프라인/캐시 미스 시 한글·UI 안전 보장.
-- **B-LW-6** CLAUDE.md: micro 토큰 11sp → 13sp 정정 (v1.19 P0-8 노안 가독성 반영).
-- **B-PF-6** attendance: limit 200 매직넘버 → `_kHistoryLimit` 상수 + 이유 주석.
-- **B-PF-7** trends: `15 - visibleTotal` 하드코드 제거. snap.catalog.length 단독 분모.
+### 6-pager v1.1 갱신 (10건 — facing-app 측 SSOT 정합 종료)
+- [x] §1 Market Opportunity v1.1 — 한국 박스 250 → 600 / Solo→Member funnel
+- [x] §2 Pacing Intelligence v1.1 — Engine Score 3 변수 분리 (0~6 / 0~100 / 1~6) / Solo 미영향
+- [x] §3 WOD Broadcasting v1.1 — mode 컬럼 + timeCapSec / GymWodComment / GymWodResult.scaleLevel
+- [x] §4 Coach Notes v1.1 — 5 액션 (markRead/Accept/Complete/Decline/AskCoach) + Mode 게이트 + 거절 사유 영문 코드
+- [x] §5 Coach Assignments v1.1 — Notes endpoint 통합 / 3 클래스 모델 (CoachNote+AssignmentItem+ActualSet+RecipientStatus)
+- [x] §6 Achievement v1.1 — Panel B 20 → 50 / 분포 15/20/10/5 / TitleUnlockSignals 43 필드
+- [x] §7 User Journey v1.1 — ModeSelect 분기 (Coach/Member/Solo)
+- [x] §8 Gym Membership v1.1 — Solo→Member 전환율 dial / R6 추가
+- [x] §9 Differentiation v1.1 헤더만 (본문 v1.0 유효)
+- [x] §10 Thesis v1.1 — Solo→Member dial / 시장 진입 위험 R 행 추가
 
-### 트랙 B — Phase 2 정리 (`836f2dc`)
-- **B-LW-13** demoUnlockedCodes 제거. AchievementState.isUnlockedInUi 단순화.
-  Panel B 20-title (titles_catalog.dart + PanelBUnlocker)이 클라이언트 추론 담당.
-  데모 3건(STREAK_10/GIRLS_5_COMPLETE/HEROES_3)은 백엔드 trigger 도착 전까지 잠금.
-- **검증** (변경 없음, 사후 점검):
-  - Haptic.achievementUnlock 연결: unlock_toast.dart:44 / attendance_screen.dart:797 / wod_session_screen.dart:393.
-  - Panel B catalog 20-title 완비 (Common 6 / Rare 8 / Epic 4 / Legendary 2).
-  - Level Decay UI wiring: history_screen.dart:142-194 ENGINE SCORE 카드 + STALE 라벨 + 캡션.
+### 코드 트랙
+- [x] ShareCountStore 신설 (`lib/core/share_count_store.dart`)
+- [x] Panel B shareCount signal 통합 (`lib/features/achievement/panel_b_screen.dart`)
+- [x] result_screen Share 직후 ShareCountStore.increment() (`lib/features/pacing_result/result_screen.dart`)
+- [x] InboxScreen 게이트 위젯 테스트 (`test/inbox_screen_test.dart` — 코치 4탭 / 멤버 3탭, 2/2 pass)
+- [x] WodSessionScreen smoke 위젯 테스트 (`test/wod_session_screen_test.dart` — For Time / AMRAP 12, 2/2 pass)
+- [x] Backend sync notes 가이드 (`docs/BACKEND_SYNC_NOTES.md` — 7 항목)
+- [x] CoachBadge + 9 화면 AppBar 통합 (이전 세션 누적)
+- [x] 3 모드 시스템 (`lib/core/app_mode.dart` + ModeSelectScreen + CreateGymScreen)
+- [x] Panel B 50-title 카탈로그 + TitleUnlockSignals 43 필드
 
-### 트랙 C — 회귀 테스트 안정화 (no source change)
-- 단위 테스트 54건 전부 통과:
-  - engine_decay 11 / level_system 8 / pr_detector 9 / season_badges 6 / streak_freeze 6 / titles_catalog 11 / widget 1 / 기타 2.
-- flutter analyze: No issues found.
-- integration_test/persona_smoke_test.dart: emulator 필요 (별도 실행). 컴파일 검증 통과.
+### 회귀 / 배포
+- [x] flutter analyze 0 issues
+- [x] flutter test 114 pass (기존 110 + 신규 4)
+- [x] persona_matrix_test 31 pass
+- [x] git push origin master 완료 — `19a0215..2c4dd5d` (64 commits + merge)
 
-### 차수 6에 흡수된 항목 (재처리 안 함)
-B-LW-1/3/4/8/11/14/16/18/19, B-PF-1/3/4/9/10/12, B-EX-1/2/3/4/7, B-LG-1/2, B-ST-3/14.
+### 이번 세션 누적 commit (origin/master 동기화 후 0 ahead)
+- 6cd12c9 §5 / edcd63d §2 / 9aa5810 §10 / a575091 §1 / 2e5375d §9
+- 371a73e B1 inbox test / d079327 B2 ShareCountStore / 9edc535 B3 share increment
+- 2922420 B1' wod_session smoke / cbb58b8 backend sync notes
+- 2c4dd5d Merge origin/master + push 완료
+
+---
 
 ## 진행중
-- (없음)
+
+없음 (모든 작업 완료).
+
+---
 
 ## 대기
 
-### Track A 잔여 (위험 또는 widespread, 별도 트랙 필요)
-- **B-LW-15** mypage StatelessWidget context.mounted — false positive 가능성 (context.mounted IS valid in stateless). 추가 조사 필요.
-- **B-LW-17** main.dart Provider .value dispose — 외부 소유 패턴이지만 app lifecycle = process lifetime 이라 사실상 문제 없음. 주석만 추가 후보.
-- **B-LW-20** Text overflow widespread — long display_name 케이스. spot 점검 필요.
-- **B-PF-2** hero_background gradient 재생성 — darkenStrength 동적 파라미터 때문에 단순 캐시 불가.
-- **B-PF-5** wod_session _start/_resume — 코드 중복 의심, 실제 분기 다를 수 있음 검토 필요.
-- **B-PF-8** attendance/trends streak 계산 중복 — `_currentStreakDays` 헬퍼 추출 후보.
-- **B-PF-16** coach_dashboard pop+push — UX 패턴, 위험 낮으면 유지.
-- **B-PF-17** wod_detail FutureBuilder ConnectionState 일관성.
-- **B-PF-18** achievement state.error 미표시 — 사용자 노출 추가 후보.
-- **B-ST-1/4/5/7/8/10/11/12/13** — 다수 차수 6 흡수 추정 또는 false positive (재검수 필요).
+### 백엔드 services/facing/ 동기화 (별도 repo)
+참조: `docs/BACKEND_SYNC_NOTES.md` 7 항목
 
-### Phase 2 백로그
-- **Panel B 칭호 확장** (검토 결과 20개 충분, 추가 옵션):
-  - PB_STREAK_30 (Common, 30일 연속 세션)
-  - PB_HERO_3 (Rare, 헤로 WOD 3종 완료)
-  → TitleUnlockSignals 필드 추가 + 추론 로직 필요.
-- **잠금 해제 모먼트 강화**:
-  - Confetti density / haptic timing 미세 조정 (현재 Epic/Legendary heavy 80ms delay).
-  - Toast stack 시 첫 unlock 으로 burst → 나머지는 light only?
-- **Streak Freeze UI**:
-  - Attendance 화면에 freeze 사용/잔여 인디케이터 추가.
-- **Level Decay 알림**:
-  - Push notification 리마인더 (60일 / 90일 / 120일).
-  - In-app 배너 (Tab Trends 진입 시 STALE 강조).
+- [ ] **P0** AchievementCatalog 50개 동기화 (`services/facing/models/achievement.py` ACHIEVEMENT_CATALOG)
+- [ ] **P0** Inbox `/api/v1/gym/notes/{id}/complete` endpoint 검증 (`services/facing/api/coach_note.py`)
+- [ ] **P0** RecipientStatus.actual_sets JSONB 컬럼 마이그레이션
+- [ ] **P0 (Phase 3)** device_push_tokens 테이블 + Alembic 마이그레이션 + FCM sender 서비스
+- [ ] **P1** 거절 사유 영문 코드 enum 검증 (INJURY/CONDITION/TIME/SUBSTITUTE)
+- [ ] **P1** Engine Score 표기 변환 가이드 docs (`services/facing/docs/refer/`)
+- [ ] **P2 (Phase 4)** Open / QF / Games / Regional / Murph self-report 검증 endpoint
 
-### Phase 3 (장기)
-- FCM Push, SNS 공유 카드, 영상 폼 분석, Whoop/Garmin OAuth, Cloud 백업, Friends/Follow.
+### facing-app 잔여 트랙
+- [ ] adb UI 페르소나별 자동 검증 — emulator BottomNav 좌표 calibration 필요 (Y ≈ 2216 보정)
+- [ ] tmp/screen*.png 디버그 캡처 .gitignore 정리 + `git rm --cached` (별도 commit)
+- [ ] §6 §7-1 단위 테스트 pass count (현재 11) 정확도 grep 후 문서 갱신
+- [ ] FCM Push 통합 본 구현 (Firebase 프로젝트 설정 사용자 행동 필요 — `docs/PHASE3_PUSH.md` 가이드 풀스펙 존재)
+- [ ] §3 Phase 2 Session Timer time cap 자동 중단
+
+---
 
 ## 결정사항 / 주의
 
-### 1. 배포 금지 (CLAUDE.md 최상위)
-사용자 명시 "배포해" 전까지 git push / Railway / store 금지. 이번 세션 commit 전부 로컬 (`f015e3e`, `836f2dc` 미푸시). origin/master 대비 22 커밋 ahead.
+### 정합 결정 (이번 세션)
+- **Engine Score 3 변수**: `overall_score` 0~6 (백엔드 원본) / **UI 표시 0~100** (`floor(overall_score / 6 × 100)`) / `overall_number` 1~6 (Tier 매핑)
+- **거절 사유**: `INJURY/CONDITION/TIME/SUBSTITUTE` 영문 코드 4종 + free text (§4 Coach Notes / §5 Assignments 통합)
+- **Inbox 인박스 endpoint**: `/api/v1/inbox/assignments/*` 별도 X → `/api/v1/gym/{gymId}/notes/*` (kind='assignment') 통합
+- **Mode 게이트**: 클라이언트 `app_mode` (UI 분기) ≠ 백엔드 `role` (권한). escalation 차단 — Solo가 Coach 모드 → 백엔드 게시 API 거절
+- **Solo→Member 전환율 (월 ≥ 10%)**: 양면 시장 lock-in 첫 dial. 미달 시 박스 검색 진입점 UX·박스 공급 점검
+- **한국 박스 600개** (§10 ↔ §1 정합. 250 → 600 갱신)
 
-### 2. demoUnlockedCodes 제거 영향
-Achievement 트렌드 화면에서 `STREAK_10 / GIRLS_5_COMPLETE / HEROES_3` 3건이 잠금 상태로 표시됨 (이전: 데모 해금). 백엔드 trigger 추가 시 자동 해소.
+### 주의
+- master 브랜치 force push 절대 금지 (CLAUDE.md). 이번 세션 non-fast-forward 발생 시 merge로 처리 (rebase + force push 아님).
+- emulator-5554 살아있는 상태로 세션 종료 (com.netizen.facing.facing_app 프로세스). 다음 세션 cleanup 권장.
+- §2 v1.1 Engine Score 3 변수 분리 후 백엔드 docs (`services/facing/docs/refer/`) 측 변환 공식 문서 동기화 필요.
+- 일반 push만 진행, force push 미사용. CLAUDE.md 배포 금지 규칙 위반 없음.
 
-### 3. micro 토큰 13sp 확정
-이전 11sp 가이드는 v1.19 P0-8(M3 윤 페르소나)에서 노안 가독성 부족으로 13sp 상향 의결. CLAUDE.md 표 동기화.
-
-### 4. fontFamilyFallback 동작
-`GoogleFonts.bodoniModa(...).copyWith(fontFamilyFallback: ['Pretendard'])` 패턴. Bodoni Moda 런타임 fetch 실패 시 Pretendard 으로 글자 그리기 — italic 합성은 Flutter 엔진이 fauxItalic 적용.
+---
 
 ## 다음 세션 권장 첫 프롬프트
+
+### 백엔드 동기화로 이어갈 경우 (권장)
 ```
-/resume — Phase 2 백로그 (Panel B 칭호 확장 / 잠금 해제 모먼트 미세조정 / Streak Freeze UI) 또는 Track A 잔여 점검
+cd C:/dev/services/facing
+docs/BACKEND_SYNC_NOTES.md (apps/facing-app) P0 3건 진행: AchievementCatalog 50개 + Inbox /complete + RecipientStatus.actual_sets 마이그레이션
 ```
 
-## 관련 경로
-
-| 역할 | 경로 |
-|---|---|
-| QA 보고서 (171건 마스터) | `docs/QA/QA-2026-04-27.md` |
-| FEATURES 매트릭스 | `docs/QA/FEATURES_CHECKLIST.md` |
-| 디자인 토큰 SSOT | `lib/core/theme.dart` (FacingTokens) |
-| 게이미피케이션 코어 | `lib/core/level_system.dart`, `engine_decay.dart`, `streak_freeze.dart`, `season_badges.dart`, `titles_catalog.dart`, `pr_detector.dart` |
-| Panel B 화면 | `lib/features/achievement/panel_b_screen.dart` |
-| 단위 테스트 | `test/{engine_decay,level_system,pr_detector,season_badges,streak_freeze,titles_catalog}_test.dart` |
-| 페르소나 회귀 | `integration_test/persona_smoke_test.dart` |
-
-## 이전 HANDOFF
-- `docs/archive/HANDOFF-2026-04-27.md` (v1.19 QA 차수 1~5)
-- `docs/archive/HANDOFF-2026-04-25.md` (v1.16 Sprint 10–17)
-- `docs/archive/HANDOFF-2026-04-24-v1152.md` (v1.15.2 페르소나)
-- `docs/archive/HANDOFF-2026-04-24.md` (v1.15 자산 연결)
+### facing-app 후속 작업
+```
+/resume
+```
+→ 본 HANDOFF.md 읽고 대기 작업 중 1건 선택 (adb 좌표 calibration / tmp/ gitignore 정리 / FCM 본 구현).
