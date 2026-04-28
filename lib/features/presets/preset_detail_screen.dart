@@ -42,7 +42,7 @@ class PresetDetailScreen extends StatelessWidget {
 
                   // 이름 헤드라인
                   Text(preset.nameKo,
-                      style: FacingTokens.h1Serif),
+                      style: FacingTokens.h1),
                   const SizedBox(height: FacingTokens.sp4),
 
                   // 설명 (한글 OK)

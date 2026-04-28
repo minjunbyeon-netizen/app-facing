@@ -22,11 +22,10 @@ class SignupScreen extends StatefulWidget {
 class _SignupScreenState extends State<SignupScreen> {
   bool _busy = false;
 
-  static const Color _naverGreen = Color(0xFF03C75A);
-  static const Color _kakaoYellow = Color(0xFFFEE500);
-  // v1.16 Sprint 9b: WCAG AA 대비 강화 — 기존 #191600(갈색) → 순검정 #000000.
-  // #FEE500(노랑) vs #000000 대비비 19.56:1 (AAA).
-  static const Color _kakaoBrown = Color(0xFF000000);
+  static const Color _naverGreen = FacingTokens.naverGreen;
+  static const Color _kakaoYellow = FacingTokens.kakaoYellow;
+  // v1.16 Sprint 9b: WCAG AA 대비 강화. #FEE500 vs Colors.black 대비비 19.56:1 (AAA).
+  static const Color _kakaoBrown = Colors.black;
 
   Future<void> _signIn(String provider) async {
     if (_busy) return;
@@ -90,7 +89,7 @@ class _SignupScreenState extends State<SignupScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: FacingTokens.sp5),
-                Text('FACING', style: FacingTokens.brandSerif),
+                Text('FACING', style: FacingTokens.brandLogo),
                 const SizedBox(height: FacingTokens.sp1),
                 // v1.16 Sprint 9b: Beta Preview 배지.
                 Container(

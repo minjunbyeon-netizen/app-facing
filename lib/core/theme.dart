@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
-/// facing 디자인 토큰 단일 진원지 (v1.11.0 CrossFit Elite / Dark).
-/// 규칙: apps/facing-app/CLAUDE.md "디자인 시스템" 섹션 SSOT.
+/// facing 디자인 토큰 (CrossFit Elite / Dark).
+/// 규칙: ~/.claude/reference/design.md + 프로젝트 CLAUDE.md "디자인 시스템".
 class FacingTokens {
   FacingTokens._();
 
@@ -25,6 +24,12 @@ class FacingTokens {
   /// v1.19 페르소나 P2-22: OVERDUE 전용 (warning 활용, accent 와 분리).
   static const Color overdue = Color(0xFFF59E0B);
 
+  // ---- 외부 브랜드 색 (소셜 로그인 전용) ----
+  /// Naver 브랜드 그린. signup OAuth 버튼 전용 (디자인 토큰 외 hex 직접 작성 회피).
+  static const Color naverGreen = Color(0xFF03C75A);
+  /// Kakao 브랜드 옐로. signup OAuth 버튼 전용.
+  static const Color kakaoYellow = Color(0xFFFEE500);
+
   // ---- Tier 색상 (v1.15 흑백 재배치) ----
   // 명도: 어두움(Motivation) → 빛(Obsession). RX만 유일한 유채색.
   // v1.15.1 P1-10: Elite↔Games 명도 격차 확대 (E0→C8, FF→F5). Masters 순백 피로 완화.
@@ -35,9 +40,6 @@ class FacingTokens {
   static const Color tierGames = Color(0xFFF5F5F5);   // Obsession (최상위, 순백 회피)
 
   static const String fontFamily = 'Pretendard';
-  /// v1.15 — Bodoni Moda Italic (영문 선언 헤드라인 전용). Google Fonts SIL OFL.
-  /// pubspec.yaml에 assets/fonts/BodoniModa/ 번들 필요.
-  static const String fontFamilySerif = 'BodoniModa';
 
   static const List<FontFeature> tabular = [FontFeature.tabularFigures()];
 
@@ -181,54 +183,27 @@ class FacingTokens {
     color: muted,
   );
 
-  // ---- v1.15 Serif 토큰 (Bodoni Moda Italic, Google Fonts 런타임 fetch) ----
-  // 영문 선언 헤드라인·명언 전용. 한글·UI 라벨·숫자는 Pretendard 유지.
-  // 주의: const 불가 (GoogleFonts 런타임 resolve). 호출 시점 반환.
-  // QA B-LW-5: GoogleFonts 런타임 fetch 실패 시 Pretendard 로 즉시 폴백.
-  // 오프라인/검열망/캐시 미스 상황에서 화면 안전 보장 — italic 유지 (Pretendard도 italic 합성).
+  /// micro 토큰의 강조 변형. letterSpacing 1.2 + w700.
+  /// 코치 대시보드·인박스·리더보드 등에서 micro.copyWith(ls: 1.2) 패턴 통일용.
+  /// 인라인 letterSpacing override 금지 — 이 토큰 사용.
+  static const TextStyle microLabel = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 13,
+    fontWeight: FontWeight.w700,
+    height: 1.40,
+    letterSpacing: 1.2,
+    color: muted,
+  );
 
-  static const List<String> _serifFallback = [fontFamily];
-
-  /// Splash "FACING" 세리프 대응 (기존 brandLogo와 교체 가능).
-  static TextStyle get brandSerif => GoogleFonts.bodoniModa(
-        fontSize: 72,
-        fontWeight: FontWeight.w800,
-        fontStyle: FontStyle.italic,
-        height: 1.0,
-        letterSpacing: -2.0,
-        color: fg,
-      ).copyWith(fontFamilyFallback: _serifFallback);
-
-  /// 영문 hero 헤드라인 (Intro 1/2/3, Grade 'Your Tier.' 등).
-  static TextStyle get h1Serif => GoogleFonts.bodoniModa(
-        fontSize: 44,
-        fontWeight: FontWeight.w700,
-        fontStyle: FontStyle.italic,
-        height: 1.12,
-        letterSpacing: -0.8,
-        color: fg,
-      ).copyWith(fontFamilyFallback: _serifFallback);
-
-  /// 히어로 숫자 (64sp display) serif 버전. tabular 고정.
-  static TextStyle get displaySerif => GoogleFonts.bodoniModa(
-        fontSize: 64,
-        fontWeight: FontWeight.w800,
-        fontStyle: FontStyle.italic,
-        height: 1.05,
-        letterSpacing: -1.2,
-        color: fg,
-        fontFeatures: tabular,
-      ).copyWith(fontFamilyFallback: _serifFallback);
-
-  /// 명언 카드용 serif italic.
-  static TextStyle get quoteSerif => GoogleFonts.bodoniModa(
-        fontSize: 16,
-        fontWeight: FontWeight.w400,
-        fontStyle: FontStyle.italic,
-        height: 1.45,
-        letterSpacing: 0.2,
-        color: fg,
-      ).copyWith(fontFamilyFallback: _serifFallback);
+  /// 수식·코드 블록 전용 (RATIONALE 페이싱 공식 등).
+  /// caption + monospace fontFamily.
+  static const TextStyle codeBlock = TextStyle(
+    fontFamily: 'monospace',
+    fontSize: 13,
+    fontWeight: FontWeight.w400,
+    height: 1.45,
+    color: muted,
+  );
 
   static const double sp1 = 4;
   static const double sp2 = 8;

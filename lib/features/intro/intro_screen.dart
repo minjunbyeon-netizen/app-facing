@@ -204,7 +204,7 @@ class _IntroPageView extends StatelessWidget {
               // v1.15 P2-5: 3단계 서사 라벨 (브랜드 의도 명시).
               Text(page.stage, style: FacingTokens.sectionLabel),
               const SizedBox(height: FacingTokens.sp2),
-              Text(page.title, style: FacingTokens.h1Serif),
+              Text(page.title, style: FacingTokens.h1),
               const SizedBox(height: FacingTokens.sp4),
               Text(page.body, style: FacingTokens.lead),
               const SizedBox(height: FacingTokens.sp8 + FacingTokens.sp7),

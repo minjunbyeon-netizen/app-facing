@@ -731,15 +731,7 @@ class _DayCell extends StatelessWidget {
             width: isToday ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(FacingTokens.r2),
-          boxShadow: hasSession && count >= 2
-              ? [
-                  BoxShadow(
-                    color: FacingTokens.accent.withValues(alpha: 0.35),
-                    blurRadius: 6,
-                    spreadRadius: -1,
-                  ),
-                ]
-              : null,
+          // §2 절대 차단: boxShadow 제거. 2+ 세션 차별화는 좌상단 check icon으로.
         ),
         child: Stack(
           alignment: Alignment.center,

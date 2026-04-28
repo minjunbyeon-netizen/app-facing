@@ -109,21 +109,8 @@ class _OnboardingGradeScreenState extends State<OnboardingGradeScreen> {
             alignment: Alignment.topCenter,
             opacity: const AlwaysStoppedAnimation(0.28),
           ),
-          // 하단→중간 어두움 gradient (P1-8 카드 가독성).
-          DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  FacingTokens.bg.withValues(alpha: 0.40),
-                  FacingTokens.bg.withValues(alpha: 0.72),
-                  FacingTokens.bg.withValues(alpha: 0.95),
-                ],
-                stops: const [0.0, 0.45, 1.0],
-              ),
-            ),
-          ),
+          // 카드 텍스트 가독성 위한 단색 darken layer (그라디언트 §2 절대 차단).
+          ColoredBox(color: FacingTokens.bg.withValues(alpha: 0.78)),
           const GrainOverlay.subtle(),
           SafeArea(
             child: Column(
@@ -138,7 +125,7 @@ class _OnboardingGradeScreenState extends State<OnboardingGradeScreen> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text('YOUR TIER', style: FacingTokens.h1Serif),
+                      Text('YOUR TIER', style: FacingTokens.h1),
                       const SizedBox(width: FacingTokens.sp3),
                       const TermTip(term: 'Tier', iconSize: 18),
                       const SizedBox(width: FacingTokens.sp1),
