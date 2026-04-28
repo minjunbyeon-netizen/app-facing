@@ -2,9 +2,11 @@
 ## FACING — 5-Year Company Thesis
 
 > 작성일: 2026-04-28
-> 버전: v1.0
+> 버전: v1.1
 > 분류: 내부 전략 문서 (VC·창업자·PM 수준)
 > 참조: ABOUT.md §10 / PROJECT_CHARTER.md §1·§2·§11 / CLAUDE.md 브랜드 포지셔닝
+>
+> **v1.1 변경점**: ModeSelect (Coach/Member/Solo) 도입에 따라 §4-2 2 레이어 funnel 의 Solo→Member 전환율 dial 명시 (§8 정합). §6-1 시장 진입 위험 표에 Solo 영구화 위험 추가. §7 Y1 Q2 마일스톤에 ModeSelect 진입점 추가.
 
 ---
 
@@ -87,12 +89,15 @@ unlock 임계는 공개된 조건(Engine 80+ 5회 → IRON LUNG)에 근거한다
 | 숙제 (Assignment) | 구조화 과제(동작·세트·하중·마감) + 수행 기록 | 박스 코치·멤버 |
 | 업적 (Gamification) | Tier·칭호·시즌 배지·Streak·Level — 결정론적 | 전 사용자 |
 
-### 4-2. 2 레이어 funnel
+### 4-2. 2 레이어 funnel (v1.1 ModeSelect 정합)
 
-혼자 사용자(app_user) → 페이싱 + Engine 측정으로 가치 경험 → 박스 가입 → 코치 WOD + 숙제 + 쪽지로 retention 극대화 → 코치가 FACING으로 전환 → 박스 단위 SaaS 구독 전환.
+혼자 사용자(Solo 모드, `app_user`) → 페이싱 + Engine 측정으로 가치 경험 → **Settings 또는 Profile 박스 검색 진입점에서 Member 모드로 전환** → 박스 가입 신청 → 코치 WOD + 숙제 + 쪽지로 retention 극대화 → 코치가 FACING으로 전환 → 박스 단위 SaaS 구독 전환.
 
-B2C: 개인 athlete. 무료 진입. 페이싱·Engine·업적 경험.
-B2B: 박스 owner. WOD 관리·멤버 관리·코치 도구. SaaS 수익원(Y2~).
+**Solo→Member 전환율 (월 ≥ 10%) = lock-in 루프의 첫 dial** (§8 정합). 미달 시 박스 검색 진입점 UX 또는 박스 공급 (파트너 박스 수) 부족 신호.
+
+B2C: 개인 athlete (Solo 모드). 무료 진입. 페이싱·Engine·업적 경험.
+B2B: 박스 owner (Coach 모드). WOD 관리·멤버 관리·코치 도구. SaaS 수익원(Y2~).
+중간 layer: 박스 가입 멤버 (Member 모드). 양면 시장의 양쪽을 동시에 끌어당기는 핵심 사용자.
 
 ### 4-3. 글로벌 확장 설계
 
@@ -146,7 +151,8 @@ NSM 보조 지표 2개:
 | 위험 | 확률 | 완화 |
 |---|---|---|
 | 엘리트 타깃 = 니치 시장 → 사용자 수 제한 | 높음 | NSM은 횟수(사용 강도). 1만 명 고강도 사용자가 100만 명 라이트 사용자보다 가치. 박스 SaaS 수익은 사용자 수와 독립. |
-| CrossFit 박스 디지털화 속도 느림 | 중간 | 혼자 사용자(app_user) 먼저 mass. 박스 가입은 2단계 funnel. |
+| CrossFit 박스 디지털화 속도 느림 | 중간 | 혼자 사용자(Solo 모드) 먼저 mass. 박스 가입은 2단계 funnel. |
+| **Solo 영구화 → lock-in 미작동 (v1.1)** | **중간** | **WOD 탭·Profile 박스 검색 진입점 강조 + Solo→Member 월 ≥ 10% KPI 추적. 미달 시 박스 검색 UX·박스 공급 점검 (§8 R6 정합)** |
 | WODsmith · SugarWOD 기능 복제 | 낮음 단기 / 높음 중기 | 페이싱 알고리즘은 백엔드 독점 IP. 박스 lock-in이 전환 비용. |
 | CrossFit LLC 직접 앱 출시 | 낮음 | 파트너십 전환 가능성이 더 높음. B2B 데이터 파트너 포지셔닝. |
 
@@ -182,7 +188,7 @@ NSM 보조 지표 2개:
 
 핵심 마일스톤:
 - Q1: MVP Android APK — 페이싱 계산 + Engine 측정 + 업적 (Phase 1·2·3 완료)
-- Q2: 박스 기능 — WOD 공지 + 코치 도구 + 쪽지 + 숙제 (현재 구현 완료, 베타 박스 2개 계약)
+- Q2: 박스 기능 — WOD 공지 + 코치 도구 + 쪽지 + 숙제 + **ModeSelect 진입점 (Coach/Member/Solo)** (현재 구현 완료, 베타 박스 2개 계약)
 - Q3: FCM 푸시 알림 통합 + iOS 빌드 시작
 - Q4: 베타 박스 50개 → 박스 SaaS 모델 설계 착수
 
