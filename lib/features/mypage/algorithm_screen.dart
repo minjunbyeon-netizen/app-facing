@@ -1,5 +1,6 @@
-// v1.16 Sprint 11: Algorithm 투명성 화면.
-// P9 Q9-Q15 대응: Engine 계산식·Tier 매핑·참조 논문 공개.
+// Algorithm 투명성 화면.
+// SSOT: ~/.claude/reference/study/fitness.md (ACSM, NHANES, ExRx, World Athletics 통합).
+// 폐기: services/facing/docs/refer/* (2026-04-28).
 
 import 'package:flutter/material.dart';
 
@@ -25,9 +26,11 @@ class AlgorithmScreen extends StatelessWidget {
             const _FormulaLine(
                 label: 'Overall', value: 'weighted_avg(gymnastics·weightlifting·cardio·power·olympic·metcon)'),
             const _FormulaLine(
-                label: 'Scale', value: '1.0 (Novice) → 6.0 (Games)'),
+                label: 'Scale', value: '1.0 (Untrained) → 6.0 (Elite/Games)'),
             const _FormulaLine(
-                label: 'UI 변환', value: '0–100 선형 매핑 (engineScoreTo100)'),
+                label: 'Source', value: 'fitness.md §4 (ExRx + Strength Level + USAW)'),
+            const _FormulaLine(
+                label: 'UI MAP', value: '0–100 선형 매핑 (engineScoreTo100)'),
             const SizedBox(height: FacingTokens.sp5),
 
             const Text('TIER MAPPING', style: FacingTokens.sectionLabel),
@@ -82,13 +85,23 @@ class AlgorithmScreen extends StatelessWidget {
                     Text(r.authors, style: FacingTokens.caption),
                     const SizedBox(height: 2),
                     Text(r.relevance, style: FacingTokens.caption),
+                    const SizedBox(height: 2),
+                    Text(r.section,
+                        style: FacingTokens.micro.copyWith(
+                            color: FacingTokens.muted)),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: FacingTokens.sp4),
             const Text(
-              'Beta Preview · 논문 PDF 링크·Split 시뮬레이터는 Phase 2 예정.',
+              'SSOT: ~/.claude/reference/study/fitness.md',
+              style: FacingTokens.micro,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: FacingTokens.sp1),
+            const Text(
+              'Beta Preview · Split 시뮬레이터는 Phase 2 예정.',
               style: FacingTokens.caption,
               textAlign: TextAlign.center,
             ),
