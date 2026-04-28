@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'theme.dart';
 
 /// CrossFit Tier 시스템. 백엔드 `overall_number` (1~6) → 5 티어 매핑.
-/// VISUAL_CONCEPT.md v1.0 섹션 3.2 SSOT.
 /// v1.15부터: 명도 재배치(어둠→빛) + motivation/discipline/obsession 서브타이틀.
 enum Tier {
   scaled('SCALED', 'Motivation.', FacingTokens.tierScaled, FacingTokens.fg),
@@ -34,7 +33,7 @@ enum Tier {
     return Tier.games;
   }
 
-  /// VISUAL_CONCEPT 3.2 — Tier별 고정 명언.
+  /// Tier별 고정 명언.
   String get quote {
     switch (this) {
       case Tier.scaled:

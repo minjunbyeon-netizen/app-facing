@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// v1.15 halftone grain overlay. VISUAL_CONCEPT.md §5.
+/// v1.15 halftone grain overlay.
 ///
 /// 일상 배경: `GrainOverlay.subtle()` opacity 0.04
 /// 드라마틱 순간: `GrainOverlay.strong()` opacity 0.12

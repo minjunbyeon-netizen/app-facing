@@ -1,6 +1,6 @@
 ⚠️ 세션 시작 시 먼저 `docs/HANDOFF.md`를 읽고 현재 작업 상태를 파악할 것.
 
-⚠️ **UI·디자인·카피 관련 모든 결정은 먼저 `docs/VISUAL_CONCEPT.md` v1.0 (흑백·전사·Obsession 컨셉) → `docs/DESIGN_PLAYBOOK.md` v1.0 → 이 문서 순으로 확인**. 충돌 시 VISUAL_CONCEPT가 이김. 톤앤매너·스타일·컨셉 전부 SSOT는 VISUAL_CONCEPT.
+⚠️ **UI·디자인·카피 관련 모든 결정은 먼저 글로벌 `~/.claude/reference/{mobile,ux,design}.md` → 이 문서 순으로 확인**. 충돌 시 reference/가 이김. 프로젝트 전용 카피 SSOT(티어 시스템·용어 팔레트·V1~V11 어투·카피 템플릿)는 본 문서 하단에 유지.
 
 ## 🚫 배포 금지 규칙 (v1.16.1 · 최상위 강제)
 
@@ -122,7 +122,7 @@ apps/facing-app/
 
 언어 결정이 애매할 때 순서: (1) HWPO가 쓸 것 같은가? (2) NOBULL에서 잘릴까? (3) Mayhem 수치 기준 통과? (4) CompTrain 근거 있는가?
 
-> **4 벤치마크 충돌 시 우선순위**: 카피 결정은 **HWPO** 톤이 이긴다. 비주얼 결정은 **NOBULL**이 이긴다. 단, 실제 SSOT 순서는 `VISUAL_CONCEPT.md > DESIGN_PLAYBOOK.md > CLAUDE.md` (위가 우위). — §9 Differentiation 6-pager FAQ Q7.
+> **4 벤치마크 충돌 시 우선순위**: 카피 결정은 **HWPO** 톤이 이긴다. 비주얼 결정은 **NOBULL**이 이긴다. 단, 실제 우선순위는 `~/.claude/reference/{mobile,ux,design}.md > 본 문서 (CLAUDE.md)` (위가 우위). — §9 Differentiation 6-pager FAQ Q7.
 
 ## Voice & Tone (어투 11원칙 — v1.13.0 미니멀 패스)
 V1. **명령형 기본.** "~하세요" 금지.

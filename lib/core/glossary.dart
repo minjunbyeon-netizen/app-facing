@@ -1,6 +1,6 @@
-// facing-app 용어 사전 SSOT.
+// facing-app 용어 사전.
 // v1.16 Sprint 7a: 간단 Map → 구조체 + TermTip 위젯.
-// VISUAL_CONCEPT.md · CLAUDE.md 용어 팔레트 동기화.
+// 카피·용어 팔레트는 CLAUDE.md 단일 소스.
 
 import 'package:flutter/material.dart';
 

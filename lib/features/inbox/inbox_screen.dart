@@ -1,6 +1,6 @@
 // v1.18 Sprint 19: Inbox 통합 화면 — 4 탭 (All / Notes / Assignments / Announcements).
 //
-// 톤: VISUAL_CONCEPT 흑백·전사·Obsession.
+// 톤: 흑백·전사·Obsession.
 // Coach Dossier 카드: 좌 4px accent stripe + 이니셜 모노그램.
 // 미읽음: stripe accent + 굵은 폰트 + 우측 빨간 dot.
 // 읽음: stripe muted + 보통 폰트.

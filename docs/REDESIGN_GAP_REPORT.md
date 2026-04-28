@@ -1,9 +1,11 @@
 # Redesign Gap Report — facing-app v2.0
 
 > 생성: 2026-04-28 22:05 · /go 파이프라인 (8 sub-agent 병렬)
-> 입력: docs/VISUAL_CONCEPT.md v1.0 + docs/DESIGN_PLAYBOOK.md v1.0 + reference/{mobile,ux,design}.md
-> 범위: lib/features/** 57개 + lib/core/theme.dart + 카피 SSOT
+> 갱신: 2026-04-28 22:14 · 프로젝트 SSOT(VISUAL_CONCEPT/DESIGN_PLAYBOOK) 폐기 → reference/ 단독 소스화
+> 입력: `~/.claude/reference/{mobile,ux,design}.md` + 프로젝트 CLAUDE.md (티어·V1~V11·카피 템플릿)
+> 범위: lib/features/** 57개 + lib/core/theme.dart + 카피 규칙
 > 비범위: 로직·API·상태관리·페이싱 계산 (전적으로 무시)
+> **변경 결정**: 흑백 절대주의·Bodoni Italic·Heroic Narrative·3-Phase Metamorphosis 등 VISUAL_CONCEPT 고유 컨셉은 폐기. 디자인 시스템은 reference/design.md 일반 원칙(다크 테마·8pt grid·9컬러 토큰·Pretendard) 기준으로 재정렬.
 
 ## TL;DR
 
@@ -149,8 +151,11 @@
 
 - **로직 영향**: 모든 변경이 `preserves_logic: true` 체크됨. API 시그니처·상태관리·라우팅·dio 인터셉터 0줄 변경
 - **테스트 회귀 위험**: persona_matrix_test 31 + widget test 114 = 145 케이스 중 카피 라벨 직접 비교 테스트 있을 시 영문화로 인한 실패 가능. P4 적용 시 동시 갱신 필요
-- **카피 SSOT 갱신**: CLAUDE.md 카피 템플릿 §짧은 UI vs §긴 설명 표가 일부 코드와 불일치. P4-1 시작 전 사용자 컨펌 필요한 항목 — Intro 3 headline ('Start.' vs 'Run it.'), Step 1 title 등 소수
-- **Bodoni Moda Serif 토큰 4개**: theme.dart에 정의됐으나 사용처가 splash/intro/grade에 산발적. 사용 정책 재확인 필요
+- **카피 갱신**: CLAUDE.md 카피 템플릿 §짧은 UI vs §긴 설명 표가 일부 코드와 불일치. P4-1 시작 전 사용자 컨펌 필요한 항목 — Intro 3 headline ('Start.' vs 'Run it.'), Step 1 title 등 소수
+- **Bodoni Moda Serif 토큰 4개** (brandSerif/h1Serif/displaySerif/quoteSerif): VISUAL_CONCEPT 폐기로 사용 정책 재결정 필요. reference/design.md 권장은 Pretendard 단일 폰트(weight 400/700/800). **결정 옵션**: (A) Serif 토큰 4개 모두 제거 → splash/intro/grade에서 Pretendard로 대체 / (B) Serif 토큰 유지 + 사용처 정책만 명문화 (Splash·Tier 결과 한정 등) / (C) 절충 — quoteSerif만 유지(명언 전용), 나머지 제거. **권고: A** (reference/design.md 단일 폰트 원칙 정합)
+- **흑백 절대주의 폐기 영향**: tier 색상 5종(Scaled #4A4A4A / RX #EE2B2B / RX+ #929292 / Elite #C8C8C8 / Games #F5F5F5)은 v1.15 흑백 재배치 결과로 남음. reference/design.md 9컬러 토큰 + tier 5색 패턴과 정합 — 그대로 유지 권고. **다만** "Monochrome Absolutism" 컨셉은 더 이상 SSOT가 아니므로 향후 success(#22C55E)·warning(#F59E0B) 본래값 복원 검토 가능
+- **Halftone grain overlay**: VISUAL_CONCEPT §5에 "드라마틱 순간 grain_strong opacity 0.10~0.12" 명세가 있었음. 코드 유지 (`lib/widgets/grain_overlay.dart` + `assets/grain_subtle.png` `grain_strong.png`). 정책 결정 필요 — **권고: 유지** (시각 차별화 요소이며 reference/design.md와 충돌 안 함)
+- **3-Phase Metamorphosis (Motivation→Discipline→Obsession)**: tier.dart subtitle 필드로 코드화됨. 폐기 SSOT의 컨셉이지만 코드 동작 영향 0. **권고: 유지**
 - **master 브랜치**: 사용자 명시 "배포해" 전 push 금지 (CLAUDE.md). 모든 변경은 로컬 commit만
 
 ## 추후 보고 (placeholder)
@@ -159,8 +164,8 @@
 
 ## 산출물
 
-- `tmp/go/ssot.json` 83 rules
-- `tmp/go/reference.json` 68 rules
+- ~~`tmp/go/ssot.json`~~ (폐기 — VISUAL_CONCEPT/DESIGN_PLAYBOOK 삭제와 함께)
+- `tmp/go/reference.json` 68 rules — **새 단독 디자인 소스**
 - `tmp/go/theme-audit.json` 14 violations + 10 recommendations
 - `tmp/go/screens-onboarding.json` 30 issues
 - `tmp/go/screens-wod.json` 31 issues

@@ -1,4 +1,4 @@
-"""Generate halftone grain textures for facing-app (v1.15 VISUAL_CONCEPT).
+"""Generate halftone grain textures for facing-app (v1.15 halftone layer).
 
 - grain_subtle.png: 256x256, fine noise, low alpha (runtime opacity 0.04)
 - grain_strong.png: 512x512, coarser halftone dots, alpha tuned for opacity 0.12

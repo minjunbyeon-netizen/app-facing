@@ -25,7 +25,7 @@ class FacingTokens {
   /// v1.19 페르소나 P2-22: OVERDUE 전용 (warning 활용, accent 와 분리).
   static const Color overdue = Color(0xFFF59E0B);
 
-  // ---- Tier 색상 (v1.15 흑백 재배치 - VISUAL_CONCEPT.md 3.2) ----
+  // ---- Tier 색상 (v1.15 흑백 재배치) ----
   // 명도: 어두움(Motivation) → 빛(Obsession). RX만 유일한 유채색.
   // v1.15.1 P1-10: Elite↔Games 명도 격차 확대 (E0→C8, FF→F5). Masters 순백 피로 완화.
   static const Color tierScaled = Color(0xFF4A4A4A);  // Motivation

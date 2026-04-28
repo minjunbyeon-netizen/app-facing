@@ -5,7 +5,7 @@
 //  - 없으면 hash 8자 첫 글자
 //  - 색상 없으면 muted (자동 hash 색상으로 대체 가능 추후)
 //
-// 톤: VISUAL_CONCEPT 흑백·전사. avatar_color 는 회원 본인이 선택한 액센트 1색만.
+// 톤: 흑백·전사. avatar_color 는 회원 본인이 선택한 액센트 1색만.
 
 import 'package:flutter/material.dart';
 
