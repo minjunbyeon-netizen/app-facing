@@ -144,6 +144,13 @@ class _MemberRequestsScreenState extends State<MemberRequestsScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('실패: ${e.messageKo}')),
       );
+    } catch (e) {
+      // /go Tier 3: generic catch.
+      debugPrint('[MemberRequests._patch] $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('실패. 다시 시도.')),
+      );
     }
   }
 

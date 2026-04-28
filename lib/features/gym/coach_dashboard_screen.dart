@@ -558,6 +558,13 @@ class _MemberDetailSheet extends StatelessWidget {
                   ScaffoldMessenger.of(ctx).showSnackBar(
                     SnackBar(content: Text('실패: ${e.messageKo}')),
                   );
+                } catch (e) {
+                  // /go Tier 3: generic catch.
+                  debugPrint('[CoachDashboard._coachNoteFlow] $e');
+                  if (!ctx.mounted) return;
+                  ScaffoldMessenger.of(ctx).showSnackBar(
+                    const SnackBar(content: Text('실패. 다시 시도.')),
+                  );
                 }
               },
               child: const Text('Save Note'),

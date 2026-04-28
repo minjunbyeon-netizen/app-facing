@@ -356,6 +356,13 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('전송 실패: ${e.messageKo}')),
       );
+    } catch (e) {
+      // /go Tier 3: generic catch — 타임아웃/예외 시 사용자 알림.
+      debugPrint('[ComposeNote._send] $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('전송 실패. 다시 시도.')),
+      );
     } finally {
       if (mounted) setState(() => _sending = false);
     }

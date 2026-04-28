@@ -130,6 +130,13 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
                   ScaffoldMessenger.of(ctx).showSnackBar(
                     SnackBar(content: Text('실패: ${e.messageKo}')),
                   );
+                } catch (e) {
+                  // /go Tier 3: generic catch.
+                  debugPrint('[WodDetail._sendRequest] $e');
+                  if (!ctx.mounted) return;
+                  ScaffoldMessenger.of(ctx).showSnackBar(
+                    const SnackBar(content: Text('전송 실패. 다시 시도.')),
+                  );
                 }
               },
               child: const Text('Send'),
@@ -164,6 +171,13 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('댓글 실패: ${e.messageKo}')),
+      );
+    } catch (e) {
+      // /go Tier 3: generic catch.
+      debugPrint('[WodDetail._sendComment] $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('댓글 실패. 다시 시도.')),
       );
     } finally {
       if (mounted) setState(() => _sendingComment = false);
