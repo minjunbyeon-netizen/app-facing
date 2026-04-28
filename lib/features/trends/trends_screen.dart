@@ -187,11 +187,11 @@ class _TrendsScreenState extends State<TrendsScreen> {
                   ] else ...[
                     const Text('UNLOCKED', style: FacingTokens.sectionLabel),
                     const SizedBox(height: FacingTokens.sp2),
+                    // v1.20 Phase 2.5 (B-LW-13): demoUnlockedCodes 제거 → 백엔드
+                    // unlocked 응답만 신뢰. Panel B 추론은 별도 화면.
                     ...unlocked.map((c) => _BadgeCard(
                           catalog: c,
                           unlocked: true,
-                          isDemo: AchievementState.demoUnlockedCodes
-                              .contains(c.code),
                         )),
                   ],
                   const SizedBox(height: FacingTokens.sp5),
@@ -333,12 +333,10 @@ class _XpLine extends StatelessWidget {
 class _BadgeCard extends StatelessWidget {
   final AchievementCatalog catalog;
   final bool unlocked;
-  final bool isDemo;
 
   const _BadgeCard({
     required this.catalog,
     required this.unlocked,
-    this.isDemo = false,
   });
 
   Color _rarityColor() {
@@ -413,16 +411,6 @@ class _BadgeCard extends StatelessWidget {
                     : AchievementCard.triggerHint(catalog.code)),
             style: FacingTokens.caption,
           ),
-          if (isDemo) ...[
-            const SizedBox(height: FacingTokens.sp1),
-            Text(
-              'demo sample',
-              style: FacingTokens.micro.copyWith(
-                color: FacingTokens.muted,
-                letterSpacing: 0.4,
-              ),
-            ),
-          ],
         ],
       ),
     );

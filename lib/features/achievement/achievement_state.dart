@@ -8,26 +8,15 @@ import 'achievement_repository.dart';
 /// - `snapshot`: GET /achievements 결과
 /// - `check()`: POST /check 호출 → 신규 해금 반환 (UI toast 재료)
 /// - `lastCheckedAt`: 세션당 1회 제한용 캐시
-/// - `demoUnlockedCodes`: 백엔드 trigger 미구현 배지를 UI에서 데모 해금으로 표시.
+///
+/// v1.20 Phase 2.5: `demoUnlockedCodes` 제거 (B-LW-13).
+/// Panel B 20-title (titles_catalog.dart + PanelBUnlocker)이 클라이언트 추론을 담당.
+/// Achievement 시스템은 백엔드 trigger 응답(`unlocked` 맵)만 신뢰.
 class AchievementState extends ChangeNotifier {
   final AchievementRepository repo;
   AchievementState(this.repo);
 
-  /// v1.16 데모: 실제 trigger 미구현 배지 3건을 시각적으로 해금 상태로 노출.
-  /// 백엔드 catalog 의 STREAK_10 / GIRLS_5_COMPLETE / HEROES_3 는 trigger 가
-  /// 아직 도입되지 않아 데모 해금으로 표시. 실제 unlock 흐름이 동작하는 칭호는
-  /// Panel B 20-title (lib/core/titles_catalog.dart) 로 분리됨.
-  /// 백엔드 trigger 도입 시 이 const 제거 + 백엔드 unlocked 응답에 위임.
-  static const Set<String> demoUnlockedCodes = {
-    'STREAK_10',
-    'GIRLS_5_COMPLETE',
-    'HEROES_3',
-  };
-
-  bool isUnlockedInUi(String code) {
-    if (_snapshot.isUnlocked(code)) return true;
-    return demoUnlockedCodes.contains(code);
-  }
+  bool isUnlockedInUi(String code) => _snapshot.isUnlocked(code);
 
   AchievementSnapshot _snapshot = AchievementSnapshot.empty;
   bool _loading = false;
