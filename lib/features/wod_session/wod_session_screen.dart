@@ -473,9 +473,11 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
       );
       return false;
     } catch (e) {
+      // /go 전수조사: 원본 exception toString 노출 차단 — 일반 메시지 + debugPrint.
+      debugPrint('[WodSession._saveRecord] $e');
       if (!mounted) return false;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('저장 실패: $e')),
+        const SnackBar(content: Text('저장 실패. 다시 시도.')),
       );
       return false;
     } finally {

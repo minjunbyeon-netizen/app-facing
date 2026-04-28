@@ -103,11 +103,18 @@ class _AchievementSectionState extends State<AchievementSection> {
     // 해금 먼저(unlocked_at DESC), 미해금 뒤(sort_order ASC).
     final unlockedCards = <Widget>[];
     final lockedCards = <Widget>[];
+    // /go 전수조사: data race 시 isUnlocked=true 인데 unlocked map 에 없는 경우 방어.
     final unlockedList = snap.catalog
         .where((c) => snap.isUnlocked(c.code))
         .toList()
-      ..sort((a, b) => snap.unlocked[b.code]!.unlockedAt
-          .compareTo(snap.unlocked[a.code]!.unlockedAt));
+      ..sort((a, b) {
+        final ua = snap.unlocked[a.code]?.unlockedAt;
+        final ub = snap.unlocked[b.code]?.unlockedAt;
+        if (ua == null && ub == null) return 0;
+        if (ua == null) return 1;
+        if (ub == null) return -1;
+        return ub.compareTo(ua);
+      });
     final lockedList = snap.catalog
         .where((c) => !snap.isUnlocked(c.code))
         .toList()

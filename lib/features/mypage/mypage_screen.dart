@@ -369,6 +369,11 @@ class _EngineTrendState extends State<_EngineTrend> {
               if (snap.connectionState != ConnectionState.done) {
                 return const Text('Loading.', style: FacingTokens.caption);
               }
+              // /go 전수조사: hasError 분기 추가. 이전엔 snap.data=null silent fallback.
+              if (snap.hasError) {
+                return const Text('Engine 기록 로딩 실패. 다시 시도.',
+                    style: FacingTokens.caption);
+              }
               final records = snap.data ?? const [];
               // Overall 숫자·delta는 history snapshot에서, radar 값은 gradeResult에서.
               final latest = records.isNotEmpty ? records.first : null;
@@ -680,6 +685,11 @@ class _RecentRecordsState extends State<_RecentRecords> {
             builder: (ctx, snap) {
               if (snap.connectionState != ConnectionState.done) {
                 return const Text('Loading.', style: FacingTokens.caption);
+              }
+              // /go 전수조사: hasError 분기 추가.
+              if (snap.hasError) {
+                return const Text('기록 로딩 실패. 다시 시도.',
+                    style: FacingTokens.caption);
               }
               final records = snap.data ?? const [];
               if (records.isEmpty) {

@@ -114,6 +114,14 @@ class _TrendsScreenState extends State<TrendsScreen> {
                       if (snap.connectionState != ConnectionState.done) {
                         return const SizedBox(height: 100);
                       }
+                      // /go 전수조사: hasError 분기 추가. 이전엔 silent degrade.
+                      if (snap.hasError) {
+                        return const Padding(
+                          padding: EdgeInsets.all(FacingTokens.sp4),
+                          child: Text('Level 데이터 로딩 실패. 다시 시도.',
+                              style: FacingTokens.caption),
+                        );
+                      }
                       final history = snap.data ?? const <WodHistoryItem>[];
                       final streak = _currentStreakDays(history);
                       final p = context.watch<ProfileState>();

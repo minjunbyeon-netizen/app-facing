@@ -35,8 +35,9 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
             return const Center(child: Text('Loading', style: FacingTokens.body));
           }
           if (snap.hasError) {
+            // /go 전수조사: 원본 exception toString 노출 차단.
             final e = snap.error;
-            final msg = e is AppException ? e.messageKo : e.toString();
+            final msg = e is AppException ? e.messageKo : '기록 로딩 실패.';
             return Padding(
               padding: const EdgeInsets.all(FacingTokens.sp4),
               child: Text(msg, style: FacingTokens.body),

@@ -102,20 +102,34 @@ class _BoxLeaderboardScreenState extends State<BoxLeaderboardScreen> {
                         },
                       ),
                       const SizedBox(height: FacingTokens.sp4),
-                      ...List.generate(members.length, (i) {
-                        final m = members[i];
-                        return _LeaderRow(
-                          rank: i + 1,
-                          member: m,
-                          highlight: false,
-                          metric: _sort == _SortMode.sessions
-                              ? '${m.totalSessions}'
-                              : '${m.streakDays}',
-                          metricLabel: _sort == _SortMode.sessions
-                              ? 'SESSIONS'
-                              : 'DAYS',
-                        );
-                      }),
+                      // /go 전수조사: 빈 멤버 상태 명시 — 이전엔 빈 ListView 로 로딩과 구분 불가.
+                      if (members.isEmpty)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical: FacingTokens.sp5),
+                          child: Center(
+                            child: Text(
+                              '승인된 멤버 없음. 코치 승인 후 랭킹 표시.',
+                              style: FacingTokens.caption,
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        )
+                      else
+                        ...List.generate(members.length, (i) {
+                          final m = members[i];
+                          return _LeaderRow(
+                            rank: i + 1,
+                            member: m,
+                            highlight: false,
+                            metric: _sort == _SortMode.sessions
+                                ? '${m.totalSessions}'
+                                : '${m.streakDays}',
+                            metricLabel: _sort == _SortMode.sessions
+                                ? 'SESSIONS'
+                                : 'DAYS',
+                          );
+                        }),
                       const SizedBox(height: FacingTokens.sp3),
                       const Text(
                         '* 가상 데이터. 더미 멤버 포함. 실사용자 랭킹은 Phase 2.',
