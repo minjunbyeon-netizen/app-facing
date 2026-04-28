@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "PowerShell(adb *)",
-      "Skill(schedule)"
+      "Skill(schedule)",
+      "PowerShell(Start-Process \"docs\\\\ABOUT.md\")"
     ]
   }
 }
