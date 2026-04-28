@@ -1536,11 +1536,16 @@ class _WornTitleLineState extends State<_WornTitleLine> {
 }
 
 /// v1.18 Sprint 19: Inbox 진입 카드 — 미읽음 카운트 카톡식 빨간 dot.
+/// v1.20 페르소나 검증: isOwner / isApprovedMember 만 노출. pending/rejected/no-gym
+/// 페르소나는 inbox API 가 403/empty 반환 → 진입 카드 자체 숨김.
 class _InboxEntry extends StatelessWidget {
   const _InboxEntry();
 
   @override
   Widget build(BuildContext context) {
+    final gs = context.watch<GymState>();
+    final canAccessInbox = gs.isOwner || gs.membership.isApprovedMember;
+    if (!canAccessInbox) return const SizedBox.shrink();
     final state = context.watch<InboxState>();
     final unread = state.unreadCount;
     return Padding(
