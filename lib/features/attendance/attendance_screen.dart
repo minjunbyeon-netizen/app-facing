@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
@@ -11,7 +12,6 @@ import '../../core/theme.dart';
 import '../../core/wod_session_bus.dart';
 import '../../widgets/inbox_bell.dart';
 import '../achievement/achievement_section.dart';
-import '../achievement/panel_b_screen.dart';
 import '../history/history_models.dart';
 import '../history/history_repository.dart';
 import '../profile/profile_state.dart';
@@ -86,11 +86,6 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
         title: const Text('ATTEND'),
         actions: [
           const InboxBellAction(),
-          IconButton(
-            tooltip: 'Panel B Titles',
-            icon: const Icon(Icons.workspace_premium_outlined, size: 20),
-            onPressed: () => openPanelB(context),
-          ),
           IconButton(
             tooltip: 'Refresh',
             icon: const Icon(Icons.refresh),
@@ -196,26 +191,6 @@ class _AttendanceBody extends StatelessWidget {
       }
     }
     return count;
-  }
-
-  /// /go Tier 3: distinct wod_type count — HIT 3 CATEGORIES 집계용.
-  /// for_time / amrap / emom / chipper / manual_session 등 다양한 포맷 시도 횟수.
-  int _distinctWodTypes() {
-    final set = <String>{};
-    for (final r in records) {
-      final t = r.wodType.trim().toLowerCase();
-      if (t.isNotEmpty) set.add(t);
-    }
-    return set.length;
-  }
-
-  /// v1.16 Sprint 8 U3: 이달 세션 수 (챌린지 진행도용).
-  int currentMonthSessionsCount(List<WodHistoryItem> rs) {
-    final now = DateTime.now();
-    return rs.where((r) {
-      final d = r.createdAt.toLocal();
-      return d.year == now.year && d.month == now.month;
-    }).length;
   }
 
   /// 최장 streak — 전체 기록 중 최장 연속 일수.
@@ -447,38 +422,7 @@ class _AttendanceBody extends StatelessWidget {
         ),
         const SizedBox(height: FacingTokens.sp5),
 
-        // v1.16 Sprint 8 U3: 월별 챌린지 mock 3건.
-        const Text('CHALLENGES', style: FacingTokens.sectionLabel),
-        const SizedBox(height: FacingTokens.sp1),
-        Text('${DateTime.now().month}월. 매월 자동 리셋.',
-            style: FacingTokens.caption),
-        const SizedBox(height: FacingTokens.sp3),
-        _ChallengeRow(
-          title: '10 SESSIONS THIS MONTH',
-          subtitle: '이달 WOD 10회 완주',
-          current: currentMonthSessionsCount(records),
-          target: 10,
-        ),
-        // /go Tier 3: 이전 (totalLifetime/10) 대체 → distinct wod_type 집계.
-        // wod_type ∈ {for_time, amrap, emom, chipper, manual_session 등} 중 3종 이상.
-        _ChallengeRow(
-          title: 'HIT 3 WOD TYPES',
-          subtitle: 'For Time · AMRAP · EMOM 등 3종 이상 시도',
-          current: _distinctWodTypes().clamp(0, 3),
-          target: 3,
-        ),
-        _ChallengeRow(
-          title: '7-DAY STREAK',
-          subtitle: '7일 연속 출석',
-          current: currentStreak.clamp(0, 7),
-          target: 7,
-        ),
-        const SizedBox(height: FacingTokens.sp1),
-        Text('* 챌린지는 가상 데이터. 실제 집계 연결은 Phase 2.',
-            style: FacingTokens.micro),
-        const SizedBox(height: FacingTokens.sp5),
-
-        // v1.22 rev2: LEVEL → Streak Freeze 위로 이동. Attend 는 게이미피케이션 전용.
+        // v1.22 rev2: CHALLENGES 섹션 제거 — mock 데이터 + MILESTONES 와 중복.
         // 업적 + 해금 갤러리.
         const AchievementSection(),
       ],
@@ -486,8 +430,8 @@ class _AttendanceBody extends StatelessWidget {
   }
 }
 
-/// v1.22 rev2: LEVEL 카드 — Home Hero 에서 이관.
-/// totalSessions + currentStreak + tierNumber + prCount 로 LV 계산.
+/// v1.22 rev2: LEVEL 카드 — 친근한 캐릭터 + 격려 캡션 추가.
+/// 레벨대별 stickman 진화 (motivation → discipline → obsession).
 class _LevelCard extends StatelessWidget {
   final int totalSessions;
   final int currentStreakDays;
@@ -497,6 +441,30 @@ class _LevelCard extends StatelessWidget {
     required this.currentStreakDays,
     required this.prCount,
   });
+
+  /// 레벨대별 stickman 자산. 1~7 motivation → 8~14 discipline → 15+ obsession.
+  String _stickmanForLevel(int level) {
+    if (level <= 7) return 'assets/icons/stickman_motivation.svg';
+    if (level <= 14) return 'assets/icons/stickman_discipline.svg';
+    return 'assets/icons/stickman_obsession.svg';
+  }
+
+  /// 레벨대별 캐릭터 색 — 회색 → 흰 → 탠 (체력 진화).
+  Color _colorForLevel(int level) {
+    if (level <= 7) return FacingTokens.muted;
+    if (level <= 14) return FacingTokens.fg;
+    return FacingTokens.accent;
+  }
+
+  /// 레벨대별 격려 한 줄. 친근한 톤.
+  String _captionForLevel(int level) {
+    if (level <= 3) return '좋은 출발. 페이스 유지.';
+    if (level <= 7) return '체력 쌓이는 중.';
+    if (level <= 11) return '단단해지는 중.';
+    if (level <= 14) return 'Discipline 진입.';
+    if (level <= 17) return 'Obsession 시작.';
+    return '경지에 올랐다.';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -513,6 +481,7 @@ class _LevelCard extends StatelessWidget {
     );
     final pct = (bd.progress * 100).round();
     final isMax = bd.level >= LevelSystem.maxLevel;
+    final charColor = _colorForLevel(bd.level);
 
     return Container(
       padding: const EdgeInsets.all(FacingTokens.sp4),
@@ -524,28 +493,75 @@ class _LevelCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // 캐릭터 + LV 숫자 + XP
           Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Text('LEVEL', style: FacingTokens.sectionLabel),
-              const SizedBox(width: FacingTokens.sp2),
-              Text(
-                '${bd.level}',
-                style: FacingTokens.displayCompact.copyWith(
-                  color: FacingTokens.accent,
+              // 가상 캐릭터 — 레벨대별 stickman.
+              Container(
+                width: 84,
+                height: 84,
+                decoration: BoxDecoration(
+                  color: FacingTokens.accentSoft.withValues(
+                    alpha: bd.level >= 8 ? 1.0 : 0.4,
+                  ),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: charColor.withValues(alpha: 0.5),
+                    width: 1.5,
+                  ),
+                ),
+                alignment: Alignment.center,
+                child: SvgPicture.asset(
+                  _stickmanForLevel(bd.level),
+                  width: 56,
+                  height: 56,
+                  colorFilter:
+                      ColorFilter.mode(charColor, BlendMode.srcIn),
                 ),
               ),
-              const Spacer(),
-              Text(
-                '${bd.totalXp} XP',
-                style: FacingTokens.caption.copyWith(
-                  fontFeatures: FacingTokens.tabular,
-                  color: FacingTokens.muted,
-                  fontWeight: FontWeight.w700,
+              const SizedBox(width: FacingTokens.sp4),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('LEVEL',
+                        style: FacingTokens.sectionLabel),
+                    const SizedBox(height: 2),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        Text(
+                          '${bd.level}',
+                          style: FacingTokens.displayCompact.copyWith(
+                            color: FacingTokens.accent,
+                          ),
+                        ),
+                        const SizedBox(width: FacingTokens.sp2),
+                        Text(
+                          '${bd.totalXp} XP',
+                          style: FacingTokens.caption.copyWith(
+                            fontFeatures: FacingTokens.tabular,
+                            color: FacingTokens.muted,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: FacingTokens.sp3),
+          // 격려 캡션 — 친근한 톤.
+          Text(
+            _captionForLevel(bd.level),
+            style: FacingTokens.body.copyWith(
+              color: charColor,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           const SizedBox(height: FacingTokens.sp3),
           ClipRRect(
@@ -663,71 +679,6 @@ class _StatLine extends StatelessWidget {
 }
 
 /// v1.16 Sprint 8 U3: 월별 챌린지 row (마일스톤과 동일 시각, 다른 이름).
-class _ChallengeRow extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final int current;
-  final int target;
-  const _ChallengeRow({
-    required this.title,
-    required this.subtitle,
-    required this.current,
-    required this.target,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final done = current >= target;
-    final pct = (current / target).clamp(0.0, 1.0);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp2),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(title,
-                    style: FacingTokens.body.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: done ? FacingTokens.fg : FacingTokens.muted,
-                    )),
-              ),
-              Text(done ? 'COMPLETE' : '$current / $target',
-                  style: FacingTokens.micro.copyWith(
-                    color: done ? FacingTokens.accent : FacingTokens.muted,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.8,
-                    fontFeatures: FacingTokens.tabular,
-                  )),
-            ],
-          ),
-          const SizedBox(height: FacingTokens.sp1),
-          Text(subtitle, style: FacingTokens.caption),
-          const SizedBox(height: FacingTokens.sp2),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(FacingTokens.r1),
-            child: Stack(
-              children: [
-                Container(height: 4, color: FacingTokens.border),
-                FractionallySizedBox(
-                  widthFactor: pct,
-                  child: Container(
-                    height: 4,
-                    color: done
-                        ? FacingTokens.accent
-                        : FacingTokens.accent.withValues(alpha: 0.55),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 /// v1.16: 마일스톤 row — 진행 바 + 해금 여부.
 class _MilestoneRow extends StatelessWidget {
   final String title;
