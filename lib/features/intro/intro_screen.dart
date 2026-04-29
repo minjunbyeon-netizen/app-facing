@@ -184,29 +184,33 @@ class _IntroPageView extends StatelessWidget {
             horizontal: FacingTokens.sp5,
             vertical: FacingTokens.sp5,
           ),
+          // v1.21: 베타 피드백 — 인트로 텍스트 중앙정렬.
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: FacingTokens.sp7),
               // stickman (서사 시각화)
-              Center(
-                child: SvgPicture.asset(
-                  page.stickmanAsset,
-                  width: 140,
-                  height: 140,
-                  colorFilter: const ColorFilter.mode(
-                    FacingTokens.fg,
-                    BlendMode.srcIn,
-                  ),
+              SvgPicture.asset(
+                page.stickmanAsset,
+                width: 140,
+                height: 140,
+                colorFilter: const ColorFilter.mode(
+                  FacingTokens.fg,
+                  BlendMode.srcIn,
                 ),
               ),
               const Spacer(),
-              // v1.15 P2-5: 3단계 서사 라벨 (브랜드 의도 명시).
-              Text(page.stage, style: FacingTokens.sectionLabel),
+              Text(page.stage,
+                  style: FacingTokens.sectionLabel,
+                  textAlign: TextAlign.center),
               const SizedBox(height: FacingTokens.sp2),
-              Text(page.title, style: FacingTokens.h1),
+              Text(page.title,
+                  style: FacingTokens.h1,
+                  textAlign: TextAlign.center),
               const SizedBox(height: FacingTokens.sp4),
-              Text(page.body, style: FacingTokens.lead),
+              Text(page.body,
+                  style: FacingTokens.lead,
+                  textAlign: TextAlign.center),
               const SizedBox(height: FacingTokens.sp8 + FacingTokens.sp7),
             ],
           ),

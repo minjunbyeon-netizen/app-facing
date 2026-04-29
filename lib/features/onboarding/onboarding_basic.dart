@@ -62,7 +62,14 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
     const progress = 1 / 6;
     const pct = 17;
     return Scaffold(
-      appBar: AppBar(title: const Text('STEP 1 / 6')),
+      appBar: AppBar(
+        title: const Text('STEP 1 / 6'),
+        // v1.21: 베타 테스터 피드백 — 체중 입력 칸에서 뒤로가기 누락. signup 으로 복귀.
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pushReplacementNamed('/signup'),
+        ),
+      ),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

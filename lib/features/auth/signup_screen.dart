@@ -85,37 +85,46 @@ class _SignupScreenState extends State<SignupScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: FacingTokens.sp5),
-                Text('FACING', style: FacingTokens.brandLogo),
-                const SizedBox(height: FacingTokens.sp1),
-                // v1.16 Sprint 9b: Beta Preview 배지.
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: FacingTokens.sp2,
-                    vertical: 3,
-                  ),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: FacingTokens.accent, width: 1),
-                    borderRadius: BorderRadius.circular(FacingTokens.r1),
-                  ),
-                  child: Text(
-                    'BETA PREVIEW',
-                    style: FacingTokens.micro.copyWith(
-                      color: FacingTokens.accent,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 1.2,
+                // v1.21: 베타 피드백 — 상단 브랜드/태그라인 블록 중앙정렬.
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text('FACING',
+                        style: FacingTokens.brandLogo,
+                        textAlign: TextAlign.center),
+                    const SizedBox(height: FacingTokens.sp1),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: FacingTokens.sp2,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        border:
+                            Border.all(color: FacingTokens.accent, width: 1),
+                        borderRadius: BorderRadius.circular(FacingTokens.r1),
+                      ),
+                      child: Text(
+                        'BETA PREVIEW',
+                        style: FacingTokens.micro.copyWith(
+                          color: FacingTokens.accent,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(height: FacingTokens.sp2),
-                const Text(
-                  'Engine · Split · Burst',
-                  style: FacingTokens.micro,
-                ),
-                const SizedBox(height: FacingTokens.sp3),
-                const Text(
-                  'CrossFit Games-Player 전용\nWOD Pacing Intelligence',
-                  style: FacingTokens.caption,
-                  textAlign: TextAlign.center,
+                    const SizedBox(height: FacingTokens.sp2),
+                    const Text(
+                      'Engine · Split · Burst',
+                      style: FacingTokens.micro,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: FacingTokens.sp3),
+                    const Text(
+                      'CrossFit Games-Player 전용\nWOD Pacing Intelligence',
+                      style: FacingTokens.caption,
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
                 const SizedBox(height: FacingTokens.sp5),
 

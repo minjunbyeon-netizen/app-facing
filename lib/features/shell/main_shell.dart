@@ -29,6 +29,8 @@ class _MainShellState extends State<MainShell> {
   static const String _kTabHintShown = 'shell_tab_hint_shown_v2';
   int _index = _defaultIndex;
   bool _showTabHint = false;
+  // v1.21: 베타 피드백 — 더블탭 종료 패턴. 첫 탭 SnackBar, 2초 내 재탭 시 종료.
+  DateTime? _lastBackPress;
 
   ShellNavBus? _navBus;
 
@@ -146,9 +148,24 @@ class _MainShellState extends State<MainShell> {
         if (didPop) return;
         if (_index != _defaultIndex) {
           setState(() => _index = _defaultIndex);
-        } else {
-          SystemNavigator.pop();
+          return;
         }
+        // v1.21: 더블탭 종료. 2초 내 재탭 시만 종료.
+        final now = DateTime.now();
+        if (_lastBackPress == null ||
+            now.difference(_lastBackPress!).inSeconds >= 2) {
+          _lastBackPress = now;
+          ScaffoldMessenger.of(context).clearSnackBars();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('한 번 더 누르면 앱이 종료됩니다.'),
+              duration: Duration(seconds: 2),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+          return;
+        }
+        SystemNavigator.pop();
       },
       child: Scaffold(
         body: Stack(
