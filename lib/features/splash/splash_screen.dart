@@ -23,17 +23,10 @@ class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _ctrl;
 
-  // 6글자(F-A-C-I-N-G) 각각 독립 애니메이션
-  late final List<Animation<double>> _letterOpacity;
-  late final List<Animation<Offset>> _letterSlide;
-  late final List<Animation<Color?>> _letterColor;
-
-  // 나머지 5요소: tagline / body / caption / quote / loader
-  late final List<Animation<double>> _elOpacity;
-  late final List<Animation<Offset>> _elSlide; // 앞 4개만 (loader 제외)
-
-  // F(0), I(3) → fg→accent 컬러 전환. 나머지 → muted→fg.
-  static const List<bool> _isAccent = [true, false, false, true, false, false];
+  // 6 슬롯: 0=FACING / 1=tagline / 2=body / 3=caption / 4=quote / 5=loader
+  late final List<Animation<double>> _opacities;
+  // 슬라이드는 앞 5개만 (loader는 fade만)
+  late final List<Animation<Offset>> _slides;
 
   @override
   void initState() {
@@ -41,56 +34,31 @@ class _SplashScreenState extends State<SplashScreen>
 
     _ctrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2000),
+      duration: const Duration(milliseconds: 1500),
     );
 
-    // 글자 스태거: 80ms 간격, 각 350ms 애니메이션 (fraction of 2000ms)
-    const double ls = 0.040; // 글자 간 스태거 (80ms)
-    const double ld = 0.175; // 글자 1개 duration (350ms)
+    // 각 슬롯 시작/끝 (fraction of 1500ms)
+    const List<double> s = [0.00, 0.13, 0.25, 0.35, 0.50, 0.60];
+    const List<double> e = [0.33, 0.40, 0.52, 0.62, 0.73, 0.80];
 
-    _letterOpacity = List.generate(6, (i) => CurvedAnimation(
-      parent: _ctrl,
-      curve: Interval(i * ls, i * ls + ld, curve: Curves.easeOut),
-    ));
+    _opacities = List.generate(
+      6,
+      (i) => CurvedAnimation(
+        parent: _ctrl,
+        curve: Interval(s[i], e[i], curve: Curves.easeOut),
+      ),
+    );
 
-    // easeOutBack = 살짝 바운스로 착지하는 효과
-    _letterSlide = List.generate(6, (i) => Tween<Offset>(
-      begin: const Offset(0, -1.8),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _ctrl,
-      curve: Interval(i * ls, i * ls + ld, curve: Curves.easeOutBack),
-    )));
-
-    // 컬러 전환: 글자가 착지한 직후 색 변경 (fade-in 55% 지점부터)
-    _letterColor = List.generate(6, (i) {
-      final cStart = (i * ls + ld * 0.55).clamp(0.0, 0.95);
-      final cEnd = (cStart + 0.13).clamp(0.0, 1.0);
-      return ColorTween(
-        begin: _isAccent[i] ? FacingTokens.fg : FacingTokens.muted,
-        end: _isAccent[i] ? FacingTokens.accent : FacingTokens.fg,
+    _slides = List.generate(
+      5,
+      (i) => Tween<Offset>(
+        begin: const Offset(0, -0.6),
+        end: Offset.zero,
       ).animate(CurvedAnimation(
         parent: _ctrl,
-        curve: Interval(cStart, cEnd, curve: Curves.easeIn),
-      ));
-    });
-
-    // G가 완전히 착지(~0.40) 후 나머지 요소 등장
-    const List<double> eS = [0.42, 0.52, 0.60, 0.70, 0.80];
-    const List<double> eE = [0.58, 0.68, 0.76, 0.84, 0.92];
-
-    _elOpacity = List.generate(5, (i) => CurvedAnimation(
-      parent: _ctrl,
-      curve: Interval(eS[i], eE[i], curve: Curves.easeOut),
-    ));
-
-    _elSlide = List.generate(4, (i) => Tween<Offset>(
-      begin: const Offset(0, -0.5),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _ctrl,
-      curve: Interval(eS[i], eE[i], curve: Curves.easeOutCubic),
-    )));
+        curve: Interval(s[i], e[i], curve: Curves.easeOutCubic),
+      )),
+    );
 
     _ctrl.forward();
     WidgetsBinding.instance.addPostFrameCallback((_) => _bootstrap());
@@ -102,7 +70,7 @@ class _SplashScreenState extends State<SplashScreen>
     super.dispose();
   }
 
-  /// 기존 bootstrap 로직 유지. 딜레이만 +25% (2500 → 3125ms).
+  /// v1.16 Sprint 8 U1: 자동 진입 복원. 버튼 없이 backend health 준비 후 2.5s 뒤 자동 전환.
   Future<void> _bootstrap() async {
     final api = context.read<ApiClient>();
 
@@ -133,11 +101,12 @@ class _SplashScreenState extends State<SplashScreen>
     }
     if (!mounted) return;
 
-    await Future.delayed(const Duration(milliseconds: 3125));
+    await Future.delayed(const Duration(milliseconds: 2500));
     if (!mounted) return;
     _onStart(introSeen: introSeen, mode: mode);
   }
 
+  /// v1.16: 로그인 상태 분기.
   void _onStart({required bool introSeen, required AppMode? mode}) {
     final profile = context.read<ProfileState>();
     final auth = context.read<AuthState>();
@@ -155,32 +124,13 @@ class _SplashScreenState extends State<SplashScreen>
     Navigator.of(context).pushReplacementNamed(next);
   }
 
-  /// 글자 1개 위젯: 독립 슬라이드 + 페이드 + 컬러 전환.
-  Widget _letterWidget(int i) {
-    return AnimatedBuilder(
-      animation: _ctrl,
-      builder: (context, _) => FractionalTranslation(
-        translation: _letterSlide[i].value,
-        child: Opacity(
-          opacity: _letterOpacity[i].value.clamp(0.0, 1.0),
-          child: Text(
-            'FACING'[i],
-            style: FacingTokens.brandLogo.copyWith(color: _letterColor[i].value),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// 슬라이드 + 페이드 요소 (tagline/body/caption/quote).
-  Widget _el(int i, Widget child) => SlideTransition(
-        position: _elSlide[i],
-        child: FadeTransition(opacity: _elOpacity[i], child: child),
+  Widget _fadeSlide(int slot, Widget child) => SlideTransition(
+        position: _slides[slot],
+        child: FadeTransition(opacity: _opacities[slot], child: child),
       );
 
-  /// 페이드만 (loader).
-  Widget _elFade(Widget child) =>
-      FadeTransition(opacity: _elOpacity[4], child: child);
+  Widget _fadeOnly(int slot, Widget child) =>
+      FadeTransition(opacity: _opacities[slot], child: child);
 
   @override
   Widget build(BuildContext context) {
@@ -194,34 +144,47 @@ class _SplashScreenState extends State<SplashScreen>
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Spacer(),
-              // FACING — 글자별 독립 애니메이션
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(6, _letterWidget),
+              _fadeSlide(
+                0,
+                Text(
+                  'FACING',
+                  style: FacingTokens.brandLogo,
+                  textAlign: TextAlign.center,
+                ),
               ),
               const SizedBox(height: FacingTokens.sp2),
-              _el(0, const Text(
-                'Engine · Split · Burst',
-                style: FacingTokens.micro,
-                textAlign: TextAlign.center,
-              )),
+              _fadeSlide(
+                1,
+                Text(
+                  'Engine · Split · Burst',
+                  style: FacingTokens.micro,
+                  textAlign: TextAlign.center,
+                ),
+              ),
               const SizedBox(height: FacingTokens.sp3),
-              _el(1, const Text(
-                'WOD Pacing Intelligence.',
-                style: FacingTokens.body,
-                textAlign: TextAlign.center,
-              )),
+              _fadeSlide(
+                2,
+                Text(
+                  'WOD Pacing Intelligence.',
+                  style: FacingTokens.body,
+                  textAlign: TextAlign.center,
+                ),
+              ),
               const SizedBox(height: FacingTokens.sp1),
-              _el(2, const Text(
-                'CrossFit Games-Player 전용.',
-                style: FacingTokens.caption,
-                textAlign: TextAlign.center,
-              )),
+              _fadeSlide(
+                3,
+                Text(
+                  'CrossFit Games-Player 전용.',
+                  style: FacingTokens.caption,
+                  textAlign: TextAlign.center,
+                ),
+              ),
               const Spacer(),
-              _el(3, QuoteCard(quote: q, compact: true)),
+              _fadeSlide(4, QuoteCard(quote: q, compact: true)),
               const SizedBox(height: FacingTokens.sp5),
-              _elFade(const Center(
-                child: SizedBox(
+              _fadeOnly(
+                5,
+                const SizedBox(
                   width: 22,
                   height: 22,
                   child: CircularProgressIndicator(
@@ -229,7 +192,7 @@ class _SplashScreenState extends State<SplashScreen>
                     color: FacingTokens.muted,
                   ),
                 ),
-              )),
+              ),
               const SizedBox(height: FacingTokens.sp3),
             ],
           ),
