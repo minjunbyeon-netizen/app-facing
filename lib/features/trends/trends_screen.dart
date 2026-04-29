@@ -141,11 +141,9 @@ class _TrendsScreenState extends State<TrendsScreen> {
                       return _LevelCard(bd: bd);
                     },
                   ),
-                  const SizedBox(height: FacingTokens.sp4),
-                  const Divider(height: 1, color: FacingTokens.border),
                   const SizedBox(height: FacingTokens.sp3),
 
-                  // v1.16 Sprint 9a: Profile 점수·Radar 진입 브릿지.
+                  // v1.20: Profile 브릿지 — Divider 제거하여 LEVEL 카드와 시각 결합 강화.
                   InkWell(
                     onTap: () =>
                         Navigator.of(context).pushNamed('/mypage'),
@@ -155,89 +153,97 @@ class _TrendsScreenState extends State<TrendsScreen> {
                       child: Row(
                         children: [
                           const Icon(Icons.show_chart,
-                              size: 18, color: FacingTokens.muted),
+                              size: 16, color: FacingTokens.muted),
                           const SizedBox(width: FacingTokens.sp2),
                           const Expanded(
                             child: Text(
-                              'Engine Score · Radar · 카테고리 추이는 Profile',
+                              'Engine Score · Radar는 Profile',
                               style: FacingTokens.caption,
                             ),
                           ),
                           const Icon(Icons.chevron_right,
-                              size: 16, color: FacingTokens.muted),
+                              size: 14, color: FacingTokens.muted),
                         ],
                       ),
                     ),
                   ),
-                  const Divider(height: 1, color: FacingTokens.border),
-                  const SizedBox(height: FacingTokens.sp3),
+                  const SizedBox(height: FacingTokens.sp4),
 
-                  // Summary header
-                  // QA B-PF-7: visible catalog 만 분모로 사용. hidden 배지(서버 노출 전)는
-                  // 본 화면 분모에서 제외 — 표기와 표시 카드 갯수 일치 보장.
+                  // v1.20: 통합 헤더 — 큰 숫자 + 라벨 + LOCKED Hide 토글 1줄.
+                  // 기존 "TITLES UNLOCKED" + "UNLOCKED" 중복 + 분리된 carry-over 줄 정리.
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text('${unlocked.length}',
-                          style: FacingTokens.display),
-                      const SizedBox(width: FacingTokens.sp2),
+                          style: FacingTokens.display.copyWith(
+                            fontFeatures: FacingTokens.tabular,
+                          )),
+                      const SizedBox(width: FacingTokens.sp1),
                       Padding(
                         padding: const EdgeInsets.only(bottom: 10),
                         child: Text(
-                          '/ ${snap.catalog.length} titles',
-                          style: FacingTokens.caption,
+                          '/ ${snap.catalog.length}',
+                          style: FacingTokens.body.copyWith(
+                            color: FacingTokens.muted,
+                            fontFeatures: FacingTokens.tabular,
+                          ),
                         ),
                       ),
+                      const Spacer(),
+                      if (locked.isNotEmpty)
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            foregroundColor: FacingTokens.muted,
+                            minimumSize: const Size(0, 32),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: FacingTokens.sp2),
+                          ),
+                          onPressed: () =>
+                              setState(() => _showLocked = !_showLocked),
+                          child: Text(_showLocked
+                              ? 'Hide locked (${locked.length})'
+                              : 'Show locked (${locked.length})'),
+                        ),
                     ],
                   ),
-                  const SizedBox(height: FacingTokens.sp1),
-                  const Text('TITLES UNLOCKED',
-                      style: FacingTokens.sectionLabel),
-                  const SizedBox(height: FacingTokens.sp5),
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: FacingTokens.sp3),
+                    child: Text('TITLES UNLOCKED',
+                        style: FacingTokens.sectionLabel),
+                  ),
 
-                  // Unlocked
+                  // Unlocked list (라벨 중복 제거 — 위 헤더가 단일 SSOT)
                   if (unlocked.isEmpty) ...[
-                    const Text('해금된 배지 없음. Engine 측정부터 시작.',
-                        style: FacingTokens.caption),
+                    Container(
+                      padding:
+                          const EdgeInsets.all(FacingTokens.sp4),
+                      decoration: BoxDecoration(
+                        border:
+                            Border.all(color: FacingTokens.border),
+                        borderRadius:
+                            BorderRadius.circular(FacingTokens.r2),
+                      ),
+                      child: const Text(
+                        '해금된 배지 없음. Engine 측정부터 시작.',
+                        style: FacingTokens.caption,
+                      ),
+                    ),
                   ] else ...[
-                    const Text('UNLOCKED', style: FacingTokens.sectionLabel),
-                    const SizedBox(height: FacingTokens.sp2),
-                    // v1.20 Phase 2.5 (B-LW-13): demoUnlockedCodes 제거 → 백엔드
-                    // unlocked 응답만 신뢰. Panel B 추론은 별도 화면.
                     ...unlocked.map((c) => _BadgeCard(
                           catalog: c,
                           unlocked: true,
                         )),
                   ],
-                  const SizedBox(height: FacingTokens.sp5),
 
-                  // Locked toggle + list
-                  if (locked.isNotEmpty) ...[
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            'LOCKED (${locked.length})',
-                            style: FacingTokens.sectionLabel,
-                          ),
-                        ),
-                        TextButton(
-                          style: TextButton.styleFrom(
-                            foregroundColor: FacingTokens.muted,
-                          ),
-                          onPressed: () =>
-                              setState(() => _showLocked = !_showLocked),
-                          child: Text(_showLocked ? 'Hide' : 'Show'),
-                        ),
-                      ],
-                    ),
-                    if (_showLocked) ...[
-                      const SizedBox(height: FacingTokens.sp2),
-                      ...locked.map((c) => _BadgeCard(
-                            catalog: c,
-                            unlocked: false,
-                          )),
-                    ],
+                  // Locked list (헤더의 toggle로만 제어 — sectionLabel 중복 제거)
+                  if (locked.isNotEmpty && _showLocked) ...[
+                    const SizedBox(height: FacingTokens.sp4),
+                    const Text('LOCKED', style: FacingTokens.sectionLabel),
+                    const SizedBox(height: FacingTokens.sp2),
+                    ...locked.map((c) => _BadgeCard(
+                          catalog: c,
+                          unlocked: false,
+                        )),
                   ],
                 ],
               ),
@@ -372,9 +378,9 @@ class _BadgeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = unlocked ? _rarityColor() : FacingTokens.border;
     return Container(
-      margin: const EdgeInsets.only(bottom: FacingTokens.sp3),
+      margin: const EdgeInsets.only(bottom: FacingTokens.sp2),
       padding: const EdgeInsets.fromLTRB(
-          FacingTokens.sp4, FacingTokens.sp3, FacingTokens.sp4, FacingTokens.sp3),
+          FacingTokens.sp3, FacingTokens.sp2, FacingTokens.sp3, FacingTokens.sp2),
       decoration: BoxDecoration(
         border: Border(
           left: BorderSide(color: color, width: unlocked ? 3 : 2),
@@ -383,30 +389,35 @@ class _BadgeCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // v1.20: 1줄 압축 — 한글 타이틀 + 영문 보조 + rarity 우정렬.
+          // 기존: h3 큰 글자 + 별도 영문 줄 + rarity = 3줄. 26개 누적 시 페이지 폭격.
           Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      AchievementCard.koreanTitle(catalog.code),
-                      style: FacingTokens.h3.copyWith(
-                        color:
-                            unlocked ? FacingTokens.fg : FacingTokens.muted,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    Text(
-                      catalog.name,
-                      style: FacingTokens.micro.copyWith(
-                        color: FacingTokens.muted,
-                        letterSpacing: 0.4,
-                      ),
-                    ),
-                  ],
+              Flexible(
+                child: Text(
+                  AchievementCard.koreanTitle(catalog.code),
+                  style: FacingTokens.body.copyWith(
+                    color: unlocked ? FacingTokens.fg : FacingTokens.muted,
+                    fontWeight: FontWeight.w800,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
+              const SizedBox(width: FacingTokens.sp2),
+              Flexible(
+                child: Text(
+                  catalog.name,
+                  style: FacingTokens.caption.copyWith(
+                    color: FacingTokens.muted,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const Spacer(),
               Text(
                 catalog.rarity.toUpperCase(),
                 style: FacingTokens.micro.copyWith(
@@ -417,7 +428,7 @@ class _BadgeCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: FacingTokens.sp1),
+          const SizedBox(height: 2),
           Text(
             unlocked
                 ? catalog.description
@@ -425,6 +436,8 @@ class _BadgeCard extends StatelessWidget {
                     ? '· · · (조건 공개 안 됨)'
                     : AchievementCard.triggerHint(catalog.code)),
             style: FacingTokens.caption,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
