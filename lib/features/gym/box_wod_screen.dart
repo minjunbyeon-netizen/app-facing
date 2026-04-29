@@ -330,8 +330,8 @@ class _RejectedState extends StatelessWidget {
   }
 }
 
-/// v1.21: kbox 스타일 날짜 그룹 — 어제(위) / 오늘(가운데, Today 배지) / 내일·모레(아래).
-/// 윈도우: -1 ~ +2 일. 4일 안에 든 WOD만 표시. 더 많으면 "View all" 버튼 (Phase 2).
+/// v1.21: kbox 스타일 날짜 그룹 — 그저께·어제(위, 블러) / 오늘(가운데, Today 배지·자동펼침)
+/// / 내일·모레(아래, 약간 dim). 윈도우: -2 ~ +2 일.
 class _WodList extends StatelessWidget {
   final GymState gymState;
   const _WodList({required this.gymState});
@@ -345,16 +345,16 @@ class _WodList extends StatelessWidget {
     final now = DateTime.now().toLocal();
     final todayDate = DateTime(now.year, now.month, now.day);
 
-    // 윈도우 -1 ~ +2 일.
+    // 윈도우 -2 ~ +2 일 (그저께·어제·오늘·내일·모레).
     final groups = <String, List<GymWodPost>>{};
     for (final w in allWods) {
       final d = DateTime.tryParse('${w.postDate}T00:00:00');
       if (d == null) continue;
       final diff = d.difference(todayDate).inDays;
-      if (diff < -1 || diff > 2) continue;
+      if (diff < -2 || diff > 2) continue;
       groups.putIfAbsent(w.postDate, () => []).add(w);
     }
-    final sortedKeys = groups.keys.toList()..sort(); // ascending: 어제 → 오늘 → 내일 → 모레
+    final sortedKeys = groups.keys.toList()..sort(); // ascending: 그저께 → ... → 모레
 
     return RefreshIndicator(
       onRefresh: () => context.read<GymState>().loadMine(),
@@ -395,63 +395,77 @@ class _WodList extends StatelessWidget {
               final dd = d.day.toString().padLeft(2, '0');
               final dateLabel = '$mm.$dd · $wk';
               final relLabel = switch (diff) {
+                -2 => 'D-2',
                 -1 => 'YESTERDAY',
                 0 => 'TODAY',
                 1 => 'TOMORROW',
                 2 => 'D+2',
                 _ => '',
               };
-              return Padding(
-                padding: const EdgeInsets.only(bottom: FacingTokens.sp4),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      children: [
-                        Text(dateLabel,
-                            style: FacingTokens.h3.copyWith(
-                              fontWeight: FontWeight.w800,
-                              color: isToday
-                                  ? FacingTokens.fg
-                                  : FacingTokens.muted,
-                            )),
-                        const SizedBox(width: FacingTokens.sp2),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 1),
-                          decoration: BoxDecoration(
-                            color: isToday
-                                ? FacingTokens.accent
-                                : Colors.transparent,
-                            border: Border.all(
+              // 과거(-1, -2): Opacity 0.4 = 블러 흉내. 미래(+1, +2): 0.7 = 약간 dim.
+              // 오늘(0): full 1.0.
+              final opacity = switch (diff) {
+                -2 => 0.35,
+                -1 => 0.45,
+                0 => 1.0,
+                1 => 0.75,
+                2 => 0.65,
+                _ => 1.0,
+              };
+              return Opacity(
+                opacity: opacity,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: FacingTokens.sp4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          Text(dateLabel,
+                              style: FacingTokens.h3.copyWith(
+                                fontWeight: FontWeight.w800,
+                                color: isToday
+                                    ? FacingTokens.fg
+                                    : FacingTokens.muted,
+                              )),
+                          const SizedBox(width: FacingTokens.sp2),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 1),
+                            decoration: BoxDecoration(
                               color: isToday
                                   ? FacingTokens.accent
-                                  : FacingTokens.border,
-                              width: 1,
+                                  : Colors.transparent,
+                              border: Border.all(
+                                color: isToday
+                                    ? FacingTokens.accent
+                                    : FacingTokens.border,
+                                width: 1,
+                              ),
+                              borderRadius:
+                                  BorderRadius.circular(FacingTokens.r1),
                             ),
-                            borderRadius:
-                                BorderRadius.circular(FacingTokens.r1),
-                          ),
-                          child: Text(
-                            relLabel,
-                            style: FacingTokens.microLabel.copyWith(
-                              color: isToday
-                                  ? FacingTokens.fg
-                                  : FacingTokens.muted,
-                              fontWeight: FontWeight.w800,
+                            child: Text(
+                              relLabel,
+                              style: FacingTokens.microLabel.copyWith(
+                                color: isToday
+                                    ? FacingTokens.fg
+                                    : FacingTokens.muted,
+                                fontWeight: FontWeight.w800,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: FacingTokens.sp2),
-                    ...groups[key]!.map((w) => _WodCard(
-                          wod: w,
-                          canDelete: gymState.isOwner,
-                        )),
-                  ],
+                        ],
+                      ),
+                      const SizedBox(height: FacingTokens.sp2),
+                      ...groups[key]!.map((w) => _WodCard(
+                            wod: w,
+                            canDelete: gymState.isOwner,
+                          )),
+                    ],
+                  ),
                 ),
               );
             }),

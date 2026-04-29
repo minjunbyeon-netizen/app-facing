@@ -10,6 +10,7 @@ import '../../core/pr_detector.dart';
 import '../../core/scoring.dart';
 import '../../core/theme.dart';
 import '../../core/tier.dart';
+import '../../core/weak_insight.dart';
 import '../../widgets/offline_banner.dart';
 import '../../widgets/tier_badge.dart';
 import '../history/history_models.dart';
@@ -73,6 +74,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     engineFuture: _engineFuture,
                     wodFuture: _wodFuture,
                   ),
+                  const SizedBox(height: FacingTokens.sp4),
+                  // v1.21: 6축 RADAR + 약점 분석 — Profile에서 이관 (사용자 요청).
+                  const _RadarCard(),
                   const SizedBox(height: FacingTokens.sp5),
                   const Text('CALCULATE WOD',
                       style: FacingTokens.sectionLabel),
@@ -397,6 +401,249 @@ class _XpInline extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+/// v1.21: 6축 RADAR + 약점 분석 카드 — Profile에서 이관.
+class _RadarCard extends StatelessWidget {
+  const _RadarCard();
+
+  int _catScore(Map<String, dynamic>? grade, String key) {
+    if (grade == null) return 0;
+    final data = grade[key];
+    if (data is! Map) return 0;
+    final s = data['score'];
+    if (s is! num) return 0;
+    return engineScoreTo100(s);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.watch<ProfileState>();
+    final grade = p.gradeResult;
+    final radarValues = <_RadarAxis>[
+      _RadarAxis('POWER', _catScore(grade, 'power')),
+      _RadarAxis('OLYMPIC', _catScore(grade, 'olympic')),
+      _RadarAxis('GYMNASTICS', _catScore(grade, 'gymnastics')),
+      _RadarAxis('CARDIO', _catScore(grade, 'cardio')),
+      _RadarAxis('METCON', _catScore(grade, 'metcon')),
+      _RadarAxis('BODY', _catScore(grade, 'body_composition')),
+    ];
+    final hasData = radarValues.any((a) => a.value > 0);
+    if (!hasData) {
+      return Container(
+        padding: const EdgeInsets.all(FacingTokens.sp4),
+        decoration: BoxDecoration(
+          color: FacingTokens.surface,
+          border: Border.all(color: FacingTokens.border),
+          borderRadius: BorderRadius.circular(FacingTokens.r3),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: const [
+            Text('CATEGORY RADAR', style: FacingTokens.sectionLabel),
+            SizedBox(height: FacingTokens.sp2),
+            Text('카테고리 데이터 없음. Engine 측정 후 표시.',
+                style: FacingTokens.caption),
+          ],
+        ),
+      );
+    }
+
+    final insight = analyzeWeakness({
+      for (final a in radarValues) a.label: a.value,
+    });
+    final isBalanced = insight?.weakestCategory == 'BALANCED';
+
+    return Container(
+      padding: const EdgeInsets.all(FacingTokens.sp4),
+      decoration: BoxDecoration(
+        color: FacingTokens.surface,
+        border: Border.all(color: FacingTokens.border),
+        borderRadius: BorderRadius.circular(FacingTokens.r3),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('CATEGORY RADAR', style: FacingTokens.sectionLabel),
+          const SizedBox(height: FacingTokens.sp3),
+          AspectRatio(
+            aspectRatio: 1.0,
+            child: CustomPaint(
+              painter: _RadarPainter(axes: radarValues),
+              child: const SizedBox.expand(),
+            ),
+          ),
+          if (insight != null) ...[
+            const SizedBox(height: FacingTokens.sp3),
+            Container(
+              padding: const EdgeInsets.all(FacingTokens.sp3),
+              decoration: BoxDecoration(
+                border: Border(
+                  left: BorderSide(
+                    color: isBalanced
+                        ? FacingTokens.success
+                        : FacingTokens.accent,
+                    width: 3,
+                  ),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    isBalanced
+                        ? 'BALANCED'
+                        : '${insight.weakestCategory} · WEAKEST',
+                    style: FacingTokens.micro.copyWith(
+                      color: isBalanced
+                          ? FacingTokens.success
+                          : FacingTokens.accent,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: FacingTokens.sp1),
+                  Text(insight.comment, style: FacingTokens.caption),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _RadarAxis {
+  final String label;
+  final int value; // 0~100
+  const _RadarAxis(this.label, this.value);
+}
+
+class _RadarPainter extends CustomPainter {
+  final List<_RadarAxis> axes;
+  _RadarPainter({required this.axes});
+
+  static const double _topAngle = -math.pi / 2;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final n = axes.length;
+    if (n < 3) return;
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.shortestSide / 2 - 28;
+    final angleStep = 2 * math.pi / n;
+
+    final bgPaint = Paint()
+      ..color = FacingTokens.border
+      ..strokeWidth = 1
+      ..style = PaintingStyle.stroke;
+    for (final ratio in [0.33, 0.66, 1.0]) {
+      final path = Path();
+      for (int i = 0; i < n; i++) {
+        final angle = _topAngle + angleStep * i;
+        final x = center.dx + radius * ratio * math.cos(angle);
+        final y = center.dy + radius * ratio * math.sin(angle);
+        if (i == 0) {
+          path.moveTo(x, y);
+        } else {
+          path.lineTo(x, y);
+        }
+      }
+      path.close();
+      canvas.drawPath(path, bgPaint);
+    }
+
+    final axisPaint = Paint()
+      ..color = FacingTokens.border
+      ..strokeWidth = 1;
+    for (int i = 0; i < n; i++) {
+      final angle = _topAngle + angleStep * i;
+      final x = center.dx + radius * math.cos(angle);
+      final y = center.dy + radius * math.sin(angle);
+      canvas.drawLine(center, Offset(x, y), axisPaint);
+    }
+
+    final userPath = Path();
+    for (int i = 0; i < n; i++) {
+      final angle = _topAngle + angleStep * i;
+      final ratio = (axes[i].value / 100).clamp(0.02, 1.0);
+      final x = center.dx + radius * ratio * math.cos(angle);
+      final y = center.dy + radius * ratio * math.sin(angle);
+      if (i == 0) {
+        userPath.moveTo(x, y);
+      } else {
+        userPath.lineTo(x, y);
+      }
+    }
+    userPath.close();
+    canvas.drawPath(
+      userPath,
+      Paint()
+        ..color = FacingTokens.accent.withValues(alpha: 0.22)
+        ..style = PaintingStyle.fill,
+    );
+    canvas.drawPath(
+      userPath,
+      Paint()
+        ..color = FacingTokens.accent
+        ..strokeWidth = 2
+        ..style = PaintingStyle.stroke
+        ..strokeJoin = StrokeJoin.round,
+    );
+    for (int i = 0; i < n; i++) {
+      final angle = _topAngle + angleStep * i;
+      final ratio = (axes[i].value / 100).clamp(0.02, 1.0);
+      final x = center.dx + radius * ratio * math.cos(angle);
+      final y = center.dy + radius * ratio * math.sin(angle);
+      canvas.drawCircle(
+        Offset(x, y),
+        3,
+        Paint()..color = FacingTokens.accent,
+      );
+    }
+
+    for (int i = 0; i < n; i++) {
+      final angle = _topAngle + angleStep * i;
+      final lx = center.dx + (radius + 16) * math.cos(angle);
+      final ly = center.dy + (radius + 16) * math.sin(angle);
+      final tp = TextPainter(
+        text: TextSpan(
+          text: axes[i].label,
+          style: FacingTokens.sectionLabel.copyWith(
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.8,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+        textAlign: TextAlign.center,
+      )..layout(maxWidth: 80);
+      final offset = Offset(lx - tp.width / 2, ly - tp.height / 2);
+      tp.paint(canvas, offset);
+      final vp = TextPainter(
+        text: TextSpan(
+          text: '${axes[i].value}',
+          style: FacingTokens.sectionLabel.copyWith(
+            color: FacingTokens.fg,
+            letterSpacing: 0,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      final vOffset = Offset(lx - vp.width / 2, ly + tp.height / 2 + 1);
+      vp.paint(canvas, vOffset);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _RadarPainter old) {
+    if (old.axes.length != axes.length) return true;
+    for (int i = 0; i < axes.length; i++) {
+      if (old.axes[i].value != axes[i].value) return true;
+      if (old.axes[i].label != axes[i].label) return true;
+    }
+    return false;
   }
 }
 
