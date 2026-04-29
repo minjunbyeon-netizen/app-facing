@@ -163,29 +163,27 @@ class _AttendanceBody extends StatelessWidget {
     return count;
   }
 
-  /// 최장 streak — 전체 기록 중 최장 연속 일수.
-  int _longestStreak() {
-    final days = _uniqueDays().toList()..sort();
-    if (days.isEmpty) return 0;
-    int best = 1;
-    int current = 1;
-    for (int i = 1; i < days.length; i++) {
-      final diff = days[i].difference(days[i - 1]).inDays;
-      if (diff == 1) {
-        current++;
-        if (current > best) best = current;
-      } else {
-        current = 1;
-      }
-    }
-    return best;
-  }
 
   @override
   Widget build(BuildContext context) {
     final totalLifetime = records.length;
     final currentStreak = _currentStreak();
-    final longestStreak = _longestStreak();
+    final now = DateTime.now();
+    final thisMonthCount = records.where((r) {
+      final d = r.createdAt.toLocal();
+      return d.year == now.year && d.month == now.month;
+    }).length;
+    final daysElapsed = now.day;
+    final achState = context.watch<AchievementState>();
+    final unlockedCount = achState.snapshot.unlocked.length;
+    final int nextMilestone;
+    if (totalLifetime < 50) {
+      nextMilestone = 50;
+    } else if (totalLifetime < 100) {
+      nextMilestone = 100;
+    } else {
+      nextMilestone = 365;
+    }
 
     return ListView(
       padding: const EdgeInsets.all(FacingTokens.sp4),
@@ -201,38 +199,26 @@ class _AttendanceBody extends StatelessWidget {
         const _StreakFreezeRow(),
         const SizedBox(height: FacingTokens.sp5),
 
-        // 3. MILESTONES — 단계별 진행도
+        // 3. MILESTONES — 3종 요약 진행바
         const Text('MILESTONES', style: FacingTokens.sectionLabel),
         const SizedBox(height: FacingTokens.sp3),
-        _MilestoneRow(
-          title: '7-day attendance',
-          subtitle: '7일 연속 출석',
-          current: longestStreak.clamp(0, 7),
-          target: 7,
+        _ProgressStat(
+          title: 'Attendance',
+          subtitle: '이번 달 출석 · $thisMonthCount / $daysElapsed days',
+          value: daysElapsed > 0 ? (thisMonthCount / daysElapsed).clamp(0.0, 1.0) : 0.0,
+          trailing: daysElapsed > 0 ? '${(thisMonthCount / daysElapsed * 100).round()}%' : '0%',
         ),
-        _MilestoneRow(
-          title: '30-day attendance',
-          subtitle: '30일 연속 출석',
-          current: longestStreak.clamp(0, 30),
-          target: 30,
+        _ProgressStat(
+          title: 'Sessions',
+          subtitle: '누적 $totalLifetime회 → $nextMilestone 목표',
+          value: (totalLifetime / nextMilestone).clamp(0.0, 1.0),
+          trailing: totalLifetime >= 365 ? 'MAX' : '$totalLifetime / $nextMilestone',
         ),
-        _MilestoneRow(
-          title: '50 sessions',
-          subtitle: '평생 누적 50회',
-          current: totalLifetime.clamp(0, 50),
-          target: 50,
-        ),
-        _MilestoneRow(
-          title: '100 sessions',
-          subtitle: '평생 누적 100회',
-          current: totalLifetime.clamp(0, 100),
-          target: 100,
-        ),
-        _MilestoneRow(
-          title: '365 sessions',
-          subtitle: '평생 누적 365회',
-          current: totalLifetime.clamp(0, 365),
-          target: 365,
+        _ProgressStat(
+          title: 'Achievements',
+          subtitle: '업적 해금',
+          value: (unlockedCount / 96).clamp(0.0, 1.0),
+          trailing: '$unlockedCount / 96',
         ),
         const SizedBox(height: FacingTokens.sp5),
 
@@ -463,23 +449,22 @@ class _XpInline extends StatelessWidget {
   }
 }
 
-/// v1.16: 마일스톤 row — 진행 바 + 해금 여부.
-class _MilestoneRow extends StatelessWidget {
+/// MILESTONES 3종 요약 진행바 (Attendance / Sessions / Achievements).
+class _ProgressStat extends StatelessWidget {
   final String title;
   final String subtitle;
-  final int current;
-  final int target;
-  const _MilestoneRow({
+  final double value; // 0.0 ~ 1.0
+  final String trailing;
+  const _ProgressStat({
     required this.title,
     required this.subtitle,
-    required this.current,
-    required this.target,
+    required this.value,
+    required this.trailing,
   });
 
   @override
   Widget build(BuildContext context) {
-    final unlocked = current >= target;
-    final pct = (current / target).clamp(0.0, 1.0);
+    final done = value >= 1.0;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp2),
       child: Column(
@@ -490,16 +475,13 @@ class _MilestoneRow extends StatelessWidget {
               Expanded(
                 child: Text(
                   title,
-                  style: FacingTokens.body.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: unlocked ? FacingTokens.fg : FacingTokens.muted,
-                  ),
+                  style: FacingTokens.body.copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
               Text(
-                unlocked ? 'UNLOCKED' : '$current / $target',
+                trailing,
                 style: FacingTokens.micro.copyWith(
-                  color: unlocked ? FacingTokens.accent : FacingTokens.muted,
+                  color: done ? FacingTokens.accent : FacingTokens.muted,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 0.8,
                   fontFeatures: FacingTokens.tabular,
@@ -516,10 +498,10 @@ class _MilestoneRow extends StatelessWidget {
               children: [
                 Container(height: 4, color: FacingTokens.border),
                 FractionallySizedBox(
-                  widthFactor: pct,
+                  widthFactor: value,
                   child: Container(
                     height: 4,
-                    color: unlocked
+                    color: done
                         ? FacingTokens.accent
                         : FacingTokens.accent.withValues(alpha: 0.55),
                   ),
