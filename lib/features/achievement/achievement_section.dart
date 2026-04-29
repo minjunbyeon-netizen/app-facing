@@ -8,7 +8,7 @@ import 'achievement_card.dart';
 import 'achievement_state.dart';
 import 'achievements_screen.dart';
 
-/// v1.16: Profile 탭 하단 ACHIEVEMENTS 섹션. 기본 collapsed.
+/// 업적 그리드 섹션 — 3열 배지 타일. 해금 먼저, 잠금 토글.
 class AchievementSection extends StatefulWidget {
   const AchievementSection({super.key});
 
@@ -17,8 +17,20 @@ class AchievementSection extends StatefulWidget {
 }
 
 class _AchievementSectionState extends State<AchievementSection> {
-  bool _expanded = false;
   bool _showLocked = false;
+
+  Color _rarityColor(String rarity) {
+    switch (rarity) {
+      case 'Rare':
+        return FacingTokens.accent;
+      case 'Epic':
+        return FacingTokens.tierElite;
+      case 'Legendary':
+        return FacingTokens.tierGames;
+      default:
+        return FacingTokens.muted;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,83 +39,6 @@ class _AchievementSectionState extends State<AchievementSection> {
     final total = snap.visibleCount;
     final unlocked = snap.unlockedCount;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: InkWell(
-                  onTap: () {
-                    Haptic.light();
-                    setState(() => _expanded = !_expanded);
-                  },
-                  child: Row(
-                    children: [
-                      const Expanded(
-                        child: Text('ACHIEVEMENTS',
-                            style: FacingTokens.sectionLabel),
-                      ),
-                      Text('$unlocked / $total',
-                          style: FacingTokens.caption),
-                      const SizedBox(width: FacingTokens.sp2),
-                      Icon(
-                        _expanded ? Icons.expand_less : Icons.expand_more,
-                        size: 18,
-                        color: FacingTokens.muted,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: FacingTokens.sp2),
-              TextButton(
-                style: TextButton.styleFrom(
-                  foregroundColor: FacingTokens.accent,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: FacingTokens.sp2,
-                  ),
-                ),
-                onPressed: () {
-                  Haptic.light();
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => const AchievementsScreen(),
-                  ));
-                },
-                child: const Text('View All'),
-              ),
-            ],
-          ),
-          if (_expanded) ...[
-            const SizedBox(height: FacingTokens.sp3),
-            ..._buildCards(snap),
-          ],
-        ],
-      ),
-    );
-  }
-
-  List<Widget> _buildCards(AchievementSnapshot snap) {
-    if (snap.catalog.isEmpty) {
-      // QA B-PF-19: snap 만으로는 로딩/실패/빈 catalog 구분 불가.
-      // 부모 AchievementsScreen 이 isLoading 체크 후 진입 → 여기 도달 시 사실상 로딩 완료 상태.
-      // '카탈로그 없음' 으로 명시.
-      return [
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: FacingTokens.sp2),
-          child: Text(
-            'No catalog. Pull to refresh.',
-            style: FacingTokens.caption,
-          ),
-        ),
-      ];
-    }
-    // 해금 먼저(unlocked_at DESC), 미해금 뒤(sort_order ASC).
-    final unlockedCards = <Widget>[];
-    final lockedCards = <Widget>[];
-    // /go 전수조사: data race 시 isUnlocked=true 인데 unlocked map 에 없는 경우 방어.
     final unlockedList = snap.catalog
         .where((c) => snap.isUnlocked(c.code))
         .toList()
@@ -115,39 +50,159 @@ class _AchievementSectionState extends State<AchievementSection> {
         if (ub == null) return -1;
         return ub.compareTo(ua);
       });
+
     final lockedList = snap.catalog
         .where((c) => !snap.isUnlocked(c.code))
         .toList()
       ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
-    for (final c in unlockedList) {
-      unlockedCards.add(AchievementCard(catalog: c, unlock: snap.unlocked[c.code]));
-    }
-    for (final c in lockedList) {
-      lockedCards.add(AchievementCard(catalog: c));
-    }
-    final out = <Widget>[];
-    out.addAll(unlockedCards);
-    if (lockedList.isNotEmpty) {
-      out.add(Padding(
-        padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp2),
-        child: TextButton(
-          style: TextButton.styleFrom(
-            foregroundColor: FacingTokens.muted,
-            alignment: Alignment.centerLeft,
-          ),
-          onPressed: () {
-            Haptic.light();
-            setState(() => _showLocked = !_showLocked);
-          },
-          child: Text(
-            _showLocked
-                ? 'Hide locked'
-                : 'Show locked (${lockedList.length})',
-          ),
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // 헤더
+        Row(
+          children: [
+            const Expanded(
+              child: Text('ACHIEVEMENTS', style: FacingTokens.sectionLabel),
+            ),
+            Text('$unlocked / $total', style: FacingTokens.caption),
+            const SizedBox(width: FacingTokens.sp2),
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: FacingTokens.accent,
+                padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp2),
+              ),
+              onPressed: () {
+                Haptic.light();
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => const AchievementsScreen(),
+                ));
+              },
+              child: const Text('View All'),
+            ),
+          ],
         ),
-      ));
-      if (_showLocked) out.addAll(lockedCards);
-    }
-    return out;
+        const SizedBox(height: FacingTokens.sp3),
+
+        if (snap.catalog.isEmpty)
+          const Text('No catalog. Pull to refresh.', style: FacingTokens.caption)
+        else ...[
+          // 해금 그리드
+          if (unlockedList.isNotEmpty)
+            _buildGrid(unlockedList, snap, isUnlocked: true),
+
+          // 잠금 토글
+          if (lockedList.isNotEmpty) ...[
+            const SizedBox(height: FacingTokens.sp2),
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: FacingTokens.muted,
+                alignment: Alignment.centerLeft,
+                padding: EdgeInsets.zero,
+              ),
+              onPressed: () {
+                Haptic.light();
+                setState(() => _showLocked = !_showLocked);
+              },
+              child: Text(
+                _showLocked
+                    ? 'Hide locked'
+                    : 'Show locked (${lockedList.length})',
+              ),
+            ),
+            if (_showLocked) ...[
+              const SizedBox(height: FacingTokens.sp2),
+              _buildGrid(lockedList, snap, isUnlocked: false),
+            ],
+          ],
+        ],
+      ],
+    );
+  }
+
+  Widget _buildGrid(
+    List<AchievementCatalog> items,
+    AchievementSnapshot snap, {
+    required bool isUnlocked,
+  }) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: FacingTokens.sp2,
+        mainAxisSpacing: FacingTokens.sp2,
+        childAspectRatio: 1.05,
+      ),
+      itemCount: items.length,
+      itemBuilder: (_, i) {
+        final c = items[i];
+        final rc = isUnlocked ? _rarityColor(c.rarity) : FacingTokens.border;
+        return _GridTile(
+          catalog: c,
+          rarityColor: rc,
+          isUnlocked: isUnlocked,
+        );
+      },
+    );
+  }
+}
+
+class _GridTile extends StatelessWidget {
+  final AchievementCatalog catalog;
+  final Color rarityColor;
+  final bool isUnlocked;
+
+  const _GridTile({
+    required this.catalog,
+    required this.rarityColor,
+    required this.isUnlocked,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Opacity(
+      opacity: isUnlocked ? 1.0 : 0.38,
+      child: Container(
+        decoration: BoxDecoration(
+          color: FacingTokens.surface,
+          border: Border(
+            left: BorderSide(color: rarityColor, width: isUnlocked ? 2.5 : 1),
+            top: BorderSide(color: FacingTokens.border, width: 1),
+            right: BorderSide(color: FacingTokens.border, width: 1),
+            bottom: BorderSide(color: FacingTokens.border, width: 1),
+          ),
+          borderRadius: BorderRadius.circular(FacingTokens.r2),
+        ),
+        padding: const EdgeInsets.all(FacingTokens.sp2),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              AchievementCard.koreanTitle(catalog.code),
+              style: FacingTokens.micro.copyWith(
+                color: isUnlocked ? FacingTokens.fg : FacingTokens.muted,
+                fontWeight: FontWeight.w700,
+                height: 1.3,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 3),
+            Text(
+              catalog.rarity.toUpperCase(),
+              style: FacingTokens.micro.copyWith(
+                color: rarityColor,
+                fontSize: 9,
+                letterSpacing: 0.6,
+                fontWeight: FontWeight.w800,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
