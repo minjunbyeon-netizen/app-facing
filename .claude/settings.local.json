@@ -9,7 +9,8 @@
       "mcp__playwright__browser_take_screenshot",
       "mcp__playwright__browser_evaluate",
       "Bash(mkdir -p C:/Users/USER/.claude/reference/study/captures/sports-design)",
-      "Bash(cp .playwright-mcp/*.png C:/Users/USER/.claude/reference/study/captures/sports-design/)"
+      "Bash(cp .playwright-mcp/*.png C:/Users/USER/.claude/reference/study/captures/sports-design/)",
+      "PowerShell(Get-Process *)"
     ]
   }
 }
