@@ -1,39 +1,28 @@
-import 'dart:math' as math;
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../core/api_client.dart';
 import '../../core/app_mode.dart';
-import '../../core/athletes.dart';
-import '../../core/engine_decay.dart';
 import '../../core/haptic.dart';
-import '../../core/scoring.dart';
 import '../../core/theme.dart';
-import '../../core/tier.dart';
-import '../_debug/persona_switcher_screen.dart';
 import '../../core/ui_prefs_state.dart';
 import '../../core/unit_state.dart';
-import '../../core/weak_insight.dart';
-import '../../core/worn_title_store.dart';
-import '../../models/achievement.dart';
-import '../achievement/achievement_card.dart';
-import '../achievement/achievement_state.dart';
 import '../../widgets/inbox_bell.dart';
-import '../../widgets/tier_badge.dart';
+import '../_debug/persona_switcher_screen.dart';
 import '../auth/auth_state.dart';
 import '../goals/goals_screen.dart';
 import '../gym/coach_dashboard_screen.dart';
 import '../gym/gym_state.dart';
-import '../history/history_models.dart';
-import '../history/history_repository.dart';
 import '../profile/profile_state.dart';
 import 'algorithm_screen.dart';
+import 'edit_profile_screen.dart';
 import 'import_screen.dart';
 import 'privacy_screen.dart';
 
+/// v1.22: Profile = identity + 측정값 편집 진입 + 잘안쓰는 actions.
+/// Engine score · Tier · Radar · Category Tier · Trend · Records · RoleModel 등
+/// score 관련 컨텐츠는 모두 Home 으로 이동 (중복 제거).
 class MyPageScreen extends StatelessWidget {
   const MyPageScreen({super.key});
 
@@ -47,26 +36,15 @@ class MyPageScreen extends StatelessWidget {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp3),
-          // v1.21: 5탭 재배치 — Tier/점수/추이는 Home으로, 업적은 Attend으로 이동.
-          // Profile = "내 detail (radar/category/records) + 잘안쓰는거 (settings/policy/data)".
           children: const [
+            _IdentityCard(),
+            _SectionDivider(),
             _MyBoxSection(),
-            _SectionDivider(),
-            _TierRoadmap(),
-            _SectionDivider(),
-            _EngineTrend(),
-            _SectionDivider(),
-            _CategoryTiers(),
-            _SectionDivider(),
-            _RecentRecords(),
-            _SectionDivider(),
-            _RoleModelCard(),
             _SectionDivider(),
             _BodyStats(),
             _SectionDivider(),
             _SettingsSection(),
             _SectionDivider(),
-            // 잘 안 쓰는거 (algorithm/privacy/import/reset) 는 _ActionsSection 안에 있음.
             _ActionsSection(),
           ],
         ),
@@ -84,137 +62,71 @@ class _SectionDivider extends StatelessWidget {
       );
 }
 
-/// v1.15.3: 카테고리별(5개) Tier + Score(0~100) + Top%(백분위 근사).
-/// 각 카테고리는 `gradeResult[key] = {number, score, items_used, missing}`.
-class _CategoryTiers extends StatelessWidget {
-  const _CategoryTiers();
+/// v1.22: 닉네임 + 아바타 + Edit Profile 버튼.
+class _IdentityCard extends StatelessWidget {
+  const _IdentityCard();
 
   @override
   Widget build(BuildContext context) {
-    final p = context.watch<ProfileState>();
-    final g = p.gradeResult;
-    if (g == null) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text('CATEGORY TIERS', style: FacingTokens.sectionLabel),
-            SizedBox(height: FacingTokens.sp2),
-            Text('온보딩 완료 후 표시.', style: FacingTokens.caption),
-          ],
-        ),
-      );
-    }
-    final specs = <(String, String)>[
-      ('POWER', 'power'),
-      ('OLYMPIC', 'olympic'),
-      ('GYMNASTICS', 'gymnastics'),
-      ('CARDIO', 'cardio'),
-      ('METCON', 'metcon'),
-      ('BODY', 'body_composition'),
-    ];
-    final rows = <Widget>[];
-    for (final (title, key) in specs) {
-      final data = g[key];
-      if (data is! Map) continue;
-      final num? scoreNum = data['score'] is num ? data['score'] as num : null;
-      if (scoreNum == null) continue;
-      // v1.16 버그 fix: 백엔드 누락·구버전 저장본 대비 number/grade/score fallback.
-      final catNum = resolveCategoryNumber(data);
-      rows.add(_CategoryTierRow(
-        title: title,
-        tier: Tier.fromOverallNumber(catNum),
-        score100: engineScoreTo100(scoreNum),
-        topPct: engineScoreToTopPercent(scoreNum),
-      ));
-    }
+    final auth = context.watch<AuthState>();
+    final name = (auth.displayName?.trim().isNotEmpty == true)
+        ? auth.displayName!.trim()
+        : 'Athlete';
+    final provider = (auth.provider ?? '').toUpperCase();
+    final initial = name.isEmpty ? '?' : name.characters.first.toUpperCase();
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('CATEGORY TIERS', style: FacingTokens.sectionLabel),
-          const SizedBox(height: FacingTokens.sp1),
-          Text('Percentiles · CrossFit community distribution.',
-              style: FacingTokens.caption),
-          const SizedBox(height: FacingTokens.sp3),
-          if (rows.isEmpty)
-            const Text('카테고리 데이터 없음', style: FacingTokens.caption)
-          else
-            ...rows,
-        ],
-      ),
-    );
-  }
-}
-
-class _CategoryTierRow extends StatelessWidget {
-  final String title;
-  final Tier tier;
-  final int score100;
-  final double topPct;
-  const _CategoryTierRow({
-    required this.title,
-    required this.tier,
-    required this.score100,
-    required this.topPct,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp3),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
           Row(
             children: [
-              Expanded(
-                child: Text(title, style: FacingTokens.sectionLabel),
-              ),
-              TierBadge(tier: tier),
-              const SizedBox(width: FacingTokens.sp3),
-              Text(
-                formatTopPercent(topPct),
-                style: FacingTokens.caption.copyWith(
-                  color: FacingTokens.fg,
-                  fontWeight: FontWeight.w700,
-                  fontFeatures: FacingTokens.tabular,
+              // 아바타 — 현재는 첫 글자. 향후 사진 설정 시 Avatar 위젯으로 교체.
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: FacingTokens.accentSoft,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: FacingTokens.accent.withValues(alpha: 0.5),
+                    width: 1.5,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: FacingTokens.sp2),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: 44,
+                alignment: Alignment.center,
                 child: Text(
-                  '$score100',
-                  style: FacingTokens.lead.copyWith(
-                    fontWeight: FontWeight.w800,
-                    fontFeatures: FacingTokens.tabular,
+                  initial,
+                  style: FacingTokens.h2.copyWith(
+                    color: FacingTokens.accent,
                   ),
                 ),
               ),
-              const SizedBox(width: FacingTokens.sp2),
+              const SizedBox(width: FacingTokens.sp3),
               Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(FacingTokens.r1),
-                  child: Stack(
-                    children: [
-                      Container(height: 6, color: FacingTokens.border),
-                      FractionallySizedBox(
-                        widthFactor: (score100 / 100).clamp(0.02, 1.0),
-                        child: Container(height: 6, color: tier.color),
-                      ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(name, style: FacingTokens.h2),
+                    if (provider.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(provider, style: FacingTokens.microLabel),
                     ],
-                  ),
+                  ],
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: FacingTokens.sp4),
+          OutlinedButton.icon(
+            onPressed: () {
+              Haptic.light();
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => const EditProfileScreen(),
+              ));
+            },
+            icon: const Icon(Icons.edit_outlined, size: 18),
+            label: const Text('Edit Profile'),
           ),
         ],
       ),
@@ -222,7 +134,6 @@ class _CategoryTierRow extends StatelessWidget {
   }
 }
 
-/// v1.15.3: 소속 박스 요약. owner면 'Manage Members' 버튼 노출.
 class _MyBoxSection extends StatelessWidget {
   const _MyBoxSection();
 
@@ -242,7 +153,8 @@ class _MyBoxSection extends StatelessWidget {
                 style: FacingTokens.caption)
           else ...[
             Text(gym.name,
-                style: FacingTokens.body.copyWith(fontWeight: FontWeight.w800)),
+                style:
+                    FacingTokens.body.copyWith(fontWeight: FontWeight.w800)),
             const SizedBox(height: FacingTokens.sp1),
             Text(
               '${gs.isOwner ? 'OWNER' : 'MEMBER'} · ${gs.membership.status ?? '-'} · ${gym.memberCount} members',
@@ -261,463 +173,6 @@ class _MyBoxSection extends StatelessWidget {
               ),
             ],
           ],
-        ],
-      ),
-    );
-  }
-}
-
-/// v1.16: Engine 점수 + delta + 5축 radar 차트 (POWER·OLYMPIC·GYMNASTICS·CARDIO·METCON).
-class _EngineTrend extends StatefulWidget {
-  const _EngineTrend();
-
-  @override
-  State<_EngineTrend> createState() => _EngineTrendState();
-}
-
-class _EngineTrendState extends State<_EngineTrend> {
-  Future<List<EngineSnapshotRecord>>? _future;
-
-  @override
-  void initState() {
-    super.initState();
-    final repo = HistoryRepository(context.read<ApiClient>());
-    _future = repo.listEngineSnapshots(limit: 10);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final profile = context.watch<ProfileState>();
-    final grade = profile.gradeResult;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('ENGINE SCORE', style: FacingTokens.sectionLabel),
-          const SizedBox(height: FacingTokens.sp2),
-          FutureBuilder<List<EngineSnapshotRecord>>(
-            future: _future,
-            builder: (ctx, snap) {
-              if (snap.connectionState != ConnectionState.done) {
-                return const Text('Loading.', style: FacingTokens.caption);
-              }
-              // /go 전수조사: hasError 분기 추가. 이전엔 snap.data=null silent fallback.
-              if (snap.hasError) {
-                return const Text('Engine 기록 로딩 실패. 다시 시도.',
-                    style: FacingTokens.caption);
-              }
-              final records = snap.data ?? const [];
-              // Overall 숫자·delta는 history snapshot에서, radar 값은 gradeResult에서.
-              final latest = records.isNotEmpty ? records.first : null;
-              final prev = records.length > 1 ? records[1] : null;
-              // /go: history 없을 시 gradeResult.overall_score 로 fallback.
-              // 이전엔 records 비어있으면 0/100 표시되어 _TierSnapshot(69/100)과 불일치.
-              final current = latest != null
-                  ? engineScoreTo100(latest.overallScore)
-                  : engineScoreTo100(grade?['overall_score']);
-              final delta = (latest != null && prev != null)
-                  ? current - engineScoreTo100(prev.overallScore)
-                  : 0;
-              final hasScore = current > 0;
-              // /go Tier 3: EngineDecay 연결 — history_screen 와 동일 패턴.
-              // 30일+ 무측정 시 STALE 라벨 + 감산 안내. 원본 점수 보존, 표시값만 변환.
-              final daysSinceLast = latest == null
-                  ? 0
-                  : DateTime.now()
-                      .toUtc()
-                      .difference(latest.scoredAt.toUtc())
-                      .inDays;
-              final decayLabel = EngineDecay.statusLabel(daysSinceLast);
-              final decayCaption = EngineDecay.statusCaption(daysSinceLast);
-
-              // v3.1 Radar 데이터 (6축) — body_composition 신규 카테고리 추가.
-              final radarValues = <_RadarAxis>[
-                _RadarAxis('POWER', _catScore(grade, 'power')),
-                _RadarAxis('OLYMPIC', _catScore(grade, 'olympic')),
-                _RadarAxis('GYMNASTICS', _catScore(grade, 'gymnastics')),
-                _RadarAxis('CARDIO', _catScore(grade, 'cardio')),
-                _RadarAxis('METCON', _catScore(grade, 'metcon')),
-                _RadarAxis('BODY', _catScore(grade, 'body_composition')),
-              ];
-              final hasRadarData = radarValues.any((a) => a.value > 0);
-
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // /go Tier 3: STALE 라벨 + 감산 안내 (decay 활성 시).
-                  if (decayLabel != null) ...[
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                                color: FacingTokens.warning, width: 1),
-                            borderRadius:
-                                BorderRadius.circular(FacingTokens.r1),
-                          ),
-                          child: Text(
-                            decayLabel,
-                            style: FacingTokens.microLabel.copyWith(
-                              color: FacingTokens.warning,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: FacingTokens.sp2),
-                        Expanded(
-                          child: Text(
-                            decayCaption ?? '',
-                            style: FacingTokens.caption,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: FacingTokens.sp2),
-                  ],
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(hasScore ? '$current' : '—',
-                          style: FacingTokens.display),
-                      const SizedBox(width: FacingTokens.sp2),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: Text('/ 100', style: FacingTokens.caption),
-                      ),
-                      const Spacer(),
-                      if (prev != null)
-                        Text(
-                          delta > 0
-                              ? '▲ +$delta'
-                              : (delta < 0 ? '▼ $delta' : 'Hold.'),
-                          style: FacingTokens.caption.copyWith(
-                            color: delta > 0
-                                ? FacingTokens.success
-                                : (delta < 0
-                                    ? FacingTokens.warning
-                                    : FacingTokens.muted),
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: FacingTokens.sp4),
-                  if (!hasRadarData)
-                    const Padding(
-                      padding:
-                          EdgeInsets.symmetric(vertical: FacingTokens.sp4),
-                      child: Text('No category data.',
-                          style: FacingTokens.caption),
-                    )
-                  else ...[
-                    AspectRatio(
-                      aspectRatio: 1.0,
-                      child: CustomPaint(
-                        painter: _RadarPainter(axes: radarValues),
-                        child: const SizedBox.expand(),
-                      ),
-                    ),
-                    // v1.16 Sprint 7b U4: 약점 자동 강조 + mock AI 코멘트.
-                    const SizedBox(height: FacingTokens.sp3),
-                    Builder(builder: (ctx) {
-                      final insight = analyzeWeakness({
-                        for (final a in radarValues) a.label: a.value,
-                      });
-                      if (insight == null) return const SizedBox.shrink();
-                      final isBalanced =
-                          insight.weakestCategory == 'BALANCED';
-                      return Container(
-                        padding: const EdgeInsets.fromLTRB(
-                          FacingTokens.sp3,
-                          FacingTokens.sp3,
-                          FacingTokens.sp3,
-                          FacingTokens.sp3,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border(
-                            left: BorderSide(
-                              color: isBalanced
-                                  ? FacingTokens.success
-                                  : FacingTokens.accent,
-                              width: 3,
-                            ),
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              isBalanced
-                                  ? 'BALANCED'
-                                  : '${insight.weakestCategory} · WEAKEST',
-                              style: FacingTokens.micro.copyWith(
-                                color: isBalanced
-                                    ? FacingTokens.success
-                                    : FacingTokens.accent,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 1.2,
-                              ),
-                            ),
-                            const SizedBox(height: FacingTokens.sp1),
-                            Text(insight.comment,
-                                style: FacingTokens.caption),
-                          ],
-                        ),
-                      );
-                    }),
-                  ],
-                ],
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// gradeResult[key].score → 0~100 환산.
-  int _catScore(Map<String, dynamic>? grade, String key) {
-    if (grade == null) return 0;
-    final data = grade[key];
-    if (data is! Map) return 0;
-    final s = data['score'];
-    if (s is! num) return 0;
-    return engineScoreTo100(s);
-  }
-}
-
-class _RadarAxis {
-  final String label;
-  final int value; // 0~100
-  const _RadarAxis(this.label, this.value);
-}
-
-/// v1.16: N축 radar 차트 (기본 5축 pentagon).
-/// - 배경 polygon 3단계 (33/66/100%)
-/// - 축선 5개
-/// - 사용자 폴리곤 (accent fill + stroke)
-/// - 각 꼭짓점에 레이블
-class _RadarPainter extends CustomPainter {
-  final List<_RadarAxis> axes;
-  _RadarPainter({required this.axes});
-
-  static const double _topAngle = -3.14159265 / 2; // 정상(위)부터 시작
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final n = axes.length;
-    if (n < 3) return;
-    final center = Offset(size.width / 2, size.height / 2);
-    // 레이블 여유 공간 고려해 반경 축소.
-    final radius = size.shortestSide / 2 - 28;
-    final angleStep = 2 * 3.14159265 / n;
-
-    // 1) 배경 polygon — 3단계 (33 · 66 · 100).
-    final bgPaint = Paint()
-      ..color = FacingTokens.border
-      ..strokeWidth = 1
-      ..style = PaintingStyle.stroke;
-    for (final ratio in [0.33, 0.66, 1.0]) {
-      final path = Path();
-      for (int i = 0; i < n; i++) {
-        final angle = _topAngle + angleStep * i;
-        final x = center.dx + radius * ratio * math.cos(angle);
-        final y = center.dy + radius * ratio * math.sin(angle);
-        if (i == 0) {
-          path.moveTo(x, y);
-        } else {
-          path.lineTo(x, y);
-        }
-      }
-      path.close();
-      canvas.drawPath(path, bgPaint);
-    }
-
-    // 2) 축 선 (center → 꼭짓점)
-    final axisPaint = Paint()
-      ..color = FacingTokens.border
-      ..strokeWidth = 1;
-    for (int i = 0; i < n; i++) {
-      final angle = _topAngle + angleStep * i;
-      final x = center.dx + radius * math.cos(angle);
-      final y = center.dy + radius * math.sin(angle);
-      canvas.drawLine(center, Offset(x, y), axisPaint);
-    }
-
-    // 3) 사용자 폴리곤
-    final userPath = Path();
-    for (int i = 0; i < n; i++) {
-      final angle = _topAngle + angleStep * i;
-      final ratio = (axes[i].value / 100).clamp(0.02, 1.0);
-      final x = center.dx + radius * ratio * math.cos(angle);
-      final y = center.dy + radius * ratio * math.sin(angle);
-      if (i == 0) {
-        userPath.moveTo(x, y);
-      } else {
-        userPath.lineTo(x, y);
-      }
-    }
-    userPath.close();
-    canvas.drawPath(
-      userPath,
-      Paint()
-        ..color = FacingTokens.accent.withValues(alpha: 0.22)
-        ..style = PaintingStyle.fill,
-    );
-    canvas.drawPath(
-      userPath,
-      Paint()
-        ..color = FacingTokens.accent
-        ..strokeWidth = 2
-        ..style = PaintingStyle.stroke
-        ..strokeJoin = StrokeJoin.round,
-    );
-    // 꼭짓점 작은 원
-    for (int i = 0; i < n; i++) {
-      final angle = _topAngle + angleStep * i;
-      final ratio = (axes[i].value / 100).clamp(0.02, 1.0);
-      final x = center.dx + radius * ratio * math.cos(angle);
-      final y = center.dy + radius * ratio * math.sin(angle);
-      canvas.drawCircle(
-        Offset(x, y),
-        3,
-        Paint()..color = FacingTokens.accent,
-      );
-    }
-
-    // 4) 레이블
-    for (int i = 0; i < n; i++) {
-      final angle = _topAngle + angleStep * i;
-      final lx = center.dx + (radius + 16) * math.cos(angle);
-      final ly = center.dy + (radius + 16) * math.sin(angle);
-      final tp = TextPainter(
-        text: TextSpan(
-          text: axes[i].label,
-          style: FacingTokens.sectionLabel.copyWith(
-            fontWeight: FontWeight.w800,
-            letterSpacing: 0.8,
-          ),
-        ),
-        textDirection: TextDirection.ltr,
-        textAlign: TextAlign.center,
-      )..layout(maxWidth: 80);
-      final offset = Offset(lx - tp.width / 2, ly - tp.height / 2);
-      tp.paint(canvas, offset);
-      // 값 한 줄 아래
-      final vp = TextPainter(
-        text: TextSpan(
-          text: '${axes[i].value}',
-          style: FacingTokens.sectionLabel.copyWith(
-            color: FacingTokens.fg,
-            letterSpacing: 0,
-          ),
-        ),
-        textDirection: TextDirection.ltr,
-      )..layout();
-      final vOffset = Offset(lx - vp.width / 2, ly + tp.height / 2 + 1);
-      vp.paint(canvas, vOffset);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _RadarPainter old) {
-    if (old.axes.length != axes.length) return true;
-    for (int i = 0; i < axes.length; i++) {
-      if (old.axes[i].value != axes[i].value) return true;
-      if (old.axes[i].label != axes[i].label) return true;
-    }
-    return false;
-  }
-}
-
-/// v1.16: 최근 측정 기록 — Trends에서 이관. 깔끔 row 5개.
-class _RecentRecords extends StatefulWidget {
-  const _RecentRecords();
-
-  @override
-  State<_RecentRecords> createState() => _RecentRecordsState();
-}
-
-class _RecentRecordsState extends State<_RecentRecords> {
-  Future<List<EngineSnapshotRecord>>? _future;
-
-  @override
-  void initState() {
-    super.initState();
-    final repo = HistoryRepository(context.read<ApiClient>());
-    _future = repo.listEngineSnapshots(limit: 5);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('RECENT RECORDS', style: FacingTokens.sectionLabel),
-          const SizedBox(height: FacingTokens.sp2),
-          FutureBuilder<List<EngineSnapshotRecord>>(
-            future: _future,
-            builder: (ctx, snap) {
-              if (snap.connectionState != ConnectionState.done) {
-                return const Text('Loading.', style: FacingTokens.caption);
-              }
-              // /go 전수조사: hasError 분기 추가.
-              if (snap.hasError) {
-                return const Text('기록 로딩 실패. 다시 시도.',
-                    style: FacingTokens.caption);
-              }
-              final records = snap.data ?? const [];
-              if (records.isEmpty) {
-                return const Text('No records.', style: FacingTokens.caption);
-              }
-              return Column(
-                children: records
-                    .map((r) => _RecordRow(r: r))
-                    .toList(),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _RecordRow extends StatelessWidget {
-  final EngineSnapshotRecord r;
-  const _RecordRow({required this.r});
-
-  @override
-  Widget build(BuildContext context) {
-    final tier = Tier.fromOverallNumber(r.overallNumber);
-    final d = r.scoredAt.toLocal();
-    final date =
-        '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
-    final score100 = engineScoreTo100(r.overallScore);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp2),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(date, style: FacingTokens.body),
-          ),
-          TierBadge(tier: tier),
-          const SizedBox(width: FacingTokens.sp3),
-          SizedBox(
-            width: 40,
-            child: Text('$score100',
-                textAlign: TextAlign.right,
-                style: FacingTokens.body.copyWith(
-                  fontWeight: FontWeight.w800,
-                  fontFeatures: FacingTokens.tabular,
-                )),
-          ),
         ],
       ),
     );
@@ -772,7 +227,8 @@ class _Kv extends StatelessWidget {
           Expanded(
             flex: 5,
             child: Text(value,
-                style: FacingTokens.body.copyWith(fontWeight: FontWeight.w700)),
+                style:
+                    FacingTokens.body.copyWith(fontWeight: FontWeight.w700)),
           ),
         ],
       ),
@@ -803,7 +259,6 @@ class _SettingsSection extends StatelessWidget {
             ],
           ),
           const SizedBox(height: FacingTokens.sp3),
-          // v1.16 Sprint 9a: 폰트 확대 옵션 (Masters 접근성).
           Consumer<UiPrefsState>(
             builder: (ctx, ui, _) => Row(
               children: [
@@ -819,7 +274,6 @@ class _SettingsSection extends StatelessWidget {
   }
 }
 
-/// v1.16 Sprint 9a: 폰트 확대 3단계 토글 (100/115/130%).
 class _TextScaleToggle extends StatelessWidget {
   final double current;
   final UiPrefsState state;
@@ -874,13 +328,19 @@ class _UnitToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        _Pill(label: 'kg', selected: u.isKg, onTap: () {
-          if (!u.isKg) u.toggle();
-        }),
+        _Pill(
+            label: 'kg',
+            selected: u.isKg,
+            onTap: () {
+              if (!u.isKg) u.toggle();
+            }),
         const SizedBox(width: FacingTokens.sp2),
-        _Pill(label: 'lb', selected: !u.isKg, onTap: () {
-          if (u.isKg) u.toggle();
-        }),
+        _Pill(
+            label: 'lb',
+            selected: !u.isKg,
+            onTap: () {
+              if (u.isKg) u.toggle();
+            }),
       ],
     );
   }
@@ -890,11 +350,11 @@ class _Pill extends StatelessWidget {
   final String label;
   final bool selected;
   final VoidCallback onTap;
-  const _Pill({required this.label, required this.selected, required this.onTap});
+  const _Pill(
+      {required this.label, required this.selected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    // v1.15 P1-3/P1-4: Semantics + 48dp 터치.
     return Semantics(
       button: true,
       selected: selected,
@@ -936,7 +396,6 @@ class _ActionsSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // v1.16: 계정 섹션 (로그인 상태 표시 + 로그아웃)
           Consumer<AuthState>(
             builder: (ctx, auth, _) {
               if (!auth.isSignedIn) return const SizedBox.shrink();
@@ -963,17 +422,10 @@ class _ActionsSection extends StatelessWidget {
             },
           ),
           OutlinedButton(
-            onPressed: () =>
-                Navigator.of(context).pushNamed('/onboarding/basic'),
-            child: const Text('Edit Profile'),
-          ),
-          const SizedBox(height: FacingTokens.sp3),
-          OutlinedButton(
             onPressed: () => Navigator.of(context).pushNamed('/history'),
             child: const Text('View History'),
           ),
           const SizedBox(height: FacingTokens.sp3),
-          // v1.16 Sprint 7b U2: 프라이버시 정책 + 탈퇴 진입점.
           OutlinedButton(
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => const PrivacyScreen(),
@@ -981,7 +433,6 @@ class _ActionsSection extends StatelessWidget {
             child: const Text('Privacy Policy'),
           ),
           const SizedBox(height: FacingTokens.sp3),
-          // v1.16 Sprint 8 U5: Import 진입점.
           OutlinedButton(
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => const ImportScreen(),
@@ -989,7 +440,6 @@ class _ActionsSection extends StatelessWidget {
             child: const Text('Import Data'),
           ),
           const SizedBox(height: FacingTokens.sp3),
-          // v1.16 Sprint 13: 목표 관리 (P1-P4 공통).
           OutlinedButton(
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => const GoalsScreen(),
@@ -997,7 +447,6 @@ class _ActionsSection extends StatelessWidget {
             child: const Text('Goals'),
           ),
           const SizedBox(height: FacingTokens.sp3),
-          // v1.16 Sprint 11: Engine 계산식 투명성 (P9 Q9-Q15).
           OutlinedButton(
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => const AlgorithmScreen(),
@@ -1012,7 +461,6 @@ class _ActionsSection extends StatelessWidget {
             onPressed: () => _confirmReset(context),
             child: const Text('Reset data'),
           ),
-          // v1.19 차수 5+ 트랙 A: 디버그 빌드 한정 페르소나 스위처.
           if (kDebugMode) ...[
             const SizedBox(height: FacingTokens.sp5),
             const Divider(),
@@ -1106,421 +554,6 @@ class _ActionsSection extends StatelessWidget {
   }
 }
 
-/// v1.16 Sprint 13: Tier 승급 로드맵 (P3/P6 요구).
-/// 현재 Engine score → 다음 Tier 임계까지 필요 점수 + 약한 카테고리 표시.
-class _TierRoadmap extends StatelessWidget {
-  const _TierRoadmap();
-
-  // overallNumber 1-6 → next threshold (backend scale 1.0-6.0).
-  // UI 100-point mapping: 1→0-17, 2→17-33, 3→33-50, 4→50-67, 5→67-83, 6→83-100.
-  static const List<int> _tierThresholds = [17, 33, 50, 67, 83, 100];
-
-  @override
-  Widget build(BuildContext context) {
-    final p = context.watch<ProfileState>();
-    final g = p.gradeResult;
-    final num? n =
-        g?['overall_number'] is num ? g!['overall_number'] as num : null;
-    if (n == null) return const SizedBox.shrink();
-    final rawScore = g?['overall_score'];
-    final currentScore100 = engineScoreTo100(rawScore);
-    final current = Tier.fromOverallNumber(n);
-    final nextIdx = n.toInt().clamp(1, 5);
-    final nextThreshold = _tierThresholds[nextIdx - 1];
-    final nextTierLabel = Tier.fromOverallNumber(nextIdx + 1).label;
-    final gap = (nextThreshold - currentScore100).clamp(0, 100);
-
-    // 약점 카테고리 표시 (weak_insight 재활용).
-    // v1.19 차수 5 fix (B-LG-2): gradeResult 구조는 nested {category: {score: N}}.
-    // 이전 'power_score' flat key 는 항상 null → 모든 카테고리 점수 0 표시.
-    int catScore(String key) {
-      final data = g?[key];
-      if (data is! Map) return 0;
-      final s = data['score'];
-      if (s is! num) return 0;
-      return engineScoreTo100(s);
-    }
-    final categoryScores = <String, int>{
-      'POWER': catScore('power'),
-      'OLYMPIC': catScore('olympic'),
-      'GYMNASTICS': catScore('gymnastics'),
-      'CARDIO': catScore('cardio'),
-      'METCON': catScore('metcon'),
-      'BODY': catScore('body_composition'),
-    };
-    final weak = analyzeWeakness(categoryScores);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('TIER ROADMAP', style: FacingTokens.sectionLabel),
-          const SizedBox(height: FacingTokens.sp2),
-          if (n >= 6)
-            Text(
-              '최고 Tier Games 도달. 유지에 집중.',
-              style: FacingTokens.body.copyWith(
-                color: FacingTokens.tierGames,
-                fontWeight: FontWeight.w700,
-              ),
-            )
-          else ...[
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                TierBadge(tier: current, fontSize: 12),
-                const SizedBox(width: FacingTokens.sp2),
-                const Icon(Icons.arrow_forward,
-                    size: 16, color: FacingTokens.muted),
-                const SizedBox(width: FacingTokens.sp2),
-                Text(
-                  nextTierLabel,
-                  style: FacingTokens.body.copyWith(
-                    fontWeight: FontWeight.w800,
-                    color: FacingTokens.accent,
-                    letterSpacing: 0.4,
-                  ),
-                ),
-                const Spacer(),
-                Text(
-                  '+$gap',
-                  style: FacingTokens.h3.copyWith(
-                    fontFeatures: FacingTokens.tabular,
-                    color: FacingTokens.accent,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: FacingTokens.sp1),
-            Text('$currentScore100 / $nextThreshold to next', style: FacingTokens.caption),
-            const SizedBox(height: FacingTokens.sp2),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(FacingTokens.r1),
-              child: Stack(
-                children: [
-                  Container(height: 6, color: FacingTokens.border),
-                  FractionallySizedBox(
-                    widthFactor: (currentScore100 / nextThreshold).clamp(0, 1),
-                    child: Container(height: 6, color: FacingTokens.accent),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: FacingTokens.sp3),
-            if (weak != null) ...[
-              Text('FOCUS · ${weak.weakestCategory.toUpperCase()}',
-                  style: FacingTokens.microLabel.copyWith(
-                    color: FacingTokens.accent,
-                  )),
-              const SizedBox(height: 2),
-              Text(weak.comment, style: FacingTokens.caption),
-            ],
-            const SizedBox(height: FacingTokens.sp2),
-            Text(
-              '* Mock estimate. Real progress depends on weekly sessions + weak focus.',
-              style: FacingTokens.micro.copyWith(color: FacingTokens.muted),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-/// v1.16 Sprint 13: 롤모델 (P9 요구).
-/// SharedPreferences로 즐겨찾기 1명 · 철학·대표 WOD 카드 표시.
-class _RoleModelCard extends StatefulWidget {
-  const _RoleModelCard();
-
-  @override
-  State<_RoleModelCard> createState() => _RoleModelCardState();
-}
-
-class _RoleModelCardState extends State<_RoleModelCard> {
-  Athlete? _selected;
-  bool _loaded = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    final a = await FavoriteAthleteStore.get();
-    if (!mounted) return;
-    setState(() {
-      _selected = a;
-      _loaded = true;
-    });
-  }
-
-  Future<void> _openPicker() async {
-    Haptic.light();
-    final picked = await showModalBottomSheet<Athlete>(
-      context: context,
-      backgroundColor: FacingTokens.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius:
-            BorderRadius.vertical(top: Radius.circular(FacingTokens.r4)),
-      ),
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Padding(
-              padding: EdgeInsets.all(FacingTokens.sp4),
-              child: Text('SELECT ROLE MODEL',
-                  style: FacingTokens.sectionLabel),
-            ),
-            ...kAthletes.map(
-              (a) => ListTile(
-                title: Text(a.name,
-                    style: FacingTokens.body.copyWith(
-                      fontWeight: FontWeight.w700,
-                    )),
-                subtitle: Text(a.tier, style: FacingTokens.caption),
-                onTap: () => Navigator.of(ctx).pop(a),
-              ),
-            ),
-            const SizedBox(height: FacingTokens.sp3),
-          ],
-        ),
-      ),
-    );
-    if (picked != null) {
-      await FavoriteAthleteStore.set(picked.id);
-      if (!mounted) return;
-      setState(() => _selected = picked);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (!_loaded) return const SizedBox.shrink();
-    final a = _selected;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Text('MY ROLE MODEL', style: FacingTokens.sectionLabel),
-              const Spacer(),
-              TextButton(
-                onPressed: _openPicker,
-                child: Text(a == null ? 'Select' : 'Change'),
-              ),
-            ],
-          ),
-          const SizedBox(height: FacingTokens.sp2),
-          if (a == null)
-            const Text(
-              'Pick elite. Philosophy + signature WOD.',
-              style: FacingTokens.caption,
-            )
-          else ...[
-            Text(a.name,
-                style: FacingTokens.h3.copyWith(
-                  fontWeight: FontWeight.w800,
-                )),
-            const SizedBox(height: 2),
-            Text(a.tier,
-                style: FacingTokens.caption.copyWith(
-                  color: FacingTokens.accent,
-                  fontWeight: FontWeight.w700,
-                )),
-            const SizedBox(height: FacingTokens.sp2),
-            Text('"${a.philosophy}"',
-                style: FacingTokens.body
-                    .copyWith(fontStyle: FontStyle.italic)),
-            const SizedBox(height: FacingTokens.sp3),
-            Container(
-              padding: const EdgeInsets.all(FacingTokens.sp3),
-              decoration: BoxDecoration(
-                color: FacingTokens.surfaceOverlay,
-                borderRadius: BorderRadius.circular(FacingTokens.r2),
-                border: Border.all(color: FacingTokens.border),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('SIGNATURE WOD',
-                      style: FacingTokens.sectionLabel),
-                  const SizedBox(height: 2),
-                  Text(a.signatureWod, style: FacingTokens.caption),
-                ],
-              ),
-            ),
-            const SizedBox(height: FacingTokens.sp2),
-            Text(
-              '* 가상. 공개 브랜드·HWPO·CompTrain 기반 큐레이션.',
-              style: FacingTokens.micro.copyWith(color: FacingTokens.muted),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-/// v1.16 Sprint 14: 프로필 프로필 옆 착용 칭호 한 줄. 탭 시 해금 칭호 picker.
-class _WornTitleLine extends StatefulWidget {
-  const _WornTitleLine();
-
-  @override
-  State<_WornTitleLine> createState() => _WornTitleLineState();
-}
-
-class _WornTitleLineState extends State<_WornTitleLine> {
-  String? _code;
-  bool _loaded = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    final c = await WornTitleStore.get();
-    if (!mounted) return;
-    setState(() {
-      _code = c;
-      _loaded = true;
-    });
-  }
-
-  Future<void> _openPicker() async {
-    Haptic.light();
-    final state = context.read<AchievementState>();
-    final catalog = state.snapshot.catalog;
-    final unlocked =
-        catalog.where((c) => state.isUnlockedInUi(c.code)).toList();
-    unlocked.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
-
-    final picked = await showModalBottomSheet<String?>(
-      context: context,
-      backgroundColor: FacingTokens.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius:
-            BorderRadius.vertical(top: Radius.circular(FacingTokens.r4)),
-      ),
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Padding(
-              padding: EdgeInsets.all(FacingTokens.sp4),
-              child: Text('CHOOSE TITLE', style: FacingTokens.sectionLabel),
-            ),
-            ListTile(
-              title: const Text('해제 (No Title)', style: FacingTokens.body),
-              onTap: () => Navigator.of(ctx).pop('__none__'),
-            ),
-            if (unlocked.isEmpty)
-              const Padding(
-                padding: EdgeInsets.all(FacingTokens.sp4),
-                child: Text('해금된 칭호 없음. Engine 측정·세션 누적 후 잠금 해제.',
-                    style: FacingTokens.caption),
-              )
-            else
-              ...unlocked.map(
-                (c) => ListTile(
-                  title: Text(
-                    AchievementCard.koreanTitle(c.code),
-                    style: FacingTokens.body.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  subtitle: Text(c.name, style: FacingTokens.caption),
-                  trailing: Text(
-                    c.rarity.toUpperCase(),
-                    style: FacingTokens.micro.copyWith(
-                      color: FacingTokens.accent,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 0.8,
-                    ),
-                  ),
-                  onTap: () => Navigator.of(ctx).pop(c.code),
-                ),
-              ),
-            const SizedBox(height: FacingTokens.sp3),
-          ],
-        ),
-      ),
-    );
-    if (picked == null) return;
-    if (picked == '__none__') {
-      await WornTitleStore.clear();
-      if (!mounted) return;
-      setState(() => _code = null);
-    } else {
-      await WornTitleStore.set(picked);
-      if (!mounted) return;
-      setState(() => _code = picked);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (!_loaded) return const SizedBox.shrink();
-    final state = context.watch<AchievementState>();
-    AchievementCatalog? current;
-    if (_code != null) {
-      for (final c in state.snapshot.catalog) {
-        if (c.code == _code) {
-          current = c;
-          break;
-        }
-      }
-    }
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        FacingTokens.sp4,
-        FacingTokens.sp3,
-        FacingTokens.sp4,
-        0,
-      ),
-      child: InkWell(
-        onTap: _openPicker,
-        child: Row(
-          children: [
-            SizedBox(
-              width: 96,
-              child: Text(
-                'WORN TITLE',
-                style: FacingTokens.microLabel,
-              ),
-            ),
-            Expanded(
-              child: Text(
-                current == null
-                    ? 'Pick title · Unlock first'
-                    : AchievementCard.koreanTitle(current.code),
-                style: FacingTokens.body.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: current == null
-                      ? FacingTokens.muted
-                      : FacingTokens.accent,
-                ),
-              ),
-            ),
-            const Icon(Icons.chevron_right,
-                color: FacingTokens.muted, size: 18),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Settings 섹션 'Mode' Row — Coach / Member / Solo 인라인 토글 (v1.20).
-/// 박스 owner 인 사람은 Coach ↔ Member 즉시 전환 (Profile 한 탭에). Solo도 동일.
 class _ModeRow extends StatefulWidget {
   const _ModeRow();
 
@@ -1591,7 +624,6 @@ class _ModeRowState extends State<_ModeRow> {
           ],
         ),
         const SizedBox(height: FacingTokens.sp2),
-        // v1.20: 3 mode 인라인 segmented (요청: 코치 ↔ 멤버 토글 쉽게).
         Semantics(
           explicitChildNodes: true,
           container: true,
@@ -1601,22 +633,24 @@ class _ModeRowState extends State<_ModeRow> {
             children: [
               for (final m in AppMode.values)
                 Semantics(
-                  label: 'Mode ${_label(m)}${_mode == m ? " selected" : ""}',
+                  label:
+                      'Mode ${_label(m)}${_mode == m ? " selected" : ""}',
                   button: true,
                   selected: _mode == m,
                   container: true,
                   child: ChoiceChip(
-                  label: Text(_label(m)),
-                  selected: _mode == m,
-                  backgroundColor: FacingTokens.surface,
-                  selectedColor: FacingTokens.accent,
-                  labelStyle: FacingTokens.caption.copyWith(
-                    color: _mode == m ? FacingTokens.fg : FacingTokens.muted,
-                    fontWeight: FontWeight.w700,
+                    label: Text(_label(m)),
+                    selected: _mode == m,
+                    backgroundColor: FacingTokens.surface,
+                    selectedColor: FacingTokens.accent,
+                    labelStyle: FacingTokens.caption.copyWith(
+                      color:
+                          _mode == m ? FacingTokens.fg : FacingTokens.muted,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    onSelected: _saving ? null : (_) => _setMode(m),
                   ),
-                  onSelected: _saving ? null : (_) => _setMode(m),
                 ),
-              ),
             ],
           ),
         ),
