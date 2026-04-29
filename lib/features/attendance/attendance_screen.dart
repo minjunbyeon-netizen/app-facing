@@ -196,7 +196,11 @@ class _AttendanceBody extends StatelessWidget {
         ),
         const SizedBox(height: FacingTokens.sp4),
 
-        // 3. MILESTONES — 3종 요약 진행바
+        // ACHIEVEMENTS — 캐릭터 바로 아래 그리드
+        const AchievementSection(),
+        const SizedBox(height: FacingTokens.sp5),
+
+        // MILESTONES — 3종 요약 진행바
         const Text('MILESTONES', style: FacingTokens.sectionLabel),
         const SizedBox(height: FacingTokens.sp3),
         _ProgressStat(
@@ -217,11 +221,6 @@ class _AttendanceBody extends StatelessWidget {
           value: (unlockedCount / 96).clamp(0.0, 1.0),
           trailing: '$unlockedCount / 96',
         ),
-        const SizedBox(height: FacingTokens.sp5),
-
-        // v1.22 rev2: CHALLENGES 섹션 제거 — mock 데이터 + MILESTONES 와 중복.
-        // 업적 + 해금 갤러리.
-        const AchievementSection(),
       ],
     );
   }
