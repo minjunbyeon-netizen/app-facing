@@ -299,106 +299,106 @@ class _LevelCard extends StatelessWidget {
         border: Border.all(color: FacingTokens.border),
         borderRadius: BorderRadius.circular(FacingTokens.r3),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // 캐릭터 + LV 숫자 + XP
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // 가상 캐릭터 — HYPHEN 대표 mascot.
-              Container(
-                width: 96,
-                height: 96,
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // 좌측 절반 — 캐릭터 (카드 높이만큼 크게).
+            Expanded(
+              flex: 4,
+              child: Container(
                 decoration: BoxDecoration(
                   color: FacingTokens.accentSoft.withValues(
-                    alpha: bd.level >= 8 ? 1.0 : 0.4,
+                    alpha: bd.level >= 8 ? 0.6 : 0.3,
                   ),
-                  shape: BoxShape.circle,
+                  borderRadius: BorderRadius.circular(FacingTokens.r2),
                   border: Border.all(
-                    color: charColor.withValues(alpha: 0.6),
-                    width: 2,
+                    color: charColor.withValues(alpha: 0.5),
+                    width: 1.5,
                   ),
                 ),
                 clipBehavior: Clip.antiAlias,
-                alignment: Alignment.center,
                 child: Image.asset(
                   _mascotAsset,
-                  width: 92,
-                  height: 92,
                   fit: BoxFit.cover,
+                  errorBuilder: (_, _, _) => const Center(
+                    child: Icon(
+                      Icons.image_outlined,
+                      color: FacingTokens.muted,
+                      size: 24,
+                    ),
+                  ),
                 ),
               ),
-              const SizedBox(width: FacingTokens.sp4),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('LEVEL',
-                        style: FacingTokens.sectionLabel),
-                    const SizedBox(height: 2),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      children: [
-                        Text(
-                          '${bd.level}',
-                          style: FacingTokens.displayCompact.copyWith(
-                            color: FacingTokens.accent,
-                          ),
+            ),
+            const SizedBox(width: FacingTokens.sp4),
+            // 우측 절반 — LEVEL/캡션/progress/XP rows.
+            Expanded(
+              flex: 5,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('LEVEL', style: FacingTokens.sectionLabel),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      Text(
+                        '${bd.level}',
+                        style: FacingTokens.displayCompact.copyWith(
+                          color: FacingTokens.accent,
                         ),
-                        const SizedBox(width: FacingTokens.sp2),
-                        Text(
-                          '${bd.totalXp} XP',
-                          style: FacingTokens.caption.copyWith(
-                            fontFeatures: FacingTokens.tabular,
-                            color: FacingTokens.muted,
-                            fontWeight: FontWeight.w700,
-                          ),
+                      ),
+                      const SizedBox(width: FacingTokens.sp2),
+                      Text(
+                        '${bd.totalXp} XP',
+                        style: FacingTokens.caption.copyWith(
+                          fontFeatures: FacingTokens.tabular,
+                          color: FacingTokens.muted,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: FacingTokens.sp2),
+                  Text(
+                    _captionForLevel(bd.level),
+                    style: FacingTokens.caption.copyWith(
+                      color: charColor,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: FacingTokens.sp2),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(FacingTokens.r1),
+                    child: Stack(
+                      children: [
+                        Container(height: 5, color: FacingTokens.border),
+                        FractionallySizedBox(
+                          widthFactor: bd.progress,
+                          child: Container(
+                              height: 5, color: FacingTokens.accent),
                         ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: FacingTokens.sp1),
+                  Text(
+                    isMax
+                        ? 'MAX LEVEL'
+                        : '$pct% · next Lv${bd.level + 1} · ${bd.xpToNext} XP',
+                    style: FacingTokens.micro,
+                  ),
+                  const SizedBox(height: FacingTokens.sp2),
+                  _XpInline(label: 'Sessions', value: bd.sessionXp),
+                  _XpInline(label: 'Streak', value: bd.streakXp),
+                  _XpInline(label: 'Tier', value: bd.tierXp),
+                  if (bd.prXp > 0) _XpInline(label: 'PRs', value: bd.prXp),
+                ],
               ),
-            ],
-          ),
-          const SizedBox(height: FacingTokens.sp3),
-          // 격려 캡션 — 친근한 톤.
-          Text(
-            _captionForLevel(bd.level),
-            style: FacingTokens.body.copyWith(
-              color: charColor,
-              fontWeight: FontWeight.w600,
             ),
-          ),
-          const SizedBox(height: FacingTokens.sp3),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(FacingTokens.r1),
-            child: Stack(
-              children: [
-                Container(height: 6, color: FacingTokens.border),
-                FractionallySizedBox(
-                  widthFactor: bd.progress,
-                  child:
-                      Container(height: 6, color: FacingTokens.accent),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: FacingTokens.sp2),
-          Text(
-            isMax
-                ? 'MAX LEVEL'
-                : '$pct% · next Lv${bd.level + 1} · ${bd.xpToNext} XP',
-            style: FacingTokens.caption,
-          ),
-          const SizedBox(height: FacingTokens.sp3),
-          _XpInline(label: 'Sessions', value: bd.sessionXp),
-          _XpInline(label: 'Streak', value: bd.streakXp),
-          _XpInline(label: 'Tier', value: bd.tierXp),
-          if (bd.prXp > 0) _XpInline(label: 'PRs', value: bd.prXp),
-        ],
+          ],
+        ),
       ),
     );
   }
