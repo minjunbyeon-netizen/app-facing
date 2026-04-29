@@ -70,13 +70,14 @@ class _HomeScreenState extends State<HomeScreen> {
               child: ListView(
                 padding: const EdgeInsets.all(FacingTokens.sp4),
                 children: [
-                  _TierEngineCard(
+                  // v1.22: Tier + Engine + Radar 통합 hero 카드 (안 C).
+                  _HeroCard(
                     engineFuture: _engineFuture,
                     wodFuture: _wodFuture,
                   ),
-                  const SizedBox(height: FacingTokens.sp4),
-                  // v1.21: 6축 RADAR + 약점 분석 — Profile에서 이관 (사용자 요청).
-                  const _RadarCard(),
+                  const SizedBox(height: FacingTokens.sp3),
+                  // v1.22: 약점 분석은 별도 inline (역할 분리).
+                  const _WeaknessInsightInline(),
                   const SizedBox(height: FacingTokens.sp5),
                   const Text('CALCULATE WOD',
                       style: FacingTokens.sectionLabel),
@@ -136,15 +137,24 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-/// 상단 카드: TierBadge + display Score + 30일 sparkline + LEVEL/XP.
-/// v1.21: Attend 하단 LEVEL 카드를 통합 — "현재 수준 + 게임 진행도" 한 곳에 표시.
-class _TierEngineCard extends StatelessWidget {
+/// v1.22: Hero 카드 — Tier + Engine + Radar + Sparkline + LEVEL 통합.
+/// 안 C 채택: Radar 주체 + 중앙 ENGINE 점수(HWPO display 72sp).
+class _HeroCard extends StatelessWidget {
   final Future<List<EngineSnapshotRecord>>? engineFuture;
   final Future<List<WodHistoryItem>>? wodFuture;
-  const _TierEngineCard({
+  const _HeroCard({
     required this.engineFuture,
     required this.wodFuture,
   });
+
+  int _catScore(Map<String, dynamic>? grade, String key) {
+    if (grade == null) return 0;
+    final data = grade[key];
+    if (data is! Map) return 0;
+    final s = data['score'];
+    if (s is! num) return 0;
+    return engineScoreTo100(s);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -156,6 +166,16 @@ class _TierEngineCard extends StatelessWidget {
     final rawScore = g?['overall_score'];
     final score100 = engineScoreTo100(rawScore);
     final hasScore = score100 > 0;
+
+    final radarValues = <_RadarAxis>[
+      _RadarAxis('POWER', _catScore(g, 'power')),
+      _RadarAxis('OLYMPIC', _catScore(g, 'olympic')),
+      _RadarAxis('GYMNASTICS', _catScore(g, 'gymnastics')),
+      _RadarAxis('CARDIO', _catScore(g, 'cardio')),
+      _RadarAxis('METCON', _catScore(g, 'metcon')),
+      _RadarAxis('BODY', _catScore(g, 'body_composition')),
+    ];
+    final hasRadarData = radarValues.any((a) => a.value > 0);
 
     return Container(
       padding: const EdgeInsets.all(FacingTokens.sp4),
@@ -181,6 +201,7 @@ class _TierEngineCard extends StatelessWidget {
               child: const Text('Start Onboarding'),
             ),
           ] else ...[
+            // 상단 — TierBadge + LV indicator
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -191,23 +212,48 @@ class _TierEngineCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: FacingTokens.sp3),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(hasScore ? '$score100' : '—',
-                    style: FacingTokens.display),
-                const SizedBox(width: FacingTokens.sp2),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: Text('/ 100',
-                      style: FacingTokens.caption.copyWith(
-                        color: FacingTokens.muted,
-                      )),
-                ),
-                const Spacer(),
-                Text('ENGINE',
-                    style: FacingTokens.microLabel),
-              ],
+            // v1.22: Radar + 중앙 ENGINE 점수 (HWPO 임팩트 #2 적용 위치).
+            AspectRatio(
+              aspectRatio: 1.0,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  if (hasRadarData)
+                    CustomPaint(
+                      painter: _RadarPainter(
+                        axes: radarValues,
+                        clearCenter: true,
+                      ),
+                      child: const SizedBox.expand(),
+                    ),
+                  // 중앙 마스크 (radar 격자 가림)
+                  Container(
+                    width: 124,
+                    height: 124,
+                    decoration: const BoxDecoration(
+                      color: FacingTokens.surface,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  // 중앙 ENGINE 숫자 — HWPO display 72sp w900 + 탠 액센트
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        hasScore ? '$score100' : '—',
+                        style: FacingTokens.display.copyWith(
+                          color: FacingTokens.accent,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'ENGINE / 100',
+                        style: FacingTokens.microLabel,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: FacingTokens.sp3),
             FutureBuilder<List<EngineSnapshotRecord>>(
@@ -404,9 +450,10 @@ class _XpInline extends StatelessWidget {
   }
 }
 
-/// v1.21: 6축 RADAR + 약점 분석 카드 — Profile에서 이관.
-class _RadarCard extends StatelessWidget {
-  const _RadarCard();
+/// v1.22: 약점 분석 inline — hero 카드 아래 작은 카드로 분리.
+/// hero가 "지표"라면 이 카드는 "분석".
+class _WeaknessInsightInline extends StatelessWidget {
+  const _WeaknessInsightInline();
 
   int _catScore(Map<String, dynamic>? grade, String key) {
     if (grade == null) return 0;
@@ -420,95 +467,60 @@ class _RadarCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.watch<ProfileState>();
-    final grade = p.gradeResult;
-    final radarValues = <_RadarAxis>[
-      _RadarAxis('POWER', _catScore(grade, 'power')),
-      _RadarAxis('OLYMPIC', _catScore(grade, 'olympic')),
-      _RadarAxis('GYMNASTICS', _catScore(grade, 'gymnastics')),
-      _RadarAxis('CARDIO', _catScore(grade, 'cardio')),
-      _RadarAxis('METCON', _catScore(grade, 'metcon')),
-      _RadarAxis('BODY', _catScore(grade, 'body_composition')),
-    ];
-    final hasData = radarValues.any((a) => a.value > 0);
-    if (!hasData) {
-      return Container(
-        padding: const EdgeInsets.all(FacingTokens.sp4),
-        decoration: BoxDecoration(
-          color: FacingTokens.surface,
-          border: Border.all(color: FacingTokens.border),
-          borderRadius: BorderRadius.circular(FacingTokens.r3),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text('CATEGORY RADAR', style: FacingTokens.sectionLabel),
-            SizedBox(height: FacingTokens.sp2),
-            Text('카테고리 데이터 없음. Engine 측정 후 표시.',
-                style: FacingTokens.caption),
-          ],
-        ),
-      );
-    }
+    final g = p.gradeResult;
+    final scores = {
+      'POWER': _catScore(g, 'power'),
+      'OLYMPIC': _catScore(g, 'olympic'),
+      'GYMNASTICS': _catScore(g, 'gymnastics'),
+      'CARDIO': _catScore(g, 'cardio'),
+      'METCON': _catScore(g, 'metcon'),
+      'BODY': _catScore(g, 'body_composition'),
+    };
+    final hasData = scores.values.any((v) => v > 0);
+    if (!hasData) return const SizedBox.shrink();
 
-    final insight = analyzeWeakness({
-      for (final a in radarValues) a.label: a.value,
-    });
-    final isBalanced = insight?.weakestCategory == 'BALANCED';
+    final insight = analyzeWeakness(scores);
+    if (insight == null) return const SizedBox.shrink();
+    final isBalanced = insight.weakestCategory == 'BALANCED';
 
     return Container(
-      padding: const EdgeInsets.all(FacingTokens.sp4),
+      padding: const EdgeInsets.all(FacingTokens.sp3),
       decoration: BoxDecoration(
         color: FacingTokens.surface,
         border: Border.all(color: FacingTokens.border),
         borderRadius: BorderRadius.circular(FacingTokens.r3),
       ),
-      child: Column(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('CATEGORY RADAR', style: FacingTokens.sectionLabel),
-          const SizedBox(height: FacingTokens.sp3),
-          AspectRatio(
-            aspectRatio: 1.0,
-            child: CustomPaint(
-              painter: _RadarPainter(axes: radarValues),
-              child: const SizedBox.expand(),
-            ),
+          Container(
+            width: 3,
+            height: 36,
+            color: isBalanced
+                ? FacingTokens.success
+                : FacingTokens.accent,
           ),
-          if (insight != null) ...[
-            const SizedBox(height: FacingTokens.sp3),
-            Container(
-              padding: const EdgeInsets.all(FacingTokens.sp3),
-              decoration: BoxDecoration(
-                border: Border(
-                  left: BorderSide(
+          const SizedBox(width: FacingTokens.sp3),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isBalanced
+                      ? 'BALANCED'
+                      : '${insight.weakestCategory} · WEAKEST',
+                  style: FacingTokens.microLabel.copyWith(
                     color: isBalanced
                         ? FacingTokens.success
                         : FacingTokens.accent,
-                    width: 3,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    isBalanced
-                        ? 'BALANCED'
-                        : '${insight.weakestCategory} · WEAKEST',
-                    style: FacingTokens.micro.copyWith(
-                      color: isBalanced
-                          ? FacingTokens.success
-                          : FacingTokens.accent,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                  const SizedBox(height: FacingTokens.sp1),
-                  Text(insight.comment, style: FacingTokens.caption),
-                ],
-              ),
+                const SizedBox(height: 2),
+                Text(insight.comment, style: FacingTokens.caption),
+              ],
             ),
-          ],
+          ),
         ],
       ),
     );
@@ -523,9 +535,12 @@ class _RadarAxis {
 
 class _RadarPainter extends CustomPainter {
   final List<_RadarAxis> axes;
-  _RadarPainter({required this.axes});
+  /// v1.22: 중앙에 ENGINE 점수 오버레이 시 격자 비우기.
+  final bool clearCenter;
+  _RadarPainter({required this.axes, this.clearCenter = false});
 
   static const double _topAngle = -math.pi / 2;
+  static const double _innerCutoffRatio = 0.5;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -539,7 +554,9 @@ class _RadarPainter extends CustomPainter {
       ..color = FacingTokens.border
       ..strokeWidth = 1
       ..style = PaintingStyle.stroke;
-    for (final ratio in [0.33, 0.66, 1.0]) {
+    // v1.22: clearCenter 시 가장 안쪽 ring(0.33) 생략.
+    final ringRatios = clearCenter ? [0.66, 1.0] : [0.33, 0.66, 1.0];
+    for (final ratio in ringRatios) {
       final path = Path();
       for (int i = 0; i < n; i++) {
         final angle = _topAngle + angleStep * i;
@@ -560,9 +577,13 @@ class _RadarPainter extends CustomPainter {
       ..strokeWidth = 1;
     for (int i = 0; i < n; i++) {
       final angle = _topAngle + angleStep * i;
+      // v1.22: clearCenter 시 축선은 안쪽 cutoff부터 시작 (중앙 비우기).
+      final startRatio = clearCenter ? _innerCutoffRatio : 0.0;
+      final sx = center.dx + radius * startRatio * math.cos(angle);
+      final sy = center.dy + radius * startRatio * math.sin(angle);
       final x = center.dx + radius * math.cos(angle);
       final y = center.dy + radius * math.sin(angle);
-      canvas.drawLine(center, Offset(x, y), axisPaint);
+      canvas.drawLine(Offset(sx, sy), Offset(x, y), axisPaint);
     }
 
     final userPath = Path();
