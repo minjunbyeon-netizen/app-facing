@@ -9,12 +9,12 @@ import '../../widgets/coach_badge.dart';
 import '../announcements/announcements_screen.dart';
 import '../leaderboard/box_leaderboard_screen.dart';
 import '../messages/messages_screen.dart';
-import '../wod_session/wod_session_screen.dart';
 import 'wod_detail_screen.dart';
 import 'coach_dashboard_screen.dart';
 import 'gym_search_screen.dart';
 import 'gym_state.dart';
 import 'wod_post_screen.dart';
+import 'wod_result_sheet.dart';
 
 /// v1.15.3: WOD 탭 진입점. GymState 상태 따라 4분기 렌더.
 class BoxWodScreen extends StatelessWidget {
@@ -406,11 +406,17 @@ class _WodCard extends StatelessWidget {
     ));
   }
 
-  void _openSession(BuildContext context) {
+  /// v1.20: 사용자 요구 — Start 버튼 없이 바로 결과 입력.
+  /// 누르면 BottomSheet 결과 입력 → Submit 시 leaderboard + attendance 자동 동기화.
+  /// 기존 _openSession (WodSessionScreen 타이머) 진입은 wod_detail_screen Start Timer로만 유지.
+  void _openResultSheet(BuildContext context) {
     Haptic.medium();
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => WodSessionScreen(wod: wod),
-    ));
+    showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => WodResultSheet(wod: wod),
+    );
   }
 
   @override
@@ -549,9 +555,11 @@ class _WodCard extends StatelessWidget {
                     Expanded(
                       flex: 2,
                       child: ElevatedButton.icon(
-                        onPressed: () => _openSession(context),
-                        icon: const Icon(Icons.play_arrow, size: 18),
-                        label: const Text('Start'),
+                        // v1.20: Start 타이머 진입 → Mark Done 시트로 변경.
+                        // 사용자 요구: 별도 타이머 없이 1버튼으로 attendance + 기록 입력.
+                        onPressed: () => _openResultSheet(context),
+                        icon: const Icon(Icons.check, size: 18),
+                        label: const Text('Mark Done'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: FacingTokens.accent,
                           foregroundColor: FacingTokens.fg,
