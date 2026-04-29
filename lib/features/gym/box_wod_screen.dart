@@ -345,16 +345,31 @@ class _WodList extends StatelessWidget {
     final now = DateTime.now().toLocal();
     final todayDate = DateTime(now.year, now.month, now.day);
 
-    // 윈도우 -2 ~ +2 일 (그저께·어제·오늘·내일·모레).
-    final groups = <String, List<GymWodPost>>{};
+    // v1.22 (rev2): 3섹션(PAST/TODAY/UPCOMING) — 일자 헤더 중복 제거.
+    final past = <_WodEntry>[];
+    final todayList = <_WodEntry>[];
+    final future = <_WodEntry>[];
     for (final w in allWods) {
       final d = DateTime.tryParse('${w.postDate}T00:00:00');
       if (d == null) continue;
       final diff = d.difference(todayDate).inDays;
       if (diff < -2 || diff > 2) continue;
-      groups.putIfAbsent(w.postDate, () => []).add(w);
+      final wk = _wkLabel[(d.weekday - 1) % 7];
+      final mm = d.month.toString().padLeft(2, '0');
+      final dd = d.day.toString().padLeft(2, '0');
+      final entry = _WodEntry(wod: w, dateLabel: '$mm.$dd · $wk', diff: diff);
+      if (diff < 0) {
+        past.add(entry);
+      } else if (diff == 0) {
+        todayList.add(entry);
+      } else {
+        future.add(entry);
+      }
     }
-    final sortedKeys = groups.keys.toList()..sort(); // ascending: 그저께 → ... → 모레
+    past.sort((a, b) => a.diff.compareTo(b.diff)); // -2 → -1
+    future.sort((a, b) => a.diff.compareTo(b.diff)); // +1 → +2
+
+    final isEmpty = past.isEmpty && todayList.isEmpty && future.isEmpty;
 
     return RefreshIndicator(
       onRefresh: () => context.read<GymState>().loadMine(),
@@ -377,7 +392,7 @@ class _WodList extends StatelessWidget {
             ],
           ),
           const SizedBox(height: FacingTokens.sp4),
-          if (sortedKeys.isEmpty) ...[
+          if (isEmpty) ...[
             const Text("WOD", style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp3),
             const Padding(
@@ -385,94 +400,112 @@ class _WodList extends StatelessWidget {
               child: Text('어제 ~ 모레 게시된 WOD 없음.',
                   style: FacingTokens.caption),
             ),
-          ] else
-            ...sortedKeys.map((key) {
-              final d = DateTime.parse('${key}T00:00:00');
-              final diff = d.difference(todayDate).inDays;
-              final isToday = diff == 0;
-              final wk = _wkLabel[(d.weekday - 1) % 7];
-              final mm = d.month.toString().padLeft(2, '0');
-              final dd = d.day.toString().padLeft(2, '0');
-              final dateLabel = '$mm.$dd · $wk';
-              final relLabel = switch (diff) {
-                -2 => 'D-2',
-                -1 => 'YESTERDAY',
-                0 => 'TODAY',
-                1 => 'TOMORROW',
-                2 => 'D+2',
-                _ => '',
-              };
-              // v1.22: row 미니멀 스타일 — 카드 border 제거, 얇은 divider만.
-              final isFuture = diff > 0;
-              return Padding(
-                padding: const EdgeInsets.only(bottom: FacingTokens.sp5),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // 일자 헤더 — 날짜 + relLabel
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      children: [
-                        Text(dateLabel,
-                            style: FacingTokens.h3.copyWith(
-                              color: isToday
-                                  ? FacingTokens.fg
-                                  : FacingTokens.muted,
-                            )),
-                        const SizedBox(width: FacingTokens.sp2),
-                        Text(
-                          relLabel,
-                          style: FacingTokens.microLabel.copyWith(
-                            color: isToday
-                                ? FacingTokens.accent
-                                : FacingTokens.muted,
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (isFuture) ...[
-                      const SizedBox(height: 2),
-                      const Text(
-                        '코치가 미리 게시. Mark Done은 당일부터.',
-                        style: FacingTokens.caption,
-                      ),
-                    ],
-                    const SizedBox(height: FacingTokens.sp2),
-                    // 일자 내 WOD row — 얇은 divider로 구분.
-                    const Divider(
-                        height: 1, color: FacingTokens.border, thickness: 1),
-                    ...groups[key]!.map((w) => _WodRow(
-                          wod: w,
-                          canDelete: gymState.isOwner,
-                          initiallyExpanded: isToday,
-                          disableMarkDone: isFuture,
-                          dimmed: !isToday,
-                        )),
-                  ],
+          ] else ...[
+            // PAST 섹션 — 1줄 압축 row.
+            if (past.isNotEmpty) ...[
+              const Text('PAST', style: FacingTokens.sectionLabel),
+              const SizedBox(height: FacingTokens.sp1),
+              const Divider(
+                  height: 1, color: FacingTokens.border, thickness: 1),
+              ...past.map((e) => _WodRow(
+                    wod: e.wod,
+                    dateLabel: e.dateLabel,
+                    canDelete: gymState.isOwner,
+                    isToday: false,
+                    isFuture: false,
+                  )),
+              const SizedBox(height: FacingTokens.sp5),
+            ],
+            // TODAY 섹션 — 펼친 상태 진입.
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Text('TODAY',
+                    style: FacingTokens.sectionLabel.copyWith(
+                      color: FacingTokens.accent,
+                    )),
+                const SizedBox(width: FacingTokens.sp2),
+                Text(
+                  todayList.isNotEmpty
+                      ? todayList.first.dateLabel
+                      : _formatDate(todayDate),
+                  style: FacingTokens.caption,
                 ),
-              );
-            }),
+              ],
+            ),
+            const SizedBox(height: FacingTokens.sp1),
+            const Divider(
+                height: 1, color: FacingTokens.border, thickness: 1),
+            if (todayList.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: FacingTokens.sp4),
+                child: Text('오늘 게시된 WOD 없음.',
+                    style: FacingTokens.caption),
+              )
+            else
+              ...todayList.map((e) => _WodRow(
+                    wod: e.wod,
+                    dateLabel: e.dateLabel,
+                    canDelete: gymState.isOwner,
+                    isToday: true,
+                    isFuture: false,
+                  )),
+            // UPCOMING 섹션 — 1줄 압축 row + lock.
+            if (future.isNotEmpty) ...[
+              const SizedBox(height: FacingTokens.sp5),
+              const Text('UPCOMING', style: FacingTokens.sectionLabel),
+              const SizedBox(height: 2),
+              const Text('Mark Done은 당일부터.',
+                  style: FacingTokens.caption),
+              const SizedBox(height: FacingTokens.sp1),
+              const Divider(
+                  height: 1, color: FacingTokens.border, thickness: 1),
+              ...future.map((e) => _WodRow(
+                    wod: e.wod,
+                    dateLabel: e.dateLabel,
+                    canDelete: gymState.isOwner,
+                    isToday: false,
+                    isFuture: true,
+                  )),
+            ],
+          ],
         ],
       ),
     );
   }
+
+  static String _formatDate(DateTime d) {
+    const wks = ['월', '화', '수', '목', '금', '토', '일'];
+    final wk = wks[(d.weekday - 1) % 7];
+    final mm = d.month.toString().padLeft(2, '0');
+    final dd = d.day.toString().padLeft(2, '0');
+    return '$mm.$dd · $wk';
+  }
 }
 
-/// v1.22: row 미니멀 스타일 — 카드 border 없이 얇은 divider로만 구분.
-/// 라벨:값 row 패턴 (rounds/scale/versions 모두 inline 텍스트).
+class _WodEntry {
+  final GymWodPost wod;
+  final String dateLabel;
+  final int diff;
+  const _WodEntry(
+      {required this.wod, required this.dateLabel, required this.diff});
+}
+
+/// v1.22 (rev2): row 미니멀 — 일자 inline + 항상 toggle.
+/// past/future는 muted+1줄, today는 펼친 상태 + Mark Done 가능.
 class _WodRow extends StatefulWidget {
   final GymWodPost wod;
+  final String dateLabel;
   final bool canDelete;
-  final bool initiallyExpanded;
-  final bool disableMarkDone;
-  final bool dimmed;
+  final bool isToday;
+  final bool isFuture;
   const _WodRow({
     required this.wod,
+    required this.dateLabel,
     required this.canDelete,
-    required this.initiallyExpanded,
-    required this.disableMarkDone,
-    required this.dimmed,
+    required this.isToday,
+    required this.isFuture,
   });
 
   @override
@@ -485,7 +518,7 @@ class _WodRowState extends State<_WodRow> {
   @override
   void initState() {
     super.initState();
-    _expanded = widget.initiallyExpanded;
+    _expanded = widget.isToday;
   }
 
   void _toggle() {
@@ -524,7 +557,7 @@ class _WodRowState extends State<_WodRow> {
 
   /// v1.20: Start 버튼 없이 바로 결과 입력. v1.22: 미래 일자에는 진입 차단.
   void _openResultSheet(BuildContext context) {
-    if (widget.disableMarkDone) return;
+    if (widget.isFuture) return;
     Haptic.medium();
     showModalBottomSheet<bool>(
       context: context,
@@ -537,33 +570,43 @@ class _WodRowState extends State<_WodRow> {
   @override
   Widget build(BuildContext context) {
     final wod = widget.wod;
+    final isMinimal = !widget.isToday;
     final fgColor =
-        widget.dimmed ? FacingTokens.muted : FacingTokens.fg;
+        isMinimal ? FacingTokens.muted : FacingTokens.fg;
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        // 접힘=펼치기 / 펼침=상세화면.
-        onTap: _expanded ? () => _openDetail(context) : _toggle,
+        // v1.22 rev2: 항상 toggle. Detail은 명시 버튼만.
+        onTap: _toggle,
         child: Container(
           decoration: const BoxDecoration(
             border: Border(
               bottom: BorderSide(color: FacingTokens.border, width: 1),
             ),
           ),
-          padding: const EdgeInsets.symmetric(
-            vertical: FacingTokens.sp3,
+          padding: EdgeInsets.symmetric(
+            vertical: isMinimal ? FacingTokens.sp2 : FacingTokens.sp3,
             horizontal: 2,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 헤더 row — type · time · rounds · chevron
+              // 헤더 row — past/future는 일자 prefix + type · time · rounds · chevron
               Row(
                 children: [
+                  if (isMinimal) ...[
+                    Text(
+                      widget.dateLabel,
+                      style: FacingTokens.microLabel.copyWith(
+                        color: FacingTokens.muted,
+                      ),
+                    ),
+                    _dot(),
+                  ],
                   Text(
                     wod.wodType.toUpperCase(),
                     style: FacingTokens.sectionLabel.copyWith(
-                      color: widget.dimmed
+                      color: isMinimal
                           ? FacingTokens.muted
                           : FacingTokens.accent,
                     ),
@@ -579,7 +622,13 @@ class _WodRowState extends State<_WodRow> {
                         style: FacingTokens.caption),
                   ],
                   const Spacer(),
-                  if (widget.canDelete)
+                  if (widget.isFuture)
+                    const Padding(
+                      padding: EdgeInsets.only(right: 4),
+                      child: Icon(Icons.lock_outline,
+                          size: 14, color: FacingTokens.muted),
+                    ),
+                  if (widget.canDelete && _expanded)
                     IconButton(
                       icon: const Icon(Icons.delete_outline, size: 18),
                       color: FacingTokens.muted,
@@ -673,20 +722,20 @@ class _WodRowState extends State<_WodRow> {
                 Row(
                   children: [
                     TextButton.icon(
-                      onPressed: widget.disableMarkDone
+                      onPressed: widget.isFuture
                           ? null
                           : () => _openResultSheet(context),
                       icon: Icon(
-                        widget.disableMarkDone
+                        widget.isFuture
                             ? Icons.lock_outline
                             : Icons.check,
                         size: 16,
                       ),
-                      label: Text(widget.disableMarkDone
+                      label: Text(widget.isFuture
                           ? 'Not yet'
                           : 'Mark Done'),
                       style: TextButton.styleFrom(
-                        foregroundColor: widget.disableMarkDone
+                        foregroundColor: widget.isFuture
                             ? FacingTokens.muted
                             : FacingTokens.accent,
                         padding: const EdgeInsets.symmetric(
