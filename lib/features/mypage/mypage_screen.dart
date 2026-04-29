@@ -20,7 +20,6 @@ import '../../core/weak_insight.dart';
 import '../../core/worn_title_store.dart';
 import '../../models/achievement.dart';
 import '../achievement/achievement_card.dart';
-import '../achievement/achievement_section.dart';
 import '../achievement/achievement_state.dart';
 import '../inbox/inbox_screen.dart';
 import '../inbox/inbox_state.dart';
@@ -46,29 +45,26 @@ class MyPageScreen extends StatelessWidget {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp3),
+          // v1.21: 5탭 재배치 — Tier/점수/추이는 Home으로, 업적은 Attend으로 이동.
+          // Profile = "내 detail (radar/category/records) + 잘안쓰는거 (settings/policy/data)".
           children: const [
-            _TierSnapshot(),
-            _WornTitleLine(),
-            _InboxEntry(),
+            _MyBoxSection(),
             _SectionDivider(),
             _TierRoadmap(),
             _SectionDivider(),
             _EngineTrend(),
             _SectionDivider(),
-            _RoleModelCard(),
-            _SectionDivider(),
             _CategoryTiers(),
             _SectionDivider(),
             _RecentRecords(),
             _SectionDivider(),
-            AchievementSection(),
-            _SectionDivider(),
-            _MyBoxSection(),
+            _RoleModelCard(),
             _SectionDivider(),
             _BodyStats(),
             _SectionDivider(),
             _SettingsSection(),
             _SectionDivider(),
+            // 잘 안 쓰는거 (algorithm/privacy/import/reset) 는 _ActionsSection 안에 있음.
             _ActionsSection(),
           ],
         ),

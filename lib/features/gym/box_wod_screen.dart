@@ -330,14 +330,32 @@ class _RejectedState extends StatelessWidget {
   }
 }
 
+/// v1.21: kbox 스타일 날짜 그룹 — 어제(위) / 오늘(가운데, Today 배지) / 내일·모레(아래).
+/// 윈도우: -1 ~ +2 일. 4일 안에 든 WOD만 표시. 더 많으면 "View all" 버튼 (Phase 2).
 class _WodList extends StatelessWidget {
   final GymState gymState;
   const _WodList({required this.gymState});
 
+  static const List<String> _wkLabel = ['월', '화', '수', '목', '금', '토', '일'];
+
   @override
   Widget build(BuildContext context) {
     final gym = gymState.membership.gym!;
-    final wods = gymState.todayWods;
+    final allWods = gymState.wods;
+    final now = DateTime.now().toLocal();
+    final todayDate = DateTime(now.year, now.month, now.day);
+
+    // 윈도우 -1 ~ +2 일.
+    final groups = <String, List<GymWodPost>>{};
+    for (final w in allWods) {
+      final d = DateTime.tryParse('${w.postDate}T00:00:00');
+      if (d == null) continue;
+      final diff = d.difference(todayDate).inDays;
+      if (diff < -1 || diff > 2) continue;
+      groups.putIfAbsent(w.postDate, () => []).add(w);
+    }
+    final sortedKeys = groups.keys.toList()..sort(); // ascending: 어제 → 오늘 → 내일 → 모레
+
     return RefreshIndicator(
       onRefresh: () => context.read<GymState>().loadMine(),
       child: ListView(
@@ -359,15 +377,84 @@ class _WodList extends StatelessWidget {
             ],
           ),
           const SizedBox(height: FacingTokens.sp4),
-          const Text("TODAY'S WOD", style: FacingTokens.sectionLabel),
-          const SizedBox(height: FacingTokens.sp3),
-          if (wods.isEmpty)
+          if (sortedKeys.isEmpty) ...[
+            const Text("WOD", style: FacingTokens.sectionLabel),
+            const SizedBox(height: FacingTokens.sp3),
             const Padding(
               padding: EdgeInsets.symmetric(vertical: FacingTokens.sp4),
-              child: Text('오늘 게시된 WOD 없음.', style: FacingTokens.caption),
-            )
-          else
-            ...wods.map((w) => _WodCard(wod: w, canDelete: gymState.isOwner)),
+              child: Text('어제 ~ 모레 게시된 WOD 없음.',
+                  style: FacingTokens.caption),
+            ),
+          ] else
+            ...sortedKeys.map((key) {
+              final d = DateTime.parse('${key}T00:00:00');
+              final diff = d.difference(todayDate).inDays;
+              final isToday = diff == 0;
+              final wk = _wkLabel[(d.weekday - 1) % 7];
+              final mm = d.month.toString().padLeft(2, '0');
+              final dd = d.day.toString().padLeft(2, '0');
+              final dateLabel = '$mm.$dd · $wk';
+              final relLabel = switch (diff) {
+                -1 => 'YESTERDAY',
+                0 => 'TODAY',
+                1 => 'TOMORROW',
+                2 => 'D+2',
+                _ => '',
+              };
+              return Padding(
+                padding: const EdgeInsets.only(bottom: FacingTokens.sp4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        Text(dateLabel,
+                            style: FacingTokens.h3.copyWith(
+                              fontWeight: FontWeight.w800,
+                              color: isToday
+                                  ? FacingTokens.fg
+                                  : FacingTokens.muted,
+                            )),
+                        const SizedBox(width: FacingTokens.sp2),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 1),
+                          decoration: BoxDecoration(
+                            color: isToday
+                                ? FacingTokens.accent
+                                : Colors.transparent,
+                            border: Border.all(
+                              color: isToday
+                                  ? FacingTokens.accent
+                                  : FacingTokens.border,
+                              width: 1,
+                            ),
+                            borderRadius:
+                                BorderRadius.circular(FacingTokens.r1),
+                          ),
+                          child: Text(
+                            relLabel,
+                            style: FacingTokens.microLabel.copyWith(
+                              color: isToday
+                                  ? FacingTokens.fg
+                                  : FacingTokens.muted,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: FacingTokens.sp2),
+                    ...groups[key]!.map((w) => _WodCard(
+                          wod: w,
+                          canDelete: gymState.isOwner,
+                        )),
+                  ],
+                ),
+              );
+            }),
         ],
       ),
     );

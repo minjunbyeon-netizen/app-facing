@@ -9,14 +9,14 @@ import '../../core/theme.dart';
 import '../attendance/attendance_screen.dart';
 import '../gym/box_wod_screen.dart';
 import '../gym/gym_state.dart';
+import '../home/home_screen.dart';
+import '../inbox/inbox_screen.dart';
 import '../inbox/inbox_state.dart';
 import '../mypage/mypage_screen.dart';
-import '../trends/trends_screen.dart';
-import '../wod_builder/calc_entry_screen.dart';
 
-/// v1.15.3: 5탭 하단 내비 Shell.
-/// 순서(좌→우): WOD계산기 · 와드확인 · 변화추이(center·default) · 출석률 · 마이프로필.
-/// Android 시스템 뒤로가기 처리: center 아닌 탭에서 back → center(2)로 복귀.
+/// v1.21: 5탭 재배치 — Home(default) · WOD · Inbox · Attend · Profile.
+/// Trends 폐지, Calc → Home 격상 (점수 카드 + 카테고리 진입 통합).
+/// dot 위치: Profile(4) → Inbox(2). Default index 2 → 0 (Home leftmost).
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
 
@@ -25,9 +25,9 @@ class MainShell extends StatefulWidget {
 }
 
 class _MainShellState extends State<MainShell> {
-  static const int _centerIndex = 2;
-  static const String _kTabHintShown = 'shell_tab_hint_shown_v1';
-  int _index = _centerIndex;
+  static const int _defaultIndex = 0;
+  static const String _kTabHintShown = 'shell_tab_hint_shown_v2';
+  int _index = _defaultIndex;
   bool _showTabHint = false;
 
   ShellNavBus? _navBus;
@@ -35,17 +35,14 @@ class _MainShellState extends State<MainShell> {
   @override
   void initState() {
     super.initState();
-    // v1.16 Sprint 7b U1: 첫 실행 시 1회 탭 힌트 오버레이.
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final prefs = await SharedPreferences.getInstance();
       if (prefs.getBool(_kTabHintShown) == true) return;
       if (!mounted) return;
       setState(() => _showTabHint = true);
     });
-    // v1.16 Sprint 11: 딥링크 탭 전환 요청 리스닝.
     _navBus = context.read<ShellNavBus>();
     _navBus?.addListener(_onNavRequest);
-    // v1.18 Sprint 19: GymState 로드 후 InboxState 자동 bind.
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
       final gs = context.read<GymState>();
@@ -79,12 +76,12 @@ class _MainShellState extends State<MainShell> {
     await prefs.setBool(_kTabHintShown, true);
   }
 
-  // v1.15.3: 탭 라벨 영문화 (HWPO/NOBULL 톤 정합).
+  // v1.21: 5탭 — Home · WOD · Inbox · Attend · Profile.
   static const List<_TabDef> _tabs = [
     _TabDef(
-      icon: Icons.calculate_outlined,
-      selectedIcon: Icons.calculate,
-      label: 'Calc',
+      icon: Icons.home_outlined,
+      selectedIcon: Icons.home,
+      label: 'Home',
     ),
     _TabDef(
       icon: Icons.list_alt_outlined,
@@ -92,9 +89,9 @@ class _MainShellState extends State<MainShell> {
       label: 'WOD',
     ),
     _TabDef(
-      icon: Icons.show_chart_outlined,
-      selectedIcon: Icons.show_chart,
-      label: 'Trends',
+      icon: Icons.inbox_outlined,
+      selectedIcon: Icons.inbox,
+      label: 'Inbox',
     ),
     _TabDef(
       icon: Icons.calendar_month_outlined,
@@ -109,9 +106,9 @@ class _MainShellState extends State<MainShell> {
   ];
 
   static const List<Widget> _pages = [
-    CalcEntryScreen(),
+    HomeScreen(),
     BoxWodScreen(),
-    TrendsScreen(),
+    InboxScreen(),
     AttendanceScreen(),
     MyPageScreen(),
   ];
@@ -124,14 +121,12 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
-    // canPop=false 고정 — 모든 back을 intercept 후 직접 처리.
-    // 비-중앙 탭: 중앙으로 복귀. 중앙 탭: SystemNavigator.pop()으로 앱 종료.
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) return;
-        if (_index != _centerIndex) {
-          setState(() => _index = _centerIndex);
+        if (_index != _defaultIndex) {
+          setState(() => _index = _defaultIndex);
         } else {
           SystemNavigator.pop();
         }
@@ -179,13 +174,14 @@ class _MainShellState extends State<MainShell> {
                     NavigationDestination(
                       icon: _IconWithDot(
                         icon: _tabs[i].icon,
-                        showDot: i == 4 &&
+                        // v1.21: dot 위치 Profile(4) → Inbox(2).
+                        showDot: i == 2 &&
                             context.watch<InboxState>().unreadCount > 0,
                         color: FacingTokens.muted,
                       ),
                       selectedIcon: _IconWithDot(
                         icon: _tabs[i].selectedIcon,
-                        showDot: i == 4 &&
+                        showDot: i == 2 &&
                             context.watch<InboxState>().unreadCount > 0,
                         color: FacingTokens.fg,
                       ),
@@ -212,7 +208,7 @@ class _TabDef {
   });
 }
 
-/// v1.18 Sprint 19: 탭 아이콘 우상단 빨간 dot (카톡식). InboxState 미읽음 표시.
+/// 탭 아이콘 우상단 빨간 dot. InboxState 미읽음 표시.
 class _IconWithDot extends StatelessWidget {
   final IconData icon;
   final bool showDot;
@@ -225,7 +221,6 @@ class _IconWithDot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // v1.19 페르소나 P1-16 (M3 윤): dot 8 → 12 + textScale 동기.
     final scale = MediaQuery.of(context).textScaler.scale(1.0);
     final dotSize = 12 * scale;
     return Stack(
@@ -251,18 +246,17 @@ class _IconWithDot extends StatelessWidget {
   }
 }
 
-/// v1.16 Sprint 7b U1: 첫 실행 탭 힌트 풀스크린 오버레이.
-/// 5탭 한 줄 설명 + '확인' 버튼. 이후 SharedPreferences 플래그로 숨김.
+/// 첫 실행 1회 탭 힌트. v1.21: 5탭 재구성에 맞게 갱신.
 class _TabHintOverlay extends StatelessWidget {
   final VoidCallback onDismiss;
   const _TabHintOverlay({required this.onDismiss});
 
   static const List<(String, String)> _hints = [
-    ('Calc', 'WOD 골라 Split · Burst 계산'),
+    ('Home', 'Tier · Engine Score · WOD 카테고리'),
     ('WOD', '내 박스 코치의 오늘 WOD'),
-    ('Trends', '업적 배지 15개 갤러리'),
-    ('Attend', '출석 streak · 마일스톤'),
-    ('Profile', '내 Tier · 기록 · 설정'),
+    ('Inbox', '코치 쪽지 · 박스 공지'),
+    ('Attend', '출석 · 레벨 · 해금 · 업적'),
+    ('Profile', '바디 · 설정 · 데이터'),
   ];
 
   @override

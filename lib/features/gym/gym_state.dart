@@ -10,12 +10,16 @@ class GymState extends ChangeNotifier {
   GymState(this.repo);
 
   GymMembership _membership = GymMembership.empty;
-  List<GymWodPost> _todayWods = const [];
+  List<GymWodPost> _wods = const [];
   bool _loading = false;
   String? _error;
 
   GymMembership get membership => _membership;
-  List<GymWodPost> get todayWods => _todayWods;
+  /// v1.21: 박스 전체 기간 WOD (kbox 스타일 날짜 그룹용).
+  List<GymWodPost> get wods => _wods;
+  /// 오늘 날짜 매치 — 기존 호출처 호환.
+  List<GymWodPost> get todayWods =>
+      _wods.where((w) => w.postDate == todayIso).toList();
   bool get isLoading => _loading;
   String? get error => _error;
 
@@ -36,12 +40,10 @@ class GymState extends ChangeNotifier {
       _membership = await repo.getMine();
       if (_membership.gym != null &&
           (_membership.isOwner || _membership.isApprovedMember)) {
-        _todayWods = await repo.listWods(
-          gymId: _membership.gym!.id,
-          date: todayIso,
-        );
+        // v1.21: 날짜 필터 제거 — 박스 전체 기간 WOD 로드 후 클라이언트에서 그룹.
+        _wods = await repo.listWods(gymId: _membership.gym!.id);
       } else {
-        _todayWods = const [];
+        _wods = const [];
       }
     } on AppException catch (e) {
       _error = e.messageKo;
