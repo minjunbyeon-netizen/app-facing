@@ -22,6 +22,16 @@ class LevelSystem {
   // 레벨별 누적 XP 임계.
   static const int maxLevel = 50;
 
+  /// v1.22: 업적 등급별 XP 보상.
+  /// 평균 해금 분포: Common 30% / Rare 35% / Epic 25% / Legendary 10%.
+  /// 96개 모두 해금 시 약 8,000~10,000 XP (Lv 20대 도달 가능).
+  static const Map<String, int> rarityXp = {
+    'Common': 20,
+    'Rare': 50,
+    'Epic': 120,
+    'Legendary': 300,
+  };
+
   /// 해당 레벨 도달에 필요한 누적 XP.
   static int xpForLevel(int level) {
     if (level <= 1) return 0;
@@ -61,28 +71,32 @@ class LevelSystem {
     return ((xp - currentCumulative) / span).clamp(0.0, 1.0);
   }
 
-  /// MVP + Phase 2: 세션 수 · streak · tier · weekly · PR XP 합산.
+  /// MVP + Phase 2 + v1.22: 세션·streak·tier·weekly·PR + 업적 XP 합산.
   ///
-  /// `prCount`: 누적 PR 갱신 횟수 (v1.20 Phase 2). 미지정 시 0.
+  /// `prCount`: 누적 PR 갱신 횟수 (v1.20).
+  /// `achievementXp`: 업적 등급별 XP 합 (v1.22). 호출자가 미리 계산.
   static LevelXpBreakdown compute({
     required int totalSessions,
     required int currentStreakDays,
     required int tierNumber,
     int weeklyGoalHitWeeks = 0,
     int prCount = 0,
+    int achievementXp = 0,
   }) {
     final sessionXp = totalSessions * 100;
     final streakXp = currentStreakDays * 50;
     final tierXp = (tierNumber.clamp(0, 6)) * 500;
     final weeklyXp = weeklyGoalHitWeeks * 300;
     final prXp = prCount * 250;
-    final total = sessionXp + streakXp + tierXp + weeklyXp + prXp;
+    final total =
+        sessionXp + streakXp + tierXp + weeklyXp + prXp + achievementXp;
     return LevelXpBreakdown(
       sessionXp: sessionXp,
       streakXp: streakXp,
       tierXp: tierXp,
       weeklyXp: weeklyXp,
       prXp: prXp,
+      achievementXp: achievementXp,
       totalXp: total,
       level: levelFromXp(total),
       progress: levelProgress(total),
@@ -97,6 +111,7 @@ class LevelXpBreakdown {
   final int tierXp;
   final int weeklyXp;
   final int prXp;
+  final int achievementXp;
   final int totalXp;
   final int level;
   final double progress;
@@ -108,6 +123,7 @@ class LevelXpBreakdown {
     required this.tierXp,
     required this.weeklyXp,
     this.prXp = 0,
+    this.achievementXp = 0,
     required this.totalXp,
     required this.level,
     required this.progress,

@@ -9,8 +9,10 @@ import '../../core/pr_detector.dart';
 import '../../core/streak_freeze.dart';
 import '../../core/theme.dart';
 import '../../core/wod_session_bus.dart';
+import '../../models/achievement.dart';
 import '../../widgets/inbox_bell.dart';
 import '../achievement/achievement_section.dart';
+import '../achievement/achievement_state.dart';
 import '../history/history_models.dart';
 import '../history/history_repository.dart';
 import '../profile/profile_state.dart';
@@ -254,25 +256,51 @@ class _LevelCard extends StatelessWidget {
     required this.prCount,
   });
 
-  /// v1.22 rev4: 대표 캐릭터 (HYPHEN mascot).
-  /// 단일 이미지 사용. 레벨대별 변화는 테두리/배경 강도로 표현.
-  static const String _mascotAsset = 'assets/images/character/mascot.png';
+  /// v1.22 rev6: 레벨대별 캐릭터 진화. lv2/lv3 자산 없으면 mascot.png 폴백.
+  /// 5 단계로 분기 — 추후 mascot_lv{2,3,4,5}.png 추가 시 자동 적용.
+  String _mascotForLevel(int level) {
+    if (level >= 41) return 'assets/images/character/mascot_lv5.png';
+    if (level >= 31) return 'assets/images/character/mascot_lv4.png';
+    if (level >= 21) return 'assets/images/character/mascot_lv3.png';
+    if (level >= 11) return 'assets/images/character/mascot_lv2.png';
+    return 'assets/images/character/mascot.png';
+  }
 
-  /// 레벨대별 캐릭터 강조 색 — 회색 → 흰 → 탠 (테두리/배경 그라데이션).
+  static const String _mascotFallback = 'assets/images/character/mascot.png';
+
+  /// 레벨대별 캐릭터 강조 색 — 회색 → 흰 → 탠 (5 단계).
   Color _colorForLevel(int level) {
-    if (level <= 7) return FacingTokens.muted;
-    if (level <= 14) return FacingTokens.fg;
-    return FacingTokens.accent;
+    if (level >= 41) return FacingTokens.accent;
+    if (level >= 31) return FacingTokens.accent;
+    if (level >= 21) return FacingTokens.fg;
+    if (level >= 11) return FacingTokens.fg;
+    return FacingTokens.muted;
   }
 
   /// 레벨대별 격려 한 줄. 친근한 톤.
   String _captionForLevel(int level) {
-    if (level <= 3) return '좋은 출발. 페이스 유지.';
-    if (level <= 7) return '체력 쌓이는 중.';
-    if (level <= 11) return '단단해지는 중.';
-    if (level <= 14) return 'Discipline 진입.';
-    if (level <= 17) return 'Obsession 시작.';
+    if (level <= 5) return '좋은 출발. 페이스 유지.';
+    if (level <= 10) return '체력 쌓이는 중.';
+    if (level <= 15) return '단단해지는 중.';
+    if (level <= 20) return 'Discipline 진입.';
+    if (level <= 30) return 'Obsession 시작.';
+    if (level <= 40) return '베테랑.';
     return '경지에 올랐다.';
+  }
+
+  /// v1.22 rev6: 업적 등급별 XP 합산.
+  int _computeAchievementXp(AchievementSnapshot snap) {
+    if (snap.unlocked.isEmpty) return 0;
+    final byCode = <String, AchievementCatalog>{
+      for (final c in snap.catalog) c.code: c,
+    };
+    int total = 0;
+    for (final code in snap.unlocked.keys) {
+      final c = byCode[code];
+      final xp = LevelSystem.rarityXp[c?.rarity ?? 'Common'] ?? 20;
+      total += xp;
+    }
+    return total;
   }
 
   @override
@@ -282,11 +310,14 @@ class _LevelCard extends StatelessWidget {
         ? p.gradeResult!['overall_number'] as num
         : null;
     final tierNum = (n ?? 1).toInt();
+    final achState = context.watch<AchievementState>();
+    final achXp = _computeAchievementXp(achState.snapshot);
     final bd = LevelSystem.compute(
       totalSessions: totalSessions,
       currentStreakDays: currentStreakDays,
       tierNumber: tierNum,
       prCount: prCount,
+      achievementXp: achXp,
     );
     final pct = (bd.progress * 100).round();
     final isMax = bd.level >= LevelSystem.maxLevel;
@@ -319,14 +350,12 @@ class _LevelCard extends StatelessWidget {
                 ),
                 clipBehavior: Clip.antiAlias,
                 child: Image.asset(
-                  _mascotAsset,
+                  _mascotForLevel(bd.level),
                   fit: BoxFit.cover,
-                  errorBuilder: (_, _, _) => const Center(
-                    child: Icon(
-                      Icons.image_outlined,
-                      color: FacingTokens.muted,
-                      size: 24,
-                    ),
+                  // v1.22 rev6: lv2/lv3/4/5 자산 미존재 시 mascot.png 폴백.
+                  errorBuilder: (_, _, _) => Image.asset(
+                    _mascotFallback,
+                    fit: BoxFit.cover,
                   ),
                 ),
               ),
@@ -394,6 +423,10 @@ class _LevelCard extends StatelessWidget {
                   _XpInline(label: 'Streak', value: bd.streakXp),
                   _XpInline(label: 'Tier', value: bd.tierXp),
                   if (bd.prXp > 0) _XpInline(label: 'PRs', value: bd.prXp),
+                  if (bd.achievementXp > 0)
+                    _XpInline(
+                        label: 'Achievements',
+                        value: bd.achievementXp),
                 ],
               ),
             ),
