@@ -402,74 +402,54 @@ class _WodList extends StatelessWidget {
                 2 => 'D+2',
                 _ => '',
               };
-              // v1.22: 아코디언 도입 후 opacity 완화 (과거 0.7 / 미래 0.9 / 오늘 1.0).
-              final opacity = isToday ? 1.0 : (diff < 0 ? 0.7 : 0.9);
+              // v1.22: row 미니멀 스타일 — 카드 border 제거, 얇은 divider만.
               final isFuture = diff > 0;
-              return Opacity(
-                opacity: opacity,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: FacingTokens.sp4),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.baseline,
-                        textBaseline: TextBaseline.alphabetic,
-                        children: [
-                          Text(dateLabel,
-                              style: FacingTokens.h3.copyWith(
-                                fontWeight: FontWeight.w800,
-                                color: isToday
-                                    ? FacingTokens.fg
-                                    : FacingTokens.muted,
-                              )),
-                          const SizedBox(width: FacingTokens.sp2),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 1),
-                            decoration: BoxDecoration(
+              return Padding(
+                padding: const EdgeInsets.only(bottom: FacingTokens.sp5),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // 일자 헤더 — 날짜 + relLabel
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        Text(dateLabel,
+                            style: FacingTokens.h3.copyWith(
                               color: isToday
-                                  ? FacingTokens.accent
-                                  : Colors.transparent,
-                              border: Border.all(
-                                color: isToday
-                                    ? FacingTokens.accent
-                                    : FacingTokens.border,
-                                width: 1,
-                              ),
-                              borderRadius:
-                                  BorderRadius.circular(FacingTokens.r1),
-                            ),
-                            child: Text(
-                              relLabel,
-                              style: FacingTokens.microLabel.copyWith(
-                                color: isToday
-                                    ? FacingTokens.fg
-                                    : FacingTokens.muted,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
+                                  ? FacingTokens.fg
+                                  : FacingTokens.muted,
+                            )),
+                        const SizedBox(width: FacingTokens.sp2),
+                        Text(
+                          relLabel,
+                          style: FacingTokens.microLabel.copyWith(
+                            color: isToday
+                                ? FacingTokens.accent
+                                : FacingTokens.muted,
                           ),
-                        ],
-                      ),
-                      // v1.22: 미래 일자 안내. Mark Done 잠금 사유 명시.
-                      if (isFuture) ...[
-                        const SizedBox(height: 2),
-                        const Text(
-                          '코치가 미리 게시. Mark Done은 당일부터.',
-                          style: FacingTokens.caption,
                         ),
                       ],
-                      const SizedBox(height: FacingTokens.sp2),
-                      // v1.22: 아코디언 — 오늘만 펼침. 그 외 접힘 상태 클릭 시 펼침.
-                      ...groups[key]!.map((w) => _WodCard(
-                            wod: w,
-                            canDelete: gymState.isOwner,
-                            initiallyExpanded: isToday,
-                            disableMarkDone: isFuture,
-                          )),
+                    ),
+                    if (isFuture) ...[
+                      const SizedBox(height: 2),
+                      const Text(
+                        '코치가 미리 게시. Mark Done은 당일부터.',
+                        style: FacingTokens.caption,
+                      ),
                     ],
-                  ),
+                    const SizedBox(height: FacingTokens.sp2),
+                    // 일자 내 WOD row — 얇은 divider로 구분.
+                    const Divider(
+                        height: 1, color: FacingTokens.border, thickness: 1),
+                    ...groups[key]!.map((w) => _WodRow(
+                          wod: w,
+                          canDelete: gymState.isOwner,
+                          initiallyExpanded: isToday,
+                          disableMarkDone: isFuture,
+                          dimmed: !isToday,
+                        )),
+                  ],
                 ),
               );
             }),
@@ -479,26 +459,27 @@ class _WodList extends StatelessWidget {
   }
 }
 
-/// v1.22: 아코디언 + Mark Done 잠금 지원.
-/// initiallyExpanded=true (오늘만): 펼침 상태 진입.
-/// disableMarkDone=true (미래만): Mark Done 버튼 비활성 + "Not yet" 라벨.
-class _WodCard extends StatefulWidget {
+/// v1.22: row 미니멀 스타일 — 카드 border 없이 얇은 divider로만 구분.
+/// 라벨:값 row 패턴 (rounds/scale/versions 모두 inline 텍스트).
+class _WodRow extends StatefulWidget {
   final GymWodPost wod;
   final bool canDelete;
   final bool initiallyExpanded;
   final bool disableMarkDone;
-  const _WodCard({
+  final bool dimmed;
+  const _WodRow({
     required this.wod,
     required this.canDelete,
     required this.initiallyExpanded,
     required this.disableMarkDone,
+    required this.dimmed,
   });
 
   @override
-  State<_WodCard> createState() => _WodCardState();
+  State<_WodRow> createState() => _WodRowState();
 }
 
-class _WodCardState extends State<_WodCard> {
+class _WodRowState extends State<_WodRow> {
   late bool _expanded;
 
   @override
@@ -512,22 +493,24 @@ class _WodCardState extends State<_WodCard> {
     setState(() => _expanded = !_expanded);
   }
 
-  Widget _versionChip(String label, {bool accent = false}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: accent ? FacingTokens.accent : FacingTokens.border,
-          width: 1,
-        ),
-        borderRadius: BorderRadius.circular(FacingTokens.r1),
-      ),
-      child: Text(
-        label,
-        style: FacingTokens.microLabel.copyWith(
-          color: accent ? FacingTokens.accent : FacingTokens.muted,
-          fontWeight: FontWeight.w800,
-        ),
+  Widget _dot() => const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 6),
+        child: Text('·',
+            style: TextStyle(color: FacingTokens.muted, fontSize: 12)),
+      );
+
+  Widget _kv(String label, Widget value) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 72,
+            child: Text(label, style: FacingTokens.microLabel),
+          ),
+          Expanded(child: value),
+        ],
       ),
     );
   }
@@ -554,219 +537,201 @@ class _WodCardState extends State<_WodCard> {
   @override
   Widget build(BuildContext context) {
     final wod = widget.wod;
-    return Container(
-      margin: const EdgeInsets.only(bottom: FacingTokens.sp3),
-      decoration: BoxDecoration(
-        color: FacingTokens.surface,
-        borderRadius: BorderRadius.circular(FacingTokens.r3),
-        border: Border.all(color: FacingTokens.border),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          // v1.22: 접힘 상태 = 펼치기 / 펼침 상태 = 상세화면 진입.
-          onTap: _expanded ? () => _openDetail(context) : _toggle,
-          borderRadius: BorderRadius.circular(FacingTokens.r3),
-          child: Padding(
-            padding: const EdgeInsets.all(FacingTokens.sp4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(wod.wodType.toUpperCase(),
-                        style: FacingTokens.sectionLabel.copyWith(
-                          color: FacingTokens.accent,
-                        )),
-                    const SizedBox(width: FacingTokens.sp2),
-                    if (wod.timeCapSec != null)
-                      Text(wod.timeCapDisplay, style: FacingTokens.caption),
-                    if (wod.rounds != null) ...[
-                      const SizedBox(width: FacingTokens.sp2),
-                      Text('${wod.rounds} rounds',
-                          style: FacingTokens.caption),
-                    ],
-                    const Spacer(),
-                    if (widget.canDelete)
-                      IconButton(
-                        icon: const Icon(Icons.delete_outline, size: 20),
-                        color: FacingTokens.muted,
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                        onPressed: () async {
-                          final ok = await _confirmDelete(context);
-                          if (ok == true && context.mounted) {
-                            Haptic.medium();
-                            await context.read<GymState>().deleteWod(wod.id);
-                          }
-                        },
-                      ),
-                    // v1.22: 아코디언 토글 chevron.
+    final fgColor =
+        widget.dimmed ? FacingTokens.muted : FacingTokens.fg;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        // 접힘=펼치기 / 펼침=상세화면.
+        onTap: _expanded ? () => _openDetail(context) : _toggle,
+        child: Container(
+          decoration: const BoxDecoration(
+            border: Border(
+              bottom: BorderSide(color: FacingTokens.border, width: 1),
+            ),
+          ),
+          padding: const EdgeInsets.symmetric(
+            vertical: FacingTokens.sp3,
+            horizontal: 2,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 헤더 row — type · time · rounds · chevron
+              Row(
+                children: [
+                  Text(
+                    wod.wodType.toUpperCase(),
+                    style: FacingTokens.sectionLabel.copyWith(
+                      color: widget.dimmed
+                          ? FacingTokens.muted
+                          : FacingTokens.accent,
+                    ),
+                  ),
+                  if (wod.timeCapSec != null) ...[
+                    _dot(),
+                    Text(wod.timeCapDisplay,
+                        style: FacingTokens.caption),
+                  ],
+                  if (wod.rounds != null) ...[
+                    _dot(),
+                    Text('${wod.rounds} rounds',
+                        style: FacingTokens.caption),
+                  ],
+                  const Spacer(),
+                  if (widget.canDelete)
                     IconButton(
-                      icon: Icon(
-                        _expanded
-                            ? Icons.expand_less
-                            : Icons.expand_more,
-                        size: 22,
-                      ),
+                      icon: const Icon(Icons.delete_outline, size: 18),
                       color: FacingTokens.muted,
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(
-                          minWidth: 32, minHeight: 32),
-                      onPressed: _toggle,
+                          minWidth: 28, minHeight: 28),
+                      onPressed: () async {
+                        final ok = await _confirmDelete(context);
+                        if (ok == true && context.mounted) {
+                          Haptic.medium();
+                          await context.read<GymState>().deleteWod(wod.id);
+                        }
+                      },
+                    ),
+                  Icon(
+                    _expanded
+                        ? Icons.expand_less
+                        : Icons.expand_more,
+                    size: 20,
+                    color: FacingTokens.muted,
+                  ),
+                ],
+              ),
+              // 본 콘텐츠 — 접힘 1줄 / 펼침 full.
+              if (!_expanded) ...[
+                const SizedBox(height: 4),
+                Text(
+                  wod.content,
+                  style: FacingTokens.caption,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+              if (_expanded) ...[
+                const SizedBox(height: FacingTokens.sp2),
+                Text(
+                  wod.content,
+                  style: FacingTokens.body.copyWith(color: fgColor),
+                ),
+                if (wod.roundsData.isNotEmpty) ...[
+                  ...wod.roundsData.asMap().entries.map((e) {
+                    final i = e.key;
+                    final r = e.value;
+                    final label = r.label.isEmpty
+                        ? 'R${i + 1}'
+                        : r.label.toUpperCase();
+                    return _kv(
+                      label,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(r.content,
+                              style: FacingTokens.caption),
+                          if (r.timeCapSec != null)
+                            Text(
+                              'cap ${r.timeCapSec! ~/ 60}:${(r.timeCapSec! % 60).toString().padLeft(2, '0')}',
+                              style: FacingTokens.micro,
+                            ),
+                        ],
+                      ),
+                    );
+                  }),
+                ],
+                if (wod.scaleGuide != null &&
+                    wod.scaleGuide!.isNotEmpty)
+                  _kv(
+                    'SCALE',
+                    Text(wod.scaleGuide!, style: FacingTokens.caption),
+                  ),
+                if (wod.hasVersions)
+                  _kv(
+                    'VERSIONS',
+                    Text(
+                      [
+                        'RX',
+                        if (wod.scaledVersion != null &&
+                            wod.scaledVersion!.isNotEmpty)
+                          'SCALED',
+                        if (wod.beginnerVersion != null &&
+                            wod.beginnerVersion!.isNotEmpty)
+                          'BEGINNER',
+                      ].join(' · '),
+                      style: FacingTokens.caption.copyWith(
+                        color: FacingTokens.fg,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                const SizedBox(height: FacingTokens.sp3),
+                // 액션 — TextButton으로 가볍게.
+                Row(
+                  children: [
+                    TextButton.icon(
+                      onPressed: widget.disableMarkDone
+                          ? null
+                          : () => _openResultSheet(context),
+                      icon: Icon(
+                        widget.disableMarkDone
+                            ? Icons.lock_outline
+                            : Icons.check,
+                        size: 16,
+                      ),
+                      label: Text(widget.disableMarkDone
+                          ? 'Not yet'
+                          : 'Mark Done'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: widget.disableMarkDone
+                            ? FacingTokens.muted
+                            : FacingTokens.accent,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: FacingTokens.sp2,
+                        ),
+                        minimumSize: const Size(0, 36),
+                      ),
+                    ),
+                    const SizedBox(width: FacingTokens.sp2),
+                    TextButton.icon(
+                      onPressed: () {
+                        Haptic.light();
+                        context.read<ShellNavBus>().requestTab(0);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                                'Calc 탭 이동. WOD 구성 후 Split·Burst 계산.'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.calculate_outlined,
+                          size: 16),
+                      label: const Text('Pacing'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: FacingTokens.muted,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: FacingTokens.sp2,
+                        ),
+                        minimumSize: const Size(0, 36),
+                      ),
+                    ),
+                    const Spacer(),
+                    TextButton(
+                      onPressed: () => _openDetail(context),
+                      style: TextButton.styleFrom(
+                        foregroundColor: FacingTokens.muted,
+                        minimumSize: const Size(0, 36),
+                      ),
+                      child: const Text('Detail →'),
                     ),
                   ],
                 ),
-                // v1.22: 접힘 상태 — 1줄 미리보기.
-                if (!_expanded) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    wod.content,
-                    style: FacingTokens.caption,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-                // v1.22: 펼침 상태 — 본 콘텐츠 + 액션.
-                if (_expanded) ...[
-                  if (wod.hasVersions) ...[
-                    const SizedBox(height: FacingTokens.sp2),
-                    Wrap(
-                      spacing: FacingTokens.sp1,
-                      children: [
-                        _versionChip('RX', accent: true),
-                        if (wod.scaledVersion != null &&
-                            wod.scaledVersion!.isNotEmpty)
-                          _versionChip('SCALED'),
-                        if (wod.beginnerVersion != null &&
-                            wod.beginnerVersion!.isNotEmpty)
-                          _versionChip('BEGINNER'),
-                      ],
-                    ),
-                  ],
-                  const SizedBox(height: FacingTokens.sp2),
-                  Text(wod.content, style: FacingTokens.body),
-                  if (wod.roundsData.isNotEmpty) ...[
-                    const SizedBox(height: FacingTokens.sp3),
-                    ...wod.roundsData.asMap().entries.map((e) {
-                      final i = e.key;
-                      final r = e.value;
-                      return Container(
-                        margin:
-                            const EdgeInsets.only(top: FacingTokens.sp1),
-                        padding: const EdgeInsets.all(FacingTokens.sp2),
-                        decoration: BoxDecoration(
-                          color: FacingTokens.surfaceOverlay,
-                          borderRadius:
-                              BorderRadius.circular(FacingTokens.r1),
-                          border: Border(
-                            left: BorderSide(
-                                color: FacingTokens.accent, width: 2),
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              r.label.isEmpty
-                                  ? 'ROUND ${i + 1}'
-                                  : r.label.toUpperCase(),
-                              style: FacingTokens.microLabel.copyWith(
-                                color: FacingTokens.accent,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(r.content, style: FacingTokens.caption),
-                            if (r.timeCapSec != null)
-                              Text(
-                                'cap ${r.timeCapSec! ~/ 60}:${(r.timeCapSec! % 60).toString().padLeft(2, '0')}',
-                                style: FacingTokens.micro.copyWith(
-                                    color: FacingTokens.muted),
-                              ),
-                          ],
-                        ),
-                      );
-                    }),
-                  ],
-                  if (wod.scaleGuide != null &&
-                      wod.scaleGuide!.isNotEmpty) ...[
-                    const SizedBox(height: FacingTokens.sp3),
-                    Container(
-                      padding: const EdgeInsets.all(FacingTokens.sp3),
-                      decoration: BoxDecoration(
-                        color: FacingTokens.surfaceOverlay,
-                        borderRadius:
-                            BorderRadius.circular(FacingTokens.r2),
-                        border: Border.all(color: FacingTokens.border),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('SCALE GUIDE',
-                              style: FacingTokens.microLabel),
-                          const SizedBox(height: 2),
-                          Text(wod.scaleGuide!,
-                              style: FacingTokens.caption),
-                        ],
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: FacingTokens.sp3),
-                  Row(
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: ElevatedButton.icon(
-                          // v1.22: 미래 일자는 Mark Done 잠금.
-                          onPressed: widget.disableMarkDone
-                              ? null
-                              : () => _openResultSheet(context),
-                          icon: Icon(
-                            widget.disableMarkDone
-                                ? Icons.lock_outline
-                                : Icons.check,
-                            size: 18,
-                          ),
-                          label: Text(widget.disableMarkDone
-                              ? 'Not yet'
-                              : 'Mark Done'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: widget.disableMarkDone
-                                ? FacingTokens.border
-                                : FacingTokens.accent,
-                            foregroundColor: widget.disableMarkDone
-                                ? FacingTokens.muted
-                                : FacingTokens.fg,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: FacingTokens.sp4,
-                              vertical: FacingTokens.sp2,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: FacingTokens.sp2),
-                      TextButton.icon(
-                        onPressed: () {
-                          Haptic.light();
-                          context.read<ShellNavBus>().requestTab(0);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                  'Calc 탭 이동. WOD 구성 후 Split·Burst 계산.'),
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.calculate_outlined,
-                            size: 18),
-                        label: const Text('Pacing'),
-                      ),
-                    ],
-                  ),
-                ],
               ],
-            ),
+            ],
           ),
         ),
       ),
