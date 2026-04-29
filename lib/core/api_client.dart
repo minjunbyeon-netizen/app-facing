@@ -5,8 +5,13 @@ import 'device_id.dart';
 import 'exception.dart';
 
 class ApiClient {
-  // Android 에뮬레이터에서 호스트는 10.0.2.2. 실기기는 배포 URL로 교체.
-  static const String baseUrl = 'http://10.0.2.2:5060';
+  // 빌드 시 --dart-define=API_BASE_URL=... 로 주입. 미지정 시 에뮬레이터 기본값.
+  // 예) flutter build apk --release --dart-define=API_BASE_URL=http://192.168.1.100:5060
+  // 실기기 베타 테스트는 LAN IP 또는 배포 URL 필요. 10.0.2.2 는 에뮬레이터 전용.
+  static const String baseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: 'http://10.0.2.2:5060',
+  );
 
   final Dio _dio;
   final List<Future<void> Function()> _retryQueue = [];
