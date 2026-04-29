@@ -1,0 +1,543 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic "CrossFit Games" [ref=e4]:
+      - link "CrossFit Games Home" [ref=e5] [cursor=pointer]:
+        - /url: /
+        - img "CrossFit Logo" [ref=e6]
+    - navigation [ref=e7]:
+      - generic "Open find a gym widget" [ref=e9] [cursor=pointer]:
+        - img [ref=e10]
+      - link "Search" [ref=e12] [cursor=pointer]:
+        - /url: https://games.crossfit.com/search
+        - img [ref=e13]
+      - generic "Login" [ref=e15] [cursor=pointer]:
+        - img [ref=e16]
+      - button "Open menu" [ref=e19] [cursor=pointer]:
+        - img [ref=e20]
+  - complementary [ref=e23]
+  - generic [ref=e70]:
+    - paragraph [ref=e71]: The 2026 CrossFit Games Season
+    - heading "Semifinals" [level=1] [ref=e72]
+    - generic [ref=e73]:
+      - link "VIEW SCHEDULE" [ref=e74] [cursor=pointer]:
+        - /url: https://games.crossfit.com/semifinals/schedule
+      - link "LEARN MORE" [ref=e75] [cursor=pointer]:
+        - /url: https://games.crossfit.com/semifinals/overview
+  - generic [ref=e76]:
+    - link "2026 CrossFit Semifinals Semifinals continue with the Legends Championship from April 24-26. WATCH LIVE" [ref=e77] [cursor=pointer]:
+      - /url: https://www.floelite.com/signup?redirect=%2Flive%2F248339
+      - generic [ref=e80]:
+        - paragraph [ref=e81]: 2026 CrossFit Semifinals
+        - paragraph [ref=e82]: Semifinals continue with the Legends Championship from April 24-26.
+        - paragraph [ref=e83]: WATCH LIVE
+    - link "Latest News Get tickets to the 2026 CrossFit Games today! GET YOUR TICKETS" [ref=e84] [cursor=pointer]:
+      - /url: https://am.ticketmaster.com/sharks/buy/ism/MjZDRkc=?_gl=1*a5qp09*_ga*ODM3NjU0MzcwLjE3N[%E2%80%A6]..&utm_source=article&utm_medium=site&utm_campaign=gamestix
+      - generic [ref=e87]:
+        - paragraph [ref=e88]: Latest News
+        - paragraph [ref=e89]: Get tickets to the 2026 CrossFit Games today!
+        - paragraph [ref=e90]: GET YOUR TICKETS
+    - link "Become a Trainer Transform lives as a CrossFit L1 trainer. Find a Course" [ref=e91] [cursor=pointer]:
+      - /url: https://www.crossfit.com/certificate-courses/level-1
+      - generic [ref=e94]:
+        - paragraph [ref=e95]: Become a Trainer
+        - paragraph [ref=e96]: Transform lives as a CrossFit L1 trainer.
+        - paragraph [ref=e97]: Find a Course
+  - generic [ref=e99]:
+    - generic [ref=e100]:
+      - link "The 2026 CrossFit Semifinals Are Underway! VIEW SCHEDULE" [ref=e102] [cursor=pointer]:
+        - /url: https://games.crossfit.com/semifinals/schedule
+        - paragraph [ref=e103]: The 2026 CrossFit Semifinals Are Underway!
+        - generic [ref=e104]: VIEW SCHEDULE
+      - link "The 2026 CrossFit Semifinals Are Underway! VIEW SCHEDULE" [ref=e106] [cursor=pointer]:
+        - /url: https://games.crossfit.com/semifinals/schedule
+        - paragraph [ref=e107]: The 2026 CrossFit Semifinals Are Underway!
+        - generic [ref=e108]: VIEW SCHEDULE
+      - link "The 2026 CrossFit Semifinals Are Underway! VIEW SCHEDULE" [ref=e110] [cursor=pointer]:
+        - /url: https://games.crossfit.com/semifinals/schedule
+        - paragraph [ref=e111]: The 2026 CrossFit Semifinals Are Underway!
+        - generic [ref=e112]: VIEW SCHEDULE
+      - link "The 2026 CrossFit Semifinals Are Underway! VIEW SCHEDULE" [ref=e114] [cursor=pointer]:
+        - /url: https://games.crossfit.com/semifinals/schedule
+        - paragraph [ref=e115]: The 2026 CrossFit Semifinals Are Underway!
+        - generic [ref=e116]: VIEW SCHEDULE
+    - generic [ref=e117]:
+      - link "The 2026 CrossFit Semifinals Are Underway! VIEW SCHEDULE" [ref=e119] [cursor=pointer]:
+        - /url: https://games.crossfit.com/semifinals/schedule
+        - paragraph [ref=e120]: The 2026 CrossFit Semifinals Are Underway!
+        - generic [ref=e121]: VIEW SCHEDULE
+      - link "The 2026 CrossFit Semifinals Are Underway! VIEW SCHEDULE" [ref=e123] [cursor=pointer]:
+        - /url: https://games.crossfit.com/semifinals/schedule
+        - paragraph [ref=e124]: The 2026 CrossFit Semifinals Are Underway!
+        - generic [ref=e125]: VIEW SCHEDULE
+      - link "The 2026 CrossFit Semifinals Are Underway! VIEW SCHEDULE" [ref=e127] [cursor=pointer]:
+        - /url: https://games.crossfit.com/semifinals/schedule
+        - paragraph [ref=e128]: The 2026 CrossFit Semifinals Are Underway!
+        - generic [ref=e129]: VIEW SCHEDULE
+      - link "The 2026 CrossFit Semifinals Are Underway! VIEW SCHEDULE" [ref=e131] [cursor=pointer]:
+        - /url: https://games.crossfit.com/semifinals/schedule
+        - paragraph [ref=e132]: The 2026 CrossFit Semifinals Are Underway!
+        - generic [ref=e133]: VIEW SCHEDULE
+  - iframe [ref=e137]:
+    - generic [active] [ref=f65e1]:
+      - generic "YouTube 동영상 플레이어" [ref=f65e3]
+      - generic [ref=f65e5]:
+        - generic:
+          - generic:
+            - button "동영상 재생" [ref=f65e10] [cursor=pointer]:
+              - generic [ref=f65e13]:
+                - img
+            - button "재생 컨트롤 숨기기" [ref=f65e14] [cursor=pointer]
+            - generic [ref=f65e16]:
+              - generic [ref=f65e21]:
+                - generic [ref=f65e22]:
+                  - link "The CrossFit Effect" [ref=f65e23] [cursor=pointer]:
+                    - /url: https://www.youtube.com/watch?v=NeJjBX-Je7w
+                  - link "CrossFit" [ref=f65e24] [cursor=pointer]:
+                    - /url: /channel/UCtcQ6TPwXAYgZ1Mcl3M1vng
+                    - generic [ref=f65e25]: CrossFit
+                - generic [ref=f65e26]:
+                  - button [ref=f65e27] [cursor=pointer]
+                  - generic [ref=f65e29]:
+                    - generic: CrossFit
+                    - generic: 구독자 179만명
+              - generic [ref=f65e30]:
+                - button "공유" [ref=f65e33] [cursor=pointer]:
+                  - generic [ref=f65e37]:
+                    - img
+                - link "YouTube에서 보기" [ref=f65e44] [cursor=pointer]:
+                  - /url: https://www.youtube.com/watch?v=NeJjBX-Je7w
+                  - generic [ref=f65e47]:
+                    - text: "다음에서 보기:"
+                    - img [ref=f65e49]:
+                      - generic [ref=f65e51]:
+                        - img
+  - region [ref=e138]:
+    - link "Get Tickets to the 2026 CrossFit Games Get the best seats before they’re gone! GET TICKETS NOW" [ref=e139] [cursor=pointer]:
+      - /url: https://am.ticketmaster.com/sharks/buy/ism/MjZDRkc=?_gl=1*a5qp09*_ga*ODM3NjU0MzcwLjE3N[%E2%80%A6]..&utm_source=article&utm_medium=site&utm_campaign=gamestix
+      - generic [ref=e140]:
+        - generic [ref=e141]: Get Tickets to the 2026 CrossFit Games
+        - generic [ref=e142]: Get the best seats before they’re gone!
+      - button "GET TICKETS NOW" [ref=e144]
+  - generic [ref=e145]:
+    - generic [ref=e146]:
+      - heading "Season Overview" [level=2] [ref=e147]
+      - heading "2026" [level=3] [ref=e148]
+    - table [ref=e150]:
+      - rowgroup [ref=e151]:
+        - row "Month Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec" [ref=e152]:
+          - columnheader "Month" [ref=e153]
+          - columnheader "Jan" [ref=e154]:
+            - generic [ref=e155]: Jan
+          - columnheader "Feb" [ref=e156]:
+            - generic [ref=e157]: Feb
+          - columnheader "Mar" [ref=e158]:
+            - generic [ref=e159]: Mar
+          - columnheader "Apr" [ref=e160]:
+            - generic [ref=e161]: Apr
+          - columnheader "May" [ref=e162]:
+            - generic [ref=e163]: May
+          - columnheader "Jun" [ref=e164]:
+            - generic [ref=e165]: Jun
+          - columnheader "Jul" [ref=e166]:
+            - generic [ref=e167]: Jul
+          - columnheader "Aug" [ref=e168]:
+            - generic [ref=e169]: Aug
+          - columnheader "Sep" [ref=e170]:
+            - generic [ref=e171]: Sep
+          - columnheader "Oct" [ref=e172]:
+            - generic [ref=e173]: Oct
+          - columnheader "Nov" [ref=e174]:
+            - generic [ref=e175]: Nov
+          - columnheader "Dec" [ref=e176]:
+            - generic [ref=e177]: Dec
+      - rowgroup [ref=e178]:
+        - row "2026 Games Season games season Feb 26-Mar 16 The Open Everyone’s season starts here. Learn More games season Invite Only Mar 26-30 Quarterfinals Top 25% of individuals and age-group athletes from the Open. Learn More games season Invite Only April - June Semifinals Top athletes from Semifinals and top teams from the Open vie for a spot at the Games. Learn More games season Invite Only July 21-26 The CrossFit Games The top individuals, teams, age groups, and adaptive athletes in the world will compete for the title of Fittest on Earth. Learn More" [ref=e179]:
+          - rowheader "2026 Games Season" [ref=e180]:
+            - generic [ref=e181]: 2026 Games Season
+          - cell [ref=e182]
+          - cell "games season Feb 26-Mar 16 The Open Everyone’s season starts here. Learn More" [ref=e183]:
+            - generic [ref=e184]:
+              - generic [ref=e186]: games season
+              - generic [ref=e187]:
+                - generic [ref=e188]: Feb 26-Mar 16
+                - generic [ref=e189]: The Open
+                - generic [ref=e190]: Everyone’s season starts here.
+                - link "Learn More" [ref=e193] [cursor=pointer]:
+                  - /url: http://games.crossfit.com/article/2026-crossfit-games-season-dates-and-details-division
+          - cell "games season Invite Only Mar 26-30 Quarterfinals Top 25% of individuals and age-group athletes from the Open. Learn More" [ref=e194]:
+            - generic [ref=e195]:
+              - generic [ref=e196]:
+                - generic [ref=e197]: games season
+                - generic [ref=e198]: Invite Only
+              - generic [ref=e199]:
+                - generic [ref=e200]: Mar 26-30
+                - generic [ref=e201]: Quarterfinals
+                - generic [ref=e202]: Top 25% of individuals and age-group athletes from the Open.
+                - link "Learn More" [ref=e205] [cursor=pointer]:
+                  - /url: http://games.crossfit.com/article/2026-crossfit-games-season-dates-and-details-division
+          - cell "games season Invite Only April - June Semifinals Top athletes from Semifinals and top teams from the Open vie for a spot at the Games. Learn More" [ref=e206]:
+            - generic [ref=e207]:
+              - generic [ref=e208]:
+                - generic [ref=e209]: games season
+                - generic [ref=e210]: Invite Only
+              - generic [ref=e211]:
+                - generic [ref=e212]: April - June
+                - generic [ref=e213]: Semifinals
+                - generic [ref=e214]: Top athletes from Semifinals and top teams from the Open vie for a spot at the Games.
+                - link "Learn More" [ref=e217] [cursor=pointer]:
+                  - /url: http://games.crossfit.com/article/2026-crossfit-games-season-dates-and-details-division
+          - cell [ref=e218]
+          - cell [ref=e219]
+          - cell "games season Invite Only July 21-26 The CrossFit Games The top individuals, teams, age groups, and adaptive athletes in the world will compete for the title of Fittest on Earth. Learn More" [ref=e220]:
+            - generic [ref=e221]:
+              - generic [ref=e222]:
+                - generic [ref=e223]: games season
+                - generic [ref=e224]: Invite Only
+              - generic [ref=e225]:
+                - generic [ref=e226]: July 21-26
+                - generic [ref=e227]: The CrossFit Games
+                - generic [ref=e228]: The top individuals, teams, age groups, and adaptive athletes in the world will compete for the title of Fittest on Earth.
+                - link "Learn More" [ref=e231] [cursor=pointer]:
+                  - /url: http://games.crossfit.com/article/2026-crossfit-games-season-dates-and-details-division
+          - cell [ref=e232]
+          - cell [ref=e233]
+          - cell [ref=e234]
+          - cell [ref=e235]
+          - cell [ref=e236]
+        - row [ref=e237]:
+          - cell [ref=e238]
+          - cell [ref=e239]
+          - cell [ref=e240]
+          - cell [ref=e241]
+          - cell [ref=e242]
+          - cell [ref=e243]
+          - cell [ref=e244]
+          - cell [ref=e245]
+          - cell [ref=e246]
+          - cell [ref=e247]
+          - cell [ref=e248]
+          - cell [ref=e249]
+          - cell [ref=e250]
+        - row "2026 Community Season off season Invite Only Aug 1-31 Community Cup An in-affiliate competition to see how you stack up against your peers. Open to all 2026 Open registrants. Learn More" [ref=e251]:
+          - rowheader "2026 Community Season" [ref=e252]:
+            - generic [ref=e253]: 2026 Community Season
+          - cell [ref=e254]
+          - cell [ref=e255]
+          - cell [ref=e256]
+          - cell [ref=e257]
+          - cell [ref=e258]
+          - cell [ref=e259]
+          - cell [ref=e260]
+          - cell "off season Invite Only Aug 1-31 Community Cup An in-affiliate competition to see how you stack up against your peers. Open to all 2026 Open registrants. Learn More" [ref=e261]:
+            - generic [ref=e262]:
+              - generic [ref=e263]:
+                - generic [ref=e264]: off season
+                - generic [ref=e265]: Invite Only
+              - generic [ref=e266]:
+                - generic [ref=e267]: Aug 1-31
+                - generic [ref=e268]: Community Cup
+                - generic [ref=e269]: An in-affiliate competition to see how you stack up against your peers. Open to all 2026 Open registrants.
+                - link "Learn More" [ref=e272] [cursor=pointer]:
+                  - /url: https://games.crossfit.com/community-cup/overview
+          - cell [ref=e273]
+          - cell [ref=e274]
+          - cell [ref=e275]
+          - cell [ref=e276]
+        - row [ref=e277]:
+          - cell [ref=e278]
+          - cell [ref=e279]
+          - cell [ref=e280]
+          - cell [ref=e281]
+          - cell [ref=e282]
+          - cell [ref=e283]
+          - cell [ref=e284]
+          - cell [ref=e285]
+          - cell [ref=e286]
+          - cell [ref=e287]
+          - cell [ref=e288]
+          - cell [ref=e289]
+          - cell [ref=e290]
+  - generic [ref=e293]:
+    - generic [ref=e294]:
+      - generic [ref=e295]:
+        - heading "THE CROSSFIT APP" [level=2] [ref=e296]
+        - paragraph [ref=e297]: "What started as your home for the CrossFit Games now brings the full CrossFit experience to your fingertips: the Workout of the Day (WOD), the latest content from the CrossFit education team, and everything you need to watch and participate in the CrossFit Games season."
+      - generic [ref=e298]:
+        - link "App Store" [ref=e300] [cursor=pointer]:
+          - /url: https://apps.apple.com/us/app/crossfit-games/id825019869
+          - img "App Store" [ref=e301]
+        - link "Google Play" [ref=e303] [cursor=pointer]:
+          - /url: https://play.google.com/store/apps/details?id=com.crossfit.games.android&hl=en_US&gl=US
+          - img "Google Play" [ref=e304]
+    - img "Games App" [ref=e307]
+  - generic [ref=e308]:
+    - generic [ref=e309]:
+      - heading "Latest News & Updates" [level=2] [ref=e310]
+      - heading [level=3]
+    - generic [ref=e317]:
+      - generic [ref=e319]:
+        - generic [ref=e321]: Article
+        - heading "2026 CrossFit Games Tickets" [level=4] [ref=e323]
+        - paragraph [ref=e324]: Your guide to getting tickets to the 2026 CrossFit Games and the Divisional CrossFit Games, including important dates, ticket packages, and how to receive your tickets.
+        - link "Learn More" [ref=e326] [cursor=pointer]:
+          - /url: https://games.crossfit.com/article/2026-crossfit-games-tickets
+      - generic [ref=e328]:
+        - generic [ref=e330]: Article
+        - heading "Volunteer at the 2026 CrossFit Games — Celebrating 20 Years" [level=4] [ref=e332]
+        - paragraph [ref=e333]: Learn more about volunteering at the 2026 CrossFit Games and Divisional Games, including how to register, important dates and locations, what to expect, and more.
+        - link "Learn More" [ref=e335] [cursor=pointer]:
+          - /url: https://games.crossfit.com/article/volunteer-2026-crossfit-games-celebrating-20-years
+      - generic [ref=e337]:
+        - generic [ref=e339]: Article
+        - heading "Safety Enhancements for the 2026 CrossFit Games Season" [level=4] [ref=e341]
+        - paragraph [ref=e342]: As the 2026 season is upon us, we’re sharing a summary of the safety enhancements that will be implemented as we continue to evolve and uphold the highest standards of athlete care and event safety.
+        - link "Learn More" [ref=e344] [cursor=pointer]:
+          - /url: https://games.crossfit.com/article/safety-enhancements-2026-crossfit-games-season
+      - generic [ref=e346]:
+        - generic [ref=e348]: Article
+        - heading "CrossFit Partners With Air National Guard for 2026 Season" [level=4] [ref=e350]
+        - paragraph [ref=e351]: CrossFit is proud to name Air National Guard (ANG) as the official presenting sponsor of the 2026 CrossFit Open and co-host of several events throughout the competitive season.
+        - link "Learn More" [ref=e353] [cursor=pointer]:
+          - /url: https://games.crossfit.com/article/crossfit-partners-air-national-guard-2026-season
+      - generic [ref=e355]:
+        - generic [ref=e357]: Article
+        - 'heading "The 2026 CrossFit Games: Dates & Details by Division" [level=4] [ref=e359]'
+        - paragraph [ref=e360]: Here is what to expect during the 2026 CrossFit Games season. Learn about season changes, important dates, competition structure, and protocols.
+        - link "LEARN MORE" [ref=e362] [cursor=pointer]:
+          - /url: http://games.crossfit.com/article/2026-crossfit-games-season-dates-and-details-division
+    - generic [ref=e387]:
+      - generic [ref=e388]: "1"
+      - generic [ref=e389]: /
+      - generic [ref=e390]: "5"
+  - generic [ref=e394]:
+    - generic [ref=e395]:
+      - heading "Proud Partners" [level=2] [ref=e397]
+      - generic [ref=e398]:
+        - link "Rogue" [ref=e402] [cursor=pointer]:
+          - /url: https://cf.games/24_rogue
+          - img "Rogue" [ref=e403]
+        - link "Velites" [ref=e407] [cursor=pointer]:
+          - /url: https://usa.velitessport.com/?utm_source=collaboration&utm_medium=all&utm_campaign=CrossFit_Collaboration
+          - img "Velites" [ref=e408]
+    - generic [ref=e409]:
+      - generic [ref=e411]:
+        - link "YETI" [ref=e413] [cursor=pointer]:
+          - /url: https://cf.games/24_yeti
+          - img "YETI" [ref=e414]
+        - link "2POOD" [ref=e416] [cursor=pointer]:
+          - /url: https://cf.games/24_2pood
+          - img "2POOD" [ref=e417]
+        - link "Saatva" [ref=e419] [cursor=pointer]:
+          - /url: https://partners.saatva.com/843sri3cbzl9?utm_source=B2B&utm_medium=crossfit&utm_campaign=partnerpage
+          - img "Saatva" [ref=e420]
+        - link "Zenni Optical" [ref=e422] [cursor=pointer]:
+          - /url: https://zennipartners.pxf.io/CrossFit
+          - img "Zenni Optical" [ref=e423]
+        - link "PBFit" [ref=e425] [cursor=pointer]:
+          - /url: https://cf.games/25-open-pb-web
+          - img "PBFit" [ref=e426]
+        - link "Pasture Provisions" [ref=e428] [cursor=pointer]:
+          - /url: https://pastureprovisionsco.com/?utm_source=xfit&utm_medium=press-release&utm_campaign=launch&utm_content=june
+          - img "Pasture Provisions" [ref=e429]
+        - link "GOWOD" [ref=e431] [cursor=pointer]:
+          - /url: https://cf.games/gowod_24
+          - img "GOWOD" [ref=e432]
+        - link "Surface Co" [ref=e434] [cursor=pointer]:
+          - /url: https://cf.games/24_surfaceco
+          - img "Surface Co" [ref=e435]
+        - link "Onward Physical Therapy" [ref=e437] [cursor=pointer]:
+          - /url: https://onwardphysicaltherapy.com/?utm_source=crossfit_games&utm_medium=partnership&utm_campaign=2026_official_pt_provider
+          - img "Onward Physical Therapy" [ref=e438]
+      - generic [ref=e440]:
+        - link "YETI" [ref=e442] [cursor=pointer]:
+          - /url: https://cf.games/24_yeti
+          - img "YETI" [ref=e443]
+        - link "2POOD" [ref=e445] [cursor=pointer]:
+          - /url: https://cf.games/24_2pood
+          - img "2POOD" [ref=e446]
+        - link "Saatva" [ref=e448] [cursor=pointer]:
+          - /url: https://partners.saatva.com/843sri3cbzl9?utm_source=B2B&utm_medium=crossfit&utm_campaign=partnerpage
+          - img "Saatva" [ref=e449]
+        - link "Zenni Optical" [ref=e451] [cursor=pointer]:
+          - /url: https://zennipartners.pxf.io/CrossFit
+          - img "Zenni Optical" [ref=e452]
+        - link "PBFit" [ref=e454] [cursor=pointer]:
+          - /url: https://cf.games/25-open-pb-web
+          - img "PBFit" [ref=e455]
+        - link "Pasture Provisions" [ref=e457] [cursor=pointer]:
+          - /url: https://pastureprovisionsco.com/?utm_source=xfit&utm_medium=press-release&utm_campaign=launch&utm_content=june
+          - img "Pasture Provisions" [ref=e458]
+        - link "GOWOD" [ref=e460] [cursor=pointer]:
+          - /url: https://cf.games/gowod_24
+          - img "GOWOD" [ref=e461]
+        - link "Surface Co" [ref=e463] [cursor=pointer]:
+          - /url: https://cf.games/24_surfaceco
+          - img "Surface Co" [ref=e464]
+        - link "Onward Physical Therapy" [ref=e466] [cursor=pointer]:
+          - /url: https://onwardphysicaltherapy.com/?utm_source=crossfit_games&utm_medium=partnership&utm_campaign=2026_official_pt_provider
+          - img "Onward Physical Therapy" [ref=e467]
+  - contentinfo [ref=e469]:
+    - generic [ref=e470]:
+      - generic [ref=e471]:
+        - generic [ref=e472]: Never miss an update from the CrossFit Games
+        - textbox "Never miss an update from the CrossFit Games" [ref=e473]:
+          - /placeholder: Email Address
+        - button "Subscribe" [disabled] [ref=e474]
+      - navigation [ref=e475]:
+        - list [ref=e476]:
+          - listitem [ref=e477]:
+            - button "Rules" [ref=e478] [cursor=pointer]
+            - list [ref=e479]:
+              - listitem [ref=e480]:
+                - link "Rulebook" [ref=e481] [cursor=pointer]:
+                  - /url: https://games.crossfit.com/rules
+              - listitem [ref=e482]:
+                - link "Drug Policy" [ref=e483] [cursor=pointer]:
+                  - /url: https://games.crossfit.com/drug-policy
+              - listitem [ref=e484]:
+                - link "Allegations" [ref=e485] [cursor=pointer]:
+                  - /url: https://games.crossfit.com/page/allegations
+          - listitem [ref=e486]:
+            - button "Resources" [ref=e487] [cursor=pointer]
+            - list [ref=e488]:
+              - listitem [ref=e489]:
+                - link "Adaptive Athletes" [ref=e490] [cursor=pointer]:
+                  - /url: https://www.wheelwodgames.com/
+              - listitem [ref=e491]:
+                - link "Athlete Resources" [ref=e492] [cursor=pointer]:
+                  - /url: https://games.crossfit.com/athlete-resources-2026
+              - listitem [ref=e493]:
+                - link "Affiliate Resources" [ref=e494] [cursor=pointer]:
+                  - /url: https://affiliate.crossfit.com/tools/2025-open-affiliate-resources
+              - listitem [ref=e495]:
+                - link "Press Resources" [ref=e496] [cursor=pointer]:
+                  - /url: https://games.crossfit.com/press
+              - listitem [ref=e497]:
+                - link "Safety Advisory Board" [ref=e498] [cursor=pointer]:
+                  - /url: https://www.crossfit.com/crossfit-safety-board
+              - listitem [ref=e499]:
+                - link "Athlete Council" [ref=e500] [cursor=pointer]:
+                  - /url: https://www.crossfit.com/crossfit-athlete-council
+              - listitem [ref=e501]:
+                - link "Vendor + Sponsor Interest Form" [ref=e502] [cursor=pointer]:
+                  - /url: https://docs.google.com/forms/d/e/1FAIpQLSdpsqovSpbYZ64qJrW0Ojggn5cRSwbA3EDDqjoOU18YPrZNkQ/viewform
+                  - text: Vendor + Sponsor Interest Form
+                  - img [ref=e503]
+              - listitem [ref=e506]:
+                - link "Licensed Competition Application" [ref=e507] [cursor=pointer]:
+                  - /url: https://docs.google.com/forms/d/14kxQpcvVGMRHLDbuMJjpqrgZrKFVDXMgbA46AAQOzNI/viewform?edit_requested=true
+                  - text: Licensed Competition Application
+                  - img [ref=e508]
+              - listitem [ref=e511]:
+                - link "Help Center" [ref=e512] [cursor=pointer]:
+                  - /url: https://crossfit.my.site.com/Support/s/games
+              - listitem [ref=e513]:
+                - link "Contact Us" [ref=e514] [cursor=pointer]:
+                  - /url: https://crossfit.my.site.com/Support/s/createrecord/New_Games_Case?retUrl=https%3A%2F%2Fcrossfit.my.site.com%2FSupport%2Fs%2Fgames
+          - listitem [ref=e515]:
+            - button "About CrossFit" [ref=e516] [cursor=pointer]
+            - list [ref=e517]:
+              - listitem [ref=e518]:
+                - link "What is CrossFit?" [ref=e519] [cursor=pointer]:
+                  - /url: https://www.crossfit.com/what-is-crossfit
+              - listitem [ref=e520]:
+                - link "Workout of the Day" [ref=e521] [cursor=pointer]:
+                  - /url: https://www.crossfit.com/wod
+              - listitem [ref=e522]:
+                - link "Find a Gym" [ref=e523] [cursor=pointer]:
+                  - /url: https://www.crossfit.com/map
+              - listitem [ref=e524]:
+                - link "Explore Courses" [ref=e525] [cursor=pointer]:
+                  - /url: https://www.crossfit.com/education/explore-courses
+          - listitem [ref=e526]:
+            - button "Partners" [ref=e527] [cursor=pointer]
+            - list [ref=e528]:
+              - listitem [ref=e529]:
+                - link "Rogue" [ref=e530] [cursor=pointer]:
+                  - /url: https://cf.games/23_rogue
+                  - text: Rogue
+                  - img [ref=e531]
+              - listitem [ref=e534]:
+                - link "Velites" [ref=e535] [cursor=pointer]:
+                  - /url: https://usa.velitessport.com/?utm_source=collaboration&utm_medium=all&utm_campaign=CrossFit_Collaboration
+              - listitem [ref=e536]:
+                - link "YETI" [ref=e537] [cursor=pointer]:
+                  - /url: https://cf.games/23_yeti
+                  - text: YETI
+                  - img [ref=e538]
+              - listitem [ref=e541]:
+                - link "2POOD" [ref=e542] [cursor=pointer]:
+                  - /url: https://cf.games/23_2pood
+              - listitem [ref=e543]:
+                - link "Saatva" [ref=e544] [cursor=pointer]:
+                  - /url: https://partners.saatva.com/843sri3cbzl9
+              - listitem [ref=e545]:
+                - link "Zenni Optical" [ref=e546] [cursor=pointer]:
+                  - /url: https://zennipartners.pxf.io/CrossFit
+              - listitem [ref=e547]:
+                - link "PBfit" [ref=e548] [cursor=pointer]:
+                  - /url: https://cf.games/25-open-pb-web
+              - listitem [ref=e549]:
+                - link "Pasture Provisions" [ref=e550] [cursor=pointer]:
+                  - /url: https://pastureprovisionsco.com/?utm_source=xfit&utm_medium=press-release&utm_campaign=launch&utm_content=june
+              - listitem [ref=e551]:
+                - link "GOWOD" [ref=e552] [cursor=pointer]:
+                  - /url: https://cf.games/gowod_24
+                  - text: GOWOD
+                  - img [ref=e553]
+              - listitem [ref=e556]:
+                - link "SurfaceCo" [ref=e557] [cursor=pointer]:
+                  - /url: https://cf.games/23_surfaceco
+                  - text: SurfaceCo
+                  - img [ref=e558]
+              - listitem [ref=e561]:
+                - link "Onward Physical Therapy" [ref=e562] [cursor=pointer]:
+                  - /url: https://onwardphysicaltherapy.com/?utm_source=crossfit_games&utm_medium=partnership&utm_campaign=2026_official_pt_provider
+    - paragraph [ref=e563]: © 2026 CrossFit, LLC. CrossFit, Fittest on Earth, 3...2...1...Go! CrossFit Games, and Sport of Fitness are trademarks of CrossFit, LLC in the U.S. and/or other countries. All Rights Reserved.
+    - generic [ref=e564]:
+      - navigation [ref=e565]:
+        - list [ref=e566]:
+          - listitem [ref=e567]:
+            - link "Terms & Conditions" [ref=e568] [cursor=pointer]:
+              - /url: https://www.crossfit.com/terms-and-conditions
+          - listitem [ref=e569]:
+            - link "Privacy Policy" [ref=e570] [cursor=pointer]:
+              - /url: https://www.crossfit.com/privacy-policy
+          - listitem [ref=e571]:
+            - link "Cookie Policy" [ref=e572] [cursor=pointer]:
+              - /url: https://www.crossfit.com/cookie-policy
+          - listitem [ref=e573]:
+            - link "Disclaimer" [ref=e574] [cursor=pointer]:
+              - /url: https://www.crossfit.com/disclaimer
+          - listitem [ref=e575]:
+            - link "Contact Us" [ref=e576] [cursor=pointer]:
+              - /url: https://www.crossfit.com/contact-us
+          - listitem [ref=e577]:
+            - link "Report IP Theft" [ref=e578] [cursor=pointer]:
+              - /url: https://www.crossfit.com/iptheft
+      - navigation [ref=e579]:
+        - list [ref=e580]:
+          - listitem [ref=e581]:
+            - link "Facebook" [ref=e582] [cursor=pointer]:
+              - /url: https://www.facebook.com/CrossFitGames/
+              - img [ref=e583]
+          - listitem [ref=e585]:
+            - link "Twitter" [ref=e586] [cursor=pointer]:
+              - /url: https://twitter.com/crossfitgames
+              - img [ref=e587]
+          - listitem [ref=e589]:
+            - link "Instagram" [ref=e590] [cursor=pointer]:
+              - /url: https://www.instagram.com/crossfitgames/?hl=en
+              - img [ref=e591]
+          - listitem [ref=e595]:
+            - link "YouTube" [ref=e596] [cursor=pointer]:
+              - /url: https://www.youtube.com/channel/UCRs1pHnES3QDdh43xbjOmzw
+              - img [ref=e597]
+          - listitem [ref=e600]:
+            - link "LinkedIn" [ref=e601] [cursor=pointer]:
+              - /url: https://www.linkedin.com/company/crossfitgames/
+              - img [ref=e602]
+          - listitem [ref=e604]:
+            - link "TikTok" [ref=e605] [cursor=pointer]:
+              - /url: https://www.tiktok.com/@crossfitgames
+              - img [ref=e606]

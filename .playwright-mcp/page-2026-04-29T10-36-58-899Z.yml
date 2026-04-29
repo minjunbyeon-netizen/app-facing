@@ -1,0 +1,190 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e5]:
+        - link "Comptrain logo" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - img "Comptrain logo" [ref=e7]
+        - generic [ref=e8]:
+          - link "App" [ref=e9] [cursor=pointer]:
+            - /url: /download
+            - generic [ref=e10]: App
+          - link "Methodology" [ref=e11] [cursor=pointer]:
+            - /url: /methodology
+            - generic [ref=e12]: Methodology
+          - link "Stories" [ref=e13] [cursor=pointer]:
+            - /url: /stories
+            - generic [ref=e14]: Stories
+        - link "Get 4 Days Free" [ref=e16] [cursor=pointer]:
+          - /url: https://comptrain.app.link/login
+      - generic [ref=e22]:
+        - link "For Gyms Programming and coaching tools for gym owners and coaches." [ref=e23] [cursor=pointer]:
+          - /url: /comptrain-gym
+          - generic [ref=e24]: For Gyms
+          - paragraph [ref=e25]: Programming and coaching tools for gym owners and coaches.
+        - link "Heritage The story and standards behind CompTrain" [ref=e26] [cursor=pointer]:
+          - /url: /heritage
+          - generic [ref=e27]: Heritage
+          - paragraph [ref=e28]: The story and standards behind CompTrain
+        - link "Blog Training insights, athlete features, and updates." [ref=e29] [cursor=pointer]:
+          - /url: /notes
+          - generic [ref=e30]: Blog
+          - paragraph [ref=e31]: Training insights, athlete features, and updates.
+        - link "Events In-person experiences and retreats." [ref=e32] [cursor=pointer]:
+          - /url: /events
+          - generic [ref=e33]: Events
+          - paragraph [ref=e34]: In-person experiences and retreats.
+  - generic [ref=e39]:
+    - heading "Well-rounded training for those who want to be athletic forever." [level=1] [ref=e40]:
+      - link "Well-rounded training" [ref=e41] [cursor=pointer]:
+        - /url: /methodology
+      - text: for those who want to be athletic forever.
+    - heading "Pioneering Fitness Standards Since 2010" [level=5] [ref=e43]
+  - list [ref=e49]:
+    - button "Previous" [ref=e50] [cursor=pointer]: ←Previous
+    - generic [ref=e52]:
+      - listitem [ref=e55]:
+        - generic [ref=e57]:
+          - generic [ref=e58]: I used to program my own workouts, but this is way better. The progress tracking keeps me motivated.
+          - generic [ref=e59]:
+            - generic [ref=e60]: "-"
+            - generic [ref=e61]: Chris S.
+      - listitem [ref=e64]:
+        - generic [ref=e66]:
+          - generic [ref=e67]: As a busy dad, I don’t have time to program. CompTrain makes training simple, effective, and keeps me strong.
+          - generic [ref=e68]:
+            - generic [ref=e69]: "-"
+            - generic [ref=e70]: Mike D.
+      - listitem [ref=e73]:
+        - generic [ref=e75]:
+          - generic [ref=e76]: This program is the perfect mix of structure and flexibility. I actually feel like I’m improving across the board.
+          - generic [ref=e77]:
+            - generic [ref=e78]: "-"
+            - generic [ref=e79]: Emily R.
+      - listitem [ref=e82]:
+        - generic [ref=e84]:
+          - generic [ref=e85]: CompTrain gives me structure and keeps me progressing. I’ve hit more PRs this year than ever before.
+          - generic [ref=e86]:
+            - generic [ref=e87]: "-"
+            - generic [ref=e88]: Jason M.
+      - listitem [ref=e91]:
+        - generic [ref=e93]:
+          - generic [ref=e94]: CompTrain keeps me accountable. I see my progress every month, and it keeps me pushing for more.
+          - generic [ref=e95]:
+            - generic [ref=e96]: "-"
+            - generic [ref=e97]: Matt D.
+      - listitem [ref=e100]:
+        - generic [ref=e102]:
+          - generic [ref=e103]: The programming is so well-structured that I don’t waste time wondering what to do. Just show up and get better.
+          - generic [ref=e104]:
+            - generic [ref=e105]: "-"
+            - generic [ref=e106]: Samantha J.
+      - listitem [ref=e109]:
+        - generic [ref=e111]:
+          - generic [ref=e112]: I never thought I’d enjoy training alone, but CompTrain makes it feel like I have a coach and a team.
+          - generic [ref=e113]:
+            - generic [ref=e114]: "-"
+            - generic [ref=e115]: Brandon C.
+      - listitem [ref=e118]:
+        - generic [ref=e120]:
+          - generic [ref=e121]: The warm-ups and mobility work have helped me stay injury-free while still making gains. Love it!
+          - generic [ref=e122]:
+            - generic [ref=e123]: "-"
+            - generic [ref=e124]: Olivia K.
+      - listitem [ref=e127]:
+        - generic [ref=e129]:
+          - generic [ref=e130]: I’ve followed a lot of programs, but this one just works. The PR tracking and leaderboard push me to be better.
+          - generic [ref=e131]:
+            - generic [ref=e132]: "-"
+            - generic [ref=e133]: James P.
+      - listitem [ref=e136]:
+        - generic [ref=e138]:
+          - generic [ref=e139]: I finally found a program that challenges me but doesn’t burn me out. I’m feeling stronger every week.
+          - generic [ref=e140]:
+            - generic [ref=e141]: "-"
+            - generic [ref=e142]: Tina L.
+      - listitem [ref=e145]:
+        - generic [ref=e147]:
+          - generic [ref=e148]: I used to program my own workouts, but this is way better. The progress tracking keeps me motivated.
+          - generic [ref=e149]:
+            - generic [ref=e150]: "-"
+            - generic [ref=e151]: Chris S.
+      - listitem [ref=e154]:
+        - generic [ref=e156]:
+          - generic [ref=e157]: As a busy dad, I don’t have time to program. CompTrain makes training simple, effective, and keeps me strong.
+          - generic [ref=e158]:
+            - generic [ref=e159]: "-"
+            - generic [ref=e160]: Mike D.
+      - listitem [ref=e163]:
+        - generic [ref=e165]:
+          - generic [ref=e166]: This program is the perfect mix of structure and flexibility. I actually feel like I’m improving across the board.
+          - generic [ref=e167]:
+            - generic [ref=e168]: "-"
+            - generic [ref=e169]: Emily R.
+      - listitem [ref=e172]:
+        - generic [ref=e174]:
+          - generic [ref=e175]: CompTrain gives me structure and keeps me progressing. I’ve hit more PRs this year than ever before.
+          - generic [ref=e176]:
+            - generic [ref=e177]: "-"
+            - generic [ref=e178]: Jason M.
+      - listitem [ref=e181]:
+        - generic [ref=e183]:
+          - generic [ref=e184]: CompTrain keeps me accountable. I see my progress every month, and it keeps me pushing for more.
+          - generic [ref=e185]:
+            - generic [ref=e186]: "-"
+            - generic [ref=e187]: Matt D.
+      - listitem [ref=e190]:
+        - generic [ref=e192]:
+          - generic [ref=e193]: The programming is so well-structured that I don’t waste time wondering what to do. Just show up and get better.
+          - generic [ref=e194]:
+            - generic [ref=e195]: "-"
+            - generic [ref=e196]: Samantha J.
+      - listitem [ref=e199]:
+        - generic [ref=e201]:
+          - generic [ref=e202]: I never thought I’d enjoy training alone, but CompTrain makes it feel like I have a coach and a team.
+          - generic [ref=e203]:
+            - generic [ref=e204]: "-"
+            - generic [ref=e205]: Brandon C.
+      - listitem [ref=e208]:
+        - generic [ref=e210]:
+          - generic [ref=e211]: The warm-ups and mobility work have helped me stay injury-free while still making gains. Love it!
+          - generic [ref=e212]:
+            - generic [ref=e213]: "-"
+            - generic [ref=e214]: Olivia K.
+      - listitem [ref=e217]:
+        - generic [ref=e219]:
+          - generic [ref=e220]: I’ve followed a lot of programs, but this one just works. The PR tracking and leaderboard push me to be better.
+          - generic [ref=e221]:
+            - generic [ref=e222]: "-"
+            - generic [ref=e223]: James P.
+      - listitem [ref=e226]:
+        - generic [ref=e228]:
+          - generic [ref=e229]: I finally found a program that challenges me but doesn’t burn me out. I’m feeling stronger every week.
+          - generic [ref=e230]:
+            - generic [ref=e231]: "-"
+            - generic [ref=e232]: Tina L.
+      - listitem [ref=e235]:
+        - generic [ref=e237]:
+          - generic [ref=e238]: I used to program my own workouts, but this is way better. The progress tracking keeps me motivated.
+          - generic [ref=e239]:
+            - generic [ref=e240]: "-"
+            - generic [ref=e241]: Chris S.
+      - listitem [ref=e244]:
+        - generic [ref=e246]:
+          - generic [ref=e247]: As a busy dad, I don’t have time to program. CompTrain makes training simple, effective, and keeps me strong.
+          - generic [ref=e248]:
+            - generic [ref=e249]: "-"
+            - generic [ref=e250]: Mike D.
+      - listitem [ref=e253]:
+        - generic [ref=e255]:
+          - generic [ref=e256]: This program is the perfect mix of structure and flexibility. I actually feel like I’m improving across the board.
+          - generic [ref=e257]:
+            - generic [ref=e258]: "-"
+            - generic [ref=e259]: Emily R.
+      - listitem [ref=e262]:
+        - generic [ref=e264]:
+          - generic [ref=e265]: CompTrain gives me structure and keeps me progressing. I’ve hit more PRs this year than ever before.
+          - generic [ref=e266]:
+            - generic [ref=e267]: "-"
+            - generic [ref=e268]: Jason M.
+    - button "Next" [ref=e269] [cursor=pointer]: →Next

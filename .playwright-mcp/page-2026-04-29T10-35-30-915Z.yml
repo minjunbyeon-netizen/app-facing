@@ -1,0 +1,224 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - text: 
+      - generic [ref=e5]:
+        - link "HYROX Logo" [ref=e8] [cursor=pointer]:
+          - /url: /
+          - img "HYROX Logo" [ref=e9]
+        - generic [ref=e10]:
+          - generic: 
+          - generic [ref=e12]: Regions
+          - navigation [ref=e13]:
+            - button "Menu" [ref=e14] [cursor=pointer]
+            - text:        
+      - text:        
+    - main [ref=e17]:
+      - heading "The World Series of Fitness Racing" [level=1] [ref=e28]:
+        - text: The World
+        - text: Series of
+        - text: Fitness Racing
+      - generic [ref=e38]:
+        - heading "Our Sport is Hyrox" [level=2] [ref=e39]
+        - generic [ref=e41]:
+          - paragraph [ref=e42]: "HYROX: The Sport of Fitness Racing that you have always been training for."
+          - paragraph [ref=e43]: With over 80+ global races in 2025 seeing over 550.000 athletes & 350,000 spectators, welcome to the World Series of Fitness Racing.
+          - paragraph [ref=e44]: "Are you ready to take your training to the next level & join the #HYROXFAMILY?"
+        - link "What is HYROX?" [ref=e47] [cursor=pointer]:
+          - /url: /the-fitness-race/
+          - generic [ref=e48]: What is HYROX?
+  - contentinfo [ref=e52]:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - generic: 
+    - generic [ref=e58]:
+      - generic [ref=e59]:
+        - generic [ref=e62]:
+          - img "HYROX Logo" [ref=e65]
+          - paragraph [ref=e69]:
+            - text: Do you have any questions?
+            - text: Please review our
+            - link "FAQ" [ref=e70] [cursor=pointer]:
+              - /url: https://hyrox.com/faq
+          - generic [ref=e72]:
+            - paragraph [ref=e75]: Follow us |
+            - generic [ref=e77]:
+              - link "Facebook" [ref=e79] [cursor=pointer]:
+                - /url: https://www.facebook.com/hyroxworld/
+                - generic [ref=e80]: 
+              - link "Instagram" [ref=e82] [cursor=pointer]:
+                - /url: https://www.instagram.com/hyroxworld/
+                - generic [ref=e83]: 
+              - link "YouTube" [ref=e85] [cursor=pointer]:
+                - /url: https://www.youtube.com/channel/UCr7h-eYgYlWtwaxD7Fb55cw
+                - generic [ref=e86]: 
+        - generic [ref=e89]:
+          - generic [ref=e91]:
+            - article [ref=e92]:
+              - generic [ref=e93]:
+                - link "A Puma":
+                  - /url: https://go.puma.com/hyrox
+                - link "A Puma" [ref=e95] [cursor=pointer]:
+                  - /url: https://go.puma.com/hyrox
+                  - img "Logo_Puma-Logo_Nr1_white_smaller-Kopie" [ref=e96]
+            - article [ref=e97]:
+              - generic [ref=e98]:
+                - link "B MyProtein":
+                  - /url: https://www.myprotein.com/hyrox.list
+                - link "B MyProtein" [ref=e100] [cursor=pointer]:
+                  - /url: https://www.myprotein.com/hyrox.list
+                  - img "Myprotein-Horizontal-White_Logo_big" [ref=e101]
+            - article [ref=e102]:
+              - generic [ref=e103]:
+                - link "C Concept2":
+                  - /url: https://www.concept2.com/hyrox
+                - link "C Concept2" [ref=e105] [cursor=pointer]:
+                  - /url: https://www.concept2.com/hyrox
+                  - img "Concept2" [ref=e106]
+            - article:
+              - generic:
+                - link "D Centr":
+                  - /url: https://centr.com/
+                - generic:
+                  - link "D Centr":
+                    - /url: https://centr.com/
+                    - img "centr"
+            - article:
+              - generic:
+                - link "E AmazFit":
+                  - /url: https://www.amazfit.com/
+                - generic:
+                  - link "E AmazFit":
+                    - /url: https://www.amazfit.com/
+                    - img "Amazfit"
+            - article [ref=e107]:
+              - generic [ref=e108]:
+                - link "F HIA":
+                  - /url: https://www.raceforimpact.com/
+                - link "F HIA" [ref=e110] [cursor=pointer]:
+                  - /url: https://www.raceforimpact.com/
+                  - img "HIA_LOGO" [ref=e111]
+          - link "Become a Partner" [ref=e115] [cursor=pointer]:
+            - /url: https://b147i9q.myrdbx.io/become-a-partner/
+            - generic [ref=e116]: Become a Partner
+      - generic [ref=e122]:
+        - generic [ref=e125]:
+          - paragraph [ref=e128]: Races
+          - navigation [ref=e129]:
+            - list [ref=e130]:
+              - listitem [ref=e131]:
+                - link "The Fitness Race" [ref=e132] [cursor=pointer]:
+                  - /url: https://hyrox.com/the-fitness-race/
+              - listitem [ref=e133]:
+                - link "Find My Race" [ref=e134] [cursor=pointer]:
+                  - /url: https://hyrox.com/find-my-race/
+              - listitem [ref=e135]:
+                - link "Results & Ranking" [ref=e136] [cursor=pointer]:
+                  - /url: https://hyroxresults.com/
+                - text: 
+              - listitem [ref=e137]:
+                - link "Rulebooks" [ref=e138] [cursor=pointer]:
+                  - /url: https://hyrox.com/rulebook/
+              - listitem [ref=e139]:
+                - link "FAQ" [ref=e140] [cursor=pointer]:
+                  - /url: https://hyrox.com/faq/
+        - generic [ref=e143]:
+          - paragraph [ref=e146]: Athletes
+          - navigation [ref=e147]:
+            - list [ref=e148]:
+              - listitem [ref=e149]:
+                - link "Find My Level" [ref=e150] [cursor=pointer]:
+                  - /url: https://hyrox.com/find-my-level/
+              - listitem [ref=e151]:
+                - link "Best HYROX Preparation" [ref=e152] [cursor=pointer]:
+                  - /url: https://hyrox.com/best-hyrox-preparation/
+              - listitem [ref=e153]:
+                - link "Find a HYROX TRAINING CLUB" [ref=e154] [cursor=pointer]:
+                  - /url: https://hyrox.com/find-a-hyrox-partner-gym/
+        - generic [ref=e157]:
+          - paragraph [ref=e160]: Gym | Trainer
+          - navigation [ref=e161]:
+            - list [ref=e162]:
+              - listitem [ref=e163]:
+                - link "Gym Finder" [ref=e164] [cursor=pointer]:
+                  - /url: https://hyrox.com/find-a-hyrox-partner-gym/
+        - generic [ref=e167]:
+          - paragraph [ref=e170]: Hyrox
+          - navigation [ref=e171]:
+            - list [ref=e172]:
+              - listitem [ref=e173]:
+                - link "Our Sport is Hyrox" [ref=e174] [cursor=pointer]:
+                  - /url: https://hyrox.com/our-sport-is-hyrox/
+              - listitem [ref=e175]:
+                - link "The History" [ref=e176] [cursor=pointer]:
+                  - /url: https://hyrox.com/the-history/
+              - listitem [ref=e177]:
+                - link "The Hyrox Family" [ref=e178] [cursor=pointer]:
+                  - /url: https://hyrox.com/the-hyrox-family/
+              - listitem [ref=e179]:
+                - link "Contact" [ref=e180] [cursor=pointer]:
+                  - /url: https://hyrox.com/contact/
+              - listitem [ref=e181]:
+                - link "Shop" [ref=e182] [cursor=pointer]:
+                  - /url: https://www.hyrox-shop.com/
+                - text: 
+              - listitem [ref=e183]:
+                - link "Press Enquiries" [ref=e184] [cursor=pointer]:
+                  - /url: mailto:hyroxpress@fittestpr.com
+                - text: 
+      - navigation [ref=e190]:
+        - list [ref=e191]:
+          - listitem [ref=e192]:
+            - link "Terms and Conditions" [ref=e193] [cursor=pointer]:
+              - /url: https://hyrox.com/terms-and-conditions/
+          - listitem [ref=e194]:
+            - link "Privacy policy" [ref=e195] [cursor=pointer]:
+              - /url: https://hyrox.com/privacy-policy/
+          - listitem [ref=e196]:
+            - link "Legal Notice" [ref=e197] [cursor=pointer]:
+              - /url: https://hyrox.com/legal-notice/
+          - listitem [ref=e198]:
+            - link "Terms of use" [ref=e199] [cursor=pointer]:
+              - /url: https://hyrox.com/terms-of-use/
+      - generic [ref=e202]:
+        - paragraph [ref=e203]:
+          - text: © HYROX World GmbH 2026. All rights reserved.
+          - text: HYROX is a brand of HYROX World GmbH.
+        - paragraph [ref=e204]:
+          - text: Website designed and maintained by
+          - link "Elbnetz GmbH" [ref=e205] [cursor=pointer]:
+            - /url: https://elbnetz.com/en/?utm_source=hyrox&utm_medium=referral&utm_campaign=partner_footer
+          - text: .
+  - button "Back to top" [ref=e206] [cursor=pointer]:
+    - generic [ref=e207]: 
+  - complementary [active]:
+    - dialog "Cookie Policy" [ref=e210]:
+      - generic [ref=e212]:
+        - button "Select language" [ref=e214] [cursor=pointer]:
+          - combobox "Select language" [ref=e215]:
+            - option "English" [selected]
+            - option "Deutsch"
+            - option "Français"
+            - option "Italiano"
+        - generic [ref=e216]:
+          - heading "Cookie Policy" [level=2] [ref=e217]
+          - generic: This site uses third-party website tracking technologies to provide and continually improve our services, and to display advertisements according to users' interests. I agree and may revoke or change my consent at any time with effect for the future.
+        - generic [ref=e218]:
+          - link "Open Privacy Policy" [ref=e219] [cursor=pointer]:
+            - /url: https://hyrox.com/privacy-policy/
+            - text: Privacy Policy
+          - link "Open Legal Notice" [ref=e220] [cursor=pointer]:
+            - /url: https://hyrox.com/legal-notice/
+            - text: Legal Notice
+          - button "More Information" [ref=e221] [cursor=pointer]
+      - generic [ref=e222]:
+        - generic [ref=e224]:
+          - button "Deny" [ref=e225] [cursor=pointer]
+          - button "Accept All" [ref=e226] [cursor=pointer]
+        - link "Powered by Usercentrics Consent Management" [ref=e228] [cursor=pointer]:
+          - /url: https://usercentrics.com/consent-management-platform-powered-by-usercentrics/?utm_source=banner_uc&utm_medium=referral&utm_content=v3
+  - status [ref=e229]

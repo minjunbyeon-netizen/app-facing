@@ -1,0 +1,366 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e4]:
+      - link "home" [ref=e5] [cursor=pointer]:
+        - /url: /
+        - img [ref=e7]
+      - generic [ref=e12]:
+        - text: 
+        - link "Join Now" [ref=e14] [cursor=pointer]:
+          - /url: /programs
+        - button "menu" [ref=e15] [cursor=pointer]:
+          - generic [ref=e16]: 
+    - generic [ref=e17]:
+      - generic [ref=e19]:
+        - iframe [ref=e22]:
+          
+        - generic [ref=e24]:
+          - generic [ref=e25]:
+            - heading "HWPO Training" [level=1] [ref=e26]
+            - heading "BUILD FITNESS YOU CAN STICK TO" [level=2] [ref=e27]
+            - strong [ref=e29]: TRAINING THAT SUPPORTS YOUR HEALTH, CONFIDENCE AND CONSISTENCY
+            - paragraph [ref=e32]: HWPO delivers structured, coach-led programs designed to help you move better, feel stronger, and build a routine that fits your life. Whether you’re starting fresh, returning to training, or looking for proven structure, HWPO meets you where you’re at and helps you progress.
+          - generic [ref=e34]:
+            - link "Try for free" [ref=e35] [cursor=pointer]:
+              - /url: /all-access
+            - link "Learn more" [ref=e37] [cursor=pointer]:
+              - /url: "#why-HWPO"
+      - generic [ref=e40]:
+        - generic [ref=e42]:
+          - generic [ref=e47]:
+            - strong [ref=e49]: ALL YOUR TRAINING IN ONE MEMBERSHIP
+            - paragraph [ref=e51]:
+              - text: ‍
+              - strong [ref=e52]: $49
+              - text: /month |
+              - strong [ref=e53]: $490
+              - text: /year
+            - paragraph [ref=e55]: From beginner-friendly training and strength-focused plans to conditioning and functional fitness. Switch programs as your goals change, and build a routine that supports your wellness year-round.
+            - link "Start your free trial" [ref=e59] [cursor=pointer]:
+              - /url: https://app.hwpotraining.com/b/allaccess
+            - link "Or Learn More" [ref=e61] [cursor=pointer]:
+              - /url: /all-access
+            - generic [ref=e63]:
+              - paragraph
+              - emphasis [ref=e65]: PRO, AFFILIATE and INDIVIDUAL programs are not included in ALL ACCESS.
+          - generic [ref=e70]:
+            - text: 
+            - generic [ref=e71]:
+              - heading "JOIN HWPO MOVE IN APRIL FOR ONLY $1" [level=2] [ref=e72]
+              - paragraph [ref=e74]: Your next 30 days of fitness could cost less than your cup of coffee. If you’ve been waiting for the ‘right time’, this is it. The same coach-led, structured program with ongoing support for just $1.
+              - link "Learn more" [ref=e76] [cursor=pointer]:
+                - /url: /programs/hwpo-move
+        - generic [ref=e77]:
+          - generic [ref=e81]:
+            - heading "WHY CHOOSE HWPO?" [level=2] [ref=e83]
+            - strong [ref=e86]: FITNESS ISN’T BUILT IN PERFECT WEEKS, IT’S BUILT IN CONSISTENCY.
+            - paragraph [ref=e88]: You don’t need perfect conditions, perfect energy, or perfect execution. You need a plan that supports your goals and fits real life, busy schedules, and changing motivation.
+            - paragraph [ref=e89]: Our programs are built around structure, guidance, and intent, shaped by years of coaching experience. Whether you train five days a week or two, progress comes from SHOWING UP and working with what you have.
+            - paragraph [ref=e90]:
+              - strong [ref=e91]: HWPO is fitness you can sustain for the long term.
+          - generic [ref=e101]:
+            - heading "HWPO IS MORE THAN JUST TRAINING, IT’S A COMMUNITY" [level=2] [ref=e103]
+            - strong [ref=e106]: YOU DON’T HAVE TO DO THIS ALONE
+            - paragraph [ref=e108]: "Training works better when you’re supported. That’s why every HWPO member gets access to:"
+            - list [ref=e113]:
+              - listitem [ref=e114]:
+                - generic [ref=e119]:
+                  - generic [ref=e120]: Coach guidance and education
+                  - generic [ref=e121]: Access all our programs now and in the future for one fixed price
+              - listitem [ref=e122]:
+                - generic [ref=e127]:
+                  - generic [ref=e128]: A global community of HARD WORKERS
+                  - generic [ref=e129]: Switch between programs and track variants anytime
+              - listitem [ref=e130]:
+                - generic [ref=e135]:
+                  - generic [ref=e136]: Live calls, resources, and accountability through Circle
+                  - generic [ref=e137]: At home, in the gym, or wherever life allows
+              - listitem [ref=e138]:
+                - generic [ref=e143]:
+                  - generic [ref=e144]: Support when motivation dips or life gets busy
+                  - generic [ref=e145]: Follow structured daily programming
+        - generic [ref=e153]: Being a HARD WORKER means choosing effort over excuses and SHOWING UP with purpose, day after day. It’s the foundation of the HWPO community which is built on grit, consistency, and progress earned through action.
+        - generic [ref=e154]:
+          - generic [ref=e159]:
+            - heading "CHOOSE A PROGRAM THAT MEETS YOUR GOALS" [level=2] [ref=e160]: CHOOSE A PROGRAM THAT MEETS YOUR GOALS
+            - strong [ref=e163]: STRENGTH, CONDITIONING, RUNNING, WELLNESS, PERFORMANCE, COMPETITION. IT’S ALL HERE.
+          - generic [ref=e164]:
+            - generic [ref=e166]:
+              - generic [ref=e169]:
+                - strong [ref=e172]: Commit to HARD WORK and save 20% with annual program pricing
+                - generic [ref=e174]:
+                  - generic [ref=e175]:
+                    - generic:
+                      - generic [ref=e176]: Monthly
+                      - generic [ref=e177]: Monthly
+                    - generic:
+                      - generic [ref=e180]: Annual
+                      - generic [ref=e181]: Annual
+                  - generic [ref=e184]: Save 20% WITH ANNUAL
+              - list [ref=e187]:
+                - listitem [ref=e188]:
+                  - generic [ref=e189]:
+                    - link "$9.99/month $96.00/year" [ref=e191] [cursor=pointer]:
+                      - /url: https://www.hwpotraining.com/programs/hwpo-move
+                      - generic [ref=e192]: $9.99/month
+                      - generic [ref=e193]: $96.00/year
+                    - generic [ref=e195] [cursor=pointer]:
+                      - generic [ref=e197]: First 30 days for $1
+                      - img "HWPO MOVE"
+                      - generic [ref=e200]: Foundation track included
+                    - generic [ref=e202] [cursor=pointer]: Try for free
+                - listitem [ref=e205]:
+                  - generic [ref=e206]:
+                    - link "$40/month $384.00/year" [ref=e208] [cursor=pointer]:
+                      - /url: https://www.hwpotraining.com/programs/hwpo-bodybuilding
+                      - generic [ref=e209]: $40/month
+                      - generic [ref=e210]: $384.00/year
+                    - generic [ref=e212] [cursor=pointer]:
+                      - img "HWPO BODYBUILDING"
+                    - generic [ref=e216] [cursor=pointer]: Try For Free
+                - listitem [ref=e219]:
+                  - generic [ref=e220]:
+                    - link "$40/month $384.00/year" [ref=e222] [cursor=pointer]:
+                      - /url: https://www.hwpotraining.com/programs/hwpo-flagship
+                      - generic [ref=e223]: $40/month
+                      - generic [ref=e224]: $384.00/year
+                    - generic [ref=e226] [cursor=pointer]:
+                      - img "HWPO FLAGSHIP 2.0"
+                      - generic [ref=e229]: + MASTERS & 60 Variants
+                    - generic [ref=e231] [cursor=pointer]: Try for free
+                - listitem [ref=e234]:
+                  - generic [ref=e235]:
+                    - link "$20/month $192.00/year" [ref=e237] [cursor=pointer]:
+                      - /url: https://www.hwpotraining.com/programs/hwpo-sweat
+                      - generic [ref=e238]: $20/month
+                      - generic [ref=e239]: $192.00/year
+                    - generic [ref=e241] [cursor=pointer]:
+                      - img "HWPO SWEAT"
+                      - generic [ref=e244]: FREE TRACK VARIANTS INCLUDED
+                    - generic [ref=e246] [cursor=pointer]: Try for free
+                - listitem [ref=e249]:
+                  - generic [ref=e250]:
+                    - link "$40/month $384.00/year" [ref=e252] [cursor=pointer]:
+                      - /url: https://www.hwpotraining.com/programs/hwpo-strong
+                      - generic [ref=e253]: $40/month
+                      - generic [ref=e254]: $384.00/year
+                    - generic [ref=e256] [cursor=pointer]:
+                      - img "HWPO STRONG 2.0"
+                      - generic [ref=e259]: + STRONG 60 Variant
+                    - generic [ref=e261] [cursor=pointer]: Try for free
+                - listitem [ref=e264]:
+                  - generic [ref=e265]:
+                    - link "$40/month $384.00/year" [ref=e267] [cursor=pointer]:
+                      - /url: https://www.hwpotraining.com/programs/hwpo-lift
+                      - generic [ref=e268]: $40/month
+                      - generic [ref=e269]: $384.00/year
+                    - generic [ref=e271] [cursor=pointer]:
+                      - img "HWPO LIFT"
+                      - generic [ref=e274]: FREE TRACK VARIANTS INCLUDED
+                    - generic [ref=e276] [cursor=pointer]: Try for free
+                - listitem [ref=e279]:
+                  - generic [ref=e280]:
+                    - link "$80/month $768.00/year" [ref=e282] [cursor=pointer]:
+                      - /url: https://www.hwpotraining.com/programs/hwpo-pro
+                      - generic [ref=e283]: $80/month
+                      - generic [ref=e284]: $768.00/year
+                    - generic [ref=e286] [cursor=pointer]:
+                      - img "HWPO PRO"
+                      - generic [ref=e289]: + Multiple PRO Variation Tracks
+                    - link "Try for free" [ref=e291] [cursor=pointer]:
+                      - /url: https://app.hwpotraining.com/p/PROTWENTYFIVE
+                - listitem [ref=e293]:
+                  - generic [ref=e294]:
+                    - link "$9.99/month $96.00/year" [ref=e296] [cursor=pointer]:
+                      - /url: https://www.hwpotraining.com/programs/hwpo-run
+                      - generic [ref=e297]: $9.99/month
+                      - generic [ref=e298]: $96.00/year
+                    - generic [ref=e300] [cursor=pointer]:
+                      - img "HWPO RUN"
+                    - generic [ref=e304] [cursor=pointer]: Try for free
+                - listitem [ref=e307]:
+                  - generic [ref=e308]:
+                    - link "FREE" [ref=e310] [cursor=pointer]:
+                      - /url: https://www.hwpotraining.com/programs/couch-to-5k
+                      - generic [ref=e311]: FREE
+                    - generic [ref=e313] [cursor=pointer]:
+                      - img "HWPO COUCH TO 5K"
+                      - generic [ref=e316]: FREE 8-WEEK TRACK
+                    - link "Join now" [ref=e318] [cursor=pointer]:
+                      - /url: https://app.hwpotraining.com/p/RUN
+                - listitem [ref=e320]:
+                  - generic [ref=e321]:
+                    - link "$20/month $192.00/year" [ref=e323] [cursor=pointer]:
+                      - /url: https://www.hwpotraining.com/programs/hwpo-daily
+                      - generic [ref=e324]: $20/month
+                      - generic [ref=e325]: $192.00/year
+                    - generic [ref=e327] [cursor=pointer]:
+                      - img "HWPO DAILY"
+                    - generic [ref=e331] [cursor=pointer]: Try for free
+                - listitem [ref=e334]:
+                  - generic [ref=e335]:
+                    - link "$40/month $384.00/year" [ref=e337] [cursor=pointer]:
+                      - /url: https://www.hwpotraining.com/programs/hwpo-golf
+                      - generic [ref=e338]: $40/month
+                      - generic [ref=e339]: $384.00/year
+                    - generic [ref=e341] [cursor=pointer]:
+                      - img "HWPO GOLF"
+                      - generic [ref=e344]: + GOLF Bands Variant
+                    - generic [ref=e346] [cursor=pointer]: Try for free
+                - listitem [ref=e349]:
+                  - generic [ref=e350]:
+                    - link "$19.99/one-time" [ref=e352] [cursor=pointer]:
+                      - /url: https://www.hwpotraining.com/programs/hwpo-hyrox
+                      - generic [ref=e353]: $19.99/one-time
+                    - generic [ref=e355] [cursor=pointer]:
+                      - img "HWPO HYROX"
+                      - generic [ref=e358]: 8-WEEK RACE PREP
+                    - generic [ref=e360] [cursor=pointer]: Join now
+                - listitem [ref=e363]:
+                  - generic [ref=e364]:
+                    - link "$349/month MONTHLY ONLY" [ref=e366] [cursor=pointer]:
+                      - /url: https://www.hwpotraining.com/programs/hwpo-individual
+                      - generic [ref=e367]: $349/month
+                      - generic [ref=e368]: MONTHLY ONLY
+                    - generic [ref=e370] [cursor=pointer]:
+                      - img "HWPO INDIVIDUAL"
+                      - generic [ref=e373]: 1-to-1 coaching
+                    - link "APPLY NOW" [ref=e375] [cursor=pointer]:
+                      - /url: https://www.hwpotraining.com/programs/hwpo-individual
+                - listitem [ref=e379]:
+                  - generic [ref=e380]:
+                    - link [ref=e382] [cursor=pointer]:
+                      - /url: https://www.hwpotraining.com/programs/hwpo-masters
+                    - generic [ref=e384] [cursor=pointer]:
+                      - img "HWPO MASTERS"
+                      - generic [ref=e387]: FLAGSHIP & PRO
+                    - link "LEARN MORE" [ref=e389] [cursor=pointer]:
+                      - /url: https://www.hwpotraining.com/programs/hwpo-masters
+            - generic [ref=e395]:
+              - generic [ref=e397]:
+                - generic [ref=e398]:
+                  - strong [ref=e400]: Or unlock more with ALL ACCESS and let your training evolve as you do
+                  - paragraph [ref=e403]:
+                    - text: ‍
+                    - strong [ref=e404]: $49
+                    - text: /month |
+                    - strong [ref=e405]: $490
+                    - text: /year
+                - generic [ref=e407]:
+                  - link "Get ALL ACCESS Now" [ref=e409] [cursor=pointer]:
+                    - /url: https://app.hwpotraining.com/b/allaccess
+                  - link "Or learn more" [ref=e411] [cursor=pointer]:
+                    - /url: /all-access
+                  - generic [ref=e413]:
+                    - generic [ref=e414]:
+                      - img [ref=e415]
+                      - generic [ref=e418]: Free trial for new members
+                    - generic [ref=e419]:
+                      - img [ref=e420]
+                      - generic [ref=e423]: One SubScription
+                    - generic [ref=e424]:
+                      - img [ref=e425]
+                      - generic [ref=e428]: Start Training Today
+              - generic [ref=e430]:
+                - paragraph
+                - emphasis [ref=e432]: PRO, AFFILIATE and INDIVIDUAL programs are not included in ALL ACCESS.
+      - generic [ref=e436]:
+        - heading "stay updated" [level=2] [ref=e437]
+        - paragraph [ref=e438]: Subscribe to our mailing list for the latest news and updates.
+        - generic [ref=e443]:
+          - textbox "Your Email" [ref=e444]
+          - button "Next" [ref=e445] [cursor=pointer]
+      - generic [ref=e450]:
+        - paragraph [ref=e451]:
+          - strong [ref=e452]: "*FREE TRIAL ELIGIBILITY"
+        - generic [ref=e453]:
+          - paragraph [ref=e454]: "The HWPO Training free trial offer depends on your subscription type:"
+          - paragraph [ref=e455]:
+            - strong [ref=e456]: "HWPO ALL ACCESS:"
+            - text: Free trials are available to new users who haven’t subscribed to HWPO Training before.
+          - paragraph [ref=e457]:
+            - strong [ref=e458]: "Individual programs:"
+            - text: Free trials are available to first-time subscribers of each monthly program. If you've already subscribed to one, you won’t get a second trial for that same program.
+          - paragraph [ref=e459]:
+            - strong [ref=e460]: Fixed-length programs
+            - text: (one-time purchase) do not include a trial.
+    - generic [ref=e461]:
+      - generic [ref=e463]:
+        - generic [ref=e464]:
+          - link [ref=e466] [cursor=pointer]:
+            - /url: /
+          - generic [ref=e467]:
+            - link [ref=e468] [cursor=pointer]:
+              - /url: https://www.instagram.com/hwpotraining/
+            - link [ref=e469] [cursor=pointer]:
+              - /url: https://www.facebook.com/HWPOTraining/
+            - link [ref=e470] [cursor=pointer]:
+              - /url: https://www.youtube.com/channel/UCMxa-jlTjiVZfkQoZIa-RWg
+          - generic:
+            - link "Apple Store Badge to Fitr Training Client App":
+              - /url: https://apps.apple.com/us/app/hwpo-training-app/id1605177791
+              - img "Apple Store Badge to Fitr Training Client App"
+            - link "Google Play Store Badge to Fitr Training Client App":
+              - /url: https://play.google.com/store/apps/details?id=com.hwpo_training_app
+              - img "Google Play Store Badge to Fitr Training Client App"
+        - generic [ref=e471]:
+          - link "HWPO GIVE" [ref=e474] [cursor=pointer]:
+            - /url: /hwpo-give
+            - generic [ref=e475]: HWPO GIVE
+          - generic [ref=e477]:
+            - link "About Mat Fraser" [ref=e478] [cursor=pointer]:
+              - /url: https://www.hwpotraining.com/team/mat-fraser
+            - link "Community Events" [ref=e479] [cursor=pointer]:
+              - /url: /events
+            - link "Affiliate Programming" [ref=e480] [cursor=pointer]:
+              - /url: /programs/hwpo-affiliate
+            - link "Find a gym" [ref=e481] [cursor=pointer]:
+              - /url: /affiliate-map
+            - link "Helpdesk" [ref=e482] [cursor=pointer]:
+              - /url: https://intercom.help/hwpo-training/
+            - link "CIRCLE" [ref=e483] [cursor=pointer]:
+              - /url: https://hwpo-training.circle.so/
+            - link "careers" [ref=e484] [cursor=pointer]:
+              - /url: https://4bkcc2l570q.typeform.com/hwpocareers
+            - link "Ambassadors" [ref=e485] [cursor=pointer]:
+              - /url: /ambassadors
+            - link "Reviews" [ref=e486] [cursor=pointer]:
+              - /url: /reviews
+            - link "Account Login" [ref=e487] [cursor=pointer]:
+              - /url: https://app.hwpotraining.com/onboarding/sign_in
+            - link "Join Now" [ref=e488] [cursor=pointer]:
+              - /url: /programs
+          - generic [ref=e489]:
+            - link "Client Terms" [ref=e490] [cursor=pointer]:
+              - /url: /legals/terms
+            - link "Website Terms Of Use" [ref=e492] [cursor=pointer]:
+              - /url: /legals/website-terms-of-use
+            - link "Mobile Terms of Service" [ref=e494] [cursor=pointer]:
+              - /url: /legals/mobile-terms-of-service
+            - link "Privacy Policy" [ref=e496] [cursor=pointer]:
+              - /url: /legals/privacy-policy
+            - link "Cookie Notice" [ref=e498] [cursor=pointer]:
+              - /url: /legals/cookie-notice
+            - link "Manage Cookies" [ref=e501] [cursor=pointer]:
+              - /url: javascript:void 0
+          - generic [ref=e504]: Copyright © HWPO 2026. All Rights Reserved.
+      - generic [ref=e506]:
+        - link:
+          - /url: https://www.coachwithfitr.com/
+        - paragraph [ref=e507]:
+          - link "Website Design by Digital Mast" [ref=e508] [cursor=pointer]:
+            - /url: https://www.digitalmast.co.uk
+    - link "Location Find a gym" [ref=e511] [cursor=pointer]:
+      - /url: /affiliate-map
+      - img "Location" [ref=e512]
+      - generic [ref=e513]: Find a gym
+  - dialog "About cookies on this site" [ref=e514]:
+    - link "close" [ref=e515] [cursor=pointer]:
+      - /url: "#"
+    - generic [ref=e516]:
+      - heading "About cookies on this site" [level=2] [ref=e517]:
+        - strong [ref=e518]: About cookies on this site
+      - paragraph [ref=e519]: We use cookies to collect and analyse information on site performance and usage, to provide social media features and to enhance and customise content and advertisements.
+    - generic [ref=e520]:
+      - button "Cookie settings" [ref=e521] [cursor=pointer]
+      - button "Allow all cookies" [ref=e522] [cursor=pointer]

@@ -4,7 +4,12 @@
       "PowerShell(adb *)",
       "Skill(schedule)",
       "PowerShell(Start-Process \"docs\\\\ABOUT.md\")",
-      "PowerShell(New-Item *)"
+      "PowerShell(New-Item *)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_evaluate",
+      "Bash(mkdir -p C:/Users/USER/.claude/reference/study/captures/sports-design)",
+      "Bash(cp .playwright-mcp/*.png C:/Users/USER/.claude/reference/study/captures/sports-design/)"
     ]
   }
 }

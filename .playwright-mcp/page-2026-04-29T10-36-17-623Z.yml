@@ -1,0 +1,269 @@
+- generic [ref=e2]:
+  - alert [ref=e3]:
+    - paragraph [ref=e4]:
+      - paragraph [ref=e6]:
+        - strong [ref=e7]:
+          - text: 2026 CROSSFIT GAMES TICKETS NOW AVAILABLE TO GENERAL PUBLIC |
+          - link "BUY TICKETS NOW" [ref=e8] [cursor=pointer]:
+            - /url: https://am.ticketmaster.com/sharks/buy/ism/MjZDRkc=?_gl=1*a5qp09*_ga*ODM3NjU0MzcwLjE3N[%E2%80%A6]..&utm_source=article&utm_medium=site&utm_campaign=gamestix
+  - banner:
+    - generic [ref=e9]:
+      - link "CrossFit" [ref=e11] [cursor=pointer]:
+        - /url: /
+        - img "CrossFit" [ref=e12]
+      - navigation [ref=e26]:
+        - list [ref=e27]:
+          - listitem [ref=e28]:
+            - generic "Find a Gym" [ref=e29] [cursor=pointer]:
+              - img [ref=e30]
+          - img [ref=e33] [cursor=pointer]
+          - listitem [ref=e36]:
+            - button "Menu Toggle" [ref=e37]:
+              - img [ref=e38]
+  - complementary [ref=e41]
+  - main [ref=e86]:
+    - generic [ref=e94]:
+      - heading "The CrossFit Effect" [level=1] [ref=e96]
+      - paragraph [ref=e97]: We gave away the secrets so you could lead the movement.
+      - generic [ref=e100]:
+        - paragraph [ref=e102]: Finding Gyms Near You...
+        - generic [ref=e114]:
+          - button "previous" [ref=e115]:
+            - img [ref=e117]
+          - button "next" [ref=e120]:
+            - img [ref=e122]
+      - generic [ref=e125]:
+        - link "Explore Courses" [ref=e126] [cursor=pointer]:
+          - /url: https://www.crossfit.com/education/explore-courses?utm_source=homepage&utm_medium=site&utm_campaign=crossfit-effect&utm_content=site-link
+        - link "Learn More" [ref=e127] [cursor=pointer]:
+          - /url: https://www.crossfit.com/essentials/the-crossfit-effect?utm_source=homepage&utm_medium=site&utm_campaign=crossfit-effect&utm_content=site-link
+    - iframe [ref=e132]:
+      - generic [active] [ref=f55e1]:
+        - generic "YouTube 동영상 플레이어" [ref=f55e3]
+        - generic [ref=f55e5]:
+          - generic:
+            - generic:
+              - button "동영상 재생" [ref=f55e10] [cursor=pointer]:
+                - generic [ref=f55e13]:
+                  - img
+              - button "재생 컨트롤 숨기기" [ref=f55e14] [cursor=pointer]
+              - generic [ref=f55e16]:
+                - generic [ref=f55e21]:
+                  - generic [ref=f55e22]:
+                    - link "The CrossFit Effect" [ref=f55e23] [cursor=pointer]:
+                      - /url: https://www.youtube.com/watch?v=NeJjBX-Je7w
+                    - link "CrossFit" [ref=f55e24] [cursor=pointer]:
+                      - /url: /channel/UCtcQ6TPwXAYgZ1Mcl3M1vng
+                      - generic [ref=f55e25]: CrossFit
+                  - generic [ref=f55e26]:
+                    - button [ref=f55e27] [cursor=pointer]
+                    - generic [ref=f55e29]:
+                      - generic: CrossFit
+                      - generic: 구독자 179만명
+                - generic [ref=f55e30]:
+                  - button "공유" [ref=f55e33] [cursor=pointer]:
+                    - generic [ref=f55e37]:
+                      - img
+                  - link "YouTube에서 보기" [ref=f55e44] [cursor=pointer]:
+                    - /url: https://www.youtube.com/watch?v=NeJjBX-Je7w
+                    - generic [ref=f55e47]:
+                      - text: "다음에서 보기:"
+                      - img [ref=f55e49]:
+                        - generic [ref=f55e51]:
+                          - img
+    - generic [ref=e135]:
+      - generic [ref=e136]:
+        - heading "CrossFit is For You" [level=2] [ref=e137]
+        - link "View All" [ref=e138] [cursor=pointer]:
+          - /url: /essentials
+          - generic [ref=e139]:
+            - paragraph [ref=e140]: View All
+            - img [ref=e141]
+      - generic [ref=e143]:
+        - link [ref=e144] [cursor=pointer]:
+          - /url: /essentials/crossfit-standards-define-everything
+          - article [ref=e145]:
+            - generic [ref=e147]:
+              - 'heading "Why Standards Define Everything: How CrossFit Delivers Results" [level=3] [ref=e148]'
+              - generic [ref=e149]: CrossFit's unwavering standards aren't arbitrary rules; they're the precise formula for balancing safety, efficacy, and efficiency in fitness. From functional movements and relentless variety to threshold training and proper nutrition, these four pillars work together to deliver exceptional results within an acceptable timeframe while keeping you injury-free. Discover why compromising on any of these standards dramatically blunts your progress and why the best fitness programs refuse to water down what works.
+              - button "Read More" [ref=e151]:
+                - text: Read More
+                - img [ref=e152]
+        - link [ref=e154] [cursor=pointer]:
+          - /url: /essentials/crossfit-trainers-most-prepared
+          - article [ref=e155]:
+            - generic [ref=e157]:
+              - heading "Why CrossFit Trainers Are Among the Best-Prepared in Fitness" [level=3] [ref=e158]
+              - generic [ref=e159]: What separates a CrossFit trainer from the countless fitness professionals out there? It's access to the industry's most comprehensive three-tier education system that transforms good trainers into exceptional coaches through rigorous hands-on instruction, meticulous movement analysis, and real-world application. From mastering fundamental movement patterns in the Level 1 to developing elite coaching skills in Level 2, CrossFit's educational pathway ensures that when you step into an affiliate, you're getting guidance from some of the best-trained fitness professionals in the industry.
+              - button "Read More" [ref=e161]:
+                - text: Read More
+                - img [ref=e162]
+        - link [ref=e164] [cursor=pointer]:
+          - /url: /essentials/crossfit-isnt-easy-neither-is-life-prepare-for-both
+          - article [ref=e165]:
+            - generic [ref=e167]:
+              - heading "CrossFit Isn’t Easy. Neither is Life. Prepare for Both." [level=3] [ref=e168]
+              - generic [ref=e169]: "Emily Cooley's CrossFit journey has been anything but ordinary. What began as one workout in an Alabama affiliate has grown into a life filled with faith, family, fitness, and community. And through it all, one truth remains: CrossFit has been more than just a workout; it’s been a way of life."
+              - button "Read More" [ref=e171]:
+                - text: Read More
+                - img [ref=e172]
+    - generic [ref=e179]:
+      - heading "Enhance Your Life In & Out Of The Gym" [level=2] [ref=e181]
+      - generic [ref=e184]: For over 20 years, CrossFit has delivered life-changing results to people of all ages and fitness levels. The CrossFit formula combines consistent training through constantly varied, functional movement with sound nutrition and community accountability to build a program that never gets old.
+      - generic [ref=e185]:
+        - link "Try CrossFit" [ref=e186] [cursor=pointer]:
+          - /url: /map
+        - link "Learn More" [ref=e187] [cursor=pointer]:
+          - /url: /what-is-crossfit
+    - generic [ref=e190]:
+      - generic [ref=e191]:
+        - heading "FAQs, Expert Answers" [level=2] [ref=e192]
+        - link "View All" [ref=e193] [cursor=pointer]:
+          - /url: /media
+          - generic [ref=e194]:
+            - paragraph [ref=e195]: View All
+            - img [ref=e196]
+      - generic [ref=e198]:
+        - link [ref=e199] [cursor=pointer]:
+          - /url: /essentials/ask-a-coach-do-i-have-to-be-fit-to-start-crossfit
+          - article [ref=e200]:
+            - generic [ref=e202]:
+              - heading "Do I Have To Be Fit To Start CrossFit?" [level=3] [ref=e203]
+              - generic [ref=e204]: No! You don’t become fit to join CrossFit, you join CrossFit to become fit! While some movements might seem intimidating, we’ll scale the workout appropriately to keep you safe and help you progress.
+              - button "Learn More" [ref=e206]:
+                - text: Learn More
+                - img [ref=e207]
+        - link [ref=e209] [cursor=pointer]:
+          - /url: /essentials/ask-a-coach-how-will-my-body-change-with-regular-crossfit-training
+          - article [ref=e210]:
+            - generic [ref=e212]:
+              - heading "How Will My Body Change With Regular CrossFit Training?" [level=3] [ref=e213]
+              - generic [ref=e214]: Your goals and effort will drive your results. Typically, people feel stronger and improve their endurance significantly. Combined with our nutrition recommendations, you will also see improvements in your overall health.
+              - button "Learn More" [ref=e216]:
+                - text: Learn More
+                - img [ref=e217]
+        - link [ref=e219] [cursor=pointer]:
+          - /url: https://www.crossfit.com/essentials/what-to-expect-at-your-first-crossfit-class
+          - article [ref=e220]:
+            - generic [ref=e222]:
+              - heading "What Should I Expect at My First CrossFit Class?" [level=3] [ref=e223]
+              - generic [ref=e224]: You might be nervous, and that’s normal! From knowing what to bring to finding your coach and learning the CrossFit language, we’ll guide you through it.
+              - button "Learn More" [ref=e226]:
+                - text: Learn More
+                - img [ref=e227]
+    - generic [ref=e234]:
+      - heading "Find a CrossFit Gym Near You" [level=2] [ref=e236]
+      - generic [ref=e239]: Your CrossFit journey starts at a gym near you. We’ll help you find a location that’s convenient and ready to welcome you.
+      - link "Find a CrossFit Gym" [ref=e241] [cursor=pointer]:
+        - /url: /map
+  - contentinfo [ref=e266]:
+    - generic [ref=e267]:
+      - generic [ref=e268]:
+        - generic [ref=e269]:
+          - heading "About CrossFit" [level=3] [ref=e271]
+          - generic [ref=e272]:
+            - link "What Is CrossFit?" [ref=e273] [cursor=pointer]:
+              - /url: /what-is-crossfit
+            - link "Get Started" [ref=e274] [cursor=pointer]:
+              - /url: /get-started
+            - link "Workouts" [ref=e275] [cursor=pointer]:
+              - /url: /workout/
+            - link "Movements" [ref=e276] [cursor=pointer]:
+              - /url: /essentials/movements
+            - link "FAQ" [ref=e277] [cursor=pointer]:
+              - /url: /faq
+            - link "Help Center" [ref=e278] [cursor=pointer]:
+              - /url: https://crossfit.my.site.com/Support/s/
+            - link "Careers" [ref=e279] [cursor=pointer]:
+              - /url: /careers/
+        - generic [ref=e280]:
+          - heading "Education" [level=3] [ref=e282]
+          - generic [ref=e283]:
+            - link "Courses Near You" [ref=e284] [cursor=pointer]:
+              - /url: /courses-near-you/
+            - link "Certificate Courses" [ref=e285] [cursor=pointer]:
+              - /url: /certificate-courses/
+            - link "Certifications" [ref=e286] [cursor=pointer]:
+              - /url: /certifications/
+            - link "Explore Courses" [ref=e287] [cursor=pointer]:
+              - /url: https://www.crossfit.com/education/explore-courses
+            - link "Promotional Terms and Conditions" [ref=e288] [cursor=pointer]:
+              - /url: https://www.crossfit.com/promotional-terms-and-conditions
+        - generic [ref=e289]:
+          - heading "Affiliates" [level=3] [ref=e291]
+          - generic [ref=e292]:
+            - link "Open a CrossFit Gym" [ref=e293] [cursor=pointer]:
+              - /url: /open-crossfit-gym
+            - link "Field Leaders" [ref=e294] [cursor=pointer]:
+              - /url: /field-leaders
+            - link "Global Mentor Program" [ref=e295] [cursor=pointer]:
+              - /url: /global-mentor-program/
+            - link "Affiliate Toolkit" [ref=e296] [cursor=pointer]:
+              - /url: https://affiliate.crossfit.com/tools/
+        - generic [ref=e297]:
+          - heading "Community" [level=3] [ref=e299]
+          - generic [ref=e300]:
+            - link "Find a Trainer" [ref=e301] [cursor=pointer]:
+              - /url: https://trainerdirectory.crossfit.com/
+            - link "Scholarship Program" [ref=e302] [cursor=pointer]:
+              - /url: /scholarship-program-inquiry
+            - link "Foundation" [ref=e303] [cursor=pointer]:
+              - /url: /foundation
+            - link "CrossFit Medical Society" [ref=e304] [cursor=pointer]:
+              - /url: https://www.crossfitmedicalsociety.com/
+        - generic [ref=e305]:
+          - heading "The CrossFit Games" [level=3] [ref=e307]
+          - generic [ref=e308]:
+            - link "About the Games" [ref=e309] [cursor=pointer]:
+              - /url: https://games.crossfit.com/
+            - link "Leaderboard" [ref=e310] [cursor=pointer]:
+              - /url: https://games.crossfit.com/leaderboard/games/2022?division=2
+            - link "Schedule" [ref=e311] [cursor=pointer]:
+              - /url: https://games.crossfit.com/games/schedule?_ga=2.142929340.802559833.1690817966-401013740.1685640771
+            - link "Workouts" [ref=e312] [cursor=pointer]:
+              - /url: https://games.crossfit.com/workouts/games/2023
+      - generic [ref=e313]:
+        - generic [ref=e314]:
+          - heading "Find a gym today!" [level=3] [ref=e315]
+          - paragraph [ref=e316]: Start your fitness journey today and get healthy.
+          - link "Find a gym near you" [ref=e317] [cursor=pointer]:
+            - /url: https://www.crossfit.com/map
+        - generic [ref=e318]:
+          - generic [ref=e319]:
+            - generic [ref=e320]: Subscribe to the Workout of the Day
+            - textbox "Subscribe to the Workout of the Day" [ref=e321]:
+              - /placeholder: your@email.com
+          - button "Subscribe" [disabled] [ref=e322] [cursor=pointer]
+    - separator [ref=e323]
+    - paragraph [ref=e324]: © 2026 CrossFit, LLC. CrossFit, Fittest on Earth, 3...2...1...Go! CrossFit Games, and Sport of Fitness are trademarks of CrossFit, LLC in the U.S. and/or other countries. All Rights Reserved.
+    - generic [ref=e325]:
+      - generic [ref=e326]:
+        - link "Terms & Conditions" [ref=e327] [cursor=pointer]:
+          - /url: https://www.crossfit.com/terms-and-conditions
+        - link "Privacy Policy" [ref=e328] [cursor=pointer]:
+          - /url: https://www.crossfit.com/privacy-policy
+        - link "Cookie Policy" [ref=e329] [cursor=pointer]:
+          - /url: https://www.crossfit.com/cookie-policy
+        - link "Disclaimer" [ref=e330] [cursor=pointer]:
+          - /url: https://www.crossfit.com/disclaimer
+        - link "Contact Us" [ref=e331] [cursor=pointer]:
+          - /url: https://www.crossfit.com/contact-us
+        - link "Report IP Theft" [ref=e332] [cursor=pointer]:
+          - /url: https://www.crossfit.com/iptheft
+        - link "California Privacy Notice" [ref=e333] [cursor=pointer]:
+          - /url: https://privacy.crossfit.com/privacy-policy#california-privacy-notice
+        - link "Sensitive Personal Information" [ref=e334] [cursor=pointer]:
+          - /url: https://privacy.crossfit.com/limit
+      - generic [ref=e335]:
+        - link "facebook" [ref=e336] [cursor=pointer]:
+          - /url: https://www.facebook.com/crossfit
+          - img [ref=e337]
+        - link "twitter" [ref=e339] [cursor=pointer]:
+          - /url: https://twitter.com/CrossFit
+          - img [ref=e340]
+        - link "instagram" [ref=e342] [cursor=pointer]:
+          - /url: https://www.instagram.com/crossfit/
+          - img [ref=e343]
+        - link "youtube" [ref=e347] [cursor=pointer]:
+          - /url: https://www.youtube.com/channel/UCtcQ6TPwXAYgZ1Mcl3M1vng
+          - img [ref=e348]

@@ -1,0 +1,257 @@
+- generic [active] [ref=e1]:
+  - dialog "This website uses cookies" [ref=e2]:
+    - generic [ref=e3]:
+      - img "logo" [ref=e7]
+      - tabpanel "Consent" [ref=e9]:
+        - generic [ref=e11]:
+          - heading "This website uses cookies" [level=2] [ref=e12]
+          - paragraph [ref=e14]:
+            - text: We use essential cookies to make our website work. We also set additional cookies to improve your experience, for analytics and website performance, and for targeted advertising purposes. These additional cookies will be set only if you click ‘Accept All’. For more information about the cookies we use, or to change your preferences, please visit our
+            - link "Cookie Policy" [ref=e15] [cursor=pointer]:
+              - /url: https://www.strava.com/legal/cookie_policy
+              - generic [ref=e16]: Cookie Policy
+            - text: .
+        - link "Show details" [ref=e19] [cursor=pointer]:
+          - /url: "#"
+      - generic [ref=e23]:
+        - button "Reject Non-Essential" [ref=e24] [cursor=pointer]
+        - button "Customize" [ref=e25] [cursor=pointer]: Customize
+        - button "Accept All" [ref=e27] [cursor=pointer]
+  - generic [ref=e29]:
+    - navigation [ref=e31]:
+      - generic [ref=e33]:
+        - generic [ref=e34]:
+          - button "Close" [ref=e35] [cursor=pointer]
+          - button "Strava" [ref=e41] [cursor=pointer]:
+            - img [ref=e42]
+        - link "Sign Up" [ref=e45] [cursor=pointer]:
+          - /url: http://www.strava.com/register/free
+    - main [ref=e46]:
+      - generic [ref=e48]:
+        - generic [ref=e51]:
+          - generic [ref=e52]:
+            - heading "Community-Powered Motivation" [level=1] [ref=e53]
+            - generic [ref=e54]:
+              - img [ref=e55]
+              - link "Join us for free." [ref=e57] [cursor=pointer]:
+                - /url: register/free?cta=sign-up&element=banner&source=website_show
+          - generic [ref=e58]:
+            - paragraph [ref=e59]: Explore Strava
+            - img [ref=e60]
+        - generic [ref=e62]:
+          - generic [ref=e63]: Who we are
+          - heading "If you're active, Strava was made for you. Our mobile app and website enhance the experience of sport and connect millions of athletes from around the world. We're the social network for those who strive. Join us." [level=3] [ref=e64]
+        - generic [ref=e65]:
+          - generic [ref=e66]:
+            - button "Activity Summary" [ref=e68]
+            - button "Analysis" [ref=e70]
+            - button "Training Log" [ref=e72]
+          - generic [ref=e73]:
+            - generic [ref=e74]:
+              - heading "Start by sweating." [level=3] [ref=e75]
+              - paragraph [ref=e76]: The way you "post" in this network is by being active. Strava works with your mobile phone or favorite GPS device to track your activities and share your efforts with friends.
+            - generic [ref=e77]:
+              - heading "Get better by analysis." [level=3] [ref=e78]:
+                - text: Get
+                - emphasis [ref=e79]: better
+                - text: by analysis.
+              - paragraph [ref=e80]: When your workout is over, almost every metric you can imagine awaits - from basics like speed, pace and distance, to Strava exclusives, like your performance compared to past attempts and Relative Effort.
+            - generic [ref=e81]:
+              - heading "Dive into details on desktop." [level=3] [ref=e82]
+              - paragraph [ref=e83]: Our desktop experience goes even deeper with training plans, route planning, activity breakdowns and other tools to take your planning and analysis game to the limit.
+          - img "Activity Summary" [ref=e89]
+        - link "Join us for free." [ref=e90] [cursor=pointer]:
+          - /url: /register/free?cta=sign-up&source=long_button
+          - img [ref=e91]
+          - heading "Join us for free." [level=4] [ref=e93]
+        - generic [ref=e94]:
+          - generic [ref=e95]:
+            - heading "Join for the tracking, stay for the community." [level=2] [ref=e96]
+            - generic [ref=e98]:
+              - generic [ref=e99]:
+                - heading "Open, tap, go." [level=4] [ref=e100]
+                - paragraph [ref=e101]: Recording an activity with Strava is easy, and afterward you'll have a detailed activity map and tons of performance data.
+              - generic [ref=e102]:
+                - heading "A no BS network." [level=4] [ref=e103]
+                - paragraph [ref=e104]: The Strava feed is full of inspiring activities, crazy adventures and interesting new routes – all the best athletic content, none of the junk posts you find on other social networks.
+              - generic [ref=e105]:
+                - heading "The ultimate athlete resource." [level=4] [ref=e106]
+                - paragraph [ref=e107]: A running club in your neighborhood, content from your favorite bicycle maker, the best trail to catch the sunset, a fun new race, the city's toughest climb, a weekend training partner - whatever your next adventure, you'll find it on Strava.
+          - generic [ref=e109]:
+            - generic [ref=e110]:
+              - heading "Explore our features." [level=2] [ref=e111]
+              - generic [ref=e112]:
+                - generic [ref=e113]:
+                  - heading "Track & Analyze" [level=4] [ref=e114]
+                  - paragraph [ref=e115]: Learn about recording an activity on Strava and all the ways you can analyze your performance.
+                - generic [ref=e116]:
+                  - heading "Share & Connect" [level=4] [ref=e117]
+                  - paragraph [ref=e118]: Workout with friends, stay motivated, get inspired - our community is what separates Strava from the rest.
+                - generic [ref=e119]:
+                  - heading "Explore & Compete" [level=4] [ref=e120]
+                  - paragraph [ref=e121]: Discover your next goal with Strava segments, routes, maps, clubs, challenges and race courses.
+            - link "Explore" [ref=e122] [cursor=pointer]:
+              - /url: /features
+              - generic [ref=e123]: Explore
+          - generic [ref=e124]:
+            - generic [ref=e125]:
+              - heading "Ready to give it a shot?" [level=3] [ref=e126]
+              - generic [ref=e127]:
+                - generic [ref=e128]:
+                  - img [ref=e129]
+                  - paragraph [ref=e131]: Free to join / free to use
+                - generic [ref=e132]:
+                  - img [ref=e133]
+                  - paragraph [ref=e135]: Millions of athletes
+                - generic [ref=e136]:
+                  - img [ref=e137]
+                  - paragraph [ref=e139]: iPhone, Android & web apps
+                - generic [ref=e140]:
+                  - img [ref=e141]
+                  - paragraph [ref=e143]: Works with most GPS devices
+            - link "Join Us Now" [ref=e144] [cursor=pointer]:
+              - /url: /register/free?cta=sign-up&source=long_button
+              - img [ref=e145]
+              - heading "Join Us Now" [level=4] [ref=e147]
+        - generic [ref=e148]:
+          - generic [ref=e149]: Strava Subscription
+          - heading "More features, more fun. We strive to deliver an experience to match their enthusiasm." [level=3] [ref=e150]
+          - img "Beacon" [ref=e153]
+          - generic [ref=e154]:
+            - 'heading "Feature highlight: Beacon." [level=2] [ref=e157]'
+            - paragraph [ref=e158]: Share your real-time location during an activity with up to three safety contacts. Your loved ones get peace of mind. You get to forge ahead (or stop for a snack).
+          - generic [ref=e159]:
+            - heading "Here's how a Strava subscription takes your experience to the next level." [level=2] [ref=e160]
+            - generic [ref=e161]:
+              - generic [ref=e162]:
+                - heading "Track & Analyze" [level=4] [ref=e163]
+                - paragraph [ref=e164]: Learn about recording an activity on Strava and all the ways you can analyze your performance.
+              - generic [ref=e165]:
+                - heading "Share & Connect" [level=4] [ref=e166]
+                - paragraph [ref=e167]: Workout with friends, stay motivated, get inspired - our community is what separates Strava from the rest.
+              - generic [ref=e168]:
+                - heading "Explore & Compete" [level=4] [ref=e169]
+                - paragraph [ref=e170]: Discover your next goal with Strava segments, routes, maps, clubs, challenges and race courses.
+          - link "Explore" [ref=e171] [cursor=pointer]:
+            - /url: /subscribe?origin=homepage_subscription
+            - generic [ref=e172]: Explore
+          - link "Try" [ref=e173] [cursor=pointer]:
+            - /url: /register/free
+            - img [ref=e174]
+            - heading "Try" [level=4] [ref=e176]
+        - generic [ref=e177]:
+          - heading "You don't have to run or ride to love our features. Strava works with many of your other favorite sports, like skiing, kiteboarding, crossfit, kayaking, inline skating, rock climbing, surfing, yoga and more. Give it a shot, you'll dig it." [level=3] [ref=e179]
+          - generic [ref=e180]:
+            - heading "Strava Features" [level=3] [ref=e181]
+            - link "Explore" [ref=e182] [cursor=pointer]:
+              - /url: /features
+              - generic [ref=e183]: Explore
+          - generic [ref=e184]:
+            - heading "Strava Subscription" [level=3] [ref=e185]
+            - link "Explore" [ref=e186] [cursor=pointer]:
+              - /url: /subscribe?origin=homepage_summary
+              - generic [ref=e187]: Explore
+    - contentinfo [ref=e188]:
+      - generic [ref=e189]:
+        - generic [ref=e190]:
+          - img "Strava" [ref=e191]
+          - list [ref=e193]:
+            - listitem [ref=e194]:
+              - link "Download on the App Store" [ref=e195] [cursor=pointer]:
+                - /url: https://itunes.apple.com/app/strava-cycling/id426826309?mt=8
+                - img "Download on the App Store" [ref=e197]
+            - listitem [ref=e198]:
+              - link "Get it on Google Play" [ref=e199] [cursor=pointer]:
+                - /url: https://itunes.apple.com/app/strava-cycling/id426826309?mt=8
+                - img "Get it on Google Play" [ref=e201]
+          - navigation "Social links" [ref=e202]:
+            - link "Twitter" [ref=e203] [cursor=pointer]:
+              - /url: https://twitter.com/strava
+              - img "Twitter" [ref=e204]
+            - link "YouTube" [ref=e205] [cursor=pointer]:
+              - /url: https://www.youtube.com/stravainc
+              - img "YouTube" [ref=e206]
+            - link "Instagram" [ref=e207] [cursor=pointer]:
+              - /url: https://www.instagram.com/strava/
+              - img "Instagram" [ref=e208]
+            - link "LinkedIn" [ref=e209] [cursor=pointer]:
+              - /url: https://www.linkedin.com/company/strava-inc.
+              - img "LinkedIn" [ref=e210]
+            - link "Facebook" [ref=e211] [cursor=pointer]:
+              - /url: https://www.facebook.com/Strava
+              - img "Facebook" [ref=e212]
+        - navigation "Footer links" [ref=e213]:
+          - list [ref=e214]:
+            - listitem [ref=e215]:
+              - list [ref=e216]:
+                - listitem [ref=e217]:
+                  - link "Features" [ref=e218] [cursor=pointer]:
+                    - /url: /features
+                - listitem [ref=e219]:
+                  - link "What’s New" [ref=e220] [cursor=pointer]:
+                    - /url: /whats-new
+                - listitem [ref=e221]:
+                  - link "Stories" [ref=e222] [cursor=pointer]:
+                    - /url: https://stories.strava.com/
+                - listitem [ref=e223]:
+                  - link "Routes" [ref=e224] [cursor=pointer]:
+                    - /url: /routes/hiking/usa
+                - listitem [ref=e225]:
+                  - link "About" [ref=e226] [cursor=pointer]:
+                    - /url: /about
+            - listitem [ref=e227]:
+              - list [ref=e228]:
+                - listitem [ref=e229]:
+                  - link "Subscription" [ref=e230] [cursor=pointer]:
+                    - /url: /subscribe?origin=logged_out_footer
+                - listitem [ref=e231]:
+                  - link "Family Plan" [ref=e232] [cursor=pointer]:
+                    - /url: /family?origin=logged_out_footer
+                - listitem [ref=e233]:
+                  - link "Subscription Partnerships" [ref=e234] [cursor=pointer]:
+                    - /url: https://business.strava.com/subscription-partnerships?utm_source=subsfooter&utm_medium=referral
+                - listitem [ref=e235]:
+                  - link "Student Discount" [ref=e236] [cursor=pointer]:
+                    - /url: /student?origin=global_footer
+                - listitem [ref=e237]:
+                  - link "Teacher, Military & Medical Discount (US Only)" [ref=e238] [cursor=pointer]:
+                    - /url: /subscribe#discount-plans?origin=global_footer
+                - listitem [ref=e239]:
+                  - link "Send a Gift" [ref=e240] [cursor=pointer]:
+                    - /url: /gift?origin=global_footer
+            - listitem [ref=e241]:
+              - list [ref=e242]:
+                - listitem [ref=e243]:
+                  - link "Support" [ref=e244] [cursor=pointer]:
+                    - /url: https://strava.zendesk.com/home
+                - listitem [ref=e245]:
+                  - link "Business" [ref=e246] [cursor=pointer]:
+                    - /url: https://business.strava.com/?utm_source=footer&utm_medium=referral
+                - listitem [ref=e247]:
+                  - link "Partner Center" [ref=e248] [cursor=pointer]:
+                    - /url: https://partners.strava.com
+                - listitem [ref=e249]:
+                  - link "Careers" [ref=e250] [cursor=pointer]:
+                    - /url: /careers
+                - listitem [ref=e251]:
+                  - link "Press" [ref=e252] [cursor=pointer]:
+                    - /url: https://press.strava.com
+            - listitem [ref=e253]:
+              - list [ref=e254]:
+                - listitem [ref=e255]:
+                  - link "Privacy" [ref=e256] [cursor=pointer]:
+                    - /url: /legal/privacy
+                - listitem [ref=e257]:
+                  - link "Cookie Policy" [ref=e258] [cursor=pointer]:
+                    - /url: /legal/cookie_policy
+                - listitem [ref=e259]:
+                  - button "Do Not Share My Personal Information" [ref=e260] [cursor=pointer]
+                - listitem [ref=e261]:
+                  - link "Terms" [ref=e262] [cursor=pointer]:
+                    - /url: /legal/terms
+                - listitem [ref=e263]:
+                  - link "Log In" [ref=e264] [cursor=pointer]:
+                    - /url: http://www.strava.com/login
+  - iframe [ref=e265]:
+    
+  - alert [ref=e266]
