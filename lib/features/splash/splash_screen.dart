@@ -141,7 +141,7 @@ class _SplashScreenState extends State<SplashScreen>
         child: Padding(
           padding: const EdgeInsets.all(FacingTokens.sp5),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Spacer(),
               _fadeSlide(
