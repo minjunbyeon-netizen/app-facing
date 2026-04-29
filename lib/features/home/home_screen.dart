@@ -5,8 +5,6 @@ import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
 import '../../core/haptic.dart';
-import '../../core/level_system.dart';
-import '../../core/pr_detector.dart';
 import '../../core/scoring.dart';
 import '../../core/theme.dart';
 import '../../core/tier.dart';
@@ -31,21 +29,18 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   Future<List<EngineSnapshotRecord>>? _engineFuture;
-  Future<List<WodHistoryItem>>? _wodFuture;
 
   @override
   void initState() {
     super.initState();
     final repo = HistoryRepository(context.read<ApiClient>());
     _engineFuture = repo.listEngineSnapshots(limit: 12);
-    _wodFuture = repo.listWodHistory(limit: 200);
   }
 
   void _reload() {
     final repo = HistoryRepository(context.read<ApiClient>());
     setState(() {
       _engineFuture = repo.listEngineSnapshots(limit: 12);
-      _wodFuture = repo.listWodHistory(limit: 200);
     });
   }
 
@@ -73,10 +68,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.all(FacingTokens.sp4),
                 children: [
                   // v1.22: Tier + Engine + Radar 통합 hero 카드 (안 C).
-                  _HeroCard(
-                    engineFuture: _engineFuture,
-                    wodFuture: _wodFuture,
-                  ),
+                  // v1.22 rev2: LEVEL 섹션 → Attend 로 이관.
+                  _HeroCard(engineFuture: _engineFuture),
                   const SizedBox(height: FacingTokens.sp3),
                   // v1.22: 약점 분석은 별도 inline (역할 분리).
                   const _WeaknessInsightInline(),
@@ -143,11 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
 /// 안 C 채택: Radar 주체 + 중앙 ENGINE 점수(HWPO display 72sp).
 class _HeroCard extends StatelessWidget {
   final Future<List<EngineSnapshotRecord>>? engineFuture;
-  final Future<List<WodHistoryItem>>? wodFuture;
-  const _HeroCard({
-    required this.engineFuture,
-    required this.wodFuture,
-  });
+  const _HeroCard({required this.engineFuture});
 
   int _catScore(Map<String, dynamic>? grade, String key) {
     if (grade == null) return 0;
@@ -321,136 +310,14 @@ class _HeroCard extends StatelessWidget {
                 );
               },
             ),
-            // v1.21: LEVEL 섹션 — Attend 하단에서 통합. WOD history 기반.
-            const SizedBox(height: FacingTokens.sp3),
-            const Divider(height: 1, color: FacingTokens.border),
-            const SizedBox(height: FacingTokens.sp3),
-            FutureBuilder<List<WodHistoryItem>>(
-              future: wodFuture,
-              builder: (ctx, snap) {
-                if (snap.connectionState != ConnectionState.done) {
-                  return const SizedBox(height: 60);
-                }
-                if (snap.hasError) {
-                  return Text('Level 데이터 로딩 실패. 다시 시도.',
-                      style: FacingTokens.caption);
-                }
-                final history = snap.data ?? const <WodHistoryItem>[];
-                final streak = _currentStreakDays(history);
-                final tierNum = n.toInt();
-                final prCount = PrDetector.countPrs(history);
-                final bd = LevelSystem.compute(
-                  totalSessions: history.length,
-                  currentStreakDays: streak,
-                  tierNumber: tierNum,
-                  prCount: prCount,
-                );
-                final pct = (bd.progress * 100).round();
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      children: [
-                        Text('LEVEL ${bd.level}',
-                            style: FacingTokens.h3.copyWith(
-                              fontWeight: FontWeight.w800,
-                              fontFeatures: FacingTokens.tabular,
-                            )),
-                        const Spacer(),
-                        Text('${bd.totalXp} XP',
-                            style: FacingTokens.caption.copyWith(
-                              fontFeatures: FacingTokens.tabular,
-                              color: FacingTokens.muted,
-                              fontWeight: FontWeight.w700,
-                            )),
-                      ],
-                    ),
-                    const SizedBox(height: FacingTokens.sp2),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(FacingTokens.r1),
-                      child: Stack(
-                        children: [
-                          Container(height: 6, color: FacingTokens.border),
-                          FractionallySizedBox(
-                            widthFactor: bd.progress,
-                            child: Container(
-                                height: 6, color: FacingTokens.accent),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: FacingTokens.sp2),
-                    Text(
-                      bd.level >= LevelSystem.maxLevel
-                          ? 'MAX LEVEL'
-                          : '$pct% · next Lv${bd.level + 1} · ${bd.xpToNext} XP',
-                      style: FacingTokens.caption,
-                    ),
-                    const SizedBox(height: FacingTokens.sp2),
-                    // XP 소스 한 줄씩 — 컴팩트 (Attend는 표 형태였음).
-                    _XpInline(label: 'Sessions', value: bd.sessionXp),
-                    _XpInline(label: 'Streak', value: bd.streakXp),
-                    _XpInline(label: 'Tier', value: bd.tierXp),
-                    if (bd.prXp > 0)
-                      _XpInline(label: 'PRs', value: bd.prXp),
-                  ],
-                );
-              },
-            ),
           ],
         ],
       ),
     );
   }
-
-  /// 현재 streak — 오늘(또는 최근 세션일)부터 연속 일수.
-  int _currentStreakDays(List<WodHistoryItem> list) {
-    if (list.isEmpty) return 0;
-    final days = <DateTime>{};
-    for (final w in list) {
-      final d = w.createdAt.toLocal();
-      days.add(DateTime(d.year, d.month, d.day));
-    }
-    final today = DateTime.now();
-    DateTime cursor = DateTime(today.year, today.month, today.day);
-    if (!days.contains(cursor)) {
-      cursor = cursor.subtract(const Duration(days: 1));
-      if (!days.contains(cursor)) return 0;
-    }
-    int count = 0;
-    while (days.contains(cursor)) {
-      count++;
-      cursor = cursor.subtract(const Duration(days: 1));
-    }
-    return count;
-  }
 }
 
-class _XpInline extends StatelessWidget {
-  final String label;
-  final int value;
-  const _XpInline({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        children: [
-          Expanded(child: Text(label, style: FacingTokens.caption)),
-          Text('+$value',
-              style: FacingTokens.caption.copyWith(
-                fontWeight: FontWeight.w800,
-                fontFeatures: FacingTokens.tabular,
-                color: FacingTokens.fg,
-              )),
-        ],
-      ),
-    );
-  }
-}
+// v1.22 rev2: _XpInline / _currentStreakDays 제거 — LEVEL 섹션 Attend 로 이관.
 
 /// v1.22: 약점 분석 inline — hero 카드 아래 작은 카드로 분리.
 /// hero가 "지표"라면 이 카드는 "분석".

@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../../core/api_client.dart';
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
+import '../../core/level_system.dart';
+import '../../core/pr_detector.dart';
 import '../../core/streak_freeze.dart';
 import '../../core/theme.dart';
 import '../../core/wod_session_bus.dart';
@@ -12,6 +14,7 @@ import '../achievement/achievement_section.dart';
 import '../achievement/panel_b_screen.dart';
 import '../history/history_models.dart';
 import '../history/history_repository.dart';
+import '../profile/profile_state.dart';
 
 /// v1.15.3: 출석률 — 월별 WOD 완료 기록 캘린더.
 /// 데이터 소스: /api/v1/history/wod. 세션 있는 날은 accent dot + 횟수.
@@ -401,6 +404,14 @@ class _AttendanceBody extends StatelessWidget {
         const _StreakFreezeRow(),
         const SizedBox(height: FacingTokens.sp5),
 
+        // v1.22 rev2: LEVEL 카드 — Home Hero 에서 이관. 게이미피케이션 핵심.
+        _LevelCard(
+          totalSessions: totalLifetime,
+          currentStreakDays: currentStreak,
+          prCount: PrDetector.countPrs(records),
+        ),
+        const SizedBox(height: FacingTokens.sp5),
+
         // 3. MILESTONES — 단계별 진행도
         const Text('MILESTONES', style: FacingTokens.sectionLabel),
         const SizedBox(height: FacingTokens.sp3),
@@ -467,14 +478,131 @@ class _AttendanceBody extends StatelessWidget {
             style: FacingTokens.micro),
         const SizedBox(height: FacingTokens.sp5),
 
-        // v1.21: LEVEL 카드는 Home _TierEngineCard 로 이관 ("현재 수준 + 게임 진행도").
-        // Attend 는 출석/streak/milestone/challenge/업적에 집중.
+        // v1.22 rev2: LEVEL → Streak Freeze 위로 이동. Attend 는 게이미피케이션 전용.
         // 업적 + 해금 갤러리.
         const AchievementSection(),
       ],
     );
   }
+}
 
+/// v1.22 rev2: LEVEL 카드 — Home Hero 에서 이관.
+/// totalSessions + currentStreak + tierNumber + prCount 로 LV 계산.
+class _LevelCard extends StatelessWidget {
+  final int totalSessions;
+  final int currentStreakDays;
+  final int prCount;
+  const _LevelCard({
+    required this.totalSessions,
+    required this.currentStreakDays,
+    required this.prCount,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.watch<ProfileState>();
+    final num? n = p.gradeResult?['overall_number'] is num
+        ? p.gradeResult!['overall_number'] as num
+        : null;
+    final tierNum = (n ?? 1).toInt();
+    final bd = LevelSystem.compute(
+      totalSessions: totalSessions,
+      currentStreakDays: currentStreakDays,
+      tierNumber: tierNum,
+      prCount: prCount,
+    );
+    final pct = (bd.progress * 100).round();
+    final isMax = bd.level >= LevelSystem.maxLevel;
+
+    return Container(
+      padding: const EdgeInsets.all(FacingTokens.sp4),
+      decoration: BoxDecoration(
+        color: FacingTokens.surface,
+        border: Border.all(color: FacingTokens.border),
+        borderRadius: BorderRadius.circular(FacingTokens.r3),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              const Text('LEVEL', style: FacingTokens.sectionLabel),
+              const SizedBox(width: FacingTokens.sp2),
+              Text(
+                '${bd.level}',
+                style: FacingTokens.displayCompact.copyWith(
+                  color: FacingTokens.accent,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                '${bd.totalXp} XP',
+                style: FacingTokens.caption.copyWith(
+                  fontFeatures: FacingTokens.tabular,
+                  color: FacingTokens.muted,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: FacingTokens.sp3),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(FacingTokens.r1),
+            child: Stack(
+              children: [
+                Container(height: 6, color: FacingTokens.border),
+                FractionallySizedBox(
+                  widthFactor: bd.progress,
+                  child:
+                      Container(height: 6, color: FacingTokens.accent),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: FacingTokens.sp2),
+          Text(
+            isMax
+                ? 'MAX LEVEL'
+                : '$pct% · next Lv${bd.level + 1} · ${bd.xpToNext} XP',
+            style: FacingTokens.caption,
+          ),
+          const SizedBox(height: FacingTokens.sp3),
+          _XpInline(label: 'Sessions', value: bd.sessionXp),
+          _XpInline(label: 'Streak', value: bd.streakXp),
+          _XpInline(label: 'Tier', value: bd.tierXp),
+          if (bd.prXp > 0) _XpInline(label: 'PRs', value: bd.prXp),
+        ],
+      ),
+    );
+  }
+}
+
+class _XpInline extends StatelessWidget {
+  final String label;
+  final int value;
+  const _XpInline({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        children: [
+          Expanded(child: Text(label, style: FacingTokens.caption)),
+          Text(
+            '+$value',
+            style: FacingTokens.caption.copyWith(
+              fontWeight: FontWeight.w800,
+              fontFeatures: FacingTokens.tabular,
+              color: FacingTokens.fg,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 /// v1.16: 캘린더 하단 통계를 label · value(· trailing) 한 줄씩 깔끔히.
