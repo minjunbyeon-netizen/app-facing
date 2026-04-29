@@ -6,6 +6,9 @@ class GymSummary {
   final String location;
   final int memberCount;
   final bool isOfficial;
+  // v1.20 (E1 fix): 회원 시점 코치-DM 자동 thread 시작용. 백엔드가 응답에 포함.
+  // null이면 회원이 코치 thread 시작 불가 (E1 BLOCKER 잔존).
+  final String? ownerHash;
 
   const GymSummary({
     required this.id,
@@ -13,6 +16,7 @@ class GymSummary {
     required this.location,
     required this.memberCount,
     this.isOfficial = false,
+    this.ownerHash,
   });
 
   factory GymSummary.fromJson(Map<String, dynamic> j) => GymSummary(
@@ -22,6 +26,7 @@ class GymSummary {
         memberCount: ((j['member_count'] ?? 0) as num).toInt(),
         isOfficial: (j['is_official'] == true) ||
             ((j['name'] ?? '').toString() == 'FACING'),
+        ownerHash: j['owner_hash']?.toString(),
       );
 }
 

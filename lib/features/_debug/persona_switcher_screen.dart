@@ -7,11 +7,13 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../core/app_mode.dart';
 import '../../core/device_id.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
+import '../gym/gym_state.dart';
 
 class _Persona {
   final String id;
@@ -168,6 +170,16 @@ class _PersonaSwitcherScreenState extends State<PersonaSwitcherScreen> {
       _ => AppMode.solo, // admin / app_user 등
     };
     await AppModeStore.set(autoMode);
+    // v1.20 (C1 fix): persona switch 즉시 GymState.loadMine() 호출.
+    // 기존: "앱 재시작 후 반영" → DemoSwitcher↔GymState 동기화 누락 BLOCKER.
+    // 신규: device_id 갱신 직후 백엔드 /gyms/mine 재조회 → membership/role hydrate.
+    if (mounted) {
+      try {
+        await context.read<GymState>().loadMine();
+      } catch (_) {
+        // 백엔드 OFF 시 다음 화면 진입 시 재시도. UI 진행 차단 X.
+      }
+    }
     if (!mounted) return;
     setState(() {
       _appliedSeed = p.deviceIdSeed;
@@ -181,7 +193,7 @@ class _PersonaSwitcherScreenState extends State<PersonaSwitcherScreen> {
         title: Text('Switched.', style: FacingTokens.h3),
         content: Text(
           '페르소나: ${p.displayName} (${p.role})\n'
-          '앱을 종료 후 재시작하면 새 페르소나로 진입합니다.',
+          'GymState 즉시 재로딩 시도. 화면 갱신 안 되면 앱 재시작 권장.',
           style: FacingTokens.body,
         ),
         actions: [

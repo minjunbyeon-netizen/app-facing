@@ -55,8 +55,16 @@ class BoxWodScreen extends StatelessWidget {
               icon: const Icon(Icons.mail_outline),
               onPressed: () {
                 Haptic.light();
+                // v1.20 (E1 fix): 회원 시점은 코치 thread 자동 시작.
+                // 코치 시점은 전체 수신함. ownerHash 미노출 시 fallback 전체 수신함.
+                final ownerHash = gs.membership.gym?.ownerHash;
+                final isMemberWithOwner =
+                    !gs.isOwner && ownerHash != null && ownerHash.isNotEmpty;
                 Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => const MessagesScreen(),
+                  builder: (_) => MessagesScreen(
+                    withHash: isMemberWithOwner ? ownerHash : null,
+                    withLabel: isMemberWithOwner ? 'Coach' : null,
+                  ),
                 ));
               },
             ),
