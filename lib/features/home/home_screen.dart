@@ -11,6 +11,7 @@ import '../../core/scoring.dart';
 import '../../core/theme.dart';
 import '../../core/tier.dart';
 import '../../core/weak_insight.dart';
+import '../../widgets/inbox_bell.dart';
 import '../../widgets/offline_banner.dart';
 import '../../widgets/tier_badge.dart';
 import '../history/history_models.dart';
@@ -55,6 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text('HOME'),
         automaticallyImplyLeading: false,
         actions: [
+          const InboxBellAction(),
           IconButton(
             tooltip: 'Refresh',
             icon: const Icon(Icons.refresh),

@@ -7,6 +7,7 @@ import '../../core/haptic.dart';
 import '../../core/streak_freeze.dart';
 import '../../core/theme.dart';
 import '../../core/wod_session_bus.dart';
+import '../../widgets/inbox_bell.dart';
 import '../achievement/achievement_section.dart';
 import '../achievement/panel_b_screen.dart';
 import '../history/history_models.dart';
@@ -81,12 +82,14 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
         // v1.21: ATTEND = 출석 + 레벨 + 해금 + 업적 통합 ("쌓아온 것").
         title: const Text('ATTEND'),
         actions: [
+          const InboxBellAction(),
           IconButton(
             tooltip: 'Panel B Titles',
             icon: const Icon(Icons.workspace_premium_outlined, size: 20),
             onPressed: () => openPanelB(context),
           ),
           IconButton(
+            tooltip: 'Refresh',
             icon: const Icon(Icons.refresh),
             onPressed: _reload,
           ),

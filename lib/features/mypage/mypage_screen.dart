@@ -21,6 +21,7 @@ import '../../core/worn_title_store.dart';
 import '../../models/achievement.dart';
 import '../achievement/achievement_card.dart';
 import '../achievement/achievement_state.dart';
+import '../../widgets/inbox_bell.dart';
 import '../../widgets/tier_badge.dart';
 import '../auth/auth_state.dart';
 import '../goals/goals_screen.dart';
@@ -39,7 +40,10 @@ class MyPageScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('PROFILE')),
+      appBar: AppBar(
+        title: const Text('PROFILE'),
+        actions: const [InboxBellAction()],
+      ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp3),

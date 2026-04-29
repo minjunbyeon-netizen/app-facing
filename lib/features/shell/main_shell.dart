@@ -91,9 +91,9 @@ class _MainShellState extends State<MainShell> {
       label: 'WOD',
     ),
     _TabDef(
-      icon: Icons.inbox_outlined,
-      selectedIcon: Icons.inbox,
-      label: 'Inbox',
+      icon: Icons.notifications_outlined,
+      selectedIcon: Icons.notifications,
+      label: 'Notice',
     ),
     _TabDef(
       icon: Icons.calendar_month_outlined,

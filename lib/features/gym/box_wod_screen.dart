@@ -6,9 +6,7 @@ import '../../core/shell_nav_bus.dart';
 import '../../core/theme.dart';
 import '../../models/gym.dart';
 import '../../widgets/coach_badge.dart';
-import '../announcements/announcements_screen.dart';
-import '../leaderboard/box_leaderboard_screen.dart';
-import '../messages/messages_screen.dart';
+import '../../widgets/inbox_bell.dart';
 import 'wod_detail_screen.dart';
 import 'coach_dashboard_screen.dart';
 import 'gym_search_screen.dart';
@@ -40,56 +38,25 @@ class BoxWodScreen extends StatelessWidget {
     }
 
     // QA B-SEC-1: 박스명 'FACING' 스푸핑 가능. isOwner 단독 조건으로 강화.
-    // (Phase 2: 백엔드 role 필드 도입 시 admin role 추가)
     final canViewDashboard = gs.isOwner;
-    // QA B-ST-7: && / || 우선순위 괄호 명시.
-    final canMessage = (gs.hasGym && gs.membership.isApprovedMember) || gs.isOwner;
     return Scaffold(
       appBar: AppBar(
         title: const Text('WOD'),
+        // v1.22: AppBar 정리 — Messages/Announcements/Leaderboard 제거.
+        //   Messages/Announcements → Inbox(NOTICE) 탭으로 통합 (Bell 단축).
+        //   Leaderboard → Home Hero 영역(추후) 또는 Profile에서 진입.
+        //   유지: CoachBadge(코치 표시) + Bell(공통) + Refresh + CoachDashboard(owner).
         actions: [
           if (canViewDashboard) const CoachBadgeAction(),
-          if (canMessage)
-            IconButton(
-              tooltip: 'Messages',
-              icon: const Icon(Icons.mail_outline),
-              onPressed: () {
-                Haptic.light();
-                // v1.20 (E1 fix): 회원 시점은 코치 thread 자동 시작.
-                // 코치 시점은 전체 수신함. ownerHash 미노출 시 fallback 전체 수신함.
-                final ownerHash = gs.membership.gym?.ownerHash;
-                final isMemberWithOwner =
-                    !gs.isOwner && ownerHash != null && ownerHash.isNotEmpty;
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => MessagesScreen(
-                    withHash: isMemberWithOwner ? ownerHash : null,
-                    withLabel: isMemberWithOwner ? 'Coach' : null,
-                  ),
-                ));
-              },
-            ),
-          if (canMessage)
-            IconButton(
-              tooltip: 'Announcements',
-              icon: const Icon(Icons.campaign_outlined),
-              onPressed: () {
-                Haptic.light();
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => const AnnouncementsScreen(),
-                ));
-              },
-            ),
-          if (canMessage)
-            IconButton(
-              tooltip: 'Leaderboard',
-              icon: const Icon(Icons.emoji_events_outlined),
-              onPressed: () {
-                Haptic.light();
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => const BoxLeaderboardScreen(),
-                ));
-              },
-            ),
+          const InboxBellAction(),
+          IconButton(
+            tooltip: 'Refresh',
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              Haptic.light();
+              context.read<GymState>().loadMine();
+            },
+          ),
           if (canViewDashboard)
             IconButton(
               tooltip: 'Coach Dashboard',
@@ -101,14 +68,6 @@ class BoxWodScreen extends StatelessWidget {
                 ));
               },
             ),
-          IconButton(
-            tooltip: 'Refresh',
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              Haptic.light();
-              context.read<GymState>().loadMine();
-            },
-          ),
         ],
       ),
       body: SafeArea(child: body),
