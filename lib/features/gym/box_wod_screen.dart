@@ -416,48 +416,65 @@ class _WodList extends StatelessWidget {
                   )),
               const SizedBox(height: FacingTokens.sp5),
             ],
-            // TODAY 섹션 — 펼친 상태 진입.
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              textBaseline: TextBaseline.alphabetic,
-              children: [
-                Text('TODAY',
-                    style: FacingTokens.sectionLabel.copyWith(
-                      color: FacingTokens.accent,
-                    )),
-                const SizedBox(width: FacingTokens.sp2),
-                Text(
-                  todayList.isNotEmpty
-                      ? todayList.first.dateLabel
-                      : _formatDate(todayDate),
-                  style: FacingTokens.caption,
+            // TODAY 섹션 — accentSoft bg로 강조.
+            Container(
+              padding: const EdgeInsets.fromLTRB(
+                FacingTokens.sp3,
+                FacingTokens.sp3,
+                FacingTokens.sp3,
+                FacingTokens.sp2,
+              ),
+              decoration: BoxDecoration(
+                color: FacingTokens.accentSoft,
+                borderRadius: BorderRadius.circular(FacingTokens.r3),
+                border: Border.all(
+                  color: FacingTokens.accent.withValues(alpha: 0.35),
+                  width: 1,
                 ),
-              ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      Text('TODAY',
+                          style: FacingTokens.sectionLabel.copyWith(
+                            color: FacingTokens.accent,
+                          )),
+                      const SizedBox(width: FacingTokens.sp2),
+                      Text(
+                        todayList.isNotEmpty
+                            ? todayList.first.dateLabel
+                            : _formatDate(todayDate),
+                        style: FacingTokens.caption,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: FacingTokens.sp1),
+                  if (todayList.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(
+                          vertical: FacingTokens.sp3),
+                      child: Text('오늘 게시된 WOD 없음.',
+                          style: FacingTokens.caption),
+                    )
+                  else
+                    ...todayList.map((e) => _WodRow(
+                          wod: e.wod,
+                          dateLabel: e.dateLabel,
+                          canDelete: gymState.isOwner,
+                          isToday: true,
+                          isFuture: false,
+                        )),
+                ],
+              ),
             ),
-            const SizedBox(height: FacingTokens.sp1),
-            const Divider(
-                height: 1, color: FacingTokens.border, thickness: 1),
-            if (todayList.isEmpty)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: FacingTokens.sp4),
-                child: Text('오늘 게시된 WOD 없음.',
-                    style: FacingTokens.caption),
-              )
-            else
-              ...todayList.map((e) => _WodRow(
-                    wod: e.wod,
-                    dateLabel: e.dateLabel,
-                    canDelete: gymState.isOwner,
-                    isToday: true,
-                    isFuture: false,
-                  )),
-            // UPCOMING 섹션 — 1줄 압축 row + lock.
+            // UPCOMING 섹션 — 1줄 압축 row + lock (caption 제거: lock 아이콘으로 충분).
             if (future.isNotEmpty) ...[
               const SizedBox(height: FacingTokens.sp5),
               const Text('UPCOMING', style: FacingTokens.sectionLabel),
-              const SizedBox(height: 2),
-              const Text('Mark Done은 당일부터.',
-                  style: FacingTokens.caption),
               const SizedBox(height: FacingTokens.sp1),
               const Divider(
                   height: 1, color: FacingTokens.border, thickness: 1),
