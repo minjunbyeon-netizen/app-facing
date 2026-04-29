@@ -4,8 +4,6 @@ import 'package:provider/provider.dart';
 import '../../core/api_client.dart';
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
-import '../../core/level_system.dart';
-import '../../core/pr_detector.dart';
 import '../../core/streak_freeze.dart';
 import '../../core/theme.dart';
 import '../../core/wod_session_bus.dart';
@@ -13,7 +11,6 @@ import '../achievement/achievement_section.dart';
 import '../achievement/panel_b_screen.dart';
 import '../history/history_models.dart';
 import '../history/history_repository.dart';
-import '../profile/profile_state.dart';
 
 /// v1.15.3: 출석률 — 월별 WOD 완료 기록 캘린더.
 /// 데이터 소스: /api/v1/history/wod. 세션 있는 날은 accent dot + 횟수.
@@ -467,131 +464,14 @@ class _AttendanceBody extends StatelessWidget {
             style: FacingTokens.micro),
         const SizedBox(height: FacingTokens.sp5),
 
-        // v1.21: LEVEL 카드 — Trends에서 이관 (게임요소 통합).
-        const Text('LEVEL', style: FacingTokens.sectionLabel),
-        const SizedBox(height: FacingTokens.sp3),
-        Builder(builder: (ctx) {
-          final p = ctx.watch<ProfileState>();
-          final g = p.gradeResult;
-          final num? n = g?['overall_number'] is num
-              ? g!['overall_number'] as num
-              : null;
-          final tierNum = (n ?? 0).toInt();
-          final prCount = PrDetector.countPrs(records);
-          final bd = LevelSystem.compute(
-            totalSessions: records.length,
-            currentStreakDays: currentStreak,
-            tierNumber: tierNum,
-            prCount: prCount,
-          );
-          return _LevelCard(bd: bd);
-        }),
-        const SizedBox(height: FacingTokens.sp5),
-
-        // v1.21: 업적 + 해금 갤러리 — Trends에서 이관.
+        // v1.21: LEVEL 카드는 Home _TierEngineCard 로 이관 ("현재 수준 + 게임 진행도").
+        // Attend 는 출석/streak/milestone/challenge/업적에 집중.
+        // 업적 + 해금 갤러리.
         const AchievementSection(),
       ],
     );
   }
 
-}
-
-/// v1.21: Trends에서 이관한 LEVEL 카드.
-class _LevelCard extends StatelessWidget {
-  final LevelXpBreakdown bd;
-  const _LevelCard({required this.bd});
-
-  @override
-  Widget build(BuildContext context) {
-    final pct = (bd.progress * 100).round();
-    return Container(
-      padding: const EdgeInsets.all(FacingTokens.sp4),
-      decoration: BoxDecoration(
-        color: FacingTokens.surface,
-        borderRadius: BorderRadius.circular(FacingTokens.r3),
-        border: Border.all(color: FacingTokens.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text('LEVEL ${bd.level}',
-                  style: FacingTokens.h1.copyWith(
-                    fontFeatures: FacingTokens.tabular,
-                  )),
-              const Spacer(),
-              Text('${bd.totalXp} XP',
-                  style: FacingTokens.body.copyWith(
-                    fontFeatures: FacingTokens.tabular,
-                    color: FacingTokens.muted,
-                    fontWeight: FontWeight.w700,
-                  )),
-            ],
-          ),
-          const SizedBox(height: FacingTokens.sp2),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(FacingTokens.r1),
-            child: Stack(
-              children: [
-                Container(height: 8, color: FacingTokens.border),
-                FractionallySizedBox(
-                  widthFactor: bd.progress,
-                  child: Container(height: 8, color: FacingTokens.accent),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: FacingTokens.sp2),
-          Text(
-            bd.level >= LevelSystem.maxLevel
-                ? 'MAX LEVEL'
-                : '$pct% · next Lv${bd.level + 1} · ${bd.xpToNext} XP 남음',
-            style: FacingTokens.caption,
-          ),
-          const SizedBox(height: FacingTokens.sp4),
-          const Text('XP SOURCES', style: FacingTokens.sectionLabel),
-          const SizedBox(height: FacingTokens.sp2),
-          _XpLine(label: 'Sessions', value: bd.sessionXp),
-          _XpLine(label: 'Streak', value: bd.streakXp),
-          _XpLine(label: 'Tier', value: bd.tierXp),
-          if (bd.weeklyXp > 0)
-            _XpLine(label: 'Weekly Goals', value: bd.weeklyXp),
-          const SizedBox(height: FacingTokens.sp2),
-          Text(
-            '* XP는 현재 세션·Streak·Tier로 파생. PR 자동 연동은 Phase 2.',
-            style: FacingTokens.micro.copyWith(color: FacingTokens.muted),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _XpLine extends StatelessWidget {
-  final String label;
-  final int value;
-  const _XpLine({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
-      child: Row(
-        children: [
-          Expanded(child: Text(label, style: FacingTokens.caption)),
-          Text('+$value',
-              style: FacingTokens.caption.copyWith(
-                fontWeight: FontWeight.w800,
-                fontFeatures: FacingTokens.tabular,
-                color: FacingTokens.fg,
-              )),
-        ],
-      ),
-    );
-  }
 }
 
 /// v1.16: 캘린더 하단 통계를 label · value(· trailing) 한 줄씩 깔끔히.
