@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
 import '../../core/exception.dart';
-import '../../core/haptic.dart';
 import '../../core/level_system.dart';
 import '../../core/pr_detector.dart';
 import '../../core/streak_freeze.dart';
@@ -196,8 +195,6 @@ class _AttendanceBody extends StatelessWidget {
           prCount: PrDetector.countPrs(records),
         ),
         const SizedBox(height: FacingTokens.sp4),
-        const _StreakFreezeRow(),
-        const SizedBox(height: FacingTokens.sp5),
 
         // 3. MILESTONES — 3종 요약 진행바
         const Text('MILESTONES', style: FacingTokens.sectionLabel),
@@ -405,14 +402,6 @@ class _LevelCard extends StatelessWidget {
                     style: FacingTokens.micro,
                   ),
                   const SizedBox(height: FacingTokens.sp2),
-                  _XpInline(label: 'Sessions', value: bd.sessionXp),
-                  _XpInline(label: 'Streak', value: bd.streakXp),
-                  _XpInline(label: 'Tier', value: bd.tierXp),
-                  if (bd.prXp > 0) _XpInline(label: 'PRs', value: bd.prXp),
-                  if (bd.achievementXp > 0)
-                    _XpInline(
-                        label: 'Achievements',
-                        value: bd.achievementXp),
                 ],
               ),
             ),
@@ -423,31 +412,6 @@ class _LevelCard extends StatelessWidget {
   }
 }
 
-class _XpInline extends StatelessWidget {
-  final String label;
-  final int value;
-  const _XpInline({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        children: [
-          Expanded(child: Text(label, style: FacingTokens.caption)),
-          Text(
-            '+$value',
-            style: FacingTokens.caption.copyWith(
-              fontWeight: FontWeight.w800,
-              fontFeatures: FacingTokens.tabular,
-              color: FacingTokens.fg,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 /// MILESTONES 3종 요약 진행바 (Attendance / Sessions / Achievements).
 class _ProgressStat extends StatelessWidget {
@@ -517,126 +481,6 @@ class _ProgressStat extends StatelessWidget {
 
 // v1.22 rev3: _WeekdayLabel / _DayCell 제거 — 캘린더가 Profile 로 이관됨.
 
-/// v1.20 Phase 2.5: 주 1회 무료 Streak Freeze 토큰 사용 UI.
-class _StreakFreezeRow extends StatefulWidget {
-  const _StreakFreezeRow();
-
-  @override
-  State<_StreakFreezeRow> createState() => _StreakFreezeRowState();
-}
-
-class _StreakFreezeRowState extends State<_StreakFreezeRow> {
-  Future<bool>? _availableFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _refresh();
-  }
-
-  void _refresh() {
-    setState(() {
-      _availableFuture = StreakFreezeStore.available();
-    });
-  }
-
-  Future<void> _useFreeze() async {
-    Haptic.medium();
-    final ok = await StreakFreezeStore.consume();
-    if (!mounted) return;
-    if (ok) {
-      Haptic.achievementUnlock();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Freeze used. Streak protected this week.'),
-          duration: Duration(seconds: 3),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Already used this week. Refills Monday.'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
-    _refresh();
-  }
-
-  String _refillLabel(DateTime next) {
-    return 'Refills ${next.year}-'
-        '${next.month.toString().padLeft(2, '0')}-'
-        '${next.day.toString().padLeft(2, '0')}';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<bool>(
-      future: _availableFuture,
-      builder: (ctx, snap) {
-        final available = snap.data ?? false;
-        final next = StreakFreezeStore.nextRefill();
-        return Container(
-          padding: const EdgeInsets.all(FacingTokens.sp3),
-          decoration: BoxDecoration(
-            color: FacingTokens.surface,
-            border: Border.all(
-              color: available ? FacingTokens.accent : FacingTokens.border,
-              width: 1,
-            ),
-            borderRadius: BorderRadius.circular(FacingTokens.r2),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                Icons.ac_unit_outlined,
-                size: 18,
-                color: available ? FacingTokens.accent : FacingTokens.muted,
-              ),
-              const SizedBox(width: FacingTokens.sp2),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'STREAK FREEZE',
-                      style: FacingTokens.sectionLabel.copyWith(
-                        color: available
-                            ? FacingTokens.fg
-                            : FacingTokens.muted,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      available
-                          ? '1 free / week. Saves this week\'s streak.'
-                          : _refillLabel(next),
-                      style: FacingTokens.caption,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: FacingTokens.sp2),
-              ElevatedButton(
-                onPressed: available ? _useFreeze : null,
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(96, 40),
-                  backgroundColor: available
-                      ? FacingTokens.accent
-                      : FacingTokens.border,
-                  foregroundColor: available
-                      ? FacingTokens.fg
-                      : FacingTokens.muted,
-                ),
-                child: Text(available ? 'Use' : 'Used'),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
 
 class _ErrorState extends StatelessWidget {
   final String message;

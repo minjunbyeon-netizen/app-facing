@@ -25,7 +25,7 @@ class MainShell extends StatefulWidget {
 }
 
 class _MainShellState extends State<MainShell> {
-  static const int _defaultIndex = 0;
+  static const int _defaultIndex = 1; // WOD as landing tab
   static const String _kTabHintShown = 'shell_tab_hint_shown_v2';
   int _index = _defaultIndex;
   bool _showTabHint = false;
