@@ -105,12 +105,23 @@ class _MainShellState extends State<MainShell> {
     ),
   ];
 
-  static const List<Widget> _pages = [
-    HomeScreen(),
-    BoxWodScreen(),
-    InboxScreen(),
-    AttendanceScreen(),
-    MyPageScreen(),
+  /// v1.21 (BLOCKER fix): InboxScreen 은 isOwner 따라 TabController 길이 결정.
+  /// IndexedStack 에 const InboxScreen() 으로 mount 하면 initState 시점 GymState
+  /// 미로드 → _isCoach 영구 false 가능. Consumer + ValueKey 로 isOwner 변경 시 재생성.
+  Widget _buildInbox() {
+    return Consumer<GymState>(
+      builder: (ctx, gs, _) => InboxScreen(
+        key: ValueKey('inbox-${gs.isOwner}'),
+      ),
+    );
+  }
+
+  late final List<Widget> _pages = [
+    const HomeScreen(),
+    const BoxWodScreen(),
+    _buildInbox(),
+    const AttendanceScreen(),
+    const MyPageScreen(),
   ];
 
   void _onTap(int i) {
@@ -121,6 +132,14 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
+    // v1.21 (BLOCKER fix): GymState 로드 완료 후 InboxState bind 재시도.
+    // initState 시점 gym=null 이라 bind 누락되는 케이스 보완.
+    final gs = context.watch<GymState>();
+    final inboxState = context.read<InboxState>();
+    final currentGymId = gs.membership.gym?.id;
+    if (currentGymId != null && inboxState.boundGymId != currentGymId) {
+      Future.microtask(() => inboxState.bind(currentGymId));
+    }
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {

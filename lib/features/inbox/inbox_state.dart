@@ -21,6 +21,8 @@ class InboxState extends ChangeNotifier {
   bool get isLoading => _loading;
   String? get error => _error;
   int get unreadCount => _inbox.unreadCount;
+  /// v1.21: GymState 변경 시 bind 재시도용 — 외부에서 현재 바인딩 ID 확인.
+  int? get boundGymId => _gymId;
 
   /// 다른 영역(GymState load 직후)에서 호출.
   Future<void> bind(int? gymId) async {

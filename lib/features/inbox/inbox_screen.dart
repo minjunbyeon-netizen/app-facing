@@ -57,14 +57,20 @@ class _InboxScreenState extends State<InboxScreen>
     final state = context.watch<InboxState>();
     final gs = context.watch<GymState>();
     final isCoach = gs.isOwner;
-    // QA B-INB-1: build() 안 dispose+재생성 → assertion. PostFrameCallback 으로 다음 프레임에 setState.
+    // v1.21 (BLOCKER fix): IndexedStack 안 InboxScreen 은 앱 시작 시 mount 되어
+    // initState 시점 GymState 미로드 → _isCoach=false → _tabs 길이 3.
+    // 이후 GymState 로드 완료 후 isCoach=true 면 _tabs(3) vs tabs[](4) 미스매치 →
+    // TabBar assertion + Null check 예외. 미스매치 발견 즉시 setState 후 로딩 표시.
     if (isCoach != _isCoach) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      // 빌드 시점 캡처값(isCoach) 사용 — gs.isOwner 재read는 race 발생 가능.
+      // tabs[] 와 TabBarView children 은 모두 _isCoach 기반 — 컨트롤러와 길이 일치 보장.
+      // microtask 로 즉시 setState — postFrameCallback 누락 케이스 회피.
+      Future.microtask(() {
         if (!mounted) return;
-        if (gs.isOwner == _isCoach) return; // 이미 동기화됨
+        if (_isCoach == isCoach) return;
         setState(() {
           _tabs.dispose();
-          _isCoach = gs.isOwner;
+          _isCoach = isCoach;
           _tabs = TabController(length: _isCoach ? 4 : 3, vsync: this);
         });
       });
@@ -74,11 +80,12 @@ class _InboxScreenState extends State<InboxScreen>
     final notes = items.where((n) => n.kind == 'note').toList();
     final assignments = items.where((n) => n.kind == 'assignment').toList();
 
+    // v1.21: tabs[] 길이는 _isCoach 기준 — _tabs 컨트롤러와 항상 일치 보장.
     final tabs = <Tab>[
       Tab(text: 'ALL · ${items.length}'),
       Tab(text: 'NOTES · ${notes.length}'),
       Tab(text: 'ASSIGNMENTS · ${assignments.length}'),
-      if (isCoach) const Tab(text: 'OUTBOX'),
+      if (_isCoach) const Tab(text: 'OUTBOX'),
     ];
 
     return Scaffold(
@@ -150,11 +157,11 @@ class _InboxScreenState extends State<InboxScreen>
                       _NoteList(notes: items),
                       _NoteList(notes: notes),
                       _NoteList(notes: assignments),
-                      if (isCoach) _OutboxView(visible: isCoach),
+                      if (_isCoach) _OutboxView(visible: _isCoach),
                     ],
                   ),
       ),
-      floatingActionButton: isCoach
+      floatingActionButton: _isCoach
           ? FloatingActionButton.extended(
               backgroundColor: FacingTokens.accent,
               foregroundColor: FacingTokens.fg,
