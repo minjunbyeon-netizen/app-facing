@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
@@ -255,14 +254,11 @@ class _LevelCard extends StatelessWidget {
     required this.prCount,
   });
 
-  /// 레벨대별 stickman 자산. 1~7 motivation → 8~14 discipline → 15+ obsession.
-  String _stickmanForLevel(int level) {
-    if (level <= 7) return 'assets/icons/stickman_motivation.svg';
-    if (level <= 14) return 'assets/icons/stickman_discipline.svg';
-    return 'assets/icons/stickman_obsession.svg';
-  }
+  /// v1.22 rev4: 대표 캐릭터 (HYPHEN mascot).
+  /// 단일 이미지 사용. 레벨대별 변화는 테두리/배경 강도로 표현.
+  static const String _mascotAsset = 'assets/images/character/mascot.png';
 
-  /// 레벨대별 캐릭터 색 — 회색 → 흰 → 탠 (체력 진화).
+  /// 레벨대별 캐릭터 강조 색 — 회색 → 흰 → 탠 (테두리/배경 그라데이션).
   Color _colorForLevel(int level) {
     if (level <= 7) return FacingTokens.muted;
     if (level <= 14) return FacingTokens.fg;
@@ -310,27 +306,27 @@ class _LevelCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // 가상 캐릭터 — 레벨대별 stickman.
+              // 가상 캐릭터 — HYPHEN 대표 mascot.
               Container(
-                width: 84,
-                height: 84,
+                width: 96,
+                height: 96,
                 decoration: BoxDecoration(
                   color: FacingTokens.accentSoft.withValues(
                     alpha: bd.level >= 8 ? 1.0 : 0.4,
                   ),
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: charColor.withValues(alpha: 0.5),
-                    width: 1.5,
+                    color: charColor.withValues(alpha: 0.6),
+                    width: 2,
                   ),
                 ),
+                clipBehavior: Clip.antiAlias,
                 alignment: Alignment.center,
-                child: SvgPicture.asset(
-                  _stickmanForLevel(bd.level),
-                  width: 56,
-                  height: 56,
-                  colorFilter:
-                      ColorFilter.mode(charColor, BlendMode.srcIn),
+                child: Image.asset(
+                  _mascotAsset,
+                  width: 92,
+                  height: 92,
+                  fit: BoxFit.cover,
                 ),
               ),
               const SizedBox(width: FacingTokens.sp4),
