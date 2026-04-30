@@ -5,13 +5,18 @@ import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
 import '../../core/haptic.dart';
+import '../../core/level_system.dart';
 import '../../core/scoring.dart';
 import '../../core/theme.dart';
 import '../../core/tier.dart';
+import '../../core/titles_catalog.dart';
 import '../../core/weak_insight.dart';
+import '../../core/worn_title_store.dart';
 import '../../widgets/inbox_bell.dart';
 import '../../widgets/offline_banner.dart';
 import '../../widgets/tier_badge.dart';
+import '../achievement/achievement_state.dart';
+import '../auth/auth_state.dart';
 import '../history/history_models.dart';
 import '../history/history_repository.dart';
 import '../presets/presets_screen.dart';
@@ -29,18 +34,28 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   Future<List<EngineSnapshotRecord>>? _engineFuture;
+  Future<int>? _sessionCountFuture;
+  String? _wornTitleCode;
 
   @override
   void initState() {
     super.initState();
     final repo = HistoryRepository(context.read<ApiClient>());
     _engineFuture = repo.listEngineSnapshots(limit: 12);
+    _sessionCountFuture = repo.listWodHistory(limit: 9999).then((r) => r.length);
+    WornTitleStore.get().then((code) {
+      if (mounted) setState(() => _wornTitleCode = code);
+    });
   }
 
   void _reload() {
     final repo = HistoryRepository(context.read<ApiClient>());
     setState(() {
       _engineFuture = repo.listEngineSnapshots(limit: 12);
+      _sessionCountFuture = repo.listWodHistory(limit: 9999).then((r) => r.length);
+    });
+    WornTitleStore.get().then((code) {
+      if (mounted) setState(() => _wornTitleCode = code);
     });
   }
 
@@ -69,7 +84,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   // v1.22: Tier + Engine + Radar 통합 hero 카드 (안 C).
                   // v1.22 rev2: LEVEL 섹션 → Attend 로 이관.
-                  _HeroCard(engineFuture: _engineFuture),
+                  _HeroCard(
+                    engineFuture: _engineFuture,
+                    sessionCountFuture: _sessionCountFuture,
+                    wornTitleCode: _wornTitleCode,
+                  ),
                   const SizedBox(height: FacingTokens.sp3),
                   // v1.22: 약점 분석은 별도 inline (역할 분리).
                   const _WeaknessInsightInline(),
@@ -132,11 +151,18 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-/// v1.22: Hero 카드 — Tier + Engine + Radar + Sparkline + LEVEL 통합.
-/// 안 C 채택: Radar 주체 + 중앙 ENGINE 점수(HWPO display 72sp).
+/// v1.22 rev11: Hero 카드 — Athlete Identity Header + Tier-colored Radar.
+/// 레이더 위: 닉네임 · 레벨 · 칭호. 레이더 채움: tier 컬러.
 class _HeroCard extends StatelessWidget {
   final Future<List<EngineSnapshotRecord>>? engineFuture;
-  const _HeroCard({required this.engineFuture});
+  final Future<int>? sessionCountFuture;
+  final String? wornTitleCode;
+
+  const _HeroCard({
+    required this.engineFuture,
+    this.sessionCountFuture,
+    this.wornTitleCode,
+  });
 
   int _catScore(Map<String, dynamic>? grade, String key) {
     if (grade == null) return 0;
@@ -147,9 +173,32 @@ class _HeroCard extends StatelessWidget {
     return engineScoreTo100(s);
   }
 
+  static PanelBTitle? _findTitle(String? code) {
+    if (code == null) return null;
+    for (final t in kPanelBTitles) {
+      if (t.code == code) return t;
+    }
+    return null;
+  }
+
+  static Color _rarityColor(String rarity) {
+    switch (rarity) {
+      case 'Rare':
+        return FacingTokens.accent;
+      case 'Epic':
+        return FacingTokens.tierElite;
+      case 'Legendary':
+        return FacingTokens.tierGames;
+      default:
+        return FacingTokens.muted;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthState>();
     final p = context.watch<ProfileState>();
+    final achState = context.watch<AchievementState>();
     final g = p.gradeResult;
     final num? n =
         g?['overall_number'] is num ? g!['overall_number'] as num : null;
@@ -157,6 +206,7 @@ class _HeroCard extends StatelessWidget {
     final rawScore = g?['overall_score'];
     final score100 = engineScoreTo100(rawScore);
     final hasScore = score100 > 0;
+    final tierNum = n?.round() ?? 0;
 
     final radarValues = <_RadarAxis>[
       _RadarAxis('POWER', _catScore(g, 'power')),
@@ -167,151 +217,303 @@ class _HeroCard extends StatelessWidget {
       _RadarAxis('BODY', _catScore(g, 'body_composition')),
     ];
     final hasRadarData = radarValues.any((a) => a.value > 0);
+    final titleObj = _findTitle(wornTitleCode);
+
+    // achievement XP for level computation
+    final achXp = achState.snapshot.unlocked.values.fold<int>(0, (sum, u) {
+      final cat = achState.snapshot.catalog
+          .where((c) => c.code == u.code)
+          .toList();
+      if (cat.isEmpty) return sum;
+      return sum + (LevelSystem.rarityXp[cat.first.rarity] ?? 20);
+    });
 
     return Container(
-      padding: const EdgeInsets.all(FacingTokens.sp4),
+      // 외부: tier 컬러 배경 (top accent bar로 노출)
       decoration: BoxDecoration(
-        color: FacingTokens.surface,
-        border: Border.all(color: FacingTokens.border),
+        color: tier.color,
         borderRadius: BorderRadius.circular(FacingTokens.r3),
+        border: Border.all(color: tier.color.withValues(alpha: 0.60), width: 1),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (n == null) ...[
-            const Text('CURRENT TIER', style: FacingTokens.sectionLabel),
-            const SizedBox(height: FacingTokens.sp2),
-            const Text(
-              '온보딩 완료 후 표시.',
-              style: FacingTokens.caption,
+      child: Padding(
+        // top 3px → tier 컬러 accent bar 노출
+        padding: const EdgeInsets.only(top: 3),
+        child: Container(
+          decoration: BoxDecoration(
+            color: FacingTokens.surface,
+            borderRadius: BorderRadius.vertical(
+              bottom: Radius.circular(FacingTokens.r3 - 1),
             ),
-            const SizedBox(height: FacingTokens.sp3),
-            OutlinedButton(
-              onPressed: () =>
-                  Navigator.of(context).pushNamed('/onboarding/basic'),
-              child: const Text('Start Onboarding'),
-            ),
-          ] else ...[
-            // 상단 — TierBadge + LV indicator
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                TierBadge(tier: tier, fontSize: 14),
-                const Spacer(),
-                Text('LV ${n.toInt()}/6',
-                    style: FacingTokens.microLabel),
-              ],
-            ),
-            const SizedBox(height: FacingTokens.sp3),
-            // v1.22: Radar + 중앙 ENGINE 점수 (HWPO 임팩트 #2 적용 위치).
-            AspectRatio(
-              aspectRatio: 1.0,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  if (hasRadarData)
-                    CustomPaint(
-                      painter: _RadarPainter(
-                        axes: radarValues,
-                        clearCenter: true,
-                      ),
-                      child: const SizedBox.expand(),
-                    ),
-                  // 중앙 마스크 (radar 격자 가림)
-                  Container(
-                    width: 124,
-                    height: 124,
-                    decoration: const BoxDecoration(
-                      color: FacingTokens.surface,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  // 중앙 ENGINE 숫자 — HWPO display 72sp w900 + 탠 액센트
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
+          ),
+          padding: const EdgeInsets.fromLTRB(
+            FacingTokens.sp4,
+            FacingTokens.sp3,
+            FacingTokens.sp4,
+            FacingTokens.sp4,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (n == null) ...[
+                const Text('CURRENT TIER', style: FacingTokens.sectionLabel),
+                const SizedBox(height: FacingTokens.sp2),
+                const Text('온보딩 완료 후 표시.', style: FacingTokens.caption),
+                const SizedBox(height: FacingTokens.sp3),
+                OutlinedButton(
+                  onPressed: () =>
+                      Navigator.of(context).pushNamed('/onboarding/basic'),
+                  child: const Text('Start Onboarding'),
+                ),
+              ] else ...[
+                // ── Athlete Identity Header ──────────────────────────────
+                FutureBuilder<int>(
+                  future: sessionCountFuture,
+                  builder: (_, snap) {
+                    final sessions = snap.data ?? 0;
+                    final bd = LevelSystem.compute(
+                      totalSessions: sessions,
+                      currentStreakDays: 0,
+                      tierNumber: tierNum,
+                      achievementXp: achXp,
+                    );
+                    return _IdentityRow(
+                      displayName: auth.displayName,
+                      level: bd.level,
+                      title: titleObj,
+                      tierColor: tier.color,
+                      rarityColor:
+                          titleObj != null ? _rarityColor(titleObj.rarity) : null,
+                    );
+                  },
+                ),
+                const SizedBox(height: FacingTokens.sp3),
+                // ── Tier + Engine Score row ──────────────────────────────
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    TierBadge(tier: tier, fontSize: 14),
+                    const Spacer(),
+                    if (hasScore) ...[
                       Text(
-                        hasScore ? '$score100' : '—',
-                        style: FacingTokens.display.copyWith(
-                          color: FacingTokens.accent,
+                        'Engine · $score100',
+                        style: FacingTokens.caption.copyWith(
+                          color: tier.color,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'ENGINE / 100',
-                        style: FacingTokens.microLabel,
+                    ],
+                  ],
+                ),
+                const SizedBox(height: FacingTokens.sp3),
+                // ── Radar (tier-colored fill) ────────────────────────────
+                AspectRatio(
+                  aspectRatio: 1.0,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      if (hasRadarData)
+                        CustomPaint(
+                          painter: _RadarPainter(
+                            axes: radarValues,
+                            clearCenter: true,
+                            fillColor: tier.color,
+                            strokeColor: tier.color,
+                          ),
+                          child: const SizedBox.expand(),
+                        ),
+                      Container(
+                        width: 124,
+                        height: 124,
+                        decoration: BoxDecoration(
+                          color: FacingTokens.surface,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: tier.color.withValues(alpha: 0.30),
+                            width: 1.5,
+                          ),
+                        ),
+                      ),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            hasScore ? '$score100' : '—',
+                            style: FacingTokens.display.copyWith(
+                              color: tier.color,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text('ENGINE / 100', style: FacingTokens.microLabel),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: FacingTokens.sp3),
+                // ── Sparkline ────────────────────────────────────────────
+                FutureBuilder<List<EngineSnapshotRecord>>(
+                  future: engineFuture,
+                  builder: (ctx, snap) {
+                    if (snap.connectionState != ConnectionState.done) {
+                      return const SizedBox(height: 56);
+                    }
+                    if (snap.hasError) {
+                      return Container(
+                        height: 56,
+                        alignment: Alignment.centerLeft,
+                        child: Text('Trend 로딩 실패. 다시 시도.',
+                            style: FacingTokens.caption),
+                      );
+                    }
+                    final records =
+                        snap.data ?? const <EngineSnapshotRecord>[];
+                    if (records.length < 2) {
+                      return Container(
+                        height: 56,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          records.isEmpty
+                              ? 'No history. Measure Engine.'
+                              : 'Need 2+ snapshots for trend.',
+                          style: FacingTokens.caption,
+                        ),
+                      );
+                    }
+                    final sorted = [...records]
+                      ..sort((a, b) => a.scoredAt.compareTo(b.scoredAt));
+                    final values = sorted
+                        .map((r) => engineScoreTo100(r.overallScore))
+                        .toList();
+                    final delta = values.last - values.first;
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          height: 56,
+                          child: CustomPaint(
+                            painter: _SparklinePainter(
+                              values: values,
+                              lineColor: tier.color,
+                            ),
+                            child: const SizedBox.expand(),
+                          ),
+                        ),
+                        const SizedBox(height: FacingTokens.sp1),
+                        Text(
+                          delta > 0
+                              ? '▲ +$delta · ${values.length} snapshots'
+                              : (delta < 0
+                                  ? '▼ $delta · ${values.length} snapshots'
+                                  : 'Hold · ${values.length} snapshots'),
+                          style: FacingTokens.caption.copyWith(
+                            color: delta > 0
+                                ? FacingTokens.success
+                                : (delta < 0
+                                    ? FacingTokens.warning
+                                    : FacingTokens.muted),
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Athlete identity: 닉네임 + 레벨 배지 + 칭호 배지.
+class _IdentityRow extends StatelessWidget {
+  final String? displayName;
+  final int level;
+  final PanelBTitle? title;
+  final Color tierColor;
+  final Color? rarityColor;
+
+  const _IdentityRow({
+    required this.displayName,
+    required this.level,
+    required this.tierColor,
+    this.title,
+    this.rarityColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final name = (displayName?.trim().isNotEmpty == true)
+        ? displayName!.trim().toUpperCase()
+        : 'ATHLETE';
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            name,
+            style: FacingTokens.h3.copyWith(
+              color: FacingTokens.fg,
+              fontWeight: FontWeight.w800,
             ),
-            const SizedBox(height: FacingTokens.sp3),
-            FutureBuilder<List<EngineSnapshotRecord>>(
-              future: engineFuture,
-              builder: (ctx, snap) {
-                if (snap.connectionState != ConnectionState.done) {
-                  return const SizedBox(height: 56);
-                }
-                if (snap.hasError) {
-                  return Container(
-                    height: 56,
-                    alignment: Alignment.centerLeft,
-                    child: Text('Trend 로딩 실패. 다시 시도.',
-                        style: FacingTokens.caption),
-                  );
-                }
-                final records = snap.data ?? const <EngineSnapshotRecord>[];
-                if (records.length < 2) {
-                  return Container(
-                    height: 56,
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      records.isEmpty
-                          ? 'No history. Measure Engine.'
-                          : 'Need 2+ snapshots for trend.',
-                      style: FacingTokens.caption,
-                    ),
-                  );
-                }
-                final sorted = [...records]
-                  ..sort((a, b) => a.scoredAt.compareTo(b.scoredAt));
-                final values = sorted
-                    .map((r) => engineScoreTo100(r.overallScore))
-                    .toList();
-                final delta = values.last - values.first;
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      height: 56,
-                      child: CustomPaint(
-                        painter: _SparklinePainter(values: values),
-                        child: const SizedBox.expand(),
-                      ),
-                    ),
-                    const SizedBox(height: FacingTokens.sp1),
-                    Text(
-                      delta > 0
-                          ? '▲ +$delta · ${values.length} snapshots'
-                          : (delta < 0
-                              ? '▼ $delta · ${values.length} snapshots'
-                              : 'Hold · ${values.length} snapshots'),
-                      style: FacingTokens.caption.copyWith(
-                        color: delta > 0
-                            ? FacingTokens.success
-                            : (delta < 0
-                                ? FacingTokens.warning
-                                : FacingTokens.muted),
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ],
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        const SizedBox(width: FacingTokens.sp2),
+        _Pill(
+          label: 'LV $level',
+          bg: tierColor.withValues(alpha: 0.18),
+          border: tierColor.withValues(alpha: 0.55),
+          fg: tierColor,
+        ),
+        if (title != null) ...[
+          const SizedBox(width: 6),
+          _Pill(
+            label: title!.label,
+            bg: (rarityColor ?? FacingTokens.muted).withValues(alpha: 0.15),
+            border: (rarityColor ?? FacingTokens.muted).withValues(alpha: 0.45),
+            fg: rarityColor ?? FacingTokens.muted,
+            fontSize: 9,
+          ),
         ],
+      ],
+    );
+  }
+}
+
+class _Pill extends StatelessWidget {
+  final String label;
+  final Color bg;
+  final Color border;
+  final Color fg;
+  final double fontSize;
+
+  const _Pill({
+    required this.label,
+    required this.bg,
+    required this.border,
+    required this.fg,
+    this.fontSize = 11,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: bg,
+        border: Border.all(color: border, width: 1),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        label,
+        style: FacingTokens.micro.copyWith(
+          color: fg,
+          fontWeight: FontWeight.w800,
+          fontSize: fontSize,
+          letterSpacing: 0.5,
+        ),
       ),
     );
   }
@@ -404,9 +606,15 @@ class _RadarAxis {
 
 class _RadarPainter extends CustomPainter {
   final List<_RadarAxis> axes;
-  /// v1.22: 중앙에 ENGINE 점수 오버레이 시 격자 비우기.
   final bool clearCenter;
-  _RadarPainter({required this.axes, this.clearCenter = false});
+  final Color fillColor;
+  final Color strokeColor;
+  _RadarPainter({
+    required this.axes,
+    this.clearCenter = false,
+    this.fillColor = FacingTokens.accent,
+    this.strokeColor = FacingTokens.accent,
+  });
 
   static const double _topAngle = -math.pi / 2;
   static const double _innerCutoffRatio = 0.5;
@@ -471,13 +679,13 @@ class _RadarPainter extends CustomPainter {
     canvas.drawPath(
       userPath,
       Paint()
-        ..color = FacingTokens.accent.withValues(alpha: 0.22)
+        ..color = fillColor.withValues(alpha: 0.22)
         ..style = PaintingStyle.fill,
     );
     canvas.drawPath(
       userPath,
       Paint()
-        ..color = FacingTokens.accent
+        ..color = strokeColor
         ..strokeWidth = 2
         ..style = PaintingStyle.stroke
         ..strokeJoin = StrokeJoin.round,
@@ -490,7 +698,7 @@ class _RadarPainter extends CustomPainter {
       canvas.drawCircle(
         Offset(x, y),
         3,
-        Paint()..color = FacingTokens.accent,
+        Paint()..color = strokeColor,
       );
     }
 
@@ -529,6 +737,8 @@ class _RadarPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _RadarPainter old) {
     if (old.axes.length != axes.length) return true;
+    if (old.fillColor != fillColor) return true;
+    if (old.strokeColor != strokeColor) return true;
     for (int i = 0; i < axes.length; i++) {
       if (old.axes[i].value != axes[i].value) return true;
       if (old.axes[i].label != axes[i].label) return true;
@@ -539,7 +749,8 @@ class _RadarPainter extends CustomPainter {
 
 class _SparklinePainter extends CustomPainter {
   final List<int> values;
-  _SparklinePainter({required this.values});
+  final Color lineColor;
+  _SparklinePainter({required this.values, this.lineColor = FacingTokens.accent});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -564,7 +775,7 @@ class _SparklinePainter extends CustomPainter {
     canvas.drawPath(
       path,
       Paint()
-        ..color = FacingTokens.accent
+        ..color = lineColor
         ..strokeWidth = 2
         ..style = PaintingStyle.stroke
         ..strokeJoin = StrokeJoin.round,
@@ -576,7 +787,7 @@ class _SparklinePainter extends CustomPainter {
     canvas.drawCircle(
       Offset(lastX, lastY),
       4,
-      Paint()..color = FacingTokens.accent,
+      Paint()..color = lineColor,
     );
   }
 
