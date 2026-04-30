@@ -64,6 +64,8 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       if (!mounted) return;
       setState(() => _freezeUse = dt);
     });
+    // 탭 진입·새로고침마다 업적 자동 체크 (throttle: 10분 1회).
+    context.read<AchievementState>().check(throttle: true);
   }
 
   @override
@@ -218,8 +220,10 @@ class _AttendanceBody extends StatelessWidget {
         _ProgressStat(
           title: 'Achievements',
           subtitle: '업적 해금',
-          value: (unlockedCount / 96).clamp(0.0, 1.0),
-          trailing: '$unlockedCount / 96',
+          value: achState.snapshot.visibleCount > 0
+              ? (unlockedCount / achState.snapshot.visibleCount).clamp(0.0, 1.0)
+              : 0.0,
+          trailing: '$unlockedCount / ${achState.snapshot.visibleCount}',
         ),
       ],
     );

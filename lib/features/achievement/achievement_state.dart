@@ -57,8 +57,8 @@ class AchievementState extends ChangeNotifier {
     try {
       final newly = await repo.check();
       _lastCheckedAt = DateTime.now();
-      if (newly.isNotEmpty) {
-        // 해금 반영 후 스냅샷 재로딩.
+      // 신규 해금이 있거나 아직 스냅샷이 비어있으면 재로딩.
+      if (newly.isNotEmpty || _snapshot.unlocked.isEmpty) {
         await load();
       }
       return newly;
