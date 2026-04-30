@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
 import '../../core/haptic.dart';
-import '../../core/shell_nav_bus.dart';
 import '../../core/theme.dart';
 import '../../models/gym.dart';
 import '../../widgets/coach_badge.dart';
@@ -736,30 +735,6 @@ class _WodRowState extends State<_WodRow> {
                         foregroundColor: widget.isFuture
                             ? FacingTokens.muted
                             : FacingTokens.accent,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: FacingTokens.sp2,
-                        ),
-                        minimumSize: const Size(0, 36),
-                      ),
-                    ),
-                    const SizedBox(width: FacingTokens.sp2),
-                    TextButton.icon(
-                      onPressed: () {
-                        Haptic.light();
-                        context.read<ShellNavBus>().requestTab(0);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                                'Calc 탭 이동. WOD 구성 후 Split·Burst 계산.'),
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.calculate_outlined,
-                          size: 16),
-                      label: const Text('Pacing'),
-                      style: TextButton.styleFrom(
-                        foregroundColor: FacingTokens.muted,
                         padding: const EdgeInsets.symmetric(
                           horizontal: FacingTokens.sp2,
                         ),

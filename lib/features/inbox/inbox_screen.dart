@@ -69,6 +69,22 @@ class _InboxScreenState extends State<InboxScreen> {
                 ));
               },
             ),
+          if (isCoach)
+            IconButton(
+              icon: const Icon(Icons.edit_outlined),
+              tooltip: 'New Note',
+              onPressed: () async {
+                Haptic.light();
+                final ok = await Navigator.of(context).push<bool>(
+                  MaterialPageRoute(
+                    builder: (_) => const ComposeNoteScreen(),
+                  ),
+                );
+                if (ok == true && context.mounted) {
+                  await context.read<InboxState>().refresh();
+                }
+              },
+            ),
         ],
       ),
       body: SafeArea(
@@ -100,9 +116,22 @@ class _InboxScreenState extends State<InboxScreen> {
                     ),
                   )
                 : items.isEmpty
-                    ? const Center(
-                        child: Text('No notices.',
-                            style: FacingTokens.caption),
+                    ? Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text('No notices.',
+                                style: FacingTokens.caption),
+                            if (isCoach) ...[
+                              const SizedBox(height: FacingTokens.sp2),
+                              Text(
+                                '오른쪽 상단 ✏ 또는 + New 버튼으로 쪽지·숙제 발송.',
+                                style: FacingTokens.micro,
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ],
+                        ),
                       )
                     : RefreshIndicator(
                         onRefresh: () => state.refresh(),
