@@ -164,50 +164,54 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
         ],
       ),
       body: SafeArea(
-        child: gym == null
-            ? const Center(
-                child: Text('박스 소속 없음.', style: FacingTokens.caption))
-            : FutureBuilder<List<GymAnnouncement>>(
-                future: _future,
-                builder: (ctx, snap) {
-                  if (snap.connectionState != ConnectionState.done) {
-                    return const Center(
-                      child: CircularProgressIndicator(
-                          color: FacingTokens.muted, strokeWidth: 2),
-                    );
-                  }
-                  if (snap.hasError) {
-                    final e = snap.error;
-                    final msg = e is AppException ? e.messageKo : '로딩 실패';
-                    return Padding(
-                      padding: const EdgeInsets.all(FacingTokens.sp4),
-                      child: Text(msg, style: FacingTokens.body),
-                    );
-                  }
-                  final items = snap.data ?? const <GymAnnouncement>[];
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _GymInfoCard(gym: gym),
-                      Expanded(
-                        child: items.isEmpty
-                            ? const Center(
-                                child: Text('공지 없음.',
-                                    style: FacingTokens.caption),
-                              )
-                            : ListView.separated(
-                                padding: const EdgeInsets.all(FacingTokens.sp4),
-                                itemCount: items.length,
-                                separatorBuilder: (_, _) =>
-                                    const SizedBox(height: FacingTokens.sp3),
-                                itemBuilder: (_, i) =>
-                                    _AnnouncementCard(item: items[i]),
-                              ),
-                      ),
-                    ],
-                  );
-                },
-              ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const _GymInfoCard(),
+            Expanded(
+              child: gym == null
+                  ? const Center(
+                      child:
+                          Text('박스 소속 없음.', style: FacingTokens.caption))
+                  : FutureBuilder<List<GymAnnouncement>>(
+                      future: _future,
+                      builder: (ctx, snap) {
+                        if (snap.connectionState != ConnectionState.done) {
+                          return const Center(
+                            child: CircularProgressIndicator(
+                                color: FacingTokens.muted, strokeWidth: 2),
+                          );
+                        }
+                        if (snap.hasError) {
+                          final e = snap.error;
+                          final msg =
+                              e is AppException ? e.messageKo : '로딩 실패';
+                          return Padding(
+                            padding: const EdgeInsets.all(FacingTokens.sp4),
+                            child: Text(msg, style: FacingTokens.body),
+                          );
+                        }
+                        final items =
+                            snap.data ?? const <GymAnnouncement>[];
+                        if (items.isEmpty) {
+                          return const Center(
+                            child: Text('공지 없음.',
+                                style: FacingTokens.caption),
+                          );
+                        }
+                        return ListView.separated(
+                          padding: const EdgeInsets.all(FacingTokens.sp4),
+                          itemCount: items.length,
+                          separatorBuilder: (_, _) =>
+                              const SizedBox(height: FacingTokens.sp3),
+                          itemBuilder: (_, i) =>
+                              _AnnouncementCard(item: items[i]),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
       ),
       floatingActionButton: gs.isOwner
           ? FloatingActionButton.extended(
@@ -222,12 +226,13 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
   }
 }
 
-/// 공지 화면 상단 — 박스 요약 카드 (가상 데이터 포함).
-/// TODO(go): 코치 프로필·수업시간·모토를 API로 연동 시 _mock* 상수 제거.
+/// 공지 화면 상단 — 박스 요약 카드 (가상 데이터).
+/// TODO(go): GymSummary·코치 API 연동 시 _mock* 상수 → 실제 데이터로 교체.
 class _GymInfoCard extends StatelessWidget {
-  final GymSummary gym;
-  const _GymInfoCard({required this.gym});
+  const _GymInfoCard();
 
+  static const _mockName = 'CrossFit Seocho Box';
+  static const _mockLocation = '서울 서초구 방배동 847-12';
   static const _mockCoach = '김준혁 코치 · CrossFit L2 Trainer, 체육학 석사';
   static const _mockTimes =
       '평일  06:00 · 07:00 · 18:30 · 19:30\n주말  09:00 · 10:00';
@@ -264,21 +269,19 @@ class _GymInfoCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      gym.name,
+                      _mockName,
                       style: FacingTokens.h3
                           .copyWith(fontWeight: FontWeight.w800),
                     ),
-                    if (gym.location.isNotEmpty) ...[
-                      const SizedBox(height: FacingTokens.sp1),
-                      Row(
-                        children: [
-                          const Icon(Icons.location_on_outlined,
-                              size: 13, color: FacingTokens.muted),
-                          const SizedBox(width: FacingTokens.sp1),
-                          Text(gym.location, style: FacingTokens.caption),
-                        ],
-                      ),
-                    ],
+                    const SizedBox(height: FacingTokens.sp1),
+                    Row(
+                      children: [
+                        const Icon(Icons.location_on_outlined,
+                            size: 13, color: FacingTokens.muted),
+                        const SizedBox(width: FacingTokens.sp1),
+                        Text(_mockLocation, style: FacingTokens.caption),
+                      ],
+                    ),
                     const SizedBox(height: FacingTokens.sp3),
                     const Divider(color: FacingTokens.border, height: 1),
                     const SizedBox(height: FacingTokens.sp3),
