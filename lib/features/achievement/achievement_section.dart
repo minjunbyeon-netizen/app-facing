@@ -214,26 +214,22 @@ class _GridTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Opacity(
-      opacity: isUnlocked ? 1.0 : 0.40,
+      opacity: isUnlocked ? 1.0 : 0.35,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(FacingTokens.r2),
         child: Material(
-          color: FacingTokens.surface,
+          color: isUnlocked
+              ? rarityColor.withValues(alpha: 0.10)
+              : FacingTokens.surface,
           child: InkWell(
             onTap: onTap,
-            splashColor: rarityColor.withValues(alpha: 0.15),
-            highlightColor: rarityColor.withValues(alpha: 0.08),
+            splashColor: rarityColor.withValues(alpha: 0.20),
+            highlightColor: rarityColor.withValues(alpha: 0.12),
             child: Container(
               decoration: BoxDecoration(
-                border: Border(
-                  left: BorderSide(
-                      color: rarityColor, width: isUnlocked ? 2.5 : 1),
-                  top: const BorderSide(color: FacingTokens.border, width: 1),
-                  right:
-                      const BorderSide(color: FacingTokens.border, width: 1),
-                  bottom:
-                      const BorderSide(color: FacingTokens.border, width: 1),
-                ),
+                border: isUnlocked
+                    ? Border.all(color: rarityColor.withValues(alpha: 0.50), width: 1)
+                    : Border.all(color: FacingTokens.border, width: 0.8),
                 borderRadius: BorderRadius.circular(FacingTokens.r2),
               ),
               padding: const EdgeInsets.symmetric(
@@ -245,15 +241,14 @@ class _GridTile extends StatelessWidget {
                 children: [
                   Icon(
                     icon,
-                    size: 26,
+                    size: 28,
                     color: isUnlocked ? rarityColor : FacingTokens.muted,
                   ),
                   const SizedBox(height: FacingTokens.sp1),
                   Text(
                     AchievementCard.koreanTitle(catalog.code),
                     style: FacingTokens.micro.copyWith(
-                      color:
-                          isUnlocked ? FacingTokens.fg : FacingTokens.muted,
+                      color: isUnlocked ? FacingTokens.fg : FacingTokens.muted,
                       fontWeight: FontWeight.w700,
                       height: 1.25,
                     ),
@@ -265,7 +260,7 @@ class _GridTile extends StatelessWidget {
                   Text(
                     catalog.rarity.toUpperCase(),
                     style: FacingTokens.micro.copyWith(
-                      color: rarityColor,
+                      color: isUnlocked ? rarityColor : FacingTokens.muted,
                       fontSize: 9,
                       letterSpacing: 0.5,
                       fontWeight: FontWeight.w800,
