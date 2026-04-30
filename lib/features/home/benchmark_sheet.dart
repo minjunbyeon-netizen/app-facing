@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../core/benchmark_data.dart';
 import '../../core/theme.dart';
 
-/// 카테고리 탭 → 티어별 벤치마크 비교표 Bottom Sheet.
 void showBenchmarkSheet(BuildContext context, String categoryKey) {
   final bench = kBenchmarks[categoryKey];
   if (bench == null) return;
@@ -88,23 +87,123 @@ class _BenchmarkSheetState extends State<_BenchmarkSheet> {
                 const SizedBox(height: FacingTokens.sp2),
                 ...metrics.map((m) => _MetricRow(metric: m, female: _female)),
                 const SizedBox(height: FacingTokens.sp5),
+                // Context paragraph
+                if (widget.bench.context.isNotEmpty) ...[
+                  _SectionBox(
+                    label: 'CONTEXT',
+                    child: Text(
+                      widget.bench.context,
+                      style: FacingTokens.caption.copyWith(
+                        color: FacingTokens.fg,
+                        height: 1.6,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: FacingTokens.sp3),
+                ],
+                // References
+                if (widget.bench.refs.isNotEmpty) ...[
+                  _SectionBox(
+                    label: 'REFERENCES',
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: widget.bench.refs
+                          .asMap()
+                          .entries
+                          .map((e) => _RefItem(index: e.key + 1, ref: e.value))
+                          .toList(),
+                    ),
+                  ),
+                  const SizedBox(height: FacingTokens.sp3),
+                ],
                 // Source
-                Container(
-                  padding: const EdgeInsets.all(FacingTokens.sp3),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: FacingTokens.border),
-                    borderRadius: BorderRadius.circular(FacingTokens.r2),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('SOURCE', style: FacingTokens.sectionLabel),
-                      const SizedBox(height: 4),
-                      Text(widget.bench.sourceShort, style: FacingTokens.micro),
-                    ],
-                  ),
+                _SectionBox(
+                  label: 'SOURCE',
+                  child: Text(widget.bench.sourceShort, style: FacingTokens.micro),
                 ),
                 SizedBox(height: mq.viewInsets.bottom + FacingTokens.sp4),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SectionBox extends StatelessWidget {
+  final String label;
+  final Widget child;
+  const _SectionBox({required this.label, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(FacingTokens.sp3),
+      decoration: BoxDecoration(
+        border: Border.all(color: FacingTokens.border),
+        borderRadius: BorderRadius.circular(FacingTokens.r2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label.toUpperCase(), style: FacingTokens.sectionLabel),
+          const SizedBox(height: FacingTokens.sp2),
+          child,
+        ],
+      ),
+    );
+  }
+}
+
+class _RefItem extends StatelessWidget {
+  final int index;
+  final BenchmarkRef ref;
+  const _RefItem({required this.index, required this.ref});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        top: index == 1 ? 0 : FacingTokens.sp3,
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 18,
+            child: Text(
+              '$index.',
+              style: FacingTokens.micro.copyWith(
+                color: FacingTokens.accent,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  ref.title,
+                  style: FacingTokens.micro.copyWith(
+                    color: FacingTokens.fg,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${ref.authors}  ·  ${ref.year}',
+                  style: FacingTokens.micro.copyWith(color: FacingTokens.muted),
+                ),
+                const SizedBox(height: 1),
+                Text(
+                  ref.source,
+                  style: FacingTokens.micro.copyWith(
+                    color: FacingTokens.muted,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
               ],
             ),
           ),
