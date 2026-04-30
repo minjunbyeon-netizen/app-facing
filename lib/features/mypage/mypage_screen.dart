@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/api_client.dart';
 import '../../core/app_mode.dart';
+import '../../core/device_id.dart';
 import '../../core/haptic.dart';
 import '../../core/shell_nav_bus.dart';
 import '../../core/theme.dart';
@@ -725,12 +726,14 @@ class _ActionsSection extends StatelessWidget {
               'Debug 빌드 전용. Release 자동 차단.',
               style: FacingTokens.caption,
             ),
+            const SizedBox(height: FacingTokens.sp3),
+            const _QuickPersonaBar(),
             const SizedBox(height: FacingTokens.sp2),
             OutlinedButton(
               onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => const PersonaSwitcherScreen(),
               )),
-              child: const Text('Persona Switcher'),
+              child: const Text('Persona Switcher (전체)'),
             ),
           ],
         ],
@@ -906,6 +909,210 @@ class _ModeRowState extends State<_ModeRow> {
                   ),
                 ),
             ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Quick Persona Bar (Debug only)
+// 5 avatars: 2 coaches + 3 members. 탭 → 즉시 페르소나 전환 (앱 재시작 불필요).
+
+class _QuickPersonaSpec {
+  final String displayName;
+  final String role; // 'coach_owner' | 'member'
+  final String deviceIdSeed;
+  final String shortLabel;
+  final String? box;
+  const _QuickPersonaSpec({
+    required this.displayName,
+    required this.role,
+    required this.deviceIdSeed,
+    required this.shortLabel,
+    this.box,
+  });
+}
+
+const List<_QuickPersonaSpec> _kQuickPersonas = [
+  _QuickPersonaSpec(
+    displayName: '박지훈',
+    role: 'coach_owner',
+    deviceIdSeed: 'persona-coach-park-2026',
+    shortLabel: 'COACH A',
+    box: 'SEONGSU',
+  ),
+  _QuickPersonaSpec(
+    displayName: '이수민',
+    role: 'coach_owner',
+    deviceIdSeed: 'persona-coach-lee-2026',
+    shortLabel: 'COACH B',
+    box: 'GANGNAM',
+  ),
+  _QuickPersonaSpec(
+    displayName: '김도윤',
+    role: 'member',
+    deviceIdSeed: 'persona-member-kim-doyun-2026',
+    shortLabel: 'USER A',
+    box: 'SEONGSU',
+  ),
+  _QuickPersonaSpec(
+    displayName: '정하은',
+    role: 'member',
+    deviceIdSeed: 'persona-member-jung-haeun-2026',
+    shortLabel: 'USER B',
+    box: 'SEONGSU',
+  ),
+  _QuickPersonaSpec(
+    displayName: '강민재',
+    role: 'member',
+    deviceIdSeed: 'persona-member-kang-minjae-2026',
+    shortLabel: 'USER C',
+    box: 'GANGNAM',
+  ),
+];
+
+class _QuickPersonaBar extends StatefulWidget {
+  const _QuickPersonaBar();
+
+  @override
+  State<_QuickPersonaBar> createState() => _QuickPersonaBarState();
+}
+
+class _QuickPersonaBarState extends State<_QuickPersonaBar> {
+  String? _activeSeed;
+  bool _busy = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _activeSeed = DeviceIdService.cached;
+  }
+
+  Future<void> _switch(_QuickPersonaSpec p) async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    Haptic.medium();
+    await DeviceIdService.overrideForDebug(p.deviceIdSeed);
+    final autoMode =
+        p.role == 'coach_owner' ? AppMode.coach : AppMode.member;
+    await AppModeStore.set(autoMode);
+    if (mounted) {
+      try {
+        await context.read<GymState>().loadMine();
+      } catch (_) {}
+    }
+    if (!mounted) return;
+    setState(() {
+      _activeSeed = p.deviceIdSeed;
+      _busy = false;
+    });
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${p.displayName} (${p.shortLabel}) 전환 완료.'),
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('QUICK SWITCH', style: FacingTokens.sectionLabel),
+        const SizedBox(height: FacingTokens.sp2),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: _kQuickPersonas.map((p) {
+              final isActive = _activeSeed == p.deviceIdSeed;
+              final isCoach = p.role == 'coach_owner';
+              final accentCol =
+                  isCoach ? FacingTokens.tierElite : FacingTokens.muted;
+              return Padding(
+                padding: const EdgeInsets.only(right: FacingTokens.sp2),
+                child: GestureDetector(
+                  onTap: _busy ? null : () => _switch(p),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isActive
+                          ? accentCol.withValues(alpha: 0.18)
+                          : FacingTokens.bg,
+                      border: Border.all(
+                        color: isActive
+                            ? accentCol
+                            : FacingTokens.border,
+                        width: isActive ? 1.5 : 1,
+                      ),
+                      borderRadius:
+                          BorderRadius.circular(FacingTokens.r2),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Avatar circle
+                        Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: accentCol.withValues(alpha: 0.20),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: accentCol.withValues(alpha: 0.55),
+                            ),
+                          ),
+                          child: Center(
+                            child: Text(
+                              p.displayName.substring(0, 1),
+                              style: FacingTokens.body.copyWith(
+                                color: accentCol,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          p.shortLabel,
+                          style: FacingTokens.micro.copyWith(
+                            color: isActive ? FacingTokens.fg : FacingTokens.muted,
+                            fontWeight: isActive ? FontWeight.w800 : FontWeight.w400,
+                          ),
+                        ),
+                        Text(
+                          p.displayName,
+                          style: FacingTokens.micro.copyWith(
+                            color: FacingTokens.muted,
+                            fontSize: 10,
+                          ),
+                        ),
+                        if (isActive) ...[
+                          const SizedBox(height: 2),
+                          Container(
+                            width: 6,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: FacingTokens.success,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
           ),
         ),
       ],

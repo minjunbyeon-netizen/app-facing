@@ -13,6 +13,7 @@ import '../../core/titles_catalog.dart';
 import '../../core/weak_insight.dart';
 import '../../core/worn_title_store.dart';
 import '../../widgets/inbox_bell.dart';
+import 'benchmark_sheet.dart';
 import '../../widgets/offline_banner.dart';
 import '../../widgets/tier_badge.dart';
 import '../achievement/achievement_state.dart';
@@ -348,6 +349,73 @@ class _HeroCard extends StatelessWidget {
                       ),
                     ],
                   ),
+                ),
+                const SizedBox(height: FacingTokens.sp3),
+                // ── Category benchmark chips ─────────────────────────────
+                LayoutBuilder(
+                  builder: (ctx, bc) {
+                    final chipW = (bc.maxWidth - FacingTokens.sp2 * 2) / 3;
+                    return Wrap(
+                      spacing: FacingTokens.sp2,
+                      runSpacing: FacingTokens.sp2,
+                      children: radarValues.map((a) {
+                        final hasVal = a.value > 0;
+                        return GestureDetector(
+                          onTap: () {
+                            Haptic.light();
+                            showBenchmarkSheet(ctx, a.label);
+                          },
+                          child: Container(
+                            width: chipW,
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 7,
+                              horizontal: FacingTokens.sp2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: FacingTokens.bg,
+                              border: Border.all(
+                                color: FacingTokens.border,
+                              ),
+                              borderRadius:
+                                  BorderRadius.circular(FacingTokens.r2),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  a.label,
+                                  style: FacingTokens.sectionLabel.copyWith(
+                                    letterSpacing: 0.6,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Row(
+                                  children: [
+                                    Text(
+                                      hasVal ? '${a.value}' : '—',
+                                      style: FacingTokens.body.copyWith(
+                                        color: hasVal
+                                            ? FacingTokens.fg
+                                            : FacingTokens.muted,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    Icon(
+                                      Icons.chevron_right,
+                                      size: 13,
+                                      color: FacingTokens.muted,
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  },
                 ),
                 const SizedBox(height: FacingTokens.sp3),
                 // ── Sparkline ────────────────────────────────────────────
