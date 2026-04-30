@@ -132,7 +132,7 @@ class _BoxLeaderboardScreenState extends State<BoxLeaderboardScreen> {
                         }),
                       const SizedBox(height: FacingTokens.sp3),
                       const Text(
-                        '* 가상 데이터. 더미 멤버 포함. 실사용자 랭킹은 Phase 2.',
+                        '익명 해시 기반 랭킹. 닉네임은 Phase 2.',
                         style: FacingTokens.caption,
                         textAlign: TextAlign.center,
                       ),

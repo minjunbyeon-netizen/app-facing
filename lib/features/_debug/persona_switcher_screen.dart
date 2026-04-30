@@ -13,6 +13,7 @@ import '../../core/app_mode.dart';
 import '../../core/device_id.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
+import '../auth/auth_state.dart';
 import '../gym/gym_state.dart';
 
 class _Persona {
@@ -170,6 +171,10 @@ class _PersonaSwitcherScreenState extends State<PersonaSwitcherScreen> {
       _ => AppMode.solo, // admin / app_user 등
     };
     await AppModeStore.set(autoMode);
+    // AuthState.displayName 갱신 — 미갱신 시 홈 화면 이름이 이전 페르소나 그대로 표시됨.
+    if (mounted) {
+      await context.read<AuthState>().signIn('demo', displayName: p.displayName);
+    }
     // v1.20 (C1 fix): persona switch 즉시 GymState.loadMine() 호출.
     // 기존: "앱 재시작 후 반영" → DemoSwitcher↔GymState 동기화 누락 BLOCKER.
     // 신규: device_id 갱신 직후 백엔드 /gyms/mine 재조회 → membership/role hydrate.

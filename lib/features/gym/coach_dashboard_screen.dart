@@ -392,10 +392,10 @@ class _MemberDetailSheet extends StatelessWidget {
               ),
               child: Text(
                 member.isDormant
-                    ? '* 가상 데이터. 2주 이상 미참석. 재참여 캠페인 추천.'
+                    ? '2주 이상 미참석. 재참여 캠페인 추천.'
                     : member.totalSessions == 0
-                        ? '* 가상 데이터. 신규 멤버. 첫 WOD 유도 필요.'
-                        : '* 가상 데이터. 부상 메모·목표 기록은 Phase 2.',
+                        ? '신규 멤버. 첫 WOD 유도 필요.'
+                        : '부상 메모·목표 기록은 준비 중.',
                 style: FacingTokens.caption,
               ),
             ),
