@@ -132,26 +132,28 @@ class _GenderToggle extends StatelessWidget {
   }
 
   Widget _chip(String label, bool selected, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-        decoration: BoxDecoration(
-          color: selected
-              ? FacingTokens.accent.withValues(alpha: 0.15)
-              : Colors.transparent,
-          border: Border.all(
-            color: selected ? FacingTokens.accent : FacingTokens.border,
-          ),
-          borderRadius: BorderRadius.circular(4),
+    return TextButton(
+      onPressed: onTap,
+      style: TextButton.styleFrom(
+        minimumSize: const Size(44, 44),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+        backgroundColor: selected
+            ? FacingTokens.accent.withValues(alpha: 0.15)
+            : Colors.transparent,
+        side: BorderSide(
+          color: selected ? FacingTokens.accent : FacingTokens.border,
         ),
-        child: Text(
-          label,
-          style: FacingTokens.micro.copyWith(
-            color: selected ? FacingTokens.accent : FacingTokens.muted,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.6,
-          ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        foregroundColor: selected ? FacingTokens.accent : FacingTokens.muted,
+        overlayColor: FacingTokens.accent.withValues(alpha: 0.1),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+      child: Text(
+        label,
+        style: FacingTokens.micro.copyWith(
+          color: selected ? FacingTokens.accent : FacingTokens.muted,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.6,
         ),
       ),
     );
