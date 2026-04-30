@@ -10,7 +10,8 @@
       "mcp__playwright__browser_evaluate",
       "Bash(mkdir -p C:/Users/USER/.claude/reference/study/captures/sports-design)",
       "Bash(cp .playwright-mcp/*.png C:/Users/USER/.claude/reference/study/captures/sports-design/)",
-      "PowerShell(Get-Process *)"
+      "PowerShell(Get-Process *)",
+      "PowerShell(Start-Process cmd -ArgumentList '/k', 'cd /d C:\\\\dev\\\\apps\\\\facing-app && flutter run -d emulator-5554')"
     ]
   }
 }
