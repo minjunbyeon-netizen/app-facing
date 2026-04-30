@@ -185,17 +185,26 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
                     );
                   }
                   final items = snap.data ?? const <GymAnnouncement>[];
-                  if (items.isEmpty) {
-                    return const Center(
-                      child: Text('공지 없음.', style: FacingTokens.caption),
-                    );
-                  }
-                  return ListView.separated(
-                    padding: const EdgeInsets.all(FacingTokens.sp4),
-                    itemCount: items.length,
-                    separatorBuilder: (_, _) =>
-                        const SizedBox(height: FacingTokens.sp3),
-                    itemBuilder: (_, i) => _AnnouncementCard(item: items[i]),
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _GymInfoCard(gym: gym),
+                      Expanded(
+                        child: items.isEmpty
+                            ? const Center(
+                                child: Text('공지 없음.',
+                                    style: FacingTokens.caption),
+                              )
+                            : ListView.separated(
+                                padding: const EdgeInsets.all(FacingTokens.sp4),
+                                itemCount: items.length,
+                                separatorBuilder: (_, _) =>
+                                    const SizedBox(height: FacingTokens.sp3),
+                                itemBuilder: (_, i) =>
+                                    _AnnouncementCard(item: items[i]),
+                              ),
+                      ),
+                    ],
                   );
                 },
               ),
@@ -209,6 +218,103 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
               label: const Text('New'),
             )
           : null,
+    );
+  }
+}
+
+/// 공지 화면 상단 — 박스 요약 카드 (가상 데이터 포함).
+/// TODO(go): 코치 프로필·수업시간·모토를 API로 연동 시 _mock* 상수 제거.
+class _GymInfoCard extends StatelessWidget {
+  final GymSummary gym;
+  const _GymInfoCard({required this.gym});
+
+  static const _mockCoach = '김준혁 코치 · CrossFit L2 Trainer, 체육학 석사';
+  static const _mockTimes =
+      '평일  06:00 · 07:00 · 18:30 · 19:30\n주말  09:00 · 10:00';
+  static const _mockMotto = 'Every rep counts.';
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(
+          FacingTokens.sp4, FacingTokens.sp4, FacingTokens.sp4, 0),
+      decoration: BoxDecoration(
+        color: FacingTokens.surface,
+        borderRadius: BorderRadius.circular(FacingTokens.r2),
+        border: Border.all(color: FacingTokens.border),
+      ),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              width: 3,
+              decoration: const BoxDecoration(
+                color: FacingTokens.accent,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(FacingTokens.r2),
+                  bottomLeft: Radius.circular(FacingTokens.r2),
+                ),
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(FacingTokens.sp4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      gym.name,
+                      style: FacingTokens.h3
+                          .copyWith(fontWeight: FontWeight.w800),
+                    ),
+                    if (gym.location.isNotEmpty) ...[
+                      const SizedBox(height: FacingTokens.sp1),
+                      Row(
+                        children: [
+                          const Icon(Icons.location_on_outlined,
+                              size: 13, color: FacingTokens.muted),
+                          const SizedBox(width: FacingTokens.sp1),
+                          Text(gym.location, style: FacingTokens.caption),
+                        ],
+                      ),
+                    ],
+                    const SizedBox(height: FacingTokens.sp3),
+                    const Divider(color: FacingTokens.border, height: 1),
+                    const SizedBox(height: FacingTokens.sp3),
+                    _InfoRow(label: 'COACH', value: _mockCoach),
+                    const SizedBox(height: FacingTokens.sp3),
+                    _InfoRow(label: 'CLASS', value: _mockTimes),
+                    const SizedBox(height: FacingTokens.sp3),
+                    Text('MOTTO', style: FacingTokens.sectionLabel),
+                    const SizedBox(height: FacingTokens.sp1),
+                    Text(_mockMotto, style: FacingTokens.quote),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  final String label;
+  final String value;
+  const _InfoRow({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: FacingTokens.sectionLabel),
+        const SizedBox(height: FacingTokens.sp1),
+        Text(value,
+            style: FacingTokens.body.copyWith(height: 1.6)),
+      ],
     );
   }
 }
