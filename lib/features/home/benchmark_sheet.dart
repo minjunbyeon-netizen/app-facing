@@ -18,13 +18,21 @@ void showBenchmarkSheet(BuildContext context, String categoryKey) {
   );
 }
 
-class _BenchmarkSheet extends StatelessWidget {
+class _BenchmarkSheet extends StatefulWidget {
   final CategoryBenchmark bench;
   const _BenchmarkSheet({required this.bench});
 
   @override
+  State<_BenchmarkSheet> createState() => _BenchmarkSheetState();
+}
+
+class _BenchmarkSheetState extends State<_BenchmarkSheet> {
+  bool _female = false;
+
+  @override
   Widget build(BuildContext context) {
     final mq = MediaQuery.of(context);
+    final metrics = widget.bench.metrics;
     return DraggableScrollableSheet(
       expand: false,
       initialChildSize: 0.65,
@@ -44,7 +52,7 @@ class _BenchmarkSheet extends StatelessWidget {
               ),
             ),
           ),
-          // Header
+          // Header + gender toggle
           Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: FacingTokens.sp4,
@@ -53,9 +61,19 @@ class _BenchmarkSheet extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(bench.displayName, style: FacingTokens.h2),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(widget.bench.displayName, style: FacingTokens.h2),
+                    ),
+                    _GenderToggle(
+                      female: _female,
+                      onChanged: (v) => setState(() => _female = v),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: FacingTokens.sp2),
-                Text(bench.description, style: FacingTokens.caption),
+                Text(widget.bench.description, style: FacingTokens.caption),
               ],
             ),
           ),
@@ -68,7 +86,7 @@ class _BenchmarkSheet extends StatelessWidget {
               children: [
                 _TierHeaderRow(),
                 const SizedBox(height: FacingTokens.sp2),
-                ...bench.metrics.map((m) => _MetricRow(metric: m)),
+                ...metrics.map((m) => _MetricRow(metric: m, female: _female)),
                 const SizedBox(height: FacingTokens.sp5),
                 // Source
                 Container(
@@ -82,7 +100,7 @@ class _BenchmarkSheet extends StatelessWidget {
                     children: [
                       const Text('SOURCE', style: FacingTokens.sectionLabel),
                       const SizedBox(height: 4),
-                      Text(bench.sourceShort, style: FacingTokens.micro),
+                      Text(widget.bench.sourceShort, style: FacingTokens.micro),
                     ],
                   ),
                 ),
@@ -96,12 +114,56 @@ class _BenchmarkSheet extends StatelessWidget {
   }
 }
 
+class _GenderToggle extends StatelessWidget {
+  final bool female;
+  final ValueChanged<bool> onChanged;
+  const _GenderToggle({required this.female, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _chip('M', !female, () => onChanged(false)),
+        const SizedBox(width: 6),
+        _chip('F', female, () => onChanged(true)),
+      ],
+    );
+  }
+
+  Widget _chip(String label, bool selected, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+        decoration: BoxDecoration(
+          color: selected
+              ? FacingTokens.accent.withValues(alpha: 0.15)
+              : Colors.transparent,
+          border: Border.all(
+            color: selected ? FacingTokens.accent : FacingTokens.border,
+          ),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Text(
+          label,
+          style: FacingTokens.micro.copyWith(
+            color: selected ? FacingTokens.accent : FacingTokens.muted,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.6,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _TierHeaderRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const SizedBox(width: 110), // metric label column
+        const SizedBox(width: 110),
         ...List.generate(kTierLabels.length, (i) {
           final color = _tierColor(i);
           return Expanded(
@@ -131,10 +193,13 @@ class _TierHeaderRow extends StatelessWidget {
 
 class _MetricRow extends StatelessWidget {
   final BenchmarkMetric metric;
-  const _MetricRow({required this.metric});
+  final bool female;
+  const _MetricRow({required this.metric, required this.female});
 
   @override
   Widget build(BuildContext context) {
+    final values = metric.valuesFor(female);
+    final note = metric.noteFor(female);
     return Padding(
       padding: const EdgeInsets.only(top: FacingTokens.sp2),
       child: Row(
@@ -152,9 +217,9 @@ class _MetricRow extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                if (metric.note != null)
+                if (note != null)
                   Text(
-                    metric.note!,
+                    note,
                     style: FacingTokens.micro.copyWith(color: FacingTokens.muted),
                   ),
               ],
@@ -166,7 +231,7 @@ class _MetricRow extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
                 child: Text(
-                  metric.tierValues[i],
+                  values[i],
                   textAlign: TextAlign.center,
                   style: FacingTokens.micro.copyWith(
                     color: i == 0 ? color : FacingTokens.fg,
