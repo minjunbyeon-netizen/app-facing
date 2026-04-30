@@ -8,18 +8,12 @@ import 'achievement_card.dart';
 import 'achievement_state.dart';
 import 'achievements_screen.dart';
 
-/// 업적 그리드 섹션 — 픽토그램 아이콘 + InkWell + 바텀시트 상세.
-class AchievementSection extends StatefulWidget {
+/// 업적 섹션 — 최근 해금 최대 6칸 고정 그리드.
+/// 6개 초과 시 마지막 칸을 "+N more" 오버플로우 타일로 대체.
+/// Locked 항목은 이 섹션에서 제거 → AchievementsScreen 전용.
+class AchievementSection extends StatelessWidget {
   const AchievementSection({super.key});
 
-  @override
-  State<AchievementSection> createState() => _AchievementSectionState();
-}
-
-class _AchievementSectionState extends State<AchievementSection> {
-  bool _showLocked = false;
-
-  // 코드 접두사/정확 매핑 → 픽토그램 아이콘
   static IconData _iconFor(String code) {
     if (code == 'FIRST_ENGINE') return Icons.bolt_outlined;
     if (code == 'ALL_CAT_80') return Icons.all_inclusive_outlined;
@@ -38,7 +32,7 @@ class _AchievementSectionState extends State<AchievementSection> {
     return Icons.star_outline;
   }
 
-  Color _rarityColor(String rarity) {
+  static Color _rarityColor(String rarity) {
     switch (rarity) {
       case 'Rare':
         return FacingTokens.accent;
@@ -72,13 +66,21 @@ class _AchievementSectionState extends State<AchievementSection> {
     );
   }
 
+  void _goAll(BuildContext context) {
+    Haptic.light();
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => const AchievementsScreen(),
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = context.watch<AchievementState>();
     final snap = state.snapshot;
-    final total = snap.visibleCount;
-    final unlocked = snap.unlockedCount;
+    final totalVisible = snap.visibleCount;
+    final unlockedCount = snap.unlockedCount;
 
+    // 최근 해금 순 정렬
     final unlockedList = snap.catalog
         .where((c) => snap.isUnlocked(c.code))
         .toList()
@@ -91,10 +93,12 @@ class _AchievementSectionState extends State<AchievementSection> {
         return ub.compareTo(ua);
       });
 
-    final lockedList = snap.catalog
-        .where((c) => !snap.isUnlocked(c.code))
-        .toList()
-      ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+    // 6칸 고정: >6이면 5개 타일 + 오버플로우 타일
+    const int kMax = 6;
+    final bool hasOverflow = unlockedList.length > kMax;
+    final displayItems =
+        hasOverflow ? unlockedList.take(kMax - 1).toList() : unlockedList;
+    final overflowCount = unlockedCount - (kMax - 1);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -105,170 +109,137 @@ class _AchievementSectionState extends State<AchievementSection> {
             const Expanded(
               child: Text('ACHIEVEMENTS', style: FacingTokens.sectionLabel),
             ),
-            Text('$unlocked / $total', style: FacingTokens.caption),
+            Text('$unlockedCount / $totalVisible', style: FacingTokens.caption),
             const SizedBox(width: FacingTokens.sp2),
             TextButton(
               style: TextButton.styleFrom(
                 foregroundColor: FacingTokens.accent,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: FacingTokens.sp2),
+                padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp2),
               ),
-              onPressed: () {
-                Haptic.light();
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => const AchievementsScreen(),
-                ));
-              },
+              onPressed: () => _goAll(context),
               child: const Text('View All'),
             ),
           ],
         ),
         const SizedBox(height: FacingTokens.sp3),
 
-        if (snap.catalog.isEmpty)
-          const Text('No catalog. Pull to refresh.',
-              style: FacingTokens.caption)
-        else ...[
-          if (unlockedList.isNotEmpty)
-            _buildGrid(context, unlockedList, snap, isUnlocked: true),
-
-          if (lockedList.isNotEmpty) ...[
-            const SizedBox(height: FacingTokens.sp2),
-            TextButton(
-              style: TextButton.styleFrom(
-                foregroundColor: FacingTokens.muted,
-                alignment: Alignment.centerLeft,
-                padding: EdgeInsets.zero,
-              ),
-              onPressed: () {
-                Haptic.light();
-                setState(() => _showLocked = !_showLocked);
-              },
-              child: Text(
-                _showLocked
-                    ? 'Hide locked'
-                    : 'Show locked (${lockedList.length})',
-              ),
+        if (unlockedList.isEmpty)
+          // 빈 상태 — 아직 해금 없음
+          _EmptyState(onTap: () => _goAll(context))
+        else
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: FacingTokens.sp2,
+              mainAxisSpacing: FacingTokens.sp2,
+              childAspectRatio: 0.92,
             ),
-            if (_showLocked) ...[
-              const SizedBox(height: FacingTokens.sp2),
-              _buildGrid(context, lockedList, snap, isUnlocked: false),
-            ],
-          ],
-        ],
+            itemCount: displayItems.length + (hasOverflow ? 1 : 0),
+            itemBuilder: (_, i) {
+              // 마지막 칸: 오버플로우
+              if (hasOverflow && i == displayItems.length) {
+                return _OverflowTile(
+                  count: overflowCount,
+                  onTap: () => _goAll(context),
+                );
+              }
+              final c = displayItems[i];
+              final rc = _rarityColor(c.rarity);
+              return _GridTile(
+                catalog: c,
+                unlock: snap.unlocked[c.code],
+                rarityColor: rc,
+                icon: _iconFor(c.code),
+                onTap: () => _showDetail(context, c, snap.unlocked[c.code]),
+              );
+            },
+          ),
       ],
-    );
-  }
-
-  Widget _buildGrid(
-    BuildContext context,
-    List<AchievementCatalog> items,
-    AchievementSnapshot snap, {
-    required bool isUnlocked,
-  }) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        crossAxisSpacing: FacingTokens.sp2,
-        mainAxisSpacing: FacingTokens.sp2,
-        childAspectRatio: 0.92,
-      ),
-      itemCount: items.length,
-      itemBuilder: (_, i) {
-        final c = items[i];
-        final rc = isUnlocked ? _rarityColor(c.rarity) : FacingTokens.border;
-        return _GridTile(
-          catalog: c,
-          unlock: isUnlocked ? snap.unlocked[c.code] : null,
-          rarityColor: rc,
-          icon: _iconFor(c.code),
-          isUnlocked: isUnlocked,
-          onTap: () => _showDetail(context, c, snap.unlocked[c.code]),
-        );
-      },
     );
   }
 }
 
-// ─── 그리드 타일 ────────────────────────────────────────────────────────────
+// ─── 빈 상태 ─────────────────────────────────────────────────────────────────
 
-class _GridTile extends StatelessWidget {
-  final AchievementCatalog catalog;
-  final AchievementUnlock? unlock;
-  final Color rarityColor;
-  final IconData icon;
-  final bool isUnlocked;
+class _EmptyState extends StatelessWidget {
   final VoidCallback onTap;
-
-  const _GridTile({
-    required this.catalog,
-    required this.unlock,
-    required this.rarityColor,
-    required this.icon,
-    required this.isUnlocked,
-    required this.onTap,
-  });
+  const _EmptyState({required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Opacity(
-      opacity: isUnlocked ? 1.0 : 0.35,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(FacingTokens.r2),
-        child: Material(
-          color: isUnlocked
-              ? rarityColor.withValues(alpha: 0.10)
-              : FacingTokens.surface,
-          child: InkWell(
-            onTap: onTap,
-            splashColor: rarityColor.withValues(alpha: 0.20),
-            highlightColor: rarityColor.withValues(alpha: 0.12),
-            child: Container(
-              decoration: BoxDecoration(
-                border: isUnlocked
-                    ? Border.all(color: rarityColor.withValues(alpha: 0.50), width: 1)
-                    : Border.all(color: FacingTokens.border, width: 0.8),
-                borderRadius: BorderRadius.circular(FacingTokens.r2),
-              ),
-              padding: const EdgeInsets.symmetric(
-                horizontal: FacingTokens.sp2,
-                vertical: FacingTokens.sp3,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    icon,
-                    size: 28,
-                    color: isUnlocked ? rarityColor : FacingTokens.muted,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp4),
+        decoration: BoxDecoration(
+          border: Border.all(color: FacingTokens.border, width: 0.8),
+          borderRadius: BorderRadius.circular(FacingTokens.r2),
+        ),
+        child: Column(
+          children: [
+            Icon(Icons.military_tech_outlined,
+                size: 28, color: FacingTokens.muted),
+            const SizedBox(height: FacingTokens.sp2),
+            Text(
+              'No achievements yet.',
+              style: FacingTokens.caption,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              'Complete a WOD to start.',
+              style: FacingTokens.micro,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── 오버플로우 타일 (+N more) ──────────────────────────────────────────────
+
+class _OverflowTile extends StatelessWidget {
+  final int count;
+  final VoidCallback onTap;
+  const _OverflowTile({required this.count, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(FacingTokens.r2),
+      child: Material(
+        color: FacingTokens.surface,
+        child: InkWell(
+          onTap: onTap,
+          splashColor: FacingTokens.accent.withValues(alpha: 0.12),
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: FacingTokens.border, width: 0.8),
+              borderRadius: BorderRadius.circular(FacingTokens.r2),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  '+$count',
+                  style: FacingTokens.h3.copyWith(
+                    color: FacingTokens.accent,
+                    fontWeight: FontWeight.w800,
                   ),
-                  const SizedBox(height: FacingTokens.sp1),
-                  Text(
-                    AchievementCard.koreanTitle(catalog.code),
-                    style: FacingTokens.micro.copyWith(
-                      color: isUnlocked ? FacingTokens.fg : FacingTokens.muted,
-                      fontWeight: FontWeight.w700,
-                      height: 1.25,
-                    ),
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'more',
+                  style: FacingTokens.micro.copyWith(
+                    color: FacingTokens.muted,
+                    letterSpacing: 0.4,
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    catalog.rarity.toUpperCase(),
-                    style: FacingTokens.micro.copyWith(
-                      color: isUnlocked ? rarityColor : FacingTokens.muted,
-                      fontSize: 9,
-                      letterSpacing: 0.5,
-                      fontWeight: FontWeight.w800,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -277,7 +248,80 @@ class _GridTile extends StatelessWidget {
   }
 }
 
-// ─── 상세 바텀시트 ───────────────────────────────────────────────────────────
+// ─── 그리드 타일 ─────────────────────────────────────────────────────────────
+
+class _GridTile extends StatelessWidget {
+  final AchievementCatalog catalog;
+  final AchievementUnlock? unlock;
+  final Color rarityColor;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _GridTile({
+    required this.catalog,
+    required this.unlock,
+    required this.rarityColor,
+    required this.icon,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(FacingTokens.r2),
+      child: Material(
+        color: rarityColor.withValues(alpha: 0.10),
+        child: InkWell(
+          onTap: onTap,
+          splashColor: rarityColor.withValues(alpha: 0.20),
+          highlightColor: rarityColor.withValues(alpha: 0.12),
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                  color: rarityColor.withValues(alpha: 0.50), width: 1),
+              borderRadius: BorderRadius.circular(FacingTokens.r2),
+            ),
+            padding: const EdgeInsets.symmetric(
+              horizontal: FacingTokens.sp2,
+              vertical: FacingTokens.sp3,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, size: 28, color: rarityColor),
+                const SizedBox(height: FacingTokens.sp1),
+                Text(
+                  AchievementCard.koreanTitle(catalog.code),
+                  style: FacingTokens.micro.copyWith(
+                    color: FacingTokens.fg,
+                    fontWeight: FontWeight.w700,
+                    height: 1.25,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  catalog.rarity.toUpperCase(),
+                  style: FacingTokens.micro.copyWith(
+                    color: rarityColor,
+                    fontSize: 9,
+                    letterSpacing: 0.5,
+                    fontWeight: FontWeight.w800,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── 상세 바텀시트 ────────────────────────────────────────────────────────────
 
 class _DetailSheet extends StatelessWidget {
   final AchievementCatalog catalog;
@@ -307,7 +351,6 @@ class _DetailSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // 드래그 핸들
             Center(
               child: Container(
                 width: 36,
@@ -340,17 +383,12 @@ class _DetailSheet extends StatelessWidget {
                       Text(
                         AchievementCard.koreanTitle(catalog.code),
                         style: FacingTokens.h3.copyWith(
-                          color: isUnlocked
-                              ? FacingTokens.fg
-                              : FacingTokens.muted,
+                          color: FacingTokens.fg,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
                       const SizedBox(height: 2),
-                      Text(
-                        catalog.name,
-                        style: FacingTokens.caption,
-                      ),
+                      Text(catalog.name, style: FacingTokens.caption),
                     ],
                   ),
                 ),
@@ -383,8 +421,7 @@ class _DetailSheet extends StatelessWidget {
               const SizedBox(height: FacingTokens.sp3),
               Text(
                 'Unlocked ${_fmt(unlock!.unlockedAt)}',
-                style: FacingTokens.caption
-                    .copyWith(color: FacingTokens.accent),
+                style: FacingTokens.caption.copyWith(color: FacingTokens.accent),
               ),
             ],
             const SizedBox(height: FacingTokens.sp2),
