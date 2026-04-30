@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/api_client.dart';
 import '../../core/haptic.dart';
 import '../../core/shell_nav_bus.dart';
 import '../../core/theme.dart';
 import '../../models/gym.dart';
 import '../../widgets/coach_badge.dart';
 import '../../widgets/inbox_bell.dart';
+import 'gym_repository.dart';
 import 'wod_detail_screen.dart';
 import 'coach_dashboard_screen.dart';
 import 'gym_search_screen.dart';
@@ -531,6 +533,26 @@ class _WodRowState extends State<_WodRow> {
     ));
   }
 
+  void _openMsgSheet(BuildContext context) {
+    final gs = context.read<GymState>();
+    final gymId = gs.membership.gym?.id;
+    if (gymId == null) return;
+    Haptic.light();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: FacingTokens.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(FacingTokens.r3)),
+      ),
+      builder: (_) => _MsgCoachSheet(
+        gymId: gymId,
+        wod: widget.wod,
+      ),
+    );
+  }
+
   /// v1.20: Start 버튼 없이 바로 결과 입력. v1.22: 미래 일자에는 진입 차단.
   void _openResultSheet(BuildContext context) {
     if (widget.isFuture) return;
@@ -744,6 +766,23 @@ class _WodRowState extends State<_WodRow> {
                         minimumSize: const Size(0, 36),
                       ),
                     ),
+                    // 회원 전용: 코치에게 메시지 (owner는 숨김)
+                    if (!context.watch<GymState>().isOwner) ...[
+                      const SizedBox(width: FacingTokens.sp2),
+                      TextButton.icon(
+                        onPressed: () => _openMsgSheet(context),
+                        icon: const Icon(Icons.chat_bubble_outline,
+                            size: 15),
+                        label: const Text('Message'),
+                        style: TextButton.styleFrom(
+                          foregroundColor: FacingTokens.muted,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: FacingTokens.sp2,
+                          ),
+                          minimumSize: const Size(0, 36),
+                        ),
+                      ),
+                    ],
                     const Spacer(),
                     TextButton(
                       onPressed: () => _openDetail(context),
@@ -779,6 +818,135 @@ class _WodRowState extends State<_WodRow> {
             style: TextButton.styleFrom(foregroundColor: FacingTokens.accent),
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── 회원 → 코치 메시지 바텀시트 ───────────────────────────────────────────────
+
+class _MsgCoachSheet extends StatefulWidget {
+  final int gymId;
+  final GymWodPost wod;
+  const _MsgCoachSheet({required this.gymId, required this.wod});
+
+  @override
+  State<_MsgCoachSheet> createState() => _MsgCoachSheetState();
+}
+
+class _MsgCoachSheetState extends State<_MsgCoachSheet> {
+  final _ctrl = TextEditingController();
+  bool _sending = false;
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _send() async {
+    final msg = _ctrl.text.trim();
+    if (msg.isEmpty) return;
+    setState(() => _sending = true);
+    try {
+      final repo = GymRepository(context.read<ApiClient>());
+      await repo.memberReport(
+        gymId: widget.gymId,
+        message: msg,
+        wodId: widget.wod.id,
+      );
+      if (!mounted) return;
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('코치에게 전송됨.')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('전송 실패. 다시 시도.')),
+      );
+    } finally {
+      if (mounted) setState(() => _sending = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+          FacingTokens.sp4, FacingTokens.sp4, FacingTokens.sp4,
+          FacingTokens.sp4 + bottomInset),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Center(
+            child: Container(
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: FacingTokens.border,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: FacingTokens.sp4),
+          const Text('MESSAGE COACH', style: FacingTokens.sectionLabel),
+          const SizedBox(height: 4),
+          Text(
+            '${widget.wod.wodType.toUpperCase()} · ${widget.wod.postDate}',
+            style: FacingTokens.caption,
+          ),
+          const SizedBox(height: FacingTokens.sp3),
+          TextField(
+            controller: _ctrl,
+            autofocus: true,
+            maxLines: 4,
+            maxLength: 500,
+            style: FacingTokens.body,
+            decoration: InputDecoration(
+              hintText: '오늘 무릎 통증 있어서 스케일드로 할게요.',
+              hintStyle: FacingTokens.caption,
+              filled: true,
+              fillColor: FacingTokens.bg,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(FacingTokens.r2),
+                borderSide: const BorderSide(color: FacingTokens.border),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(FacingTokens.r2),
+                borderSide: const BorderSide(color: FacingTokens.border),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(FacingTokens.r2),
+                borderSide:
+                    const BorderSide(color: FacingTokens.accent, width: 1.5),
+              ),
+              counterStyle: FacingTokens.micro,
+            ),
+          ),
+          const SizedBox(height: FacingTokens.sp3),
+          ElevatedButton(
+            onPressed: _sending ? null : _send,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: FacingTokens.accent,
+              foregroundColor: FacingTokens.fg,
+              minimumSize: const Size.fromHeight(48),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(FacingTokens.r2),
+              ),
+            ),
+            child: _sending
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                        color: FacingTokens.fg, strokeWidth: 2),
+                  )
+                : const Text('Send'),
           ),
         ],
       ),

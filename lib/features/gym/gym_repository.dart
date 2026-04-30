@@ -287,4 +287,16 @@ class GymRepository {
       'status': ?status,
     });
   }
+
+  /// 회원 → 코치 자유 메시지. 코치 NOTICE 탭 인박스에 note로 수신됨.
+  Future<void> memberReport({
+    required int gymId,
+    required String message,
+    int? wodId,
+  }) async {
+    await api.post('/api/v1/gym/$gymId/member-report', {
+      'message': message,
+      'wod_id': ?wodId,
+    });
+  }
 }
