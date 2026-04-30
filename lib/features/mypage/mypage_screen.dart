@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/api_client.dart';
 import '../../core/app_mode.dart';
 import '../../core/haptic.dart';
+import '../../core/shell_nav_bus.dart';
 import '../../core/theme.dart';
 import '../../core/ui_prefs_state.dart';
 import '../../core/unit_state.dart';
@@ -14,6 +15,7 @@ import '../_debug/persona_switcher_screen.dart';
 import '../auth/auth_state.dart';
 import '../goals/goals_screen.dart';
 import '../gym/coach_dashboard_screen.dart';
+import '../gym/gym_search_screen.dart';
 import '../gym/gym_state.dart';
 import '../history/history_models.dart';
 import '../history/history_repository.dart';
@@ -154,7 +156,7 @@ class _AttendanceCompactState extends State<_AttendanceCompact> {
                 ],
               ),
               const SizedBox(height: FacingTokens.sp2),
-              // 미니 캘린더 — 일자 숫자 없이 cell 만, 강도색.
+              // 미니 캘린더 — 일자 숫자 + 강도색 (컴팩트 2px 간격).
               GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -162,9 +164,9 @@ class _AttendanceCompactState extends State<_AttendanceCompact> {
                 gridDelegate:
                     const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 7,
-                  mainAxisSpacing: 3,
-                  crossAxisSpacing: 3,
-                  childAspectRatio: 1.0,
+                  mainAxisSpacing: 2,
+                  crossAxisSpacing: 2,
+                  childAspectRatio: 1.15,
                 ),
                 itemBuilder: (_, i) {
                   final dayNum = i - firstWeekday + 1;
@@ -174,19 +176,32 @@ class _AttendanceCompactState extends State<_AttendanceCompact> {
                   final count = counts[dayNum] ?? 0;
                   final isToday = now.day == dayNum;
                   final intensity =
-                      count == 0 ? 0.0 : (0.4 + (count / maxCount) * 0.5);
+                      count == 0 ? 0.0 : (0.35 + (count / maxCount) * 0.55);
                   return Container(
                     decoration: BoxDecoration(
                       color: count > 0
                           ? FacingTokens.accent.withValues(alpha: intensity)
                           : FacingTokens.surface,
-                      borderRadius:
-                          BorderRadius.circular(FacingTokens.r1),
+                      borderRadius: BorderRadius.circular(3),
                       border: Border.all(
                         color: isToday
                             ? FacingTokens.accent
                             : FacingTokens.border,
-                        width: isToday ? 1.5 : 1,
+                        width: isToday ? 1.5 : 0.8,
+                      ),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      '$dayNum',
+                      style: TextStyle(
+                        fontSize: 8,
+                        height: 1,
+                        fontWeight: isToday
+                            ? FontWeight.w800
+                            : FontWeight.w400,
+                        color: count > 0
+                            ? FacingTokens.fg
+                            : FacingTokens.muted.withValues(alpha: 0.6),
                       ),
                     ),
                   );
@@ -309,6 +324,54 @@ class _IdentityCard extends StatelessWidget {
 class _MyBoxSection extends StatelessWidget {
   const _MyBoxSection();
 
+  Future<void> _confirmLeave(BuildContext context, GymState gs) async {
+    final gymName = gs.membership.gym?.name ?? '박스';
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        backgroundColor: FacingTokens.surfaceOverlay,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(FacingTokens.r5),
+        ),
+        title: const Text('Leave Box?'),
+        content: Text(
+          '$gymName 에서 탈퇴합니다.\n'
+          '탈퇴 후 다른 박스에 가입하거나 새로 만들 수 있습니다.',
+          style: FacingTokens.caption,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogCtx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            style: TextButton.styleFrom(foregroundColor: FacingTokens.accent),
+            onPressed: () => Navigator.pop(dialogCtx, true),
+            child: const Text('Leave'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    if (!context.mounted) return;
+    final success = await gs.leaveGym();
+    if (!context.mounted) return;
+    if (!success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(gs.error ?? 'Leave failed.'),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+      return;
+    }
+    // 탈퇴 성공 → WOD 탭(index 1)으로 이동해 박스 찾기 유도.
+    context.read<ShellNavBus>().requestTab(1);
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => const GymSearchScreen(),
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     final gs = context.watch<GymState>();
@@ -318,7 +381,26 @@ class _MyBoxSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('MY BOX', style: FacingTokens.sectionLabel),
+          Row(
+            children: [
+              const Text('MY BOX', style: FacingTokens.sectionLabel),
+              const Spacer(),
+              if (gym != null && !gs.isOwner)
+                TextButton(
+                  style: TextButton.styleFrom(
+                    foregroundColor: FacingTokens.muted,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: FacingTokens.sp2),
+                    textStyle: FacingTokens.micro,
+                  ),
+                  onPressed: () {
+                    Haptic.light();
+                    _confirmLeave(context, gs);
+                  },
+                  child: const Text('Change'),
+                ),
+            ],
+          ),
           const SizedBox(height: FacingTokens.sp2),
           if (gym == null)
             const Text('No Box. Find Box on WOD tab.',

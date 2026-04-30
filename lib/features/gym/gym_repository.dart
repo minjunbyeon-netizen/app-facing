@@ -34,6 +34,10 @@ class GymRepository {
     return (data['status'] ?? 'pending').toString();
   }
 
+  Future<void> leaveGym(int gymId) async {
+    await api.delete('/api/v1/gyms/$gymId/leave');
+  }
+
   Future<List<GymMember>> listMembers(int gymId) async {
     final data = await api.getList('/api/v1/gyms/$gymId/members');
     return data

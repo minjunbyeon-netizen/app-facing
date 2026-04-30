@@ -85,6 +85,23 @@ class GymState extends ChangeNotifier {
     }
   }
 
+  Future<bool> leaveGym() async {
+    final gym = _membership.gym;
+    if (gym == null || isOwner) return false;
+    _error = null;
+    try {
+      await repo.leaveGym(gym.id);
+      _membership = GymMembership.empty;
+      _wods = const [];
+      notifyListeners();
+      return true;
+    } on AppException catch (e) {
+      _error = e.messageKo;
+      notifyListeners();
+      return false;
+    }
+  }
+
   Future<bool> decideMember({
     required int memberId,
     required String action,
