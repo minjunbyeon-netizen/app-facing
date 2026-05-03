@@ -11,8 +11,9 @@ import 'package:provider/provider.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/coach_note.dart';
-import '../../widgets/coach_badge.dart';
 import '../../widgets/avatar.dart';
+import '../../widgets/coach_badge.dart';
+import '../../widgets/gym_info_card.dart';
 import '../gym/gym_state.dart';
 import 'compose_note_screen.dart';
 import 'group_management_screen.dart';
@@ -88,65 +89,73 @@ class _InboxScreenState extends State<InboxScreen> {
         ],
       ),
       body: SafeArea(
-        child: state.isLoading && items.isEmpty
-            ? const Center(
-                child: CircularProgressIndicator(
-                  color: FacingTokens.muted,
-                  strokeWidth: 2,
-                ),
-              )
-            : (state.error != null && items.isEmpty)
-                ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(FacingTokens.sp5),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Text('LOAD FAILED',
-                              style: FacingTokens.sectionLabel),
-                          const SizedBox(height: FacingTokens.sp2),
-                          Text(state.error!, style: FacingTokens.caption),
-                          const SizedBox(height: FacingTokens.sp3),
-                          OutlinedButton(
-                            onPressed: () => state.refresh(),
-                            child: const Text('Retry'),
-                          ),
-                        ],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            GymInfoCard(gym: gs.membership.gym),
+            Expanded(
+              child: state.isLoading && items.isEmpty
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        color: FacingTokens.muted,
+                        strokeWidth: 2,
                       ),
-                    ),
-                  )
-                : items.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text('No notices.',
-                                style: FacingTokens.caption),
-                            if (isCoach) ...[
-                              const SizedBox(height: FacingTokens.sp2),
-                              Text(
-                                '오른쪽 상단 ✏ 또는 + New 버튼으로 쪽지·숙제 발송.',
-                                style: FacingTokens.micro,
-                                textAlign: TextAlign.center,
+                    )
+                  : (state.error != null && items.isEmpty)
+                      ? Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(FacingTokens.sp5),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Text('LOAD FAILED',
+                                    style: FacingTokens.sectionLabel),
+                                const SizedBox(height: FacingTokens.sp2),
+                                Text(state.error!, style: FacingTokens.caption),
+                                const SizedBox(height: FacingTokens.sp3),
+                                OutlinedButton(
+                                  onPressed: () => state.refresh(),
+                                  child: const Text('Retry'),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      : items.isEmpty
+                          ? Center(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text('No notices.',
+                                      style: FacingTokens.caption),
+                                  if (isCoach) ...[
+                                    const SizedBox(height: FacingTokens.sp2),
+                                    Text(
+                                      '오른쪽 상단 ✏ 또는 + New 버튼으로 쪽지·숙제 발송.',
+                                      style: FacingTokens.micro,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ],
                               ),
-                            ],
-                          ],
-                        ),
-                      )
-                    : RefreshIndicator(
-                        onRefresh: () => state.refresh(),
-                        child: ListView.separated(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: FacingTokens.sp3,
-                            horizontal: FacingTokens.sp4,
-                          ),
-                          itemCount: items.length,
-                          separatorBuilder: (_, _) =>
-                              const SizedBox(height: FacingTokens.sp3),
-                          itemBuilder: (ctx, i) =>
-                              CoachDossierTile(note: items[i]),
-                        ),
-                      ),
+                            )
+                          : RefreshIndicator(
+                              onRefresh: () => state.refresh(),
+                              child: ListView.separated(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: FacingTokens.sp3,
+                                  horizontal: FacingTokens.sp4,
+                                ),
+                                itemCount: items.length,
+                                separatorBuilder: (_, _) =>
+                                    const SizedBox(height: FacingTokens.sp3),
+                                itemBuilder: (ctx, i) =>
+                                    CoachDossierTile(note: items[i]),
+                              ),
+                            ),
+            ),
+          ],
+        ),
       ),
       floatingActionButton: isCoach
           ? FloatingActionButton.extended(
