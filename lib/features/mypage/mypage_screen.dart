@@ -12,6 +12,7 @@ import '../../core/theme.dart';
 import '../../core/ui_prefs_state.dart';
 import '../../core/unit_state.dart';
 import '../../widgets/inbox_bell.dart';
+import '../_debug/persona_debug_data.dart';
 import '../_debug/persona_switcher_screen.dart';
 import '../auth/auth_state.dart';
 import '../goals/goals_screen.dart';
@@ -926,11 +927,13 @@ class _QuickPersonaSpec {
   final String deviceIdSeed;
   final String shortLabel;
   final String? box;
+  final String tier;
   const _QuickPersonaSpec({
     required this.displayName,
     required this.role,
     required this.deviceIdSeed,
     required this.shortLabel,
+    required this.tier,
     this.box,
   });
 }
@@ -941,6 +944,7 @@ const List<_QuickPersonaSpec> _kQuickPersonas = [
     role: 'coach_owner',
     deviceIdSeed: 'persona-coach-park-2026',
     shortLabel: 'COACH A',
+    tier: 'Elite',
     box: 'SEONGSU',
   ),
   _QuickPersonaSpec(
@@ -948,6 +952,7 @@ const List<_QuickPersonaSpec> _kQuickPersonas = [
     role: 'coach_owner',
     deviceIdSeed: 'persona-coach-lee-2026',
     shortLabel: 'COACH B',
+    tier: 'Elite',
     box: 'GANGNAM',
   ),
   _QuickPersonaSpec(
@@ -955,6 +960,7 @@ const List<_QuickPersonaSpec> _kQuickPersonas = [
     role: 'member',
     deviceIdSeed: 'persona-member-kim-doyun-2026',
     shortLabel: 'USER A',
+    tier: 'RX',
     box: 'SEONGSU',
   ),
   _QuickPersonaSpec(
@@ -962,6 +968,7 @@ const List<_QuickPersonaSpec> _kQuickPersonas = [
     role: 'member',
     deviceIdSeed: 'persona-member-jung-haeun-2026',
     shortLabel: 'USER B',
+    tier: 'RX',
     box: 'SEONGSU',
   ),
   _QuickPersonaSpec(
@@ -969,6 +976,7 @@ const List<_QuickPersonaSpec> _kQuickPersonas = [
     role: 'member',
     deviceIdSeed: 'persona-member-kang-minjae-2026',
     shortLabel: 'USER C',
+    tier: 'RX+',
     box: 'GANGNAM',
   ),
 ];
@@ -998,10 +1006,28 @@ class _QuickPersonaBarState extends State<_QuickPersonaBar> {
     final autoMode =
         p.role == 'coach_owner' ? AppMode.coach : AppMode.member;
     await AppModeStore.set(autoMode);
+    // AuthState.displayName 즉시 갱신 — 홈·프로필 상단 이름 반영.
+    if (mounted) {
+      await context.read<AuthState>().signIn('demo', displayName: p.displayName);
+    }
+    // GymState 재로딩 — MY BOX 소속 체육관 반영.
     if (mounted) {
       try {
         await context.read<GymState>().loadMine();
       } catch (_) {}
+    }
+    // ProfileState 즉시 교체 — tier 기반 합성 grade + 체형·벤치마크.
+    if (mounted) {
+      final body = kPersonaBodyMap[p.deviceIdSeed];
+      context.read<ProfileState>().applyPersonaSnapshot(
+        bodyWeightKg: body?.bodyWeightKg,
+        heightCm: body?.heightCm,
+        ageYears: body?.ageYears,
+        gender: body?.gender ?? 'male',
+        experienceYears: body?.experienceYears ?? 0,
+        benchmarks: body?.benchmarks ?? const {},
+        gradeResult: tierGrade(p.tier),
+      );
     }
     if (!mounted) return;
     setState(() {
@@ -1011,7 +1037,7 @@ class _QuickPersonaBarState extends State<_QuickPersonaBar> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${p.displayName} (${p.shortLabel}) 전환 완료.'),
+          content: Text('${p.displayName} (${p.shortLabel}) · ${p.tier} 전환 완료.'),
           duration: const Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
         ),

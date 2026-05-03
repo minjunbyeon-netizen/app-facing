@@ -267,6 +267,32 @@ class ProfileState extends ChangeNotifier {
     return out.map((k, v) => MapEntry(k, v.map((k2, v2) => MapEntry(k2, v2))));
   }
 
+  /// Debug persona switch: 페르소나 전환 시 상태를 원자적으로 교체.
+  /// SharedPreferences 에도 저장해 hot-restart 후에도 유지.
+  void applyPersonaSnapshot({
+    double? bodyWeightKg,
+    double? heightCm,
+    double? ageYears,
+    String gender = 'male',
+    double experienceYears = 0,
+    Map<String, double> benchmarks = const {},
+    Map<String, dynamic>? gradeResult,
+  }) {
+    _bodyWeightKg = bodyWeightKg;
+    _heightCm = heightCm;
+    _ageYears = ageYears;
+    _gender = gender;
+    _experienceYears = experienceYears;
+    _benchmarks
+      ..clear()
+      ..addAll(benchmarks);
+    _maxRecords.clear();
+    _gradeResult = gradeResult;
+    _loaded = true;
+    _save();
+    notifyListeners();
+  }
+
   String? get overallGrade {
     final g = _gradeResult;
     if (g == null) return null;

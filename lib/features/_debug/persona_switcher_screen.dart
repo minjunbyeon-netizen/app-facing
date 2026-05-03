@@ -15,6 +15,8 @@ import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../auth/auth_state.dart';
 import '../gym/gym_state.dart';
+import '../profile/profile_state.dart';
+import 'persona_debug_data.dart';
 
 class _Persona {
   final String id;
@@ -184,6 +186,19 @@ class _PersonaSwitcherScreenState extends State<PersonaSwitcherScreen> {
       } catch (_) {
         // 백엔드 OFF 시 다음 화면 진입 시 재시도. UI 진행 차단 X.
       }
+    }
+    // 페르소나 ProfileState 즉시 교체 — tier 기반 합성 grade + 체형·벤치마크.
+    if (mounted) {
+      final body = kPersonaBodyMap[p.deviceIdSeed];
+      context.read<ProfileState>().applyPersonaSnapshot(
+        bodyWeightKg: body?.bodyWeightKg,
+        heightCm: body?.heightCm,
+        ageYears: body?.ageYears,
+        gender: body?.gender ?? 'male',
+        experienceYears: body?.experienceYears ?? 0,
+        benchmarks: body?.benchmarks ?? const {},
+        gradeResult: tierGrade(p.tier),
+      );
     }
     if (!mounted) return;
     setState(() {
