@@ -3,79 +3,87 @@
 // kDebugMode 가드는 호출자 책임.
 
 /// tier 문자열 → 합성 grade result (backend 응답 스키마 동일).
+/// overall_score 및 category score = 1.0~6.0 (backend 스케일).
+/// engineScoreTo100 = ((s - 1.0) / 5.0 * 100).round() — scoring.dart 참조.
 Map<String, dynamic> tierGrade(String tier) {
   switch (tier) {
     case 'Scaled':
       return {
         'overall_number': 1,
-        'overall_score': 0.18,
+        'overall_score': 1.5,
         'overall': 'Scaled',
-        'power': {'score': 0.16},
-        'olympic': {'score': 0.14},
-        'gymnastics': {'score': 0.20},
-        'cardio': {'score': 0.22},
-        'metcon': {'score': 0.18},
-        'body_composition': {'score': 0.18},
+        'overall_label_ko': '스케일드',
+        'power': {'score': 1.4},
+        'olympic': {'score': 1.3},
+        'gymnastics': {'score': 1.6},
+        'cardio': {'score': 1.7},
+        'metcon': {'score': 1.5},
+        'body_composition': {'score': 1.5},
       };
     case 'RX':
       return {
         'overall_number': 3,
-        'overall_score': 0.55,
+        'overall_score': 3.3,
         'overall': 'RX',
-        'power': {'score': 0.52},
-        'olympic': {'score': 0.50},
-        'gymnastics': {'score': 0.54},
-        'cardio': {'score': 0.58},
-        'metcon': {'score': 0.56},
-        'body_composition': {'score': 0.55},
+        'overall_label_ko': 'RX',
+        'power': {'score': 3.1},
+        'olympic': {'score': 3.0},
+        'gymnastics': {'score': 3.3},
+        'cardio': {'score': 3.5},
+        'metcon': {'score': 3.4},
+        'body_composition': {'score': 3.2},
       };
     case 'RX+':
       return {
         'overall_number': 4,
-        'overall_score': 0.72,
+        'overall_score': 4.3,
         'overall': 'RX+',
-        'power': {'score': 0.70},
-        'olympic': {'score': 0.68},
-        'gymnastics': {'score': 0.74},
-        'cardio': {'score': 0.76},
-        'metcon': {'score': 0.72},
-        'body_composition': {'score': 0.72},
+        'overall_label_ko': 'RX 플러스',
+        'power': {'score': 4.1},
+        'olympic': {'score': 4.0},
+        'gymnastics': {'score': 4.4},
+        'cardio': {'score': 4.6},
+        'metcon': {'score': 4.3},
+        'body_composition': {'score': 4.2},
       };
     case 'Elite':
       return {
         'overall_number': 5,
-        'overall_score': 0.88,
+        'overall_score': 5.2,
         'overall': 'Elite',
-        'power': {'score': 0.86},
-        'olympic': {'score': 0.84},
-        'gymnastics': {'score': 0.90},
-        'cardio': {'score': 0.92},
-        'metcon': {'score': 0.88},
-        'body_composition': {'score': 0.88},
+        'overall_label_ko': '엘리트',
+        'power': {'score': 5.0},
+        'olympic': {'score': 4.9},
+        'gymnastics': {'score': 5.4},
+        'cardio': {'score': 5.5},
+        'metcon': {'score': 5.2},
+        'body_composition': {'score': 5.1},
       };
     case 'Games':
       return {
         'overall_number': 6,
-        'overall_score': 0.97,
+        'overall_score': 5.8,
         'overall': 'Games',
-        'power': {'score': 0.96},
-        'olympic': {'score': 0.94},
-        'gymnastics': {'score': 0.98},
-        'cardio': {'score': 0.98},
-        'metcon': {'score': 0.97},
-        'body_composition': {'score': 0.97},
+        'overall_label_ko': '게임스',
+        'power': {'score': 5.7},
+        'olympic': {'score': 5.6},
+        'gymnastics': {'score': 5.9},
+        'cardio': {'score': 5.9},
+        'metcon': {'score': 5.8},
+        'body_composition': {'score': 5.7},
       };
     default:
       return {
         'overall_number': 3,
-        'overall_score': 0.55,
+        'overall_score': 3.3,
         'overall': 'RX',
-        'power': {'score': 0.52},
-        'olympic': {'score': 0.50},
-        'gymnastics': {'score': 0.54},
-        'cardio': {'score': 0.58},
-        'metcon': {'score': 0.56},
-        'body_composition': {'score': 0.55},
+        'overall_label_ko': 'RX',
+        'power': {'score': 3.1},
+        'olympic': {'score': 3.0},
+        'gymnastics': {'score': 3.3},
+        'cardio': {'score': 3.5},
+        'metcon': {'score': 3.4},
+        'body_composition': {'score': 3.2},
       };
   }
 }
