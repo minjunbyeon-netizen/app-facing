@@ -9,6 +9,7 @@ import '../../core/theme.dart';
 import '../../models/gym.dart';
 import '../../widgets/coach_badge.dart';
 import '../messages/messages_screen.dart';
+import 'gym_profile_edit_screen.dart';
 import 'gym_repository.dart';
 import 'gym_state.dart';
 import 'member_requests_screen.dart';
@@ -143,6 +144,20 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                         },
                         icon: const Icon(Icons.inbox_outlined, size: 18),
                         label: const Text('Member Requests'),
+                      ),
+                      const SizedBox(height: FacingTokens.sp2),
+                      // v1.22: 체육관 정보 (전화·코치·수업·모토) 편집 진입점.
+                      OutlinedButton.icon(
+                        onPressed: () async {
+                          Haptic.light();
+                          await Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) => const GymProfileEditScreen(),
+                          ));
+                          if (!mounted) return;
+                          _reload();
+                        },
+                        icon: const Icon(Icons.edit_note_outlined, size: 18),
+                        label: const Text('Edit Gym Profile'),
                       ),
                       const SizedBox(height: FacingTokens.sp5),
                       if (pending.isNotEmpty) ...[

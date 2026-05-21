@@ -34,6 +34,32 @@ class GymRepository {
     return (data['status'] ?? 'pending').toString();
   }
 
+  /// v1.22: 체육관 부가정보 업데이트 (코치 owner 만).
+  /// body 에 포함된 키만 갱신 — 빈 문자열은 명시적 비우기.
+  Future<GymProfile> updateGymProfile({
+    required int gymId,
+    String? phone,
+    String? coachName,
+    String? coachBio,
+    String? classSchedule,
+    String? motto,
+    String? instagram,
+  }) async {
+    final body = <String, dynamic>{};
+    if (phone != null) body['phone'] = phone;
+    if (coachName != null) body['coach_name'] = coachName;
+    if (coachBio != null) body['coach_bio'] = coachBio;
+    if (classSchedule != null) body['class_schedule'] = classSchedule;
+    if (motto != null) body['motto'] = motto;
+    if (instagram != null) body['instagram'] = instagram;
+    final data = await api.patch('/api/v1/gyms/$gymId/profile', body);
+    final profileRaw = data['profile'];
+    if (profileRaw is Map<String, dynamic>) {
+      return GymProfile.fromJson(profileRaw);
+    }
+    return const GymProfile();
+  }
+
   Future<void> leaveGym(int gymId) async {
     await api.delete('/api/v1/gyms/$gymId/leave');
   }

@@ -102,6 +102,51 @@ class GymState extends ChangeNotifier {
     }
   }
 
+  /// v1.22: 체육관 부가정보 저장. 성공 시 _membership 갱신 + notifyListeners.
+  Future<bool> updateGymProfile({
+    String? phone,
+    String? coachName,
+    String? coachBio,
+    String? classSchedule,
+    String? motto,
+    String? instagram,
+  }) async {
+    final gym = _membership.gym;
+    if (gym == null || !isOwner) return false;
+    _error = null;
+    try {
+      final newProfile = await repo.updateGymProfile(
+        gymId: gym.id,
+        phone: phone,
+        coachName: coachName,
+        coachBio: coachBio,
+        classSchedule: classSchedule,
+        motto: motto,
+        instagram: instagram,
+      );
+      final updatedGym = GymSummary(
+        id: gym.id,
+        name: gym.name,
+        location: gym.location,
+        memberCount: gym.memberCount,
+        isOfficial: gym.isOfficial,
+        ownerHash: gym.ownerHash,
+        profile: newProfile,
+      );
+      _membership = GymMembership(
+        gym: updatedGym,
+        role: _membership.role,
+        status: _membership.status,
+      );
+      notifyListeners();
+      return true;
+    } on AppException catch (e) {
+      _error = e.messageKo;
+      notifyListeners();
+      return false;
+    }
+  }
+
   Future<bool> decideMember({
     required int memberId,
     required String action,

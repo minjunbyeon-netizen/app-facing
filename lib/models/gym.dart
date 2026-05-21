@@ -9,6 +9,8 @@ class GymSummary {
   // v1.20 (E1 fix): 회원 시점 코치-DM 자동 thread 시작용. 백엔드가 응답에 포함.
   // null이면 회원이 코치 thread 시작 불가 (E1 BLOCKER 잔존).
   final String? ownerHash;
+  // v1.22: 체육관 부가정보 (전화·코치·수업시간·모토). 미등록이면 null.
+  final GymProfile? profile;
 
   const GymSummary({
     required this.id,
@@ -17,6 +19,7 @@ class GymSummary {
     required this.memberCount,
     this.isOfficial = false,
     this.ownerHash,
+    this.profile,
   });
 
   factory GymSummary.fromJson(Map<String, dynamic> j) => GymSummary(
@@ -27,7 +30,55 @@ class GymSummary {
         isOfficial: (j['is_official'] == true) ||
             ((j['name'] ?? '').toString() == 'FACING'),
         ownerHash: j['owner_hash']?.toString(),
+        profile: j['profile'] is Map<String, dynamic>
+            ? GymProfile.fromJson(j['profile'] as Map<String, dynamic>)
+            : null,
       );
+}
+
+/// v1.22: 체육관 부가정보. NOTICE 탭 정보 카드 렌더용.
+/// 모든 필드 nullable — 미등록 시 카드에서 빈 슬롯 처리.
+class GymProfile {
+  final String? phone;
+  final String? coachName;
+  final String? coachBio;
+  final String? classSchedule;
+  final String? motto;
+  final String? instagram;
+  final String? logoUrl;
+
+  const GymProfile({
+    this.phone,
+    this.coachName,
+    this.coachBio,
+    this.classSchedule,
+    this.motto,
+    this.instagram,
+    this.logoUrl,
+  });
+
+  bool get isEmpty =>
+      (phone ?? '').isEmpty &&
+      (coachName ?? '').isEmpty &&
+      (coachBio ?? '').isEmpty &&
+      (classSchedule ?? '').isEmpty &&
+      (motto ?? '').isEmpty;
+
+  factory GymProfile.fromJson(Map<String, dynamic> j) => GymProfile(
+        phone: _s(j['phone']),
+        coachName: _s(j['coach_name']),
+        coachBio: _s(j['coach_bio']),
+        classSchedule: _s(j['class_schedule']),
+        motto: _s(j['motto']),
+        instagram: _s(j['instagram']),
+        logoUrl: _s(j['logo_url']),
+      );
+
+  static String? _s(dynamic v) {
+    if (v == null) return null;
+    final s = v.toString();
+    return s.isEmpty ? null : s;
+  }
 }
 
 /// 내 박스 소속 스냅샷. role ∈ {owner, member, null}. status ∈ {pending, approved, rejected, null}.
