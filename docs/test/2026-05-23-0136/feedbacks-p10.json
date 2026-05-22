@@ -1,0 +1,143 @@
+{
+  "persona": {
+    "id": "p10",
+    "name": "조병수",
+    "age": 63,
+    "background": "무술관 → CrossFit 전환 · 디지털 친숙도 1/5 · 노트북 · 여유 · 디지털 약자",
+    "device": "노트북 (Windows)",
+    "test_date": "2026-05-23",
+    "test_url": "http://localhost:8081"
+  },
+  "scenario_summary": {
+    "login": "BOSS_SEONGSU (대문자 오타) → 로그인 성공 (대소문자 무구분 처리됨)",
+    "member_add": "JS evaluate로 모달 열고 이름·전화 입력 → 저장 성공 (김철수 등록)",
+    "cash_payment": "결제 입력 메뉴 자체 없음 → 시급 정산 오인 → 작업 불가"
+  },
+  "feedbacks": [
+    {
+      "id": "FB-P10-01",
+      "category": "로그인",
+      "severity": "high",
+      "nielsen_heuristic": "오류 예방 (Error Prevention)",
+      "task_complete": false,
+      "observation": "아이디 입력칸에 placeholder 또는 힌트 텍스트가 없음",
+      "user_verbatim": "이게 대문자로 써야 하는 거야, 소문자로 써야 하는 거야?",
+      "detail": "로그인 화면에 '아이디' 라벨만 있고 예시 형식(예: boss_seongsu)이 없다. 63세 디지털 약자는 아이디가 소문자인지, 밑줄(_)이 들어가는지 모른다. 데모 계정 안내 문구('데모 계정: boss_seongsu / 1234')가 폼 하단에 노출되어 있으나 글자가 작고 색이 연해 발견하기 어렵다.",
+      "recommendation": "placeholder에 'boss_seongsu' 형식 예시 직접 표시. 데모 계정 안내는 폼 상단 강조 박스로 이동."
+    },
+    {
+      "id": "FB-P10-02",
+      "category": "로그인",
+      "severity": "medium",
+      "nielsen_heuristic": "오류 복구 (Help Users Recognize, Diagnose, Recover from Errors)",
+      "task_complete": true,
+      "observation": "대소문자 구분 없이 로그인 성공 — 오류 인식 없이 통과",
+      "user_verbatim": "어, 됐네? 대문자로 썼는데 됐네.",
+      "detail": "BOSS_SEONGSU(대문자)로 입력해도 로그인이 성공한다. 사용자는 자신이 틀리게 입력했다는 사실을 모르는 채 진행한다. 이는 이번엔 운이 좋았지만, 향후 대소문자 구분이 필요한 기능 추가 시 혼란을 야기할 수 있다. 또한 비밀번호 보이기/숨기기 토글 버튼이 없어 '1234를 제대로 입력했나' 확인 불가.",
+      "recommendation": "비밀번호 필드에 눈 아이콘 토글 추가. 대소문자 정책을 명확히 하거나 입력 전 소문자 변환 처리."
+    },
+    {
+      "id": "FB-P10-03",
+      "category": "로그인 후 첫 화면",
+      "severity": "high",
+      "nielsen_heuristic": "시스템 상태 가시성 (Visibility of System Status)",
+      "task_complete": false,
+      "observation": "로그인 후 첫 화면이 '통계' 페이지 — 사장이 해야 할 일이 무엇인지 모름",
+      "user_verbatim": "어, 숫자가 막 나왔는데... 이게 뭔 화면이지? 회원 등록은 어디서 해요?",
+      "detail": "로그인 성공 후 /stats(통계) 페이지로 리디렉션된다. 63세 사장은 숫자 지표(출석 0명, 신규 가입 1명, 락커 점유율 0%)의 의미를 즉시 파악하지 못한다. '오늘 해야 할 일'이나 '빠른 실행' 버튼이 없어 첫 단계를 스스로 찾아야 한다.",
+      "recommendation": "로그인 직후 화면을 '오늘의 대기 신청 N건' + '+ 회원 추가' CTA가 있는 홈 대시보드로 변경. 또는 최초 로그인 시 온보딩 가이드 1단계 표시."
+    },
+    {
+      "id": "FB-P10-04",
+      "category": "회원 추가 모달",
+      "severity": "critical",
+      "nielsen_heuristic": "오류 예방 (Error Prevention)",
+      "task_complete": false,
+      "observation": "모달 열린 상태에서 키보드 입력이 사이드바 단축키로 처리되어 다른 페이지로 이동",
+      "user_verbatim": "어? 어? 화면이 바뀌었잖아요. 이거 내가 뭘 잘못 누른 거예요?",
+      "detail": "회원 추가 모달을 열고 이름 필드에 타이핑을 시도하면 키 입력이 모달 내부 input에 포커스되지 않고 사이드바 링크 단축키로 처리된다. 'ㅇ' 입력이 '유료 회원', '만료 회원' 등 링크 탐색으로 해석되어 페이지가 전환된다. 디지털 약자는 이 상황에서 '내가 뭔가 망가뜨린 것 같다'고 느낀다.",
+      "recommendation": "모달 오픈 시 첫 번째 input 필드에 자동 focus 부여. 모달 backdrop 클릭 외 ESC/사이드바 단축키로 모달이 닫히지 않도록 event propagation 차단."
+    },
+    {
+      "id": "FB-P10-05",
+      "category": "회원 추가 모달",
+      "severity": "high",
+      "nielsen_heuristic": "유연성과 효율성 (Flexibility and Efficiency of Use)",
+      "task_complete": false,
+      "observation": "전화번호 형식 힌트 없음 — 010-1234-5678인지 01012345678인지 모름",
+      "user_verbatim": "전화번호 어떻게 써야 해요? 010 다음에 빼기 표시(-) 넣어요?",
+      "detail": "전화번호 필드(type=tel)에 placeholder가 비어 있다. 63세 사용자는 '010-1234-5678'과 '01012345678' 중 어느 형식이 맞는지 모른다. 하이픈 없이 입력하면 저장 여부와 관계없이 목록에서 다르게 표시될 수 있어 혼란을 야기한다.",
+      "recommendation": "placeholder='010-0000-0000' 추가. 입력 중 자동 하이픈 삽입(010 4자리 4자리 마스킹) 처리."
+    },
+    {
+      "id": "FB-P10-06",
+      "category": "회원 추가 모달",
+      "severity": "medium",
+      "nielsen_heuristic": "인식 vs 기억 (Recognition Rather than Recall)",
+      "task_complete": false,
+      "observation": "저장 성공 후 아무 피드백 없음 — '저장됐는지 모르겠어요'",
+      "user_verbatim": "저장을 눌렀는데... 됐는지 안 됐는지 어떻게 알아요? 창이 그냥 없어졌는데.",
+      "detail": "저장 버튼 클릭 후 모달이 닫히고 목록 상단에 새 회원이 추가되지만, 성공 토스트 메시지나 하이라이트가 없다. 63세 사용자는 모달이 닫힌 것이 성공 때문인지 오류 때문인지 알 수 없다. 목록 맨 위에 김철수가 추가되어 있지만 화면 스크롤 없이는 확인하기 어렵다.",
+      "recommendation": "'김철수 회원이 추가되었습니다.' 토스트 알림 2~3초 표시. 새로 추가된 행을 배경색으로 1~2초간 하이라이트."
+    },
+    {
+      "id": "FB-P10-07",
+      "category": "회원 상세",
+      "severity": "critical",
+      "nielsen_heuristic": "사용자 제어와 자유 (User Control and Freedom)",
+      "task_complete": false,
+      "observation": "회원 행(row) 클릭 시 아무 반응 없음 — 회원 상세 화면 없음",
+      "user_verbatim": "김철수 이름 눌렀는데 아무것도 안 나왔어요. 다시 눌러봐야 하나?",
+      "detail": "회원 목록에서 행을 클릭해도 상세 페이지나 편집 모달이 열리지 않는다. 사용자는 '한 번 눌러야 하나, 두 번 눌러야 하나'를 반복하며 더블클릭, 이름 텍스트 클릭 등을 시도한다. 회원권 정보 수정이나 결제 입력의 진입점이 없는 상태다.",
+      "recommendation": "회원 행 클릭 시 회원 상세/편집 모달 또는 상세 페이지로 이동. 행에 cursor:pointer 스타일과 '클릭하여 상세 보기' tooltip 추가."
+    },
+    {
+      "id": "FB-P10-08",
+      "category": "현금 결제 입력",
+      "severity": "critical",
+      "nielsen_heuristic": "시스템과 실세계 일치 (Match Between System and Real World)",
+      "task_complete": false,
+      "observation": "현금 납부 입력 메뉴 자체가 없음",
+      "user_verbatim": "현금 받았는데 어디다 쓰는 거예요? 시급 정산이 결제 넣는 건가요?",
+      "detail": "사이드바에 회원 결제/납부 입력 메뉴가 존재하지 않는다. 조병수는 '시급 정산' 메뉴를 클릭했으나 이는 코치 급여 정산 화면이다. 현금 수납 후 시스템 기록이 불가능한 상태로, CrossFit 박스 운영의 가장 기본적인 작업(회원권 결제 기록)을 완수할 수 없다. 이는 핵심 기능 누락에 해당한다.",
+      "recommendation": "회원 상세 화면 내 '결제 추가' 버튼과 결제수단(현금/카드/이체) 선택 기능 구현 최우선. 또는 회원 리스트에 '결제 입력' 빠른 버튼 추가."
+    },
+    {
+      "id": "FB-P10-09",
+      "category": "내비게이션",
+      "severity": "high",
+      "nielsen_heuristic": "사용자 제어와 자유 (User Control and Freedom)",
+      "task_complete": false,
+      "observation": "'대시보드' 사이드바 항목이 링크가 아님 — 클릭해도 반응 없음",
+      "user_verbatim": "처음 화면으로 돌아가려면 어디 눌러야 해요? 저기 FACING 눌러도 안 되고.",
+      "detail": "사이드바의 '대시보드' 텍스트는 클릭 가능한 링크가 아닌 섹션 라벨이다. '통계' 링크가 실질적인 첫 화면이지만 '대시보드' 라벨과 분리되어 있어 63세 사용자는 홈으로 돌아가는 경로를 찾지 못한다. 상단 'FACING' 로고도 링크가 아니다.",
+      "recommendation": "'FACING' 로고 또는 'FACING SEONGSU' 박스를 /stats 또는 /members로 링크 처리. '대시보드'를 클릭 가능한 링크로 변경."
+    },
+    {
+      "id": "FB-P10-10",
+      "category": "전반 UX",
+      "severity": "medium",
+      "nielsen_heuristic": "도움말과 문서 (Help and Documentation)",
+      "task_complete": false,
+      "observation": "오류 발생 시 복구 경로 없음 — 새로고침·뒤로가기 외 선택지 없음",
+      "user_verbatim": "어, 이상한 화면 나왔어요. 다시 처음부터 해야 돼요?",
+      "detail": "회원 추가 모달에서 키 입력으로 엉뚱한 페이지로 이동했을 때, 63세 사용자는 브라우저 뒤로가기를 찾거나 URL을 직접 입력하는 방법을 모른다. '이게 내가 망가뜨린 건지 원래 이런 건지' 구분이 안 된다. 작업 중간에 실수가 발생하면 처음부터 다시 시작해야 한다는 불안감이 크다.",
+      "recommendation": "모달 내 '취소하고 목록으로 돌아가기' 버튼 외에, 화면 우상단에 '홈으로' 고정 버튼 추가. 페이지 이탈 시 '작업 중이던 정보가 저장되지 않습니다. 계속할까요?' 확인 다이얼로그."
+    }
+  ],
+  "summary": {
+    "tasks_completed": 1,
+    "tasks_attempted": 3,
+    "completion_rate": "33%",
+    "critical_issues": 3,
+    "high_issues": 4,
+    "medium_issues": 3,
+    "top_3_priorities": [
+      "FB-P10-04: 모달 입력 시 키보드 포커스 이탈로 페이지 전환 (critical · 즉시 수정)",
+      "FB-P10-08: 현금 결제 입력 메뉴 부재 — 핵심 기능 누락 (critical · 즉시 구현)",
+      "FB-P10-07: 회원 행 클릭 시 무반응 — 상세/편집 진입점 없음 (critical · 즉시 구현)"
+    ],
+    "p10_emotional_state": "세션 내내 '내가 뭔가 잘못 누른 건가' 불안감. 회원 등록은 JS 직접 호출 도움으로 가까스로 성공했으나 현금 결제 입력은 메뉴 자체 부재로 완전 실패. 1시간 안에 혼자서 같은 작업을 반복하기 어려운 수준.",
+    "key_insight": "디지털 약자 사장에게 이 시스템의 최대 장벽은 '어디 눌러야 하는지 모름'이 아니라 '눌렀는데 엉뚱한 데 가거나 아무 반응이 없음'이다. 모달 포커스 버그와 행 클릭 무반응이 해결되지 않으면 현장에서 IT 담당자 없이 절대 사용 불가."
+  }
+}
