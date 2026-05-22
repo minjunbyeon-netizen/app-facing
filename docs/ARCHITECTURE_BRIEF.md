@@ -162,14 +162,20 @@ GET /api/v1/member/events → 회원 폰 구독 (또는 30초 poll fallback)
 
 | 테이블 | 누가 쓰나 | 핵심 컬럼 |
 |---|---|---|
-| `gym_managers` | 사장/코치 권한 분리 | gym_id, login_id, password_hash, role (boss/coach), name |
-| `gym_member_profiles` | 사장 회원 DB | gym_id, member_id (FK), name, gender, birth_date, phone, level, note |
-| `gym_memberships` | 회원권 관리 | member_id, plan_name, start_date, end_date, price, status |
+| `gym_managers` | 사장/코치 권한 분리 (다중 박스 OK) | gym_id, login_id, password_hash, role (boss/coach), name, phone, hired_at, left_at |
+| `gym_member_profiles` | 사장 회원 DB | gym_id, member_id (FK), name, gender, birth_date, phone, level, preferred_time_slot, preferred_coach_gender, safety_note, note |
+| `gym_memberships` | 회원권 관리 | member_id, plan_name, start_date, end_date, price, status (active/expired/refunded), refund_amount, refunded_at |
 | `gym_lockers` | 락커 관리 | gym_id, locker_no, member_id, start_date, end_date |
-| `gym_contracts` | 전자계약 | member_id, body, signed_at, signature_url, ip |
-| `gym_attendances` | 통계용 | member_id, checked_at |
+| `gym_contracts` | 전자계약 | member_id, body, signed_at, signature_url, ip, pdf_url |
+| `gym_attendances` | 통계용 | member_id, gym_id, checked_at, source (qr/manual) |
+| `gym_inquiries` | 회원→사장 직접 문의 (환불·계약·분쟁) | gym_id, member_id, subject, body, status, responded_at |
+| `audit_logs` | 개인정보 접근·변경 감사 | actor_login_id, action, target_member_id, payload_hash, created_at, ip |
 
 기존 `gym_members` (device_hash 기반) 와 1:1 외래키. 폰은 device_hash 그대로 쓰고, PC 는 member_id 기반 + 사장 로그인.
+
+**기존 `gym_members` 에 컬럼 추가**: `status` (`pending`/`approved`/`rejected`/`left`/`removed`), `left_at`, `left_reason` — **M14 자발적 탈퇴 처리** 위해 필요.
+
+**`gym_managers` 다중 박스 (M7·M8)**: 한 login_id 가 박스 2곳 운영 시 두 행 INSERT (gym_id 다르게). PK = (gym_id, login_id) 복합키. 사장 로그인 시 박스 선택 토글 (또는 통합 대시보드).
 
 기존 테이블 (유지): gyms · gym_members · gym_wod_posts · gym_wod_results · gym_messages · gym_announcements · gym_coach_feedback · gym_member_requests · gym_profile (박스 정보).
 
@@ -194,6 +200,23 @@ GET /api/v1/member/events → 회원 폰 구독 (또는 30초 poll fallback)
 - **게이미피케이션(배지·streak·tier)** 은 회원 폰에는 그대로 유지 (회원 유지 동기), 사장 화면은 **숫자만**
 - 사장 = 결정 빠르게 내릴 수 있는 운영 지표 중심
 
+### 6.1 측정 알고리즘 (M13 — 통계 정의 명시)
+
+| 지표 | 정의 | SQL 의사코드 |
+|---|---|---|
+| 오늘 출석 | 오늘(KST) `gym_attendances.checked_at` UNIQUE(member_id) 수 | `COUNT(DISTINCT member_id) WHERE DATE(checked_at)=today` |
+| 이번 달 신규 가입 | 이번 달 안에 `gym_memberships.start_date` ≥ first_day_of_month | `COUNT WHERE start_date BETWEEN month_start AND month_end` |
+| 만료 임박 | `end_date` 가 오늘로부터 14일 이내 + status=active | `WHERE end_date BETWEEN today AND today+14d` |
+| 매출 추정 (이번 달) | 이번 달 시작된 회원권 price 합 + 갱신 매출 | `SUM(price) WHERE start_date IN month` |
+| 3개월 retention | M-3 코호트(3개월 전 가입자) 중 지금까지 1회 이상 출석한 비율 | `cohort 가입자 N / 그 중 M+0~M+3 동안 attendance 1+ 인원` |
+| 6개월 retention | M-6 코호트 | 동일 패턴 |
+| 1년 retention | M-12 코호트 | 동일 패턴 |
+| 락커 점유율 | `gym_lockers` 중 `member_id IS NOT NULL` 비율 | `COUNT(occupied) / COUNT(total)` |
+| 여성 비중 (M10) | gym_member_profiles WHERE gender='여' 비율 | gender 분포 |
+| 여성 시간대 분포 (M10) | preferred_time_slot 별 GROUP BY | bar chart |
+
+retention 정의 = "코호트(가입 월) 의 N개월 후 시점에 attendance ≥ 1 인 비율". 출석 기록 없으면 "left" 로 간주 (자발적 탈퇴와 별개).
+
 ---
 
 ## 7. 인증·보안
@@ -209,6 +232,18 @@ GET /api/v1/member/events → 회원 폰 구독 (또는 30초 poll fallback)
 - 회원 개인정보(이름·생년·전화·서명)는 들어가는 순간 **개인정보보호법 적용**. 암호화·접근로그·감사 필수.
 - 사장 mutation 액션(승인/연장/락커 배정)은 **GET 절대 금지** (CSRF). POST/PATCH/DELETE + CSRF 토큰.
 - 결제 webhook idempotency: 같은 Toss orderId 두 번 들어와도 1회만 처리.
+
+### 7.1 개인정보 보존·삭제 (M5 — 개인정보보호법 §29 준수)
+
+| 데이터 | 보존 기간 | 삭제 시점 | 근거 |
+|---|---|---|---|
+| 회원 이름·전화·생년 | 회원 탈퇴 후 5년 (세무·소비자 분쟁 대비) | 5년 경과 자동 cron 으로 NULL 처리 (member_id 만 유지) | 국세기본법 §85-3 (5년 보존) |
+| 전자계약서·서명 이미지 | 계약 종료 후 5년 | 동일 | 전자문서법 §5 |
+| WOD 결과·페이싱 기록 | 영구 (운동 기록은 회원 자산) | 회원이 명시 요청 시 즉시 익명화 | GDPR §17 (삭제 권리), 개인정보보호법 §36 |
+| 출석 기록 | 회원 탈퇴 후 1년 | 1년 경과 자동 익명화 (회원 단위 식별 제거, 통계 카운트만 유지) | 통계 가치 vs 최소 보존 원칙 |
+| audit_logs | 영구 (위변조 방지) | 절대 삭제 X | 정보통신망법 §29 (감사로그) |
+
+**회원이 "삭제 요청" 시**: 사장 PC 화면에서 "개인정보 삭제" 버튼 → 30일 유예 → 자동 NULL 처리. audit_logs 에는 "deletion_requested_at" 만 남김.
 
 ---
 
@@ -253,20 +288,109 @@ GET /api/v1/member/events → 회원 폰 구독 (또는 30초 poll fallback)
 | D12 | **페르소나 = JTBD 라벨**: 박지훈="회원 관리 시간 줄이기" / 김도윤="내 PR 자동 추적" / 송예준="박스 안 다녀도 자체 WOD" / 최서윤="처음이라 뭐부터 할지 모름" | ux-testing §2 (JTBD & behavioral segmentation) |
 | D13 | **출석 체크인 = QR 1회용 (60초 만료)** / **결제 = Toss Payments + webhook 서명 검증** | 사용자 명시 + subscription-fitness §2 (multi-gym 결제) |
 | D14 | **FCM 푸시 통합** (Phase 2 후반) + **사용성 테스트 사장 5명·회원 5명 think-aloud** (Nielsen 5-user 84% 발견율) | ux-testing §3.3 (Nielsen 5-user rule) |
+| D15 | **API 엔드포인트 카탈로그를 §13 에 통일 명세** — REST 동사·경로·인증·응답 형식 SSOT | 통독 M1 |
+| D16 | **회원 탈퇴 처리**: `gym_members.status='left'` + `left_at` + `left_reason` 추가. 자발적 탈퇴와 만료 분리 | 통독 M14 |
+| D17 | **개인정보 보존 5년 + 자동 익명화 cron**: §7.1 보존 표 준수 | 개인정보보호법 §29·§36 · 국세기본법 §85-3 |
+| D18 | **사장 다중 박스**: `gym_managers` PK 복합키 (gym_id, login_id). 로그인 시 박스 선택 토글 + 통합 대시보드 (총매출/총회원) | 통독 M7 |
+| D19 | **코치 다중 박스**: 동일 패턴. 코치 폰에 박스 선택 토글 + 박스별 알림 분리 | 통독 M8 |
+| D20 | **다국어 정책**: 폰 = 영문 헤드라인 + 한글 캡션 (V8~V10 SSOT 유지) / **PC 사장 = 전체 한글** (운영자 한국인) / 코치 폰 = 폰과 동일 | facing-app CLAUDE.md V8~V11 |
+| D21 | **환불·해지 자동 계산** (M3): 잔여기간 × 1일 단가 − 위약금 10%. 환불 상태 = gym_memberships.status='refunded'. 환불 처리 화면 사장 PC §14 | 소비자보호법 · 체육시설업 표준약관 |
+| D22 | **알림 게이트웨이**: SMS = **NHN Cloud Toast SMS** (D8 만료 알림) · 이메일 = **Mailgun** (계약서 PDF 발송) · 푸시 = FCM (D14) | 한국 시장 가용성 + Mailgun 무료 tier |
+| D23 | **DB 백업**: SQLite `facing.db` 일일 새벽 03:00 → `data/backup/facing-YYYYMMDD.db` (30일 보존) + 주간 외부 백업 (Railway Volume snapshot) | 회원 50명 시점부터 적용 |
+| D24 | **사장의 코치 관리 페이지** 신설 (§14) — 가장 큰 빈약점 보강. 코치 추가/제거·시급·스케줄·페어링 코드 발급 | 통독 M15 |
 
 ---
 
-## 12. 참조 study (브리프 보강 근거)
+## 13. API 엔드포인트 카탈로그 (M1)
 
-| study 파일 | 적용된 결정사항 | 핵심 인용 |
-|---|---|---|
-| `reference/study/subscription-fitness.md` | D8 · D9 · D10 · D11 · D13 | §4 retention 벤치 / §5 여성 WTP / §6 group dynamics / §2 multi-gym pricing |
-| `reference/study/pricing.md` | D8 · D9 | §1 charm / §6 tier / §9 bundle / §10 churn (annual vs monthly) / §10.4 cancel flow |
-| `reference/study/ux-testing.md` | D12 · D14 | §2 JTBD / §3.3 Nielsen 5-user / §4 10 heuristics / §5 Baymard friction |
-| `reference/study/ui-design-fundamentals.md` | (Phase 2 UI 설계 시 참조) | 5 디자인 프리셋 · 21 파라미터 default-deny 룰 |
-| `reference/study/fitness.md` (sub-files: cardio·olympic-lifting·power·gymnastics·hyrox) | 기존 engine·grade 산정 로직 | 페이싱 계산·tier 정의의 학술 근거 |
+### 13.1 기존 (현재 동작 — facing-app 폰 호출)
 
-신규 보강 시 study 인용 우선 — 임의 결정 금지.
+| 동사 | 경로 | 인증 | 비고 |
+|---|---|---|---|
+| GET | `/api/v1/gyms/search?q=` | device_hash | 박스 검색 |
+| GET | `/api/v1/gyms/mine` | device_hash | 내 박스 (owner_hash + profile) |
+| POST | `/api/v1/gyms` | device_hash | 박스 생성 (owner) |
+| POST | `/api/v1/gyms/{id}/join` | device_hash | 가입 신청 |
+| DELETE | `/api/v1/gyms/{id}/leave` | device_hash | 탈퇴 |
+| PATCH | `/api/v1/gyms/{id}/profile` | device_hash (owner) | 박스 정보 수정 |
+| GET/POST/DELETE | `/api/v1/gyms/{id}/wods` | device_hash | 오늘의 WOD |
+| GET/POST/PATCH | `/api/v1/gyms/{id}/members` | device_hash (owner) | 회원 목록·승인 |
+| GET/POST/DELETE | `/api/v1/gyms/{id}/announcements` | device_hash | 공지 |
+| GET/POST | `/api/v1/gyms/{id}/messages` | device_hash | 1:1 쪽지 |
+| GET/POST | `/api/v1/gyms/{id}/wods/{wid}/results` | device_hash | 결과·리더보드 |
+| GET/POST/DELETE | `/api/v1/gyms/{id}/wods/{wid}/comments` | device_hash | WOD 댓글 |
+| GET/POST/DELETE | `/api/v1/gyms/{id}/wods/{wid}/feedback` | device_hash (owner) | 코치 1:1 피드백 |
+| GET/POST/PATCH | `/api/v1/gyms/{id}/requests` | device_hash | 회원 사전 건의 |
+
+### 13.2 신규 (Phase 1·2 — 사장 PC + 폰 가입 흐름 보강)
+
+| 동사 | 경로 | 인증 | 용도 |
+|---|---|---|---|
+| POST | `/api/v1/admin/login` | ID/PW → 세션 쿠키 | 사장 로그인 |
+| POST | `/api/v1/admin/logout` | 세션 | 로그아웃 |
+| GET | `/api/v1/admin/me` | 세션 | 본인 정보 + 박스 목록 (다중 박스) |
+| GET | `/api/v1/admin/gyms/{id}/members` | 세션 (boss) | 회원 DB 풀 리스트 |
+| POST | `/api/v1/admin/gyms/{id}/members` | 세션 (boss) | 회원 추가 (이름·전화·생년 입력) |
+| PATCH | `/api/v1/admin/members/{mid}` | 세션 (boss) | 회원 정보 편집 |
+| DELETE | `/api/v1/admin/members/{mid}` | 세션 (boss) | 회원 삭제 (status='removed') |
+| POST | `/api/v1/admin/members/{mid}/leave` | 세션 (boss) | 자발적 탈퇴 처리 (D16) |
+| POST | `/api/v1/admin/members/{mid}/memberships` | 세션 (boss) | 회원권 발급 |
+| PATCH | `/api/v1/admin/memberships/{mid}/extend` | 세션 (boss) | 회원권 연장 (D8 win-back) |
+| POST | `/api/v1/admin/memberships/{mid}/refund` | 세션 (boss) | 환불 처리 (D21) |
+| GET/POST/PATCH | `/api/v1/admin/gyms/{id}/lockers` | 세션 (boss) | 락커 관리 |
+| GET/POST | `/api/v1/admin/members/{mid}/contracts` | 세션 (boss) | 전자계약 |
+| GET | `/api/v1/admin/gyms/{id}/stats` | 세션 (boss) | §6 통계 한 묶음 |
+| GET/POST/PATCH/DELETE | `/api/v1/admin/gyms/{id}/coaches` | 세션 (boss) | **코치 관리 §14 (D24)** |
+| POST | `/api/v1/admin/gyms/{id}/coaches/{cid}/pairing-code` | 세션 (boss) | 코치 폰 페어링 코드 발급 |
+| POST | `/api/v1/admin/members/{mid}/inquiries/{iid}/respond` | 세션 (boss) | 회원 문의 답변 |
+| GET | `/api/v1/admin/events` | 세션 (boss) | **SSE stream §4** |
+| POST | `/api/v1/attendances` | device_hash + QR 토큰 | 출석 체크인 (D13) |
+| POST | `/api/v1/payments/webhook` | HMAC-SHA256 서명 | Toss webhook (D13) |
+| GET | `/api/v1/member/events` | device_hash | 회원 폰 SSE stream |
+| POST | `/api/v1/member/inquiries` | device_hash | 회원→사장 직접 문의 |
+
+**응답 형식** 통일: `{ok: true, data: {...}}` / `{ok: false, error: "한글", code: "MACHINE_CODE"}` (기존 envelope 유지).
+
+---
+
+## 14. 코치 관리 페이지 (M15·D24 — 가장 큰 빈약점 보강)
+
+### 14.1 사장 PC 화면 (`/admin/coaches`)
+
+```
+┌─ 코치 명단 ──────────────────────────────────────────────────┐
+│ 이름      전화          입사일      시급       상태   액션  │
+│ 박지훈    010-...       2024-03-01  35,000원   재직   편집 │
+│ 김민수    010-...       2025-08-15  28,000원   재직   편집 │
+│ 이수연    010-...       2024-11-10  30,000원   퇴사   복원 │
+└─────────────────────────────────────────────────────────────┘
+[+ 코치 추가]  [급여 정산 export]
+```
+
+### 14.2 코치 추가 흐름
+
+1. 사장이 "+ 코치 추가" 클릭 → 폼 (이름·전화·시급·시작일)
+2. 백엔드 `POST /api/v1/admin/gyms/{id}/coaches` → `gym_managers` INSERT (role='coach')
+3. 자동으로 **페어링 코드 6자리 발급** + SMS 발송
+4. 코치가 폰 facing-app 켜고 "코치 페어링 코드 입력" → device_hash ↔ login_id 연결
+5. 코치 폰이 코치 모드 활성화 (기존 owner 와 동일 권한)
+
+### 14.3 코치 제거 / 퇴사
+
+- "퇴사 처리" 클릭 → `gym_managers.left_at = now()` (행 삭제 X, 이력 보존)
+- 해당 코치의 폰 device_hash 는 그 박스에서 권한 박탈
+- 회원에게 보낸 쪽지·피드백은 history 로 유지 (작성자 표기는 "(퇴사) 이수연")
+
+### 14.4 시급·스케줄 (Phase 5+)
+
+- 시급 입력만 v1. 자동 정산은 Phase 5+ (회계 시스템 연동 후보)
+- 스케줄 (수업 시간표) 은 D2 (이번 빌드 X)
+
+### 14.5 다중 박스 코치 (M8·D19)
+
+- 같은 코치가 박스 2곳 등록 시 `gym_managers` 에 두 행 (gym_id 다르게)
+- 코치 폰에 박스 선택 토글 (상단 메뉴)
+- 시급·페이먼트는 박스별 독립
 
 ---
 
@@ -278,3 +402,20 @@ GET /api/v1/member/events → 회원 폰 구독 (또는 30초 poll fallback)
 3. 변경 이력은 §10 결정 사항 표에 D8, D9... 로 추가
 
 브리프 우선 원칙. 코드만 갱신하고 브리프 방치 금지 (글로벌 §0-B SSOT 룰).
+
+---
+
+## 12. 참조 study (브리프 보강 근거)
+
+| study 파일 | 적용된 결정사항 | 핵심 인용 |
+|---|---|---|
+| `reference/study/subscription-fitness.md` | D8 · D9 · D10 · D11 · D13 | §4 retention 벤치 / §5 여성 WTP / §6 group dynamics / §2 multi-gym pricing |
+| `reference/study/pricing.md` | D8 · D9 · D21 | §1 charm / §6 tier / §9 bundle / §10 churn (annual vs monthly) / §10.4 cancel flow |
+| `reference/study/ux-testing.md` | D12 · D14 | §2 JTBD / §3.3 Nielsen 5-user / §4 10 heuristics / §5 Baymard friction |
+| `reference/study/ui-design-fundamentals.md` | (Phase 2 UI 설계 시 참조) | 5 디자인 프리셋 · 21 파라미터 default-deny 룰 |
+| `reference/study/fitness.md` (sub-files: cardio·olympic-lifting·power·gymnastics·hyrox) | 기존 engine·grade 산정 로직 | 페이싱 계산·tier 정의의 학술 근거 |
+| `reference/payment.md` | D13 · D22 | Toss Payments + webhook 검증 + idempotency |
+| `reference/webhook.md` | D13 · D22 | HMAC-SHA256 + timing-safe compare + replay 방어 |
+| `reference/security.md` + `reference/authorization.md` | D17 · §7.1 · D3 | 개인정보보호법 §29·§36 · bcrypt · RBAC · 감사로그 |
+
+신규 보강 시 study 인용 우선 — 임의 결정 금지.
