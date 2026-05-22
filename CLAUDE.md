@@ -1,4 +1,12 @@
-⚠️ 세션 시작 시 먼저 `docs/HANDOFF.md`를 읽고 현재 작업 상태를 파악할 것.
+⚠️ **최우선 — 모든 작업은 `docs/ARCHITECTURE_BRIEF.md` 를 따른다.**
+이 브리프가 facing 시스템(폰 + PC + 백엔드 + RBAC + SSE + DB 모델) 전체 합의 SSOT 예요.
+신규 기능·코드 변경 시:
+1. 브리프 먼저 읽고 충돌 여부 확인
+2. 충돌 발견 시 사용자에게 보고 → 브리프 갱신 승인 후 코드 변경
+3. 브리프 §11 변경 절차 준수 (코드만 갱신·브리프 방치 금지)
+관련: `services/facing/`·`web/facing-admin/` 작업 시에도 같은 브리프 적용.
+
+⚠️ 세션 시작 시 `docs/HANDOFF.md` 도 함께 읽고 현재 작업 상태를 파악할 것.
 
 ⚠️ **UI·디자인·카피 관련 모든 결정은 먼저 글로벌 `~/.claude/reference/{mobile,ux,design}.md` → 이 문서 순으로 확인**. 충돌 시 reference/가 이김. 프로젝트 전용 카피 SSOT(티어 시스템·용어 팔레트·V1~V11 어투·카피 템플릿)는 본 문서 하단에 유지.
 
