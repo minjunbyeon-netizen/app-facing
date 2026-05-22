@@ -1,0 +1,47 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]: FACING
+      - generic [ref=e6]: ADMIN · MVP
+    - generic [ref=e7]:
+      - generic [ref=e8]: FACING SEONGSU
+      - generic [ref=e9]: 사장 · 박지훈 사장
+    - navigation [ref=e10]:
+      - generic [ref=e11]: 대시보드
+      - link "통계" [ref=e12] [cursor=pointer]:
+        - /url: /stats
+      - generic [ref=e13]: 회원 관리
+      - link "회원 리스트" [ref=e14] [cursor=pointer]:
+        - /url: /members
+      - link "유료 회원" [ref=e15] [cursor=pointer]:
+        - /url: /members?filter=active
+      - link "만료 회원" [ref=e16] [cursor=pointer]:
+        - /url: /members?filter=expired
+      - generic [ref=e17]: 코치 관리
+      - link "코치 명단" [ref=e18] [cursor=pointer]:
+        - /url: /coaches
+      - generic [ref=e19]: 출석
+      - link "QR 체크인" [ref=e20] [cursor=pointer]:
+        - /url: /checkin
+      - generic [ref=e21]: 시설
+      - link "락커 관리" [ref=e22] [cursor=pointer]:
+        - /url: /lockers
+      - generic [ref=e23]: 서류
+      - link "전자계약서" [ref=e24] [cursor=pointer]:
+        - /url: /contracts
+    - generic [ref=e25]:
+      - text: v0.3 · 백엔드 연동
+      - link "로그아웃" [ref=e26] [cursor=pointer]:
+        - /url: /logout
+  - main [ref=e27]:
+    - generic [ref=e29]:
+      - generic [ref=e30]: 출석 QR
+      - generic [ref=e31]: 박스 입구 디스플레이용 — 60초 자동 갱신 · 폰 스캔 시 출석 처리
+    - generic [ref=e32]:
+      - generic [ref=e33]:
+        - generic [ref=e34]: 현재 QR
+        - img "QR" [ref=e36]
+        - generic [ref=e37]: 남은 시간 60초
+      - generic [ref=e38]:
+        - generic [ref=e39]: 실시간 출석
+        - generic [ref=e41]: 대기 중...
