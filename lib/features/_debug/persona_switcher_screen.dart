@@ -16,6 +16,7 @@ import '../../core/theme.dart';
 import '../auth/auth_state.dart';
 import '../gym/gym_state.dart';
 import '../profile/profile_state.dart';
+import 'coach_pair_screen.dart';
 import 'persona_debug_data.dart';
 import 'qr_input_screen.dart';
 
@@ -258,20 +259,45 @@ class _PersonaSwitcherScreenState extends State<PersonaSwitcherScreen> {
               style: FacingTokens.caption,
             ),
             const SizedBox(height: FacingTokens.sp4),
-            // QR 체크인 진입 (회의 데모용).
+            // QR 체크인 + 코치 페어링 진입 (회의 데모용).
             Padding(
               padding: const EdgeInsets.only(bottom: FacingTokens.sp4),
-              child: OutlinedButton.icon(
-                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => const QrInputScreen(),
-                )),
-                icon: const Icon(Icons.qr_code_scanner, size: 18),
-                label: const Text('QR 체크인 (토큰 수동 입력)'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: FacingTokens.accent,
-                  side: BorderSide(color: FacingTokens.accent),
-                  padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp3),
-                ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () =>
+                          Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => const QrInputScreen(),
+                      )),
+                      icon: const Icon(Icons.qr_code_scanner, size: 16),
+                      label: const Text('QR 체크인'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: FacingTokens.accent,
+                        side: BorderSide(color: FacingTokens.accent),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: FacingTokens.sp3),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: FacingTokens.sp2),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () =>
+                          Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => const CoachPairScreen(),
+                      )),
+                      icon: const Icon(Icons.key, size: 16),
+                      label: const Text('코치 페어링'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: FacingTokens.tierElite,
+                        side: BorderSide(color: FacingTokens.tierElite),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: FacingTokens.sp3),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             for (final p in _kDebugPersonas)
