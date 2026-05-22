@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
+import '../../core/device_id.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
+import '../gym/gym_state.dart';
 import '../profile/profile_state.dart';
 import 'auth_state.dart';
 import 'demo_accounts.dart';
@@ -47,6 +49,14 @@ class _SignupScreenState extends State<SignupScreen> {
     final auth = context.read<AuthState>();
     final profile = context.read<ProfileState>();
     final api = context.read<ApiClient>();
+    GymState? gymState;
+    try {
+      gymState = context.read<GymState>();
+    } catch (_) {}
+    // v1.22 회의 데모: deviceIdSeed 있으면 device_id 강제 교체 → 백엔드 페르소나 자동 진입.
+    if (demo.deviceIdSeed != null) {
+      await DeviceIdService.overrideForDebug(demo.deviceIdSeed!);
+    }
     await auth.signIn('demo', displayName: demo.nameLabel);
     if (!mounted) return;
     profile.setBasic(
@@ -67,6 +77,12 @@ class _SignupScreenState extends State<SignupScreen> {
       profile.setGradeResult(result);
     } catch (_) {
       // 백엔드 미가동 시에도 onboarding으로 유도.
+    }
+    // v1.22 회의 데모: device_id 교체 후 박스 멤버십 hydrate.
+    if (demo.deviceIdSeed != null && gymState != null) {
+      try {
+        await gymState.loadMine();
+      } catch (_) {}
     }
     if (!mounted) return;
     final next = profile.hasGrade ? '/shell' : '/onboarding/basic';

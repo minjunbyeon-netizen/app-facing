@@ -1,19 +1,21 @@
-// v1.16 Sprint 8 U1: 5 데모 계정 프리셋.
-// ⚠️ **가상 데이터** — 실제 사용자 아님. 테스트·체험용 프로필 샘플.
-// 앱 최초 진입 시 빠른 상태 진입을 위해 Signup 화면에 노출.
+// v1.22 회의 데모용: 백엔드 페르소나 시드와 1:1 매핑된 4명.
+// ⚠️ **가상 데이터** — 실제 사용자 아님. 회의 시연용 프로필 샘플.
+// 누르면 deviceIdSeed 로 device_id 강제 교체 → 백엔드 페르소나 데이터로 즉시 진입.
 
 class DemoAccount {
   final String id; // internal slug
-  final String nameLabel; // '코치 김 · A Box'
-  final String role; // 'coach' | 'member' | 'solo' | 'masters' | 'elite'
-  final String boxName; // 'A Box' | '' (solo/elite no box)
+  final String nameLabel; // '박지훈 · FACING SEONGSU 코치'
+  final String role; // 'coach' | 'member' | 'solo' | 'pending'
+  final String boxName;
   final double bodyWeightKg;
   final int heightCm;
   final int ageYears;
-  final String gender; // 'male' | 'female'
+  final String gender;
   final double experienceYears;
-  final Map<String, double> benchmarks; // 1RM·UB·카디오
-  final String hintTier; // UI 미리 표시용
+  final Map<String, double> benchmarks;
+  final String hintTier;
+  // v1.22: 백엔드 페르소나 device_id 시드. null 이면 새 device_id 생성 (기존 동작).
+  final String? deviceIdSeed;
 
   const DemoAccount({
     required this.id,
@@ -27,123 +29,95 @@ class DemoAccount {
     required this.experienceYears,
     required this.benchmarks,
     required this.hintTier,
+    this.deviceIdSeed,
   });
 }
 
-/// ⚠️ **가상 데이터** 5건.
+/// ⚠️ **가상 데이터** 4건. 회의 데모용 — 백엔드 personas.json 과 동기화.
 const List<DemoAccount> kDemoAccounts = [
+  // 1. 박지훈 — FACING SEONGSU 코치 (오너)
   DemoAccount(
-    id: 'coach_a',
-    nameLabel: '코치 김 · A Box owner',
+    id: 'coach_park',
+    nameLabel: '박지훈 · FACING SEONGSU 코치',
     role: 'coach',
-    boxName: 'A Box',
+    boxName: 'FACING SEONGSU',
     bodyWeightKg: 85,
     heightCm: 178,
     ageYears: 32,
     gender: 'male',
     experienceYears: 8,
     benchmarks: {
-      'back_squat_1rm_lb': 365,
-      'front_squat_1rm_lb': 300,
-      'deadlift_1rm_lb': 475,
-      'bench_press_1rm_lb': 275,
-      'ohp_1rm_lb': 165,
-      'clean_1rm_lb': 275,
-      'snatch_1rm_lb': 225,
-      'strict_pull_up_max_ub': 35,
-      'hspu_max_ub': 20,
-      'row_500m_sec': 92,
+      'back_squat_1rm_lb': 400,
+      'deadlift_1rm_lb': 500,
+      'clean_1rm_lb': 295,
+      'snatch_1rm_lb': 245,
+      'strict_pull_up_max_ub': 42,
+      'hspu_max_ub': 22,
+      'row_500m_sec': 88,
+      'double_under_per_min': 100,
     },
-    hintTier: 'RX+ / Engine 75',
+    hintTier: 'Elite / Engine 84',
+    deviceIdSeed: 'persona-coach-park-2026',
   ),
+  // 2. 김도윤 — FACING SEONGSU 정식 회원
   DemoAccount(
-    id: 'member_a',
-    nameLabel: '박 회원 · A Box member',
+    id: 'member_kim',
+    nameLabel: '김도윤 · FACING SEONGSU 회원',
     role: 'member',
-    boxName: 'A Box',
-    bodyWeightKg: 72,
-    heightCm: 170,
-    ageYears: 28,
-    gender: 'male',
-    experienceYears: 2,
-    benchmarks: {
-      'back_squat_1rm_lb': 265,
-      'deadlift_1rm_lb': 355,
-      'bench_press_1rm_lb': 205,
-      'clean_1rm_lb': 175,
-      'strict_pull_up_max_ub': 15,
-      'run_mile_sec': 420,
-    },
-    hintTier: 'RX / Engine 55',
-  ),
-  DemoAccount(
-    id: 'solo_hwpo',
-    nameLabel: '솔로 선수 · 박스 없음',
-    role: 'solo',
-    boxName: '',
+    boxName: 'FACING SEONGSU',
     bodyWeightKg: 78,
     heightCm: 175,
-    ageYears: 30,
+    ageYears: 26,
     gender: 'male',
     experienceYears: 3,
     benchmarks: {
-      'back_squat_1rm_lb': 305,
-      'deadlift_1rm_lb': 405,
-      'bench_press_1rm_lb': 225,
+      'back_squat_1rm_lb': 285,
+      'deadlift_1rm_lb': 375,
       'clean_1rm_lb': 205,
-      'snatch_1rm_lb': 165,
-      'strict_pull_up_max_ub': 22,
-      'hspu_max_ub': 10,
-      'double_under_per_min': 75,
-      'run_mile_sec': 390,
+      'strict_pull_up_max_ub': 15,
+      'run_mile_sec': 420,
     },
-    hintTier: 'RX / Engine 62',
+    hintTier: 'RX / Engine 66',
+    deviceIdSeed: 'persona-member-kim-doyun-2026',
   ),
+  // 3. 송예준 — 박스 무소속, 자체 WOD 사용자
   DemoAccount(
-    id: 'masters_52',
-    nameLabel: '이 마스터스 · 52세',
-    role: 'masters',
-    boxName: 'B Box',
-    bodyWeightKg: 75,
-    heightCm: 172,
-    ageYears: 52,
-    gender: 'male',
-    experienceYears: 10,
-    benchmarks: {
-      'back_squat_1rm_lb': 245,
-      'deadlift_1rm_lb': 315,
-      'bench_press_1rm_lb': 185,
-      'clean_1rm_lb': 155,
-      'strict_pull_up_max_ub': 10,
-      'run_mile_sec': 480,
-      'row_500m_sec': 108,
-    },
-    hintTier: 'RX / Engine 48 · Masters 45+',
-  ),
-  DemoAccount(
-    id: 'elite_games',
-    nameLabel: 'Dara · Games 지망',
-    role: 'elite',
+    id: 'solo_song',
+    nameLabel: '송예준 · 박스 없음 (개인)',
+    role: 'solo',
     boxName: '',
-    bodyWeightKg: 62,
-    heightCm: 165,
-    ageYears: 29,
-    gender: 'female',
-    experienceYears: 6,
+    bodyWeightKg: 75,
+    heightCm: 174,
+    ageYears: 30,
+    gender: 'male',
+    experienceYears: 4,
     benchmarks: {
-      'back_squat_1rm_lb': 245,
-      'front_squat_1rm_lb': 215,
-      'deadlift_1rm_lb': 335,
-      'bench_press_1rm_lb': 145,
-      'ohp_1rm_lb': 115,
-      'clean_1rm_lb': 195,
-      'snatch_1rm_lb': 155,
-      'strict_pull_up_max_ub': 28,
-      'hspu_max_ub': 15,
-      'bar_muscle_up_max_ub': 8,
-      'double_under_per_min': 110,
-      'row_500m_sec': 98,
+      'back_squat_1rm_lb': 275,
+      'deadlift_1rm_lb': 365,
+      'clean_1rm_lb': 185,
+      'strict_pull_up_max_ub': 18,
+      'run_mile_sec': 450,
     },
-    hintTier: 'Elite / Engine 88',
+    hintTier: 'RX / Engine 66',
+    deviceIdSeed: 'persona-app-song-yejun-2026',
+  ),
+  // 4. 최서윤 — FACING SEONGSU 가입 대기 (pending → 코치가 승인 시연용)
+  DemoAccount(
+    id: 'pending_choi',
+    nameLabel: '최서윤 · 가입 대기 (FACING SEONGSU)',
+    role: 'pending',
+    boxName: 'FACING SEONGSU',
+    bodyWeightKg: 56,
+    heightCm: 161,
+    ageYears: 22,
+    gender: 'female',
+    experienceYears: 0.5,
+    benchmarks: {
+      'back_squat_1rm_lb': 95,
+      'deadlift_1rm_lb': 135,
+      'run_mile_sec': 660,
+    },
+    hintTier: 'Scaled / Engine 10',
+    deviceIdSeed: 'persona-member-choi-seoyun-2026',
   ),
 ];
