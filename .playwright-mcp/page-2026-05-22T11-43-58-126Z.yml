@@ -1,0 +1,76 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]: FACING
+      - generic [ref=e6]: ADMIN · MVP
+    - generic [ref=e7]:
+      - generic [ref=e8]: FACING SEONGSU
+      - generic [ref=e9]: 사장 · 박지훈 사장
+    - navigation [ref=e10]:
+      - generic [ref=e11]: 대시보드
+      - link "통계" [ref=e12] [cursor=pointer]:
+        - /url: /stats
+      - generic [ref=e13]: 회원 관리
+      - link "회원 리스트" [ref=e14] [cursor=pointer]:
+        - /url: /members
+      - link "유료 회원" [ref=e15] [cursor=pointer]:
+        - /url: /members?filter=active
+      - link "만료 회원" [ref=e16] [cursor=pointer]:
+        - /url: /members?filter=expired
+      - generic [ref=e17]: 코치 관리
+      - link "코치 명단" [ref=e18] [cursor=pointer]:
+        - /url: /coaches
+      - generic [ref=e19]: 시설
+      - link "락커 관리" [ref=e20] [cursor=pointer]:
+        - /url: /lockers
+      - generic [ref=e21]: 서류
+      - link "전자계약서" [ref=e22] [cursor=pointer]:
+        - /url: /contracts
+    - generic [ref=e23]:
+      - text: v0.3 · 백엔드 연동
+      - link "로그아웃" [ref=e24] [cursor=pointer]:
+        - /url: /logout
+  - main [ref=e25]:
+    - generic [ref=e26]:
+      - generic [ref=e27]:
+        - generic [ref=e28]: 통계
+        - generic [ref=e29]: FACING SEONGSU · 실시간 운영 지표
+      - generic [ref=e30]: ● 실시간 연결
+    - generic [ref=e31]:
+      - generic [ref=e32]:
+        - generic [ref=e33]: 오늘
+        - generic [ref=e34]:
+          - generic [ref=e35]: 출석 회원
+          - generic [ref=e36]: 0명
+        - generic [ref=e37]:
+          - generic [ref=e38]: 가입 신청 대기
+          - generic [ref=e39]: 2건
+      - generic [ref=e40]:
+        - generic [ref=e41]: 이번 달
+        - generic [ref=e42]:
+          - generic [ref=e43]: 신규 가입
+          - generic [ref=e44]: 0명
+        - generic [ref=e45]:
+          - generic [ref=e46]: 만료 회원
+          - generic [ref=e47]: 0명
+        - generic [ref=e48]:
+          - generic [ref=e49]: 만료 임박 (14일)
+          - generic [ref=e50]: 0명
+        - generic [ref=e51]:
+          - generic [ref=e52]: 매출 추정
+          - generic [ref=e53]: 0원
+    - generic [ref=e54]:
+      - generic [ref=e55]:
+        - generic [ref=e56]: 락커 점유율
+        - generic [ref=e57]: 락커 미등록
+      - generic [ref=e58]:
+        - generic [ref=e59]: 회원 구성
+        - generic [ref=e60]:
+          - generic [ref=e61]: 총 회원
+          - generic [ref=e62]: 6명
+        - generic [ref=e63]:
+          - generic [ref=e64]: 여성 비중
+          - generic [ref=e65]: 0.0% (0명)
+    - generic [ref=e66]:
+      - generic [ref=e67]: 실시간 이벤트 (SSE)
+      - generic [ref=e68]: 대기 중...

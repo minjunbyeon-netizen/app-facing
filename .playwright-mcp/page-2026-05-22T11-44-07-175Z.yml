@@ -1,0 +1,80 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]: FACING
+      - generic [ref=e6]: ADMIN · MVP
+    - generic [ref=e7]:
+      - generic [ref=e8]: FACING SEONGSU
+      - generic [ref=e9]: 사장 · 박지훈 사장
+    - navigation [ref=e10]:
+      - generic [ref=e11]: 대시보드
+      - link "통계" [ref=e12] [cursor=pointer]:
+        - /url: /stats
+      - generic [ref=e13]: 회원 관리
+      - link "회원 리스트" [ref=e14] [cursor=pointer]:
+        - /url: /members
+      - link "유료 회원" [ref=e15] [cursor=pointer]:
+        - /url: /members?filter=active
+      - link "만료 회원" [ref=e16] [cursor=pointer]:
+        - /url: /members?filter=expired
+      - generic [ref=e17]: 코치 관리
+      - link "코치 명단" [ref=e18] [cursor=pointer]:
+        - /url: /coaches
+      - generic [ref=e19]: 시설
+      - link "락커 관리" [ref=e20] [cursor=pointer]:
+        - /url: /lockers
+      - generic [ref=e21]: 서류
+      - link "전자계약서" [ref=e22] [cursor=pointer]:
+        - /url: /contracts
+    - generic [ref=e23]:
+      - text: v0.3 · 백엔드 연동
+      - link "로그아웃" [ref=e24] [cursor=pointer]:
+        - /url: /logout
+  - main [ref=e25]:
+    - generic [ref=e26]:
+      - generic [ref=e27]:
+        - generic [ref=e28]: 코치 관리
+        - generic [ref=e29]: FACING SEONGSU · 재직 2명 · 퇴사 0명
+      - button "+ 코치 추가" [ref=e30] [cursor=pointer]
+    - table [ref=e32]:
+      - rowgroup [ref=e33]:
+        - row "이름 로그인 ID 전화 시급 입사일 상태 폰 페어링" [ref=e34]:
+          - columnheader "이름" [ref=e35]
+          - columnheader "로그인 ID" [ref=e36]
+          - columnheader "전화" [ref=e37]
+          - columnheader "시급" [ref=e38]
+          - columnheader "입사일" [ref=e39]
+          - columnheader "상태" [ref=e40]
+          - columnheader "폰 페어링" [ref=e41]
+          - columnheader [ref=e42]
+      - rowgroup [ref=e43]:
+        - row "Kim Minsu coach_kim — 28,000원 2026-05-22 재직 E5KRG0N8 코드 재발급 퇴사" [ref=e44]:
+          - cell "Kim Minsu" [ref=e45]
+          - cell "coach_kim" [ref=e46]
+          - cell "—" [ref=e47]
+          - cell "28,000원" [ref=e48]
+          - cell "2026-05-22" [ref=e49]
+          - cell "재직" [ref=e50]:
+            - generic [ref=e51]: 재직
+          - cell "E5KRG0N8" [ref=e52]:
+            - code [ref=e53]: E5KRG0N8
+          - cell "코드 재발급 퇴사" [ref=e54]:
+            - link "코드 재발급" [ref=e55] [cursor=pointer]:
+              - /url: "#"
+            - link "퇴사" [ref=e56] [cursor=pointer]:
+              - /url: "#"
+        - row "박지훈 코치 coach_park 010-6677-8800 — 2026-05-22 재직 None 코드 재발급 퇴사" [ref=e57]:
+          - cell "박지훈 코치" [ref=e58]
+          - cell "coach_park" [ref=e59]
+          - cell "010-6677-8800" [ref=e60]
+          - cell "—" [ref=e61]
+          - cell "2026-05-22" [ref=e62]
+          - cell "재직" [ref=e63]:
+            - generic [ref=e64]: 재직
+          - cell "None" [ref=e65]:
+            - code [ref=e66]: None
+          - cell "코드 재발급 퇴사" [ref=e67]:
+            - link "코드 재발급" [ref=e68] [cursor=pointer]:
+              - /url: "#"
+            - link "퇴사" [ref=e69] [cursor=pointer]:
+              - /url: "#"

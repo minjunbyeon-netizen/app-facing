@@ -14,7 +14,9 @@
       "PowerShell(Start-Process cmd -ArgumentList '/k', 'cd /d C:\\\\dev\\\\apps\\\\facing-app && flutter run -d emulator-5554')",
       "PowerShell(netstat *)",
       "PowerShell(try { $body = @{motto=\"hack\"} | ConvertTo-Json; Invoke-RestMethod -Uri \"http://127.0.0.1:5060/api/v1/gyms/2/profile\" -Method Patch -Headers @{\"X-Device-Id\"=\"persona-member-kim-doyun-2026\"} -ContentType \"application/json\" -Body $body } catch { Write-Output \"HTTP $\\($_.Exception.Response.StatusCode.value__\\) — $\\($_.ErrorDetails.Message\\)\" })",
-      "mcp__playwright__browser_resize"
+      "mcp__playwright__browser_resize",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_click"
     ]
   }
 }
