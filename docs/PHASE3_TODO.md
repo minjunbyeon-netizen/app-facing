@@ -32,11 +32,11 @@
 
 - [x] **A-1** bcrypt cost 12 audit script (`services/facing/audit_bcrypt.py`) — 6/6 hash 통과 (2026-05-22)
 - [x] **A-2** 세션쿠키 보안 플래그 (SECURE · HTTPONLY · SAMESITE · TTL 8h sliding) — services/facing/app.py (2026-05-22)
-- [x] **A-6** require_role + assert_gym_match 헬퍼 — services/facing/api/admin.py (2026-05-22)
+- [x] **A-6** require_role + assert_gym_match + **assert_admin_gym** 헬퍼 — services/facing/api/admin.py (2026-05-22 + 23 보강)
 - [ ] **A-3** CSRF 토큰 — Flask-WTF 또는 자체 double-submit cookie. 모든 POST/PUT/DELETE 검증. 의존: 없음. 예상 1주
 - [ ] **A-4** 로그인 rate limit + 잠금 — Flask-Limiter + Redis sliding window. IP 5분/5회·계정 30분/10회. 의존: N4-3 Redis. 예상 3일
-- [ ] **A-5** audit log 강화 — login + 권한 변경 + 결제 + 환불 + 회원 삭제 자동 기록. 의존: 없음. 예상 2일
-- [ ] **A-6 적용** — admin.py 의 모든 sensitive endpoint 에 `assert_gym_match()` 호출 (현재는 헬퍼만 추가). 예상 3일
+- [ ] **A-5** audit log 강화 — login + 권한 변경 + 결제 + 환불 + 회원 삭제 자동 기록. 의존: 없음. 예상 2일 (진행중 — 18/29 endpoint audit 적용. 11곳 보강 필요)
+- [ ] **A-6 적용** — admin.py 의 모든 sensitive endpoint 에 `assert_admin_gym()`·`assert_gym_match()` 호출 refactor. 헬퍼 2종 추가 완료, 21곳 적용 잔여. 예상 3일
 
 ### 2.2 PIPA·결제 (4 task)
 
@@ -49,7 +49,7 @@
 
 - [ ] **H-1 ~ H-5 (N4-2)** SQLite → PostgreSQL + RLS 이행 — Big Bang ETL + Branch by Abstraction (v2 §5.5). PgBouncer transaction mode + `SET LOCAL` + 복합 인덱스. 의존: 없음 (핵심 critical path). 예상 2~3주
 - [ ] **N4-0** region 컬럼 + DB URL 분기 skeleton — `ALTER TABLE gyms ADD COLUMN region VARCHAR(5) DEFAULT 'kr'`. 의존: H-1. 예상 1일
-- [ ] **N5-1** Sentry SDK + PII scrub + release tag — Flask + JS 양쪽. 일일 error digest 메일. 의존: 없음. 예상 2일
+- [x] **N5-1** Sentry SDK + PII scrub + release tag — `services/facing/app.py` `_init_sentry()`·`_sentry_scrub_pii()` 추가 (2026-05-23). DSN 미설정 시 자동 skip. PII filter (password·card·token·전화·생년월일·이메일) 자동 마스킹. JS SDK 도입은 Phase 3 중기.
 
 ### 2.4 도메인 핵심 (4 task)
 
