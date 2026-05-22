@@ -41,10 +41,11 @@
   - `services/facing/audit_bcrypt.py` 추가 — `gym_managers` + `admin_users` 모든 hash 검증. cost <12 발견 시 exit 1
   - 실행 결과: 6/6 hash all cost 12 통과
 
-- [ ] **A-2 [P0]** **세션 쿠키 보안 플래그**
-  - `Secure` (HTTPS only) · `HttpOnly` (JS 접근 차단) · `SameSite=Strict`
-  - 세션 TTL: 8시간 (사장 업무 시간) + sliding expiration
-  - 로그아웃 시 server 측 세션 invalidate (Redis 또는 DB session table)
+- [x] **A-2 [P0]** **세션 쿠키 보안 플래그** (2026-05-23 일부 완료)
+  - `services/facing/app.py` 에 `app.config.update()` 추가
+  - `SESSION_COOKIE_SECURE=production만True` · `HTTPONLY=True` · `SAMESITE='Lax'` · TTL 8시간 + sliding (`SESSION_REFRESH_EACH_REQUEST=True`)
+  - dev localhost HTTP 호환 (Secure=False), production env 자동 전환
+  - 잔여: 로그아웃 시 server 측 세션 invalidate (Redis 또는 DB session table) — Redis 도입 시점 (M5) 에 추가
 
 - [ ] **A-3 [P0]** **CSRF 토큰**
   - Flask-WTF 또는 자체 구현. 모든 POST/PUT/DELETE 에 토큰 검증
@@ -61,10 +62,11 @@
   - 실패도 기록 (lockout 결정 근거)
   - 사장 본인 화면에서 최근 30일 로그인 로그 조회
 
-- [ ] **A-6 [P0]** **권한 미들웨어 — `require_role(gym_id, expected_role)`**
-  - study §8.3 Failure 2·3 패턴 그대로
-  - 모든 sensitive endpoint 시작점에 강제 호출
-  - JWT 또는 세션에서 `org_scopes` 추출 → 매 요청 재검증 (한 번 신뢰 X)
+- [x] **A-6 [P0]** **권한 미들웨어 헬퍼 추가** (2026-05-23 헬퍼 추가, 적용은 endpoint 마다)
+  - `services/facing/api/admin.py` 에 `require_role(roles)` 데코레이터 + `assert_gym_match(resource_gym_id)` 헬퍼 추가
+  - `require_role(["boss", "coach"])` 같이 다중 역할 지원
+  - `assert_gym_match()` 는 IDOR 방어 — 자원 gym_id 가 세션 gym_id 와 다르면 abort(404)
+  - 잔여: 모든 sensitive endpoint 에 적용 (B-8 IDOR 작업과 동시)
 
 - [ ] **A-7 [P1]** **JWT 도입 (M4 멀티 박스 대비)**
   - 현재 세션 쿠키 → JWT 전환 (org_scopes 배열 클레임)
