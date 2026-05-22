@@ -17,6 +17,7 @@ import '../auth/auth_state.dart';
 import '../gym/gym_state.dart';
 import '../profile/profile_state.dart';
 import 'persona_debug_data.dart';
+import 'qr_input_screen.dart';
 
 class _Persona {
   final String id;
@@ -257,6 +258,22 @@ class _PersonaSwitcherScreenState extends State<PersonaSwitcherScreen> {
               style: FacingTokens.caption,
             ),
             const SizedBox(height: FacingTokens.sp4),
+            // QR 체크인 진입 (회의 데모용).
+            Padding(
+              padding: const EdgeInsets.only(bottom: FacingTokens.sp4),
+              child: OutlinedButton.icon(
+                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => const QrInputScreen(),
+                )),
+                icon: const Icon(Icons.qr_code_scanner, size: 18),
+                label: const Text('QR 체크인 (토큰 수동 입력)'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: FacingTokens.accent,
+                  side: BorderSide(color: FacingTokens.accent),
+                  padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp3),
+                ),
+              ),
+            ),
             for (final p in _kDebugPersonas)
               _PersonaTile(
                 persona: p,
