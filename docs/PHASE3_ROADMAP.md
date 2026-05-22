@@ -360,6 +360,7 @@ study §14.6 단계 4 — 1,000박스 또는 enterprise 1곳:
 ## §변경 이력
 
 - **2026-05-23 오전**: 신규 작성. Phase 3 (단계 3 = 100박스) 6 마일스톤 (N1~N6). GAPS_ANALYSIS_2026-05-23.md 의 P0/P1/P2 → Phase 3 task 매핑.
+- **2026-05-23 오전 (/go 검증 후)**: 본 v1 문서는 base 로 보존. study 기반 정밀 검증 + task 재정의는 별도 v2 문서로 분리 → **`docs/PHASE3_REVISION_v2.md` 참조**. 4 sub-agent (Sonnet 병렬) artifact 위치: `docs/test/phase3-review/N{1·2·3-N6·4-N5}*.md`. v2 핵심 변경: N1 schema 3→6 테이블·N2 5 신규 task·N4 read replica 측정 기반·N6 그룹 Zoom 세션.
 
 ---
 
