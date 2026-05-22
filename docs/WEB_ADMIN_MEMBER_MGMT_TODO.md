@@ -33,7 +33,15 @@
 - §8.3 OWASP A01 — 3대 escalation 방어 (IDOR · vertical · horizontal)
 - §13 RFC 6749·7515·8252 (OAuth·JWT·Native Apps)
 
-### 2.2 task list
+### 2.2 task list (Phase 2 진행 — /test 보고서 patch 반영)
+
+오버나이트 patch 2 라운드 (2026-05-23 오전):
+- ✓ /test 페르소나 10명 × 10 피드백 = 100건 수집·5 카테고리 분석 (`docs/test/2026-05-23-0136/report.md`)
+- ✓ C1 신뢰 붕괴 — `scripts/dev_boot.ps1` 좀비 포트 정리 (sub-agent 들이 보고한 자동 redirect 원인 추정)
+- ✓ C2 읽기 전용 트랩 — 회원 행 클릭 + 수정 모달 + 코치 시급 인라인 편집 + 토스트
+- ✓ C3 회원 추가 시 회원권 동시 발급 (newModal 확장) + CSV UTF-8 BOM
+- ✓ C4 랜딩 1차 CTA + 빈 상태 친절 안내 (members·coaches·payroll) + 데이터 일관성 주석
+- ✓ C5 락커 vacant opacity 제거 + 텍스트 라벨 + Scaled 배지 색 #5A5A5A → #9A9A9A (WCAG 보정)
 
 - [x] **A-1 [P0]** **bcrypt cost 12 + password hashing 검증** (2026-05-22 완료)
   - 현재: `seed_gym_managers()`·`seed_superadmin()` 5곳 모두 `bcrypt.gensalt(rounds=12)` 일관 적용 확인
