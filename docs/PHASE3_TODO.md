@@ -71,7 +71,7 @@
 
 ### 2.7 코치 정산 — 한국 노무 (1 task)
 
-- [ ] **N2-9** 코치 일용직 정산 자동화 — (1단계 완료) `services/facing/utils/payroll_tax.py` 갑근세 + 4대보험 의무 + 두루누리 + 3개월 경과 헬퍼. 일급 / 월급 시나리오 5+4 self-test 통과. 2단계 잔여: GymManager.employment_type 컬럼 + payroll endpoint 통합 + UI 표시.
+- [x] **N2-9** 코치 일용직 정산 자동화 — (1단계) `services/facing/utils/payroll_tax.py` 갑근세 + 4대보험 의무 + 두루누리 + 3개월 경과 헬퍼. self-test 9 시나리오 통과. (2단계) GymManager.employment_type 컬럼 + ALTER 마이그레이션 + payroll_upsert endpoint 통합 + coaches.html 고용 유형 컬럼·전환 권고 alert + 코치 추가 폼 select. 시드 boss=regular·coach_park=daily. (2026-05-23 완료)
 
 ### 2.8 P0 의존 그래프 (critical path 굵게)
 
