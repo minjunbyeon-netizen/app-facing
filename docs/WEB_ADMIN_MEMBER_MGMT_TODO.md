@@ -35,10 +35,11 @@
 
 ### 2.2 task list
 
-- [ ] **A-1 [P0]** **bcrypt cost 12 + password hashing 검증**
-  - 현재: `seed_gym_managers()` 가 bcrypt cost 12 적용 중 (HANDOFF 확인)
-  - 추가: cost 12 가 일관 적용되는지 audit script + 로그인 시도 시 timing-safe compare
-  - 검증: cost <12 발견 시 fail-fast
+- [x] **A-1 [P0]** **bcrypt cost 12 + password hashing 검증** (2026-05-22 완료)
+  - 현재: `seed_gym_managers()`·`seed_superadmin()` 5곳 모두 `bcrypt.gensalt(rounds=12)` 일관 적용 확인
+  - 로그인 검증 `bcrypt.checkpw()` — bcrypt 자체가 timing-safe ✓
+  - `services/facing/audit_bcrypt.py` 추가 — `gym_managers` + `admin_users` 모든 hash 검증. cost <12 발견 시 exit 1
+  - 실행 결과: 6/6 hash all cost 12 통과
 
 - [ ] **A-2 [P0]** **세션 쿠키 보안 플래그**
   - `Secure` (HTTPS only) · `HttpOnly` (JS 접근 차단) · `SameSite=Strict`
