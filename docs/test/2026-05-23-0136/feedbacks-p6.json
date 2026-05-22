@@ -1,0 +1,172 @@
+{
+  "persona": {
+    "id": "p6",
+    "name": "David Choi",
+    "age": 37,
+    "role": "외국인 박스 사장",
+    "tech_affinity": "4/5",
+    "device": "노트북",
+    "attitude": "회의적",
+    "language_expectation": "영어 UI 기대",
+    "session_date": "2026-05-23",
+    "url": "http://localhost:8081"
+  },
+  "scenario_summary": {
+    "s1_lang_toggle": "사이드바·헤더·푸터·설정 페이지 어디에도 언어 전환 토글 없음. /settings 404.",
+    "s2_member_registration": "회원 추가 모달 — 이름·성별·생년월일·전화·레벨·비고 전 필드 한국어 라벨. 영어 placeholder 0개.",
+    "s3_contract_receipt": "계약서 본문 100% 한국어. 영문 계약서 생성 옵션 없음. 영수증 기능 자체 미존재."
+  },
+  "feedbacks": [
+    {
+      "id": "fb-p6-01",
+      "scenario": "s1_lang_toggle",
+      "task": "로그인 후 영어 UI 토글 찾기",
+      "task_complete": false,
+      "nielsen_heuristic": "H8: Aesthetic and Minimalist Design / H7: Flexibility and Efficiency of Use",
+      "severity": 5,
+      "verbatim": "Wait, where's English? I checked the sidebar, the header, everything. There's no language switch at all.",
+      "observation": "사이드바 메뉴 10개(대시보드·통계·회원관리 3종·코치관리 2종·출석·시설·서류·로그아웃) 전부 한국어. 언어 전환 UI 없음.",
+      "screenshot": "screenshots/p6/05-members-no-lang-toggle.png"
+    },
+    {
+      "id": "fb-p6-02",
+      "scenario": "s1_lang_toggle",
+      "task": "설정 페이지에서 언어 옵션 탐색",
+      "task_complete": false,
+      "nielsen_heuristic": "H6: Recognition Rather Than Recall",
+      "severity": 4,
+      "verbatim": "OK this is Korean only. I tried going to /settings to find a language option — got a 404. There's literally no settings page.",
+      "observation": "/settings 라우트 404. 사이드바에 '설정' 메뉴 항목 자체가 없음. 언어·계정 설정 진입점 전무.",
+      "screenshot": "screenshots/p6/05-members-no-lang-toggle.png"
+    },
+    {
+      "id": "fb-p6-03",
+      "scenario": "s1_lang_toggle",
+      "task": "로그인 화면에서 언어 토글 탐색",
+      "task_complete": false,
+      "nielsen_heuristic": "H4: Consistency and Standards",
+      "severity": 4,
+      "verbatim": "Even the login page is in Korean. 'FACING ADMIN · 사장 로그인' — I had to guess what '아이디' means. That's the username field, right?",
+      "observation": "로그인 페이지 라벨: '아이디', '비밀번호', '로그인'. 영어 힌트 0. HTML lang='en'이지만 콘텐츠 100% 한국어 (lang 속성 불일치).",
+      "screenshot": "screenshots/p6/04-login-korean-only.png"
+    },
+    {
+      "id": "fb-p6-04",
+      "scenario": "s1_lang_toggle",
+      "task": "브라우저 자동 번역 의존 가능 여부",
+      "task_complete": false,
+      "nielsen_heuristic": "H1: Visibility of System Status",
+      "severity": 3,
+      "verbatim": "I'll Google translate this... but the page title in the tab says 'FACING ADMIN' in English and then Korean. It's inconsistent.",
+      "observation": "HTML lang='en'으로 선언돼 있어 Chrome 자동 번역 제안이 뜨지 않음. 실제 콘텐츠가 한국어인데 lang='en'이므로 자동번역 트리거 미작동. 사용자가 수동 번역에 의존해야 함.",
+      "screenshot": "screenshots/p6/02-login-page.png"
+    },
+    {
+      "id": "fb-p6-05",
+      "scenario": "s2_member_registration",
+      "task": "영국 거주 외국인 회원 등록",
+      "task_complete": false,
+      "nielsen_heuristic": "H5: Error Prevention",
+      "severity": 4,
+      "verbatim": "OK so I need to add a member — a British guy named James. The form has '이름', '성별', '생년월일'... I think '이름' is name? And '생년월일' is birthday? I'm just guessing here.",
+      "observation": "회원 추가 모달 필드: 이름·성별(남/여)·생년월일·전화·레벨(Scaled/RX/RX+/Elite)·비고. 레벨만 영어, 나머지 전부 한국어 라벨. 영어 placeholder 없음.",
+      "screenshot": "screenshots/p6/07-add-member-modal-korean-fields.png"
+    },
+    {
+      "id": "fb-p6-06",
+      "scenario": "s2_member_registration",
+      "task": "성별 선택 필드 이해",
+      "task_complete": false,
+      "nielsen_heuristic": "H2: Match Between System and Real World",
+      "severity": 3,
+      "verbatim": "There are two buttons — '남' and '여'. I assume that's Male and Female but I had to think about it. No English label, no icon.",
+      "observation": "'남'·'여' 라디오 버튼에 영문 표기 없음. 아이콘(♂/♀) 없음. 외국인은 한자 유래 한국어 단어라 맥락 추측 필요.",
+      "screenshot": "screenshots/p6/07-add-member-modal-korean-fields.png"
+    },
+    {
+      "id": "fb-p6-07",
+      "scenario": "s2_member_registration",
+      "task": "외국인 전화번호 형식 입력 가능 여부",
+      "task_complete": false,
+      "nielsen_heuristic": "H5: Error Prevention",
+      "severity": 3,
+      "verbatim": "The phone field — does it accept international numbers? Like +44 7911 123456 for a UK member? I see the example is '010-xxxx-xxxx', Korean format only.",
+      "observation": "전화 필드 placeholder가 한국 010 형식 예시. 국제 번호(+44, +1 등) 허용 여부 불명. 외국인 회원 또는 외국인 사장 자신의 번호 등록 시 UX 불명확.",
+      "screenshot": "screenshots/p6/07-add-member-modal-korean-fields.png"
+    },
+    {
+      "id": "fb-p6-08",
+      "scenario": "s3_contract_receipt",
+      "task": "영문 계약서 생성",
+      "task_complete": false,
+      "nielsen_heuristic": "H7: Flexibility and Efficiency of Use",
+      "severity": 5,
+      "verbatim": "Is there English version? My member is from UK — he can't sign a Korean contract he doesn't understand. I need an English contract. There's no option here.",
+      "observation": "계약서 생성 폼: 회원 선택 드롭다운 + 계약서 본문(한국어 textarea 기본값). 언어 전환·영문 템플릿·번역 옵션 없음. 계약서 본문 5개 조항 전부 한국어.",
+      "screenshot": "screenshots/p6/09-contract-form-korean-only.png"
+    },
+    {
+      "id": "fb-p6-09",
+      "scenario": "s3_contract_receipt",
+      "task": "영수증 발급 기능 탐색",
+      "task_complete": false,
+      "nielsen_heuristic": "H7: Flexibility and Efficiency of Use",
+      "severity": 4,
+      "verbatim": "Where can I issue a receipt? My UK member needs an English receipt for his expense claim. I see '전자계약서' in the menu... that's contracts, not receipts. Can I switch language?",
+      "observation": "서류 섹션에 '전자계약서'만 있음. 영수증(receipt/invoice) 별도 발급 메뉴 없음. 계약서 본문에 영문 출력 옵션 없음. 외국인 회원 영수증 발급 플로우 완전 미지원.",
+      "screenshot": "screenshots/p6/08-contracts-page-korean.png"
+    },
+    {
+      "id": "fb-p6-10",
+      "scenario": "s3_contract_receipt",
+      "task": "전체 앱 언어 경험 종합 평가",
+      "task_complete": false,
+      "nielsen_heuristic": "H4: Consistency and Standards",
+      "severity": 5,
+      "verbatim": "Can I switch language? No? Then I'm stuck. I run a CrossFit box but I can't use my own admin tool because everything is in Korean. I'll have to ask my Korean staff to do everything for me.",
+      "observation": "앱 전체(로그인·사이드바·회원 관리·계약서) 언어 전환 UI 전무. lang='en' 선언으로 브라우저 자동번역도 비작동. 외국인 사장이 독립적으로 운영 불가능 — 한국어 보조 직원 의존 필수. 감정 Job(자립감) 완전 미충족.",
+      "screenshot": "screenshots/p6/05-members-no-lang-toggle.png"
+    }
+  ],
+  "aggregate": {
+    "task_complete_rate": "0/10 (0%)",
+    "avg_severity": 4.0,
+    "top_issues": [
+      {
+        "rank": 1,
+        "category": "언어 국제화 (i18n) 완전 부재",
+        "affected_feedbacks": ["fb-p6-01","fb-p6-02","fb-p6-03","fb-p6-10"],
+        "severity": 5,
+        "recommendation": "사이드바 하단 또는 로그인 화면에 EN/KO 토글 추가. HTML lang 속성 실제 콘텐츠 언어와 일치 수정(현재 lang=en인데 콘텐츠 한국어)."
+      },
+      {
+        "rank": 2,
+        "category": "영문 계약서·영수증 미지원",
+        "affected_feedbacks": ["fb-p6-08","fb-p6-09"],
+        "severity": 5,
+        "recommendation": "계약서 본문 언어 선택(KO/EN) + 영문 기본 템플릿 제공. 영수증 발급 별도 메뉴 추가."
+      },
+      {
+        "rank": 3,
+        "category": "회원 등록 폼 영문 라벨 없음",
+        "affected_feedbacks": ["fb-p6-05","fb-p6-06"],
+        "severity": 4,
+        "recommendation": "폼 필드 영문 sub-label 병기(이름/Name, 성별/Gender, 생년월일/DOB). 성별 버튼 M/F 병기."
+      },
+      {
+        "rank": 4,
+        "category": "브라우저 자동번역 비작동",
+        "affected_feedbacks": ["fb-p6-04"],
+        "severity": 3,
+        "recommendation": "HTML lang='ko'로 수정하여 Chrome 자동번역이 정상 트리거되도록. i18n 미지원 단기 우회책."
+      },
+      {
+        "rank": 5,
+        "category": "국제 전화번호 형식 미지원",
+        "affected_feedbacks": ["fb-p6-07"],
+        "severity": 3,
+        "recommendation": "전화 필드 validation에 국제번호(+XX) 형식 허용. placeholder를 '+82 10-0000-0000 또는 국제번호' 형식으로."
+      }
+    ]
+  }
+}

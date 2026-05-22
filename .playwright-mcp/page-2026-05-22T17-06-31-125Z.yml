@@ -1,0 +1,12 @@
+- generic [ref=e2]:
+  - heading "FACING" [level=1] [ref=e3]
+  - generic [ref=e4]: ADMIN · 사장 로그인
+  - generic [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7]: 아이디
+      - textbox "아이디" [ref=e8]: boss_seongsu
+    - generic [ref=e9]:
+      - generic [ref=e10]: 비밀번호
+      - textbox "비밀번호" [ref=e11]: "1234"
+    - button "로그인" [ref=e12] [cursor=pointer]
+    - generic [ref=e13]: "데모 계정: boss_seongsu / 1234 (FACING SEONGSU 사장)"

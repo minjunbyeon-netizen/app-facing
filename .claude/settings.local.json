@@ -21,7 +21,15 @@
       "mcp__tavily__tavily_search",
       "mcp__exa__web_search_exa",
       "mcp__tavily__tavily_extract",
-      "mcp__exa__web_fetch_exa"
+      "mcp__exa__web_fetch_exa",
+      "PowerShell($ProgressPreference='SilentlyContinue'; try { $b = Invoke-WebRequest -Uri 'http://localhost:5060/api/v1/health' -TimeoutSec 3 -UseBasicParsing; \"BACKEND_5060: OK $\\($b.StatusCode\\)\" } catch { \"BACKEND_5060: DOWN $\\($_.Exception.Message.Substring\\(0,[Math]::Min\\(60,$_.Exception.Message.Length\\)\\)\\)\" }; try { $w = Invoke-WebRequest -Uri 'http://localhost:8081/' -TimeoutSec 3 -UseBasicParsing; \"PCWEB_8081: OK $\\($w.StatusCode\\)\" } catch { \"PCWEB_8081: DOWN $\\($_.Exception.Message.Substring\\(0,[Math]::Min\\(60,$_.Exception.Message.Length\\)\\)\\)\" }; $adb = & \"$env:LOCALAPPDATA\\\\Android\\\\Sdk\\\\platform-tools\\\\adb.exe\" devices 2>&1; \"ADB_DEVICES:\"; $adb)",
+      "mcp__playwright__browser_fill_form",
+      "mcp__playwright__browser_type",
+      "mcp__playwright__browser_wait_for",
+      "mcp__playwright__browser_handle_dialog",
+      "mcp__playwright__browser_press_key",
+      "PowerShell(Get-NetTCPConnection *)",
+      "PowerShell(wmic process where \"ProcessId=34040\" get ProcessId,Name,CommandLine /format:list 2>$null)"
     ]
   }
 }
