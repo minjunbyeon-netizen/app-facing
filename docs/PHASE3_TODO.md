@@ -35,7 +35,7 @@
 - [x] **A-6** require_role + assert_gym_match + **assert_admin_gym** 헬퍼 — services/facing/api/admin.py (2026-05-22 + 23 보강)
 - [ ] **A-3** CSRF 토큰 — Flask-WTF 또는 자체 double-submit cookie. 모든 POST/PUT/DELETE 검증. 의존: 없음. 예상 1주
 - [ ] **A-4** 로그인 rate limit + 잠금 — Flask-Limiter + Redis sliding window. IP 5분/5회·계정 30분/10회. 의존: N4-3 Redis. 예상 3일
-- [ ] **A-5** audit log 강화 — login + 권한 변경 + 결제 + 환불 + 회원 삭제 자동 기록. 의존: 없음. 예상 2일 (진행중 — 18/29 endpoint audit 적용. 11곳 보강 필요)
+- [x] **A-5** audit log 강화 — 16 WRITE endpoint 모두 audit 적용 검증 완료 (자동 grep 검증). admin_logout + admin_payroll_csv (CSV 다운로드 감사 추적) 보강 (2026-05-23). audit 누락 0건.
 - [ ] **A-6 적용** — admin.py 의 모든 sensitive endpoint 에 `assert_admin_gym()`·`assert_gym_match()` 호출 refactor. 헬퍼 2종 추가 완료, 21곳 적용 잔여. 예상 3일
 
 ### 2.2 PIPA·결제 (4 task)
@@ -71,7 +71,7 @@
 
 ### 2.7 코치 정산 — 한국 노무 (1 task)
 
-- [ ] **N2-9** 코치 일용직 정산 자동화 — 갑근세 (일급-₩150K)×2.97% + 4대보험 의무 알림 + 3개월 경과 알림 + 두루누리 80% 안내. 의존: 없음. 예상 1주
+- [ ] **N2-9** 코치 일용직 정산 자동화 — (1단계 완료) `services/facing/utils/payroll_tax.py` 갑근세 + 4대보험 의무 + 두루누리 + 3개월 경과 헬퍼. 일급 / 월급 시나리오 5+4 self-test 통과. 2단계 잔여: GymManager.employment_type 컬럼 + payroll endpoint 통합 + UI 표시.
 
 ### 2.8 P0 의존 그래프 (critical path 굵게)
 
