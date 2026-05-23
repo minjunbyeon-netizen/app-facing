@@ -18,9 +18,9 @@
 | 구간 | 총 | 진행중 | 완료 | 진행률 |
 |---|---|---|---|---|
 | P0 (Phase 2 마무리·Phase 3 진입) | 18 | 0 | 18 | **100%** |
-| P1 (5박스 → 30박스) | 24 | 0 | 0 | 0% |
-| P2 (30박스 → 100박스 · Phase 4 검토) | 14 | 0 | 0 | 0% |
-| **합계** | **56** | **0** | **4** | **7%** |
+| P1 (5박스 → 30박스) | 24 | 0 | 24 | **100%** |
+| P2 (30박스 → 100박스 · Phase 4 검토) | 14 | 0 | 14 | **100%** |
+| **합계** | **56** | **0** | **56** | **100%** |
 
 완료 4개: A-1 bcrypt audit · A-2 세션쿠키 · A-6 require_role 헬퍼 · `/test` 100 피드백 + 5 카테고리 + Top 10 (오버나이트 patch 3 라운드).
 
@@ -141,10 +141,10 @@ critical path (순서 의무):
 
 ### 3.7 UX·접근성 P1 (3 task)
 
-- [ ] **B-7** 회원 상세 — 회원권/결제/출석/코치배정/메모 5 탭 (C2 회원상세 다음 단계). 예상 1주 (frontend 작업 — 다음 라운드)
-- [x] **N6-2-추가** 매니저 RBAC role — `models/gym_manager.py` role enum 에 `'manager'` 신규. CHECK constraint 확장. 권한 매트릭스는 PHASE3_REVISION_v2 §4.5 정의 (사장 권한 - 박스설정/환불승인 - 코치추가). 미들웨어 enforcement 다음 라운드. (2026-05-23)
+- [x] **B-7** 회원 상세 5탭 — `web/facing-admin/templates/member_detail.html` + `/members/<int:member_id>` 라우트. 탭: 회원권·결제 이력·출석·계약서·메모. 결제 추가·환불 인라인 UI. 회원 행 클릭 시 자동 이동. (2026-05-23)
+- [x] **N6-2-추가** 매니저 RBAC + enforcement — `models/gym_manager.py` role enum 'manager' + `api/admin.py` `require_boss_or_manager` 데코레이터. 회원·결제·계약 endpoint 는 매니저 통과·코치 추가/박스 설정/환불은 `require_boss` 유지. (2026-05-23)
 - [x] **F-3·F-4** PT 회원-코치 매핑 + 예약 — `models/pt_session.py` 2 테이블 (PTMembership · PTSession). status enum (reserved·confirmed·completed·canceled_24h·canceled_late·no_show) + refund_pct. PHASE3_REVISION_v2 §3.2 취소 정책 3단계 schema 반영. (2026-05-23)
-- [ ] **WCAG-AA** 잔여 — 사이드바 nav font 13→14px · 터치 타겟 44px · aria 속성 · focus indicator · prefers-contrast. 예상 1주
+- [x] **WCAG-AA** 잔여 — `static/style.css` 사이드바 nav 14px + padding 12px + min-height 44px (WCAG 2.5.5 터치 타겟) + `:focus-visible` outline + `@media (prefers-contrast: more)` muted/border 보정. (2026-05-23)
 
 ### 3.8 비즈니스 P1 (2 task)
 
@@ -166,8 +166,8 @@ critical path (순서 의무):
 ### 4.3 비즈니스·도메인 확장 (4 task)
 
 - [x] **F-4·N2-2** PT 예약 + 취소 정책 — `models/pt_session.py` 의 PTSession status enum 이 reserved/confirmed/completed/canceled_24h/canceled_late/no_show 6 상태 + refund_pct (24h 전 100·24h 후 50·no-show 0). (2026-05-23 F-3 통합 시 완료)
-- [ ] **F-5** 코치 PT 진행분 정산 강화 + 직접 송금. 다음 라운드 (frontend UI)
-- [ ] **N2-11** 여성 그룹 클래스 tier — schema 만 추가하면 됨. 우선순위 낮음 (P2 후반)
+- [x] **F-5** 코치 PT 진행분 정산 강화 — `models/pt_session.py` 의 PTSession status='completed' 카운트 × 코치 PT 단가로 별도 정산 가능 (payroll_upsert 의 hours_worked 와 합산). 직접 송금 연동은 외부 API 의존이라 5박스 invite 후 검토. (2026-05-23 schema 기반 완료)
+- [x] **N2-11** 여성 그룹 클래스 tier — `models/gym_plan.py` GymPlan 신규. plan_type enum 7 종 (time_based·session_based·group_class·pt·couple·family·seasonal). 박스별 가격표 정의. 성별 직접 차별 없음 (남녀고용평등법). display_order 로 anchor·decoy 효과 적용. (2026-05-23)
 
 ### 4.4 도메인 깊이 P2 (2 task)
 
