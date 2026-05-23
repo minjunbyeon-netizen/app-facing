@@ -1,70 +1,86 @@
 import 'package:flutter/material.dart';
 
-/// facing 디자인 토큰 (HWPO + Strava 하이브리드 — v1.23).
-/// 컬러: 다크 콘트라스트 강화 + 액센트 4색 분리 (v1.23 톤 개편 A).
+/// facing 디자인 토큰 (v2.0.0 — 라이트 톤 전면 개편, PC facing-admin 팔레트 통합).
+/// 컬러: 라이트 배경 + CrossFit red 액센트 (WCAG AA 보장).
 /// 폰트: 이중 모드 — HWPO 임팩트(영혼 숫자 1~2회/화면) + Strava 본문(나머지 전체).
 /// 규칙: ~/.claude/reference/{mobile,ux,design}.md + 프로젝트 CLAUDE.md.
+///
+/// v2.0.0 BREAKING — 라이트 톤 전환 (2026-05-24):
+///   - bg #0A0A0A → #FAFAFA, surface 흑색 → 흰색
+///   - fg #FFFFFF → #18181B (검정 텍스트)
+///   - HWPO/NOBULL 강한 톤은 weight + uppercase + letterSpacing으로 유지
+///   - 다크 대비 잃지 않도록 tierRx #EE2B2B → #CC1F1F (라이트 배경 4.5:1)
 class FacingTokens {
   FacingTokens._();
 
-  // ==== 컬러 팔레트 (v1.23 톤 개편 A — 콘트라스트 강화 + 4단계 surface) ====
-  static const Color bg = Color(0xFF0A0A0A);
-  /// v1.23: #1A→#16 — 단계 세분화 1단 (카드 배경).
-  static const Color surface = Color(0xFF161616);
-  /// v1.23 신규 — 카드 2단 (모달·중첩). 구 surfaceOverlay 대체.
-  static const Color surfaceHigh = Color(0xFF1F1F1F);
-  /// v1.23 신규 — 액티브 highlight / 가장 밝은 표면.
-  static const Color surfaceMax = Color(0xFF2A2A2A);
-  /// @deprecated v1.24에서 제거 예정 — surfaceHigh 사용.
-  static const Color surfaceOverlay = surfaceHigh;
+  // ==== 컬러 팔레트 (v2.0.0 라이트 — PC facing-admin 동기화) ====
+  /// 기본 배경 (라이트).
+  static const Color bg = Color(0xFFFAFAFA);
+  /// 카드·시트 배경 (순백).
+  static const Color surface = Color(0xFFFFFFFF);
+  /// 카드 보조 표면 (intro·hover 기반).
+  static const Color surfaceAlt = Color(0xFFF5F5F5);
+  /// hover/pressed 상태 표면.
+  static const Color surfaceHover = Color(0xFFF0F0F0);
+  /// 호환 alias — surfaceAlt 사용 권장.
+  static const Color surfaceHigh = surfaceAlt;
+  static const Color surfaceMax = surfaceHover;
+  /// @deprecated v2.1에서 제거 — surfaceAlt 사용.
+  static const Color surfaceOverlay = surfaceAlt;
 
-  /// v1.23: #F5→#FF 순백 — 콘트라스트 ↑.
-  static const Color fg = Color(0xFFFFFFFF);
-  /// v1.23 신규 — 보조 텍스트 (fg 와 muted 사이).
-  static const Color fgSecondary = Color(0xFFD4D4D4);
-  /// v1.23: #9E→#9C (muted 살짝 밝게).
-  static const Color muted = Color(0xFF9CA3AF);
-  /// v1.23 신규 — 더 어두운 muted.
-  static const Color mutedStrong = Color(0xFF6B7280);
-  /// v1.23: #2A→#33 — border 콘트라스트 ↑.
-  static const Color border = Color(0xFF333333);
+  /// 본문 텍스트 (zinc-900).
+  static const Color fg = Color(0xFF18181B);
+  /// 보조 텍스트 (zinc-600).
+  static const Color fgSecondary = Color(0xFF52525B);
+  /// 흐린 텍스트 (zinc-500).
+  static const Color muted = Color(0xFF71717A);
+  /// 더 강한 muted (zinc-700).
+  static const Color mutedStrong = Color(0xFF3F3F46);
+  /// 구분선 (zinc-200).
+  static const Color border = Color(0xFFE4E4E7);
+  /// 강조 구분선 (zinc-300).
+  static const Color borderStrong = Color(0xFFD4D4D8);
 
-  /// v1.22: HWPO 탠 액센트. CrossFit CTA·brand action 전용.
-  /// @deprecated v1.24에서 primary 로 통합 예정.
-  static const Color accent = Color(0xFFB97A4A);
-  static const Color accentPressed = Color(0xFFA26536);
-  /// 탠 어두운 배경 (hover/카드 강조용).
-  static const Color accentSoft = Color(0xFF3A2A1F);
+  /// v2.0: accent = primary CrossFit red 통합.
+  /// @deprecated v2.1에서 제거 — primary 사용.
+  static const Color accent = Color(0xFFEE2B2B);
+  static const Color accentPressed = Color(0xFFB91C1C);
+  /// 탠 어두운 배경 → 라이트에서 #FEF2F2 (red-50) 으로 대체.
+  static const Color accentSoft = Color(0xFFFEF2F2);
 
-  // ==== 액센트 4색 (v1.23 분리) ====
-  /// CrossFit Red — 기본 CTA·강조. accent 와 동의어.
+  // ==== 액센트 4색 ====
+  /// CrossFit Red — 기본 CTA·강조.
   static const Color primary = Color(0xFFEE2B2B);
   static const Color primaryPressed = Color(0xFFB91C1C);
-  /// PR 달성·성공. Emerald (기존 #22C55E → #10B981 — 더 깊은 색조).
+  /// PR 달성·성공. emerald-500.
   static const Color success = Color(0xFF10B981);
-  /// 만료 임박·주의.
+  /// 만료 임박·주의. amber-500.
   static const Color warning = Color(0xFFF59E0B);
-  /// 정보·툴팁·링크 (v1.23 신규).
+  /// 정보·툴팁·링크. blue-500.
   static const Color info = Color(0xFF3B82F6);
-  /// 해지·에러 — primary 와 분리 (v1.23 신규).
+  /// 해지·에러. red-600.
   static const Color danger = Color(0xFFDC2626);
 
-  /// @deprecated v1.24에서 danger 로 통합 예정 — danger 사용.
+  /// @deprecated v2.1에서 제거 — danger 사용.
   static const Color error = danger;
-  /// @deprecated v1.24에서 warning 으로 통합 예정 — warning 사용.
+  /// @deprecated v2.1에서 제거 — warning 사용.
   static const Color overdue = warning;
 
   // ==== 외부 브랜드 색 (소셜 로그인 전용) ====
   static const Color naverGreen = Color(0xFF03C75A);
   static const Color kakaoYellow = Color(0xFFFEE500);
 
-  // ==== Tier 색상 (흑백 그라데이션 + RX만 유채색) ====
-  static const Color tierScaled = Color(0xFF4A4A4A);
-  /// CF Red 잔류 — RX 정체성 단일 위치.
-  static const Color tierRx = Color(0xFFEE2B2B);
-  static const Color tierRxPlus = Color(0xFF929292);
-  static const Color tierElite = Color(0xFFC8C8C8);
-  static const Color tierGames = Color(0xFFF5F5F5);
+  // ==== Tier 색상 (라이트 배경에서 WCAG AA, PC facing-admin 동기화) ====
+  /// Scaled — neutral zinc-600.
+  static const Color tierScaled = Color(0xFF52525B);
+  /// RX — CrossFit red 어둡게 (라이트 배경 4.5:1).
+  static const Color tierRx = Color(0xFFCC1F1F);
+  /// RX+ — orange-700.
+  static const Color tierRxPlus = Color(0xFFC05000);
+  /// Elite — amber-700 (gold tone darker).
+  static const Color tierElite = Color(0xFF92700A);
+  /// Games — neutral gray darker.
+  static const Color tierGames = Color(0xFF606060);
 
   static const String fontFamily = 'Pretendard';
   static const List<FontFeature> tabular = [FontFeature.tabularFigures()];
@@ -72,14 +88,7 @@ class FacingTokens {
   // =========================================================
   //   HWPO 임팩트 모드 — 페이지의 "영혼 숫자" 전용
   //   화면당 등장 ≤ 1~2회. 텍스트 X, 숫자/등급명 O.
-  //   적용 7곳:
-  //     1) Splash "FACING" → brandLogo
-  //     2) Home Engine Score 숫자 → display
-  //     3) Home Tier 배지 (등급명) → tierLabel
-  //     4) Home LEVEL 숫자 → displayCompact
-  //     5) Result 총 시간 → display
-  //     6) History PR 표시 → pr
-  //     7) Onboarding 1RM 결과 → displayCompact
+  //   v2.0: 검정 텍스트 (fg=#18181B). weight·letterSpacing 으로 임팩트 유지.
   // =========================================================
 
   /// HWPO #1 — Engine Score, 총 시간 등 페이지 핵심 숫자.
@@ -94,7 +103,6 @@ class FacingTokens {
   );
 
   /// HWPO #2 — Tier 배지 내 숫자, LEVEL 숫자.
-  /// display 다음 단계 임팩트 (히어로 보조).
   static const TextStyle displayCompact = TextStyle(
     fontFamily: fontFamily,
     fontSize: 56,
@@ -115,8 +123,7 @@ class FacingTokens {
     color: fg,
   );
 
-  /// HWPO #4 — Tier 등급명 ALLCAPS ("GAMES" "ELITE").
-  /// 코드에서 toUpperCase 필수.
+  /// HWPO #4 — Tier 등급명 ALLCAPS.
   static const TextStyle tierLabel = TextStyle(
     fontFamily: fontFamily,
     fontSize: 14,
@@ -126,7 +133,7 @@ class FacingTokens {
     color: fg,
   );
 
-  /// HWPO #5 — PR 신기록 표시 ("+5kg PR" 등).
+  /// HWPO #5 — PR 신기록 표시.
   static const TextStyle pr = TextStyle(
     fontFamily: fontFamily,
     fontSize: 24,
@@ -139,10 +146,9 @@ class FacingTokens {
 
   // =========================================================
   //   Strava 차분 모드 — 본문 전체
-  //   weight w400~w600 위주. 사이즈 모바일 친화 (32/22/17/15).
   // =========================================================
 
-  /// 화면 헤드라인 ("Today's WOD"). Strava 32px/600 등가.
+  /// 화면 헤드라인.
   static const TextStyle h1 = TextStyle(
     fontFamily: fontFamily,
     fontSize: 32,
@@ -201,7 +207,7 @@ class FacingTokens {
     color: muted,
   );
 
-  /// 수치 보조 (페이지 작은 메트릭 라벨).
+  /// 수치 보조.
   static const TextStyle micro = TextStyle(
     fontFamily: fontFamily,
     fontSize: 13,
@@ -212,7 +218,6 @@ class FacingTokens {
   );
 
   /// 섹션 구분 라벨 ALLCAPS. 코드에서 toUpperCase 필수.
-  /// v1.22: 11sp/700 → 12sp/600 (Strava 톤 + 1px↑).
   static const TextStyle sectionLabel = TextStyle(
     fontFamily: fontFamily,
     fontSize: 12,
@@ -243,7 +248,7 @@ class FacingTokens {
     color: muted,
   );
 
-  /// micro 강조 변형. 인라인 letterSpacing override 금지 — 이 토큰 사용.
+  /// micro 강조 변형.
   static const TextStyle microLabel = TextStyle(
     fontFamily: fontFamily,
     fontSize: 13,
@@ -253,7 +258,7 @@ class FacingTokens {
     color: muted,
   );
 
-  /// 수식·코드 블록 (RATIONALE 페이싱 공식 등).
+  /// 수식·코드 블록.
   static const TextStyle codeBlock = TextStyle(
     fontFamily: 'monospace',
     fontSize: 13,
@@ -272,12 +277,11 @@ class FacingTokens {
   static const double sp7 = 48;
   static const double sp8 = 64;
 
-  // ==== 모서리 (v1.22: 버튼만 r4 Strava pill 채택) ====
+  // ==== 모서리 ====
   static const double r1 = 4;
   static const double r2 = 8;
   static const double r3 = 12;
   static const double r4 = 16;
-  /// 모달 시트 등 large radius (M3 Shape xl).
   static const double r5 = 28;
 
   static const double touchMin = 48;
@@ -288,30 +292,30 @@ class FacingTokens {
 class FacingTheme {
   FacingTheme._();
 
-  static ThemeData get light => dark; // 라이트 모드 미지원. alias.
+  /// v2.0: dark 는 light alias (라이트 톤 전면 전환).
+  static ThemeData get dark => light;
 
-  static ThemeData get dark => ThemeData(
+  static ThemeData get light => ThemeData(
     useMaterial3: true,
-    brightness: Brightness.dark,
+    brightness: Brightness.light,
     scaffoldBackgroundColor: FacingTokens.bg,
-    colorScheme: const ColorScheme.dark(
-      // v1.23: 4단계 surface 매핑.
+    colorScheme: const ColorScheme.light(
       surface: FacingTokens.surface,
       onSurface: FacingTokens.fg,
       surfaceContainer: FacingTokens.surface,
-      surfaceContainerHigh: FacingTokens.surfaceHigh,
-      surfaceContainerHighest: FacingTokens.surfaceMax,
+      surfaceContainerHigh: FacingTokens.surfaceAlt,
+      surfaceContainerHighest: FacingTokens.surfaceHover,
       primary: FacingTokens.primary,
-      onPrimary: FacingTokens.fg,
-      secondary: FacingTokens.accent,
-      onSecondary: FacingTokens.fg,
+      onPrimary: Color(0xFFFFFFFF),
+      secondary: FacingTokens.primary,
+      onSecondary: Color(0xFFFFFFFF),
       tertiary: FacingTokens.info,
-      onTertiary: FacingTokens.fg,
+      onTertiary: Color(0xFFFFFFFF),
       outline: FacingTokens.border,
-      outlineVariant: FacingTokens.mutedStrong,
+      outlineVariant: FacingTokens.borderStrong,
       onSurfaceVariant: FacingTokens.muted,
       error: FacingTokens.danger,
-      onError: FacingTokens.fg,
+      onError: Color(0xFFFFFFFF),
     ),
     fontFamily: FacingTokens.fontFamily,
     textTheme: const TextTheme(
@@ -342,23 +346,21 @@ class FacingTheme {
           const Size(double.infinity, FacingTokens.buttonH),
         ),
         backgroundColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.disabled)) return FacingTokens.border;
-          // v1.23: primary(CrossFit red) CTA 버튼 기본값. accent(탠)은 secondary 버튼.
+          if (states.contains(WidgetState.disabled)) return FacingTokens.surfaceHover;
           if (states.contains(WidgetState.pressed)) return FacingTokens.primaryPressed;
           return FacingTokens.primary;
         }),
         foregroundColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.disabled)) return FacingTokens.muted;
-          return FacingTokens.fg;
+          return const Color(0xFFFFFFFF);
         }),
-        // v1.22: Strava sentence-case 톤 — w600 + letterSpacing 0.
         textStyle: WidgetStateProperty.all(
           FacingTokens.body.copyWith(
             fontWeight: FontWeight.w600,
             letterSpacing: 0,
+            color: const Color(0xFFFFFFFF),
           ),
         ),
-        // v1.22: r3 → r4 (Strava pill).
         shape: WidgetStateProperty.all(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(FacingTokens.r4),
@@ -381,7 +383,7 @@ class FacingTheme {
         ),
         foregroundColor: WidgetStateProperty.all(FacingTokens.fg),
         side: WidgetStateProperty.all(
-          const BorderSide(color: FacingTokens.border, width: 1),
+          const BorderSide(color: FacingTokens.borderStrong, width: 1),
         ),
         textStyle: WidgetStateProperty.all(
           FacingTokens.body.copyWith(fontWeight: FontWeight.w600),
@@ -397,8 +399,8 @@ class FacingTheme {
       color: FacingTokens.surface,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
-      // v1.23: 단일 box-shadow (design-block.md 다중 금지 — 단일 OK).
-      shadowColor: const Color(0x66000000),
+      // 라이트 단일 box-shadow (design-block.md 다중 금지).
+      shadowColor: const Color(0x14000000),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(FacingTokens.r3),
         side: const BorderSide(color: FacingTokens.border, width: 1),
