@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
+import '../profile/profile_state.dart';
 
 /// PHASE5 §1.1 — Splash 이후 진입 분기 화면.
 /// "회원·코치" (device_hash 기존 플로우) vs "사장·매니저" (ID/PW 로그인).
@@ -40,9 +43,12 @@ class RoleEntryScreen extends StatelessWidget {
                 ],
                 onTap: () {
                   Haptic.medium();
-                  // 기존 signup/intro 플로우로 진입
+                  // 로그인 완료 후 → 프로필 유무에 따라 onboarding 또는 shell
+                  final profile = context.read<ProfileState>();
+                  final next =
+                      profile.hasGrade ? '/shell' : '/onboarding/basic';
                   Navigator.of(context)
-                      .pushNamedAndRemoveUntil('/signup', (_) => false);
+                      .pushNamedAndRemoveUntil(next, (_) => false);
                 },
               ),
               const SizedBox(height: FacingTokens.sp4),

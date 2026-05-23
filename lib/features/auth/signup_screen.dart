@@ -35,9 +35,8 @@ class _SignupScreenState extends State<SignupScreen> {
     final auth = context.read<AuthState>();
     await auth.signIn(provider);
     if (!mounted) return;
-    final profile = context.read<ProfileState>();
-    final next = profile.hasGrade ? '/shell' : '/onboarding/basic';
-    Navigator.of(context).pushReplacementNamed(next);
+    // 로그인 후 → role-entry 에서 회원/코치 vs 사장/매니저 선택
+    Navigator.of(context).pushReplacementNamed('/role-entry');
   }
 
   /// v1.16 Sprint 8 U1: 데모 계정 선택 → 프로필 프리로드 + grade 계산 + Shell 진입.
@@ -85,8 +84,8 @@ class _SignupScreenState extends State<SignupScreen> {
       } catch (_) {}
     }
     if (!mounted) return;
-    final next = profile.hasGrade ? '/shell' : '/onboarding/basic';
-    Navigator.of(context).pushReplacementNamed(next);
+    // 데모 계정도 로그인 후 → role-entry 에서 역할 선택
+    Navigator.of(context).pushReplacementNamed('/role-entry');
   }
 
   @override
