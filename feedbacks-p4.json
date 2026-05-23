@@ -1,0 +1,184 @@
+{
+  "persona": {
+    "id": "p4",
+    "name": "38대 사장+회계 겸업",
+    "familiarity": "4/5",
+    "job_to_be_done": "매월 매출·VAT·환불·세금계산서 정확도. 한 푼도 새지 않게.",
+    "convenience_needs": ["CSV export 매주", "검산 가능 표 형식", "환불 audit log"]
+  },
+  "test_env": {
+    "target_url": "http://localhost:8081 (로컬 facing-admin)",
+    "backend_url": "http://localhost:5060 (facing API)",
+    "login": "boss_seongsu / 1234",
+    "tested_at": "2026-05-23"
+  },
+  "scenario_results": [
+    {
+      "id": "S1",
+      "scenario": "매출 대시보드 (/stats) - 매출 추정 정확도 검증",
+      "status": "partial",
+      "task_complete": false,
+      "findings": [
+        {
+          "type": "bug",
+          "severity": "high",
+          "title": "매출 추정 수치가 이번 달 실적과 불일치",
+          "detail": "stats API 응답: revenue_estimate=0 (이번 달 신규 2명 있음에도 0원). payroll 페이지에는 코치 시급 합계 4,200,000원이 표시되어 있으나 매출 대시보드에서 매출 vs 인건비 비교 불가. 회계 담당자 관점에서 '이 숫자가 실제 입금과 맞는가?' 검산 근거 없음.",
+          "screenshot": "02-stats-dashboard.png"
+        },
+        {
+          "type": "missing_feature",
+          "severity": "high",
+          "title": "월별 매출 breakdown 없음",
+          "detail": "통계 페이지에 '이번 달' 섹션만 있고, 과거 월별 매출 이력 조회 불가. 전달 대비 증감, 분기 누적, VAT 합산액을 확인할 방법이 없음. ?month= 파라미터가 API에는 있으나 UI에서 월 선택 컴포넌트 없음.",
+          "screenshot": "02-stats-dashboard.png"
+        },
+        {
+          "type": "missing_feature",
+          "severity": "medium",
+          "title": "VAT 분리 표시 없음",
+          "detail": "매출 추정(640,000원)이 VAT 포함/제외 여부 불명확. 회계 처리 시 공급가액과 부가세를 분리해야 하나 대시보드에 단일 수치만 표시. 세금계산서 발행 근거 수치가 없음.",
+          "screenshot": "02-stats-dashboard.png"
+        }
+      ],
+      "nielsen_heuristics": {
+        "H1_visibility": 2,
+        "H6_recognition_over_recall": 3,
+        "H8_aesthetic_minimalist": 4
+      }
+    },
+    {
+      "id": "S2",
+      "scenario": "회원 상세 결제 탭 (B-7) - 결제 이력 및 환불 모달",
+      "status": "blocked",
+      "task_complete": false,
+      "findings": [
+        {
+          "type": "critical_bug",
+          "severity": "critical",
+          "title": "결제 이력 API 미등록 - 결제 탭 항상 빈 화면",
+          "detail": "GET /api/v1/admin/members/{mid}/payments 엔드포인트가 실행 중인 서버에 등록되지 않음 (HTTP 404). payments_admin.py 파일에 코드는 있으나 서버 재시작 전 코드로 실행 중이어서 블루프린트 미반영. 프론트엔드는 '결제 이력 없음' 메시지만 표시. 회계 담당자 관점에서 입금 기록을 시스템에서 전혀 확인 불가 — 최대 신뢰 위기.",
+          "root_cause": "facing 백엔드가 2026-05-22 21:47 버전으로 실행 중. payments_admin 블루프린트가 해당 시점 코드에 등록되지 않았거나 서버 재기동 필요.",
+          "screenshot": "05b-payment-empty.png"
+        },
+        {
+          "type": "bug",
+          "severity": "high",
+          "title": "회원권 history 탭도 '통합 중' 상태 — 2개 탭 동시 미동작",
+          "detail": "회원 상세 '회원권' 탭에 'endpoint 통합 중 — 다음 라운드' 텍스트 표시. 결제 탭과 함께 회원 재무 정보 전체가 사용 불능. 단순 로딩 실패가 아닌 미구현 상태 노출.",
+          "screenshot": "04-member-detail.png"
+        },
+        {
+          "type": "missing_feature",
+          "severity": "high",
+          "title": "환불 audit log 접근 불가",
+          "detail": "결제 탭 자체가 작동하지 않아 환불 모달 접근 불가. 백엔드 코드(payments_admin.py)에는 refund 엔드포인트와 audit log(_audit 함수) 구현이 존재하나 UI에서 확인 불가 상태."
+        }
+      ],
+      "nielsen_heuristics": {
+        "H1_visibility": 1,
+        "H5_error_prevention": 1,
+        "H9_error_recovery": 2
+      }
+    },
+    {
+      "id": "S3",
+      "scenario": "시급 정산 페이지 CSV export",
+      "status": "done",
+      "task_complete": true,
+      "findings": [
+        {
+          "type": "pass",
+          "severity": "none",
+          "title": "CSV UTF-8 BOM 정상 - 한글 헤더 확인",
+          "detail": "export.csv 응답: EF BB BF (UTF-8 BOM) 확인. 헤더: 월,로그인ID,이름,시급(원),근무시간(h),총액(원),지급일,비고. Excel에서 한글 깨짐 없이 열림 예상.",
+          "screenshot": "07-csv-download.png"
+        },
+        {
+          "type": "pass",
+          "severity": "none",
+          "title": "시급 정산 표 형식 검산 가능",
+          "detail": "코치 3명 시급×시간=총액 계산이 표로 표시됨 (김민수 28,000×50=1,400,000원, 박지훈 35,000×80=2,800,000원). 월 합계 4,200,000원. 직접 검산 가능한 구조.",
+          "screenshot": "06-payroll.png"
+        },
+        {
+          "type": "bug",
+          "severity": "medium",
+          "title": "시급 정산 데이터가 실제 매출 통계와 연결 안 됨",
+          "detail": "payroll 총액(4,200,000원 인건비)이 stats 매출 추정(0원)과 대조 불가. 매출 대비 인건비 비율, 영업이익 자동 계산 없음. 회계 처리 시 별도 엑셀 작업 필요.",
+          "screenshot": "06-payroll.png"
+        },
+        {
+          "type": "missing_feature",
+          "severity": "medium",
+          "title": "CSV에 VAT 컬럼 없음",
+          "detail": "시급 정산 CSV 헤더에 VAT(부가가치세) 컬럼 없음. 세금계산서 발행 시 필요한 공급가액/부가세 분리 불가. 현금 지급 코치 프리랜서 세금계산서 처리에 추가 수작업 필요."
+        }
+      ],
+      "nielsen_heuristics": {
+        "H1_visibility": 4,
+        "H6_recognition_over_recall": 4,
+        "H8_aesthetic_minimalist": 4
+      }
+    },
+    {
+      "id": "S4",
+      "scenario": "Railway 배포판 접속 테스트",
+      "status": "blocked",
+      "task_complete": false,
+      "findings": [
+        {
+          "type": "critical_bug",
+          "severity": "critical",
+          "title": "Railway 배포판 백엔드 연결 완전 실패 (503)",
+          "detail": "https://web-facing-admin-production.up.railway.app 에서 /api/proxy/login → HTTP 503. FACING_BACKEND_URL 환경변수가 Railway 콘솔에 설정되지 않아 기본값 localhost:5060 바라보는 상태. 운영 환경에서 전혀 사용 불가.",
+          "root_cause": "Railway 환경변수 FACING_BACKEND_URL=https://service-facing-production.up.railway.app 미설정.",
+          "screenshot": "01-landing.png"
+        }
+      ]
+    }
+  ],
+  "trust_score": {
+    "overall": 2,
+    "max": 10,
+    "breakdown": {
+      "data_accuracy": 2,
+      "feature_completeness": 2,
+      "export_reliability": 6,
+      "audit_trail": 1
+    },
+    "rationale": "회계 관점 신뢰도 최하위. 결제 이력 API 미작동으로 입금 기록 확인 불가, VAT 분리 없음, 월별 매출 breakdown 없음, 환불 audit log 접근 불가. 시급 정산 CSV만 정상 작동. Railway 운영판은 로그인 자체 불가."
+  },
+  "priority_fixes": [
+    {
+      "priority": 1,
+      "action": "facing 백엔드 재기동 — payments_admin 블루프린트 등록 확인",
+      "impact": "결제 이력 탭 복구, 환불 모달 접근 가능"
+    },
+    {
+      "priority": 2,
+      "action": "Railway 콘솔에 FACING_BACKEND_URL=https://service-facing-production.up.railway.app 등록",
+      "impact": "운영 환경 로그인 가능"
+    },
+    {
+      "priority": 3,
+      "action": "stats API revenue_estimate 계산 로직 검증 — 이번 달 실 회원권 금액 합산으로 수정",
+      "impact": "매출 추정 신뢰도 회복"
+    },
+    {
+      "priority": 4,
+      "action": "통계 화면에 VAT(공급가액/부가세) 분리 표시 추가 + 월 선택 컴포넌트",
+      "impact": "세금계산서 발행 근거 확보, 월별 비교 가능"
+    }
+  ],
+  "screenshots": [
+    "screenshots/p4/01-landing.png",
+    "screenshots/p4/02-stats-dashboard.png",
+    "screenshots/p4/03-members-list.png",
+    "screenshots/p4/04-member-detail.png",
+    "screenshots/p4/05-payment-tab.png",
+    "screenshots/p4/05b-payment-empty.png",
+    "screenshots/p4/06-payroll.png",
+    "screenshots/p4/07-csv-download.png"
+  ]
+}
