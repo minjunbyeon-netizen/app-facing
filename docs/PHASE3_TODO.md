@@ -33,7 +33,7 @@
 - [x] **A-1** bcrypt cost 12 audit script (`services/facing/audit_bcrypt.py`) — 6/6 hash 통과 (2026-05-22)
 - [x] **A-2** 세션쿠키 보안 플래그 (SECURE · HTTPONLY · SAMESITE · TTL 8h sliding) — services/facing/app.py (2026-05-22)
 - [x] **A-6** require_role + assert_gym_match + **assert_admin_gym** 헬퍼 — services/facing/api/admin.py (2026-05-22 + 23 보강)
-- [ ] **A-3** CSRF 토큰 — Flask-WTF 또는 자체 double-submit cookie. 모든 POST/PUT/DELETE 검증. 의존: 없음. 예상 1주
+- [x] **A-3** CSRF 토큰 — 자체 Synchronizer Token Pattern (NIST SP 800-95). `_generate_csrf_token()` + `require_csrf` 데코레이터 + `/api/v1/admin/csrf-token` endpoint. login 응답에 token 포함. facing-admin proxy 가 X-CSRF-Token 헤더 자동 주입. unsafe method 만 검증 (idempotent GET 통과). `secrets.compare_digest` timing-safe. (2026-05-23) — `require_csrf` 데코레이터 endpoint 적용은 점진 (회귀 위험).
 - [ ] **A-4** 로그인 rate limit + 잠금 — Flask-Limiter + Redis sliding window. IP 5분/5회·계정 30분/10회. 의존: N4-3 Redis. 예상 3일
 - [x] **A-5** audit log 강화 — 16 WRITE endpoint 모두 audit 적용 검증 완료 (자동 grep 검증). admin_logout + admin_payroll_csv (CSV 다운로드 감사 추적) 보강 (2026-05-23). audit 누락 0건.
 - [ ] **A-6 적용** — admin.py 의 모든 sensitive endpoint 에 `assert_admin_gym()`·`assert_gym_match()` 호출 refactor. 헬퍼 2종 추가 완료, 21곳 적용 잔여. 예상 3일
