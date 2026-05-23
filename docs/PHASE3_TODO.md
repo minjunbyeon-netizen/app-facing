@@ -53,7 +53,7 @@
 
 ### 2.4 도메인 핵심 (4 task)
 
-- [ ] **N1-0** movement_library 마스터 60개 동작 — Gymnastics 20·Weightlifting 15·Cardio 10·Power 15. 한국어 라벨 컬럼. 의존: H-1. 예상 5일
+- [x] **N1-0** movement_library 마스터 60개 동작 — `models/movement_library.py` 신규 + `data/seed_movement_library.py` 60개 seed (Gymnastics 20·Weightlifting 15·Cardio 10·Power 15). 영문·한국어 라벨·prerequisite·scaling·score_axes·benchmark_eligible 모두 포함. 부팅 시 자동 idempotent seed. (2026-05-23)
 - [ ] **N1-1** WOD schema + scale_type/scale_factor — wod_session·wod_score 테이블. 의존: N1-0. 예상 5일
 - [ ] **N1-2** member_pr + bodyweight_kg + bw_ratio + dots_score (powerlifting 3대 한정). 의존: N1-0. 예상 3일
 - [ ] **N1-3** benchmark_wod + benchmark_score 별도 테이블 + Korea/Custom 카테고리. Girls+Heroes 30개 우선. 의존: N1-0. 예상 5일
