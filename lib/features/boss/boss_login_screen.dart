@@ -61,7 +61,7 @@ class _BossLoginScreenState extends State<BossLoginScreen> {
         '/boss/dashboard', (_) => false,
       );
     } on AppException catch (e) {
-      setState(() { _error = e.message; });
+      setState(() { _error = e.messageKo; });
     } catch (e) {
       setState(() { _error = '연결 실패. 백엔드 재시도.'; });
     } finally {
@@ -148,9 +148,9 @@ class _BossLoginScreenState extends State<BossLoginScreen> {
                         horizontal: FacingTokens.sp3,
                         vertical: FacingTokens.sp2),
                     decoration: BoxDecoration(
-                      color: FacingTokens.danger.withOpacity(0.12),
+                      color: FacingTokens.danger.withValues(alpha:0.12),
                       border: Border.all(
-                          color: FacingTokens.danger.withOpacity(0.4)),
+                          color: FacingTokens.danger.withValues(alpha:0.4)),
                     ),
                     child: Text(
                       _error!,

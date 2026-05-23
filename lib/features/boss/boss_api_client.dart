@@ -5,10 +5,10 @@ import '../../core/api_client.dart';
 import '../../core/exception.dart';
 import 'boss_auth_state.dart';
 
-/// PHASE5 §1.1 — 사장 전용 Dio 인스턴스.
-/// 백엔드가 Flask session cookie 기반이므로:
-///   1. 로그인 응답 Set-Cookie → _sessionCookie 추출 → BossAuthState 저장
-///   2. 이후 모든 요청에 Cookie 헤더 + X-CSRFToken 헤더 자동 주입.
+// PHASE5 §1.1 — 사장 전용 Dio 인스턴스.
+// 백엔드가 Flask session cookie 기반이므로:
+//   1. 로그인 응답 Set-Cookie → _sessionCookie 추출 → BossAuthState 저장
+//   2. 이후 모든 요청에 Cookie 헤더 + X-CSRFToken 헤더 자동 주입.
 class BossApiClient {
   final Dio _dio;
   BossAuthState? _authState;

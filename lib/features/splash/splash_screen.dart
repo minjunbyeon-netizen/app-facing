@@ -10,6 +10,7 @@ import '../../core/quotes.dart';
 import '../../core/theme.dart';
 import '../../widgets/quote_card.dart';
 import '../auth/auth_state.dart';
+import '../boss/boss_auth_state.dart';
 import '../profile/profile_state.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -106,14 +107,22 @@ class _SplashScreenState extends State<SplashScreen>
     _onStart(introSeen: introSeen, mode: mode);
   }
 
-  /// v1.16: 로그인 상태 분기.
+  /// v1.16 + PHASE5: 로그인 상태 분기.
+  /// boss 세션 살아있으면 → /boss/dashboard 직행.
+  /// 아니면 기존 회원·코치 플로우.
   void _onStart({required bool introSeen, required AppMode? mode}) {
-    final profile = context.read<ProfileState>();
-    final auth = context.read<AuthState>();
+    final profile  = context.read<ProfileState>();
+    final auth     = context.read<AuthState>();
+    final bossAuth = context.read<BossAuthState>();
     Haptic.medium();
+    // PHASE5 §1.1: 사장 자동 로그인 우선
+    if (bossAuth.isLoggedIn) {
+      Navigator.of(context).pushReplacementNamed('/boss/dashboard');
+      return;
+    }
     final String next;
     if (!auth.isSignedIn) {
-      next = '/signup';
+      next = '/role-entry'; // PHASE5: 역할 선택 화면 (기존 /signup 대신)
     } else if (profile.hasGrade) {
       next = mode == null ? '/onboarding/mode' : '/shell';
     } else if (!introSeen) {

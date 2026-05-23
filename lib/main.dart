@@ -38,6 +38,11 @@ import 'features/mypage/mypage_screen.dart';
 import 'features/shell/main_shell.dart';
 import 'features/wod_builder/wod_builder_screen.dart';
 import 'features/wod_builder/wod_draft_state.dart';
+import 'features/boss/boss_auth_state.dart';
+import 'features/boss/boss_api_client.dart';
+import 'features/boss/boss_login_screen.dart';
+import 'features/boss/boss_dashboard_screen.dart';
+import 'features/boss/role_entry_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,6 +55,9 @@ Future<void> main() async {
   final auth = AuthState();
   final uiPrefs = UiPrefsState();
   final goals = GoalsState();
+  // PHASE5 §1.1: 사장 폰 로그인 상태
+  final bossAuth = BossAuthState();
+  final bossApi = BossApiClient.create();
   await Future.wait([
     profile.load(),
     unit.load(),
@@ -57,8 +65,10 @@ Future<void> main() async {
     auth.load(),
     uiPrefs.load(),
     goals.load(),
+    bossAuth.load(),
   ]);
   connectivity.bindRetryQueue(api);
+  bossApi.bindAuth(bossAuth);
 
   runApp(FacingApp(
     api: api,
@@ -68,6 +78,8 @@ Future<void> main() async {
     auth: auth,
     uiPrefs: uiPrefs,
     goals: goals,
+    bossAuth: bossAuth,
+    bossApi: bossApi,
   ));
 }
 
@@ -79,6 +91,8 @@ class FacingApp extends StatelessWidget {
   final AuthState auth;
   final UiPrefsState uiPrefs;
   final GoalsState goals;
+  final BossAuthState bossAuth;
+  final BossApiClient bossApi;
   const FacingApp({
     super.key,
     required this.api,
@@ -88,6 +102,8 @@ class FacingApp extends StatelessWidget {
     required this.auth,
     required this.uiPrefs,
     required this.goals,
+    required this.bossAuth,
+    required this.bossApi,
   });
 
   @override
@@ -118,6 +134,9 @@ class FacingApp extends StatelessWidget {
         ),
         ChangeNotifierProvider<AuthState>.value(value: auth),
         ChangeNotifierProvider<UiPrefsState>.value(value: uiPrefs),
+        // PHASE5 §1.1: 사장 폰 로그인
+        ChangeNotifierProvider<BossAuthState>.value(value: bossAuth),
+        Provider<BossApiClient>.value(value: bossApi),
         ChangeNotifierProvider<WodSessionBus>(create: (_) => WodSessionBus()),
         ChangeNotifierProvider<ShellNavBus>(create: (_) => ShellNavBus()),
         ChangeNotifierProvider<GoalsState>.value(value: goals),
@@ -153,6 +172,10 @@ class FacingApp extends StatelessWidget {
           '/builder': (_) => const WodBuilderScreen(),
           '/presets': (_) => const PresetsScreen(),
           '/result': (_) => const ResultScreen(),
+          // PHASE5 §1.1·§1.2: 사장 폰 로그인·대시보드
+          '/role-entry': (_) => const RoleEntryScreen(),
+          '/boss/login': (_) => const BossLoginScreen(),
+          '/boss/dashboard': (_) => const BossDashboardScreen(),
         },
         onGenerateRoute: (settings) {
           if (settings.name == '/history/detail') {
