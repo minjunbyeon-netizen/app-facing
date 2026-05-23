@@ -199,6 +199,8 @@ class GymWodPost {
   final int? rounds;
   final int? timeCapSec;
   final DateTime createdAt;
+  // v1.23: 회원권 만료·미결제·미래 WOD 잠금. true이면 content 비공개.
+  final bool locked;
 
   const GymWodPost({
     required this.id,
@@ -212,6 +214,7 @@ class GymWodPost {
     this.rounds,
     this.timeCapSec,
     required this.createdAt,
+    this.locked = false,
   });
 
   bool get hasVersions =>
@@ -246,6 +249,7 @@ class GymWodPost {
       rounds: (j['rounds'] as num?)?.toInt(),
       timeCapSec: (j['time_cap_sec'] as num?)?.toInt(),
       createdAt: DateTime.parse(j['created_at'] as String),
+      locked: j['locked'] == true,
     );
   }
 }

@@ -367,13 +367,19 @@ class _WodList extends StatelessWidget {
               const SizedBox(height: FacingTokens.sp1),
               const Divider(
                   height: 1, color: FacingTokens.border, thickness: 1),
-              ...past.map((e) => _WodRow(
-                    wod: e.wod,
-                    dateLabel: e.dateLabel,
-                    canDelete: gymState.isOwner,
-                    isToday: false,
-                    isFuture: false,
-                  )),
+              ...past.map((e) => e.wod.locked
+                  ? _LockedWodBanner(
+                      dateLabel: e.dateLabel,
+                      wodType: e.wod.wodType,
+                      isMembershipExpired: true,
+                    )
+                  : _WodRow(
+                      wod: e.wod,
+                      dateLabel: e.dateLabel,
+                      canDelete: gymState.isOwner,
+                      isToday: false,
+                      isFuture: false,
+                    )),
               const SizedBox(height: FacingTokens.sp5),
             ],
             // TODAY 섹션 — accentSoft bg로 강조.
@@ -421,13 +427,19 @@ class _WodList extends StatelessWidget {
                           style: FacingTokens.caption),
                     )
                   else
-                    ...todayList.map((e) => _WodRow(
-                          wod: e.wod,
-                          dateLabel: e.dateLabel,
-                          canDelete: gymState.isOwner,
-                          isToday: true,
-                          isFuture: false,
-                        )),
+                    ...todayList.map((e) => e.wod.locked
+                        ? _LockedWodBanner(
+                            dateLabel: e.dateLabel,
+                            wodType: e.wod.wodType,
+                            isMembershipExpired: true,
+                          )
+                        : _WodRow(
+                            wod: e.wod,
+                            dateLabel: e.dateLabel,
+                            canDelete: gymState.isOwner,
+                            isToday: true,
+                            isFuture: false,
+                          )),
                 ],
               ),
             ),
@@ -438,12 +450,10 @@ class _WodList extends StatelessWidget {
               const SizedBox(height: FacingTokens.sp1),
               const Divider(
                   height: 1, color: FacingTokens.border, thickness: 1),
-              ...future.map((e) => _WodRow(
-                    wod: e.wod,
+              ...future.map((e) => _LockedWodBanner(
                     dateLabel: e.dateLabel,
-                    canDelete: gymState.isOwner,
-                    isToday: false,
-                    isFuture: true,
+                    wodType: e.wod.wodType,
+                    isMembershipExpired: false,
                   )),
             ],
           ],
@@ -467,6 +477,74 @@ class _WodEntry {
   final int diff;
   const _WodEntry(
       {required this.wod, required this.dateLabel, required this.diff});
+}
+
+/// v1.23: locked WOD 카드 — 회원권 만료 시 내용 숨김 + 자물쇠 배너.
+class _LockedWodBanner extends StatelessWidget {
+  final String dateLabel;
+  final String wodType;
+  final bool isMembershipExpired; // true=회원권 만료, false=미래 WOD
+  const _LockedWodBanner({
+    required this.dateLabel,
+    required this.wodType,
+    required this.isMembershipExpired,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(
+          vertical: FacingTokens.sp3, horizontal: FacingTokens.sp3),
+      decoration: BoxDecoration(
+        color: FacingTokens.surface,
+        border: Border.all(color: FacingTokens.border),
+        borderRadius: BorderRadius.circular(FacingTokens.r2),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 3,
+            height: 36,
+            color: isMembershipExpired ? FacingTokens.warning : FacingTokens.border,
+          ),
+          const SizedBox(width: FacingTokens.sp3),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  dateLabel,
+                  style: FacingTokens.microLabel.copyWith(color: FacingTokens.muted),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  wodType.toUpperCase(),
+                  style: FacingTokens.body.copyWith(
+                    color: FacingTokens.muted,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                if (isMembershipExpired)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Text(
+                      '회원권 만료. 갱신 후 열람.',
+                      style: FacingTokens.caption.copyWith(color: FacingTokens.warning),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          Icon(
+            isMembershipExpired ? Icons.lock : Icons.lock_outline,
+            size: 16,
+            color: isMembershipExpired ? FacingTokens.warning : FacingTokens.muted,
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 /// v1.22 (rev2): row 미니멀 — 일자 inline + 항상 toggle.
