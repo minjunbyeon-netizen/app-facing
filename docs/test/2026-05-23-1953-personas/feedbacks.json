@@ -1,0 +1,1002 @@
+[
+  {
+    "id": 1,
+    "persona": "P01",
+    "screen": "dashboard",
+    "action": "로그인 후 홈 진입",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "박스 이름이 크게 보여서 좋은데, 오늘 뭐 해야 하는지 바로 안 보여요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 2,
+    "persona": "P01",
+    "screen": "members",
+    "action": "+ 회원 추가 버튼 클릭",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "모달이 바로 뜨는 건 좋은데 필드가 많아서 어디서부터 채워야 할지 모르겠어요.",
+    "task_complete": true
+  },
+  {
+    "id": 3,
+    "persona": "P01",
+    "screen": "members",
+    "action": "회원권 발급 — 종류 선택 후 시작일/종료일 입력",
+    "works": true,
+    "intuitive_score": 3,
+    "verbatim": "종료일을 제가 직접 계산해서 쳐야 하나요? 자동으로 안 채워지나요?",
+    "task_complete": "partial"
+  },
+  {
+    "id": 4,
+    "persona": "P01",
+    "screen": "members",
+    "action": "D-day 임박 회원 찾기",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "D-day 컬럼이 있고 정렬도 되네요. 이건 진짜 좋아요.",
+    "task_complete": true
+  },
+  {
+    "id": 5,
+    "persona": "P01",
+    "screen": "payroll",
+    "action": "코치 시급 정산 확인",
+    "works": false,
+    "intuitive_score": 2,
+    "verbatim": "'로딩 중…' 이 계속 뜨는데 고장난 건가요?",
+    "task_complete": false
+  },
+  {
+    "id": 6,
+    "persona": "P01",
+    "screen": "classes",
+    "action": "클래스 캘린더 보기",
+    "works": true,
+    "intuitive_score": 3,
+    "verbatim": "캘린더가 텅 비었어요. 어떻게 추가하는지 버튼이 안 보여요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 7,
+    "persona": "P01",
+    "screen": "lockers",
+    "action": "락커 배정 시도",
+    "works": false,
+    "intuitive_score": 2,
+    "verbatim": "'로딩 중…' 뜨고 아무것도 안 나와요. 락커가 없는 건지 에러인지 모르겠어요.",
+    "task_complete": false
+  },
+  {
+    "id": 8,
+    "persona": "P01",
+    "screen": "contracts",
+    "action": "전자계약서 발급 버튼 클릭",
+    "works": true,
+    "intuitive_score": 3,
+    "verbatim": "버튼은 있는데 테이블이 비어있어서 발급이 된 건지 아닌지 모르겠어요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 9,
+    "persona": "P01",
+    "screen": "settings/notifications",
+    "action": "알림 설정 확인",
+    "works": true,
+    "intuitive_score": 3,
+    "verbatim": "카카오 알림톡 설정이 있네요. 근데 제대로 연결됐는지 확인하는 방법을 모르겠어요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 10,
+    "persona": "P01",
+    "screen": "stats",
+    "action": "통계 확인",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "대기 회원 3건이 바로 보여서 눌렀더니 바로 필터로 이동했어요. 이건 진짜 편해요.",
+    "task_complete": true
+  },
+  {
+    "id": 11,
+    "persona": "P02",
+    "screen": "dashboard",
+    "action": "홈 대시보드 진입",
+    "works": true,
+    "intuitive_score": 3,
+    "verbatim": "Wodify 홈은 오늘 수업 인원, 수익 요약이 바로 보이는데 여기는 로딩 중이 오래 걸리네요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 12,
+    "persona": "P02",
+    "screen": "wod",
+    "action": "WOD · PR · Benchmark 메뉴 진입",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "오, WOD 게시 + Leaderboard + Benchmark 탭이 있네요. 방향은 맞는데 아직 내용이 없어요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 13,
+    "persona": "P02",
+    "screen": "members",
+    "action": "만료 회원 필터 클릭",
+    "works": true,
+    "intuitive_score": 5,
+    "verbatim": "필터 버튼이 탭 형태로 있어서 직관적이에요. D-day 정렬도 바로 되고요.",
+    "task_complete": true
+  },
+  {
+    "id": 14,
+    "persona": "P02",
+    "screen": "payroll",
+    "action": "CSV 내보내기 클릭",
+    "works": false,
+    "intuitive_score": 2,
+    "verbatim": "CSV 버튼이 있는데 정산 데이터가 없으니 빈 파일만 나올 것 같아요. 자동 산정부터 해야 하는데 명확하지 않아요.",
+    "task_complete": false
+  },
+  {
+    "id": 15,
+    "persona": "P02",
+    "screen": "stats",
+    "action": "락커 점유율 확인",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "락커 점유율 0.0%, 0/34 사용중이 바로 보이네요. 숫자로 보여주는 건 좋아요.",
+    "task_complete": true
+  },
+  {
+    "id": 16,
+    "persona": "P02",
+    "screen": "members",
+    "action": "D+151 만료 회원이 활성 상태인 데이터 확인",
+    "works": false,
+    "intuitive_score": 1,
+    "verbatim": "D+151인데 상태가 활성이에요? 이건 데이터 오류 아닌가요? Wodify였으면 자동 만료됐을 텐데.",
+    "task_complete": false
+  },
+  {
+    "id": 17,
+    "persona": "P02",
+    "screen": "coaches",
+    "action": "코치 명단 확인",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "폰 페어링 코드가 보이네요. 흥미로운 기능인데 설명이 좀 더 있었으면 해요.",
+    "task_complete": true
+  },
+  {
+    "id": 18,
+    "persona": "P02",
+    "screen": "contracts",
+    "action": "전자계약서 발급 시도",
+    "works": true,
+    "intuitive_score": 3,
+    "verbatim": "계약서 발급 버튼은 있는데 기존 계약서 목록이 없어서 이미 발급된 게 있는지 모르겠어요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 19,
+    "persona": "P02",
+    "screen": "checkin",
+    "action": "QR 체크인 화면 확인",
+    "works": true,
+    "intuitive_score": 5,
+    "verbatim": "60초 자동 갱신 QR이 진짜 간지나요. 이건 Wodify보다 낫네요.",
+    "task_complete": true
+  },
+  {
+    "id": 20,
+    "persona": "P02",
+    "screen": "classes",
+    "action": "새 클래스 생성 시도",
+    "works": true,
+    "intuitive_score": 3,
+    "verbatim": "캘린더가 보이는데 클래스 추가 버튼이 오른쪽 위에 있어서 처음엔 못 찾았어요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 21,
+    "persona": "P03",
+    "screen": "dashboard",
+    "action": "폰으로 홈 진입",
+    "works": true,
+    "intuitive_score": 3,
+    "verbatim": "모바일로 보면 사이드바가 가려지는 것 같은데, 전체 메뉴를 어떻게 보나요?",
+    "task_complete": "partial"
+  },
+  {
+    "id": 22,
+    "persona": "P03",
+    "screen": "stats",
+    "action": "대시보드 빠른 현황 파악",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "오늘 처리할 일 3건이 바로 보여요. 딱 이게 필요했어요.",
+    "task_complete": true
+  },
+  {
+    "id": 23,
+    "persona": "P03",
+    "screen": "members",
+    "action": "만료 임박 회원 D-day 필터",
+    "works": true,
+    "intuitive_score": 5,
+    "verbatim": "D-day 컬럼 클릭으로 정렬되는 거 완벽해요. 이동 중에 30초면 파악 가능해요.",
+    "task_complete": true
+  },
+  {
+    "id": 24,
+    "persona": "P03",
+    "screen": "settings/notifications",
+    "action": "카카오 알림톡 설정",
+    "works": true,
+    "intuitive_score": 3,
+    "verbatim": "야간 발송 금지 설정이 있네요. 법적 근거까지 써놔서 신뢰가 가요.",
+    "task_complete": true
+  },
+  {
+    "id": 25,
+    "persona": "P03",
+    "screen": "members",
+    "action": "회원 상태 필터 탭 (활성/만료/대기/탈퇴)",
+    "works": true,
+    "intuitive_score": 5,
+    "verbatim": "탭 필터 완전 직관적이에요. 이건 진짜 잘 만들었어요.",
+    "task_complete": true
+  },
+  {
+    "id": 26,
+    "persona": "P03",
+    "screen": "lockers",
+    "action": "락커 배정 시도",
+    "works": false,
+    "intuitive_score": 1,
+    "verbatim": "'로딩 중…' 이 언제 끝나요? 데이터가 없는 건지 에러인지 알 수가 없어요.",
+    "task_complete": false
+  },
+  {
+    "id": 27,
+    "persona": "P03",
+    "screen": "contracts",
+    "action": "전자계약서 상태 확인",
+    "works": true,
+    "intuitive_score": 3,
+    "verbatim": "서명일 컬럼이 있어서 추적은 될 것 같아요. 근데 지금은 아무것도 없어요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 28,
+    "persona": "P03",
+    "screen": "checkin",
+    "action": "QR 체크인 확인",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "QR이 60초마다 바뀌는 거 안전하고 좋아요. 폰 화면에서도 잘 보이네요.",
+    "task_complete": true
+  },
+  {
+    "id": 29,
+    "persona": "P03",
+    "screen": "payroll",
+    "action": "시급 정산 월 변경",
+    "works": false,
+    "intuitive_score": 2,
+    "verbatim": "정산 월 선택 textbox는 있는데 실제로 데이터가 안 뜨니까 맞게 쓰는 건지 모르겠어요.",
+    "task_complete": false
+  },
+  {
+    "id": 30,
+    "persona": "P03",
+    "screen": "coaches",
+    "action": "코치 추가 여부 확인",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "코치 추가 버튼 바로 보여요. 재직/퇴사 구분도 깔끔해요.",
+    "task_complete": true
+  },
+  {
+    "id": 31,
+    "persona": "P04",
+    "screen": "dashboard",
+    "action": "박스 스위처 클릭 (사이드바 박스명 클릭)",
+    "works": true,
+    "intuitive_score": 3,
+    "verbatim": "클릭해서 박스 전환이 가능하네요. 근데 다른 박스가 없어서 테스트가 안 되는군요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 32,
+    "persona": "P04",
+    "screen": "stats",
+    "action": "통합 통계 확인 시도",
+    "works": true,
+    "intuitive_score": 3,
+    "verbatim": "지금은 박스 하나 통계밖에 없어요. 두 박스 합산 매출을 보고 싶은데 그건 없나요?",
+    "task_complete": "partial"
+  },
+  {
+    "id": 33,
+    "persona": "P04",
+    "screen": "payroll",
+    "action": "시급 정산 CSV 내보내기",
+    "works": false,
+    "intuitive_score": 2,
+    "verbatim": "CSV 내보내기 버튼이 있는 게 마음에 들지만 실제 데이터가 없으니 의미가 없어요.",
+    "task_complete": false
+  },
+  {
+    "id": 34,
+    "persona": "P04",
+    "screen": "members",
+    "action": "회원 리스트 전체 파악",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "24명 한 눈에 보이고 D-day, 상태, 레벨 한 줄 요약이 좋아요.",
+    "task_complete": true
+  },
+  {
+    "id": 35,
+    "persona": "P04",
+    "screen": "coaches",
+    "action": "코치 시급 수정 시도",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "수정 버튼이 있으니까 시급 변경은 될 것 같아요. 여러 박스 코치를 한 화면에서 보고 싶어요.",
+    "task_complete": true
+  },
+  {
+    "id": 36,
+    "persona": "P04",
+    "screen": "lockers",
+    "action": "락커 현황 확인",
+    "works": false,
+    "intuitive_score": 1,
+    "verbatim": "로딩 중… 이게 왜 계속 뜨죠? 34개 락커 있다고 통계에서 봤는데 여기선 아무것도 없어요.",
+    "task_complete": false
+  },
+  {
+    "id": 37,
+    "persona": "P04",
+    "screen": "classes",
+    "action": "클래스 캘린더 탐색",
+    "works": true,
+    "intuitive_score": 3,
+    "verbatim": "캘린더 앞뒤 이동은 되는데 이번 주가 기본이어야지 왜 비어있죠?",
+    "task_complete": "partial"
+  },
+  {
+    "id": 38,
+    "persona": "P04",
+    "screen": "wod",
+    "action": "WOD Leaderboard 탭",
+    "works": true,
+    "intuitive_score": 3,
+    "verbatim": "Leaderboard 탭이 있어요. 아직 데이터는 없지만 방향은 맞아요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 39,
+    "persona": "P04",
+    "screen": "contracts",
+    "action": "전자계약서 발급 프로세스",
+    "works": true,
+    "intuitive_score": 3,
+    "verbatim": "전자 서명 추적이 된다면 2개 박스 계약서 관리가 편할 텐데, 현재는 비어있네요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 40,
+    "persona": "P04",
+    "screen": "settings/notifications",
+    "action": "알림 설정",
+    "works": true,
+    "intuitive_score": 3,
+    "verbatim": "알림 설정은 있는데 박스별로 별도 설정이 되는지 모르겠어요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 41,
+    "persona": "P05",
+    "screen": "members",
+    "action": "회원 추가 모달 전체 필드 확인",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "이름, 성별, 생년월일, 전화, 레벨, 회원권 필드 다 있어요. 긴급 연락처나 메모 필드가 더 있으면 좋겠어요.",
+    "task_complete": true
+  },
+  {
+    "id": 42,
+    "persona": "P05",
+    "screen": "members",
+    "action": "회원 수정 버튼으로 기존 정보 수정",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "수정 버튼 클릭 후 모달이 뜨는 흐름 자연스러워요.",
+    "task_complete": true
+  },
+  {
+    "id": 43,
+    "persona": "P05",
+    "screen": "classes",
+    "action": "새 클래스 추가 버튼",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "클래스 추가 버튼 있어요. 눌렀을 때 모달이나 폼이 뜨면 더 좋을 것 같아요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 44,
+    "persona": "P05",
+    "screen": "checkin",
+    "action": "QR 체크인 화면 운용",
+    "works": true,
+    "intuitive_score": 5,
+    "verbatim": "QR 화면 전체화면으로 띄워두면 회원이 셀프 체크인하기 딱 좋겠어요.",
+    "task_complete": true
+  },
+  {
+    "id": 45,
+    "persona": "P05",
+    "screen": "members",
+    "action": "검색창으로 이름 검색",
+    "works": true,
+    "intuitive_score": 5,
+    "verbatim": "이름·전화번호 검색이 바로 되네요. 빠르고 좋아요.",
+    "task_complete": true
+  },
+  {
+    "id": 46,
+    "persona": "P05",
+    "screen": "payroll",
+    "action": "자동 산정 버튼 클릭",
+    "works": false,
+    "intuitive_score": 2,
+    "verbatim": "자동 산정 실행 버튼 있는데 뭔가 처리됐는지 피드백이 없어요. 결과가 안 보여요.",
+    "task_complete": false
+  },
+  {
+    "id": 47,
+    "persona": "P05",
+    "screen": "lockers",
+    "action": "락커 배정",
+    "works": false,
+    "intuitive_score": 1,
+    "verbatim": "로딩이 안 끝나요. 이 페이지는 아직 안 된 건가요?",
+    "task_complete": false
+  },
+  {
+    "id": 48,
+    "persona": "P05",
+    "screen": "contracts",
+    "action": "계약서 발급 + 서명 추적",
+    "works": true,
+    "intuitive_score": 3,
+    "verbatim": "서명일 컬럼이 있어서 누가 서명했는지 추적 가능할 것 같아요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 49,
+    "persona": "P05",
+    "screen": "stats",
+    "action": "실시간 SSE 이벤트 확인",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "'실시간 연결' 표시 보여요. 출석 체크인 되면 바로 뜨겠죠?",
+    "task_complete": true
+  },
+  {
+    "id": 50,
+    "persona": "P05",
+    "screen": "wod",
+    "action": "오늘 WOD 게시 버튼",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "WOD 게시 버튼이 있어요. 코치로서 매일 WOD 올리면 회원들이 폰에서 볼 수 있으면 완벽해요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 51,
+    "persona": "P06",
+    "screen": "checkin",
+    "action": "QR 체크인 화면 진입",
+    "works": true,
+    "intuitive_score": 5,
+    "verbatim": "완전 간단해요. QR 크고 타이머 있어요. 이거 하나만 쓰면 돼요.",
+    "task_complete": true
+  },
+  {
+    "id": 52,
+    "persona": "P06",
+    "screen": "payroll",
+    "action": "시급 정산 확인",
+    "works": false,
+    "intuitive_score": 1,
+    "verbatim": "제 시급이 여기 나온다고 들었는데 로딩 중이라 아무것도 없어요. 제대로 된 건 맞나요?",
+    "task_complete": false
+  },
+  {
+    "id": 53,
+    "persona": "P06",
+    "screen": "coaches",
+    "action": "코치 명단에서 본인 확인",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "제 이름이랑 시급이 나오네요. 근데 근무 시간 합산이 없어서 총 얼마 받는지 모르겠어요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 54,
+    "persona": "P06",
+    "screen": "members",
+    "action": "회원 리스트 탐색",
+    "works": true,
+    "intuitive_score": 3,
+    "verbatim": "제가 회원 수정까지 건드려도 되는 건지 권한 구분이 안 보여요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 55,
+    "persona": "P06",
+    "screen": "dashboard",
+    "action": "홈 진입",
+    "works": true,
+    "intuitive_score": 3,
+    "verbatim": "홈에서 뭘 해야 할지 모르겠어요. 코치로서 오늘 수업 몇 개인지가 더 중요한데.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 56,
+    "persona": "P06",
+    "screen": "classes",
+    "action": "오늘 수업 일정 확인",
+    "works": true,
+    "intuitive_score": 3,
+    "verbatim": "캘린더인데 오늘 날짜 클래스가 없으니 뭔지 모르겠어요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 57,
+    "persona": "P06",
+    "screen": "wod",
+    "action": "오늘 WOD 확인",
+    "works": true,
+    "intuitive_score": 3,
+    "verbatim": "오늘 WOD 없음. 코치가 등록해야 한다는데 저는 어떻게 하는지 모르겠어요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 58,
+    "persona": "P06",
+    "screen": "stats",
+    "action": "통계 확인",
+    "works": true,
+    "intuitive_score": 3,
+    "verbatim": "통계는 사장이 보는 거겠죠? 저는 필요없는 정보들이에요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 59,
+    "persona": "P06",
+    "screen": "lockers",
+    "action": "락커 배정 시도",
+    "works": false,
+    "intuitive_score": 1,
+    "verbatim": "로딩 중이에요. 혼자서는 못 쓰겠어요.",
+    "task_complete": false
+  },
+  {
+    "id": 60,
+    "persona": "P06",
+    "screen": "settings/notifications",
+    "action": "알림 설정 확인",
+    "works": true,
+    "intuitive_score": 2,
+    "verbatim": "여기는 제가 건드리면 안 될 것 같아요. 사장님 설정인 것 같고요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 61,
+    "persona": "P07",
+    "screen": "stats",
+    "action": "실시간 연결 + 대기 회원 3건 액션",
+    "works": true,
+    "intuitive_score": 5,
+    "verbatim": "실시간 SSE 연결되어 있고 할 일 3건 바로 보여요. 이건 정말 잘 만든 거예요.",
+    "task_complete": true
+  },
+  {
+    "id": 62,
+    "persona": "P07",
+    "screen": "members",
+    "action": "CSV 가져오기 기능",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "CSV 가져오기로 회원 일괄 등록되면 처음 셋업 시간이 엄청 줄겠네요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 63,
+    "persona": "P07",
+    "screen": "payroll",
+    "action": "자동 산정 실행",
+    "works": false,
+    "intuitive_score": 2,
+    "verbatim": "자동 산정이 제대로 동작하는지 결과가 안 보여요. 혼자 운영하는데 이게 핵심인데.",
+    "task_complete": false
+  },
+  {
+    "id": 64,
+    "persona": "P07",
+    "screen": "checkin",
+    "action": "QR 체크인 운용",
+    "works": true,
+    "intuitive_score": 5,
+    "verbatim": "60초 자동 갱신 QR 최고예요. 입구 태블릿에 틀어놓으면 완전 자동이잖아요.",
+    "task_complete": true
+  },
+  {
+    "id": 65,
+    "persona": "P07",
+    "screen": "members",
+    "action": "D-day 임박 회원 파악",
+    "works": true,
+    "intuitive_score": 5,
+    "verbatim": "D-day 컬럼 정렬로 오늘 연락해야 할 회원 바로 파악. 이게 매일 루틴이에요.",
+    "task_complete": true
+  },
+  {
+    "id": 66,
+    "persona": "P07",
+    "screen": "lockers",
+    "action": "락커 현황 파악",
+    "works": false,
+    "intuitive_score": 1,
+    "verbatim": "락커 로딩이 안 돼요. 통계에 34개라고 나왔는데 여기선 아무것도 없어요. 버그예요.",
+    "task_complete": false
+  },
+  {
+    "id": 67,
+    "persona": "P07",
+    "screen": "contracts",
+    "action": "전자계약서 발급 실행",
+    "works": true,
+    "intuitive_score": 3,
+    "verbatim": "발급 버튼 있는데 눌러도 바로 피드백이 없어요. 됐는지 아닌지 모르겠어요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 68,
+    "persona": "P07",
+    "screen": "classes",
+    "action": "클래스 생성 + 시간 설정",
+    "works": true,
+    "intuitive_score": 3,
+    "verbatim": "클래스 추가 버튼은 있는데 눌렀을 때 폼이 바로 안 나와서 막히는 느낌이에요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 69,
+    "persona": "P07",
+    "screen": "wod",
+    "action": "WOD 게시 + Benchmark 탭",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "Benchmark 탭 구분이 좋아요. 선수 출신이라 Fran, DT 기록 관리가 핵심인데 여기 있으면 돼요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 70,
+    "persona": "P07",
+    "screen": "settings/notifications",
+    "action": "알림톡 발송 카테고리 설정",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "회원권 만료 D-7 알림 자동 발송이 설정되면 저처럼 1인 운영자한테 엄청 도움이 돼요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 71,
+    "persona": "P08",
+    "screen": "stats",
+    "action": "SSE 실시간 이벤트 로그 확인",
+    "works": true,
+    "intuitive_score": 5,
+    "verbatim": "SSE 실시간 이벤트 패널 있어요. '대기 중…'이 '연결됨'으로 바뀌면 완벽할 것 같아요.",
+    "task_complete": true
+  },
+  {
+    "id": 72,
+    "persona": "P08",
+    "screen": "members",
+    "action": "D+151 만료 회원 활성 상태 발견",
+    "works": false,
+    "intuitive_score": 1,
+    "verbatim": "윤지원 회원 종료일 2025-12-23, D+151인데 상태 활성. 이건 명백한 데이터 정합성 버그예요.",
+    "task_complete": false
+  },
+  {
+    "id": 73,
+    "persona": "P08",
+    "screen": "payroll",
+    "action": "CSV 내보내기 + 시급 정산",
+    "works": false,
+    "intuitive_score": 2,
+    "verbatim": "자동 산정이 동작해야 CSV도 의미가 있는데, 산정 결과가 테이블에 안 나타나요.",
+    "task_complete": false
+  },
+  {
+    "id": 74,
+    "persona": "P08",
+    "screen": "stats",
+    "action": "회원 구성 파이 차트",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "회원 구성이 등급별로 보이네요. Scaled/RX/RX+ 비율 시각화 좋아요.",
+    "task_complete": true
+  },
+  {
+    "id": 75,
+    "persona": "P08",
+    "screen": "members",
+    "action": "컬럼 정렬 (이름, D-day 등)",
+    "works": true,
+    "intuitive_score": 5,
+    "verbatim": "컬럼 클릭 정렬 다 돼요. 데이터 엔지니어 입장에서 이건 기본 이상이에요.",
+    "task_complete": true
+  },
+  {
+    "id": 76,
+    "persona": "P08",
+    "screen": "contracts",
+    "action": "계약서 이력 조회",
+    "works": true,
+    "intuitive_score": 3,
+    "verbatim": "계약서 테이블 컬럼 구조는 좋아요. 코드·발급일·서명일이 있으니까 감사 추적이 가능해요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 77,
+    "persona": "P08",
+    "screen": "lockers",
+    "action": "락커 점유율 확인",
+    "works": false,
+    "intuitive_score": 1,
+    "verbatim": "통계에서 0/34라고 나왔는데 락커 관리 페이지 자체가 로딩이 안 됩니다. API 에러 같아요.",
+    "task_complete": false
+  },
+  {
+    "id": 78,
+    "persona": "P08",
+    "screen": "wod",
+    "action": "Benchmark 탭 + 동작 라이브러리",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "동작 라이브러리 탭까지 있어요. WOD/PR/Benchmark 전부 한 화면에서 관리 가능하면 완전히 Wodify 격차 없어지겠네요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 79,
+    "persona": "P08",
+    "screen": "coaches",
+    "action": "코치 폰 페어링 코드 시스템",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "페어링 코드 방식 흥미로워요. OTP 같은 형태인가요? 보안 흐름이 궁금해요.",
+    "task_complete": true
+  },
+  {
+    "id": 80,
+    "persona": "P08",
+    "screen": "checkin",
+    "action": "QR 실시간 갱신 + 출석 로그",
+    "works": true,
+    "intuitive_score": 5,
+    "verbatim": "60초 갱신 QR + 실시간 출석 패널이 SSE로 연결되는 구조. 이건 아키텍처가 잘 잡혀있어요.",
+    "task_complete": true
+  },
+  {
+    "id": 81,
+    "persona": "P09",
+    "screen": "members",
+    "action": "회원 추가 모달 비고 입력",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "비고 필드가 있어요. 여기에 '외상 5만원' 메모해두면 되겠네요.",
+    "task_complete": true
+  },
+  {
+    "id": 82,
+    "persona": "P09",
+    "screen": "members",
+    "action": "회원권 가격 spinbutton 직접 입력",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "가격 직접 입력되네요. 현금 할인 적용해서 임의 금액 넣을 수 있어요.",
+    "task_complete": true
+  },
+  {
+    "id": 83,
+    "persona": "P09",
+    "screen": "members",
+    "action": "회원 상태 수동 수정",
+    "works": true,
+    "intuitive_score": 3,
+    "verbatim": "수정 버튼에서 상태 바꿀 수 있어요. 수기로 관리하는 저한테 중요한 기능이에요.",
+    "task_complete": true
+  },
+  {
+    "id": 84,
+    "persona": "P09",
+    "screen": "lockers",
+    "action": "락커 배정",
+    "works": false,
+    "intuitive_score": 1,
+    "verbatim": "락커 페이지 계속 로딩만 해요. 포기했어요.",
+    "task_complete": false
+  },
+  {
+    "id": 85,
+    "persona": "P09",
+    "screen": "payroll",
+    "action": "수동 비고 입력",
+    "works": false,
+    "intuitive_score": 2,
+    "verbatim": "비고 컬럼이 있는데 데이터가 없으니까 입력을 못 하겠어요.",
+    "task_complete": false
+  },
+  {
+    "id": 86,
+    "persona": "P09",
+    "screen": "contracts",
+    "action": "계약서 발급",
+    "works": true,
+    "intuitive_score": 3,
+    "verbatim": "전자계약서가 있으면 수기 서류 줄어서 좋겠어요. 노인 회원들도 폰으로 서명 가능하면 좋고요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 87,
+    "persona": "P09",
+    "screen": "stats",
+    "action": "이번 달 매출 확인",
+    "works": true,
+    "intuitive_score": 3,
+    "verbatim": "이번 달 지표가 있는데 숫자가 없어요. 데이터가 쌓이면 쓸 것 같아요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 88,
+    "persona": "P09",
+    "screen": "checkin",
+    "action": "QR 체크인 사용",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "QR은 회원들이 직접 찍으면 되니까 저는 신경 안 써도 되겠네요.",
+    "task_complete": true
+  },
+  {
+    "id": 89,
+    "persona": "P09",
+    "screen": "coaches",
+    "action": "코치 정보 확인",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "이름, 시급, 입사일 다 보이네요. 전화번호도 있어서 연락하기 편해요.",
+    "task_complete": true
+  },
+  {
+    "id": 90,
+    "persona": "P09",
+    "screen": "settings/notifications",
+    "action": "알림 설정",
+    "works": true,
+    "intuitive_score": 3,
+    "verbatim": "카카오 알림톡은 기가 없는 어르신 회원들한테는 안 될 수 있어요. 문자도 되면 좋겠어요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 91,
+    "persona": "P10",
+    "screen": "stats",
+    "action": "대기 회원 3건 + 이번 달 신규",
+    "works": true,
+    "intuitive_score": 5,
+    "verbatim": "이번 달 신규 가입 수 보이면 마케팅 효과 측정 바로 될 것 같아요. 대기 3건 → 전환율 추적 원해요.",
+    "task_complete": true
+  },
+  {
+    "id": 92,
+    "persona": "P10",
+    "screen": "members",
+    "action": "레벨 필터 + 회원 구성 확인",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "Scaled/RX/RX+ 레벨 컬럼 있어요. 레벨별 이벤트 타겟팅할 때 필터링이 되면 좋겠어요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 93,
+    "persona": "P10",
+    "screen": "settings/notifications",
+    "action": "카카오 알림톡 발송 설정",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "발송 카테고리가 있네요. 이벤트 공지도 여기서 할 수 있으면 완벽해요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 94,
+    "persona": "P10",
+    "screen": "wod",
+    "action": "오늘 WOD 게시",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "WOD 게시하면 회원들 폰에 알림 가면서 인스타 공유 가능하면 마케팅 소재가 돼요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 95,
+    "persona": "P10",
+    "screen": "members",
+    "action": "신규 회원 추가 + 상태 대기 확인",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "대기 상태 회원이 가입 신청한 거잖아요? 승인 흐름이 인스타 DM 유입 연결되면 좋겠어요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 96,
+    "persona": "P10",
+    "screen": "coaches",
+    "action": "코치 프로필 + 소개 확인",
+    "works": true,
+    "intuitive_score": 3,
+    "verbatim": "코치 이름은 있는데 사진이나 자격증 정보가 없어요. 인스타 홍보용으로 쓰기엔 부족해요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 97,
+    "persona": "P10",
+    "screen": "lockers",
+    "action": "락커 배정",
+    "works": false,
+    "intuitive_score": 1,
+    "verbatim": "락커 페이지 또 로딩 중이에요. 신규 회원한테 락커 배정이 첫 온보딩인데 이게 안 되면 곤란해요.",
+    "task_complete": false
+  },
+  {
+    "id": 98,
+    "persona": "P10",
+    "screen": "contracts",
+    "action": "계약서 발급 + 디지털 서명",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "전자계약서 + 디지털 서명은 MZ 회원들한테 어필 포인트예요. '종이 없는 박스' 마케팅 가능해요.",
+    "task_complete": "partial"
+  },
+  {
+    "id": 99,
+    "persona": "P10",
+    "screen": "checkin",
+    "action": "QR 체크인 마케팅 활용",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "QR 체크인 자체가 '스마트 박스' 이미지를 주니까 인스타 릴스로 찍어올릴 만해요.",
+    "task_complete": true
+  },
+  {
+    "id": 100,
+    "persona": "P10",
+    "screen": "stats",
+    "action": "이번 달 매출 + 신규 지표",
+    "works": true,
+    "intuitive_score": 4,
+    "verbatim": "이번 달 매출, 신규 가입, 만료 수치가 다 보이면 매달 리포트 뽑기 완벽해요.",
+    "task_complete": "partial"
+  }
+]
