@@ -122,7 +122,7 @@ class _SplashScreenState extends State<SplashScreen>
     }
     final String next;
     if (!auth.isSignedIn) {
-      next = '/role-entry'; // PHASE5: 역할 선택 화면 (기존 /signup 대신)
+      next = '/signup'; // 미로그인 → 소셜 로그인 화면 먼저
     } else if (profile.hasGrade) {
       next = mode == null ? '/onboarding/mode' : '/shell';
     } else if (!introSeen) {

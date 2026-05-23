@@ -328,6 +328,7 @@ class _SocialButton extends StatelessWidget {
               Expanded(
                 child: Text(
                   label,
+                  textAlign: TextAlign.center,
                   style: FacingTokens.body.copyWith(
                     color: foreground,
                     fontWeight: FontWeight.w700,
@@ -335,6 +336,7 @@ class _SocialButton extends StatelessWidget {
                   ),
                 ),
               ),
+              const SizedBox(width: 48),  // 좌측 mark 와 동일 폭으로 균형
               const SizedBox(width: 48),
             ],
           ),
