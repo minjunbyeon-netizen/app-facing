@@ -176,7 +176,7 @@ class GymRepository {
     );
   }
 
-  // ---- v1.16 Sprint 15: 공지·메시지 ----
+  // ---- v1.16 Sprint 15: 공지·메시지 (v1.19 P2 마케팅 피드 강화) ----
 
   Future<List<GymAnnouncement>> listAnnouncements(int gymId) async {
     final list = await api.getList('/api/v1/gyms/$gymId/announcements');
@@ -186,22 +186,88 @@ class GymRepository {
         .toList();
   }
 
+  /// 회원 폰 타임라인 — 활성 공지만, 핀고정 우선 (v1.19 P2).
+  Future<List<GymAnnouncement>> listMemberAnnouncements() async {
+    final list = await api.getList('/api/v1/member/announcements');
+    return list
+        .whereType<Map<String, dynamic>>()
+        .map(GymAnnouncement.fromJson)
+        .toList();
+  }
+
+  Future<GymAnnouncement> postAnnouncementRich({
+    required int gymId,
+    required String title,
+    required String body,
+    String priority = 'normal',
+    String category = 'notice',
+    String visibleTo = 'all',
+    String? ctaLabel,
+    String? ctaUrl,
+    bool pinned = false,
+    String? startAt,
+    String? endAt,
+  }) async {
+    final data = await api.post('/api/v1/admin/gyms/$gymId/announcements', {
+      'title': title,
+      'body': body,
+      'priority': priority,
+      'category': category,
+      'visible_to': visibleTo,
+      if (ctaLabel != null) 'cta_label': ctaLabel,
+      if (ctaUrl != null) 'cta_url': ctaUrl,
+      'pinned': pinned.toString(),
+      if (startAt != null) 'start_at': startAt,
+      if (endAt != null) 'end_at': endAt,
+    });
+    return GymAnnouncement.fromJson(data as Map<String, dynamic>);
+  }
+
+  /// 레거시 호환 — 기존 코드에서 사용. 내부적으로 postAnnouncementRich 호출.
   Future<int> postAnnouncement({
     required int gymId,
     required String title,
     required String body,
     String priority = 'normal',
   }) async {
-    final data = await api.post('/api/v1/gyms/$gymId/announcements', {
-      'title': title,
-      'body': body,
-      'priority': priority,
-    });
-    return (data['announcement_id'] as num).toInt();
+    final ann = await postAnnouncementRich(
+      gymId: gymId,
+      title: title,
+      body: body,
+      priority: priority,
+    );
+    return ann.id;
+  }
+
+  Future<GymAnnouncement> patchAnnouncement({
+    required int id,
+    String? title,
+    String? body,
+    String? priority,
+    String? category,
+    String? visibleTo,
+    String? ctaLabel,
+    String? ctaUrl,
+    bool? pinned,
+    String? endAt,
+  }) async {
+    final payload = <String, dynamic>{
+      if (title != null) 'title': title,
+      if (body != null) 'body': body,
+      if (priority != null) 'priority': priority,
+      if (category != null) 'category': category,
+      if (visibleTo != null) 'visible_to': visibleTo,
+      if (ctaLabel != null) 'cta_label': ctaLabel,
+      if (ctaUrl != null) 'cta_url': ctaUrl,
+      if (pinned != null) 'pinned': pinned.toString(),
+      if (endAt != null) 'end_at': endAt,
+    };
+    final data = await api.patch('/api/v1/admin/announcements/$id', payload);
+    return GymAnnouncement.fromJson(data as Map<String, dynamic>);
   }
 
   Future<void> deleteAnnouncement(int gymId, int id) async {
-    await api.delete('/api/v1/gyms/$gymId/announcements/$id');
+    await api.delete('/api/v1/admin/announcements/$id');
   }
 
   Future<List<GymMessageItem>> listMessages(int gymId, {String? withHash}) async {

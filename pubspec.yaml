@@ -20,6 +20,8 @@ dependencies:
   wakelock_plus: ^1.2.8
   # /go Phase 3: SNS 공유 (WOD 결과 카드 텍스트 공유).
   share_plus: ^10.0.0
+  # v1.19 P2: 공지 CTA 외부 링크 열기.
+  url_launcher: ^6.3.1
 
 dev_dependencies:
   flutter_test:
