@@ -1,0 +1,30 @@
+{
+  "ok": true,
+  "plan_name_display_samples": [
+    {
+      "name": "김태원",
+      "plan_name": "1개월권",
+      "plan_name_display": "1개월권"
+    },
+    {
+      "name": "강민재",
+      "plan_name": "12개월권 + PT",
+      "plan_name_display": "12개월권 + PT"
+    },
+    {
+      "name": "윤지원",
+      "plan_name": "3개월권",
+      "plan_name_display": "3개월권"
+    },
+    {
+      "name": "이재훈",
+      "plan_name": "12개월권",
+      "plan_name_display": "12개월권"
+    },
+    {
+      "name": "정하은",
+      "plan_name": "6개월권",
+      "plan_name_display": "6개월권"
+    }
+  ]
+}

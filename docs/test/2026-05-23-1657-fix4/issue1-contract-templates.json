@@ -1,0 +1,115 @@
+{
+  "data": [
+    {
+      "category": "membership",
+      "code": "MEMBERSHIP_3M",
+      "created_at": "2026-05-23T15:55:14.829991",
+      "id": 1,
+      "is_global": true,
+      "legal_clauses": [
+        "\uc804\uc790\uc11c\uba85\ubc95 \uc81c3\uc870 \u2014 \ubcf8\uc778\ud655\uc778(IP\u00b7\uae30\uae30\u00b7\uc11c\uba85 \uc774\ubbf8\uc9c0) + \uc704\ubcc0\uc870 \ubc29\uc9c0(SHA-256)",
+        "\uc804\uc790\ubb38\uc11c\ubc95 \uc81c5\uc870 \u2014 5\ub144 \ubcf4\uc874 \uc758\ubb34",
+        "\uccb4\uc721\uc2dc\uc124\ubc95 \uc81c27\uc870 \u2014 \uc9c8\ubcd1\u00b7\ubd80\uc0c1 \uc2dc \uc704\uc57d\uae08 \uc5c6\ub294 \uc911\ub3c4\ud574\uc9c0",
+        "PIPA(\uac1c\uc778\uc815\ubcf4\ubcf4\ud638\ubc95) \uc81c15\uc870 \u2014 \uc218\uc9d1\u00b7\uc774\uc6a9 \ub3d9\uc758",
+        "\uc18c\ube44\uc790\uc6d0 \uad8c\uace0 \ud658\ubd88 \uc815\ucc45 \u2014 \uc794\uc5ec\uc77c\uc218 \ube44\ub840 \ud658\ubd88 \u2212 \uc704\uc57d\uae08 10%"
+      ],
+      "name": "\ud68c\uc6d0\uad8c 3\uac1c\uc6d4 \uacc4\uc57d\uc11c",
+      "required_fields": [
+        "gym_name",
+        "gym_phone",
+        "gym_registration_no",
+        "gym_boss_name",
+        "member_name",
+        "member_birth",
+        "member_phone",
+        "member_address",
+        "plan_name",
+        "start_date",
+        "end_date",
+        "price",
+        "payment_method"
+      ]
+    },
+    {
+      "category": "membership",
+      "code": "TESTOK",
+      "created_at": "2026-05-23T16:38:22.338832",
+      "id": 2,
+      "is_global": false,
+      "legal_clauses": [],
+      "name": "test",
+      "required_fields": []
+    },
+    {
+      "category": "membership",
+      "code": "TSTCODE",
+      "created_at": "2026-05-23T16:39:26.152525",
+      "id": 3,
+      "is_global": false,
+      "legal_clauses": [],
+      "name": "\ud14c\uc2a4\ud2b8",
+      "required_fields": []
+    },
+    {
+      "category": "membership",
+      "code": "FULLTEST2",
+      "created_at": "2026-05-23T16:41:43.862821",
+      "id": 4,
+      "is_global": false,
+      "legal_clauses": [],
+      "name": "\uc804\uccb4\ud14c\uc2a4\ud2b82",
+      "required_fields": []
+    },
+    {
+      "category": "membership",
+      "code": "E2E_TEST_002",
+      "created_at": "2026-05-23T16:42:47.580248",
+      "id": 5,
+      "is_global": false,
+      "legal_clauses": [],
+      "name": "E2E Test",
+      "required_fields": []
+    },
+    {
+      "category": "membership",
+      "code": "FINALT4",
+      "created_at": "2026-05-23T16:53:47.601090",
+      "id": 6,
+      "is_global": false,
+      "legal_clauses": [],
+      "name": "Final Test 4",
+      "required_fields": []
+    },
+    {
+      "category": "membership",
+      "code": "PSIGN1",
+      "created_at": "2026-05-23T16:55:21.842988",
+      "id": 7,
+      "is_global": false,
+      "legal_clauses": [],
+      "name": "PS Test",
+      "required_fields": []
+    },
+    {
+      "category": "membership",
+      "code": "PSIGN2",
+      "created_at": "2026-05-23T16:55:34.977029",
+      "id": 8,
+      "is_global": false,
+      "legal_clauses": [],
+      "name": "PS Test 2",
+      "required_fields": []
+    },
+    {
+      "category": "membership",
+      "code": "PSIGN3",
+      "created_at": "2026-05-23T16:55:46.922983",
+      "id": 9,
+      "is_global": false,
+      "legal_clauses": [],
+      "name": "PS3",
+      "required_fields": []
+    }
+  ],
+  "ok": true
+}
