@@ -60,7 +60,7 @@
 
 ### 2.5 UX·온보딩 (3 task)
 
-- [ ] **N6-0** 셀프 setup wizard 3단계 — 회원권 1개·첫 회원·첫 계약서. 8분 TTFV. 의존: 없음. 예상 1주
+- [x] **N6-0** 셀프 setup wizard 3단계 — `web/facing-admin/templates/onboarding.html` 신규 (회원권 입력 → 첫 회원+회원권 자동 발급 → 첫 계약서). progress bar + done 화면. 빈 박스(회원 0명) 로그인 시 자동 redirect (login proxy 가 onboarding_recommended flag). 사이드바 "🎯 처음 시작하기" 메뉴. (2026-05-23)
 - [ ] **C2-회원상세** 회원 상세 사이드패널 — 결제 history·계약·출석·PR·메모·코치 배정 탭. 의존: H-1·N1-2. 예상 1주
 - [ ] **C-D18** 박스 스위처 (사이드바 드롭다운) + JWT org_scopes — A-7 JWT 도입과 같이. 의존: A-7. 예상 1주
 
