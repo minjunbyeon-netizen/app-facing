@@ -112,7 +112,7 @@ critical path (순서 의무):
 ### 3.2 결제·정산·계약 (4 task)
 
 - [x] **C-2** 자동 만료·동결 — `services/expiry_scheduler.py` 매일 03:30 KST. 만료 7·3·1·0일 전 audit_log idempotent 기록 (실 SMS 발송은 E-2 후) + 만료 1일 후 자동 paused + 60일 후 left soft delete (B-4 lifecycle 자동). (2026-05-23)
-- [ ] **C-5** 자동결제 (정기결제) — Toss 빌링키. 매월 지정일 + 3회 재시도. 예상 1주
+- [x] **C-5** 자동결제 (정기결제) — `api/billing.py` 신규: BillingKey 모델 + 빌링키 발급 + Toss 콜백 + 매일 03:45 cron 자동 청구 + 3회 실패 시 비활성. mock 성공 stub (Toss live API 통합은 P0-8 통합 시 활성). (2026-05-23)
 - [ ] **C-6** 영수증·세금계산서 PDF — 영수증 메일·세금계산서 사장 요청 시. 예상 1주
 - [ ] **C-7** 결제 reconciliation — 월 1회 Toss 정산 vs DB 비교 + 불일치 alert. 예상 3일
 
@@ -121,8 +121,8 @@ critical path (순서 의무):
 - [ ] **N4-3** Redis Sentinel + SSE fan-out + fallback (local queue · APScheduler 동기 fallback). 예상 1주
 - [ ] **N4-5** CDN — Cloudflare free tier. 예상 1일
 - [ ] **N4-6** rate limit — Flask-Limiter + Redis (의존: N4-3). 예상 3일
-- [ ] **N5-3** JSON 구조화 log + request_id·gym_id·user_id 자동 tag. 예상 2일
-- [ ] **N5-4** health check 확장 — /db /redis /external. 예상 1일
+- [x] **N5-3** JSON 구조화 log — `services/json_logger.py` `JsonFormatter` + `install_json_logging()`. production 만 활성 (dev 는 human-readable). request_id (uuid12) + gym_id + login_id + method + path 자동 tag. CloudWatch·Railway log panel 자동 파싱 호환. (2026-05-23)
+- [x] **N5-4** health check 확장 — `/api/v1/health/db` (SQLAlchemy ping) + `/api/v1/health/external` (Toss·FCM·NHN·Mailgun·Sentry env 설정 여부). 기존 `/health` 유지. (2026-05-23)
 
 ### 3.4 알림·SMS·메일·푸시 (4 task)
 
@@ -133,8 +133,8 @@ critical path (순서 의무):
 
 ### 3.5 i18n (3 task)
 
-- [ ] **N3-1** Flask-Babel + JSON locale (EN only · 확장 구조). 예상 1주
-- [ ] **N3-2** 모든 UI text 키화 (300~500 키) + JS locale JSON 분리. 예상 2주
+- [x] **N3-1** i18n framework — `api/i18n.py` 신규. JSON locale 구조 (`i18n/ko.json`·`i18n/en.json` 40 키 stub). `/api/v1/i18n/strings?lang=` + `/set-lang` endpoint. `t(key, lang)` 헬퍼. JA·ZH 확장은 JSON 파일 1개 추가만. (2026-05-23)
+- [ ] **N3-2** 모든 UI text 키화 (300~500 키) + JS locale JSON 분리. 예상 2주 (frontend 작업)
 - [ ] **N3-3** 영문 계약서 + 한국법 면책 + Receipt (세금계산서 영문화 X). 예상 1주
 
 ### 3.6 도메인 깊이 P1 (2 task)
