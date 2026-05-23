@@ -322,7 +322,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
 Color _categoryColor(String cat) {
   switch (cat) {
     case 'event':
-      return const Color(0xFF3B82F6); // 파랑
+      return FacingTokens.info; // v1.23: 파랑 — FacingTokens 참조로 교체.
     case 'promotion':
       return FacingTokens.warning; // 주황
     default:

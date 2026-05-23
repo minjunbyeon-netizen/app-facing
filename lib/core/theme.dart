@@ -1,35 +1,58 @@
 import 'package:flutter/material.dart';
 
-/// facing 디자인 토큰 (HWPO + Strava 하이브리드 — v1.22).
-/// 컬러: HWPO 검정 + 탠 액센트 (#B97A4A).
+/// facing 디자인 토큰 (HWPO + Strava 하이브리드 — v1.23).
+/// 컬러: 다크 콘트라스트 강화 + 액센트 4색 분리 (v1.23 톤 개편 A).
 /// 폰트: 이중 모드 — HWPO 임팩트(영혼 숫자 1~2회/화면) + Strava 본문(나머지 전체).
 /// 규칙: ~/.claude/reference/{mobile,ux,design}.md + 프로젝트 CLAUDE.md.
 class FacingTokens {
   FacingTokens._();
 
-  // ==== 컬러 팔레트 (HWPO 채택, v1.22) ====
+  // ==== 컬러 팔레트 (v1.23 톤 개편 A — 콘트라스트 강화 + 4단계 surface) ====
   static const Color bg = Color(0xFF0A0A0A);
-  /// v1.22: HWPO 톤 살짝 올림 (#141414 → #1A1A1A) — 카드 hierarchy 가독성.
-  static const Color surface = Color(0xFF1A1A1A);
-  /// v1.22: surface 따라 함께 올림. 모달·바텀시트 L2.
-  static const Color surfaceOverlay = Color(0xFF242424);
-  static const Color fg = Color(0xFFF5F5F5);
-  static const Color muted = Color(0xFF9E9E9E);
-  static const Color border = Color(0xFF2A2A2A);
+  /// v1.23: #1A→#16 — 단계 세분화 1단 (카드 배경).
+  static const Color surface = Color(0xFF161616);
+  /// v1.23 신규 — 카드 2단 (모달·중첩). 구 surfaceOverlay 대체.
+  static const Color surfaceHigh = Color(0xFF1F1F1F);
+  /// v1.23 신규 — 액티브 highlight / 가장 밝은 표면.
+  static const Color surfaceMax = Color(0xFF2A2A2A);
+  /// @deprecated v1.24에서 제거 예정 — surfaceHigh 사용.
+  static const Color surfaceOverlay = surfaceHigh;
 
-  /// v1.22 메인 변경 — CF Red(#EE2B2B) → HWPO 탠(#B97A4A).
-  /// CrossFit 정체성은 tierRx에만 잔류. accent 1색 = brand action 전용.
+  /// v1.23: #F5→#FF 순백 — 콘트라스트 ↑.
+  static const Color fg = Color(0xFFFFFFFF);
+  /// v1.23 신규 — 보조 텍스트 (fg 와 muted 사이).
+  static const Color fgSecondary = Color(0xFFD4D4D4);
+  /// v1.23: #9E→#9C (muted 살짝 밝게).
+  static const Color muted = Color(0xFF9CA3AF);
+  /// v1.23 신규 — 더 어두운 muted.
+  static const Color mutedStrong = Color(0xFF6B7280);
+  /// v1.23: #2A→#33 — border 콘트라스트 ↑.
+  static const Color border = Color(0xFF333333);
+
+  /// v1.22: HWPO 탠 액센트. CrossFit CTA·brand action 전용.
+  /// @deprecated v1.24에서 primary 로 통합 예정.
   static const Color accent = Color(0xFFB97A4A);
   static const Color accentPressed = Color(0xFFA26536);
-  /// v1.22 신규 — 탠 어두운 배경 (hover/카드 강조용).
+  /// 탠 어두운 배경 (hover/카드 강조용).
   static const Color accentSoft = Color(0xFF3A2A1F);
 
-  // ==== 상태 ====
-  static const Color success = Color(0xFF22C55E);
+  // ==== 액센트 4색 (v1.23 분리) ====
+  /// CrossFit Red — 기본 CTA·강조. accent 와 동의어.
+  static const Color primary = Color(0xFFEE2B2B);
+  static const Color primaryPressed = Color(0xFFB91C1C);
+  /// PR 달성·성공. Emerald (기존 #22C55E → #10B981 — 더 깊은 색조).
+  static const Color success = Color(0xFF10B981);
+  /// 만료 임박·주의.
   static const Color warning = Color(0xFFF59E0B);
-  /// v1.22: error는 CF Red 잔류 (실패 토스트·경고 — 탠과 분리되어야 함).
-  static const Color error = Color(0xFFEE2B2B);
-  static const Color overdue = Color(0xFFF59E0B);
+  /// 정보·툴팁·링크 (v1.23 신규).
+  static const Color info = Color(0xFF3B82F6);
+  /// 해지·에러 — primary 와 분리 (v1.23 신규).
+  static const Color danger = Color(0xFFDC2626);
+
+  /// @deprecated v1.24에서 danger 로 통합 예정 — danger 사용.
+  static const Color error = danger;
+  /// @deprecated v1.24에서 warning 으로 통합 예정 — warning 사용.
+  static const Color overdue = warning;
 
   // ==== 외부 브랜드 색 (소셜 로그인 전용) ====
   static const Color naverGreen = Color(0xFF03C75A);
@@ -272,16 +295,22 @@ class FacingTheme {
     brightness: Brightness.dark,
     scaffoldBackgroundColor: FacingTokens.bg,
     colorScheme: const ColorScheme.dark(
-      surface: FacingTokens.bg,
+      // v1.23: 4단계 surface 매핑.
+      surface: FacingTokens.surface,
       onSurface: FacingTokens.fg,
-      surfaceContainerHighest: FacingTokens.surface,
-      primary: FacingTokens.accent,
+      surfaceContainer: FacingTokens.surface,
+      surfaceContainerHigh: FacingTokens.surfaceHigh,
+      surfaceContainerHighest: FacingTokens.surfaceMax,
+      primary: FacingTokens.primary,
       onPrimary: FacingTokens.fg,
-      secondary: FacingTokens.fg,
-      onSecondary: FacingTokens.bg,
+      secondary: FacingTokens.accent,
+      onSecondary: FacingTokens.fg,
+      tertiary: FacingTokens.info,
+      onTertiary: FacingTokens.fg,
       outline: FacingTokens.border,
+      outlineVariant: FacingTokens.mutedStrong,
       onSurfaceVariant: FacingTokens.muted,
-      error: FacingTokens.error,
+      error: FacingTokens.danger,
       onError: FacingTokens.fg,
     ),
     fontFamily: FacingTokens.fontFamily,
@@ -314,8 +343,9 @@ class FacingTheme {
         ),
         backgroundColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.disabled)) return FacingTokens.border;
-          if (states.contains(WidgetState.pressed)) return FacingTokens.accentPressed;
-          return FacingTokens.accent;
+          // v1.23: primary(CrossFit red) CTA 버튼 기본값. accent(탠)은 secondary 버튼.
+          if (states.contains(WidgetState.pressed)) return FacingTokens.primaryPressed;
+          return FacingTokens.primary;
         }),
         foregroundColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.disabled)) return FacingTokens.muted;
@@ -361,6 +391,17 @@ class FacingTheme {
             borderRadius: BorderRadius.circular(FacingTokens.r4),
           ),
         ),
+      ),
+    ),
+    cardTheme: CardThemeData(
+      color: FacingTokens.surface,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      // v1.23: 단일 box-shadow (design-block.md 다중 금지 — 단일 OK).
+      shadowColor: const Color(0x66000000),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(FacingTokens.r3),
+        side: const BorderSide(color: FacingTokens.border, width: 1),
       ),
     ),
     dividerTheme: const DividerThemeData(

@@ -185,20 +185,31 @@ V11. **번역 판단 기준:** 동작명/등급명/시스템명/메트릭명은 
 - UI에 "RXD 4/6" 같은 백엔드 내부 코드 노출 금지. 항상 위 5티어 라벨만 사용.
 - 티어 배지: 2px solid 티어 컬러 + 대문자 라벨 + 얇은 padding. 아이콘 없음.
 
-## 디자인 시스템 (v1.14.0 타이포 계층 정비)
-### 컬러 토큰 (FacingTokens 기준)
+## 디자인 시스템 (v1.15.0 — 콘트라스트 강화 + 액센트 4색 분리)
+> v1.15.0 변경 내용: 다크 콘트라스트 강화, surface 4단계 확장, 액센트 4색(primary/success/info/danger) 분리. code-level 버전은 theme.dart v1.23. 사용자 승인: 2026-05-23.
+
+### 컬러 토큰 (FacingTokens 기준 — v1.15.0)
 | 토큰 | 값 | 용도 |
 |---|---|---|
-| `bg` | `#0A0A0A` | 기본 배경 (다크) |
-| `surface` | `#141414` | 카드 / 시트 |
-| `fg` | `#F5F5F5` | 본문 텍스트 |
-| `muted` | `#8A8A8A` | 보조 텍스트 |
-| `border` | `#2A2A2A` | 구분선 / 입력 외곽 |
-| `accent` | `#EE2B2B` | CrossFit red (primary CTA) |
-| `accentPressed` | `#CC2020` | 눌림 |
-| `success` | `#22C55E` | +델타, 성취 |
-| `warning` | `#F59E0B` | 주의 |
-| 5 tier 색 | 위 표 참조 | 티어 배지 전용 |
+| `bg` | `#0A0A0A` | 기본 배경 (변경 없음) |
+| `surface` | `#161616` | 카드 1단 (↑밝게) |
+| `surfaceHigh` | `#1F1F1F` | 카드 2단 (모달·중첩) — 신규 |
+| `surfaceMax` | `#2A2A2A` | 액티브 highlight — 신규 |
+| `surfaceOverlay` | → `surfaceHigh` | @deprecated v1.24 제거 |
+| `fg` | `#FFFFFF` | 본문 텍스트 (순백 강화) |
+| `fgSecondary` | `#D4D4D4` | 보조 텍스트 — 신규 |
+| `muted` | `#9CA3AF` | 보조 텍스트 (↑밝게) |
+| `mutedStrong` | `#6B7280` | 더 어두운 muted — 신규 |
+| `border` | `#333333` | 구분선 (콘트라스트 ↑) |
+| `accent` | `#B97A4A` | HWPO 탠 (brand action, @deprecated v1.24→primary) |
+| `primary` | `#EE2B2B` | CrossFit Red — 기본 CTA·강조 — 신규 |
+| `primaryPressed` | `#B91C1C` | primary 눌림 — 신규 |
+| `success` | `#10B981` | PR 달성·성공 (Emerald 변경) |
+| `warning` | `#F59E0B` | 주의 (변경 없음) |
+| `info` | `#3B82F6` | 정보·툴팁·링크 — 신규 |
+| `danger` | `#DC2626` | 해지·에러 (primary 와 분리) — 신규 |
+| `error` | → `danger` | @deprecated v1.24 제거 |
+| 5 tier 색 | 위 표 참조 | 티어 배지 전용 (변경 없음) |
 
 ### 타이포그래피 (v1.14.0 계층)
 - Pretendard 유지 (Variable, weight 400/700/800).
