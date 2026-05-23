@@ -42,7 +42,9 @@ PHASE3 v2 의 차별화 권장 1번 ("linko.my 운영 SaaS / facing 연산 엔�
 
 ## §1. 흡수 영역 — 7 모듈 (linko.my 추격)
 
-### §1.1 예약 시스템 (Class Reservation)
+### §1.1 예약 시스템 (Class Reservation) ✅ DONE
+
+> **진행률: 100%** — schema 3테이블 + endpoint 5 + 사장PC `/admin/classes` 주간캘린더 + 회원폰 예약 UI placeholder + waitlist 자동승격 E2E 검증 OK
 
 #### 현재 facing 상태
 - ❌ 미구현. `PHASE3_REVISION_v2.md` N2-2 "PT 예약 — 마켓플레이스 연동 보류 + 취소 정책 3단계" 만 있고, **그룹 클래스 자리 예약은 schema·UI 둘 다 0%**
