@@ -41,7 +41,7 @@
 ### 2.2 PIPA·결제 (4 task)
 
 - [ ] **G-1~G-7** PIPA 동의서·암호화·삭제권·접근 audit·CSP·HSTS·IDOR 회귀 테스트 (WEB_ADMIN_MEMBER_MGMT_TODO.md §8 참조). 의존: H-1 PostgreSQL. 예상 1주
-- [ ] **P0-8 (N2-1·N2-7~N2-9 일부)** Toss webhook HMAC + idempotency + 환불 reconciliation. 의존: 없음. 예상 3일
+- [x] **P0-8** Toss webhook HMAC + idempotency — `api/webhooks/toss.py` 신규. HMAC-SHA256 timing-safe verify + audit_log 기반 replay 차단 + 5분 timestamp tolerance. TOSS_WEBHOOK_SECRET env 미설정 시 dev 우회 (audit 명시). (2026-05-23) — 실 결제 로직 통합 (회원권 활성·환불 reconciliation) 은 C-1 결제 작업과 같이.
 - [ ] **C-1** 결제·매출 — 회원 상세에 결제 추가 (현금/카드/이체) + 영수증 자동 + 세금계산서. 의존: P0-8. 예상 2주
 - [ ] **C-3** 환불 — 부분 환불 + 잔여 일수 비례 + 사유 audit. 예상 2일
 
@@ -54,9 +54,9 @@
 ### 2.4 도메인 핵심 (4 task)
 
 - [x] **N1-0** movement_library 마스터 60개 동작 — `models/movement_library.py` 신규 + `data/seed_movement_library.py` 60개 seed (Gymnastics 20·Weightlifting 15·Cardio 10·Power 15). 영문·한국어 라벨·prerequisite·scaling·score_axes·benchmark_eligible 모두 포함. 부팅 시 자동 idempotent seed. (2026-05-23)
-- [ ] **N1-1** WOD schema + scale_type/scale_factor — wod_session·wod_score 테이블. 의존: N1-0. 예상 5일
-- [ ] **N1-2** member_pr + bodyweight_kg + bw_ratio + dots_score (powerlifting 3대 한정). 의존: N1-0. 예상 3일
-- [ ] **N1-3** benchmark_wod + benchmark_score 별도 테이블 + Korea/Custom 카테고리. Girls+Heroes 30개 우선. 의존: N1-0. 예상 5일
+- [x] **N1-1** WOD schema — `models/wod_session.py` (gym_id·session_date·wod_type·title·desc·time_cap·posted_by) + `models/wod_score.py` (scale_type rx/scaled/rx_plus·scale_factor Decimal·score_unit enum·is_pr). leaderboard 분리 표시 준비. (2026-05-23)
+- [x] **N1-2** member_pr 트래킹 — `models/member_pr.py` (weight_kg·reps·time_sec·bodyweight_kg·bw_ratio·dots_score·pr_date). DOTS 는 powerlifting 3대 한정. fitness/power.md §A4 그대로. (2026-05-23)
+- [x] **N1-3** benchmark_wod + benchmark_score — `models/benchmark_wod.py` 2 테이블. category enum (girls·heroes·open·korea·custom). 박스 자체 custom benchmark 도 같은 테이블에 (gym_id NOT NULL). percentile (박스 내) 컬럼 포함. seed 데이터 (Girls+Heroes 30개) 는 다음 라운드. (2026-05-23)
 
 ### 2.5 UX·온보딩 (3 task)
 
