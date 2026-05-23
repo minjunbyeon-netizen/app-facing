@@ -290,25 +290,35 @@ class _RejectedState extends StatelessWidget {
   }
 }
 
-/// v1.21: kbox 스타일 날짜 그룹 — 그저께·어제(위, 블러) / 오늘(가운데, Today 배지·자동펼침)
-/// / 내일·모레(아래, 약간 dim). 윈도우: -2 ~ +2 일.
+/// v1.24: 날짜별 아코디언 그룹 — 각 날짜 = ExpansionTile.
+/// PAST/TODAY/UPCOMING 3섹션 유지. TODAY 그룹은 initiallyExpanded=true.
+/// 같은 날짜에 복수 WOD 있어도 날짜 헤더 1개 + 하위 WOD 카드 목록으로 접힘.
 class _WodList extends StatelessWidget {
   final GymState gymState;
   const _WodList({required this.gymState});
 
   static const List<String> _wkLabel = ['월', '화', '수', '목', '금', '토', '일'];
 
-  @override
-  Widget build(BuildContext context) {
-    final gym = gymState.membership.gym!;
-    final allWods = gymState.wods;
-    final now = DateTime.now().toLocal();
-    final todayDate = DateTime(now.year, now.month, now.day);
+  static String _formatDate(DateTime d) {
+    const wks = ['월', '화', '수', '목', '금', '토', '일'];
+    final wk = wks[(d.weekday - 1) % 7];
+    final mm = d.month.toString().padLeft(2, '0');
+    final dd = d.day.toString().padLeft(2, '0');
+    return '$mm.$dd($wk)';
+  }
 
-    // v1.22 (rev2): 3섹션(PAST/TODAY/UPCOMING) — 일자 헤더 중복 제거.
-    final past = <_WodEntry>[];
-    final todayList = <_WodEntry>[];
-    final future = <_WodEntry>[];
+  /// 날짜별 그룹화 — 정렬 순서는 diff 오름차순 (−2 → +2).
+  /// 반환: List<(date, diff, entries)> — diff는 그룹의 대표값(첫 entry).
+  List<({DateTime date, int diff, String dateLabel, List<_WodEntry> entries})>
+      _groupByDate(List<GymWodPost> allWods, DateTime todayDate) {
+    final map = <String,
+        ({
+          DateTime date,
+          int diff,
+          String dateLabel,
+          List<_WodEntry> entries
+        })>{};
+
     for (final w in allWods) {
       final d = DateTime.tryParse('${w.postDate}T00:00:00');
       if (d == null) continue;
@@ -317,19 +327,44 @@ class _WodList extends StatelessWidget {
       final wk = _wkLabel[(d.weekday - 1) % 7];
       final mm = d.month.toString().padLeft(2, '0');
       final dd = d.day.toString().padLeft(2, '0');
-      final entry = _WodEntry(wod: w, dateLabel: '$mm.$dd · $wk', diff: diff);
-      if (diff < 0) {
-        past.add(entry);
-      } else if (diff == 0) {
-        todayList.add(entry);
-      } else {
-        future.add(entry);
+      final dateLabel = '$mm.$dd($wk)';
+      final key = w.postDate;
+      if (!map.containsKey(key)) {
+        map[key] = (
+          date: d,
+          diff: diff,
+          dateLabel: dateLabel,
+          entries: <_WodEntry>[],
+        );
       }
+      map[key]!.entries.add(
+            _WodEntry(wod: w, dateLabel: dateLabel, diff: diff),
+          );
     }
-    past.sort((a, b) => a.diff.compareTo(b.diff)); // -2 → -1
-    future.sort((a, b) => a.diff.compareTo(b.diff)); // +1 → +2
 
-    final isEmpty = past.isEmpty && todayList.isEmpty && future.isEmpty;
+    final result = map.values.toList();
+    result.sort((a, b) => a.diff.compareTo(b.diff));
+    return result;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final gym = gymState.membership.gym!;
+    final allWods = gymState.wods;
+    final now = DateTime.now().toLocal();
+    final todayDate = DateTime(now.year, now.month, now.day);
+
+    final groups = _groupByDate(allWods, todayDate);
+
+    final pastGroups =
+        groups.where((g) => g.diff < 0).toList();
+    final todayGroups =
+        groups.where((g) => g.diff == 0).toList();
+    final futureGroups =
+        groups.where((g) => g.diff > 0).toList();
+
+    final isEmpty =
+        pastGroups.isEmpty && todayGroups.isEmpty && futureGroups.isEmpty;
 
     return RefreshIndicator(
       onRefresh: () => context.read<GymState>().loadMine(),
@@ -361,24 +396,20 @@ class _WodList extends StatelessWidget {
                   style: FacingTokens.caption),
             ),
           ] else ...[
-            // PAST 섹션 — 1줄 압축 row.
-            if (past.isNotEmpty) ...[
+            // PAST 섹션
+            if (pastGroups.isNotEmpty) ...[
               const Text('PAST', style: FacingTokens.sectionLabel),
               const SizedBox(height: FacingTokens.sp1),
               const Divider(
                   height: 1, color: FacingTokens.border, thickness: 1),
-              ...past.map((e) => e.wod.locked
-                  ? _LockedWodBanner(
-                      dateLabel: e.dateLabel,
-                      wodType: e.wod.wodType,
-                      isMembershipExpired: true,
-                    )
-                  : _WodRow(
-                      wod: e.wod,
-                      dateLabel: e.dateLabel,
-                      canDelete: gymState.isOwner,
-                      isToday: false,
-                    )),
+              ...pastGroups.map((g) => _DateAccordion(
+                    dateLabel: g.dateLabel,
+                    entries: g.entries,
+                    isToday: false,
+                    initiallyExpanded: false,
+                    canDelete: gymState.isOwner,
+                    isOwner: gymState.isOwner,
+                  )),
               const SizedBox(height: FacingTokens.sp5),
             ],
             // TODAY 섹션 — accentSoft bg로 강조.
@@ -410,15 +441,15 @@ class _WodList extends StatelessWidget {
                           )),
                       const SizedBox(width: FacingTokens.sp2),
                       Text(
-                        todayList.isNotEmpty
-                            ? todayList.first.dateLabel
+                        todayGroups.isNotEmpty
+                            ? todayGroups.first.dateLabel
                             : _formatDate(todayDate),
                         style: FacingTokens.caption,
                       ),
                     ],
                   ),
                   const SizedBox(height: FacingTokens.sp1),
-                  if (todayList.isEmpty)
+                  if (todayGroups.isEmpty)
                     const Padding(
                       padding: EdgeInsets.symmetric(
                           vertical: FacingTokens.sp3),
@@ -426,53 +457,154 @@ class _WodList extends StatelessWidget {
                           style: FacingTokens.caption),
                     )
                   else
-                    ...todayList.map((e) => e.wod.locked
-                        ? _LockedWodBanner(
-                            dateLabel: e.dateLabel,
-                            wodType: e.wod.wodType,
-                            isMembershipExpired: true,
-                          )
-                        : _WodRow(
-                            wod: e.wod,
-                            dateLabel: e.dateLabel,
-                            canDelete: gymState.isOwner,
-                            isToday: true,
-                          )),
+                    // TODAY 그룹 — 날짜 헤더 숨기고 WOD 카드 바로 표시
+                    // (TODAY 컨테이너 자체가 날짜 표시 역할)
+                    ...todayGroups.expand((g) => g.entries).map(
+                          (e) => e.wod.locked
+                              ? _LockedWodBanner(
+                                  dateLabel: e.dateLabel,
+                                  wodType: e.wod.wodType,
+                                  isMembershipExpired: true,
+                                )
+                              : _WodRow(
+                                  wod: e.wod,
+                                  dateLabel: e.dateLabel,
+                                  canDelete: gymState.isOwner,
+                                  isToday: true,
+                                ),
+                        ),
                 ],
               ),
             ),
             // UPCOMING 섹션 — owner는 카드 표시, 일반 멤버는 lock 배너.
-            if (future.isNotEmpty) ...[
+            if (futureGroups.isNotEmpty) ...[
               const SizedBox(height: FacingTokens.sp5),
               const Text('UPCOMING', style: FacingTokens.sectionLabel),
               const SizedBox(height: FacingTokens.sp1),
               const Divider(
                   height: 1, color: FacingTokens.border, thickness: 1),
-              ...future.map((e) => gymState.isOwner
-                  ? _WodRow(
-                      wod: e.wod,
-                      dateLabel: e.dateLabel,
-                      canDelete: true,
-                      isToday: false,
-                    )
-                  : _LockedWodBanner(
-                      dateLabel: e.dateLabel,
-                      wodType: e.wod.wodType,
-                      isMembershipExpired: false,
-                    )),
+              ...futureGroups.map((g) => _DateAccordion(
+                    dateLabel: g.dateLabel,
+                    entries: g.entries,
+                    isToday: false,
+                    initiallyExpanded: false,
+                    canDelete: gymState.isOwner,
+                    isOwner: gymState.isOwner,
+                    isFuture: true,
+                  )),
             ],
           ],
         ],
       ),
     );
   }
+}
 
-  static String _formatDate(DateTime d) {
-    const wks = ['월', '화', '수', '목', '금', '토', '일'];
-    final wk = wks[(d.weekday - 1) % 7];
-    final mm = d.month.toString().padLeft(2, '0');
-    final dd = d.day.toString().padLeft(2, '0');
-    return '$mm.$dd · $wk';
+/// v1.24: 날짜 아코디언 — ExpansionTile 기반.
+/// title: "05.22(금)" + "N개" 카운트.
+/// subtitle: 첫 프로그램 wodType preview.
+/// children: 해당 날짜 WOD 목록.
+class _DateAccordion extends StatelessWidget {
+  final String dateLabel;
+  final List<_WodEntry> entries;
+  final bool isToday;
+  final bool initiallyExpanded;
+  final bool canDelete;
+  final bool isOwner;
+  final bool isFuture;
+
+  const _DateAccordion({
+    required this.dateLabel,
+    required this.entries,
+    required this.isToday,
+    required this.initiallyExpanded,
+    required this.canDelete,
+    required this.isOwner,
+    this.isFuture = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final count = entries.length;
+    // preview: 첫 번째 WOD wodType (+ "외 N건" if multiple)
+    final firstType = entries.isNotEmpty
+        ? entries.first.wod.wodType.toUpperCase()
+        : '';
+    final previewText = count > 1 ? '$firstType 외 ${count - 1}건' : firstType;
+
+    return Theme(
+      // ExpansionTile 기본 divider 제거
+      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+      child: ExpansionTile(
+        initiallyExpanded: initiallyExpanded,
+        tilePadding:
+            const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+        childrenPadding: EdgeInsets.zero,
+        collapsedIconColor: FacingTokens.muted,
+        iconColor: FacingTokens.muted,
+        title: Row(
+          children: [
+            Text(
+              dateLabel,
+              style: FacingTokens.body.copyWith(
+                fontWeight: FontWeight.w700,
+                color: FacingTokens.fg,
+              ),
+            ),
+            const SizedBox(width: FacingTokens.sp2),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: FacingTokens.surface,
+                border: Border.all(color: FacingTokens.border),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                '$count',
+                style: FacingTokens.micro.copyWith(
+                  color: FacingTokens.muted,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+        subtitle: count > 0
+            ? Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Text(
+                  previewText,
+                  style: FacingTokens.caption,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              )
+            : null,
+        children: entries.map((e) {
+          if (e.wod.locked) {
+            return _LockedWodBanner(
+              dateLabel: e.dateLabel,
+              wodType: e.wod.wodType,
+              isMembershipExpired: !isFuture,
+            );
+          }
+          if (isFuture && !isOwner) {
+            return _LockedWodBanner(
+              dateLabel: e.dateLabel,
+              wodType: e.wod.wodType,
+              isMembershipExpired: false,
+            );
+          }
+          return _WodRow(
+            wod: e.wod,
+            dateLabel: e.dateLabel,
+            canDelete: canDelete,
+            isToday: isToday,
+          );
+        }).toList(),
+      ),
+    );
   }
 }
 
