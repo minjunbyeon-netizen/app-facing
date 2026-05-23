@@ -208,7 +208,7 @@ class GymRepository {
     String? startAt,
     String? endAt,
   }) async {
-    final data = await api.post('/api/v1/admin/gyms/$gymId/announcements', {
+    final data = await api.post('/api/v1/coach/gyms/$gymId/announcements', {
       'title': title,
       'body': body,
       'priority': priority,
@@ -262,12 +262,12 @@ class GymRepository {
       if (pinned != null) 'pinned': pinned.toString(),
       'end_at': ?endAt,
     };
-    final data = await api.patch('/api/v1/admin/announcements/$id', payload);
+    final data = await api.patch('/api/v1/coach/announcements/$id', payload);
     return GymAnnouncement.fromJson(data);
   }
 
   Future<void> deleteAnnouncement(int gymId, int id) async {
-    await api.delete('/api/v1/admin/announcements/$id');
+    await api.delete('/api/v1/coach/announcements/$id');
   }
 
   Future<List<GymMessageItem>> listMessages(int gymId, {String? withHash}) async {
