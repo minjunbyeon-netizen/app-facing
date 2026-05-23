@@ -153,16 +153,18 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 
 ---
 
-## 2. RBAC — 3개 역할
+## 2. RBAC — 3개 역할 (+ 매니저 1)
 
 | 역할 | 클라이언트 | 권한 |
 |---|---|---|
 | **회원** (member) | 폰 | 자기 WOD·페이싱·결과 제출·박스 공지 보기·코치에게 쪽지·배지·tier |
 | **코치** (coach) | 폰 | 회원 모든 권한 + WOD 게시·회원 목록·쪽지·피드백·가입 승인 |
-| **사장** (boss) | PC | 회원 DB CRUD·회원권 발급/연장·락커·전자계약·통계 (게이미피케이션 X) |
+| **사장** (boss) | **PC 주 + 폰 보조 (PHASE5)** | 회원 DB CRUD·회원권 발급/연장·락커·전자계약·통계 (게이미피케이션 X) |
+| **매니저** (manager) | **PC 주 + 폰 보조 (PHASE5)** | 사장 위임 운영권 (회원 운영·예약 응대·결제 확인) |
 
-- 사장은 **회원이 아니라 운영자** 라서 폰을 안 써요. PC 에서 ID/PW 로 로그인 (회원·코치는 device_hash 익명).
+- **사장은 운영자**, PHASE5 부터는 **외출·이동 중 폰 보조 운영 가능** (linko 격차 해소 — `docs/PHASE5_ROADMAP.md` 참조). PC 가 주, 폰이 보조. **폰 사장 로그인 = PC 동일 ID/PW** 사용. 회원·코치는 device_hash 익명 유지.
 - 한 사람이 두 역할 가질 수 있어요 (예: 박지훈 = 사장 + 코치). DB 상으로는 `gym_managers` 에 두 행 (또는 role 컬럼 set 형).
+- **PHASE5 추가 가정**: facing-app 진입 시 `user_type` 분기 — `device_hash` (회원·코치 익명) vs `login_id` (사장·매니저 ID/PW). 같은 앱 바이너리, 다른 진입 플로우.
 
 ---
 
@@ -515,6 +517,20 @@ retention 정의 = "코호트(가입 월) 의 N개월 후 시점에 attendance �
 | §2.2 leaderboard | 3 | leaderboard·tier-distribution·engine-comparison |
 | §2.4 듀얼 포지셔닝 | 3 | link-facing-app·class-pacing·push-pacing-card |
 | **합계** | **35** | |
+
+### 11.4. PHASE5 §2 RBAC 변경 등록 (2026-05-23)
+
+> 등록일: 2026-05-23. 상세 plan: `docs/PHASE5_ROADMAP.md`.
+> 사장 폰 보조 운영 가정 추가 — linko 격차 해소 (linko 9 스크린샷 분석에서 격차 발견).
+
+| 변경 항목 | Before | After | 영향 범위 |
+|---|---|---|---|
+| 사장 클라이언트 | PC 전용 | PC 주 + 폰 보조 (PHASE5) | facing-app 인증·라우팅·UI |
+| 매니저 역할 | 미정의 | RBAC 표 추가 — 사장 위임 운영권 | 백엔드 RBAC enum + 미들웨어 |
+| 폰 진입 분기 | device_hash 단일 | user_type=`device_hash` (회원·코치) vs `login_id` (사장·매니저) | facing-app 부팅 라우터 |
+| 사장 폰 로그인 | 없음 | PC 와 동일 ID/PW | 백엔드 admin login endpoint 확장 |
+
+> §10 결정사항 표에는 PHASE5 착수 시점에 D-번호 부여 후 추가.
 
 ---
 

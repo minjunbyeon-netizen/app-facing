@@ -85,6 +85,8 @@ playwright 기반 자동화 스크린샷 포함 (`docs/screenshots/`, `docs/test
 | Week 3 | §1.2 NHN 심사 통과 시 8 시퀀스 실발송 통합 · §1.5 grace period + 미납 dashboard · §2.1 W-prime 통합 |
 | Week 4 | §2.1 WOD pacing batch 12명 · §2.4 코치폰 페이싱 카드 SSE · §1.6 WOD 캘린더 UI (P1 진입) · Phase 4 회고 |
 
+> **PHASE5 시작 시점**: Week 4 회고 직후 (PHASE4 P0 완료 후) `docs/PHASE5_ROADMAP.md` 착수. 단 §1.1 사장 폰 로그인·§1.2 dashboard 는 Week 3~4 와 **병행 가능** (PHASE4 데이터 의존성 적음).
+
 ---
 
 ## §8. 외부 의존 (사장님 직접 진행 필요)
