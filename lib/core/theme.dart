@@ -52,6 +52,9 @@ class FacingTokens {
   /// CrossFit Red — 기본 CTA·강조.
   static const Color primary = Color(0xFFEE2B2B);
   static const Color primaryPressed = Color(0xFFB91C1C);
+  /// v2.0 신규 — primary/danger 등 컬러 배경 위 텍스트 (항상 흰색).
+  /// 라이트 톤 전환 시 fg(=검정) 사용하면 콘트라스트 미달 → 이 토큰 사용 강제.
+  static const Color onColor = Color(0xFFFFFFFF);
   /// PR 달성·성공. emerald-500.
   static const Color success = Color(0xFF10B981);
   /// 만료 임박·주의. amber-500.
@@ -355,12 +358,16 @@ class FacingTheme {
           return const Color(0xFFFFFFFF);
         }),
         textStyle: WidgetStateProperty.all(
-          FacingTokens.body.copyWith(
+          const TextStyle(
+            fontFamily: FacingTokens.fontFamily,
+            fontSize: 15,
             fontWeight: FontWeight.w600,
             letterSpacing: 0,
-            color: const Color(0xFFFFFFFF),
+            height: 1.50,
+            color: Color(0xFFFFFFFF),
           ),
         ),
+        overlayColor: WidgetStateProperty.all(Colors.transparent),
         shape: WidgetStateProperty.all(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(FacingTokens.r4),

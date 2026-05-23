@@ -233,7 +233,7 @@ class _PrimaryCtaButton extends StatelessWidget {
           child: Text(
             label,
             style: FacingTokens.h3.copyWith(
-              color: FacingTokens.fg,
+              color: FacingTokens.onColor,
               letterSpacing: 0.8,
             ),
           ),
