@@ -102,7 +102,7 @@ class AlgorithmScreen extends StatelessWidget {
             ),
             const SizedBox(height: FacingTokens.sp1),
             const Text(
-              'Beta Preview · Split 시뮬레이터는 Phase 2 예정.',
+              'Split 시뮬레이터는 Phase 2 예정.',
               style: FacingTokens.caption,
               textAlign: TextAlign.center,
             ),

@@ -108,17 +108,6 @@ class _SignupScreenState extends State<SignupScreen> {
                         style: FacingTokens.brandLogo,
                         textAlign: TextAlign.center),
                     const SizedBox(height: FacingTokens.sp2),
-                    const Text(
-                      'Engine · Split · Burst',
-                      style: FacingTokens.micro,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: FacingTokens.sp3),
-                    const Text(
-                      'CrossFit Games-Player 전용\nWOD Pacing Intelligence',
-                      style: FacingTokens.caption,
-                      textAlign: TextAlign.center,
-                    ),
                   ],
                 ),
                 const SizedBox(height: FacingTokens.sp5),
@@ -211,8 +200,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       onPressed: () => _showLegalSheet(
                         context,
                         title: '이용약관',
-                        body: '이용약관 본문은 정식 출시 시 업데이트됩니다.\n'
-                            '현재 Beta Preview 단계 — 데이터는 로컬에만 저장됩니다.',
+                        body: '이용약관 본문은 정식 출시 시 업데이트됩니다.',
                       ),
                       style: TextButton.styleFrom(
                         foregroundColor: FacingTokens.muted,
@@ -227,8 +215,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         context,
                         title: '개인정보처리방침',
                         body: '개인정보처리방침 본문은 정식 출시 시 업데이트됩니다.\n'
-                            'Beta Preview: device_id·프로필은 로컬 저장. '
-                            '서버 전송 데이터는 없습니다.',
+                            'device_id·프로필은 로컬 저장. 서버 전송 데이터는 없습니다.',
                       ),
                       style: TextButton.styleFrom(
                         foregroundColor: FacingTokens.muted,

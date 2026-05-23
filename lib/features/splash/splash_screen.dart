@@ -161,38 +161,12 @@ class _SplashScreenState extends State<SplashScreen>
                   textAlign: TextAlign.center,
                 ),
               ),
-              const SizedBox(height: FacingTokens.sp2),
-              _fadeSlide(
-                1,
-                Text(
-                  'Engine · Split · Burst',
-                  style: FacingTokens.micro,
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              const SizedBox(height: FacingTokens.sp3),
-              _fadeSlide(
-                2,
-                Text(
-                  'WOD Pacing Intelligence.',
-                  style: FacingTokens.body,
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              const SizedBox(height: FacingTokens.sp1),
-              _fadeSlide(
-                3,
-                Text(
-                  'CrossFit Games-Player 전용.',
-                  style: FacingTokens.caption,
-                  textAlign: TextAlign.center,
-                ),
-              ),
+              const SizedBox(height: FacingTokens.sp5),
               const Spacer(),
-              _fadeSlide(4, QuoteCard(quote: q, compact: true)),
+              _fadeSlide(1, QuoteCard(quote: q, compact: true)),
               const SizedBox(height: FacingTokens.sp5),
               _fadeOnly(
-                5,
+                2,
                 const SizedBox(
                   width: 22,
                   height: 22,

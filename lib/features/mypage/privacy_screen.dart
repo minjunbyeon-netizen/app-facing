@@ -35,7 +35,7 @@ class PrivacyScreen extends StatelessWidget {
             const SizedBox(height: FacingTokens.sp2),
             const _Bullet('실명·이메일·전화번호 (Phase 2 OAuth 연결 전까지 수집 X)'),
             const _Bullet('위치 정보 · 연락처 · 카메라 · 마이크'),
-            const _Bullet('카카오톡 친구목록·메시지 (Beta Preview — OAuth 미연결)'),
+            const _Bullet('카카오톡 친구목록·메시지 (OAuth 미연결)'),
             const SizedBox(height: FacingTokens.sp4),
 
             const Text('USAGE', style: FacingTokens.sectionLabel),
@@ -73,7 +73,7 @@ class PrivacyScreen extends StatelessWidget {
 
             const Text('LAST UPDATED', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp2),
-            const Text('2026-04-24 · Beta Preview · 정식 출시 시 법무 검토.',
+            const Text('2026-04-24 · 정식 출시 시 법무 검토.',
                 style: FacingTokens.caption),
           ],
         ),
