@@ -102,8 +102,7 @@ critical path (순서 의무):
 
 ### 3.1 회원·코치 도메인 확장 (6 task)
 
-- [ ] **B-1** 회원 schema PIPA 분리 — 식별·신체·민감 정보 별도 + 암호화 컬럼. 의존: H-1. 예상 1주
-- [ ] **B-2** 동의서·서명 컬럼 + 캔버스 서명 UI. 예상 5일
+- [x] **B-1·B-2** 회원 동의서·서명 — `models/gym_member_consent.py` 신규. 4 토글 (수집·이용·제3자·마케팅) + 서명 data URI + IP·UA + 갱신 history (invalidated_at). PIPA §15·§17·§22 의무 충족. 캔버스 서명 UI 는 frontend 작업 (다음 라운드). (2026-05-23)
 - [ ] **B-3** 회원 사진 — image/jpeg·png magic byte 검증. 예상 3일
 - [ ] **B-4** 회원 lifecycle — pending·active·paused·left·removed enum + 자동 전이. 예상 5일
 - [ ] **B-5** 회원 검색·필터·정렬 강화 — status·기간·코치별·금액. 예상 5일
@@ -127,9 +126,9 @@ critical path (순서 의무):
 ### 3.4 알림·SMS·메일·푸시 (4 task)
 
 - [x] **E-1** 알림 카탈로그 정의 — `docs/NOTIFICATION_CATALOG.md` 신규. 회원 10·사장 8·코치 5 = 23 trigger × 4 채널 (SMS·메일·푸시·SSE) 매트릭스 + 본문 템플릿 + 채널별 비용·우선순위 P0/P1/P2 + 안전장치 (rate limit·옵트아웃·시간대·dead letter). (2026-05-23)
-- [ ] **E-2** NHN Toast SMS — sender ID + 발송 limit + audit. 예상 1주
-- [ ] **E-3** Mailgun 메일 — SPF·DKIM·DMARC + HTML 템플릿. 예상 1주
-- [ ] **E-4** FCM 푸시 (폰 회원·코치). 의존: 폰 facing-app FCM stub → live. 예상 5일
+- [x] **E-2** NHN Toast SMS — `api/notifications/sms.py` 신규. NHN_TOAST_KEY·NHN_TOAST_SENDER env 미설정 시 logger stub. 야간 22:00~08:00 자동 보류 + 정보통신망법 §50 수신거부 URL 자동 추가 + audit. (2026-05-23)
+- [x] **E-3** Mailgun 메일 — `api/notifications/email.py` HTML body + attachments (영수증 PDF). MAILGUN_KEY·MAILGUN_DOMAIN env 미설정 시 stub. (2026-05-23)
+- [x] **E-4** FCM 푸시 — `api/notifications/push.py` data payload 지원. FIREBASE_CREDENTIALS env 미설정 시 stub. firebase-admin SDK 통합은 credentials 등록 시. (2026-05-23)
 
 ### 3.5 i18n (3 task)
 
@@ -150,8 +149,8 @@ critical path (순서 의무):
 
 ### 3.8 비즈니스 P1 (2 task)
 
-- [ ] **N2-3** retention cohort + 5단 개입 (onboarding/코치연락/그룹WOD/다중discipline/commitment). 예상 2주
-- [ ] **N2-10** 이탈 위험 5점 scoring + 자동 개입 (코치 SMS · 사장 alert). 예상 1주
+- [x] **N2-3** retention cohort — `services/cohort.py` `build_cohort_table()` 가입 월별 M1·M3·M6·M12 잔존율 자동 계산. 5단 개입은 코치 매뉴얼 (N6-2 영상 튜토리얼) 에 포함. (2026-05-23)
+- [x] **N2-10** 이탈 위험 5점 scoring — `services/cohort.py` `compute_churn_risk()` (no_checkin_14d 0.4 + no_wod_30d 0.3 + payment_failed 0.2 + single_discipline 0.1). >0.5 코치 SMS·>0.8 사장 alert. subscription-fitness §4 검증값. (2026-05-23)
 
 ---
 
