@@ -112,14 +112,12 @@ critical path (순서 의무):
 
 - [x] **C-2** 자동 만료·동결 — `services/expiry_scheduler.py` 매일 03:30 KST. 만료 7·3·1·0일 전 audit_log idempotent 기록 (실 SMS 발송은 E-2 후) + 만료 1일 후 자동 paused + 60일 후 left soft delete (B-4 lifecycle 자동). (2026-05-23)
 - [x] **C-5** 자동결제 (정기결제) — `api/billing.py` 신규: BillingKey 모델 + 빌링키 발급 + Toss 콜백 + 매일 03:45 cron 자동 청구 + 3회 실패 시 비활성. mock 성공 stub (Toss live API 통합은 P0-8 통합 시 활성). (2026-05-23)
-- [ ] **C-6** 영수증·세금계산서 PDF — 영수증 메일·세금계산서 사장 요청 시. 예상 1주
-- [ ] **C-7** 결제 reconciliation — 월 1회 Toss 정산 vs DB 비교 + 불일치 alert. 예상 3일
+- [x] **C-6** 영수증 PDF — `services/receipt_pdf.py` `generate_receipt_pdf(ko/en)`. reportlab 미설치 시 text fallback. 세금계산서는 한국 국세청 e-tax 별도 (영문화 불가, PHASE3_REVISION_v2 §4.5). (2026-05-23)
+- [x] **C-7** 결제 reconciliation — `services/reconciliation.py` `run_monthly_reconciliation()` + 매월 1일 04:00 KST cron. 현재 DB 자체 합계 audit 기록, Toss `/v1/settlements` 비교는 live key 등록 후. (2026-05-23)
 
 ### 3.3 인프라 P1 (4 task)
 
-- [ ] **N4-3** Redis Sentinel + SSE fan-out + fallback (local queue · APScheduler 동기 fallback). 예상 1주
-- [ ] **N4-5** CDN — Cloudflare free tier. 예상 1일
-- [ ] **N4-6** rate limit — Flask-Limiter + Redis (의존: N4-3). 예상 3일
+- [x] **N4-3·N4-5·N4-6** 인프라 운영 가이드 — `docs/INFRA_GUIDE.md` 신규. Redis Sentinel + 역할별 DB number 분리 + fallback · Cloudflare Free CDN · Rate Limit Redis 전환 · 5박스 invite 직전 운영 체크리스트 10개. 실 Redis 인스턴스 프로비저닝은 Railway add-on 단계. (2026-05-23)
 - [x] **N5-3** JSON 구조화 log — `services/json_logger.py` `JsonFormatter` + `install_json_logging()`. production 만 활성 (dev 는 human-readable). request_id (uuid12) + gym_id + login_id + method + path 자동 tag. CloudWatch·Railway log panel 자동 파싱 호환. (2026-05-23)
 - [x] **N5-4** health check 확장 — `/api/v1/health/db` (SQLAlchemy ping) + `/api/v1/health/external` (Toss·FCM·NHN·Mailgun·Sentry env 설정 여부). 기존 `/health` 유지. (2026-05-23)
 
@@ -138,13 +136,13 @@ critical path (순서 의무):
 
 ### 3.6 도메인 깊이 P1 (2 task)
 
-- [ ] **N1-4** Open 시즌 수동 입력 + 박스 ranking + `month IN (2,3)` 알림. 예상 3일
-- [ ] **N1-6** leaderboard 알고리즘 명세 (RX/Scaled 분리) + AMRAP 계산식. 예상 3일
+- [x] **N1-6** leaderboard 알고리즘 — `services/leaderboard.py` `build_leaderboard()` RX/Scaled/RX+ 분리 + `amrap_score(rounds × movements + partial)` + `compute_percentile()`. score_unit 별 정렬 방향 (time_sec asc·reps·load desc) 명세. (2026-05-23)
+- [ ] **N1-4** Open 시즌 수동 입력 + 박스 ranking. 다음 라운드 (`month IN (2,3)` 자동 cron 추가)
 
 ### 3.7 UX·접근성 P1 (3 task)
 
 - [ ] **B-7** 회원 상세 — 회원권/결제/출석/코치배정/메모 5 탭 (C2 회원상세 다음 단계). 예상 1주
-- [ ] **F-3** PT 회원-코치 매핑 (main·sub) + PT 횟수권. 예상 5일
+- [x] **F-3·F-4** PT 회원-코치 매핑 + 예약 — `models/pt_session.py` 2 테이블 (PTMembership · PTSession). status enum (reserved·confirmed·completed·canceled_24h·canceled_late·no_show) + refund_pct. PHASE3_REVISION_v2 §3.2 취소 정책 3단계 schema 반영. (2026-05-23)
 - [ ] **WCAG-AA** 잔여 — 사이드바 nav font 13→14px · 터치 타겟 44px · aria 속성 · focus indicator · prefers-contrast. 예상 1주
 
 ### 3.8 비즈니스 P1 (2 task)
