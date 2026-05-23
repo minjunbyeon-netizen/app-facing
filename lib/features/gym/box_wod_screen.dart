@@ -378,7 +378,6 @@ class _WodList extends StatelessWidget {
                       dateLabel: e.dateLabel,
                       canDelete: gymState.isOwner,
                       isToday: false,
-                      isFuture: false,
                     )),
               const SizedBox(height: FacingTokens.sp5),
             ],
@@ -438,23 +437,29 @@ class _WodList extends StatelessWidget {
                             dateLabel: e.dateLabel,
                             canDelete: gymState.isOwner,
                             isToday: true,
-                            isFuture: false,
                           )),
                 ],
               ),
             ),
-            // UPCOMING 섹션 — 1줄 압축 row + lock (caption 제거: lock 아이콘으로 충분).
+            // UPCOMING 섹션 — owner는 카드 표시, 일반 멤버는 lock 배너.
             if (future.isNotEmpty) ...[
               const SizedBox(height: FacingTokens.sp5),
               const Text('UPCOMING', style: FacingTokens.sectionLabel),
               const SizedBox(height: FacingTokens.sp1),
               const Divider(
                   height: 1, color: FacingTokens.border, thickness: 1),
-              ...future.map((e) => _LockedWodBanner(
-                    dateLabel: e.dateLabel,
-                    wodType: e.wod.wodType,
-                    isMembershipExpired: false,
-                  )),
+              ...future.map((e) => gymState.isOwner
+                  ? _WodRow(
+                      wod: e.wod,
+                      dateLabel: e.dateLabel,
+                      canDelete: true,
+                      isToday: false,
+                    )
+                  : _LockedWodBanner(
+                      dateLabel: e.dateLabel,
+                      wodType: e.wod.wodType,
+                      isMembershipExpired: false,
+                    )),
             ],
           ],
         ],
@@ -554,13 +559,11 @@ class _WodRow extends StatefulWidget {
   final String dateLabel;
   final bool canDelete;
   final bool isToday;
-  final bool isFuture;
   const _WodRow({
     required this.wod,
     required this.dateLabel,
     required this.canDelete,
     required this.isToday,
-    required this.isFuture,
   });
 
   @override
@@ -630,9 +633,8 @@ class _WodRowState extends State<_WodRow> {
     );
   }
 
-  /// v1.20: Start 버튼 없이 바로 결과 입력. v1.22: 미래 일자에는 진입 차단.
+  /// v1.20: Start 버튼 없이 바로 결과 입력.
   void _openResultSheet(BuildContext context) {
-    if (widget.isFuture) return;
     Haptic.medium();
     showModalBottomSheet<bool>(
       context: context,
@@ -697,12 +699,6 @@ class _WodRowState extends State<_WodRow> {
                         style: FacingTokens.caption),
                   ],
                   const Spacer(),
-                  if (widget.isFuture)
-                    const Padding(
-                      padding: EdgeInsets.only(right: 4),
-                      child: Icon(Icons.lock_outline,
-                          size: 14, color: FacingTokens.muted),
-                    ),
                   if (widget.canDelete && _expanded)
                     IconButton(
                       icon: const Icon(Icons.delete_outline, size: 18),
@@ -797,22 +793,11 @@ class _WodRowState extends State<_WodRow> {
                 Row(
                   children: [
                     TextButton.icon(
-                      onPressed: widget.isFuture
-                          ? null
-                          : () => _openResultSheet(context),
-                      icon: Icon(
-                        widget.isFuture
-                            ? Icons.lock_outline
-                            : Icons.check,
-                        size: 16,
-                      ),
-                      label: Text(widget.isFuture
-                          ? 'Not yet'
-                          : 'Mark Done'),
+                      onPressed: () => _openResultSheet(context),
+                      icon: const Icon(Icons.check, size: 16),
+                      label: const Text('Mark Done'),
                       style: TextButton.styleFrom(
-                        foregroundColor: widget.isFuture
-                            ? FacingTokens.muted
-                            : FacingTokens.accent,
+                        foregroundColor: FacingTokens.accent,
                         padding: const EdgeInsets.symmetric(
                           horizontal: FacingTokens.sp2,
                         ),
