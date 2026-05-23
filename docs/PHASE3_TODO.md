@@ -48,7 +48,7 @@
 ### 2.3 DB·인프라 (3 task)
 
 - [ ] **H-1 ~ H-5 (N4-2)** SQLite → PostgreSQL + RLS 이행 — Big Bang ETL + Branch by Abstraction (v2 §5.5). PgBouncer transaction mode + `SET LOCAL` + 복합 인덱스. 의존: 없음 (핵심 critical path). 예상 2~3주
-- [ ] **N4-0** region 컬럼 + DB URL 분기 skeleton — `ALTER TABLE gyms ADD COLUMN region VARCHAR(5) DEFAULT 'kr'`. 의존: H-1. 예상 1일
+- [x] **N4-0** region 컬럼 + DB URL 분기 skeleton — `models/gym.py` Gym.region 컬럼 + `_migrate_gym_region_column()` ALTER 마이그레이션 + `utils/region_router.py` GymRegion enum (kr/eu/us) + get_db_url(region) skeleton. EU 박스 계약 시 DATABASE_URL_EU env 추가로 분기. (2026-05-23)
 - [x] **N5-1** Sentry SDK + PII scrub + release tag — `services/facing/app.py` `_init_sentry()`·`_sentry_scrub_pii()` 추가 (2026-05-23). DSN 미설정 시 자동 skip. PII filter (password·card·token·전화·생년월일·이메일) 자동 마스킹. JS SDK 도입은 Phase 3 중기.
 
 ### 2.4 도메인 핵심 (4 task)
