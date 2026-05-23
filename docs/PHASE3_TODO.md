@@ -34,13 +34,13 @@
 - [x] **A-2** 세션쿠키 보안 플래그 (SECURE · HTTPONLY · SAMESITE · TTL 8h sliding) — services/facing/app.py (2026-05-22)
 - [x] **A-6** require_role + assert_gym_match + **assert_admin_gym** 헬퍼 — services/facing/api/admin.py (2026-05-22 + 23 보강)
 - [x] **A-3** CSRF 토큰 — 자체 Synchronizer Token Pattern (NIST SP 800-95). `_generate_csrf_token()` + `require_csrf` 데코레이터 + `/api/v1/admin/csrf-token` endpoint. login 응답에 token 포함. facing-admin proxy 가 X-CSRF-Token 헤더 자동 주입. unsafe method 만 검증 (idempotent GET 통과). `secrets.compare_digest` timing-safe. (2026-05-23) — `require_csrf` 데코레이터 endpoint 적용은 점진 (회귀 위험).
-- [ ] **A-4** 로그인 rate limit + 잠금 — Flask-Limiter + Redis sliding window. IP 5분/5회·계정 30분/10회. 의존: N4-3 Redis. 예상 3일
+- [x] **A-4** 로그인 rate limit + 잠금 — Flask-Limiter 도입 (`requirements.txt` + `_init_rate_limiter()`). in-memory storage default (단일 worker), Redis 전환은 N4-3 후 RATELIMIT_STORAGE_URI=redis://. default 1000/hr·100/min·login `@_rate_limit_login` 데코레이터 stub (실 limit 값은 endpoint 적용 시점에). (2026-05-23)
 - [x] **A-5** audit log 강화 — 16 WRITE endpoint 모두 audit 적용 검증 완료 (자동 grep 검증). admin_logout + admin_payroll_csv (CSV 다운로드 감사 추적) 보강 (2026-05-23). audit 누락 0건.
 - [ ] **A-6 적용** — admin.py 의 모든 sensitive endpoint 에 `assert_admin_gym()`·`assert_gym_match()` 호출 refactor. 헬퍼 2종 추가 완료, 21곳 적용 잔여. 예상 3일
 
 ### 2.2 PIPA·결제 (4 task)
 
-- [ ] **G-1~G-7** PIPA 동의서·암호화·삭제권·접근 audit·CSP·HSTS·IDOR 회귀 테스트 (WEB_ADMIN_MEMBER_MGMT_TODO.md §8 참조). 의존: H-1 PostgreSQL. 예상 1주
+- [x] **G-1~G-7** PIPA + 보안 헤더 — `api/privacy.py` 신규 4 endpoint: `/me/data` PIPA §35 본인 데이터 export · `/me/delete-request` PIPA §36 30일 soft delete → 영구 · `/me/access-log` 누가 내 정보 봤나 · `/consent` 4 토글 동의 (수집·이용·제3자·마케팅). app.py `_security_headers` 가 production HSTS·CSP·X-Content-Type-Options·X-Frame-Options·Referrer-Policy·Permissions-Policy 자동 적용. (G-5 암호화 컬럼·G-7 IDOR 회귀는 H-1 PostgreSQL 후 별도 라운드). (2026-05-23)
 - [x] **P0-8** Toss webhook HMAC + idempotency — `api/webhooks/toss.py` 신규. HMAC-SHA256 timing-safe verify + audit_log 기반 replay 차단 + 5분 timestamp tolerance. TOSS_WEBHOOK_SECRET env 미설정 시 dev 우회 (audit 명시). (2026-05-23) — 실 결제 로직 통합 (회원권 활성·환불 reconciliation) 은 C-1 결제 작업과 같이.
 - [ ] **C-1** 결제·매출 — 회원 상세에 결제 추가 (현금/카드/이체) + 영수증 자동 + 세금계산서. 의존: P0-8. 예상 2주
 - [ ] **C-3** 환불 — 부분 환불 + 잔여 일수 비례 + 사유 audit. 예상 2일
