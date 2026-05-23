@@ -108,26 +108,6 @@ class _SignupScreenState extends State<SignupScreen> {
                     Text('FACING',
                         style: FacingTokens.brandLogo,
                         textAlign: TextAlign.center),
-                    const SizedBox(height: FacingTokens.sp1),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: FacingTokens.sp2,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        border:
-                            Border.all(color: FacingTokens.accent, width: 1),
-                        borderRadius: BorderRadius.circular(FacingTokens.r1),
-                      ),
-                      child: Text(
-                        'BETA PREVIEW',
-                        style: FacingTokens.micro.copyWith(
-                          color: FacingTokens.accent,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 1.2,
-                        ),
-                      ),
-                    ),
                     const SizedBox(height: FacingTokens.sp2),
                     const Text(
                       'Engine · Split · Burst',
@@ -176,15 +156,9 @@ class _SignupScreenState extends State<SignupScreen> {
                             ),
                           );
                         },
-                  child: const Text('이메일로 시작 (Coming soon)'),
+                  child: const Center(child: Text('이메일로 시작')),
                 ),
 
-                const SizedBox(height: FacingTokens.sp4),
-                const Text(
-                  'Beta Preview · 정식 출시 시 실제 OAuth 연결',
-                  style: FacingTokens.caption,
-                  textAlign: TextAlign.center,
-                ),
                 const SizedBox(height: FacingTokens.sp4),
                 // v1.16 Sprint 8 U1: 데모 계정 5개 빠른 진입.
                 const Text('DEMO ACCOUNTS',
