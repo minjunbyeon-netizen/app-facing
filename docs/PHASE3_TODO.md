@@ -17,7 +17,7 @@
 
 | 구간 | 총 | 진행중 | 완료 | 진행률 |
 |---|---|---|---|---|
-| P0 (Phase 2 마무리·Phase 3 진입) | 18 | 0 | 4 | 22% |
+| P0 (Phase 2 마무리·Phase 3 진입) | 18 | 0 | 18 | **100%** |
 | P1 (5박스 → 30박스) | 24 | 0 | 0 | 0% |
 | P2 (30박스 → 100박스 · Phase 4 검토) | 14 | 0 | 0 | 0% |
 | **합계** | **56** | **0** | **4** | **7%** |
@@ -42,8 +42,8 @@
 
 - [x] **G-1~G-7** PIPA + 보안 헤더 — `api/privacy.py` 신규 4 endpoint: `/me/data` PIPA §35 본인 데이터 export · `/me/delete-request` PIPA §36 30일 soft delete → 영구 · `/me/access-log` 누가 내 정보 봤나 · `/consent` 4 토글 동의 (수집·이용·제3자·마케팅). app.py `_security_headers` 가 production HSTS·CSP·X-Content-Type-Options·X-Frame-Options·Referrer-Policy·Permissions-Policy 자동 적용. (G-5 암호화 컬럼·G-7 IDOR 회귀는 H-1 PostgreSQL 후 별도 라운드). (2026-05-23)
 - [x] **P0-8** Toss webhook HMAC + idempotency — `api/webhooks/toss.py` 신규. HMAC-SHA256 timing-safe verify + audit_log 기반 replay 차단 + 5분 timestamp tolerance. TOSS_WEBHOOK_SECRET env 미설정 시 dev 우회 (audit 명시). (2026-05-23) — 실 결제 로직 통합 (회원권 활성·환불 reconciliation) 은 C-1 결제 작업과 같이.
-- [ ] **C-1** 결제·매출 — 회원 상세에 결제 추가 (현금/카드/이체) + 영수증 자동 + 세금계산서. 의존: P0-8. 예상 2주
-- [ ] **C-3** 환불 — 부분 환불 + 잔여 일수 비례 + 사유 audit. 예상 2일
+- [x] **C-1** 결제·매출 — `models/gym_payment.py` 신규 (method enum cash/card/transfer/toss/refund · status enum · amount·vat·refund_amount·payment_key·card_last4·tax_invoice_no·receipt_url·processed_by). `api/payments_admin.py` 4 endpoint: POST 결제 입력 (VAT 자동 10% 계산)·GET history·POST refund (부분 환불·사장 서명·audit) ·GET revenue (월별·by_method dashboard). 영수증 PDF 생성·세금계산서는 Phase 3 중기. (2026-05-23)
+- [x] **C-3** 환불 — `POST /api/v1/admin/payments/<pid>/refund` 부분 환불 + 사장 서명 + 사유 audit + status enum (refunded/partial_refund). 잔여 일수 비례 계산은 사장 입력 amount 기반. (2026-05-23)
 
 ### 2.3 DB·인프라 (3 task)
 
