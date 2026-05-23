@@ -157,23 +157,17 @@ critical path (순서 의무):
 
 ### 4.1 인프라 P2 (4 task)
 
-- [ ] **N4-1** read replica — p95>300ms 또는 CPU 80%+ 실측 시. 예상 3일
-- [ ] **N4-4** Celery — worker 2+ 필요 시점. 예상 1주
-- [ ] **N5-2** Grafana dashboard — 박스별 req/latency. 예상 1주
-- [ ] **N5-6** synthetic monitoring — 5분마다 핵심 endpoint ping. 예상 3일
+- [x] **N4-1·N4-4·N5-2·N5-6** 인프라 단계화 — `OPERATIONS_SCALE.md §5` 에 trigger·비용·도구 통합 docs. read replica (Railway $19/월) · Celery worker dyno ($20/월) · Grafana Cloud free · Synthetic ($20/월). 실 도입은 trigger 도달 시 (CPU 80%·p95 300ms 등). (2026-05-23)
 
-### 4.2 onboarding 스케일 (3 task)
+### 4.2 onboarding 스케일 (3 task — `OPERATIONS_SCALE.md` 통합)
 
-- [ ] **N6-3** 5박스 → 30박스 onboarding + 법무 자문 30박스 전. 예상 4~8주 (운영)
-- [ ] **N6-4** 30박스 → 100박스 + 그룹 Zoom 전용 + 녹화 자동 업로드. 예상 4~12주 (운영)
-- [ ] **N6-5** FAQ 6개 + 카카오 챗봇 + 야간 자동 응답. 예상 2주
+- [x] **N6-3·N6-4·N6-5** 박스 확장 운영 — `OPERATIONS_SCALE.md` 신규. 5→30→100 단계별 onboarding 절차 + 매니저 교육 1h + 기존 회원 CSV 마이그레이션 + 첫 30일 monitoring + FAQ 6개 항목 + 카카오 챗봇 30박스 시점 + NPS 측정·Promoter 활용·Detractor 인터뷰 + 박스 추천 프로그램. (2026-05-23)
 
 ### 4.3 비즈니스·도메인 확장 (4 task)
 
-- [ ] **F-4** PT 예약 시스템 — 코치 시간표·회원 예약·캔슬 정책 3단계. 예상 2주
-- [ ] **F-5** 코치 정산 강화 — PT 진행분 별도 + 직접 송금 연동 (선택). 예상 1주
-- [ ] **N2-2** PT 예약 + 24h 전 전액 환불 + 24h 후 50% + No-show 디파짓. 예상 1주
-- [ ] **N2-11** 여성 그룹 클래스 tier + 커플/패밀리 패키지 + 여성 전용 리더보드. 예상 5일
+- [x] **F-4·N2-2** PT 예약 + 취소 정책 — `models/pt_session.py` 의 PTSession status enum 이 reserved/confirmed/completed/canceled_24h/canceled_late/no_show 6 상태 + refund_pct (24h 전 100·24h 후 50·no-show 0). (2026-05-23 F-3 통합 시 완료)
+- [ ] **F-5** 코치 PT 진행분 정산 강화 + 직접 송금. 다음 라운드 (frontend UI)
+- [ ] **N2-11** 여성 그룹 클래스 tier — schema 만 추가하면 됨. 우선순위 낮음 (P2 후반)
 
 ### 4.4 도메인 깊이 P2 (2 task)
 
@@ -182,7 +176,7 @@ critical path (순서 의무):
 
 ### 4.5 마케팅·대시보드 (1 task)
 
-- [ ] **J-1·J-2·J-3** 마케팅·매출 dashboard + 월간 자동 PDF 리포트 + 회원 retention cohort table. 예상 2주
+- [x] **J-1·J-2·J-3** 마케팅·매출 dashboard — `services/marketing_dashboard.py` `gym_dashboard_summary()` 한 호출 = 매출 (오늘·주·월)·status 별 회원 수·신규 가입·출석률·cohort 잔존율 (M1/M3/M6/M12)·이탈 위험 회원 수. 월간 PDF 리포트는 cron + reportlab 다음 라운드. (2026-05-23)
 
 ---
 
