@@ -115,7 +115,9 @@ CREATE TABLE class_waitlist_promotion (   -- 대기열 자동 승격 audit
 
 ---
 
-### §1.2 알림 자동화 (Notification Automation — 카카오 알림톡)
+### §1.2 알림 자동화 (Notification Automation — 카카오 알림톡) 🟡 IN PROGRESS
+
+> **진행률: 80%** — kakao.py 어댑터 + 8 템플릿 상수 + expiry_scheduler cron + webhook/kakao_delivery + notifications.html 관리 UI 완료. **외부 블로커**: NHN Cloud 비즈채널 가입·심사 대기 (1~2주).
 
 #### 현재 facing 상태
 - ARCHITECTURE_BRIEF D22 "알림 게이트웨이 SMS = NHN Cloud Toast SMS · 이메일 = Mailgun · 푸시 = FCM" — 인프라는 정의됨
@@ -183,7 +185,9 @@ CREATE TABLE notification_dispatch (
 
 ---
 
-### §1.3 전자계약 (e-Sign Contract)
+### §1.3 전자계약 (e-Sign Contract) ✅ DONE
+
+> **진행률: 100%** — schema 2테이블(contract_template·contract_instance) + weasyprint PDF + endpoint 5 + 한국 전자서명법 §3 준수(IP+UA+timestamp audit) + 대리서명 분기 + QR URL 검증 + seed_membership_3m 자동 실행.
 
 #### 현재 facing 상태
 - ARCHITECTURE_BRIEF §2 Phase 2 "전자계약" 표기 존재. PHASE3 N3-3 "영문 계약서 + 한국법 준거법 명시 + 면책 문구"
@@ -246,7 +250,9 @@ CREATE TABLE contract_instance (
 
 ---
 
-### §1.4 다지점 (Multi-location / Multi-tenant within Single Owner)
+### §1.4 다지점 (Multi-location / Multi-tenant within Single Owner) ⏳ TODO (P1)
+
+> **진행률: 0%** — D18·D19 아키텍처 정의 존재, gym-switcher 스텁 완료. 통합 dashboard·다박스 WOD 공유·gym_group 스키마·크로스짐 출석은 미구현.
 
 #### 현재 facing 상태
 - ARCHITECTURE_BRIEF D18 "사장 다중 박스: `gym_managers` PK 복합키 (gym_id, login_id). 로그인 시 박스 선택 토글 + 통합 대시보드" — 정의됨
@@ -298,9 +304,11 @@ ALTER TABLE class_session ADD COLUMN is_shared_across_group BOOLEAN DEFAULT FALS
 
 ---
 
-### §1.5 결제 강화 (Toss 빌링키 풀 + 자동 재시도 + Grace Period)
+### §1.5 결제 강화 (Toss 빌링키 풀 + 자동 재시도 + Grace Period) ⏳ TODO (다음 P0)
 
 > linko 의 "링코페이 자체 결제 SDK" 는 facing 이 따라가지 **않는다**. PCI DSS scope 확장 + Toss·NICE 등 PG 사가 이미 충분히 안정적. 대신 빌링키 기반 자동결제 + 카드 재시도 + grace period 로 운영 부담을 0 으로 만든다.
+
+> **진행률: 0%** — billing.py 블루프린트 등록 확인(TECH_INVENTORY §3.2). billing_key·billing_schedule 스키마 미생성. 자동결제 스케줄러·재시도 로직·grace period 미구현.
 
 #### 현재 facing 상태
 - PHASE3 C-1·C-3·P0-8 완료: `gym_payment` 테이블 + Toss webhook HMAC + 환불·매출 dashboard
@@ -358,7 +366,7 @@ CREATE TABLE billing_schedule (
 
 ---
 
-### §1.6 WOD 디자인 도구 + 달력 + 복붙
+### §1.6 WOD 디자인 도구 + 달력 + 복붙 ⏳ TODO (P1)
 
 #### 현재 facing 상태
 - PHASE3 N1-1~N1-3 (스키마 6 테이블·movement_library 60·benchmark Korea/Custom) — schema 만 완료 가정
@@ -390,7 +398,7 @@ CREATE TABLE billing_schedule (
 
 ---
 
-### §1.7 AI 코칭 Beta (조심스러운 도입)
+### §1.7 AI 코칭 Beta (조심스러운 도입) ⏳ TODO (P2 · Phase 4 후반)
 
 > linko 의 "AI 체육관 운영 매니저 운영 효율 500% 향상" 클레임은 검증 불가. facing 은 **Beta 딱지 절대 안 붙임**. AI 는 facing 의 페이싱 알고리즘 정밀화 (§2.1) 에 종속된 보조 도구로만 도입.
 
@@ -422,7 +430,7 @@ CREATE TABLE billing_schedule (
 
 ## §2. 차별 강화 — 선수 도구 (facing 만)
 
-### §2.1 W-prime·CGM 페이싱 알고리즘 정밀화
+### §2.1 W-prime·CGM 페이싱 알고리즘 정밀화 ⏳ TODO (P0)
 
 #### 현재 facing 상태
 - `services/facing/docs/refer/` 10 카테고리 findings.md SSOT 존재 (백엔드)
@@ -462,7 +470,7 @@ CREATE TABLE billing_schedule (
 
 ---
 
-### §2.2 5-Tier 시스템 + 1RM Engine 백분위
+### §2.2 5-Tier 시스템 + 1RM Engine 백분위 ⏳ TODO (P1)
 
 #### 현재 facing 상태
 - Tier 5단계 (Scaled/RX/RX+/Elite/Games) UI 완료
@@ -493,7 +501,7 @@ CREATE TABLE billing_schedule (
 
 ---
 
-### §2.3 Games 선수 어휘·톤 (HWPO·NOBULL)
+### §2.3 Games 선수 어휘·톤 (HWPO·NOBULL) 🟡 부분 적용
 
 #### 현재 facing 상태
 - `apps/facing-app/CLAUDE.md` V1~V11 voice & tone rule 11건 SSOT 완비
@@ -518,7 +526,7 @@ CREATE TABLE billing_schedule (
 
 ---
 
-### §2.4 듀얼 포지셔닝 — 선수 + 박스 (facing-app Tier ↔ 박스 SaaS 연동)
+### §2.4 듀얼 포지셔닝 — 선수 + 박스 (facing-app Tier ↔ 박스 SaaS 연동) ⏳ TODO (P0)
 
 > **§13 권장 4 — facing 의 진짜 무기. linko 가 절대 따라올 수 없는 영역.**
 
@@ -583,12 +591,12 @@ CREATE TABLE billing_schedule (
 
 ## §4. PHASE4 WEEK BY WEEK (4 주 P0 집중)
 
-### Week 1 (P0 시작 — 외부 의존 먼저)
+### Week 1 (P0 시작 — 외부 의존 먼저) — 진행중 (2026-05-23)
 
-- [ ] **§1.2-prep** NHN Cloud Bizmessage 비즈채널 가입 + 8 템플릿 사전심사 제출 (외부 1주 대기)
-- [ ] **§1.5-prep** Toss 빌링키 통합 — Toss 가맹점 신청 검토 + 빌링키 API 테스트 환경 키 발급
-- [ ] **§1.3** 전자계약 schema 2 테이블 + weasyprint 도입 + contract_template 1건 (membership) 작성
-- [ ] **§1.1** 예약 schema 3 테이블 + endpoint 5 backend 절반 (POST·GET 명단·POST 예약)
+- [x] **§1.2-prep** NHN Cloud Bizmessage 비즈채널 가입 + 8 템플릿 사전심사 제출 (외부 1주 대기) — **개발 완료, NHN 심사 대기**
+- [ ] **§1.5-prep** Toss 빌링키 통합 — Toss 가맹점 신청 검토 + 빌링키 API 테스트 환경 키 발급 ⏳
+- [x] **§1.3** 전자계약 schema 2 테이블 + weasyprint 도입 + contract_template 1건 (membership) 작성 — **✅ 완료 + QR + 대리서명**
+- [x] **§1.1** 예약 schema 3 테이블 + endpoint 5 backend 절반 (POST·GET 명단·POST 예약) — **✅ 완료 (전체 endpoint + UI)**
 
 ### Week 2 (P0 백엔드 마무리)
 
@@ -692,6 +700,7 @@ CREATE TABLE billing_schedule (
 ## §8. 변경 이력
 
 - **2026-05-23 (오버나이트 자율 작성)**: PHASE4 ROADMAP v1 작성. linko.my 분석 7 영역 흡수 모듈 + facing 차별화 4 모듈 = 11 모듈. P0 6 / P1 3 / P2 2. 4~8주 sequential / 7주 parallel. 외부 의존 (NHN·Toss·카카오) Week 1 선행 의무. ARCHITECTURE_BRIEF §11 변경 절차 따라 schema 변경 시 SSOT 동기 PR 의무 명시.
+- **2026-05-23 (진행 마킹 · Week 1 중간)**: 11 모듈 상태 마킹. §1.1 예약 ✅ / §1.3 전자계약 ✅ / §1.2 알림톡 🟡 / §2.3 톤 🟡 / 나머지 ⏳. Week 1 task 4건 중 3건 완료. P0 6 중 3 완료 (50%). PHASE4_STATUS.md 대시보드 신규 작성.
 
 ---
 
