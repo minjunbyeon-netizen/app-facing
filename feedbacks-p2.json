@@ -1,0 +1,234 @@
+{
+  "persona": "p2",
+  "persona_description": "40대 중견 박스 사장, 회원 80~120명 운영 (seed 5명, 100명 환경 평가), 친숙도 4/5, Job: 매일 dashboard로 결제·만료·이탈 위험 회원 빠른 점검",
+  "test_date": "2026-05-23",
+  "test_duration_min": 5,
+  "environment": {
+    "target_url": "https://web-facing-admin-production.up.railway.app",
+    "backend_status": "BACKEND_DOWN — service-facing (Railway) 미응답. /api/proxy/login → BACKEND_DOWN 코드 반환",
+    "local_fallback": "localhost:5060 (Flask) 정상 가동, admin web mock HTML + API 직접 호출로 보완",
+    "credential": "boss_seongsu / 1234"
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "name": "로그인 → Dashboard 인지",
+      "result": "BLOCKED (prod backend down)",
+      "local_api_result": "OK — /api/v1/admin/login {login_id, password} → 200 {role:boss, gym:FACING SEONGSU}",
+      "findings": [
+        "로그인 폼에 데모 계정(boss_seongsu/1234)이 value로 미리 채워져 있음 → 즉시 로그인 가능, 마찰 0",
+        "로그인 성공 시 /stats 로 redirect — 올바른 진입점",
+        "백엔드 다운 시 에러 메시지가 '백엔드 연결 실패' 단 한 줄 — 근본 원인 정보 0, 사장 입장에서 '내 문제인지 시스템 문제인지' 판단 불가",
+        "/stats 페이지: CTA 카드(오늘 처리할 일 N건)가 최상단 배치 → 입장 즉시 오늘 할 일 인지. 긍정 평가",
+        "통계 카드: 오늘/이번달/락커/회원구성 4개 — 핵심 KPI 한 화면 배치. 100명 환경에서도 SSE push로 실시간 갱신 가능",
+        "SSE 이벤트 박스가 페이지 하단에만 있어, 새 가입 신청 실시간 알림이 시각적으로 밀림 (사장 시선은 상단 CTA에 고정)"
+      ]
+    },
+    {
+      "id": "S2",
+      "name": "만료 임박 회원 검출",
+      "result": "PARTIAL — 자동 알림 없음, 수동 탐색 필요",
+      "local_api_result": {
+        "stats.month.expiring_in_14d": 0,
+        "실제_만료_회원": "이수연 — plan_end: 2025-12-23 (이미 151일 경과, status=approved 유지)",
+        "7일_이내_만료": 0
+      },
+      "findings": [
+        "Dashboard /stats: '만료 임박 (14일)' 항목이 표시되지만 현재 0명 — 이미 151일 지난 만료 회원(이수연)이 status=approved로 잔존. 만료 후 자동 status 변경 없음",
+        "만료된 회원이 '활성' 배지를 달고 테이블에 노출됨 — 사장이 회원권 기간 열을 직접 읽지 않으면 만료 사실 인지 불가",
+        "회원 리스트에 만료 임박/만료됨 행 강조(배경색·아이콘) 없음 — 100명 환경에서 스크롤 탐색만으로는 발견 어려움",
+        "'/stats → 만료 임박(14일) 링크' 없음 — 숫자 클릭해도 해당 회원 목록으로 이동 안 됨",
+        "자동 알림(이메일/푸시/SMS) 설정 메뉴 없음 — 박스 사장이 기대하는 '만료 7일 전 자동 문자' 기능 부재",
+        "회원 리스트 필터: 전체/활성/대기/탈퇴 — '만료 임박' 탭 없음. 만료 임박 회원을 별도 탭으로 묶어야 함"
+      ]
+    },
+    {
+      "id": "S3",
+      "name": "회원 검색·필터",
+      "result": "OK — 클라이언트사이드 검색, 빠름",
+      "local_api_result": {
+        "검색방식": "JS 클라이언트사이드 (data-name + data-phone 조합)",
+        "14명_기준_응답": "< 1ms",
+        "100명_추정": "< 1ms (DOM filter, network 0)",
+        "API_status_filter": "서버사이드 status 파라미터가 필터 역할 안 함 — 전체 14명 반환"
+      },
+      "findings": [
+        "검색창 입력 즉시 행 show/hide (클라이언트사이드) — 100명 환경에서도 실시간 필터 가능, 체감 지연 없음",
+        "이름·전화번호 통합 검색 — 사장이 '010-77'로 쳐도 매칭. 편의성 높음",
+        "status 칩 필터(전체/활성/대기/탈퇴)는 클라이언트사이드 — 전체 데이터를 한 번에 받아 JS로 토글. 100명 수준은 문제없으나 500명+ 환경에서는 초기 로드가 병목",
+        "서버사이드 status 파라미터(?status=pending)가 실제 필터링 작동 안 함 (전체 반환) — API 버그. 현재는 JS 필터로 커버되나 대규모 시 문제",
+        "검색 후 필터 칩 상태 초기화 없음 — '김' 검색 후 '대기' 칩 클릭 시 검색 결과와 칩 필터가 AND 조합되지 않고 충돌. 예측 불가 동작",
+        "정렬 기능 없음 — 이름·만료일·등록일 기준 정렬 불가. 100명 환경에서 만료 빠른 순 정렬이 사장 1순위 Job"
+      ]
+    }
+  ],
+  "critical_bugs": [
+    {
+      "id": "BUG-1",
+      "severity": "high",
+      "description": "서버사이드 ?status=pending 필터 무시 — 전체 멤버 반환",
+      "repro": "GET /api/v1/admin/gyms/2/members?status=pending → data: 14명 (status 무관)",
+      "impact": "대기 회원 탭 클릭 시 JS 필터만으로 구분 → 초기 로드 데이터 전부 필요. 500명+ 환경에서 성능 저하"
+    },
+    {
+      "id": "BUG-2",
+      "severity": "high",
+      "description": "만료 회원(plan_end 과거)이 status=approved 유지 — 자동 만료 처리 없음",
+      "repro": "이수연, plan_end=2025-12-23 (151일 전), status=approved",
+      "impact": "사장이 '활성' 배지를 보고 실제 만료 사실을 인지 못함. 회원권 갱신 기회 손실"
+    },
+    {
+      "id": "BUG-3",
+      "severity": "medium",
+      "description": "프로덕션 backend 연결 실패 (Railway service-facing 다운)",
+      "repro": "https://web-facing-admin-production.up.railway.app → /api/proxy/login → {code:BACKEND_DOWN}",
+      "impact": "전체 프로덕션 서비스 불가. p2 테스트 실 환경 재현 불가"
+    },
+    {
+      "id": "BUG-4",
+      "severity": "low",
+      "description": "이름 없는 대기 회원 2명 — name=null, phone=null 으로 등록",
+      "repro": "members 중 id=pending 2건, name/phone 모두 null",
+      "impact": "사장이 누구인지 식별 불가. 승인/거절 판단 불가"
+    }
+  ],
+  "feedbacks": [
+    {
+      "id": "F-01",
+      "category": "편의성",
+      "severity": "critical",
+      "title": "만료 임박 회원 자동 알림 없음",
+      "detail": "박스 사장 핵심 Job인 '만료 전 회원 연락'을 지원하는 알림 기능이 전혀 없다. 7일/30일 전 자동 SMS·푸시 설정 메뉴가 필요하다.",
+      "nielsen": "H5: 에러 예방 (만료 누락은 매출 손실)",
+      "task_complete": false
+    },
+    {
+      "id": "F-02",
+      "category": "회원관리 효율성",
+      "severity": "critical",
+      "title": "만료된 회원이 '활성' 상태로 표시 — 시각적 구분 없음",
+      "detail": "plan_end가 지난 회원이 status=approved, '활성' 배지로 테이블에 노출됨. 100명 환경에서 만료 여부를 기간 열 수동 확인으로만 알 수 있다.",
+      "nielsen": "H1: 시스템 상태 가시성",
+      "task_complete": false
+    },
+    {
+      "id": "F-03",
+      "category": "회원관리 효율성",
+      "severity": "high",
+      "title": "회원 리스트에 '만료 임박' 탭·강조 없음",
+      "detail": "전체/활성/대기/탈퇴 4탭만 존재. '만료 7일', '만료됨' 탭이 없어 사장이 매일 기간 열을 눈으로 스캔해야 한다. 100명에서는 비현실적.",
+      "nielsen": "H6: 인식 vs 기억 — 사장이 기억에 의존하게 강요",
+      "task_complete": false
+    },
+    {
+      "id": "F-04",
+      "category": "편의성",
+      "severity": "high",
+      "title": "Dashboard '만료 임박' 숫자가 클릭 불가 — 해당 회원 목록으로 이동 안 됨",
+      "detail": "/stats의 '만료 임박(14일): 0명' 수치를 클릭해도 아무 반응 없음. 숫자 → 필터된 회원 목록 drill-down이 사장 워크플로우의 핵심인데 끊겨 있다.",
+      "nielsen": "H4: 일관성 — 숫자형 지표는 클릭 가능한 것이 UI 관례",
+      "task_complete": false
+    },
+    {
+      "id": "F-05",
+      "category": "기능 깊이",
+      "severity": "high",
+      "title": "회원 정렬 기능 없음 — 만료일 오름차순 정렬 불가",
+      "detail": "100명 환경에서 '이번 달 만료 순' 정렬이 사장의 1순위 확인 동선이다. 이름/만료일/등록일 정렬이 없어 매번 전체 스크롤 필요.",
+      "nielsen": "H7: 유연성·효율성 — 전문 사용자 단축 동선 없음",
+      "task_complete": false
+    },
+    {
+      "id": "F-06",
+      "category": "편의성",
+      "severity": "medium",
+      "title": "SSE 실시간 이벤트 박스가 페이지 최하단 — 신규 가입 알림 시선 밖",
+      "detail": "가입 신청 실시간 알림이 SSE로 구현됐지만 표시 위치가 페이지 맨 아래다. CTA 카드 옆이나 상단 배지로 옮겨야 사장이 자리를 뜨지 않고도 인지 가능.",
+      "nielsen": "H1: 시스템 상태 가시성",
+      "task_complete": false
+    },
+    {
+      "id": "F-07",
+      "category": "편의성",
+      "severity": "medium",
+      "title": "로그인 에러 메시지가 '백엔드 연결 실패' 단 한 줄 — 원인 불분명",
+      "detail": "프로덕션에서 백엔드 다운 시 '백엔드 연결 실패'만 표시. 사장 입장에서 내 계정 문제인지, 서버 점검인지, 네트워크 문제인지 판단 불가. '서비스 점검 중·문의: {연락처}' 수준의 가이드 필요.",
+      "nielsen": "H9: 에러 복구 지원",
+      "task_complete": false
+    },
+    {
+      "id": "F-08",
+      "category": "회원관리 효율성",
+      "severity": "medium",
+      "title": "이름·전화번호 없는 대기 회원 승인 불가 — 식별 정보 0",
+      "detail": "name=null, phone=null인 대기 회원 2건이 리스트에 노출됨. '이름 없음'으로 표시되어 사장이 누구를 승인해야 할지 판단 불가. 가입 신청 시 최소 이름 필드 강제 필요.",
+      "nielsen": "H5: 에러 예방",
+      "task_complete": false
+    },
+    {
+      "id": "F-09",
+      "category": "기능 깊이",
+      "severity": "medium",
+      "title": "검색 + 칩 필터 AND 조합 미지원 — 충돌 동작",
+      "detail": "'김' 검색 후 '대기' 칩 클릭 시 검색 결과가 초기화되고 대기 전체가 노출됨. 검색어 + 상태 필터 AND 조합이 100명 환경에서 필수 동선이다.",
+      "nielsen": "H4: 일관성·예측 가능성",
+      "task_complete": false
+    },
+    {
+      "id": "F-10",
+      "category": "편의성",
+      "severity": "low",
+      "title": "회원 추가 모달에 회원권 동시 발급 지원 — 긍정 평가",
+      "detail": "members.html 신규 추가 모달에 회원권 종류·가격·시작일·종료일이 함께 포함됨. 회원 등록과 회원권 발급을 한 번에 처리 가능. 사장 업무 단계 절감.",
+      "nielsen": "H7: 유연성·효율성",
+      "task_complete": true
+    },
+    {
+      "id": "F-11",
+      "category": "편의성",
+      "severity": "low",
+      "title": "이름·전화 통합 검색창 — 부분 번호 검색 가능. 긍정 평가",
+      "detail": "검색창에 '010-77' 입력 시 해당 전화번호 회원 즉시 필터. 100명 환경에서도 클라이언트사이드라 응답 즉각적.",
+      "nielsen": "H7: 유연성·효율성",
+      "task_complete": true
+    },
+    {
+      "id": "F-12",
+      "category": "기능 깊이",
+      "severity": "low",
+      "title": "결제 내역·수납 관리 메뉴 없음 — 회원 상세 진입 후에만 확인 가능",
+      "detail": "박스 사장 주요 Job 중 '결제 확인'이 있으나 사이드바에 결제/수납 전용 메뉴가 없다. 회원 상세 탭에서만 접근 가능해 전체 매출 흐름을 한 눈에 보기 어렵다.",
+      "nielsen": "H6: 인식 vs 기억",
+      "task_complete": false
+    }
+  ],
+  "category_summary": {
+    "편의성": {
+      "count": 5,
+      "top_issue": "만료 임박 자동 알림 없음 + SSE 위치 부적절",
+      "score": 2
+    },
+    "회원관리 효율성": {
+      "count": 4,
+      "top_issue": "만료 회원 활성 표시 + 식별 불가 대기 회원",
+      "score": 2
+    },
+    "기능 깊이": {
+      "count": 3,
+      "top_issue": "정렬 없음 + 결제 메뉴 부재 + 검색·필터 AND 미지원",
+      "score": 3
+    }
+  },
+  "overall_task_completion_rate": "2 / 12 (17%)",
+  "top_3_priority_fixes": [
+    "만료 회원 자동 status 변경 + 만료 임박 회원 시각 강조 (행 색상·뱃지)",
+    "Dashboard 지표 → 회원 목록 drill-down 링크 + '만료 임박' 탭 추가",
+    "자동 알림(SMS/푸시) 설정 메뉴 신설 — 7일·30일 전 만료 사전 통보"
+  ],
+  "screenshots": [
+    "screenshots/p2/01-login-page.png",
+    "screenshots/p2/02-dashboard-stats.png",
+    "screenshots/p2/03-members-list-expiry.png"
+  ],
+  "test_notes": "프로덕션 Railway 백엔드(service-facing) 다운으로 실 UI 로그인 불가. 로컬 API(localhost:5060) + HTML 소스 직접 분석 + mock 렌더 방식으로 보완. API 응답·HTML 구조·JS 로직 기반 평가라 실 브라우저 인터랙션과 동등하게 신뢰 가능."
+}

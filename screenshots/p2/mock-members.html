@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>p2 Members Mock — FACING ADMIN</title>
+<style>
+  :root {
+    --bg:#0A0A0A; --surface:#141414; --fg:#F5F5F5;
+    --muted:#8A8A8A; --border:#2A2A2A; --accent:#EE2B2B;
+    --warning:#F59E0B; --success:#22C55E;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--fg); font-family: -apple-system, 'Segoe UI', sans-serif; font-size: 14px; }
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar { width: 200px; background: var(--surface); border-right: 1px solid var(--border); padding: 24px 0; flex-shrink: 0; }
+  .sidebar .logo { font-size: 22px; font-weight: 800; letter-spacing: -1px; padding: 0 20px 24px; }
+  .sidebar a { display: block; padding: 10px 20px; color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 600; }
+  .sidebar a.active { color: var(--fg); background: rgba(255,255,255,0.05); border-left: 3px solid var(--accent); }
+  .main { flex: 1; padding: 32px; }
+  .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+  .page-title { font-size: 24px; font-weight: 800; }
+  .page-sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  .btn { background: var(--accent); color: #fff; border: none; border-radius: 6px; padding: 10px 18px; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .filterbar { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .filterbar input { background: var(--surface); border: 1px solid var(--border); color: var(--fg); border-radius: 6px; padding: 8px 14px; font-size: 13px; width: 220px; }
+  .chip { background: transparent; border: 1px solid var(--border); color: var(--muted); border-radius: 20px; padding: 6px 14px; font-size: 12px; font-weight: 700; cursor: pointer; }
+  .chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+  table { width: 100%; border-collapse: collapse; }
+  th { font-size: 11px; color: var(--muted); letter-spacing: 0.8px; text-transform: uppercase; padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+  td { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 13px; }
+  tr.clickable:hover td { background: rgba(255,255,255,0.03); cursor: pointer; }
+  .stat-badge { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; }
+  .stat-active { background: rgba(34,197,94,0.15); color: var(--success); }
+  .stat-expiring { background: rgba(245,158,11,0.15); color: var(--warning); }
+  .stat-expired { background: rgba(238,43,43,0.15); color: var(--accent); }
+  .lv { font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 4px; }
+  .lv-rx { background: rgba(238,43,43,0.2); color: #EE2B2B; }
+  .lv-scaled { background: rgba(90,90,90,0.3); color: #9A9A9A; }
+  .lv-elite { background: rgba(200,168,75,0.2); color: #C8A84B; }
+  .actions a { color: var(--muted); text-decoration: none; font-size: 12px; margin-left: 8px; }
+  .warn-row td { background: rgba(245,158,11,0.04); }
+  .expired-row td { background: rgba(238,43,43,0.04); }
+  .no-member { color: var(--muted); font-size: 13px; font-style: italic; }
+  .expiry-warn { color: var(--warning); font-weight: 700; }
+  .expiry-expired { color: var(--accent); font-weight: 700; }
+  /* 만료 임박 배너 */
+  .alert-banner { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); border-radius: 8px; padding: 12px 18px; margin-bottom: 16px; font-size: 13px; color: var(--warning); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="layout">
+  <div class="sidebar">
+    <div class="logo">FACING</div>
+    <a href="#">통계</a>
+    <a href="#" class="active">회원</a>
+    <a href="#">코치</a>
+    <a href="#">락커</a>
+    <a href="#">계약서</a>
+    <a href="#">출석</a>
+    <a href="#">시급 정산</a>
+  </div>
+  <div class="main">
+    <div class="page-header">
+      <div>
+        <div class="page-title">회원 리스트</div>
+        <div class="page-sub">총 9명</div>
+      </div>
+      <button class="btn">+ 회원 추가</button>
+    </div>
+
+    <!-- ⚠ 만료 임박 배너 없음: 현재 7일 이내 만료 0명 — UX 이슈 발견 지점 -->
+    <!-- 만료 임박 1명(151일 지남·이미 expired)이지만 배너 없음 -->
+
+    <div class="filterbar">
+      <input type="search" placeholder="이름·전화번호 검색" value="">
+      <button class="chip active" data-filter="all">전체</button>
+      <button class="chip" data-filter="approved">활성</button>
+      <button class="chip" data-filter="pending">대기</button>
+      <button class="chip" data-filter="left">탈퇴</button>
+    </div>
+
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th>이름</th><th>성별·생년</th><th>전화</th><th>레벨</th>
+            <th>회원권</th><th>기간</th><th>상태</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="clickable">
+            <td><b>박지성</b></td><td>남 · 1995-03-15</td><td>010-9876-5432</td>
+            <td><span class="lv lv-scaled">Scaled</span></td>
+            <td>1개월권</td><td>2026-05-23 → 2026-06-23</td>
+            <td><span class="stat-badge stat-active">활성</span></td>
+            <td class="actions"><a href="#">수정</a><a href="#" style="color:#EE2B2B">탈퇴</a></td>
+          </tr>
+          <tr class="clickable">
+            <td><b>최철수</b></td><td>남 · (미입력)</td><td>010-9999-8888</td>
+            <td><span class="lv lv-scaled">Scaled</span></td>
+            <td>—</td><td>—</td>
+            <td><span class="stat-badge stat-active">활성</span></td>
+            <td class="actions"><a href="#">수정</a><a href="#" style="color:#EE2B2B">탈퇴</a></td>
+          </tr>
+          <tr class="clickable">
+            <td><b>김민준</b></td><td>남 · 1988-07-22</td><td>010-7712-3398</td>
+            <td><span class="lv lv-rx">RX</span></td>
+            <td>6개월권</td><td>2026-05-19 → 2026-11-18</td>
+            <td><span class="stat-badge stat-active">활성</span></td>
+            <td class="actions"><a href="#">수정</a><a href="#" style="color:#EE2B2B">탈퇴</a></td>
+          </tr>
+          <tr class="clickable expired-row">
+            <td><b>이수연</b></td><td>여 · 1992-11-10</td><td>010-3349-6612</td>
+            <td><span class="lv lv-rx">RX</span></td>
+            <td>6개월권</td>
+            <td><span class="expiry-expired">2025-06-23 → <b>2025-12-23 (만료됨)</b></span></td>
+            <td><span class="stat-badge stat-active">활성</span></td>
+            <td class="actions"><a href="#">수정</a><a href="#" style="color:#EE2B2B">탈퇴</a></td>
+          </tr>
+          <tr class="clickable">
+            <td><b>정현우</b></td><td>남 · 1990-04-05</td><td>010-4422-8801</td>
+            <td><span class="lv lv-rx">RX</span></td>
+            <td>3개월권</td><td>2026-04-21 → 2026-07-21</td>
+            <td><span class="stat-badge stat-active">활성</span></td>
+            <td class="actions"><a href="#">수정</a><a href="#" style="color:#EE2B2B">탈퇴</a></td>
+          </tr>
+          <tr class="clickable">
+            <td><b>오영희</b></td><td>여 · 1985-12-01</td><td>010-9821-4456</td>
+            <td><span class="lv lv-rx">RX</span></td>
+            <td>3개월권</td><td>2026-04-21 → 2026-07-21</td>
+            <td><span class="stat-badge stat-active">활성</span></td>
+            <td class="actions"><a href="#">수정</a><a href="#" style="color:#EE2B2B">탈퇴</a></td>
+          </tr>
+          <tr class="clickable">
+            <td><b>김도훈</b></td><td>남 · 1998-02-14</td><td>010-2341-7782</td>
+            <td><span class="lv lv-elite">Elite</span></td>
+            <td>12개월권</td><td>2026-03-18 → 2027-03-18</td>
+            <td><span class="stat-badge stat-active">활성</span></td>
+            <td class="actions"><a href="#">수정</a><a href="#" style="color:#EE2B2B">탈퇴</a></td>
+          </tr>
+          <tr class="clickable">
+            <td><b>(이름 없음)</b></td><td class="no-member">— · —</td><td class="no-member">—</td>
+            <td>—</td><td>—</td><td>—</td>
+            <td><span class="stat-badge stat-expiring">대기</span></td>
+            <td class="actions"><a href="#">수정</a><a href="#" style="color:#EE2B2B">탈퇴</a></td>
+          </tr>
+          <tr class="clickable">
+            <td><b>(이름 없음)</b></td><td class="no-member">— · —</td><td class="no-member">—</td>
+            <td>—</td><td>—</td><td>—</td>
+            <td><span class="stat-badge stat-expiring">대기</span></td>
+            <td class="actions"><a href="#">수정</a><a href="#" style="color:#EE2B2B">탈퇴</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>
