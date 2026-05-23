@@ -86,8 +86,18 @@ class GymMembership {
   final GymSummary? gym;
   final String? role;
   final String? status;
+  /// 백엔드 gym_members.id — 클래스 예약·본인 식별용. owner 도 자기 row 있으면 채워짐.
+  final int? memberId;
+  /// PC 사장이 GymMemberProfile 에 입력한 본인 신원정보. 사장이 아직 등록 안 했으면 null.
+  final MemberProfile? memberProfile;
 
-  const GymMembership({this.gym, this.role, this.status});
+  const GymMembership({
+    this.gym,
+    this.role,
+    this.status,
+    this.memberId,
+    this.memberProfile,
+  });
 
   bool get hasGym => gym != null;
   bool get isOwner => role == 'owner';
@@ -97,17 +107,85 @@ class GymMembership {
 
   factory GymMembership.fromJson(Map<String, dynamic> j) {
     final gymRaw = j['gym'];
+    final mp = j['member_profile'];
     return GymMembership(
       gym: gymRaw is Map<String, dynamic>
           ? GymSummary.fromJson(gymRaw)
           : null,
       role: j['role']?.toString(),
       status: j['status']?.toString(),
+      memberId: (j['member_id'] as num?)?.toInt(),
+      memberProfile: mp is Map<String, dynamic>
+          ? MemberProfile.fromJson(mp)
+          : null,
     );
   }
 
   static const GymMembership empty =
       GymMembership(gym: null, role: null, status: null);
+}
+
+/// PC 사장이 등록·편집한 회원 신원정보 (`gym_member_profiles` 테이블 mirror).
+/// `/api/v1/gyms/mine` 응답의 `member_profile` 또는 `/api/v1/gyms/{id}/members[]` 항목에 포함.
+class MemberProfile {
+  final String? name;
+  final String? gender;
+  final String? birthDate; // YYYY-MM-DD
+  final String? phone;
+  final String? level;
+  final String? preferredTimeSlot;
+  final String? preferredCoachGender;
+  final String? safetyNote;
+  final String? note;
+  final String? photoUrl;
+  final String? email;
+  final String? emergencyContact;
+  final DateTime? updatedAt;
+
+  const MemberProfile({
+    this.name,
+    this.gender,
+    this.birthDate,
+    this.phone,
+    this.level,
+    this.preferredTimeSlot,
+    this.preferredCoachGender,
+    this.safetyNote,
+    this.note,
+    this.photoUrl,
+    this.email,
+    this.emergencyContact,
+    this.updatedAt,
+  });
+
+  bool get isEmpty =>
+      (name ?? '').isEmpty &&
+      (phone ?? '').isEmpty &&
+      (level ?? '').isEmpty;
+
+  factory MemberProfile.fromJson(Map<String, dynamic> j) => MemberProfile(
+        name: _s(j['name']),
+        gender: _s(j['gender']),
+        birthDate: _s(j['birth_date']),
+        phone: _s(j['phone']),
+        level: _s(j['level']),
+        preferredTimeSlot: _s(j['preferred_time_slot']),
+        preferredCoachGender: _s(j['preferred_coach_gender']),
+        safetyNote: _s(j['safety_note']),
+        note: _s(j['note']),
+        photoUrl: _s(j['photo_url']),
+        email: _s(j['email']),
+        emergencyContact: _s(j['emergency_contact']),
+        updatedAt: j['updated_at'] == null
+            ? null
+            : DateTime.tryParse(j['updated_at'].toString()),
+      );
+
+  static String? _s(dynamic v) {
+    if (v == null) return null;
+    final s = v.toString();
+    return s.isEmpty ? null : s;
+  }
 }
 
 class GymMember {
@@ -121,6 +199,16 @@ class GymMember {
   final DateTime? lastWodAt;
   final int totalSessions;
   final int streakDays;
+  // PC 사장이 입력한 신원정보 (코치/owner 조회 시 1:1 매칭).
+  final String? name;
+  final String? level;
+  final String? phone;
+  final String? gender;
+  final String? birthDate;
+  final String? preferredTimeSlot;
+  final String? preferredCoachGender;
+  final String? safetyNote;
+  final String? note;
 
   const GymMember({
     required this.id,
@@ -132,6 +220,15 @@ class GymMember {
     this.lastWodAt,
     this.totalSessions = 0,
     this.streakDays = 0,
+    this.name,
+    this.level,
+    this.phone,
+    this.gender,
+    this.birthDate,
+    this.preferredTimeSlot,
+    this.preferredCoachGender,
+    this.safetyNote,
+    this.note,
   });
 
   bool get isPending => status == 'pending';
@@ -160,7 +257,27 @@ class GymMember {
             : DateTime.parse(j['last_wod_at'] as String),
         totalSessions: ((j['total_sessions'] ?? 0) as num).toInt(),
         streakDays: ((j['streak_days'] ?? 0) as num).toInt(),
+        name: _s(j['name']),
+        level: _s(j['level']),
+        phone: _s(j['phone']),
+        gender: _s(j['gender']),
+        birthDate: _s(j['birth_date']),
+        preferredTimeSlot: _s(j['preferred_time_slot']),
+        preferredCoachGender: _s(j['preferred_coach_gender']),
+        safetyNote: _s(j['safety_note']),
+        note: _s(j['note']),
       );
+
+  /// 코치 화면 표시용 — 이름 있으면 이름, 없으면 device hash prefix.
+  String get displayName => (name?.trim().isNotEmpty == true)
+      ? name!.trim()
+      : 'Member ${deviceHashPrefix.substring(0, deviceHashPrefix.length < 6 ? deviceHashPrefix.length : 6)}';
+
+  static String? _s(dynamic v) {
+    if (v == null) return null;
+    final s = v.toString();
+    return s.isEmpty ? null : s;
+  }
 }
 
 class WodRoundItem {

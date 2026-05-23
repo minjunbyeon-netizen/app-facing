@@ -258,9 +258,15 @@ class _IdentityCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthState>();
-    final name = (auth.displayName?.trim().isNotEmpty == true)
-        ? auth.displayName!.trim()
-        : 'Athlete';
+    final gs = context.watch<GymState>();
+    // PC 사장이 등록한 GymMemberProfile.name 우선. 없으면 auth.displayName fallback.
+    final mp = gs.membership.memberProfile;
+    final boxRegisteredName = (mp?.name ?? '').trim();
+    final name = boxRegisteredName.isNotEmpty
+        ? boxRegisteredName
+        : ((auth.displayName?.trim().isNotEmpty == true)
+            ? auth.displayName!.trim()
+            : 'Athlete');
     final provider = (auth.provider ?? '').toUpperCase();
     final initial = name.isEmpty ? '?' : name.characters.first.toUpperCase();
 
@@ -306,6 +312,51 @@ class _IdentityCard extends StatelessWidget {
               ),
             ],
           ),
+          // PC 사장이 등록한 신원정보 카드 (있을 때만).
+          if (mp != null && !mp.isEmpty) ...[
+            const SizedBox(height: FacingTokens.sp3),
+            Container(
+              padding: const EdgeInsets.all(FacingTokens.sp3),
+              decoration: BoxDecoration(
+                color: FacingTokens.surface,
+                border: Border.all(color: FacingTokens.border),
+                borderRadius: BorderRadius.circular(FacingTokens.r2),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Text('GYM RECORD',
+                          style: FacingTokens.sectionLabel),
+                      const Spacer(),
+                      if (mp.updatedAt != null)
+                        Text(
+                          _fmtUpdated(mp.updatedAt!),
+                          style: FacingTokens.micro,
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: FacingTokens.sp2),
+                  if ((mp.level ?? '').isNotEmpty)
+                    _ProfileRow(label: 'Tier', value: mp.level!),
+                  if ((mp.phone ?? '').isNotEmpty)
+                    _ProfileRow(label: 'Phone', value: mp.phone!),
+                  if ((mp.birthDate ?? '').isNotEmpty)
+                    _ProfileRow(label: 'Birth', value: mp.birthDate!),
+                  if ((mp.gender ?? '').isNotEmpty)
+                    _ProfileRow(label: 'Gender', value: mp.gender!),
+                  if ((mp.preferredTimeSlot ?? '').isNotEmpty)
+                    _ProfileRow(
+                        label: 'Preferred', value: mp.preferredTimeSlot!),
+                  if ((mp.safetyNote ?? '').isNotEmpty)
+                    _ProfileRow(label: 'Safety', value: mp.safetyNote!),
+                  if ((mp.note ?? '').isNotEmpty)
+                    _ProfileRow(label: 'Note', value: mp.note!),
+                ],
+              ),
+            ),
+          ],
           const SizedBox(height: FacingTokens.sp4),
           OutlinedButton.icon(
             onPressed: () {
@@ -316,6 +367,38 @@ class _IdentityCard extends StatelessWidget {
             },
             icon: const Icon(Icons.edit_outlined, size: 18),
             label: const Text('Edit Profile'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _fmtUpdated(DateTime dt) {
+    final l = dt.toLocal();
+    return '${l.month}/${l.day} ${l.hour.toString().padLeft(2, '0')}:${l.minute.toString().padLeft(2, '0')}';
+  }
+}
+
+class _ProfileRow extends StatelessWidget {
+  final String label;
+  final String value;
+  const _ProfileRow({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 70,
+            child: Text(label,
+                style: FacingTokens.micro
+                    .copyWith(color: FacingTokens.muted)),
+          ),
+          Expanded(
+            child: Text(value, style: FacingTokens.caption),
           ),
         ],
       ),
@@ -426,6 +509,18 @@ class _MyBoxSection extends StatelessWidget {
                   ));
                 },
                 child: const Text('Manage Members'),
+              ),
+            ],
+            // 클래스 일정 진입 (회원·owner 모두). PC 사장이 등록한 클래스를 본다.
+            if (gs.membership.isApprovedMember || gs.isOwner) ...[
+              const SizedBox(height: FacingTokens.sp2),
+              OutlinedButton.icon(
+                onPressed: () {
+                  Haptic.light();
+                  Navigator.of(context).pushNamed('/classes');
+                },
+                icon: const Icon(Icons.event_outlined, size: 18),
+                label: const Text('Classes'),
               ),
             ],
           ],

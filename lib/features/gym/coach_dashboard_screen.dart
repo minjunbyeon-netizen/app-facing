@@ -223,12 +223,14 @@ class _PendingRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('user:${member.deviceHashPrefix}',
+                Text(member.displayName,
                     style: FacingTokens.body.copyWith(
                       fontWeight: FontWeight.w700,
                     )),
                 Text(_dateShort(member.requestedAt),
                     style: FacingTokens.caption),
+                if ((member.phone ?? '').isNotEmpty)
+                  Text(member.phone!, style: FacingTokens.caption),
               ],
             ),
           ),
@@ -273,7 +275,7 @@ class _RosterRow extends StatelessWidget {
                     children: [
                       Flexible(
                         child: Text(
-                          'user:${member.deviceHashPrefix}',
+                          member.displayName,
                           style: FacingTokens.body.copyWith(
                             fontWeight: FontWeight.w700,
                             color: fg,
@@ -282,6 +284,8 @@ class _RosterRow extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: FacingTokens.sp2),
+                      if ((member.level ?? '').isNotEmpty)
+                        _statusChip(member.level!, FacingTokens.accent),
                       if (member.isDormant)
                         _statusChip('DORMANT', FacingTokens.warning)
                       else if (member.lastWodAt == null && member.isApproved)

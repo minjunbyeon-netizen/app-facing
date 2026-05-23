@@ -43,6 +43,7 @@ import 'features/boss/boss_api_client.dart';
 import 'features/boss/boss_login_screen.dart';
 import 'features/boss/boss_dashboard_screen.dart';
 import 'features/boss/role_entry_screen.dart';
+import 'features/classes/classes_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -176,6 +177,8 @@ class FacingApp extends StatelessWidget {
           '/role-entry': (_) => const RoleEntryScreen(),
           '/boss/login': (_) => const BossLoginScreen(),
           '/boss/dashboard': (_) => const BossDashboardScreen(),
+          // PHASE4 §1.1: 회원 폰 클래스 일정·예약
+          '/classes': (_) => const ClassesScreen(),
         },
         onGenerateRoute: (settings) {
           if (settings.name == '/history/detail') {
