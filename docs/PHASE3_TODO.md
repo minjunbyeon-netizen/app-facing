@@ -111,7 +111,7 @@ critical path (순서 의무):
 
 ### 3.2 결제·정산·계약 (4 task)
 
-- [ ] **C-2** 자동 만료·동결 — APScheduler 매일 03:00 KST. 만료 7일 전 SMS. 예상 3일
+- [x] **C-2** 자동 만료·동결 — `services/expiry_scheduler.py` 매일 03:30 KST. 만료 7·3·1·0일 전 audit_log idempotent 기록 (실 SMS 발송은 E-2 후) + 만료 1일 후 자동 paused + 60일 후 left soft delete (B-4 lifecycle 자동). (2026-05-23)
 - [ ] **C-5** 자동결제 (정기결제) — Toss 빌링키. 매월 지정일 + 3회 재시도. 예상 1주
 - [ ] **C-6** 영수증·세금계산서 PDF — 영수증 메일·세금계산서 사장 요청 시. 예상 1주
 - [ ] **C-7** 결제 reconciliation — 월 1회 Toss 정산 vs DB 비교 + 불일치 alert. 예상 3일
@@ -126,7 +126,7 @@ critical path (순서 의무):
 
 ### 3.4 알림·SMS·메일·푸시 (4 task)
 
-- [ ] **E-1** 알림 카탈로그 정의 (회원·사장·코치 트리거 매트릭스). 예상 2일
+- [x] **E-1** 알림 카탈로그 정의 — `docs/NOTIFICATION_CATALOG.md` 신규. 회원 10·사장 8·코치 5 = 23 trigger × 4 채널 (SMS·메일·푸시·SSE) 매트릭스 + 본문 템플릿 + 채널별 비용·우선순위 P0/P1/P2 + 안전장치 (rate limit·옵트아웃·시간대·dead letter). (2026-05-23)
 - [ ] **E-2** NHN Toast SMS — sender ID + 발송 limit + audit. 예상 1주
 - [ ] **E-3** Mailgun 메일 — SPF·DKIM·DMARC + HTML 템플릿. 예상 1주
 - [ ] **E-4** FCM 푸시 (폰 회원·코치). 의존: 폰 facing-app FCM stub → live. 예상 5일
