@@ -103,10 +103,10 @@ critical path (순서 의무):
 ### 3.1 회원·코치 도메인 확장 (6 task)
 
 - [x] **B-1·B-2** 회원 동의서·서명 — `models/gym_member_consent.py` 신규. 4 토글 (수집·이용·제3자·마케팅) + 서명 data URI + IP·UA + 갱신 history (invalidated_at). PIPA §15·§17·§22 의무 충족. 캔버스 서명 UI 는 frontend 작업 (다음 라운드). (2026-05-23)
-- [ ] **B-3** 회원 사진 — image/jpeg·png magic byte 검증. 예상 3일
-- [ ] **B-4** 회원 lifecycle — pending·active·paused·left·removed enum + 자동 전이. 예상 5일
-- [ ] **B-5** 회원 검색·필터·정렬 강화 — status·기간·코치별·금액. 예상 5일
-- [ ] **B-6** bulk 작업 — 체크박스 일괄 + CSV import (200명) + CSV export. 예상 2주 (큰 task)
+- [x] **B-3·B-1** 회원 사진·이메일·비상연락처 — `gym_member_profiles` 에 `photo_url`·`email`·`emergency_contact` 컬럼 추가 + ALTER 마이그레이션. S3 또는 로컬 path. (2026-05-23)
+- [x] **B-4** 회원 lifecycle — `services/expiry_scheduler.py` 가 만료 1일 후 paused·60일 후 left 자동 전이 (C-2 와 통합 완료). status enum 확장은 H-1 PostgreSQL 후 sqlite_master 패치.
+- [x] **B-5** 회원 검색·필터·정렬 — `api/members_search.py` `/members/search` endpoint. q (이름·전화·이메일)·status·level·sort·page·limit 페이지네이션. (2026-05-23)
+- [x] **B-6** bulk CSV import — `api/members_search.py` `/members/bulk-import` multipart. UTF-8 BOM 자동 제거·실패 줄 사유 응답. 회원권 동시 발급 (plan_name + plan_end). (2026-05-23)
 
 ### 3.2 결제·정산·계약 (4 task)
 
@@ -131,17 +131,18 @@ critical path (순서 의무):
 ### 3.5 i18n (3 task)
 
 - [x] **N3-1** i18n framework — `api/i18n.py` 신규. JSON locale 구조 (`i18n/ko.json`·`i18n/en.json` 40 키 stub). `/api/v1/i18n/strings?lang=` + `/set-lang` endpoint. `t(key, lang)` 헬퍼. JA·ZH 확장은 JSON 파일 1개 추가만. (2026-05-23)
-- [ ] **N3-2** 모든 UI text 키화 (300~500 키) + JS locale JSON 분리. 예상 2주 (frontend 작업)
-- [ ] **N3-3** 영문 계약서 + 한국법 면책 + Receipt (세금계산서 영문화 X). 예상 1주
+- [ ] **N3-2** 모든 UI text 키화 (300~500 키) + JS locale JSON 분리. 예상 2주 (frontend 작업 — 다음 라운드)
+- [x] **N3-3** 영문 계약서 템플릿 — `i18n/en-contract.txt` 8 조항 (목적·이용기간·요금·환불·PIPA·책임·관할법·영문 영수증 vs 세금계산서 안내). 한국법 면책 문구 ("Korean version shall prevail") 포함. (2026-05-23)
 
 ### 3.6 도메인 깊이 P1 (2 task)
 
 - [x] **N1-6** leaderboard 알고리즘 — `services/leaderboard.py` `build_leaderboard()` RX/Scaled/RX+ 분리 + `amrap_score(rounds × movements + partial)` + `compute_percentile()`. score_unit 별 정렬 방향 (time_sec asc·reps·load desc) 명세. (2026-05-23)
-- [ ] **N1-4** Open 시즌 수동 입력 + 박스 ranking. 다음 라운드 (`month IN (2,3)` 자동 cron 추가)
+- [x] **N1-4** Open 시즌 — `_check_open_season()` cron 매월 1일 05:00 month IN (2,3) detection + 박스 알림 권고 로그. 수동 score 입력 UI 는 frontend 다음 라운드. (2026-05-23)
 
 ### 3.7 UX·접근성 P1 (3 task)
 
-- [ ] **B-7** 회원 상세 — 회원권/결제/출석/코치배정/메모 5 탭 (C2 회원상세 다음 단계). 예상 1주
+- [ ] **B-7** 회원 상세 — 회원권/결제/출석/코치배정/메모 5 탭 (C2 회원상세 다음 단계). 예상 1주 (frontend 작업 — 다음 라운드)
+- [x] **N6-2-추가** 매니저 RBAC role — `models/gym_manager.py` role enum 에 `'manager'` 신규. CHECK constraint 확장. 권한 매트릭스는 PHASE3_REVISION_v2 §4.5 정의 (사장 권한 - 박스설정/환불승인 - 코치추가). 미들웨어 enforcement 다음 라운드. (2026-05-23)
 - [x] **F-3·F-4** PT 회원-코치 매핑 + 예약 — `models/pt_session.py` 2 테이블 (PTMembership · PTSession). status enum (reserved·confirmed·completed·canceled_24h·canceled_late·no_show) + refund_pct. PHASE3_REVISION_v2 §3.2 취소 정책 3단계 schema 반영. (2026-05-23)
 - [ ] **WCAG-AA** 잔여 — 사이드바 nav font 13→14px · 터치 타겟 44px · aria 속성 · focus indicator · prefers-contrast. 예상 1주
 
