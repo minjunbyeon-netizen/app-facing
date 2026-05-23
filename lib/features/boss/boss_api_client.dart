@@ -1,0 +1,139 @@
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+
+import '../../core/api_client.dart';
+import '../../core/exception.dart';
+import 'boss_auth_state.dart';
+
+/// PHASE5 §1.1 — 사장 전용 Dio 인스턴스.
+/// 백엔드가 Flask session cookie 기반이므로:
+///   1. 로그인 응답 Set-Cookie → _sessionCookie 추출 → BossAuthState 저장
+///   2. 이후 모든 요청에 Cookie 헤더 + X-CSRFToken 헤더 자동 주입.
+class BossApiClient {
+  final Dio _dio;
+  BossAuthState? _authState;
+
+  BossApiClient._(this._dio);
+
+  void bindAuth(BossAuthState state) {
+    _authState = state;
+  }
+
+  static BossApiClient create() {
+    final dio = Dio(BaseOptions(
+      baseUrl: ApiClient.baseUrl,
+      connectTimeout: const Duration(seconds: 5),
+      receiveTimeout: const Duration(seconds: 15),
+      contentType: 'application/json',
+      responseType: ResponseType.json,
+      // 쿠키 리다이렉트 자동 따라가되 Set-Cookie 보존
+      followRedirects: false,
+      validateStatus: (s) => s != null && s < 500,
+    ));
+    return BossApiClient._(dio);
+  }
+
+  /// POST /api/v1/admin/login — 쿠키 세션 획득.
+  Future<Map<String, dynamic>> login(String loginId, String password) async {
+    try {
+      final res = await _dio.post(
+        '/api/v1/admin/login',
+        data: {'login_id': loginId, 'password': password},
+        options: Options(headers: {'Content-Type': 'application/json'}),
+      );
+      final raw = res.data;
+      if (raw is! Map || raw['ok'] != true) {
+        throw AppException(
+          (raw is Map ? raw['error'] : null) ?? '로그인 실패',
+          code: raw is Map ? raw['code']?.toString() : null,
+          statusCode: res.statusCode,
+        );
+      }
+      // Set-Cookie 헤더에서 session 쿠키 추출
+      final setCookie = res.headers['set-cookie'];
+      String sessionCookie = '';
+      if (setCookie != null && setCookie.isNotEmpty) {
+        // 'session=xxx; HttpOnly; ...' → 첫 세미콜론 전까지만
+        for (final c in setCookie) {
+          if (c.startsWith('session=')) {
+            sessionCookie = c.split(';').first.trim();
+            break;
+          }
+        }
+      }
+      if (sessionCookie.isEmpty) {
+        debugPrint('[BossApiClient] 경고: session 쿠키 없음 — 백엔드 SESSION_COOKIE_SECURE 확인');
+      }
+      return {'data': raw['data'], 'session_cookie': sessionCookie};
+    } on DioException catch (e) {
+      throw _mapDio(e);
+    }
+  }
+
+  /// 인증 헤더 포함 GET
+  Future<Map<String, dynamic>> get(String path) async {
+    try {
+      final res = await _dio.get(path, options: _authOpts());
+      return _unwrap(res);
+    } on DioException catch (e) {
+      throw _mapDio(e);
+    }
+  }
+
+  /// 인증 헤더 포함 POST
+  Future<Map<String, dynamic>> post(
+      String path, Map<String, dynamic> body) async {
+    try {
+      final res = await _dio.post(path, data: body, options: _authOpts());
+      return _unwrap(res);
+    } on DioException catch (e) {
+      throw _mapDio(e);
+    }
+  }
+
+  Options _authOpts() {
+    final auth = _authState;
+    final headers = <String, dynamic>{};
+    if (auth?.sessionCookie != null) {
+      headers['Cookie'] = auth!.sessionCookie!;
+    }
+    if (auth?.csrfToken != null) {
+      headers['X-CSRFToken'] = auth!.csrfToken!;
+    }
+    return Options(headers: headers);
+  }
+
+  Map<String, dynamic> _unwrap(Response res) {
+    final data = res.data;
+    if (data is! Map) {
+      throw AppException('응답 형식 오류', code: 'PROTOCOL');
+    }
+    if (data['ok'] == true) {
+      final d = data['data'];
+      if (d is Map) return Map<String, dynamic>.from(d);
+      return {'_raw': d};
+    }
+    throw AppException(
+      (data['error'] ?? '서버 오류').toString(),
+      code: data['code']?.toString(),
+      statusCode: res.statusCode,
+    );
+  }
+
+  AppException _mapDio(DioException e) {
+    if (e.type == DioExceptionType.connectionTimeout ||
+        e.type == DioExceptionType.connectionError) {
+      return AppException('백엔드 OFF · 재시도', code: 'NETWORK');
+    }
+    if (e.type == DioExceptionType.receiveTimeout) {
+      return AppException('서버 응답 지연', code: 'TIMEOUT');
+    }
+    final d = e.response?.data;
+    if (d is Map && d['error'] != null) {
+      return AppException(d['error'].toString(),
+          code: d['code']?.toString(), statusCode: e.response?.statusCode);
+    }
+    return AppException('요청 실패', code: 'UNKNOWN',
+        statusCode: e.response?.statusCode);
+  }
+}

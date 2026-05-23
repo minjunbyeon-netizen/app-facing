@@ -22,6 +22,10 @@ dependencies:
   share_plus: ^10.0.0
   # v1.19 P2: 공지 CTA 외부 링크 열기.
   url_launcher: ^6.3.1
+  # PHASE5: 사장 폰 로그인 — 쿠키 세션 관리 + 보안 토큰 저장
+  dio_cookie_manager: ^3.1.1
+  cookie_jar: ^4.0.8
+  flutter_secure_storage: ^9.2.2
 
 dev_dependencies:
   flutter_test:
