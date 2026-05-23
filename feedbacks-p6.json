@@ -1,0 +1,93 @@
+{
+  "persona": "p6",
+  "label": "35대 매니저 · 친숙도 4/5 · 위임 직원",
+  "test_date": "2026-05-23",
+  "role_used": "boss_seongsu (사장 대체 — 매니저 시드 없음)",
+  "role_note": "실제 매니저 계정 없어 사장 권한으로 진행. 권한 차이 항목은 [권한비교] 태그로 표시.",
+  "screenshots": [
+    "screenshots/p6/01-members-list.png",
+    "screenshots/p6/02-add-member-modal.png",
+    "screenshots/p6/03b-tab1-stable.png",
+    "screenshots/p6/03-tab2-payment-dialog.png",
+    "screenshots/p6/04-payroll.png"
+  ],
+  "task_1min_verdict": "FAIL — 1분 내 회원등록+결제입력 불가. 결제 탭 진입 자체가 차단됨 (버그 B1).",
+  "feedbacks": [
+    {
+      "id": "B1",
+      "severity": "critical",
+      "category": "버그 / 네비게이션",
+      "title": "회원 상세 탭 버튼 클릭 시 잘못된 페이지로 이동",
+      "description": "member_detail.html 의 탭 버튼(.chip.tab-btn)에 app.js DOMContentLoaded 전역 핸들러가 중복 바인딩된다. 전역 핸들러가 applyFilter()를 호출하면서 #searchInput이 없는 페이지에서 오류 발생 + .chip 전체 활성 상태가 초기화되어 내비게이션이 엉뚱한 페이지로 튄다. '결제 이력' 탭 → /payroll, '출석' 탭 → /lockers 로 이동 확인.",
+      "root_cause": "app.js line 193-200: $$('.chip').forEach() 전역 바인딩이 member_detail.html 의 .chip 탭 버튼까지 잡음.",
+      "fix": "member_detail.html 의 tab-btn 클래스를 .chip 이 아닌 별도 클래스로 분리 (.tab-chip 등). 또는 app.js DOMContentLoaded 핸들러에 members 페이지 전용 guard 추가 (if (!document.querySelector('.tab-btn')) 등).",
+      "nielsen": "N1 시스템 상태 가시성 / N5 오류 방지"
+    },
+    {
+      "id": "B2",
+      "severity": "critical",
+      "category": "UX / 결제 입력",
+      "title": "결제 추가가 native browser prompt() 2회 연속 사용",
+      "description": "member_detail.html openPayment() 함수가 window.prompt('결제 금액 (원)?') → window.prompt('결제 수단 (cash/card/transfer)?') 순서로 순수 브라우저 다이얼로그를 연달아 사용. 모바일에서 키보드 올라왔다 내려갔다 반복, ESC 취소 시 전체 흐름 abort, VAT·메모 등 추가 필드 입력 불가. 매니저가 1분 내 결제 입력하는 핵심 태스크에서 치명적 장애.",
+      "root_cause": "member_detail.html line 137-148: openPayment() 가 prompt() 기반 구현.",
+      "fix": "모달 컴포넌트(결제 금액/수단/날짜/비고 폼 + 저장 버튼)로 교체. 기존 newModal 패턴 재활용 가능.",
+      "nielsen": "N4 일관성 / N8 심미적 최소주의"
+    },
+    {
+      "id": "B3",
+      "severity": "high",
+      "category": "버그 / 회원 추가 버튼",
+      "title": "+ 회원 추가 버튼 클릭이 잘못된 페이지로 이동",
+      "description": "회원 리스트 페이지 우상단 '+ 회원 추가' 버튼(onclick=openNew())이 Playwright 클릭 시 /contracts, /payroll 등으로 네비게이션됨. JS evaluate()로 openNew() 직접 호출 시 모달 정상 오픈 확인. 버튼 자체는 정상이지만 레이아웃상 사이드바 링크 위에 렌더링되어 마우스 클릭 영역이 겹침. 실제 사용자 클릭도 동일 증상 가능성 높음.",
+      "root_cause": "버튼 위치(x=1770, 뷰포트 오른쪽 끝)와 사이드바 링크의 z-index/포인터 이벤트 영역 겹침 의심.",
+      "fix": "버튼 z-index: 10 이상 명시. 또는 사이드바 nav 링크의 pointer-events 범위 확인.",
+      "nielsen": "N5 오류 방지 / N1 시스템 상태 가시성"
+    },
+    {
+      "id": "F1",
+      "severity": "medium",
+      "category": "기능 미완성",
+      "title": "회원권 탭 — '다음 라운드' placeholder 노출",
+      "description": "회원 상세 > 회원권 탭에 '회원권 history endpoint 통합 중 — 다음 라운드' 텍스트가 그대로 노출됨. 매니저가 회원 이력을 확인하려 할 때 빈 화면만 보임. 사용자 혼란 유발.",
+      "fix": "현재 회원권 정보(members 리스트에 있는 plan_name + 기간)라도 먼저 렌더링. placeholder는 '준비 중' 배너로 교체.",
+      "nielsen": "N1 시스템 상태 가시성"
+    },
+    {
+      "id": "F2",
+      "severity": "medium",
+      "category": "권한 / 접근 제어",
+      "title": "[권한비교] 시급 정산 — 매니저도 근무 시간·지급 여부 직접 수정 가능",
+      "description": "시급 정산 화면에서 근무 시간(spinbutton)과 비고(textbox)가 인라인 편집 가능한 상태. '지급 여부' 상태는 아직 클릭 불가이지만 '자동 산정' 버튼 클릭 시 confirm 다이얼로그가 뜨고 진행 가능. 매니저는 조회만 허용, 수정·산정은 사장 권한으로 분리 필요.",
+      "fix": "역할별 readOnly 모드 분기: manager role이면 spinbutton/textbox disabled + 자동 산정 버튼 숨김.",
+      "nielsen": "N7 유연성 / 역할 기반 접근 제어 (reference/authorization.md)"
+    },
+    {
+      "id": "F3",
+      "severity": "medium",
+      "category": "UX / 회원 등록",
+      "title": "회원 추가 모달 — 회원권 종류 기본값 '나중에 발급'으로 설정돼 있어 깜빡 넘기기 쉬움",
+      "description": "회원 추가 모달 열었을 때 회원권 종류 드롭다운이 '— 나중에 발급 —' 상태. 매니저가 이름·전화 입력 후 저장을 누르면 회원권 없이 등록되며 '대기' 상태 회원이 됨. 핵심 태스크(등록+회원권 동시 발급)를 놓칠 가능성 높음.",
+      "fix": "회원권 종류 필드에 '필수 입력' 표시 또는 기본값을 가장 많이 쓰는 옵션(예: 1개월권)으로 설정. '나중에 발급' 선택 시 경고 표시.",
+      "nielsen": "N5 오류 방지 / N6 인식 vs 회상"
+    },
+    {
+      "id": "F4",
+      "severity": "low",
+      "category": "UX / 정보 표시",
+      "title": "회원 상세 헤더에 'approved' 영문 status 코드가 그대로 노출",
+      "description": "정하은 회원 상세 헤더 부제목에 '010-9821-4456 · RX · approved' — 내부 상태값(approved)이 한국어로 변환 없이 노출됨. 매니저에게 의미 불명확.",
+      "fix": "status 매핑: approved → 활성, pending → 대기, withdrawn → 탈퇴.",
+      "nielsen": "N2 현실 세계 언어 사용"
+    },
+    {
+      "id": "F5",
+      "severity": "low",
+      "category": "UX / 편의성",
+      "title": "회원 행 클릭 → 상세 진입 경로 불명확 (클릭 영역 모호)",
+      "description": "회원 리스트에서 행 전체(cursor:pointer)를 클릭하면 상세로 이동하지만, 행 마지막 열의 '수정·탈퇴' 링크와 혼재. 어디를 클릭해야 상세 페이지로 가는지 시각적 안내 없음. Playwright 테스트 중 수정·탈퇴 영역이 활성화될 위험도 있음.",
+      "fix": "행 우측에 '상세 보기 ›' 아이콘 또는 이름 셀에 밑줄 hover 표시 추가.",
+      "nielsen": "N6 인식 vs 회상 / N4 일관성"
+    }
+  ],
+  "summary_200": "탭 버튼 전역 .chip 클래스 충돌로 회원 상세 탭 클릭 시 엉뚱한 페이지 이동(치명). 결제 추가가 native prompt() 2회 연속으로 1분 내 결제 태스크 달성 불가(치명). 시급 정산 매니저 권한 미분리 — 수정 가능. 회원권 탭 미구현 placeholder 노출. 공통 버그 2건 + 권한 1건 + UX 4건 총 7건."
+}
