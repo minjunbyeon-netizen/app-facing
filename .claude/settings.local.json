@@ -1,4 +1,7 @@
 {
+  "env": {
+    "CC_IDLE_THRESHOLD": "1800"
+  },
   "permissions": {
     "allow": [
       "PowerShell(adb *)",

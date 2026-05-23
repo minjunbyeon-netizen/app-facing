@@ -1,3 +1,16 @@
+## 📲 Rule 1 (이 프로젝트 1순위 — 2026-05-24 08:53)
+
+**모든 작업 완료마다 `PushNotification` 으로 폰 푸시. 사용자가 30분 이상 답이 없으면 다시 발사.**
+
+- 매 응답 종료 시 (단답·박스·긴 본문 무관) `PushNotification` 1회 호출. 응답 마지막 `✨ ... ✨` 푸터 직전에 발사.
+- 메시지 형식: `[facing] {작업 요약 30자 이내}` (80자 권장, 200자 hard limit, 이모지는 → ✓ ● ○ 만)
+- 사용자가 마지막 메시지를 보낸 뒤 **30분 무응답** 이면 idle-watcher 가 자동 재발사 — 같은 idle 구간에서 30분 단위 반복
+- 안전장치 유지: rate limit (5분 2회 cap) · 무음 모드 (`"조용히"`·`"방해 금지"`·`"푸시 꺼"` 키워드 시 세션 종료까지 잠금)
+- 글로벌 `rules/common/push-notification.md` Tier 3 (= 매 응답 푸시 금지) 룰을 사용자 의지로 override
+- 메모리 SSOT: `~/.claude/projects/C--dev-apps-facing-app/memory/feedback-push-every-turn.md`
+
+---
+
 ⚠️ **최우선 — 모든 작업은 `docs/ARCHITECTURE_BRIEF.md` 를 따른다.**
 이 브리프가 facing 시스템(폰 + PC + 백엔드 + RBAC + SSE + DB 모델) 전체 합의 SSOT 예요.
 신규 기능·코드 변경 시:
