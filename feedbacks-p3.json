@@ -1,0 +1,162 @@
+{
+  "persona": {
+    "id": "p3",
+    "label": "45대 다중 박스 사장",
+    "description": "박스 2~3곳 운영. 친숙도 3/5. 5초 안 박스 전환 필요.",
+    "test_user": "boss_seongsu",
+    "test_env": "http://localhost:8081 (local)",
+    "note": "프로덕션(Railway) 은 FACING_BACKEND_URL 미설정으로 503 — 별도 blocker 추가"
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "title": "박스 스위처 위치 탐색",
+      "steps": [
+        "로그인 성공 (stats 페이지 진입)",
+        "사이드바 전체 스캔 — FACING SEONGSU 텍스트 표시, cursor: default",
+        "FACING SEONGSU 텍스트 클릭 시도 — 아무 반응 없음",
+        "헤더 영역 탐색 — 드롭다운 없음",
+        "/settings 접근 시도 — 404"
+      ],
+      "task_complete": false,
+      "severity": "blocker",
+      "nielsen_heuristic": "H1 Visibility of system status / H4 Consistency and standards",
+      "verbatim": "박스 전환하는 버튼이 어디 있는 거야? SEONGSU 눌러도 아무것도 안 되고, 설정 페이지도 없고. 이걸로 강남 박스는 어떻게 보라는 거지?",
+      "evidence": "사이드바 gym-meta 요소에 cursor:default, onclick 없음. /settings 404. 박스 전환 route 코드 미존재."
+    },
+    {
+      "id": "S2",
+      "title": "박스 전환 속도 (5초 기준)",
+      "steps": [
+        "박스 스위처 UI 자체가 없어 전환 불가"
+      ],
+      "task_complete": false,
+      "severity": "blocker",
+      "nielsen_heuristic": "H7 Flexibility and efficiency of use",
+      "verbatim": "전환이 5초? 전환 자체가 안 되는데요. 로그아웃하고 다른 아이디로 다시 로그인해야 하는 건가요? 그게 10번이면 20분이잖아요.",
+      "measured_switch_time_sec": null,
+      "evidence": "app.py에 gym switch route 없음. session['admin_gym_id']는 로그인 시 1회 고정."
+    },
+    {
+      "id": "S3",
+      "title": "회원 페이지 — 어느 박스 데이터인지 명확성",
+      "steps": [
+        "/members 접근",
+        "헤더: '회원 리스트 · 총 14명' — 박스명 없음",
+        "테이블에 gym 컬럼 없음",
+        "사이드바 상단 FACING SEONGSU 텍스트만 표시"
+      ],
+      "task_complete": false,
+      "severity": "major",
+      "nielsen_heuristic": "H1 Visibility of system status",
+      "verbatim": "이 14명이 성수 박스 회원이에요 강남 박스 회원이에요? 박스 이름이 위에 쬐금 적혀 있긴 한데, 보다가 까먹어요. 표 어딘가에 크게 떠 있어야죠.",
+      "evidence": "members.html 헤더에 gym명 없음. 테이블 컬럼에 gym 없음."
+    },
+    {
+      "id": "S4",
+      "title": "시급 정산 — 박스 구분",
+      "steps": [
+        "/payroll 접근",
+        "페이지 타이틀 '시급 정산' — 박스명 없음",
+        "코치 이름만 표시, 어느 박스 코치인지 불명"
+      ],
+      "task_complete": false,
+      "severity": "major",
+      "nielsen_heuristic": "H1 Visibility of system status",
+      "verbatim": "두 박스 코치가 같이 뜨면 누가 어느 박스 소속인지 어떻게 알아요? 정산할 때 섞이면 큰일 나는데.",
+      "evidence": "/payroll template — gym 구분 컬럼/태그 없음."
+    },
+    {
+      "id": "S5",
+      "title": "락커 관리 — 박스 구분",
+      "steps": [
+        "/lockers 접근",
+        "페이지 타이틀 '락커 관리' — 박스명 없음",
+        "락커 번호 grid 표시 — 어느 박스 락커인지 불명"
+      ],
+      "task_complete": false,
+      "severity": "major",
+      "nielsen_heuristic": "H1 Visibility of system status",
+      "verbatim": "성수 락커인지 강남 락커인지 구별이 안 돼요. 번호 중복되면 완전히 혼란스럽겠는데.",
+      "evidence": "/lockers template — gym 태그 없음."
+    },
+    {
+      "id": "S6",
+      "title": "전자계약서 — 박스 구분",
+      "steps": [
+        "/contracts 접근",
+        "계약서 리스트 — gym명 없음"
+      ],
+      "task_complete": false,
+      "severity": "major",
+      "nielsen_heuristic": "H1 Visibility of system status",
+      "verbatim": "계약서가 어느 박스 거야 이게. 사인할 때 박스 이름이 들어가긴 하나요?",
+      "evidence": "/contracts template — gym 구분 컬럼 없음."
+    },
+    {
+      "id": "S7",
+      "title": "[추가 Blocker] 프로덕션 배포 자체 불가",
+      "steps": [
+        "https://web-facing-admin-production.up.railway.app 접속",
+        "로그인 시도 — /api/proxy/login 503",
+        "콘솔: Failed to load resource: 503",
+        "원인: FACING_BACKEND_URL 미설정 → 기본값 localhost:5060 → Railway 컨테이너에서 존재 안 함"
+      ],
+      "task_complete": false,
+      "severity": "blocker",
+      "nielsen_heuristic": "H5 Error prevention",
+      "verbatim": "로그인도 안 되는데 어떻게 써요?",
+      "evidence": "app.py line 27: BACKEND_URL = os.environ.get('FACING_BACKEND_URL', 'http://localhost:5060'). Railway에 FACING_BACKEND_URL 환경변수 없음."
+    }
+  ],
+  "summary": {
+    "task_complete_rate": "0/7 (0%)",
+    "blocker_count": 3,
+    "major_count": 4,
+    "top_blocker": "박스 스위처 UI 미구현 — 다중 박스 사장이 박스 전환 불가. 로그아웃 후 재로그인 외 방법 없음.",
+    "second_blocker": "프로덕션 배포 시 FACING_BACKEND_URL 미설정으로 503 — 실 사용자 접근 자체 불가.",
+    "third_blocker": "전체 페이지에 현재 어느 박스 데이터를 보는지 명확한 컨텍스트 없음 (major × 4).",
+    "nielsen_top_violated": "H1 Visibility of system status (6/7 시나리오)",
+    "p3_frustration_score": "5/5 (최대 좌절)"
+  },
+  "recommendations": [
+    {
+      "priority": 1,
+      "title": "Railway FACING_BACKEND_URL 환경변수 즉시 설정",
+      "detail": "FACING_BACKEND_URL=https://service-facing-production.up.railway.app",
+      "effort": "10분",
+      "impact": "프로덕션 접근 가능 → 전체 기능 활성화"
+    },
+    {
+      "priority": 2,
+      "title": "사이드바 박스 드롭다운 스위처 구현",
+      "detail": "login 응답의 gyms[] 배열을 session에 저장 → _layout.html에서 렌더링. /switch-gym POST route 추가 (session['admin_gym_id'] 교체). gyms 1개면 드롭다운 숨김.",
+      "effort": "2~3h",
+      "impact": "P3 핵심 Job 충족. 5초 전환 달성 가능."
+    },
+    {
+      "priority": 3,
+      "title": "모든 페이지 헤더에 현재 박스명 배지 표시",
+      "detail": "_layout.html에 gym-context-badge 컴포넌트 추가. members/payroll/lockers/contracts 각 페이지 h1 옆에 '[FACING SEONGSU]' 배지.",
+      "effort": "30분",
+      "impact": "컨텍스트 혼란 제거. H1 위반 4건 해소."
+    },
+    {
+      "priority": 4,
+      "title": "교차 회원 검출 (회원이 두 박스 동시 활성)",
+      "detail": "백엔드 /api/v1/admin/cross-members API 설계 후 members 페이지에 필터 탭 추가. MVP는 전화번호 중복 기준.",
+      "effort": "1~2일",
+      "impact": "P3 편의성 Job. 우선순위 2~3 해결 후."
+    }
+  ],
+  "screenshots": [
+    "screenshots/p3/01-login-backend-fail.png",
+    "screenshots/p3/02-stats-no-box-switcher.png",
+    "screenshots/p3/03-members-no-gym-label.png",
+    "screenshots/p3/04-payroll-no-gym-label.png",
+    "screenshots/p3/05-lockers-no-gym-label.png",
+    "screenshots/p3/06-contracts-no-gym-label.png",
+    "screenshots/p3/07-multi-gym-no-switcher.png",
+    "screenshots/p3/08-coaches-gym-label.png"
+  ]
+}

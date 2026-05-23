@@ -29,7 +29,8 @@
       "mcp__playwright__browser_handle_dialog",
       "mcp__playwright__browser_press_key",
       "PowerShell(Get-NetTCPConnection *)",
-      "PowerShell(wmic process where \"ProcessId=34040\" get ProcessId,Name,CommandLine /format:list 2>$null)"
+      "PowerShell(wmic process where \"ProcessId=34040\" get ProcessId,Name,CommandLine /format:list 2>$null)",
+      "Skill(browse)"
     ]
   }
 }

@@ -1,0 +1,122 @@
+{
+  "persona": "p7",
+  "label": "32대 매니저 (코치 출신) · 친숙도 4/5",
+  "tested_at": "2026-05-23",
+  "url": "https://web-facing-admin-production.up.railway.app",
+  "screenshots": [
+    "screenshots/p7/07-coaches-loaded.png",
+    "screenshots/p7/08-coaches-wage-saved.png",
+    "screenshots/p7/05-payroll-loaded.png",
+    "screenshots/p7/09-sidebar-no-wod.png",
+    "screenshots/p7/11-payroll-after-wage.png"
+  ],
+  "feedbacks": [
+    {
+      "id": "p7-F1",
+      "scenario": 1,
+      "category": "task_complete",
+      "severity": "pass",
+      "title": "시급 인라인 편집 — API 저장 동작 확인",
+      "detail": "/coaches 페이지의 시급 셀에 spinbutton 입력 존재. 30000 입력 후 Tab(blur) → PATCH /api/proxy/gyms/2/coaches/coach_park 200 응답 확인. 저장 자체는 정상 작동.",
+      "evidence": "Network: PATCH => 200, wageValue after blur = '30000'"
+    },
+    {
+      "id": "p7-F2",
+      "scenario": 1,
+      "category": "nielsen_feedback",
+      "heuristic": "H1 가시성 (Visibility of system status)",
+      "severity": "medium",
+      "title": "시급 저장 토스트가 너무 짧아 확인 불가",
+      "detail": "저장 성공 후 toast()가 2400ms 뒤 DOM에서 제거됨. 코치 출신 매니저가 여러 코치 시급을 연속 수정할 때 저장 여부를 눈으로 확인하기 어렵다. 'saved' CSS class도 1500ms 후 제거. 현업에서 실수 저장/미저장 구분 불가 우려.",
+      "recommendation": "토스트 지속시간 3000ms 이상으로 연장 또는 입력 셀 자체에 저장된 값 표시 (예: 녹색 하이라이트 2초 유지)"
+    },
+    {
+      "id": "p7-F3",
+      "scenario": 1,
+      "category": "nielsen_feedback",
+      "heuristic": "H3 사용자 제어 (User control and freedom)",
+      "severity": "low",
+      "title": "시급 입력 초기값이 빈칸 — 플레이스홀더만 있어 기본값 파악 불가",
+      "detail": "coach_park의 시급이 미입력 상태(빈칸). 코치 출신 매니저는 현장 시급 30,000원이 맞는지 한눈에 확인하고 싶다. placeholder='시급'만 있고 step=1000이므로 1000원 단위 조정은 편리하나, 0원 또는 미입력 상태임을 명시하는 레이블 없음.",
+      "recommendation": "미입력 시 '미설정' 텍스트 또는 0원 표시 명시"
+    },
+    {
+      "id": "p7-F4",
+      "scenario": 1,
+      "category": "bug",
+      "severity": "high",
+      "title": "폰 페어링 코드가 'None' 문자열로 노출",
+      "detail": "coaches 테이블 '폰 페어링' 컬럼에 <code>None</code>이 빨간 accent 색으로 표시됨. pairing_code가 DB에서 null인 경우 Python None이 그대로 Jinja 렌더링됨. 코치 출신 매니저가 코치 폰 앱 연결 시도 시 어떤 코드를 입력할지 알 수 없음.",
+      "evidence": "coaches.html line 77: {{ c.pairing_code }} — null guard 없음",
+      "recommendation": "{% if c.pairing_code and c.pairing_code != 'None' %} 조건 추가 또는 백엔드에서 페어링 코드 자동 생성 보장"
+    },
+    {
+      "id": "p7-F5",
+      "scenario": 2,
+      "category": "task_complete",
+      "severity": "pass",
+      "title": "자동 산정 confirm 다이얼로그 — 계산식 설명 포함 확인",
+      "detail": "payroll 페이지 '자동 산정' 버튼 클릭 시 confirm 다이얼로그 정상 발생. 메시지: '출석 회원 수 ÷ 5 = 코치 근무 시간 (코치 1명이 평균 5명을 케어한다는 가정). 결과는 표에서 직접 수정 가능해요.' — 계산식 근거 명시 양호.",
+      "evidence": "Dialog message captured: '2026-05 자동 산정 진행할까요?\\n\\n계산식: 출석 회원 수 ÷ 5 = 코치 근무 시간...'"
+    },
+    {
+      "id": "p7-F6",
+      "scenario": 2,
+      "category": "nielsen_feedback",
+      "heuristic": "H6 인식 vs 회상 (Recognition rather than recall)",
+      "severity": "medium",
+      "title": "자동 산정 근거(출석/5)가 confirm 다이얼로그에만 있어 평소에 보이지 않음",
+      "detail": "코치 출신 매니저는 '왜 이 시간이 산정됐는지' 정산표에서도 확인하고 싶다. 현재 계산식은 자동 산정 클릭 시 confirm에만 노출됨. 시급 정산 테이블에 '계산 기준: 출석÷5' 같은 안내 문구가 없어, 한 달 뒤 재방문 시 근거를 기억해야 함.",
+      "recommendation": "정산 테이블 상단 또는 '근무 시간(H)' 컬럼 헤더에 툴팁/설명 상시 노출"
+    },
+    {
+      "id": "p7-F7",
+      "scenario": 2,
+      "category": "nielsen_feedback",
+      "heuristic": "H4 일관성 (Consistency and standards)",
+      "severity": "low",
+      "title": "payroll 페이지에서 시급이 '0원/h'로 표시 — coaches에서 30000 저장 후에도 미반영",
+      "detail": "coaches에서 시급 30000 저장 완료 후 payroll 페이지에서 '0원/h'로 표시됨. API GET 타이밍 문제이거나 payroll API가 캐시된 0원을 반환하는 것으로 추정. 코치 출신 매니저가 시급 수정 후 바로 정산 확인 시 혼란.",
+      "evidence": "Coaches PATCH 200 성공 → payroll page: '0원/h' 여전히 표시",
+      "recommendation": "payroll 페이지 로드 시 coaches API에서 최신 시급 참조 또는 캐시 무효화"
+    },
+    {
+      "id": "p7-F8",
+      "scenario": 3,
+      "category": "missing_feature",
+      "severity": "critical",
+      "title": "WOD / PR / Benchmark 메뉴 전무 — CrossFit 도메인 핵심 기능 부재",
+      "detail": "사이드바 메뉴: 대시보드, 통계, 회원 관리(3), 코치 관리(2), 출석, 시설, 서류 — 총 10개. WOD 게시, PR 관리, Benchmark 측정, Open/Competition 관련 메뉴 없음. 코치 출신 매니저(p7)는 '이게 CrossFit 박스 관리 앱이 맞나?' 라는 정체성 혼란을 경험할 것. HWPO/CompTrain 대비 CrossFit 차별화 가치가 현재 admin에서는 0.",
+      "evidence": "Sidebar snapshot: no WOD, PR, Benchmark, Competition, Open links",
+      "recommendation": "Phase 3 우선순위로 'WOD 게시판', 'PR 기록', '멤버 벤치마크' 3개 메뉴 추가. 코치 출신 매니저가 WOD를 등록하고 회원 PR을 조회하는 핵심 플로우 필요"
+    },
+    {
+      "id": "p7-F9",
+      "scenario": 3,
+      "category": "nielsen_feedback",
+      "heuristic": "H2 현실과의 매치 (Match between system and real world)",
+      "severity": "medium",
+      "title": "CrossFit 레벨 표기(Scaled/RX/RX+/Elite) 사용 — 도메인 일치 양호, Games 없음",
+      "detail": "회원 테이블에 RX 레벨 배지 사용은 CrossFit 커뮤니티 언어와 일치. 양호한 부분. 단, 코치 출신 매니저 관점에서 'Games' 등급 옵션이 회원 등록 폼에 없음 (Scaled/RX/RX+/Elite만). 앱 포지셔닝(Games 출전자급 전용)과 불일치.",
+      "recommendation": "회원 레벨 선택에 'Games' 추가"
+    },
+    {
+      "id": "p7-F10",
+      "scenario": 1,
+      "category": "ux_friction",
+      "severity": "medium",
+      "title": "시급 입력 step=1000 — 소수점 시급 입력 불가",
+      "detail": "spinbutton step=1000 설정으로 1000원 단위만 입력 가능. 일용직 코치의 경우 15,500원/h 같은 비정형 시급이 실무에 존재. 코치 출신 매니저는 현장 경험상 이런 케이스를 알고 있을 것.",
+      "recommendation": "step=500 또는 step=100으로 완화, 또는 자유 입력(min=0만 유지)"
+    }
+  ],
+  "summary": {
+    "pass_count": 2,
+    "medium_count": 4,
+    "high_count": 1,
+    "critical_count": 1,
+    "low_count": 2,
+    "top_issue": "p7-F8: WOD/PR/Benchmark 메뉴 전무 — CrossFit 차별화 부재",
+    "crossfit_differentiation_score": "2/10 (현재 admin은 일반 헬스장 관리툴과 차이 없음)"
+  }
+}

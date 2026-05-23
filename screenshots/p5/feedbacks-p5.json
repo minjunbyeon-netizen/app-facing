@@ -1,0 +1,128 @@
+{
+  "persona": {
+    "id": "p5",
+    "label": "50대 박스 5년차 사장",
+    "members_assumed": 200,
+    "digital_familiarity": "3/5",
+    "primary_job": "CSV 200명 일괄 import + 자동결제 빌링키 등록",
+    "test_date": "2026-05-23",
+    "backend_status": "BACKEND_DOWN (service-facing Railway 503)"
+  },
+  "feedbacks": [
+    {
+      "id": "FB-P5-01",
+      "category": "기능 깊이",
+      "severity": "critical",
+      "title": "CSV bulk import 버튼이 /members 페이지에 없음",
+      "detail": "회원 리스트 페이지에 '+ 회원 추가' 단건 버튼만 존재. bulk import UI 진입점 전혀 없음. 5년치 데이터 마이그레이션을 고려한 사장 페르소나가 첫 방문 시 기능 자체를 발견할 수 없음.",
+      "evidence": "스냅샷 e34: button '+ 회원 추가' 1개만. CSV import 관련 버튼·링크·메뉴 없음.",
+      "recommendation": "회원 리스트 헤더 영역에 'CSV 가져오기' 버튼 추가 (+ 회원 추가 옆 secondary 버튼)",
+      "task_complete": false
+    },
+    {
+      "id": "FB-P5-02",
+      "category": "기능 깊이",
+      "severity": "critical",
+      "title": "프록시가 multipart/form-data 파일 전달 불가 — bulk import 실제 호출 불능",
+      "detail": "web/facing-admin app.py의 _backend() 함수가 json_payload만 처리하고 files= 파라미터를 백엔드로 전달하지 않음. proxy_passthrough에서 request.get_json()만 사용해 CSV 파일 자체가 백엔드에 도달하지 못함. 백엔드 API(members_search.py:bulk_import)는 구현되어 있으나 프론트 프록시가 병목.",
+      "evidence": "app.py L47: requests.request(... json=json_payload ...) — files= 없음. 직접 fetch 테스트 결과 503 BACKEND_DOWN.",
+      "recommendation": "_backend()에 files 파라미터 추가 + proxy_passthrough에서 request.files 전달 분기 구현",
+      "task_complete": false
+    },
+    {
+      "id": "FB-P5-03",
+      "category": "편의성",
+      "severity": "high",
+      "title": "결제 추가가 window.prompt() 기반 — 200명 데이터 입력에 치명적",
+      "detail": "회원 상세 결제이력 탭의 '+ 결제 추가' 클릭 시 브라우저 네이티브 prompt 다이얼로그 등장. 금액만 입력 가능하며 결제 수단·날짜·메모·회원권 연동 등 컨텍스트 없음. 5년차 사장이 200명 결제 이력 마이그레이션 시 매 회원마다 단일 prompt를 반복해야 함.",
+      "evidence": "playwright modal state: prompt dialog '결제 금액 (원)?'",
+      "recommendation": "인라인 폼 또는 슬라이드오버 패널로 교체. 결제수단(카드/현금/계좌이체)/날짜/메모 필드 포함.",
+      "task_complete": false
+    },
+    {
+      "id": "FB-P5-04",
+      "category": "자동결제·빌링",
+      "severity": "critical",
+      "title": "자동결제(빌링키) 등록 UI 없음",
+      "detail": "회원 상세 탭 구성: 회원권·결제이력·출석·계약서·메모 — 자동결제/빌링키 탭 없음. 백엔드 api/billing.py는 존재하지만 관리자 웹에서 접근 경로 없음. 정기결제 빌링키 발급 흐름 자체가 미구현.",
+      "evidence": "member_detail.html Grep 결과: billing 키워드 0건. 스냅샷 e35~e40: 5개 탭 중 결제 관련 탭 1개(결제이력)뿐.",
+      "recommendation": "회원 상세에 '자동결제' 탭 추가 + Toss Payments 빌링키 발급 플로우 연결",
+      "task_complete": false
+    },
+    {
+      "id": "FB-P5-05",
+      "category": "회원관리 효율성",
+      "severity": "high",
+      "title": "회원 목록에서 행 클릭 시 엉뚱한 페이지로 이동",
+      "detail": "tbody 클릭 시 /members/18 (미입력 대기 회원)으로 이동했다가 즉시 /payroll로 리다이렉트됨. 의도한 회원 상세가 아닌 시급정산 페이지가 나타남. 클릭 이벤트 버블링 또는 라우팅 충돌 의심.",
+      "evidence": "browser_click e53(tbody) → URL /members/18 → 즉시 /payroll",
+      "recommendation": "회원 행 클릭 이벤트 stopPropagation 적용 및 라우팅 로직 점검. 수정/탈퇴 링크와 행 클릭 충돌 여부 확인.",
+      "task_complete": false
+    },
+    {
+      "id": "FB-P5-06",
+      "category": "편의성",
+      "severity": "medium",
+      "title": "회원권 history 탭 '다음 라운드' 미완성 상태 노출",
+      "detail": "회원 상세 '회원권' 탭 본문에 '회원권 history endpoint 통합 중 — 다음 라운드' 문구가 그대로 표시됨. 사장 입장에서 현재 회원의 회원권 이력을 볼 수 없으며 개발 내부 메모가 노출됨.",
+      "evidence": "스냅샷 e47: generic '회원권 history endpoint 통합 중 — 다음 라운드'",
+      "recommendation": "빈 상태(empty state) 처리: '회원권 이력 없음. + 회원권 연장으로 등록하세요' 표시. 내부 메모 삭제.",
+      "task_complete": false
+    },
+    {
+      "id": "FB-P5-07",
+      "category": "기능 깊이",
+      "severity": "medium",
+      "title": "CSV import 실패 행 사유 응답 구조는 준비됐으나 UI 없음",
+      "detail": "백엔드 bulk_import API는 errors 배열(최대 20개)을 응답하도록 구현됨. 그러나 프론트 UI 자체가 없어 성공 시 피드백도, 실패 행 목록도 표시할 화면이 없음. 200명 중 일부 실패 시 사장이 어떤 행이 왜 실패했는지 알 수 없음.",
+      "evidence": "members_search.py L182-186: errors[:20] 응답. members.html CSV 관련 UI 없음.",
+      "recommendation": "bulk import 완료 후 결과 모달: '등록 N명 / 스킵 N명' + 실패 행 테이블(행번호·이름·사유)",
+      "task_complete": false
+    },
+    {
+      "id": "FB-P5-08",
+      "category": "회원관리 효율성",
+      "severity": "medium",
+      "title": "단건 회원 추가 모달에 CSV import 진입 안내 없음",
+      "detail": "200명 마이그레이션 시나리오에서 단건 추가 모달이 열리면 일괄 등록 방법에 대한 안내나 링크가 없음. 5년차 사장이 단건 모달을 열었다가 '이걸로 200명 하나씩 입력해야 하나' 라고 오해할 가능성 있음.",
+      "evidence": "스냅샷 e93-e131: 회원 추가 모달 내 bulk import 안내 요소 없음.",
+      "recommendation": "모달 하단 또는 헤더에 'CSV로 여러 명 한번에 등록 →' 텍스트 링크 추가",
+      "task_complete": false
+    },
+    {
+      "id": "FB-P5-09",
+      "category": "편의성",
+      "severity": "low",
+      "title": "회원 상태 표시가 approved/대기 혼용 — 용어 일관성 없음",
+      "detail": "회원 상세 페이지 헤더에 'approved' 영문 코드가 그대로 노출됨(e33: '010-9821-4456 · RX · approved'). 목록에서는 '활성'으로 표시되는데 상세에서는 내부 코드 그대로 노출되는 일관성 문제.",
+      "evidence": "스냅샷 e33: generic '010-9821-4456 · RX · approved'. 목록에서는 '활성' 배지.",
+      "recommendation": "상세 헤더에도 목록과 동일한 한글 상태 레이블(활성/대기/탈퇴) 적용",
+      "task_complete": false
+    },
+    {
+      "id": "FB-P5-10",
+      "category": "기능 깊이",
+      "severity": "info",
+      "title": "CSV 템플릿 다운로드 기능 없음",
+      "detail": "50대 사장이 CSV 포맷을 직접 파악해야 함. 백엔드 기대 컬럼(name,gender,birth_date,phone,email,level,plan_name,plan_end,price)이 어디에도 문서화되지 않음. 잘못된 헤더로 업로드 시 전체 실패 가능.",
+      "evidence": "members_search.py L110: 컬럼 명세가 docstring에만 있음. UI에 미노출.",
+      "recommendation": "CSV import 버튼 옆 '템플릿 다운로드' 링크 추가 (샘플 3행 포함 CSV)",
+      "task_complete": false
+    }
+  ],
+  "summary": {
+    "total_feedbacks": 10,
+    "critical": 3,
+    "high": 2,
+    "medium": 3,
+    "low": 1,
+    "info": 1,
+    "task_complete_rate": "0/3 핵심 시나리오 완수",
+    "top3_issues": [
+      "CSV bulk import UI 진입점 없음 + 프록시 파일 전달 버그로 실제 동작 불가",
+      "자동결제 빌링키 등록 UI 전무",
+      "결제 추가가 window.prompt() 단일 필드 — 200명 마이그레이션 시 치명적 비효율"
+    ],
+    "text_200": "p5(50대 사장, 5년치 데이터 마이그레이션 목표) 시나리오 3개 중 0개 완수. 가장 심각한 문제는 CSV bulk import UI가 아예 없고 프록시 레이어도 파일 전달 버그로 기능 도달 불가. 자동결제 빌링키 탭도 미구현. 결제 추가는 window.prompt() 단일 필드로 200명 규모 운영에 부적합. 회원 행 클릭 시 엉뚱한 페이지로 이동하는 라우팅 버그도 확인됨."
+  }
+}

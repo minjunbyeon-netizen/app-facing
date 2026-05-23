@@ -50,3 +50,4 @@ app.*.map.json
 
 # tmp 검색 artifact
 tmp/
+.gstack/
