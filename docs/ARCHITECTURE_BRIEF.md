@@ -16,6 +16,52 @@
 
 ---
 
+## 0.1. PHASE4 시작 (2026-05-23)
+
+> **상태**: PHASE3 P0 18 + P1 24 + P2 14 = 56 task 완료 후 진입 예정. 본 섹션은 PHASE4 계획 선등록.
+> **상세 로드맵**: `docs/PHASE4_ROADMAP.md`
+
+### 0.1.1. PHASE4 목표 — 듀얼 포지셔닝 확립
+
+**"linko 는 운영, facing 은 운영 + 선수."**
+
+linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수하면서, facing 만의 선수 도구 4 모듈을 동시에 강화해 패스트팔로워 함정을 회피한다.
+
+### 0.1.2. 11 모듈 요약
+
+**흡수 7 모듈 (linko.my 추격)**:
+1. §1.1 예약 시스템 (Class Reservation) — **P0** 1주
+2. §1.2 카카오 알림톡 알림 자동화 — **P0** 3일 + NHN 사전심사 1주
+3. §1.3 전자계약 (e-Sign, PDF, audit hash) — **P0** 1주
+4. §1.4 다지점 그룹 (gym_group + RLS) — P1 2주
+5. §1.5 Toss 빌링키 자동결제 + 재시도 + grace period — **P0** 1주
+6. §1.6 WOD 디자인 도구 + 월간 캘린더 + 복붙 — P1 1주
+7. §1.7 AI 코칭 보조 (Claude API, HITL 의무) — P2 3일
+
+**차별 강화 4 모듈 (facing 만)**:
+8. §2.1 W-prime·CGM 페이싱 알고리즘 정밀화 — **P0** 2주
+9. §2.2 5-Tier Engine 백분위 + 박스 leaderboard — P1 3일
+10. §2.3 Games 선수 어휘·톤 PC 확장 — P2 2일
+11. §2.4 듀얼 포지셔닝 B2B2C 데이터 브릿지 — **P0** 1주
+
+**P0 총 공수**: ~6.4주 (parallel 시 ~5주) / **전체**: ~9~10주
+
+### 0.1.3. B2B2C 데이터 브릿지 흐름
+
+```
+[폰 facing-app]               [PC facing-admin]
+  회원 1RM·Engine·Tier   →    회원 등록 시 hydrate
+        ↓                            ↓
+    [services/facing 백엔드]
+        ↓
+   [linko 운영 자동화 흡수]
+   예약·알림톡·전자계약·다지점
+```
+
+회원이 facing-app 으로 입력한 1RM·Engine·Tier → 박스 가입 시 코치에게 자동 공유 (PIPA §22 별도 동의). linko 가 따라올 수 없는 B2B2C 융합 영역.
+
+---
+
 ## 0.5. 인프라 카탈로그 (헷갈림 차단 — INDEX)
 
 ### 0.5.1. 포트 · URL · 환경
@@ -91,6 +137,19 @@
 - **통신**: REST + SSE (Server-Sent Events)
 
 폰과 PC 가 같은 DB·같은 API 를 다른 화면으로 본다는 게 핵심이에요. 클라이언트는 따로지만 데이터는 한 곳.
+
+**PHASE4 B2B2C 확장 (§0.1.3 참조)**:
+
+```
+[폰 facing-app]                    [PC facing-admin]
+  회원 1RM·Engine·Tier     →       회원 등록 시 hydrate
+  (device_hash 익명 → 동의 연결)         ↓
+        ↓                     코치 클래스 12명 페이싱 카드
+    [services/facing 백엔드 — 단일 진실]
+        ↓
+   [PHASE4 운영 자동화 흡수]
+   예약·카카오 알림톡·전자계약·다지점·Toss 빌링키
+```
 
 ---
 
@@ -404,6 +463,58 @@ retention 정의 = "코호트(가입 월) 의 N개월 후 시점에 attendance �
 3. 변경 이력은 §10 결정 사항 표에 D8, D9... 로 추가
 
 브리프 우선 원칙. 코드만 갱신하고 브리프 방치 금지 (글로벌 §0-B SSOT 룰).
+
+### 11.1. PHASE4 신규 테이블 (12개) — 사전 합의 등록
+
+> 등록일: 2026-05-23. 상세 DDL: `docs/PHASE4_ROADMAP.md` 각 §1.x·§2.x.
+> Migration 방법: `services/facing/models/base.py` `_migrate()` 함수에 `CREATE TABLE IF NOT EXISTS` 패턴 추가 (기존 Phase 1 방식 동일).
+
+| # | 테이블 명 | PHASE4 Week | 모듈 | 브리프 §5 다이어그램 갱신 필요 |
+|---|---|---|---|---|
+| 1 | `class_session` | Week 1 | §1.1 예약 | 예 |
+| 2 | `class_reservation` | Week 1 | §1.1 예약 | 예 |
+| 3 | `class_waitlist_promotion` | Week 1 | §1.1 예약 대기열 audit | 예 |
+| 4 | `notification_template` | Week 3 | §1.2 카카오 알림톡 | 예 |
+| 5 | `notification_dispatch` | Week 3 | §1.2 발송 이력 | 예 |
+| 6 | `contract_template` | Week 1 | §1.3 전자계약 템플릿 | 예 |
+| 7 | `contract_instance` | Week 1 | §1.3 서명 인스턴스 | 예 |
+| 8 | `gym_group` | Week 5 | §1.4 다지점 그룹 | 예 |
+| 9 | `billing_key` | Week 2 | §1.5 Toss 빌링키 | 예 |
+| 10 | `billing_schedule` | Week 2 | §1.5 자동결제 스케줄 | 예 |
+| 11 | `ai_coaching_session` | Week 7 | §1.7 AI 코칭 보조 | 아니오 (Phase 2 연기) |
+| 12 | `wod_calendar_plan` | Week 4 | §1.6 WOD 월간 캘린더 | 예 |
+
+> `billing_key` 는 PHASE3 C-1 에서 일부 구현됐을 수 있음. 코드 착수 시 `services/facing/models/` 확인 후 중복 방지.
+
+### 11.2. PHASE4 ALTER 컬럼 (3건) — 사전 합의 등록
+
+> Migration 방법: `_migrate()` 내 `ALTER TABLE ... ADD COLUMN IF NOT EXISTS` (SQLite 호환 — `IF NOT EXISTS` 는 SQLite 3.37+ 지원, 미만이면 try/except OperationalError 패턴).
+
+| # | 테이블.컬럼 | 타입 | PHASE4 Week | 모듈 | 용도 |
+|---|---|---|---|---|---|
+| A1 | `gym_member_profiles.preferred_class_time_slot` | VARCHAR(50) | Week 1 | §1.1 예약 | 예약 선호 시간대 (기존 D10 `preferred_time_slot` 과 별도 — 클래스 예약용) |
+| A2 | `gyms.group_id` | INT FK → `gym_group.id` | Week 5 | §1.4 다지점 | 다지점 그룹 FK |
+| A3 | `gym_memberships.auto_renew_enabled` | BOOLEAN DEFAULT FALSE | Week 2 | §1.5 자동결제 | 자동갱신 토글 |
+
+> A1 주의: 기존 `gym_member_profiles.preferred_time_slot` (D10 여성 전용/심야) 과 **다른 컬럼**. 클래스 예약 전용으로 분리. 이름 충돌 방지를 위해 `preferred_class_time_slot` 사용.
+
+### 11.3. PHASE4 신규 API 엔드포인트 (§13 카탈로그 갱신 예고)
+
+> PHASE4 구현 착수 시 §13.2 에 신규 endpoint 추가 의무. 아래는 예고 목록 (상세: `docs/PHASE4_ROADMAP.md` 각 §).
+
+| 모듈 | 신규 엔드포인트 수 | 비고 |
+|---|---|---|
+| §1.1 예약 | 6 | POST·GET·DELETE·noshow·SSE 이벤트 |
+| §1.2 알림톡 | 2 | dispatch·이력 |
+| §1.3 전자계약 | 4 | draft·sign-link·sign·pdf |
+| §1.4 다지점 | 4 | group dashboard·gym-switcher·share·cross-gym 출석 |
+| §1.5 빌링키 | 5 | key 발급·삭제·schedule·retry·APScheduler |
+| §1.6 WOD 캘린더 | 4 | 작성·복사·공유·조회 |
+| §1.7 AI 코칭 | 1 | wod-pacing-explain |
+| §2.1 페이싱 보강 | 3 | calculate 보강·cp-estimate·pacing-batch |
+| §2.2 leaderboard | 3 | leaderboard·tier-distribution·engine-comparison |
+| §2.4 듀얼 포지셔닝 | 3 | link-facing-app·class-pacing·push-pacing-card |
+| **합계** | **35** | |
 
 ---
 
