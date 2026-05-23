@@ -71,7 +71,7 @@ class GymAnnouncement {
   String? get dateRangeLabel {
     if (!hasDateRange) return null;
     final now = DateTime.now();
-    String _fmt(DateTime d) {
+    String fmt(DateTime d) {
       return '${d.month}월 ${d.day}일';
     }
 
@@ -79,12 +79,12 @@ class GymAnnouncement {
       final diff = endAt!.difference(now).inHours;
       if (diff <= 24 && diff >= 0) return '오늘 마감';
       if (startAt != null) {
-        return '${_fmt(startAt!)} ~ ${_fmt(endAt!)}';
+        return '${fmt(startAt!)} ~ ${fmt(endAt!)}';
       }
-      return '~ ${_fmt(endAt!)}';
+      return '~ ${fmt(endAt!)}';
     }
     if (startAt != null) {
-      return '${_fmt(startAt!)} ~';
+      return '${fmt(startAt!)} ~';
     }
     return null;
   }

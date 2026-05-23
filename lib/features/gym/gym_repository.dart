@@ -214,13 +214,13 @@ class GymRepository {
       'priority': priority,
       'category': category,
       'visible_to': visibleTo,
-      if (ctaLabel != null) 'cta_label': ctaLabel,
-      if (ctaUrl != null) 'cta_url': ctaUrl,
+      'cta_label': ?ctaLabel,
+      'cta_url': ?ctaUrl,
       'pinned': pinned.toString(),
-      if (startAt != null) 'start_at': startAt,
-      if (endAt != null) 'end_at': endAt,
+      'start_at': ?startAt,
+      'end_at': ?endAt,
     });
-    return GymAnnouncement.fromJson(data as Map<String, dynamic>);
+    return GymAnnouncement.fromJson(data);
   }
 
   /// 레거시 호환 — 기존 코드에서 사용. 내부적으로 postAnnouncementRich 호출.
@@ -252,18 +252,18 @@ class GymRepository {
     String? endAt,
   }) async {
     final payload = <String, dynamic>{
-      if (title != null) 'title': title,
-      if (body != null) 'body': body,
-      if (priority != null) 'priority': priority,
-      if (category != null) 'category': category,
-      if (visibleTo != null) 'visible_to': visibleTo,
-      if (ctaLabel != null) 'cta_label': ctaLabel,
-      if (ctaUrl != null) 'cta_url': ctaUrl,
+      'title': ?title,
+      'body': ?body,
+      'priority': ?priority,
+      'category': ?category,
+      'visible_to': ?visibleTo,
+      'cta_label': ?ctaLabel,
+      'cta_url': ?ctaUrl,
       if (pinned != null) 'pinned': pinned.toString(),
-      if (endAt != null) 'end_at': endAt,
+      'end_at': ?endAt,
     };
     final data = await api.patch('/api/v1/admin/announcements/$id', payload);
-    return GymAnnouncement.fromJson(data as Map<String, dynamic>);
+    return GymAnnouncement.fromJson(data);
   }
 
   Future<void> deleteAnnouncement(int gymId, int id) async {
