@@ -1,0 +1,655 @@
+{
+  "generated": "2026-05-23T16:55:04.986890",
+  "results": [
+    {
+      "label": "admin.login",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "admin",
+      "ng": ""
+    },
+    {
+      "label": "admin.me",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "admin",
+      "ng": ""
+    },
+    {
+      "label": "admin.csrf_token",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "admin",
+      "ng": ""
+    },
+    {
+      "label": "admin.members_list",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "admin",
+      "ng": ""
+    },
+    {
+      "label": "admin.switch_gym",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "admin",
+      "ng": ""
+    },
+    {
+      "label": "admin.members_create",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "admin",
+      "ng": ""
+    },
+    {
+      "label": "health.basic",
+      "status": 200,
+      "flag": "NG(envelope_broken(no data field))",
+      "ok": true,
+      "category": "health",
+      "ng": "envelope_broken(no data field)"
+    },
+    {
+      "label": "health.db",
+      "status": 404,
+      "flag": "OK",
+      "ok": false,
+      "category": "health",
+      "ng": ""
+    },
+    {
+      "label": "meta",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "health",
+      "ng": ""
+    },
+    {
+      "label": "billing.billing-key",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "billing",
+      "ng": ""
+    },
+    {
+      "label": "billing.toss-callback",
+      "status": 400,
+      "flag": "OK",
+      "ok": false,
+      "category": "billing",
+      "ng": ""
+    },
+    {
+      "label": "classes.list",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "classes",
+      "ng": ""
+    },
+    {
+      "label": "classes.create",
+      "status": 201,
+      "flag": "OK",
+      "ok": true,
+      "category": "classes",
+      "ng": ""
+    },
+    {
+      "label": "classes.reservation.create",
+      "status": 403,
+      "flag": "OK",
+      "ok": false,
+      "category": "classes",
+      "ng": ""
+    },
+    {
+      "label": "classes.cancel",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "classes",
+      "ng": ""
+    },
+    {
+      "label": "contracts.templates.list",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "contracts",
+      "ng": ""
+    },
+    {
+      "label": "contracts.template.create",
+      "status": 201,
+      "flag": "OK",
+      "ok": true,
+      "category": "contracts",
+      "ng": ""
+    },
+    {
+      "label": "contracts.member.create",
+      "status": 201,
+      "flag": "OK",
+      "ok": true,
+      "category": "contracts",
+      "ng": ""
+    },
+    {
+      "label": "contracts.proxy-sign",
+      "status": 404,
+      "flag": "NG(expected_ok_missing: 계약서 없음.)",
+      "ok": false,
+      "category": "contracts",
+      "ng": "expected_ok_missing: 계약서 없음."
+    },
+    {
+      "label": "contracts.verify",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "contracts",
+      "ng": ""
+    },
+    {
+      "label": "notif_settings.get",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "notification_settings",
+      "ng": ""
+    },
+    {
+      "label": "notif_settings.patch",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "notification_settings",
+      "ng": ""
+    },
+    {
+      "label": "webhooks.toss",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "webhooks",
+      "ng": ""
+    },
+    {
+      "label": "webhooks.kakao",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "webhooks",
+      "ng": ""
+    },
+    {
+      "label": "privacy.me_data",
+      "status": 404,
+      "flag": "OK",
+      "ok": false,
+      "category": "privacy",
+      "ng": ""
+    },
+    {
+      "label": "privacy.access_log",
+      "status": 404,
+      "flag": "OK",
+      "ok": false,
+      "category": "privacy",
+      "ng": ""
+    },
+    {
+      "label": "privacy.consent",
+      "status": 404,
+      "flag": "OK",
+      "ok": false,
+      "category": "privacy",
+      "ng": ""
+    },
+    {
+      "label": "payments_admin.create",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "payments_admin",
+      "ng": ""
+    },
+    {
+      "label": "payments_admin.list",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "payments_admin",
+      "ng": ""
+    },
+    {
+      "label": "payments_admin.revenue",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "payments_admin",
+      "ng": ""
+    },
+    {
+      "label": "payments_admin.refund",
+      "status": 400,
+      "flag": "OK",
+      "ok": false,
+      "category": "payments_admin",
+      "ng": ""
+    },
+    {
+      "label": "members_search.search",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "members_search",
+      "ng": ""
+    },
+    {
+      "label": "members_search.bulk_import",
+      "status": 400,
+      "flag": "OK",
+      "ok": false,
+      "category": "members_search",
+      "ng": ""
+    },
+    {
+      "label": "i18n.strings",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "i18n",
+      "ng": ""
+    },
+    {
+      "label": "i18n.set_lang",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "i18n",
+      "ng": ""
+    },
+    {
+      "label": "churn_risk.single",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "churn_risk",
+      "ng": ""
+    },
+    {
+      "label": "events.sse_stream",
+      "status": 0,
+      "flag": "OK",
+      "ok": false,
+      "category": "events",
+      "ng": ""
+    },
+    {
+      "label": "movements.categories",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "movements",
+      "ng": ""
+    },
+    {
+      "label": "movements.list",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "movements",
+      "ng": ""
+    },
+    {
+      "label": "presets.list",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "presets",
+      "ng": ""
+    },
+    {
+      "label": "profile.get",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "profile",
+      "ng": ""
+    },
+    {
+      "label": "profile.set",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "profile",
+      "ng": ""
+    },
+    {
+      "label": "history.engine.list",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "history",
+      "ng": ""
+    },
+    {
+      "label": "history.wod.list",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "history",
+      "ng": ""
+    },
+    {
+      "label": "achievements.list",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "achievements",
+      "ng": ""
+    },
+    {
+      "label": "gym.search",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "gym",
+      "ng": ""
+    },
+    {
+      "label": "gym.mine",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "gym",
+      "ng": ""
+    },
+    {
+      "label": "checkin.qr_issue",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "checkin",
+      "ng": ""
+    },
+    {
+      "label": "fcm.register",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "fcm",
+      "ng": ""
+    },
+    {
+      "label": "inventory.list",
+      "status": 200,
+      "flag": "OK",
+      "ok": true,
+      "category": "inventory",
+      "ng": ""
+    },
+    {
+      "label": "coach_note.groups.list",
+      "status": 403,
+      "flag": "OK",
+      "ok": false,
+      "category": "coach_note",
+      "ng": ""
+    },
+    {
+      "label": "coach_note.groups.create",
+      "status": 403,
+      "flag": "OK",
+      "ok": false,
+      "category": "coach_note",
+      "ng": ""
+    },
+    {
+      "label": "pacing.calculate",
+      "status": 400,
+      "flag": "OK",
+      "ok": false,
+      "category": "pacing",
+      "ng": ""
+    },
+    {
+      "label": "perm_leak.anon_admin",
+      "status": 401,
+      "flag": "OK",
+      "ok": true,
+      "category": "security",
+      "ng": ""
+    }
+  ],
+  "raw_samples": {
+    "admin.login": {
+      "status": 200,
+      "body_sample": "{'data': {'active_gym': {'gym_id': 2, 'gym_name': 'FACING SEONGSU'}, 'csrf_token': 'fv6MLMJKPcXbXk25xRrZwDghSSlbmK9kpmEZ_ecv5E0', 'gyms': [{'gym_id': 2, 'gym_name': 'FACING SEONGSU', 'role': 'boss'}, "
+    },
+    "admin.me": {
+      "status": 200,
+      "body_sample": "{'data': {'gym_id': 2, 'gyms': [{'gym_id': 2, 'gym_name': 'FACING SEONGSU', 'role': 'boss'}, {'gym_id': 3, 'gym_name': 'FACING GANGNAM', 'role': 'boss'}], 'login_id': 'boss_seongsu', 'name': '박지훈 사장',"
+    },
+    "admin.csrf_token": {
+      "status": 200,
+      "body_sample": "{'data': {'csrf_token': 'fv6MLMJKPcXbXk25xRrZwDghSSlbmK9kpmEZ_ecv5E0'}, 'ok': True}"
+    },
+    "admin.members_list": {
+      "status": 200,
+      "body_sample": "{'data': [{'birth_date': None, 'churn_risk': {'level': 'high', 'score': 70}, 'decided_at': '2026-05-23T16:47:46.771211', 'gender': None, 'id': 45, 'level': 'Scaled', 'name': '테스트회원', 'note': None, 'ph"
+    },
+    "admin.switch_gym": {
+      "status": 200,
+      "body_sample": "{'data': {'gym_id': 2, 'gym_name': 'FACING SEONGSU', 'role': 'boss'}, 'ok': True}"
+    },
+    "admin.members_create": {
+      "status": 200,
+      "body_sample": "{'data': {'member_id': 46, 'name': 'test'}, 'ok': True}"
+    },
+    "health.basic": {
+      "status": 200,
+      "body_sample": "{'ok': True, 'service': 'facing-api'}"
+    },
+    "health.db": {
+      "status": 404,
+      "body_sample": "{'code': 'NOT_FOUND', 'error': '경로를 찾을 수 없습니다', 'ok': False}"
+    },
+    "meta": {
+      "status": 200,
+      "body_sample": "{'data': {'formula_version': '1.10.0', 'service': 'facing-api', 'supported_wod_types': ['for_time', 'amrap', 'emom'], 'version': '0.1.0'}, 'ok': True}"
+    },
+    "billing.billing-key": {
+      "status": 200,
+      "body_sample": "{'data': {'billing_day': 1, 'customer_key': 'gym2_member45_JqCzhQX8t4Q', 'message': '회원 폰에 결제 위젯 링크 SMS 발송 (E-2 SMS 통합 후 자동).', 'monthly_amount': 100000, 'widget_url': 'https://payment.tosspayments.co"
+    },
+    "billing.toss-callback": {
+      "status": 400,
+      "body_sample": "{'code': 'INVALID_KEY', 'error': 'customerKey 형식 오류.', 'ok': False}"
+    },
+    "classes.list": {
+      "status": 200,
+      "body_sample": "{'data': [{'capacity': 12, 'coach_user_id': 'boss_seongsu', 'duration_minutes': 60, 'id': 11, 'reserved_count': 0, 'room': None, 'start_at': '2026-05-24T09:00:00', 'status': 'open', 'title': 'WOD Clas"
+    },
+    "classes.create": {
+      "status": 201,
+      "body_sample": "{'data': {'capacity': 12, 'duration_minutes': 60, 'gym_id': 2, 'id': 16, 'start_at': '2026-06-20T10:00:00', 'status': 'open', 'title': 'Test Final', 'waitlist_capacity': 4}, 'ok': True}"
+    },
+    "classes.reservation.create": {
+      "status": 403,
+      "body_sample": "{'code': 'MEMBER_NOT_FOUND', 'error': '박스 승인 회원만 예약 가능합니다.', 'ok': False}"
+    },
+    "classes.cancel": {
+      "status": 200,
+      "body_sample": "{'data': {'cancelled_reservation_count': 0, 'class_session_id': 16, 'notified_count': 0, 'status': 'cancelled'}, 'ok': True}"
+    },
+    "contracts.templates.list": {
+      "status": 200,
+      "body_sample": "{'data': [{'category': 'membership', 'code': 'MEMBERSHIP_3M', 'created_at': '2026-05-23T15:55:14.829991', 'id': 1, 'is_global': True, 'legal_clauses': ['전자서명법 제3조 — 본인확인(IP·기기·서명 이미지) + 위변조 방지(SHA-256"
+    },
+    "contracts.template.create": {
+      "status": 201,
+      "body_sample": "{'data': {'code': 'FINALT4', 'template_id': 6}, 'ok': True}"
+    },
+    "contracts.member.create": {
+      "status": 201,
+      "body_sample": "{'data': {'contract_id': 8, 'pdf_path': 'data\\\\contracts\\\\contract_8_draft_20260523_165349.html', 'status': 'sent'}, 'ok': True}"
+    },
+    "contracts.proxy-sign": {
+      "status": 404,
+      "body_sample": "{'code': 'NOT_FOUND', 'error': '계약서 없음.', 'ok': False}"
+    },
+    "contracts.verify": {
+      "status": 200,
+      "body_sample": "{'data': {'contract_id': 1, 'file_integrity': True, 'signature_hash': 'a5663e4b39b478582a36b46e7f89f0913a1c321c598c295cebcdd782a0e16405', 'signature_ip': '127.0.0.1', 'signed_at': '2026-05-23T15:56:10"
+    },
+    "notif_settings.get": {
+      "status": 200,
+      "body_sample": "{'data': {'cancel': True, 'enabled': True, 'expiry': True, 'payment': True, 'quiet_end': 8, 'quiet_start': 21, 'reservation': True}, 'ok': True}"
+    },
+    "notif_settings.patch": {
+      "status": 200,
+      "body_sample": "{'data': {'cancel': True, 'enabled': True, 'expiry': True, 'payment': True, 'quiet_end': 8, 'quiet_start': 21, 'reservation': True}, 'ok': True}"
+    },
+    "webhooks.toss": {
+      "status": 200,
+      "body_sample": "{'data': {'status': 'already_processed'}, 'ok': True}"
+    },
+    "webhooks.kakao": {
+      "status": 200,
+      "body_sample": "{'data': {'message_status': '', 'received': True, 'request_id': 'kk_001'}, 'ok': True}"
+    },
+    "privacy.me_data": {
+      "status": 404,
+      "body_sample": "{'code': 'NOT_FOUND', 'error': '회원 없음.', 'ok': False}"
+    },
+    "privacy.access_log": {
+      "status": 404,
+      "body_sample": "{'code': 'NOT_FOUND', 'error': '회원 없음.', 'ok': False}"
+    },
+    "privacy.consent": {
+      "status": 404,
+      "body_sample": "{'code': 'NOT_FOUND', 'error': '회원 없음.', 'ok': False}"
+    },
+    "payments_admin.create": {
+      "status": 200,
+      "body_sample": "{'data': {'amount': 100000, 'method': 'card', 'net': 90909, 'paid_at': '2026-05-23', 'payment_id': 4, 'vat': 9091}, 'ok': True}"
+    },
+    "payments_admin.list": {
+      "status": 200,
+      "body_sample": "{'data': [{'amount': 100000, 'card_last4': None, 'created_at': '2026-05-23T16:54:10.027124', 'id': 4, 'memo': None, 'method': 'card', 'paid_at': '2026-05-23', 'payment_key': None, 'processed_by': 'bos"
+    },
+    "payments_admin.revenue": {
+      "status": 200,
+      "body_sample": "{'data': {'by_method': {'card': 400000}, 'month': '2026-05', 'net_revenue': 400000, 'payment_count': 4, 'total_amount': 400000, 'total_refund': 0, 'total_vat': 36364}, 'ok': True}"
+    },
+    "payments_admin.refund": {
+      "status": 400,
+      "body_sample": "{'code': 'INVALID_AMOUNT', 'error': 'amount > 0 필요.', 'ok': False}"
+    },
+    "members_search.search": {
+      "status": 200,
+      "body_sample": "{'data': {'limit': 50, 'members': [{'created_at': '2026-05-23T16:53:25.215735', 'email': None, 'gender': None, 'id': 46, 'level': 'Scaled', 'name': 'test', 'phone': '010-9999-0099', 'photo_url': None,"
+    },
+    "members_search.bulk_import": {
+      "status": 400,
+      "body_sample": "{'code': 'NO_FILE', 'error': 'file (CSV) 필수.', 'ok': False}"
+    },
+    "i18n.strings": {
+      "status": 200,
+      "body_sample": "{'data': {'lang': 'ko', 'strings': {'action.add': '추가', 'action.cancel': '취소', 'action.delete': '삭제', 'action.edit': '수정', 'action.export_csv': 'CSV 내보내기', 'action.logout': '로그아웃', 'action.refund': '환"
+    },
+    "i18n.set_lang": {
+      "status": 200,
+      "body_sample": "{'data': {'lang': 'ko'}, 'ok': True}"
+    },
+    "churn_risk.single": {
+      "status": 200,
+      "body_sample": "{'data': {'factors': [{'detail': '최근 14일 출석 0회', 'name': '14일 출석', 'score': 25}, {'detail': '결제 실패 없음', 'name': '결제 실패', 'score': 0}, {'detail': '30일간 출석 없음', 'name': '출석 추세', 'score': 20}, {'detail':"
+    },
+    "events.sse_stream": {
+      "status": 0,
+      "body_sample": "{'ok': False, 'error': 'timed out'}"
+    },
+    "movements.categories": {
+      "status": 200,
+      "body_sample": "{'data': [{'movements': [{'load_type': 'bodyweight', 'name_ko': '토투바', 'required_metrics': ['max_unbroken'], 'slug': 'toes_to_bar', 'unit': 'reps'}, {'load_type': 'bodyweight', 'name_ko': '풀업', 'requi"
+    },
+    "movements.list": {
+      "status": 200,
+      "body_sample": "{'data': [{'category_slug': 'gymnastics', 'load_type': 'bodyweight', 'name_ko': '토투바', 'required_metrics': ['max_unbroken'], 'slug': 'toes_to_bar', 'unit': 'reps'}, {'category_slug': 'gymnastics', 'lo"
+    },
+    "presets.list": {
+      "status": 200,
+      "body_sample": "{'data': [{'category': 'girl', 'description_ko': '21-15-9 쓰러스터 & 풀업. 가장 유명한 Girl WOD.', 'items': [{'load_unit': 'lb', 'load_value': 95, 'movement_slug': 'thruster', 'position': 0, 'reps': 21}, {'movem"
+    },
+    "profile.get": {
+      "status": 200,
+      "body_sample": "{'data': {'avatar_color': None, 'display_name': None, 'injury_notes': None}, 'ok': True}"
+    },
+    "profile.set": {
+      "status": 200,
+      "body_sample": "{'data': {'avatar_color': None, 'display_name': None, 'injury_notes': None}, 'ok': True}"
+    },
+    "history.engine.list": {
+      "status": 200,
+      "body_sample": "{'data': [], 'meta': {'limit': 50, 'offset': 0, 'total': 0}, 'ok': True}"
+    },
+    "history.wod.list": {
+      "status": 200,
+      "body_sample": "{'data': [], 'meta': {'limit': 20, 'offset': 0, 'total': 0}, 'ok': True}"
+    },
+    "achievements.list": {
+      "status": 200,
+      "body_sample": "{'data': {'catalog': [{'code': 'FIRST_ENGINE', 'description': '첫 Engine 측정 완료.', 'is_hidden': False, 'name': 'First Measure.', 'rarity': 'Common', 'sort_order': 10}, {'code': 'REACH_SCALED', 'descript"
+    },
+    "gym.search": {
+      "status": 200,
+      "body_sample": "{'data': [{'id': 1, 'is_official': True, 'location': 'Official · HQ', 'member_count': 12, 'name': 'FACING'}, {'id': 3, 'is_official': False, 'location': 'Seoul · Gangnam', 'member_count': 5, 'name': '"
+    },
+    "gym.mine": {
+      "status": 200,
+      "body_sample": "{'data': {'gym': None, 'role': None, 'status': None}, 'ok': True}"
+    },
+    "checkin.qr_issue": {
+      "status": 200,
+      "body_sample": "{'data': {'checkin_url': 'facing://checkin?token=3adDGhVG8-ASOdbytUCcWLAKKUrDi6qo', 'expires_in': 60, 'token': '3adDGhVG8-ASOdbytUCcWLAKKUrDi6qo'}, 'ok': True}"
+    },
+    "fcm.register": {
+      "status": 200,
+      "body_sample": "{'data': {'mode': 'stub', 'registered': True}, 'ok': True}"
+    },
+    "inventory.list": {
+      "status": 200,
+      "body_sample": "{'data': {'items': [{'code': 'STREAK_FREEZE', 'description': '1일 streak 끊김 방어.', 'name': 'Streak Freeze.', 'quantity': 0, 'rarity': 'Rare'}, {'code': 'REST_PASS', 'description': '주간 휴식 1일을 출석으로 카운트.',"
+    },
+    "coach_note.groups.list": {
+      "status": 403,
+      "body_sample": "{'code': 'FORBIDDEN', 'error': '권한 없음.', 'ok': False}"
+    },
+    "coach_note.groups.create": {
+      "status": 403,
+      "body_sample": "{'code': 'FORBIDDEN', 'error': '코치만 생성 가능.', 'ok': False}"
+    },
+    "pacing.calculate": {
+      "status": 400,
+      "body_sample": "{'code': 'INVALID_INPUT', 'error': 'WOD 구성 항목이 없습니다', 'ok': False}"
+    },
+    "perm_leak.anon_admin": {
+      "status": 401,
+      "body_sample": "{'ok': True, 'data': {'status': 401}}"
+    }
+  }
+}
