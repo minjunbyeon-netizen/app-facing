@@ -131,31 +131,10 @@ class _SignupScreenState extends State<SignupScreen> {
                   onPressed: _busy ? null : () => _signIn('kakao'),
                 ),
 
-                // v1.16 Sprint 7a: 이메일 가입 placeholder (Phase 2).
-                const SizedBox(height: FacingTokens.sp3),
-                OutlinedButton(
-                  onPressed: _busy
-                      ? null
-                      : () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('이메일 가입은 Phase 2에서 지원 예정.'),
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
-                        },
-                  child: const Center(child: Text('이메일로 시작')),
-                ),
-
                 const SizedBox(height: FacingTokens.sp4),
                 // v1.16 Sprint 8 U1: 데모 계정 5개 빠른 진입.
                 const Text('DEMO ACCOUNTS',
                     style: FacingTokens.sectionLabel),
-                const SizedBox(height: FacingTokens.sp1),
-                const Text(
-                  '테스트용 가상 프로필 5종. 선택 시 자동 온보딩 완료.',
-                  style: FacingTokens.caption,
-                ),
                 const SizedBox(height: FacingTokens.sp2),
                 ...kDemoAccounts.map((d) => Padding(
                       padding: const EdgeInsets.only(bottom: FacingTokens.sp1),
