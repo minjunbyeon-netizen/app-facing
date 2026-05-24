@@ -3,6 +3,8 @@ import '../../models/announcement.dart';
 import '../../models/coach_feedback.dart';
 import '../../models/coach_profile.dart';
 import '../../models/gym.dart';
+import '../../models/locker.dart';
+import '../../models/membership.dart';
 
 /// v1.15.3: /api/v1/gyms/* 래퍼.
 class GymRepository {
@@ -143,6 +145,23 @@ class GymRepository {
       return raw.map((e) => e.toString()).toList();
     }
     return const [];
+  }
+
+  // v1.16.2 (2026-05-24) — 본인 회원권·락커.
+  Future<List<Membership>> listMyMemberships() async {
+    final data = await api.getList('/api/v1/member/me/memberships');
+    return data
+        .whereType<Map<String, dynamic>>()
+        .map(Membership.fromJson)
+        .toList();
+  }
+
+  Future<List<Locker>> listMyLockers() async {
+    final data = await api.getList('/api/v1/member/me/locker');
+    return data
+        .whereType<Map<String, dynamic>>()
+        .map(Locker.fromJson)
+        .toList();
   }
 
   Future<CoachProfile> createCoach({

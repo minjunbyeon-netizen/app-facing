@@ -48,6 +48,9 @@ class MyPageScreen extends StatelessWidget {
             _SectionDivider(),
             _AttendanceCompact(),
             _SectionDivider(),
+            _MembershipCard(),
+            _LockerCard(),
+            _SectionDivider(),
             _MyBoxSection(),
             _SectionDivider(),
             _BodyStats(),
@@ -1237,6 +1240,153 @@ class _QuickPersonaBarState extends State<_QuickPersonaBar> {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// v1.16.2 (2026-05-24) — 내 회원권 카드 (진행 막대 + D-day).
+/// GymState.currentMembership 에서 fetch. 회원권 없으면 안 그림.
+class _MembershipCard extends StatelessWidget {
+  const _MembershipCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final ms = context.watch<GymState>().currentMembership;
+    if (ms == null) return const SizedBox.shrink();
+    final days = ms.daysUntilExpiry;
+    final progress = ms.progress ?? 0;
+    final isExpiringSoon = days != null && days <= 14 && days >= 0;
+    final isExpired = days != null && days < 0;
+    Color barColor;
+    if (isExpired) {
+      barColor = FacingTokens.danger;
+    } else if (isExpiringSoon) {
+      barColor = FacingTokens.warning;
+    } else {
+      barColor = FacingTokens.primary;
+    }
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
+      child: Container(
+        padding: const EdgeInsets.all(FacingTokens.sp4),
+        decoration: BoxDecoration(
+          color: FacingTokens.surface,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: FacingTokens.border),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('MEMBERSHIP', style: FacingTokens.sectionLabel),
+            const SizedBox(height: 8),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  ms.planName ?? 'Active',
+                  style: FacingTokens.h3.copyWith(color: FacingTokens.fg),
+                ),
+                const Spacer(),
+                if (days != null)
+                  Text(
+                    isExpired ? 'EXPIRED' : 'D-${days.abs()}',
+                    style: FacingTokens.h3.copyWith(color: barColor),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: 1.0 - progress,
+                minHeight: 6,
+                backgroundColor: FacingTokens.surfaceMax,
+                valueColor: AlwaysStoppedAnimation(barColor),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Text(ms.startDate ?? '', style: FacingTokens.caption),
+                const Spacer(),
+                Text(ms.endDate ?? '', style: FacingTokens.caption),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// v1.16.2 (2026-05-24) — 내 락커 카드.
+/// GymState.myLocker 에서 fetch. 배정된 락커 없으면 안 그림.
+class _LockerCard extends StatelessWidget {
+  const _LockerCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final lk = context.watch<GymState>().myLocker;
+    if (lk == null) return const SizedBox.shrink();
+    final days = lk.daysUntilExpiry;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        FacingTokens.sp4,
+        FacingTokens.sp3,
+        FacingTokens.sp4,
+        0,
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(FacingTokens.sp4),
+        decoration: BoxDecoration(
+          color: FacingTokens.surface,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: FacingTokens.border),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: FacingTokens.surfaceMax,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(lk.lockerNo,
+                  style:
+                      FacingTokens.h3.copyWith(color: FacingTokens.fg)),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('MY LOCKER', style: FacingTokens.sectionLabel),
+                  const SizedBox(height: 4),
+                  Text(
+                    lk.endDate != null && lk.endDate!.isNotEmpty
+                        ? '${lk.endDate} 까지'
+                        : '회원권 만료일 자동',
+                    style: FacingTokens.body
+                        .copyWith(color: FacingTokens.fg),
+                  ),
+                  if (lk.memo != null && lk.memo!.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: Text(lk.memo!,
+                          style: FacingTokens.caption),
+                    ),
+                ],
+              ),
+            ),
+            if (days != null && days >= 0 && days <= 14)
+              Text('D-$days',
+                  style: FacingTokens.h3
+                      .copyWith(color: FacingTokens.warning)),
+          ],
+        ),
+      ),
     );
   }
 }

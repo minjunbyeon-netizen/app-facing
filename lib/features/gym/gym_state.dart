@@ -6,6 +6,8 @@ import '../../core/exception.dart';
 import '../../core/sse_client.dart';
 import '../../models/coach_profile.dart';
 import '../../models/gym.dart';
+import '../../models/locker.dart';
+import '../../models/membership.dart';
 import 'gym_repository.dart';
 
 /// v1.15.3: 박스 소속 + 오늘 WOD 전역 상태.
@@ -38,6 +40,9 @@ class GymState extends ChangeNotifier {
     // v1.16.2 (2026-05-24) — 박스 프로필·코치 프로필 변경 → 박스 프로필 화면 자동 reload
     'gym.profile.updated',
     'coach.profile.updated',
+    // v1.16.2 — 락커 배정/해제 → MyPage 카드 자동 reload
+    'locker.assigned',
+    'locker.released',
   };
 
   void _bindSse() {
@@ -72,6 +77,9 @@ class GymState extends ChangeNotifier {
   List<GymWodPost> _wods = const [];
   // v1.16.2 (2026-05-24) — 박스 코치 목록. loadMine() 안에서 같이 fetch.
   List<CoachProfile> _coaches = const [];
+  // v1.16.2 — 본인 회원권·락커. 폰 MyPage 카드용.
+  List<Membership> _myMemberships = const [];
+  List<Locker> _myLockers = const [];
   bool _loading = false;
   String? _error;
 
@@ -83,6 +91,19 @@ class GymState extends ChangeNotifier {
       _wods.where((w) => w.postDate == todayIso).toList();
   /// v1.16.2 — 박스 코치 목록 (BoxProfileScreen 에서 사용).
   List<CoachProfile> get coaches => _coaches;
+  /// v1.16.2 — 본인 회원권 (가장 최근 active 우선).
+  List<Membership> get myMemberships => _myMemberships;
+  Membership? get currentMembership {
+    if (_myMemberships.isEmpty) return null;
+    for (final m in _myMemberships) {
+      if (m.isActive) return m;
+    }
+    return _myMemberships.first;
+  }
+  /// v1.16.2 — 본인 락커.
+  List<Locker> get myLockers => _myLockers;
+  Locker? get myLocker =>
+      _myLockers.isNotEmpty ? _myLockers.first : null;
   bool get isLoading => _loading;
   String? get error => _error;
 
@@ -112,9 +133,24 @@ class GymState extends ChangeNotifier {
           debugPrint('[GymState] listCoaches failed: $e');
           _coaches = const [];
         }
+        // v1.16.2 — 본인 회원권·락커 (실패해도 다른 결과는 유지)
+        try {
+          _myMemberships = await repo.listMyMemberships();
+        } catch (e) {
+          debugPrint('[GymState] listMyMemberships failed: $e');
+          _myMemberships = const [];
+        }
+        try {
+          _myLockers = await repo.listMyLockers();
+        } catch (e) {
+          debugPrint('[GymState] listMyLockers failed: $e');
+          _myLockers = const [];
+        }
       } else {
         _wods = const [];
         _coaches = const [];
+        _myMemberships = const [];
+        _myLockers = const [];
       }
     } on AppException catch (e) {
       _error = e.messageKo;
