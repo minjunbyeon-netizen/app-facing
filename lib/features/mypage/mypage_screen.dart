@@ -7,6 +7,7 @@ import '../../core/api_client.dart';
 import '../../core/app_mode.dart';
 import '../../core/device_id.dart';
 import '../../core/haptic.dart';
+import '../../core/role_labels.dart';
 import '../../core/shell_nav_bus.dart';
 import '../../core/theme.dart';
 import '../../core/ui_prefs_state.dart';
@@ -255,31 +256,6 @@ class _StatBlock extends StatelessWidget {
   }
 }
 
-/// v1.16.2 (2026-05-24) — 역할 라벨 매핑 (gym_managers.role + gym_members.status).
-/// IdentityCard·CoachDashboard·BoxProfileScreen 등에서 재사용.
-String _roleKoLabel({String? role, String? status}) {
-  // role: owner = boss (gym 본인)
-  if (role == 'owner') return '코치';
-  if (role == 'boss') return '사장';
-  if (role == 'coach') return '코치';
-  if (role == 'manager') return '매니저';
-  if (role == 'member') {
-    switch (status) {
-      case 'approved':
-        return '회원';
-      case 'pending':
-        return '가입 대기';
-      case 'rejected':
-        return '거부됨';
-      case 'left':
-        return '탈퇴';
-      default:
-        return '회원';
-    }
-  }
-  return '';
-}
-
 class _IdentityCard extends StatelessWidget {
   const _IdentityCard();
 
@@ -340,7 +316,7 @@ class _IdentityCard extends StatelessWidget {
                     // v1.16.2 — 박스명 · 역할 라벨 (GymState 데이터 소스)
                     Builder(builder: (_) {
                       final gym = gs.membership.gym;
-                      final roleLabel = _roleKoLabel(
+                      final roleLabel = roleKoLabel(
                         role: gs.membership.role,
                         status: gs.membership.status,
                       );
