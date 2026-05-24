@@ -36,7 +36,7 @@ class GymSummary {
       );
 }
 
-/// v1.22: 체육관 부가정보. NOTICE 탭 정보 카드 렌더용.
+/// v1.22: 체육관 부가정보. NOTICE 탭 + v1.16.2 박스 프로필 페이지 렌더용.
 /// 모든 필드 nullable — 미등록 시 카드에서 빈 슬롯 처리.
 class GymProfile {
   final String? phone;
@@ -46,6 +46,16 @@ class GymProfile {
   final String? motto;
   final String? instagram;
   final String? logoUrl;
+  // v1.16.2 (2026-05-24) — 박스 프로필 페이지 9 필드 확장
+  final String? priceSummary;
+  final String? paymentMethods;
+  final String? receiptInfo;
+  final String? parkingInfo;
+  final String? firstVisitGuide;
+  final String? attireGuide;
+  final String? wifiInfo;
+  final String? contactKakao;
+  final String? freeNotice;
 
   const GymProfile({
     this.phone,
@@ -55,6 +65,15 @@ class GymProfile {
     this.motto,
     this.instagram,
     this.logoUrl,
+    this.priceSummary,
+    this.paymentMethods,
+    this.receiptInfo,
+    this.parkingInfo,
+    this.firstVisitGuide,
+    this.attireGuide,
+    this.wifiInfo,
+    this.contactKakao,
+    this.freeNotice,
   });
 
   bool get isEmpty =>
@@ -62,7 +81,10 @@ class GymProfile {
       (coachName ?? '').isEmpty &&
       (coachBio ?? '').isEmpty &&
       (classSchedule ?? '').isEmpty &&
-      (motto ?? '').isEmpty;
+      (motto ?? '').isEmpty &&
+      (priceSummary ?? '').isEmpty &&
+      (firstVisitGuide ?? '').isEmpty &&
+      (freeNotice ?? '').isEmpty;
 
   factory GymProfile.fromJson(Map<String, dynamic> j) => GymProfile(
         phone: _s(j['phone']),
@@ -72,6 +94,15 @@ class GymProfile {
         motto: _s(j['motto']),
         instagram: _s(j['instagram']),
         logoUrl: _s(j['logo_url']),
+        priceSummary: _s(j['price_summary']),
+        paymentMethods: _s(j['payment_methods']),
+        receiptInfo: _s(j['receipt_info']),
+        parkingInfo: _s(j['parking_info']),
+        firstVisitGuide: _s(j['first_visit_guide']),
+        attireGuide: _s(j['attire_guide']),
+        wifiInfo: _s(j['wifi_info']),
+        contactKakao: _s(j['contact_kakao']),
+        freeNotice: _s(j['free_notice']),
       );
 
   static String? _s(dynamic v) {

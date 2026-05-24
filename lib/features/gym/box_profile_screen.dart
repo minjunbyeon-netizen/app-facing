@@ -1,0 +1,214 @@
+// v1.16.2 (2026-05-24) — 박스 프로필 페이지 (회원·신규 방문자 read-only view).
+// ARCHITECTURE_BRIEF §11.6.
+// 사장이 GymProfile 9 필드 + 코치 프로필 입력하면 회원·신규 방문자가 이 화면에서 본다.
+// 와이어프레임: docs/PERSONA_BACKLOG.md 와 docs/GYM_PROFILE_SCHEMA.md §4 매핑 참조.
+
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../core/theme.dart';
+import '../../models/coach_profile.dart';
+import '../../models/gym.dart';
+import 'gym_state.dart';
+import 'coach_detail_screen.dart';
+
+class BoxProfileScreen extends StatelessWidget {
+  const BoxProfileScreen({super.key, this.coaches = const []});
+
+  /// 코치 리스트. 비어 있으면 GymState.profile.coachName 1명만 표시 (구버전 호환).
+  final List<CoachProfile> coaches;
+
+  @override
+  Widget build(BuildContext context) {
+    final gym = context.watch<GymState>().membership.gym;
+    final profile = gym?.profile;
+
+    return Scaffold(
+      backgroundColor: FacingTokens.bg,
+      appBar: AppBar(
+        backgroundColor: FacingTokens.bg,
+        title: const Text('Box'),
+        centerTitle: false,
+      ),
+      body: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        children: [
+          _Header(gym: gym),
+          if (profile?.priceSummary != null)
+            _Card(title: 'PRICE', body: profile!.priceSummary!),
+          if ((profile?.paymentMethods != null) ||
+              (profile?.receiptInfo != null))
+            _Card(
+              title: 'PAYMENT',
+              body: [
+                if (profile?.paymentMethods != null) profile!.paymentMethods!,
+                if (profile?.receiptInfo != null) profile!.receiptInfo!,
+              ].join('\n'),
+            ),
+          if ((profile?.firstVisitGuide != null) ||
+              (profile?.attireGuide != null) ||
+              (profile?.wifiInfo != null))
+            _Card(
+              title: 'FIRST VISIT',
+              body: [
+                if (profile?.firstVisitGuide != null)
+                  profile!.firstVisitGuide!,
+                if (profile?.attireGuide != null) profile!.attireGuide!,
+                if (profile?.wifiInfo != null) 'WiFi: ${profile!.wifiInfo!}',
+              ].join('\n'),
+            ),
+          _CoachesCard(coaches: coaches, gymProfile: profile),
+          if (profile?.freeNotice != null)
+            _Card(title: 'NOTICE', body: profile!.freeNotice!),
+          if ((profile?.phone != null) ||
+              (profile?.contactKakao != null) ||
+              (profile?.parkingInfo != null))
+            _Card(
+              title: 'CONTACT',
+              body: [
+                if (profile?.phone != null) '📞 ${profile!.phone!}',
+                if (profile?.contactKakao != null)
+                  '💬 ${profile!.contactKakao!}',
+                if (profile?.parkingInfo != null) '🚗 ${profile!.parkingInfo!}',
+              ].join('\n'),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Header extends StatelessWidget {
+  const _Header({required this.gym});
+  final GymSummary? gym;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            gym?.name ?? 'BOX',
+            style: FacingTokens.h1.copyWith(color: FacingTokens.fg),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            gym?.location ?? '',
+            style: FacingTokens.body.copyWith(color: FacingTokens.muted),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Card extends StatelessWidget {
+  const _Card({required this.title, required this.body});
+  final String title;
+  final String body;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(top: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: FacingTokens.surface,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: FacingTokens.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: FacingTokens.sectionLabel),
+          const SizedBox(height: 8),
+          Text(body,
+              style: FacingTokens.body.copyWith(color: FacingTokens.fg)),
+        ],
+      ),
+    );
+  }
+}
+
+class _CoachesCard extends StatelessWidget {
+  const _CoachesCard({required this.coaches, required this.gymProfile});
+  final List<CoachProfile> coaches;
+  final GymProfile? gymProfile;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasCoaches = coaches.isNotEmpty;
+    final fallbackCoach = gymProfile?.coachName;
+    if (!hasCoaches && (fallbackCoach == null || fallbackCoach.isEmpty)) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(top: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: FacingTokens.surface,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: FacingTokens.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('COACHES (${hasCoaches ? coaches.length : 1})',
+              style: FacingTokens.sectionLabel),
+          const SizedBox(height: 8),
+          if (hasCoaches)
+            ...coaches.map((c) => _CoachRow(coach: c))
+          else
+            Text(fallbackCoach!,
+                style: FacingTokens.body.copyWith(color: FacingTokens.fg)),
+        ],
+      ),
+    );
+  }
+}
+
+class _CoachRow extends StatelessWidget {
+  const _CoachRow({required this.coach});
+  final CoachProfile coach;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => CoachDetailScreen(coach: coach),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(coach.name,
+                      style: FacingTokens.body
+                          .copyWith(color: FacingTokens.fg)),
+                  if (coach.specialty != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: Text(
+                        coach.specialty!,
+                        style: FacingTokens.caption,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right,
+                size: 18, color: FacingTokens.muted),
+          ],
+        ),
+      ),
+    );
+  }
+}
