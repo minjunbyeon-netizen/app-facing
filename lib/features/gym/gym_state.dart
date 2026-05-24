@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../core/exception.dart';
 import '../../core/sse_client.dart';
+import '../../models/coach_profile.dart';
 import '../../models/gym.dart';
 import 'gym_repository.dart';
 
@@ -34,6 +35,9 @@ class GymState extends ChangeNotifier {
     'announcement.posted',
     'class_cancelled',
     'member_promoted_from_waitlist',
+    // v1.16.2 (2026-05-24) — 박스 프로필·코치 프로필 변경 → 박스 프로필 화면 자동 reload
+    'gym.profile.updated',
+    'coach.profile.updated',
   };
 
   void _bindSse() {
@@ -66,6 +70,8 @@ class GymState extends ChangeNotifier {
 
   GymMembership _membership = GymMembership.empty;
   List<GymWodPost> _wods = const [];
+  // v1.16.2 (2026-05-24) — 박스 코치 목록. loadMine() 안에서 같이 fetch.
+  List<CoachProfile> _coaches = const [];
   bool _loading = false;
   String? _error;
 
@@ -75,6 +81,8 @@ class GymState extends ChangeNotifier {
   /// 오늘 날짜 매치 — 기존 호출처 호환.
   List<GymWodPost> get todayWods =>
       _wods.where((w) => w.postDate == todayIso).toList();
+  /// v1.16.2 — 박스 코치 목록 (BoxProfileScreen 에서 사용).
+  List<CoachProfile> get coaches => _coaches;
   bool get isLoading => _loading;
   String? get error => _error;
 
@@ -97,8 +105,16 @@ class GymState extends ChangeNotifier {
           (_membership.isOwner || _membership.isApprovedMember)) {
         // v1.21: 날짜 필터 제거 — 박스 전체 기간 WOD 로드 후 클라이언트에서 그룹.
         _wods = await repo.listWods(gymId: _membership.gym!.id);
+        // v1.16.2 — 코치 목록 동시 fetch (실패해도 wods 결과는 유지)
+        try {
+          _coaches = await repo.listCoaches(_membership.gym!.id);
+        } catch (e) {
+          debugPrint('[GymState] listCoaches failed: $e');
+          _coaches = const [];
+        }
       } else {
         _wods = const [];
+        _coaches = const [];
       }
     } on AppException catch (e) {
       _error = e.messageKo;
@@ -158,6 +174,7 @@ class GymState extends ChangeNotifier {
   }
 
   /// v1.22: 체육관 부가정보 저장. 성공 시 _membership 갱신 + notifyListeners.
+  /// v1.16.2 (2026-05-24) — 박스 프로필 페이지 9 필드 추가.
   Future<bool> updateGymProfile({
     String? phone,
     String? coachName,
@@ -165,6 +182,15 @@ class GymState extends ChangeNotifier {
     String? classSchedule,
     String? motto,
     String? instagram,
+    String? priceSummary,
+    String? paymentMethods,
+    String? receiptInfo,
+    String? parkingInfo,
+    String? firstVisitGuide,
+    String? attireGuide,
+    String? wifiInfo,
+    String? contactKakao,
+    String? freeNotice,
   }) async {
     final gym = _membership.gym;
     if (gym == null || !isOwner) return false;
@@ -178,6 +204,15 @@ class GymState extends ChangeNotifier {
         classSchedule: classSchedule,
         motto: motto,
         instagram: instagram,
+        priceSummary: priceSummary,
+        paymentMethods: paymentMethods,
+        receiptInfo: receiptInfo,
+        parkingInfo: parkingInfo,
+        firstVisitGuide: firstVisitGuide,
+        attireGuide: attireGuide,
+        wifiInfo: wifiInfo,
+        contactKakao: contactKakao,
+        freeNotice: freeNotice,
       );
       final updatedGym = GymSummary(
         id: gym.id,

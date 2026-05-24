@@ -1,6 +1,7 @@
 import '../../core/api_client.dart';
 import '../../models/announcement.dart';
 import '../../models/coach_feedback.dart';
+import '../../models/coach_profile.dart';
 import '../../models/gym.dart';
 
 /// v1.15.3: /api/v1/gyms/* 래퍼.
@@ -44,6 +45,16 @@ class GymRepository {
     String? classSchedule,
     String? motto,
     String? instagram,
+    // v1.16.2 (2026-05-24) — 박스 프로필 페이지 9 필드
+    String? priceSummary,
+    String? paymentMethods,
+    String? receiptInfo,
+    String? parkingInfo,
+    String? firstVisitGuide,
+    String? attireGuide,
+    String? wifiInfo,
+    String? contactKakao,
+    String? freeNotice,
   }) async {
     final body = <String, dynamic>{};
     if (phone != null) body['phone'] = phone;
@@ -52,12 +63,101 @@ class GymRepository {
     if (classSchedule != null) body['class_schedule'] = classSchedule;
     if (motto != null) body['motto'] = motto;
     if (instagram != null) body['instagram'] = instagram;
+    if (priceSummary != null) body['price_summary'] = priceSummary;
+    if (paymentMethods != null) body['payment_methods'] = paymentMethods;
+    if (receiptInfo != null) body['receipt_info'] = receiptInfo;
+    if (parkingInfo != null) body['parking_info'] = parkingInfo;
+    if (firstVisitGuide != null) body['first_visit_guide'] = firstVisitGuide;
+    if (attireGuide != null) body['attire_guide'] = attireGuide;
+    if (wifiInfo != null) body['wifi_info'] = wifiInfo;
+    if (contactKakao != null) body['contact_kakao'] = contactKakao;
+    if (freeNotice != null) body['free_notice'] = freeNotice;
     final data = await api.patch('/api/v1/gyms/$gymId/profile', body);
     final profileRaw = data['profile'];
     if (profileRaw is Map<String, dynamic>) {
       return GymProfile.fromJson(profileRaw);
     }
     return const GymProfile();
+  }
+
+  // v1.16.2 (2026-05-24) — 코치 프로필 endpoint 5개.
+  // ARCHITECTURE_BRIEF §11.6 / docs/GYM_PROFILE_SCHEMA.md §3.
+  Future<List<CoachProfile>> listCoaches(int gymId) async {
+    final data = await api.get('/api/v1/gyms/$gymId/coaches');
+    final raw = data['coaches'];
+    if (raw is List) {
+      return raw
+          .whereType<Map<String, dynamic>>()
+          .map(CoachProfile.fromJson)
+          .toList();
+    }
+    return const [];
+  }
+
+  Future<CoachProfile> getCoach(int gymId, int coachId) async {
+    final data = await api.get('/api/v1/gyms/$gymId/coaches/$coachId');
+    return CoachProfile.fromJson(data);
+  }
+
+  Future<CoachProfile> updateCoach({
+    required int gymId,
+    required int coachId,
+    String? name,
+    String? photoUrl,
+    String? career,
+    String? certifications,
+    String? specialty,
+    String? competitionRecords,
+    String? demoVideoUrl,
+    String? snsUrl,
+    bool? ptBookable,
+    int? displayOrder,
+    List<String>? offDays,
+  }) async {
+    final body = <String, dynamic>{};
+    if (name != null) body['name'] = name;
+    if (photoUrl != null) body['photo_url'] = photoUrl;
+    if (career != null) body['career'] = career;
+    if (certifications != null) body['certifications'] = certifications;
+    if (specialty != null) body['specialty'] = specialty;
+    if (competitionRecords != null) {
+      body['competition_records'] = competitionRecords;
+    }
+    if (demoVideoUrl != null) body['demo_video_url'] = demoVideoUrl;
+    if (snsUrl != null) body['sns_url'] = snsUrl;
+    if (ptBookable != null) body['pt_bookable'] = ptBookable;
+    if (displayOrder != null) body['display_order'] = displayOrder;
+    if (offDays != null) body['off_days'] = offDays;
+    final data = await api.patch(
+      '/api/v1/gyms/$gymId/coaches/$coachId',
+      body,
+    );
+    return CoachProfile.fromJson(data);
+  }
+
+  Future<List<String>> getCoachOffDays(int gymId, int coachId) async {
+    final data =
+        await api.get('/api/v1/gyms/$gymId/coaches/$coachId/off-days');
+    final raw = data['off_days'];
+    if (raw is List) {
+      return raw.map((e) => e.toString()).toList();
+    }
+    return const [];
+  }
+
+  Future<CoachProfile> createCoach({
+    required int gymId,
+    required int coachUserId,
+    required String name,
+  }) async {
+    final data = await api.post(
+      '/api/v1/admin/gyms/$gymId/coaches',
+      {
+        'coach_user_id': coachUserId,
+        'name': name,
+      },
+    );
+    return CoachProfile.fromJson(data);
   }
 
   Future<void> leaveGym(int gymId) async {

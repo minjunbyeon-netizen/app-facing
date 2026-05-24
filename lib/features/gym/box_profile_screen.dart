@@ -13,15 +13,17 @@ import 'gym_state.dart';
 import 'coach_detail_screen.dart';
 
 class BoxProfileScreen extends StatelessWidget {
-  const BoxProfileScreen({super.key, this.coaches = const []});
+  const BoxProfileScreen({super.key, this.overrideCoaches});
 
-  /// 코치 리스트. 비어 있으면 GymState.profile.coachName 1명만 표시 (구버전 호환).
-  final List<CoachProfile> coaches;
+  /// 코치 리스트 override (테스트·미리보기 전용). null 이면 GymState.coaches 사용.
+  final List<CoachProfile>? overrideCoaches;
 
   @override
   Widget build(BuildContext context) {
-    final gym = context.watch<GymState>().membership.gym;
+    final gs = context.watch<GymState>();
+    final gym = gs.membership.gym;
     final profile = gym?.profile;
+    final coaches = overrideCoaches ?? gs.coaches;
 
     return Scaffold(
       backgroundColor: FacingTokens.bg,
