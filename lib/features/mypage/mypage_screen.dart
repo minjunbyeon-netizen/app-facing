@@ -290,10 +290,16 @@ class _IdentityCard extends StatelessWidget {
     // PC 사장이 등록한 GymMemberProfile.name 우선. 없으면 auth.displayName fallback.
     final mp = gs.membership.memberProfile;
     final boxRegisteredName = (mp?.name ?? '').trim();
+    // v1.16.2 — 옛 통문자열 "박지훈 · FACING SEONGSU 코치" 가 SharedPreferences 에
+    // 캐시돼 있을 수 있어 ' · ' 첫 부분만 잘라서 진짜 이름만 사용.
+    String firstSegment(String s) {
+      final i = s.indexOf(' · ');
+      return i > 0 ? s.substring(0, i).trim() : s.trim();
+    }
     final name = boxRegisteredName.isNotEmpty
         ? boxRegisteredName
         : ((auth.displayName?.trim().isNotEmpty == true)
-            ? auth.displayName!.trim()
+            ? firstSegment(auth.displayName!)
             : 'Athlete');
     final provider = (auth.provider ?? '').toUpperCase();
     final initial = name.isEmpty ? '?' : name.characters.first.toUpperCase();
