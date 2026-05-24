@@ -1,13 +1,63 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../../core/exception.dart';
+import '../../core/sse_client.dart';
 import '../../models/gym.dart';
 import 'gym_repository.dart';
 
 /// v1.15.3: 박스 소속 + 오늘 WOD 전역 상태.
+/// PHASE5: SSE 자동 갱신 — PC 사장이 회원·membership·클래스 등 변경하면 즉시 reload.
 class GymState extends ChangeNotifier {
   final GymRepository repo;
-  GymState(this.repo);
+  final SseClient? sse;
+  StreamSubscription<SseEvent>? _sseSub;
+  Timer? _debounceReload;
+  GymState(this.repo, {this.sse}) {
+    _bindSse();
+  }
+
+  /// PC 사장이 변경할 때 폰이 자동 reload 해야 하는 이벤트 type 들.
+  /// 백엔드 sse_publish 호출 위치와 1:1 매핑.
+  static const _reloadTriggers = <String>{
+    'member.created',
+    'member.updated',
+    'member.decided',
+    'member.left',
+    'member.self_left',
+    'membership.issued',
+    'membership.extended',
+    'membership.cancelled',
+    'membership.cancel_scheduled',
+    'wod.posted',
+    'announcement.posted',
+    'class_cancelled',
+    'member_promoted_from_waitlist',
+  };
+
+  void _bindSse() {
+    if (sse == null) return;
+    _sseSub = sse!.events.listen((ev) {
+      if (_reloadTriggers.contains(ev.type)) {
+        // burst 방지: 1초 debounce
+        _debounceReload?.cancel();
+        _debounceReload = Timer(const Duration(seconds: 1), () {
+          // 화면 진입 중이 아닐 수도 있으니 try-catch
+          loadMine().catchError((_) {});
+        });
+      }
+    }, onError: (e) {
+      debugPrint('[GymState] sse error: $e');
+    });
+  }
+
+  @override
+  void dispose() {
+    _debounceReload?.cancel();
+    _sseSub?.cancel();
+    super.dispose();
+  }
 
   GymMembership _membership = GymMembership.empty;
   List<GymWodPost> _wods = const [];

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'core/api_client.dart';
 import 'core/connectivity_state.dart';
 import 'core/movements_repository.dart';
+import 'core/sse_client.dart';
 import 'core/theme.dart';
 import 'core/goals_state.dart';
 import 'core/shell_nav_bus.dart';
@@ -50,6 +51,7 @@ Future<void> main() async {
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   final api = ApiClient.create();
+  final sse = SseClient(api);
   final profile = ProfileState();
   final unit = UnitState();
   final connectivity = ConnectivityState();
@@ -73,6 +75,7 @@ Future<void> main() async {
 
   runApp(FacingApp(
     api: api,
+    sse: sse,
     profile: profile,
     unit: unit,
     connectivity: connectivity,
@@ -86,6 +89,7 @@ Future<void> main() async {
 
 class FacingApp extends StatelessWidget {
   final ApiClient api;
+  final SseClient sse;
   final ProfileState profile;
   final UnitState unit;
   final ConnectivityState connectivity;
@@ -97,6 +101,7 @@ class FacingApp extends StatelessWidget {
   const FacingApp({
     super.key,
     required this.api,
+    required this.sse,
     required this.profile,
     required this.unit,
     required this.connectivity,
@@ -112,6 +117,7 @@ class FacingApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         Provider<ApiClient>.value(value: api),
+        Provider<SseClient>.value(value: sse),
         Provider<MovementsRepository>(create: (_) => MovementsRepository(api)),
         Provider<GymRepository>(create: (_) => GymRepository(api)),
         Provider<InboxRepository>(create: (_) => InboxRepository(api)),
@@ -120,7 +126,7 @@ class FacingApp extends StatelessWidget {
         ChangeNotifierProvider<ConnectivityState>.value(value: connectivity),
         ChangeNotifierProvider<WodDraftState>(create: (_) => WodDraftState()),
         ChangeNotifierProvider<GymState>(
-          create: (ctx) => GymState(GymRepository(api))..loadMine(),
+          create: (ctx) => GymState(GymRepository(api), sse: sse)..loadMine(),
         ),
         ChangeNotifierProvider<InboxState>(
           create: (_) => InboxState(InboxRepository(api)),
