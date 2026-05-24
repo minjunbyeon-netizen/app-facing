@@ -100,10 +100,11 @@ class SseClient {
               final parsed = jsonDecode(raw);
               if (parsed is Map<String, dynamic>) {
                 final type = pendingEvent ?? (parsed['type']?.toString() ?? 'message');
+                debugPrint('[SSE] recv $type ${raw.length > 80 ? raw.substring(0, 80) : raw}');
                 _controller?.add(SseEvent(type: type, data: parsed));
               }
             } catch (e) {
-              debugPrint('[SSE] parse failed: $e');
+              debugPrint('[SSE] parse failed: $e raw=${buffer.toString().substring(0, buffer.length.clamp(0, 80))}');
             }
           }
           buffer.clear();

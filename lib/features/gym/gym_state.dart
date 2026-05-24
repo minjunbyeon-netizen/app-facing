@@ -39,12 +39,17 @@ class GymState extends ChangeNotifier {
   void _bindSse() {
     if (sse == null) return;
     _sseSub = sse!.events.listen((ev) {
-      if (_reloadTriggers.contains(ev.type)) {
-        // burst 방지: 1초 debounce
+      final hit = _reloadTriggers.contains(ev.type);
+      debugPrint('[GymState] sse event=${ev.type} reload=${hit ? "YES" : "skip"}');
+      if (hit) {
         _debounceReload?.cancel();
         _debounceReload = Timer(const Duration(seconds: 1), () {
-          // 화면 진입 중이 아닐 수도 있으니 try-catch
-          loadMine().catchError((_) {});
+          debugPrint('[GymState] reload trigger → loadMine()');
+          loadMine().then((_) {
+            debugPrint('[GymState] reload done');
+          }).catchError((e) {
+            debugPrint('[GymState] reload failed: $e');
+          });
         });
       }
     }, onError: (e) {
