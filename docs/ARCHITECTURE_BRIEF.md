@@ -518,6 +518,36 @@ retention 정의 = "코호트(가입 월) 의 N개월 후 시점에 attendance �
 | §2.4 듀얼 포지셔닝 | 3 | link-facing-app·class-pacing·push-pacing-card |
 | **합계** | **35** | |
 
+### 11.5. facing-app 포지셔닝 전환 (2026-05-24)
+
+> 등록일: 2026-05-24. 사용자 결정: 신규 방문자 페르소나 시뮬레이션 100건 그루밍 결과, facing-app 의 primary value 를 "Games-elite 전용 페이싱 계산기" → **"수업 관리 + 페이싱 (+α)"** 로 전환.
+> 상세: `docs/PERSONA_BACKLOG.md` 와 `apps/facing-app/CLAUDE.md` v1.16.2.
+
+| 항목 | Before | After | 영향 범위 |
+|---|---|---|---|
+| facing-app primary value | "Split defines rank · Games elite" | "수업을 간편하게 — 박스 운영 + 페이싱(+α)" | 모든 화면 카피·온보딩·홈 |
+| 타깃 유저층 | Games tier 출전자급 한정 | RX-aspiring ~ Games 까지 폭넓게 | 마케팅·기능 우선순위 |
+| 페이싱 엔진 위상 | 메인 기능 | 부가/차별 기능 (Wodify 미보유 hook) | 홈 화면 노출 위계 |
+| 톤·V1~V11 어투 | 유지 | 유지 (단, "elite 전용" 문구 제거) | 카피 톤 |
+| 금지 용어 (헬스·다이어트·웰니스) | 유지 | 유지 | 카피 |
+
+> §10 결정사항 표에는 D-번호 부여 후 추가 예정.
+
+### 11.6. 박스 프로필 + 코치 프로필 스키마 확장 (2026-05-24)
+
+> 등록일: 2026-05-24. 페르소나 결과 분류 — 박스 운영 정보 18 필드를 `gym_profiles` + 신규 `gym_coach_profiles` 두 테이블로 흡수.
+> 상세 DDL: `docs/GYM_PROFILE_SCHEMA.md`.
+
+| 변경 | 대상 | 신규 필드 / 모델 | 비고 |
+|---|---|---|---|
+| ALTER | `gym_profiles` | +9 필드 (price_summary, payment_methods, receipt_info, parking_info, first_visit_guide, attire_guide, wifi_info, contact_kakao, free_notice) | 기존 7 필드 (phone·coach_*·motto·logo·class_schedule·instagram) 와 합쳐 16 필드 |
+| 신규 테이블 | `gym_coach_profiles` | coach_user_id, gym_id, name, photo_url, career, certifications, specialty, competition_records, demo_video_url, sns_url, pt_bookable, off_days_json, hired_at | 코치 multi 지원. `gym_managers.role='coach'` 와 1:1 연결 |
+| 신규 endpoint | §13 카탈로그 | 6 (GET/PATCH gym profile / GET coach list / GET coach detail / PATCH coach profile / GET coach off-days) | RBAC: 사장 = 전부, 코치 = 본인 only, 회원 = 읽기만 |
+
+> 계약서(`contract_template` / `contract_instance`) 는 **PHASE4 §1.3 으로 이미 등록됨** (위 §11.1). 추가 작업 없음. 박스 프로필 페이지에서 "환불·해지·등록비·보험" 4 항목은 계약서 템플릿 필드로 흡수.
+
+---
+
 ### 11.4. PHASE5 §2 RBAC 변경 등록 (2026-05-23)
 
 > 등록일: 2026-05-23. 상세 plan: `docs/PHASE5_ROADMAP.md`.
