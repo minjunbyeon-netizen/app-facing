@@ -1244,8 +1244,9 @@ class _QuickPersonaBarState extends State<_QuickPersonaBar> {
   }
 }
 
-/// v1.16.2 (2026-05-24) — 내 회원권 카드 (진행 막대 + D-day).
+/// v1.16.2 (2026-05-24) — 내 회원권 카드 (진행 막대 + 월별 타임라인).
 /// GymState.currentMembership 에서 fetch. 회원권 없으면 안 그림.
+/// 갱신 시 늘어난 구간은 primary 색, 이미 지난 구간은 muted 색으로 분리.
 class _MembershipCard extends StatelessWidget {
   const _MembershipCard();
 
@@ -1257,14 +1258,22 @@ class _MembershipCard extends StatelessWidget {
     final progress = ms.progress ?? 0;
     final isExpiringSoon = days != null && days <= 14 && days >= 0;
     final isExpired = days != null && days < 0;
-    Color barColor;
+    Color accentColor;
     if (isExpired) {
-      barColor = FacingTokens.danger;
+      accentColor = FacingTokens.danger;
     } else if (isExpiringSoon) {
-      barColor = FacingTokens.warning;
+      accentColor = FacingTokens.warning;
     } else {
-      barColor = FacingTokens.primary;
+      accentColor = FacingTokens.primary;
     }
+
+    DateTime? start;
+    DateTime? end;
+    try {
+      if (ms.startDate != null) start = DateTime.parse(ms.startDate!);
+      if (ms.endDate != null) end = DateTime.parse(ms.endDate!);
+    } catch (_) {}
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
       child: Container(
@@ -1290,20 +1299,60 @@ class _MembershipCard extends StatelessWidget {
                 if (days != null)
                   Text(
                     isExpired ? 'EXPIRED' : 'D-${days.abs()}',
-                    style: FacingTokens.h3.copyWith(color: barColor),
+                    style:
+                        FacingTokens.h3.copyWith(color: accentColor),
                   ),
               ],
             ),
-            const SizedBox(height: 8),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: LinearProgressIndicator(
-                value: 1.0 - progress,
-                minHeight: 6,
-                backgroundColor: FacingTokens.surfaceMax,
-                valueColor: AlwaysStoppedAnimation(barColor),
-              ),
+            const SizedBox(height: 12),
+            // 진행 막대 — 사용 비율 = progress, 남은 비율 = 1-progress
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: progress.clamp(0, 1)),
+              duration: const Duration(milliseconds: 600),
+              curve: Curves.easeOutCubic,
+              builder: (_, value, _) {
+                return ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: Stack(
+                    children: [
+                      Container(height: 8, color: FacingTokens.surfaceMax),
+                      FractionallySizedBox(
+                        widthFactor: value,
+                        child: Container(
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: FacingTokens.mutedStrong,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Text(
+                  '${(progress * 100).toStringAsFixed(0)}% 사용',
+                  style: FacingTokens.caption,
+                ),
+                const Spacer(),
+                Text(
+                  '${((1 - progress) * 100).toStringAsFixed(0)}% 남음',
+                  style: FacingTokens.caption
+                      .copyWith(color: accentColor),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // 월별 타임라인
+            if (start != null && end != null)
+              _MembershipTimeline(
+                start: start,
+                end: end,
+                accent: accentColor,
+              ),
             const SizedBox(height: 6),
             Row(
               children: [
@@ -1316,6 +1365,160 @@ class _MembershipCard extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+/// v1.16.2 — 회원권 월별 타임라인.
+/// start ~ end 범위를 6 ~ 12 칸 셀로 분할해서 가로 띠로 렌더.
+/// 셀 색: 지난 구간 = mutedStrong / 미래 구간 = accent (primary).
+/// today 위치에 ▲ 마커, 위쪽에 월 라벨.
+class _MembershipTimeline extends StatelessWidget {
+  const _MembershipTimeline({
+    required this.start,
+    required this.end,
+    required this.accent,
+  });
+  final DateTime start;
+  final DateTime end;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    final totalDays = end.difference(start).inDays.clamp(1, 9999);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final elapsedDays =
+        today.difference(start).inDays.clamp(0, totalDays).toInt();
+    final todayFraction = elapsedDays / totalDays;
+
+    // 월 단위 라벨 — 시작 월부터 끝 월까지.
+    final monthLabels = <DateTime>[];
+    DateTime cursor = DateTime(start.year, start.month, 1);
+    final endMonth = DateTime(end.year, end.month, 1);
+    while (!cursor.isAfter(endMonth)) {
+      monthLabels.add(cursor);
+      cursor = DateTime(cursor.year, cursor.month + 1, 1);
+    }
+
+    return LayoutBuilder(builder: (context, constraints) {
+      final width = constraints.maxWidth;
+      final todayX = (width * todayFraction).clamp(0, width).toDouble();
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 월 라벨 줄
+          SizedBox(
+            height: 14,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: monthLabels.map((m) {
+                final monthFrac =
+                    m.difference(start).inDays / totalDays;
+                final clamped = monthFrac.clamp(0, 1).toDouble();
+                final x = (width * clamped).clamp(0, width - 22).toDouble();
+                return Positioned(
+                  left: x,
+                  top: 0,
+                  child: Text(
+                    '${m.month}월',
+                    style: FacingTokens.caption.copyWith(
+                      color: m.month == now.month && m.year == now.year
+                          ? accent
+                          : FacingTokens.muted,
+                      fontWeight: m.month == now.month && m.year == now.year
+                          ? FontWeight.w700
+                          : FontWeight.w400,
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+          const SizedBox(height: 4),
+          // 타임라인 바 (왼쪽=과거 mutedStrong / 오른쪽=미래 accent)
+          SizedBox(
+            height: 18,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                // 전체 배경
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: FacingTokens.surfaceMax,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ),
+                // 지난 구간
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  bottom: 0,
+                  width: todayX,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: FacingTokens.mutedStrong,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(4),
+                        bottomLeft: Radius.circular(4),
+                      ),
+                    ),
+                  ),
+                ),
+                // 미래 구간 (남은 회원권)
+                Positioned(
+                  left: todayX,
+                  top: 0,
+                  bottom: 0,
+                  right: 0,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: accent,
+                      borderRadius: const BorderRadius.only(
+                        topRight: Radius.circular(4),
+                        bottomRight: Radius.circular(4),
+                      ),
+                    ),
+                  ),
+                ),
+                // today 마커
+                Positioned(
+                  left: todayX - 1,
+                  top: -2,
+                  bottom: -2,
+                  width: 2,
+                  child: Container(color: FacingTokens.fg),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 4),
+          // today 텍스트
+          SizedBox(
+            height: 14,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Positioned(
+                  left: (todayX - 12).clamp(0, width - 24).toDouble(),
+                  top: 0,
+                  child: Text(
+                    'TODAY',
+                    style: FacingTokens.caption.copyWith(
+                      color: FacingTokens.fg,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    });
   }
 }
 
