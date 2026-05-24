@@ -56,7 +56,8 @@ class _SignupScreenState extends State<SignupScreen> {
     if (demo.deviceIdSeed != null) {
       await DeviceIdService.overrideForDebug(demo.deviceIdSeed!);
     }
-    await auth.signIn('demo', displayName: demo.nameLabel);
+    // v1.16.2 — IdentityCard 3 줄 분리: name(personName) + gym·role(GymState) + location. nameLabel 통문자열 X.
+    await auth.signIn('demo', displayName: demo.personName);
     if (!mounted) return;
     profile.setBasic(
       bodyWeightKg: demo.bodyWeightKg,

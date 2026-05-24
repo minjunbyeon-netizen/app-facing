@@ -255,6 +255,31 @@ class _StatBlock extends StatelessWidget {
   }
 }
 
+/// v1.16.2 (2026-05-24) — 역할 라벨 매핑 (gym_managers.role + gym_members.status).
+/// IdentityCard·CoachDashboard·BoxProfileScreen 등에서 재사용.
+String _roleKoLabel({String? role, String? status}) {
+  // role: owner = boss (gym 본인)
+  if (role == 'owner') return '코치';
+  if (role == 'boss') return '사장';
+  if (role == 'coach') return '코치';
+  if (role == 'manager') return '매니저';
+  if (role == 'member') {
+    switch (status) {
+      case 'approved':
+        return '회원';
+      case 'pending':
+        return '가입 대기';
+      case 'rejected':
+        return '거부됨';
+      case 'left':
+        return '탈퇴';
+      default:
+        return '회원';
+    }
+  }
+  return '';
+}
+
 class _IdentityCard extends StatelessWidget {
   const _IdentityCard();
 
@@ -306,8 +331,38 @@ class _IdentityCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(name, style: FacingTokens.h2),
+                    // v1.16.2 — 박스명 · 역할 라벨 (GymState 데이터 소스)
+                    Builder(builder: (_) {
+                      final gym = gs.membership.gym;
+                      final roleLabel = _roleKoLabel(
+                        role: gs.membership.role,
+                        status: gs.membership.status,
+                      );
+                      final gymLine = [
+                        if (gym?.name != null && gym!.name.isNotEmpty)
+                          gym.name,
+                        if (roleLabel.isNotEmpty) roleLabel,
+                      ].join(' · ');
+                      if (gymLine.isEmpty) return const SizedBox.shrink();
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(
+                          gymLine,
+                          style: FacingTokens.caption,
+                        ),
+                      );
+                    }),
+                    // 위치 (gyms.location) — 있을 때만 한 줄 더
+                    Builder(builder: (_) {
+                      final loc = gs.membership.gym?.location ?? '';
+                      if (loc.isEmpty) return const SizedBox.shrink();
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(loc, style: FacingTokens.caption),
+                      );
+                    }),
                     if (provider.isNotEmpty) ...[
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 4),
                       Text(provider, style: FacingTokens.microLabel),
                     ],
                   ],

@@ -4,7 +4,8 @@
 
 class DemoAccount {
   final String id; // internal slug
-  final String nameLabel; // '박지훈 · FACING SEONGSU 코치'
+  final String nameLabel; // '박지훈 · FACING SEONGSU 코치' (@deprecated v1.16.2 — UI 표시는 personName/boxName/role 분리)
+  final String personName; // '박지훈' — IdentityCard h2 표시용
   final String role; // 'coach' | 'member' | 'solo' | 'pending'
   final String boxName;
   final double bodyWeightKg;
@@ -20,6 +21,7 @@ class DemoAccount {
   const DemoAccount({
     required this.id,
     required this.nameLabel,
+    required this.personName,
     required this.role,
     required this.boxName,
     required this.bodyWeightKg,
@@ -39,6 +41,7 @@ const List<DemoAccount> kDemoAccounts = [
   DemoAccount(
     id: 'coach_park',
     nameLabel: '박지훈 · FACING SEONGSU 코치',
+    personName: '박지훈',
     role: 'coach',
     boxName: 'FACING SEONGSU',
     bodyWeightKg: 85,
@@ -63,6 +66,7 @@ const List<DemoAccount> kDemoAccounts = [
   DemoAccount(
     id: 'member_kim',
     nameLabel: '김도윤 · FACING SEONGSU 회원',
+    personName: '김도윤',
     role: 'member',
     boxName: 'FACING SEONGSU',
     bodyWeightKg: 78,
@@ -84,6 +88,7 @@ const List<DemoAccount> kDemoAccounts = [
   DemoAccount(
     id: 'solo_song',
     nameLabel: '송예준 · 박스 없음 (개인)',
+    personName: '송예준',
     role: 'solo',
     boxName: '',
     bodyWeightKg: 75,
@@ -105,6 +110,7 @@ const List<DemoAccount> kDemoAccounts = [
   DemoAccount(
     id: 'pending_choi',
     nameLabel: '최서윤 · 가입 대기 (FACING SEONGSU)',
+    personName: '최서윤',
     role: 'pending',
     boxName: 'FACING SEONGSU',
     bodyWeightKg: 56,
