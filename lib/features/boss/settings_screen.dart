@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/exception.dart';
-import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import 'boss_api_client.dart';
 import 'boss_auth_state.dart';
@@ -140,7 +139,7 @@ class _PlansTabState extends State<_PlansTab> {
               : ListView.separated(
                   padding: const EdgeInsets.all(FacingTokens.sp4),
                   itemCount: _plans.length,
-                  separatorBuilder: (_, __) =>
+                  separatorBuilder: (ctx, idx) =>
                       const SizedBox(height: FacingTokens.sp2),
                   itemBuilder: (_, i) {
                     final p = _plans[i];
