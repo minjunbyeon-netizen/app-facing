@@ -308,7 +308,7 @@ class _ExpiringCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: FacingTokens.surface,
           border: Border.all(
-            color: member.dDay <= 3
+            color: member.dDay <= 7
                 ? FacingTokens.danger.withValues(alpha: 0.5)
                 : FacingTokens.border,
           ),
@@ -322,7 +322,7 @@ class _ExpiringCard extends StatelessWidget {
             Text(
               member.dDay == 0 ? 'D-Day' : 'D-${member.dDay}',
               style: FacingTokens.lead.copyWith(
-                color: member.dDay <= 3
+                color: member.dDay <= 7
                     ? FacingTokens.danger
                     : FacingTokens.warning,
                 fontWeight: FontWeight.w700,
