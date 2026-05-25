@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../core/api_client.dart';
+import '../../core/device_id.dart';
 import '../../core/exception.dart';
 import 'boss_auth_state.dart';
 
@@ -34,12 +35,18 @@ class BossApiClient {
   }
 
   /// POST /api/v1/admin/login — 쿠키 세션 획득.
+  /// v1.17 — X-Device-Id 헤더 동봉. 백엔드가 GymManager.device_hash 자동 등록 →
+  /// staff SSE (/api/v1/staff/me/events) 페어링 완료 상태로 들어감.
   Future<Map<String, dynamic>> login(String loginId, String password) async {
     try {
+      final deviceId = await DeviceIdService.get();
       final res = await _dio.post(
         '/api/v1/admin/login',
         data: {'login_id': loginId, 'password': password},
-        options: Options(headers: {'Content-Type': 'application/json'}),
+        options: Options(headers: {
+          'Content-Type': 'application/json',
+          'X-Device-Id': deviceId,
+        }),
       );
       final raw = res.data;
       if (raw is! Map || raw['ok'] != true) {

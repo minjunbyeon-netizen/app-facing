@@ -133,6 +133,32 @@ class _SignupScreenState extends State<SignupScreen> {
                 ),
 
                 const SizedBox(height: FacingTokens.sp4),
+                // v1.17: 사장·매니저 진입로 — BossLoginScreen 으로.
+                // BossAuthState.save() 호출 시 main.dart listener 가
+                // staffPush.start() 트리거 → 가입 신청 등 SSE 알림 수신.
+                OutlinedButton(
+                  onPressed: _busy
+                      ? null
+                      : () => Navigator.of(context)
+                          .pushNamed('/boss/login'),
+                  style: OutlinedButton.styleFrom(
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: FacingTokens.sp4,
+                      vertical: FacingTokens.sp3,
+                    ),
+                    side: const BorderSide(color: FacingTokens.border),
+                  ),
+                  child: Text(
+                    'Box Owner Login',
+                    style: FacingTokens.body.copyWith(
+                      color: FacingTokens.fg,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.4,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: FacingTokens.sp4),
                 // v1.16 Sprint 8 U1: 데모 계정 5개 빠른 진입.
                 const Text('DEMO ACCOUNTS',
                     style: FacingTokens.sectionLabel),
