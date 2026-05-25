@@ -33,7 +33,10 @@
       "mcp__playwright__browser_press_key",
       "PowerShell(Get-NetTCPConnection *)",
       "PowerShell(wmic process where \"ProcessId=34040\" get ProcessId,Name,CommandLine /format:list 2>$null)",
-      "Skill(browse)"
+      "Skill(browse)",
+      "Bash(adb -s 192.168.1.101:5555 shell am start -n com.netizen.facing.facing_app/.MainActivity)",
+      "Bash(adb -s 192.168.1.101:5555 exec-out screencap -p)",
+      "Read(//c/Users/USER/.claude/tmp/**)"
     ]
   }
 }
