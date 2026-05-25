@@ -7,6 +7,7 @@ import 'core/connectivity_state.dart';
 import 'core/movements_repository.dart';
 import 'core/notification_service.dart';
 import 'core/sse_client.dart';
+import 'core/staff_push_service.dart';
 import 'core/theme.dart';
 import 'core/goals_state.dart';
 import 'core/shell_nav_bus.dart';
@@ -76,6 +77,17 @@ Future<void> main() async {
 
   // v1.17 로컬 푸시 — 알림 채널 초기화. 권한 요청은 첫 진입 화면에서 (사용자 동의 후).
   await NotificationService.instance.init();
+
+  // v1.17 사장·코치 폰 SSE — 로그인 상태에 따라 자동 start/stop.
+  final staffPush = StaffPushService();
+  if (bossAuth.isLoggedIn) staffPush.start();
+  bossAuth.addListener(() {
+    if (bossAuth.isLoggedIn) {
+      staffPush.start();
+    } else {
+      staffPush.stop();
+    }
+  });
 
   runApp(FacingApp(
     api: api,
