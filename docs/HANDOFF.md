@@ -1,114 +1,97 @@
-# HANDOFF - 2026-05-25 15:48
+# HANDOFF - 2026-05-25 19:28
 
-> 어제 21:38 → 오늘 14:49 의 v1.16.2 큰 마일스톤 끝낸 직후 이어진 1시간 세션.
-> Volume entrypoint fix → 배포 → 시드 → prod APK 빌드 → emul 검증까지 깔끔하게 끝.
+> 어제 21:38 → 오늘 14:49 v1.16.2 마무리 → 15:48 1차 핸드오프 → 이번 세션 16:00~19:28 v1.17 "로컬 푸시 알림" 인프라 구축.
+> Firebase 없이 자체 SSE + flutter_local_notifications + flutter_foreground_task 패키지로 사장·코치 폰 알림 받게 함. 실 시연만 남음.
 
-## 완료 (오늘 14:49 → 15:48, 약 1시간)
+## 완료 (16:00 → 19:28, 약 3시간 30분)
 
-### 핵심 1 — Railway Volume 권한 영속 fix
-- [x] **services/facing entrypoint.sh 신규** — root 시작 → mkdir -p /app/data → chown -R appuser → exec gosu appuser gunicorn
-- [x] **Dockerfile 수정** — apt-get install gosu, `USER appuser` 제거(root 유지), `ENTRYPOINT ["/entrypoint.sh"]`, CMD 제거
-- [x] **.gitattributes 신규** — `*.sh text eol=lf` (Windows 작업 시 CRLF 차단)
-- [x] commit `2b08438` + GitHub push → Railway 자동 빌드 트리거
-- [x] Railway Volume 사용자 직접 마운트 (Settings → Volumes → /app/data)
-- [x] 새 빌드 health 200 4분 polling 검증
+### 핵심 — v1.17 로컬 푸시 알림 (Firebase 없이 자체 인프라)
 
-### 핵심 2 — Production DB 재시드
-- [x] `cd web/facing-admin && PYTHONIOENCODING=utf-8 python scripts/seed_demo.py --prod` 실행
-- [x] 10 회원 `[DEMO]` prefix (mid 62~71): 김도윤·이수민·박지훈·최서윤·강민재·윤지원·한수아·송예준·정하은·임도현
-- [x] 9 회원권 (1·3·6·12개월권 분포)
-- [x] 24 클래스 세션 (7일치)
-- [x] boss_seongsu/1234 login 검증 OK (active_gym=2 FACING SEONGSU)
-- [x] health: gyms=3, managers=3, SSE 42 subscribers
+- [x] **백엔드 `services/facing/api/admin.py` 신설 endpoint** — `GET /api/v1/staff/me/events` (device_hash 인증, 사장·코치 운영하는 모든 박스 채널 multi-fanout 구독). Commit `74bbd99`.
+- [x] **Flutter 패키지 3개 추가** — `flutter_local_notifications: ^17.2.3`, `flutter_foreground_task: ^8.10.2`, `permission_handler: ^11.3.1`
+- [x] **AndroidManifest 권한 5개** — `POST_NOTIFICATIONS`, `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_DATA_SYNC`, `WAKE_LOCK`, `RECEIVE_BOOT_COMPLETED` + `flutter_foreground_task` Service 컴포넌트 선언
+- [x] **`android/app/build.gradle.kts`** — `isCoreLibraryDesugaringEnabled = true` + `desugar_jdk_libs:2.1.4` (flutter_local_notifications 요구사항)
+- [x] **`lib/core/notification_service.dart` 신설** — OS 알림 채널 2개 (`facing_staff` importance=HIGH, `facing_member` importance=DEFAULT), SSE 이벤트별 알림 매핑 7종 (member_join_request·member.created·membership.issued·announcement.posted·wod.posted·attendance_checked silent)
+- [x] **`lib/core/staff_push_service.dart` 신설** — BossAuthState 변화 listen → 자동 start/stop, dio SSE 클라이언트, 1·2·4·8·16·32·64s 지수 백오프 재연결, NotificationService 자동 호출
+- [x] **`lib/main.dart` 통합** — 부팅 시 NotificationService.init() + BossAuth listener 등록
+- [x] **`lib/features/splash/splash_screen.dart`** — 첫 진입 시 알림 권한 1회 요청 (Android 13+ 다이얼로그, 그 이하 자동 grant)
+- [x] **APK release 빌드 + 폰(192.168.1.101) install** — `v0.1.17+3000`, 60.3MB, 로컬 백엔드 `192.168.1.100:5060` 가리킴
+- [x] **알림 채널 OS 등록 검증** — `dumpsys notification | grep facing` 결과 두 채널 다 정상 등록, POST_NOTIFICATION = allow
 
-### 핵심 3 — Flutter APK prod 빌드 + emul 검증
-- [x] `flutter build apk --release --dart-define=API_BASE_URL=https://service-facing-production.up.railway.app` (background, 77.8s)
-- [x] APK 59.9MB 생성 → emul install
-- [x] **NOTICE 박스 소식 카드 9 필드 다 살아있음 확인** — FACING SEONGSU·Seoul Seongsu·02-1234-5678·@facing.seongsu·COACH 박지훈(CrossFit L2·9년)·CLASS 평주말 시간표·PRICE 1·3·6·12개월권·PT·체험권·MOTTO "Earn it. Every day."
-- [x] **WOD 게시 확인** — AMRAP 15 (Power Clean 135/95lb·Burpee Box Jump 24/20) + FRAN 21-15-9 (Thruster 95/65lb·Pull-up)
-- [x] 박지훈 코치 view (FACING SEONGSU OWNER) WOD·Notice 양쪽 잘 떴음
+## 진행 중
 
-## 진행중
+(없음 — 모든 코드·빌드·설치 끝)
 
-(없음 — 이번 세션 모든 작업 마무리)
+## 대기 (다음 세션)
 
-## 대기 (다음 세션 후보)
+### 우선순위 높음 — v1.17 시연 마무리
+- [ ] **사장 로그인 진입로 분리** — SignupScreen 에 "사장으로 로그인" 버튼이 없어요. 박지훈 데모 카드는 AuthState 진입이라 BossAuthState 가 안 켜져서 staff SSE 호출 0회. SignupScreen 또는 RoleEntryScreen 에 BossLoginScreen 진입 분기 추가 필요. **1~2시간 작업**.
+- [ ] **device_hash 페어링 흐름** — staff SSE 가 403 NO_GYM 안 띄우려면 폰 device_hash 가 `gym_managers.device_hash` 컬럼에 등록돼야 함. boss login 성공 시 자동 등록 또는 페어링 코드 흐름. 현재 DB 에는 coach_phase4 만 페어링 완료, 나머지 사장·코치 다 NULL.
+- [ ] **알림 실 시연** — 위 2단계 끝나면 가짜 가입 신청 1건 트리거(`POST /api/v1/gyms/2/join`) → 폰 알림바 "[FACING] 새 가입 신청" 떠야 정상. logcat `[STAFF_SSE]` 태그 + 백엔드 access log `GET /api/v1/staff/me/events 200` 확인.
 
-### 우선순위 높음
-- [ ] **백엔드 admin override 시드 endpoint** (오늘 시작 안 함, 1시간+) — gym profile PATCH + WOD POST 가 device-hash 인증이라 admin JWT 로 호출 불가. seed_demo.py 가 박스 프로필 9 필드 + WOD 4개를 자동 시드 못함. 다음 Volume wipe 시 사용자가 또 PC 어드민 수동 채워야 함. 영속 인프라로 백엔드에 admin 전용 endpoint 추가 필요
-  - 위치: `services/facing/api/gym.py` 끝에 `POST /api/v1/admin/gyms/<gym_id>/seed-profile`, `POST /api/v1/admin/gyms/<gym_id>/seed-wod` 추가
-  - 인증: `session["admin_role"] in ("boss","owner")` + `session["admin_gym_id"] == gym_id`
-  - seed_demo.py 에 `seed_box_profile()` + `seed_wods()` 함수 추가
+### 우선순위 중간 — Foreground Service v1.18
+- [ ] **flutter_foreground_task TaskHandler 통합** — 현재 SSE 는 앱 포그라운드/백그라운드 한정. 앱 종료 후에도 알림 받으려면 isolate 기반 Foreground Service 필요. AndroidManifest 컴포넌트는 이미 선언, 코드만 추가하면 됨. `flutter_foreground_task` 의 `FlutterForegroundTask.init()` + `startService()` + TaskHandler 별도 dart entry point. 추가 2~4시간.
 
-- [ ] **코치 프로필 시드 (gym_coach_profiles)** — 어제부터 진행중. coach_user_id(gym_managers.id) 가 admin API 에 노출 안 됨. 신규 endpoint 또는 admin override 와 같이 처리
-
-### 중간
-- [ ] **services/facing untracked 3건 정리** — `.err.log`, `.run.log`(M), `data/contracts/contract_10_signed_20260523_212559.html`. `.gitignore` 에 `.err.log`, `.run.log`, `data/contracts/*.html` 추가 + `git rm --cached .run.log`
-- [ ] **apps/facing-app ahead 1 commit (chore handoff 어제 임시)** — push 안 한 상태. 어제 70d9172 chore(handoff). 다음 세션에서 push 또는 squash 결정
-- [ ] **데이터 정리** — 박지훈 계정이 Test 박스 OWNER + FACING SEONGSU 코치 두 군데 동시 소속이라 박스 default 가 Test 로 잡힘. demo card "박지훈 · FACING SEONGSU 코치" 탭해도 Test 로 들어감
-
-### 신규 기능 후보 (큰 작업)
-- [ ] PHASE5 §1.3 사장 폰 회원 list+상세 6탭 (1주 plan)
-- [ ] PHASE4 P0 잔여 — Toss 빌링키 자동결제·재시도·grace / 듀얼 포지셔닝 B2B2C
-- [ ] 폰 사장 편집 UI 확장 (`gym_profile_edit_screen` 9 필드 + 신규 `coach_profile_edit_screen`)
-- [ ] 회원 가입 흐름 e2e 시연 (폰 가입 신청 → PC 사장 승인 → 회원권 발급 → 폰 카드 갱신)
-- [ ] 전자계약서 PC→폰 전자서명 흐름 e2e 시연
-- [ ] 폰 APK 실기 Galaxy S22 설치 (집 도착 시 — memory `project-pending-phone-apk-install` 참조)
+### 우선순위 낮음 — 누적 대기
+- [ ] **백엔드 admin override 시드 endpoint** (이전 세션 인계) — gym profile PATCH·WOD POST device-hash 인증이라 admin JWT 로 호출 불가. seed_demo.py 자동화 위해 별도 endpoint 필요.
+- [ ] **코치 프로필 시드 (gym_coach_profiles)** — coach_user_id 가 admin API 에 노출 안 됨. admin override 와 같이 처리.
+- [ ] **services/facing untracked 3건 정리** — `.err.log`, `.run.log`, `data/contracts/contract_*.html` 를 `.gitignore` 추가.
+- [ ] **PHASE5 §1.3 사장 폰 회원 list+상세 6탭** (1주 plan)
+- [ ] **PHASE4 P0 잔여** — Toss 빌링키 자동결제·재시도·grace.
 
 ## 결정사항 / 주의
 
-### Volume 영속성 (큰 깨달음)
-- 어제 PC 어드민에서 채운 박스 프로필 9 필드 + WOD 4개가 Volume 마운트 후에도 영속됨
-- 즉 Volume 안 데이터 보존 잘 됨 → 다음 wipe 위험은 Volume 자체 detach 시점에만 발생
-- entrypoint.sh + gosu 패턴이 Postgres·Redis 공식 이미지가 쓰는 정식 패턴이라 보안 OK
+### Firebase 안 쓰는 이유 (사용자 결정)
+- 사용자: "구글 안 끼고 우리 자산으로 진행" — FCM 검토 안 함
+- 대안 결정: **자체 SSE + flutter_local_notifications + Foreground Service** 조합. 무료, 외부 의존 0
+- iOS 는 보류 — Apple 이 백그라운드 SSE 안 허용. APNs 도 Apple Developer $99/년 필요. v2 작업
 
-### 배포 흐름 (검증된 시퀀스)
-1. services/facing 코드 변경 → commit → `git push origin master`
-2. Railway 자동 빌드 (DOCKERFILE 빌더, 보통 2~4분)
-3. health 200 polling 으로 검증 — but health 가 commit SHA 안 보여주므로 Railway 대시보드 ACTIVE 확인이 더 확실
-4. Volume 마운트 변경 시 Railway 자동 재배포 → entrypoint 가 chown 처리
+### 실 시연 막힌 이유 (정확한 진단)
+- 폰 logcat: `[SSE] error: 403 → reconnect in 32s` (member SSE 만 시도, 403 NO_GYM)
+- 백엔드 access log: `/api/v1/staff/me/events` 호출 **0회**
+- 즉 `StaffPushService.start()` 가 실행 안 됨 → `bossAuth.isLoggedIn` 이 false 상태
+- 폰 화면의 "DEMO · 코치 김 · A Box owner" 는 `ProfileState.appMode = Coach` UI 토글일 뿐, 백엔드 `BossAuthState` 가 아님
+- **해결**: SignupScreen 에 "사장으로 로그인" 진입로 추가 + `BossAuthState.login()` 호출 → `isLoggedIn=true` → main.dart listener 가 `staffPush.start()` 호출 → staff SSE 시작
 
-### Flutter prod APK 빌드 패턴
-- `flutter build apk --release --dart-define=API_BASE_URL=https://service-facing-production.up.railway.app`
-- 빌드 시간 ~78s (캐시 있는 경우)
-- 산출물: `build/app/outputs/flutter-apk/app-release.apk` (~60MB)
-- `adb install -r` 으로 emul 또는 실기 install (`-r` = SharedPreferences 보존)
+### 검증된 인프라
+- `dumpsys notification | grep facing` → facing_staff (importance=4 HIGH) + facing_member (importance=3 DEFAULT) 둘 다 OS 에 등록 확인
+- 알림 권한 `appops POST_NOTIFICATION` → "allow" 기본
+- `curl POST /api/v1/staff/me/events` 페어링 없는 device 로 → 403 NO_GYM 정상 반환 (엔드포인트 살아있음)
+- `curl POST /api/v1/gyms/2/join` 가짜 device → row id=62 pending insert + sse_publish 발행 확인
 
-### 시드 스크립트 한계
-- `seed_demo.py --prod` 는 admin JWT 로 회원·회원권·클래스만 INSERT
-- 박스 프로필 9 필드 + WOD 4개는 device-hash 인증이라 PC 어드민 수동 또는 백엔드 admin override 필요
+### 폰 환경
+- 무선 디버깅: `192.168.1.101:5555` (tcpip 5555 모드, 폰 재부팅 전까지 유지)
+- 폰 슬립 모드 들어가면 5555 포트 reject — 다음 연결 시 단계 d (사용자에게 새 IP:포트 요청)
+- 폰 install 된 APK: `v0.1.17+3000` (60.3MB, LAN IP `192.168.1.100:5060` 가리킴) — prod URL APK 가 아니니까 prod 환경 시연 불가
 
-### 인증·세션
-- prod URL 보는 새 APK 도 SharedPreferences 보존되어 박지훈 코치 세션 그대로 진입 — 새 로그인 안 해도 됨
-- 박지훈 = Test 박스 OWNER + FACING SEONGSU 코치 동시 소속 (시드 데이터 inconsistency)
+### Git 상태
+- `services/facing` master: `74bbd99 feat(api): v1.17 — staff SSE endpoint` (push 안 함, "배포 금지" 룰)
+- `apps/facing-app` master: auto-save hook 으로 모든 변경 commit 완료. 최신 `3f9cafd chore: auto-save 17:23`. push 안 함
+- 둘 다 ahead, 사용자 명시 "배포해" 명령 시 push
 
-### 시연 계정
-- boss_seongsu / 1234 (FACING SEONGSU, gym_id=2)
-- admin / 1234 (글로벌 데모 — 모든 환경 자동 시드)
-- DEMO 계정 카드: 박지훈(코치)·김도윤(회원)·송예준(개인)·최서윤(가입대기) — Athlete/Coach 모드 진입 시 박스 선택 화면 거침
+## 이번 세션 commit 목록
 
-## 이번 세션 commit (로컬 + push 상태)
-
-| repo | 주요 commit | push |
-|---|---|---|
-| services/facing | `2b08438` fix(deploy): Railway Volume 권한 영속 fix (entrypoint.sh + gosu drop) | ✓ |
-| web/facing-admin | (변경 없음) | - |
-| apps/facing-app | 어제 `70d9172` chore(handoff) 1 commit ahead | (대기) |
+| 시각 | repo | commit | 내용 |
+|---|---|---|---|
+| 17:09 | apps/facing-app | (auto-save) | notification_service.dart 신설 |
+| 17:23 | apps/facing-app | (auto-save) | pubspec version 0.1.17+3000 |
+| 17:23 | apps/facing-app | (auto-save) | build.gradle.kts desugaring + staff_push_service |
+| 19:28 | services/facing | `74bbd99` | feat(api): v1.17 staff SSE endpoint |
 
 ## 외부 자료 / URL
 
-- 프로덕션 백엔드: https://service-facing-production.up.railway.app
-- 프로덕션 어드민: https://web-facing-admin-production.up.railway.app
-- 시드 스크립트: `web/facing-admin/scripts/seed_demo.py`
-- Volume entrypoint: `services/facing/entrypoint.sh` (신규)
-- API client 환경변수: `apps/facing-app/lib/core/api_client.dart:11` (`API_BASE_URL` dart-define)
+- 백엔드 staff SSE: `services/facing/api/admin.py:954` (`staff_events_stream` 함수)
+- Flutter 알림 코어: `apps/facing-app/lib/core/notification_service.dart`
+- Flutter staff SSE 클라: `apps/facing-app/lib/core/staff_push_service.dart`
+- Boss 로그인 화면 (작성 필요): `apps/facing-app/lib/features/boss/boss_login_screen.dart` (이미 존재, 라우트 `/boss/login`)
+- 사인업 화면 (진입로 추가 대상): `apps/facing-app/lib/features/auth/signup_screen.dart`
 
 ## 다음 세션 권장 첫 프롬프트
 
 `/resume`
 
 그 후 우선순위:
-- (a) **백엔드 admin override 시드 endpoint 추가** — 박스 프로필 9 필드 + WOD 자동화 인프라 (다음 wipe 대비, 1시간+)
-- (b) **코치 프로필 시드 (gym_coach_profiles)** — 어제부터 진행 중인 항목 마무리
-- (c) **PHASE5 §1.3 사장 폰 회원 list+상세 6탭** 본격 시작 (1주 plan)
-- (d) **untracked 정리 + apps/facing-app commit push** (가벼운 위생 작업)
+- (a) **SignupScreen 에 사장 로그인 진입로 추가** + BossAuthState 통합 — staff SSE 시작 트리거 (1~2h)
+- (b) **device_hash 페어링** — boss login 성공 시 자동 등록 또는 페어링 코드 흐름 (1h)
+- (c) **알림 실 시연** — 가짜 가입 신청 트리거 → 폰 알림바 캡쳐 (15분)
+- (d) **Foreground Service v1.18** — 앱 종료 후에도 알림 (2~4h)
