@@ -6,6 +6,7 @@ import '../../core/api_client.dart';
 import '../../core/app_mode.dart';
 import '../../core/device_id.dart';
 import '../../core/haptic.dart';
+import '../../core/notification_service.dart';
 import '../../core/quotes.dart';
 import '../../core/theme.dart';
 import '../../widgets/quote_card.dart';
@@ -77,6 +78,16 @@ class _SplashScreenState extends State<SplashScreen>
 
     try {
       await DeviceIdService.get();
+    } catch (_) {}
+    if (!mounted) return;
+
+    // v1.17 로컬 푸시 — 알림 권한 요청 (Android 13+ 다이얼로그, 그 이하는 자동 grant).
+    // 거부되어도 앱 동작은 그대로. 나중에 설정에서 켤 수 있음.
+    try {
+      final granted = await NotificationService.instance.isPermissionGranted();
+      if (!granted) {
+        await NotificationService.instance.requestPermission();
+      }
     } catch (_) {}
     if (!mounted) return;
 

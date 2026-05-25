@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'core/api_client.dart';
 import 'core/connectivity_state.dart';
 import 'core/movements_repository.dart';
+import 'core/notification_service.dart';
 import 'core/sse_client.dart';
 import 'core/theme.dart';
 import 'core/goals_state.dart';
@@ -72,6 +73,9 @@ Future<void> main() async {
   ]);
   connectivity.bindRetryQueue(api);
   bossApi.bindAuth(bossAuth);
+
+  // v1.17 로컬 푸시 — 알림 채널 초기화. 권한 요청은 첫 진입 화면에서 (사용자 동의 후).
+  await NotificationService.instance.init();
 
   runApp(FacingApp(
     api: api,
