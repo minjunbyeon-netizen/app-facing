@@ -98,6 +98,27 @@ class BossApiClient {
     }
   }
 
+  /// 인증 헤더 포함 PATCH (Phase 1-2·1-3 settings 갱신용)
+  Future<Map<String, dynamic>> patch(
+      String path, Map<String, dynamic> body) async {
+    try {
+      final res = await _dio.patch(path, data: body, options: _authOpts());
+      return _unwrap(res);
+    } on DioException catch (e) {
+      throw _mapDio(e);
+    }
+  }
+
+  /// 인증 헤더 포함 DELETE
+  Future<Map<String, dynamic>> delete(String path) async {
+    try {
+      final res = await _dio.delete(path, options: _authOpts());
+      return _unwrap(res);
+    } on DioException catch (e) {
+      throw _mapDio(e);
+    }
+  }
+
   Options _authOpts() {
     final auth = _authState;
     final headers = <String, dynamic>{};
