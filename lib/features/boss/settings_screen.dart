@@ -106,14 +106,7 @@ class _PlansTabState extends State<_PlansTab> {
     }
   }
 
-  Future<void> _delete(int planId) async {
-    Haptic.medium();
-    final api = context.read<BossApiClient>();
-    try {
-      await api.delete('/api/v1/admin/plans/$planId');
-    } catch (_) {}
-    await _load();
-  }
+  // _delete 함수는 다음 사이클 plan row 삭제 액션에 연결 예정 — 지금은 _load 사이클만 활용.
 
   @override
   Widget build(BuildContext context) {
@@ -355,7 +348,7 @@ class _PointsTabState extends State<_PointsTab> {
       children: [
         SwitchListTile(
           tileColor: FacingTokens.surface,
-          activeColor: FacingTokens.primary,
+          activeThumbColor: FacingTokens.primary,
           title: Text('포인트 활성', style: FacingTokens.body),
           subtitle: Text('박스 전체 포인트 적립·사용 on/off',
               style: FacingTokens.caption),
@@ -451,7 +444,7 @@ class _NotificationsTabState extends State<_NotificationsTab> {
       children: items
           .map((t) => SwitchListTile(
                 tileColor: FacingTokens.surface,
-                activeColor: FacingTokens.primary,
+                activeThumbColor: FacingTokens.primary,
                 title: Text(t.$2, style: FacingTokens.body),
                 subtitle: Text(t.$3, style: FacingTokens.caption),
                 value: d[t.$1] == true,
