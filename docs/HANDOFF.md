@@ -1,83 +1,105 @@
-# HANDOFF - 2026-05-24 21:38
+# HANDOFF - 2026-05-25 14:49
 
-## 완료 (이번 세션)
+> v1.16.2 큰 마일스톤 완료 세션. 어제 21:38 인계 이후 약 17시간 작업.
 
-### 핵심: PC↔폰 양방향 실시간 동기화 완성
-- [x] **PC↔폰 1:1 매핑 전수조사** — 8 mismatch 모두 해소 (회원 신원·클래스 등록·코치 화면 이름)
-- [x] **백엔드 신규 endpoint 2개** — `GET /api/v1/member/classes` (회원 폰: 자기 박스 클래스 + 본인 예약 상태) · `GET /api/v1/member/reservations` (본인 예약+waitlist)
-- [x] **`/gyms/mine` 응답에 `member_id` + `member_profile` 13 필드 노출** — PC 사장이 GymMemberProfile 입력한 신원정보 폰 즉시 표시
-- [x] **`/gyms/{id}/members` 응답에 GymMemberProfile join** — 코치가 폰에서 회원 실명·level·전화 표시 (device hash → 실명)
-- [x] **백엔드 SSE 9 mutation 보강** — leave / decide_member / wod.posted / messages / wod_result / announcement / coach_feedback / member_request 신규·응답 (api/gym.py)
-- [x] **폰 SSE 클라이언트** — `lib/core/sse_client.dart` 신설, dio stream + LineSplitter + exponential backoff 재연결 (1→64s) + listener 0명 disconnect
-- [x] **GymState SSE 자동 reload** — 13 trigger 이벤트 listen + 1s debounce + loadMine()
-- [x] **PC dashboard SSE 토스트 22 type 매핑** — `_layout.html` 의 기존 EventSource 인스턴스에 listener 만 추가 + tone(success/info/warn/danger)별 좌측 색 바
-- [x] **클래스 detail 모달 + 클래스 취소 버튼** — `classes.html`. timezone 버그 동시 fix (isoDate 가 toISOString UTC 기준이라 KST 자정 전후 chip 사라지던 것)
-- [x] **퍼포먼스 — proxy 2350ms → 330ms (7배)** — 진범: Windows IPv6 fallback. `BACKEND_URL` 을 `localhost` → `127.0.0.1`. 덤으로 N+1 fix, requests.Session pool 재사용, threaded=True 둘 다.
-- [x] **owner SSE listen fix** — `api/profile.py` `/member/me/events` 가 owner (코치 박지훈) 박스 이벤트도 받게 (`Gym.owner_hash==h` 합집합 추가)
-- [x] **사장 session 만료 자동 재로그인** — backend 401 → `/login?next=현재경로` 자동 redirect → 재로그인 → 원위치 복귀 (open redirect 방지 internal path 만 echo)
-- [x] **member_detail.html prefix 404 버그 fix** — `/api/proxy/v1/admin/members/...` 가 proxy 자동 prefix 와 중복돼 `/api/v1/admin/v1/admin/...` 404 → `/api/proxy/members/...`
-- [x] **Rule 1 — 매 작업 푸시 + 30분 idle 재발사** — CLAUDE.md 최상단 + memory + `.claude/settings.local.json` env.CC_IDLE_THRESHOLD=1800 동기화
+## 완료 (어제 21:38 ~ 오늘 14:49)
 
-### 검증·시연
-- [x] APK 빌드 (178MB debug) + 에뮬 설치 + launch
-- [x] 폰 logcat 으로 SSE 연결 + recv + reload trigger 추적 (debugPrint)
-- [x] **end-to-end 실측**: PC POST 회원 등록 → 폰 SSE recv (1.1s) → debounce 1s → loadMine done (총 2.2s)
-- [x] PC playwright 토스트 1초 내 표시 (회원 등록 + 22 type 다 매핑)
-- [x] member_detail 회원권 발급 200 + membership_id=10
-- [x] 8 어드민 페이지 + 13 fetch endpoint 모두 200 OK
-- [x] session 만료 시뮬레이션 (backend SECRET_KEY 바꿔 재시작) → /login?next=/members 자동 redirect → 재로그인 → /members 복귀 시연
+### 핵심 1 — facing-app 정체성 큰 전환
+- [x] **포지셔닝 재정의** — "Games elite 페이싱 계산기" → "수업 관리 + 페이싱(+α)"
+- [x] CLAUDE.md v1.16.2 (Primary value 변경, V1~V11 어투 유지, 금지어 헬스·다이어트·웰니스 유지)
+- [x] ARCHITECTURE_BRIEF §11.5 (포지셔닝 전환) + §11.6 (스키마 확장) 등록
+
+### 핵심 2 — 박스 프로필 + 코치 프로필 신규 스키마
+- [x] `gym_profiles` 9 필드 ALTER (price_summary·payment_methods·receipt_info·parking_info·first_visit_guide·attire_guide·wifi_info·contact_kakao·free_notice)
+- [x] `gym_coach_profiles` 신규 테이블 (coach_user_id·name·photo·career·certifications·specialty·competition_records·demo_video·sns·pt_bookable·off_days·display_order)
+- [x] 백엔드 API: GET/PATCH gym profile 9 필드 + 코치 CRUD 5 endpoints + SSE `gym.profile.updated`/`coach.profile.updated`
+- [x] Flutter UI: BoxProfileScreen + CoachDetailScreen (skeleton, read-only) + GymState `coaches` 필드 + repository 메서드
+
+### 핵심 3 — 폰 MyPage 회원권·락커 카드 (v1.16.2 시그니처 작업)
+- [x] 백엔드 `GET /api/v1/member/me/locker` 신규
+- [x] Flutter `Membership`·`Locker` 모델 + repository (`listMyMemberships`·`listMyLockers`)
+- [x] GymState `currentMembership`·`myLocker` getter + `loadMine()` 안에서 fetch
+- [x] MyPage `_MembershipCard` (진행 막대 + 월별 타임라인 + TODAY 마커) + `_LockerCard` (락커 번호 + D-day)
+- [x] SSE `locker.assigned`/`locker.released`/`gym.profile.updated`/`coach.profile.updated` 자동 reload trigger
+- [x] e2e 실측: PC PATCH /lockers/A-07 release → 폰 SSE recv 1s → 카드 사라짐 (logcat + 캡쳐 검증)
+
+### 핵심 4 — IdentityCard 3 줄 분리 + 역할 매핑
+- [x] DemoAccount.personName 필드 분리 (옛 nameLabel 통문자열 폐기)
+- [x] IdentityCard: 1줄 이름 / 2줄 박스명·역할 / 3줄 위치 / 4줄 DEMO 분리
+- [x] `lib/core/role_labels.dart` 신규 — roleKoLabel(owner=코치, boss=사장, member+approved=회원, pending=가입대기 등 7 분기)
+- [x] 옛 displayName 통문자열 자동 split 가드 (` · ` 첫 부분만)
+
+### 핵심 5 — 배포 인프라
+- [x] **GitHub push**: services/facing + web/facing-admin 양쪽 master
+- [x] **Railway 배포**: service-facing + web-facing-admin 둘 다 production
+- [x] **속도 SSE 워커 점유 fix** — `gunicorn -w 2 sync` → `-k gevent -w 1 --worker-connections 1000` → 32초 멈춤 → 0.1초
+- [x] **메타 일괄 추가** — title·description·favicon SVG·OG 이미지(미니멀 1200×630) + ProxyFix (`og:image` https 강제)
+- [x] Railway Volume 마운트 시도 → 권한 이슈로 detach (Dockerfile 원복)
+
+### 핵심 6 — 시연 데이터
+- [x] FACING SEONGSU(gym 2) 시드: 10 회원([DEMO] 김도윤·이수민·박지훈·최서윤·강민재·윤지원·한수아·송예준·정하은·임도현)
+- [x] 회원권 9건 (1·3·6·12개월권 골고루, active·expiring·expired 분포)
+- [x] 클래스 24개 (7일 × 평일4슬롯·주말2슬롯)
+- [x] WOD 4개 게시 (FRAN·DT·EMOM·HELEN)
+- [x] 박스 프로필 9 필드 가상 채우기 (가격·결제·주차·와이파이·카톡·휴무 공지 등)
+- [x] 백엔드 신규 `DELETE /api/v1/admin/members/{mid}` hard-delete endpoint
+
+### 핵심 7 — PC 어드민 사이드바 재배치
+- [x] 코치 + 시급정산 1 항목으로 통합 (`코치 · 시급정산` → /coaches, /payroll 도 active)
+- [x] 전자계약서 → 운영 섹션 이동
+- [x] 클래스 예약 → 기타 섹션 이동
+- [x] 락커 일괄 추가 modal (존 prefix + 범위 + zero-pad)
+
+### 검증
+- [x] 사이드바 14 항목 playwright 전수 검증 (105~225ms, 평균 124ms, 에러 0)
+- [x] 액션 버튼 실 클릭: 락커 modal open · 코치 시급정산 링크 · 코치 추가 버튼
+- [x] flutter analyze 0 issue (변경 파일 전부)
 
 ## 진행중
 
-- [ ] **실기 Galaxy S22 APK 설치 대기** — 사용자 외출 중 무선 ADB 응답 X (192.168.1.101:5555 → 무응답). 집 도착 후 폰 IP:포트 받으면 즉시 connect + tcpip 5555 재진입 + APK 설치. 절차는 `~/.claude/projects/C--dev-apps-facing-app/memory/project-pending-phone-apk-install.md`
+- [ ] **코치 프로필(gym_coach_profiles) 시드** — `coach_user_id`(gym_managers.id) 가 admin API 에 노출 안 됨. 별도 endpoint 신설 또는 DB 직접 INSERT 필요. 현재 NOTICE 카드는 GymProfile.coach_name·coach_bio fallback 으로 동작 (박지훈 · CrossFit L2 · 9년)
+- [ ] **Railway Volume 권한 fix** — `entrypoint.sh` 로 root → chown → drop to appuser 패턴 필요. 현재는 Volume detached 상태 → 매 배포마다 DB wipe → 재시드 필요
+- [ ] **HARDFIX 후 재테스트** — Volume 재마운트 후 영속 검증
 
-## 대기 (사용자 요청 + 후속 후보)
+## 대기 (다음 세션 후보)
 
-- [ ] **폰 화면 캡쳐로 reload 후 회원 list/카드 시각 갱신 확인** — 현재 logcat 으로 reload trigger 까지 검증. 실제 UI 갱신 시각 확인은 mobile-mcp 또는 scrcpy 캡쳐 필요.
-- [ ] **다른 mutation end-to-end 시연** — membership.issued · wod.posted · class_cancelled 폰까지 도달 확인
-- [ ] **PHASE5 §1.3 사장 폰 회원 list+상세 6탭** (1주 plan)
-- [ ] **PHASE4 P0 잔여** — Toss 빌링키 자동결제·재시도·grace / 듀얼 포지셔닝 B2B2C
-- [ ] **전자계약서 양방향 흐름** — 회원 폰 ↔ PC 어드민 (1주+)
-- [ ] **W-prime 페이싱 정밀화** — services/facing@4469bb4 → cf06238 revert 됨. 6 파일 복원
-- [ ] **debug 로깅 가드** — sse_client / GymState 의 `debugPrint` 가 verbose. release 자동 strip 이라 prod 영향 X지만 노이즈 거슬리면 kDebugMode 가드
+- [ ] PHASE5 §1.3 사장 폰 회원 list+상세 6탭 (1주 plan)
+- [ ] PHASE4 P0 잔여 — Toss 빌링키 자동결제·재시도·grace / 듀얼 포지셔닝 B2B2C
+- [ ] 폰 사장 편집 UI 확장 (`gym_profile_edit_screen` 9 필드 + 신규 `coach_profile_edit_screen`)
+- [ ] 회원 가입 흐름 e2e 시연 (폰 가입 신청 → PC 사장 승인 → 회원권 발급 → 폰 카드 갱신)
+- [ ] 전자계약서 PC→폰 전자서명 흐름 e2e 시연 (PHASE4 §1.3 이미 모델 등록, UI 미완)
+- [ ] 폰 APK 실기 Galaxy S22 설치 (어제 미완)
 
 ## 결정사항 / 주의
 
-- 사용자 명시 **배포 금지** (CLAUDE.md v1.16.1 최상위) — git push 절대 X. 로컬 commit 까지만. APK 도 에뮬·연결된 디바이스에 한정 설치만.
-- 사용자 명시 **Rule 1** (2026-05-24 신설) — 매 응답 종료 시 PushNotification 발사 + 30분 무응답 시 idle-watcher 자동 재발사
-- 사용자 명시 **오버나이트 모드** — 묻지 말고 자가 진행
-- 백엔드 띄울 때 `python app.py` 단독 — SECRET_KEY 는 `C:/dev/.env` 의 fixed 값. 다른 값으로 띄우면 cookie 무효화 시뮬 가능
-- **IPv6 fallback 함정** — facing-admin 의 `BACKEND_URL` 은 반드시 `127.0.0.1:5060` (localhost 쓰면 매 호출 ~2초 지연)
-- 폰 SSE 가 `_subscribers[gym_id]` 채널을 공유 — 같은 박스의 다른 회원 이벤트도 받음. 회원별 분리 (보안 강화) 는 후속
-- 폰 SSE 가 회원 (approved) + owner 둘 다 listen 가능하게 fix 완료
+- 사용자 명시 **배포 진행** (이번 세션 처음으로 git push + Railway deploy 허용)
+- Railway Hobby 플랜이라 cold-start sleep 없음 — 어제 본 32초 멈춤은 cold start 가 아니라 gunicorn sync 워커 + SSE 점유 문제
+- 백엔드 service-facing Dockerfile: gunicorn -k gevent -w 1 (SQLite + workers=1 룰)
+- 어드민 web-facing-admin Dockerfile: gunicorn -k gevent -w 1 --worker-connections 1000 (어제 v1.16.2 변경)
+- **Volume 미마운트 상태** — 다음 배포 시 DB wipe. 재시드 스크립트: `cd web/facing-admin && PYTHONIOENCODING=utf-8 python scripts/seed_demo.py --prod`
+- 시연 계정: boss_seongsu / 1234 (FACING SEONGSU, gym_id=2)
+- 임시 admin5 / 1234 도 시연 시 만들었음 (Volume 시도 중 DB wipe 됐을 가능성)
 
-## 이번 세션 commit (로컬, push 안 함)
+## 이번 세션 commit (로컬 + push)
 
-| repo | commit | 요약 |
+| repo | 주요 commit | push |
 |---|---|---|
-| services/facing | 9b2dc09 | feat(sync): PC↔폰 회원 신원·클래스 1:1 동기화 채널 |
-| services/facing | 1510511 | feat(sync): 폰→PC SSE 9 mutation 보강 |
-| services/facing | fe33ce1 | fix(sse): owner SSE listen |
-| services/facing | 36d0185 | perf(admin): N+1 fix + threaded=True |
-| web/facing-admin | ea4058f | fix(proxy): member_detail prefix 404 |
-| web/facing-admin | e0ce604 | feat(realtime): SSE 22 토스트 + 클래스 detail 모달 |
-| web/facing-admin | 604bfee | perf(proxy): 2350ms → 330ms IPv6 fix |
-| web/facing-admin | eb6a967 | feat(auth): 자동 /login redirect + 원위치 복귀 |
-| apps/facing-app | 99b34db | feat(sync): GYM RECORD 카드 + Classes 화면 |
-| apps/facing-app | bdba4ad | chore(rule): Rule 1 push |
-| apps/facing-app | 355e6a7 | feat(realtime): 폰 SSE 클라이언트 |
-| apps/facing-app | 978c0d5 | feat(sse): debug 로깅 + end-to-end 검증 |
+| services/facing | gym 9 필드 ALTER · 코치 테이블 · API · DELETE endpoint | ✓ |
+| services/facing | Dockerfile 원복 (Volume 권한 이슈로) | ✓ |
+| web/facing-admin | 코치·시급정산 통합 + 락커 일괄 추가 · gevent 전환 · OG 이미지 · ProxyFix · 시드 스크립트 | ✓ |
+| apps/facing-app | GymProfile 9 필드 model · BoxProfileScreen · CoachDetailScreen · MembershipCard · LockerCard · IdentityCard 3줄 · role_labels · 박스소식 카드 보강 | (로컬만, push 안 함) |
 
-## 외부 자료 / 참고
+## 외부 자료 / URL
 
-- ARCHITECTURE_BRIEF SSOT: `docs/ARCHITECTURE_BRIEF.md`
-- 폰 좌표 메모리: `~/.claude/projects/C--dev/memory/reference_test_device_phone.md`
-- 집 도착 시 APK 설치 절차: `~/.claude/projects/C--dev-apps-facing-app/memory/project-pending-phone-apk-install.md`
-- 디자인 시스템: CLAUDE.md §디자인 시스템 v1.15.0
-- linko 격차 분석: `docs/competitor/linko*.md`
+- 프로덕션 어드민: https://web-facing-admin-production.up.railway.app
+- 프로덕션 백엔드: https://service-facing-production.up.railway.app
+- ARCHITECTURE_BRIEF: `docs/ARCHITECTURE_BRIEF.md` §11.5·11.6
+- 박스 프로필 스키마: `docs/GYM_PROFILE_SCHEMA.md`
+- 페르소나 백로그: `docs/PERSONA_BACKLOG.md`
+- 시드 스크립트: `web/facing-admin/scripts/seed_demo.py`
 
 ## 다음 세션 권장 첫 프롬프트
 
 `/resume`
 
-그리고 (a) 실기 폰 IP:포트 알려주기 → 즉시 APK 설치 + 페르소나 스위처 검증, 또는 (b) `폰 화면 캡쳐로 reload 시각 갱신 확인` 이어가기.
+그 후 (a) **Volume entrypoint 영속 fix** → DB wipe 끝내기, 또는 (b) **폰 emul 띄워서 NOTICE 박스 소식 카드 채워진 모습 캡쳐 + apps/facing-app push**, 또는 (c) **PHASE5 §1.3 사장 폰 모드** 본격 시작.
