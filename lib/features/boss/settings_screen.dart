@@ -173,7 +173,26 @@ class _PlansTabState extends State<_PlansTab> {
                             ),
                           ),
                           if (!active)
-                            Text('inactive', style: FacingTokens.micro),
+                            const Padding(
+                              padding: EdgeInsets.only(right: FacingTokens.sp2),
+                              child: Text('inactive', style: FacingTokens.micro),
+                            ),
+                          // PHASE5 §1-1 plan soft delete (is_active=false). 활성만 노출.
+                          if (active)
+                            IconButton(
+                              icon: const Icon(Icons.delete_outline,
+                                  size: 18, color: FacingTokens.muted),
+                              tooltip: 'Disable plan',
+                              onPressed: () async {
+                                final id = (p['id'] as num?)?.toInt() ?? 0;
+                                if (id == 0) return;
+                                final api = context.read<BossApiClient>();
+                                try {
+                                  await api.delete('/api/v1/admin/plans/$id');
+                                } catch (_) {}
+                                await _load();
+                              },
+                            ),
                         ],
                       ),
                     );
