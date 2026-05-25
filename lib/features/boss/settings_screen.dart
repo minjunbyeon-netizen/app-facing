@@ -20,7 +20,7 @@ class BossSettingsScreen extends StatefulWidget {
 
 class _BossSettingsScreenState extends State<BossSettingsScreen>
     with SingleTickerProviderStateMixin {
-  late final TabController _tab = TabController(length: 3, vsync: this);
+  late final TabController _tab = TabController(length: 4, vsync: this);
 
   @override
   void dispose() {
@@ -50,6 +50,7 @@ class _BossSettingsScreenState extends State<BossSettingsScreen>
             Tab(text: 'Plans'),
             Tab(text: 'Points'),
             Tab(text: 'Notifications'),
+            Tab(text: 'Auto-Join'),
           ],
         ),
       ),
@@ -59,6 +60,7 @@ class _BossSettingsScreenState extends State<BossSettingsScreen>
           _PlansTab(),
           _PointsTab(),
           _NotificationsTab(),
+          _AutoJoinTab(),
         ],
       ),
     );
@@ -537,3 +539,88 @@ class _EditRow extends StatelessWidget {
 }
 
 // _Row 는 _EditRow 로 대체되어 제거됨 (사이클 58)
+
+// ───── PHASE5 §4-1 — Auto-Join 토글 탭 (사이클 61) ──────────────────
+class _AutoJoinTab extends StatefulWidget {
+  const _AutoJoinTab();
+  @override
+  State<_AutoJoinTab> createState() => _AutoJoinTabState();
+}
+
+class _AutoJoinTabState extends State<_AutoJoinTab> {
+  bool _enabled = false;
+  bool _loading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final auth = context.read<BossAuthState>();
+    final api = context.read<BossApiClient>();
+    final gid = auth.gymId ?? 0;
+    if (gid == 0) {
+      setState(() { _loading = false; _error = '박스 정보 없음'; });
+      return;
+    }
+    try {
+      final res = await api.get('/api/v1/admin/gyms/$gid/auto-approve');
+      setState(() {
+        _enabled = res['enabled'] == true;
+        _loading = false; _error = null;
+      });
+    } catch (e) {
+      setState(() { _loading = false; _error = '연결 실패'; });
+    }
+  }
+
+  Future<void> _toggle(bool v) async {
+    final auth = context.read<BossAuthState>();
+    final api = context.read<BossApiClient>();
+    final gid = auth.gymId ?? 0;
+    try {
+      final res = await api.patch(
+          '/api/v1/admin/gyms/$gid/auto-approve', {'enabled': v});
+      setState(() => _enabled = res['enabled'] == true);
+    } catch (_) {}
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_loading) {
+      return const Center(
+          child: CircularProgressIndicator(color: FacingTokens.primary));
+    }
+    if (_error != null) {
+      return Center(
+          child: Text(_error!,
+              style: FacingTokens.body.copyWith(color: FacingTokens.danger)));
+    }
+    return ListView(
+      padding: const EdgeInsets.all(FacingTokens.sp4),
+      children: [
+        SwitchListTile(
+          tileColor: FacingTokens.surface,
+          activeThumbColor: FacingTokens.primary,
+          title: Text('자동 가입 승인', style: FacingTokens.body),
+          subtitle: Text(
+            '회원이 박스 가입 신청 시 사장 승인 없이 즉시 활성. 무인 박스 권장.',
+            style: FacingTokens.caption,
+          ),
+          value: _enabled,
+          onChanged: _toggle,
+        ),
+        const SizedBox(height: FacingTokens.sp3),
+        Text(
+          _enabled
+              ? '활성: 가입 신청 즉시 approved 처리'
+              : '비활성: 사장이 회원 리스트의 대기 탭에서 직접 승인',
+          style: FacingTokens.caption,
+        ),
+      ],
+    );
+  }
+}
