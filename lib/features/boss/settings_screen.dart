@@ -374,18 +374,57 @@ class _PointsTabState extends State<_PointsTab> {
           onChanged: (v) => _patch({'is_active': v}),
         ),
         const SizedBox(height: FacingTokens.sp3),
-        _Row(label: '적립률 (%)', value: '${d['earn_rate'] ?? 0}'),
-        _Row(label: '사용 최소 단위 (P)', value: '${d['redeem_unit'] ?? 0}'),
-        _Row(
-            label: '만료 일수',
-            value: d['expiry_days'] == 0
-                ? '무기한'
-                : '${d['expiry_days'] ?? 0}일'),
-        const SizedBox(height: FacingTokens.sp3),
-        Text('값 수정 UI 는 다음 사이클(Phase 1-2 후속) 에서 추가돼요.',
-            style: FacingTokens.caption),
+        // PHASE5 §1-2 후속 — 값 inline 편집. tap 시 prompt-style dialog.
+        _EditRow(
+          label: '적립률 (%)',
+          value: '${d['earn_rate'] ?? 0}',
+          onTap: () => _editInt('earn_rate', '적립률 (0~100)',
+              (d['earn_rate'] as num?)?.toInt() ?? 0),
+        ),
+        _EditRow(
+          label: '사용 최소 단위 (P)',
+          value: '${d['redeem_unit'] ?? 0}',
+          onTap: () => _editInt('redeem_unit', '사용 최소 단위 (P)',
+              (d['redeem_unit'] as num?)?.toInt() ?? 1000),
+        ),
+        _EditRow(
+          label: '만료 일수',
+          value: (d['expiry_days'] ?? 0) == 0
+              ? '무기한'
+              : '${d['expiry_days']}일',
+          onTap: () => _editInt('expiry_days', '만료 일수 (0 = 무기한)',
+              (d['expiry_days'] as num?)?.toInt() ?? 365),
+        ),
       ],
     );
+  }
+
+  Future<void> _editInt(String key, String label, int current) async {
+    final ctrl = TextEditingController(text: '$current');
+    final v = await showDialog<int>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: FacingTokens.surface,
+        title: Text(label, style: FacingTokens.h3),
+        content: TextField(
+          controller: ctrl,
+          keyboardType: TextInputType.number,
+          autofocus: true,
+          style: FacingTokens.body.copyWith(color: FacingTokens.fg),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text('취소')),
+          TextButton(
+              onPressed: () =>
+                  Navigator.of(ctx).pop(int.tryParse(ctrl.text.trim())),
+              child: const Text('저장')),
+        ],
+      ),
+    );
+    if (v == null) return;
+    await _patch({key: v});
   }
 }
 
@@ -469,6 +508,30 @@ class _NotificationsTabState extends State<_NotificationsTab> {
                 onChanged: (v) => _patchKey(t.$1, v),
               ))
           .toList(),
+    );
+  }
+}
+
+class _EditRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final VoidCallback onTap;
+  const _EditRow({required this.label, required this.value, required this.onTap});
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp2),
+        child: Row(
+          children: [
+            Expanded(child: Text(label, style: FacingTokens.body)),
+            Text(value, style: FacingTokens.body.copyWith(color: FacingTokens.fg)),
+            const SizedBox(width: 6),
+            const Icon(Icons.edit_outlined, size: 14, color: FacingTokens.muted),
+          ],
+        ),
+      ),
     );
   }
 }
