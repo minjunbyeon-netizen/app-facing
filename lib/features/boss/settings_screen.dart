@@ -536,20 +536,4 @@ class _EditRow extends StatelessWidget {
   }
 }
 
-class _Row extends StatelessWidget {
-  final String label;
-  final String value;
-  const _Row({required this.label, required this.value});
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp2),
-      child: Row(
-        children: [
-          Expanded(child: Text(label, style: FacingTokens.body)),
-          Text(value, style: FacingTokens.body.copyWith(color: FacingTokens.muted)),
-        ],
-      ),
-    );
-  }
-}
+// _Row 는 _EditRow 로 대체되어 제거됨 (사이클 58)
