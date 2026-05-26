@@ -87,7 +87,7 @@ class _WodTodayScreenState extends State<WodTodayScreen> {
                     : ListView.separated(
                         padding: const EdgeInsets.all(FacingTokens.sp4),
                         itemCount: _plans.length,
-                        separatorBuilder: (_, __) =>
+                        separatorBuilder: (ctx, idx) =>
                             const SizedBox(height: FacingTokens.sp3),
                         itemBuilder: (_, i) {
                           final p = _plans[i];
