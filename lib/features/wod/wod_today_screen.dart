@@ -92,6 +92,10 @@ class _WodTodayScreenState extends State<WodTodayScreen> {
                         itemBuilder: (_, i) {
                           final p = _plans[i];
                           final hour = p['plan_hour'] as int? ?? 0;
+                          final tname = (p['template_name'] ?? '').toString();
+                          final tkind = (p['template_kind'] ?? 'regular').toString();
+                          final tdesc = (p['template_description'] ?? '').toString();
+                          final wdesc = (p['wod_description'] ?? '').toString();
                           return Container(
                             padding: const EdgeInsets.all(FacingTokens.sp4),
                             decoration: BoxDecoration(
@@ -110,21 +114,56 @@ class _WodTodayScreenState extends State<WodTodayScreen> {
                                           color: FacingTokens.primary),
                                     ),
                                     const SizedBox(width: FacingTokens.sp3),
-                                    Expanded(
-                                      child: Text(
-                                        (p['wod_title'] ?? '').toString(),
-                                        style: FacingTokens.body.copyWith(
-                                            fontWeight: FontWeight.w700),
+                                    if (tname.isNotEmpty)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: tkind == 'event'
+                                              ? FacingTokens.primary
+                                              : FacingTokens.surfaceMax,
+                                          border: Border.all(
+                                              color: FacingTokens.border),
+                                        ),
+                                        child: Text(
+                                          tkind == 'event' ? 'EVENT' : tname,
+                                          style: FacingTokens.micro.copyWith(
+                                              color: tkind == 'event'
+                                                  ? Colors.white
+                                                  : FacingTokens.fg,
+                                              fontWeight: FontWeight.w700),
+                                        ),
                                       ),
-                                    ),
                                   ],
                                 ),
-                                if ((p['wod_description'] ?? '')
-                                    .toString()
-                                    .isNotEmpty) ...[
-                                  const SizedBox(height: FacingTokens.sp2),
-                                  Text(p['wod_description'].toString(),
+                                if (tname.isNotEmpty && tkind == 'event') ...[
+                                  const SizedBox(height: FacingTokens.sp1),
+                                  Text(tname,
+                                      style: FacingTokens.body.copyWith(
+                                          fontWeight: FontWeight.w700)),
+                                ],
+                                const SizedBox(height: FacingTokens.sp2),
+                                Text((p['wod_title'] ?? '').toString(),
+                                    style: FacingTokens.body.copyWith(
+                                        fontWeight: FontWeight.w700)),
+                                if (wdesc.isNotEmpty) ...[
+                                  const SizedBox(height: FacingTokens.sp1),
+                                  Text(wdesc,
                                       style: FacingTokens.caption),
+                                ],
+                                if (tdesc.isNotEmpty) ...[
+                                  const SizedBox(height: FacingTokens.sp2),
+                                  Container(
+                                    padding: const EdgeInsets.all(
+                                        FacingTokens.sp2),
+                                    decoration: BoxDecoration(
+                                      color: FacingTokens.surfaceHigh,
+                                      border: Border.all(
+                                          color: FacingTokens.border),
+                                    ),
+                                    child: Text('이 수업이 어떤가요?  $tdesc',
+                                        style: FacingTokens.micro),
+                                  ),
                                 ],
                               ],
                             ),
