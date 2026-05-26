@@ -49,6 +49,19 @@
 - ✓ payment is_first_payment / classes PATCH / members pause endpoint 추가
 - — A-4·5·6 (member_detail·classes modal 등 추가 폴리시): 옵션. 핵심 통일은 stat-badge SSOT 로 다 끌고 감.
 
+## TASK D — 수업 템플릿 + 일일 WOD 배치 (2026-05-26 10:29 추가)
+
+같은 "1수업" 큰 카테고리가 요일마다 다른 운동. 사장이 템플릿 + 시간대 배치 + 일일 WOD 까지 설정 → 폰 회원에게 자동 노출.
+
+- [ ] D-1. `ClassTemplate` 모델 신설 (id·gym_id·name·description·default_track·default_duration·default_room)
+- [ ] D-2. `DailyClassPlan` 모델 신설 (id·gym_id·date·hour·template_id·wod_title·wod_description — 그날 그 시간의 실제 운동)
+- [ ] D-3. ALTER ClassSession 에 template_id FK 추가 (option, 옛 데이터 호환)
+- [ ] D-4. backend admin CRUD endpoint — templates·daily-plans
+- [ ] D-5. facing-admin /classes 페이지 또는 신규 /class-templates 페이지 — 템플릿 관리 + 배치 UI
+- [ ] D-6. 폰 회원 화면 — 오늘/내일 클래스 + WOD 미리보기 (앱 lib/features/classes 또는 신규 wod 화면)
+- [ ] D-7. SSE publish — daily plan 갱신 시 회원 폰 실시간 알림
+- [ ] D-8. seed: ClassTemplate 2건 ("1수업 초보 입문" / "2수업 RX 본격") + 오늘 DailyClassPlan 8건 (6/7/8/9/18/19/20/21시 교차)
+
 ## 진행 룰
 
 - 1 사이클당 1~2 항목씩 누적 commit
