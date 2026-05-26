@@ -49,6 +49,32 @@
 - ✓ payment is_first_payment / classes PATCH / members pause endpoint 추가
 - — A-4·5·6 (member_detail·classes modal 등 추가 폴리시): 옵션. 핵심 통일은 stat-badge SSOT 로 다 끌고 감.
 
+## TASK A-4·5·6 완료 (2026-05-26 13:1x)
+
+### A-4 — member_detail 버튼 통일
+- ✓ 글로벌 `style.css` 에 `.btn-ghost` (단독), `.btn-danger`, `.btn-sm`, `.btn-danger-outline`, `.btn-primary` 추가 (SSOT)
+- ✓ `member_detail.html` 7 곳 inline `style="background/border/color/padding/font-size/..."` 제거 → 토큰 클래스만
+- ✓ 회원 목록 a · risk 새로고침 · 해지 처리 · 결제수단 추가 · 포인트 사용 · 카드 액션 모두 글로벌 클래스 사용
+
+### A-5 — classes.html modal 버튼 통일
+- ✓ classes.html 로컬 `.btn-ghost`·`.btn-danger` 중복 정의 제거 → 글로벌 SSOT 상속
+- ✓ `.btn-primary` 글로벌 추가 (옛 `.btn` 의 alias) — classes.html 내 5 곳 자동 동작
+
+### A-6 — 페이지별 inline style 잔존 (이번 사이클 청소 분)
+- ✓ `onboarding.html` step-done 4 버튼 inline style 제거
+- ✓ `payroll.html` 자동 산정·CSV 내보내기 2 버튼 정리
+- ✓ `dashboard.html` 재등록 링크 → `btn-ghost btn-sm`
+- — 잔존 (다음 사이클 후보): `_layout.html:140` SSE 재연결 새로고침 inline button, `members.html:12` 파일 업로드 label, `stats.html:34` 처음 시작하기 a — 모두 1 회용 작은 inline 으로 영향 미미. SSOT 표 아래 참조.
+
+### 버튼 토큰 SSOT 표
+| 용도 | 클래스 | 정의 위치 |
+|---|---|---|
+| Primary action | `.btn` 또는 `.btn-primary` | `static/style.css` |
+| Secondary (ghost) | `.btn-ghost` | `static/style.css` |
+| Danger fill | `.btn-danger` | `static/style.css` |
+| Danger outline | `.btn-ghost.btn-danger-outline` | `static/style.css` |
+| 작은 ghost (12px) | `.btn-ghost.btn-sm` | `static/style.css` |
+
 ## TASK D — 수업 템플릿 + 일일 WOD 배치 (2026-05-26 10:29 추가)
 
 같은 "1수업" 큰 카테고리가 요일마다 다른 운동. 사장이 템플릿 + 시간대 배치 + 일일 WOD 까지 설정 → 폰 회원에게 자동 노출.
