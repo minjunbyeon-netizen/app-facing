@@ -12,7 +12,7 @@ import '../../core/theme.dart';
 ///
 /// 백엔드 endpoint:
 ///   - GET  /api/v1/member/gyms-list           (public, 박스 목록)
-///   - POST /api/v1/member/gyms/<gid>/self-signup
+///   - POST /api/v1/member/gyms/`<gid>`/self-signup
 ///     headers: X-Device-Id
 ///     body: {name, phone?, gender?, birth_date?, level?}
 class SelfSignupScreen extends StatefulWidget {
@@ -168,7 +168,7 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
           Expanded(
             child: ListView.separated(
               itemCount: _gyms.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 8),
+              separatorBuilder: (_, _) => const SizedBox(height: 8),
               itemBuilder: (_, i) {
                 final g = _gyms[i];
                 final selected = _selected?.id == g.id;
