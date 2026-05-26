@@ -32,6 +32,7 @@ import 'features/achievement/achievement_repository.dart';
 import 'features/achievement/achievement_state.dart';
 import 'features/auth/auth_state.dart';
 import 'features/auth/signup_screen.dart';
+import 'features/signup/self_signup_screen.dart';
 import 'features/gym/gym_repository.dart';
 import 'features/gym/gym_search_screen.dart';
 import 'features/gym/gym_state.dart';
@@ -189,6 +190,8 @@ class FacingApp extends StatelessWidget {
           '/onboarding/mode': (_) => const ModeSelectScreen(),
           '/onboarding/create-gym': (_) => const CreateGymScreen(),
           '/onboarding/find-gym': (_) => const GymSearchScreen(),
+          // PHASE5 Sprint1 F4 — 신규 회원 박스 선택 + 자동 가입 신청
+          '/signup/self': (_) => const SelfSignupScreen(),
           '/home': (_) => const HomeScreen(),
           '/shell': (_) => const MainShell(),
           '/profile': (_) => const ProfileScreen(),
