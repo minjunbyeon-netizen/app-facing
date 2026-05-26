@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'core/api_client.dart';
+import 'core/fcm_register.dart';
 import 'core/connectivity_state.dart';
 import 'core/movements_repository.dart';
 import 'core/notification_service.dart';
@@ -80,6 +83,11 @@ Future<void> main() async {
 
   // v1.17 로컬 푸시 — 알림 채널 초기화. 권한 요청은 첫 진입 화면에서 (사용자 동의 후).
   await NotificationService.instance.init();
+
+  // PHASE5 §6-3 — FCM 토큰 register (placeholder · firebase_messaging 미도입).
+  // 백엔드 _fcm_tokens 에 등록되면 사장 공지 발행 시 push fan-out 에 포함됨.
+  // 실패해도 silent — 앱 동작 영향 없음.
+  unawaited(FcmRegister.registerIfNeeded(api));
 
   // v1.17 사장·코치 폰 SSE — 로그인 상태에 따라 자동 start/stop.
   final staffPush = StaffPushService();
