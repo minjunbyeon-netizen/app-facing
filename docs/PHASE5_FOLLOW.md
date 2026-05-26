@@ -32,6 +32,23 @@
 - [ ] C-2. 2차: detail modal 들 (member detail·class detail·계약서 modal)
 - [ ] C-3. 3차: settings·calendar·announcements 회귀
 
+## 완료 상태 (2026-05-26 09:37)
+
+- ✓ A-1 contracts actions ghost link 통일
+- ✓ A-2 stat-badge 색 4종 SSOT (primary·success·muted·danger)
+- ✓ A-3 members status badge 4종 매핑
+- ✓ B-1·B-2 ClassSession.track 컬럼 + ALTER
+- ✓ B-3 classes POST/PATCH endpoint track 파라미터
+- ✓ B-4 추가 form Track select (intro/rx/scaled/open + 미지정)
+- ✓ B-5 캘린더 chip + detail modal + dashboard 카드 track badge
+- ✓ B-6 오늘 8시간대 클래스 시드 (6/7/8/9시 + 18/19/20/21시 — intro/rx 교차)
+- ✓ C-1 1차 검증 (contracts·members·classes) console 0
+- ✓ C-2 2차 검증 (class detail modal Track 행 표시)
+- ✓ C-3 3차 검증 (settings·calendar·announcements) console 0
+- ✓ 회원 정리 + 실 이름 시드 10명 + 성별·생년 컬럼 분리
+- ✓ payment is_first_payment / classes PATCH / members pause endpoint 추가
+- — A-4·5·6 (member_detail·classes modal 등 추가 폴리시): 옵션. 핵심 통일은 stat-badge SSOT 로 다 끌고 감.
+
 ## 진행 룰
 
 - 1 사이클당 1~2 항목씩 누적 commit
