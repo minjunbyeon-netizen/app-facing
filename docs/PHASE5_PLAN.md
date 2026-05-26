@@ -20,27 +20,27 @@
 
 > 모든 phase 가 이 마스터 데이터에 의존. 먼저 안 만들면 뒤 다 깨짐.
 
-- [ ] 1-1. 회원권 마스터 설정: 1/3/6개월 기간·금액 (DB 테이블 신설 `membership_plans` — gym_id·duration_days·price·is_active)
-- [ ] 1-2. 포인트 설정: 적립률(%)·사용단위·만료 정책 (gym_id 별 단일 row, JSON 컬럼)
-- [ ] 1-3. 알림 설정: 공지사항 자동알림 on/off + 채널 선택(폰 푸시·카톡)
-- [ ] 1-4. 사장 설정 화면 라우트 추가 (`/admin/settings`) + 좌측 메뉴 항목
+- [x] 1-1. 회원권 마스터 설정 (gym_plan 모델 + settings_plans.html · CRUD endpoint · soft-delete)
+- [x] 1-2. 포인트 설정 (gym_points_setting JSON + 사이클 58 Points 탭 inline 편집)
+- [x] 1-3. 알림 설정 (announcements 자동알림 toggle + Phase 5-3 공지 CRUD 연동)
+- [x] 1-4. 사장 설정 화면 (`/admin/settings` + 좌측 사이드바 진입로 + 4 탭 Plans·Points·Notify·Auto-Join)
 
 ## Phase 2 — 회원 화면 핵심 강화 (Sprint 2, 1주)
 
-- [ ] 2-1. 만료 D-7 이내 회원 빨간색 강조 (리스트 row 색상 + 필터 토글)
-- [ ] 2-2. 회원 상세에 이전 회원권 이력 리스트업 (현재 회원권 아래 collapse, 결제일·금액·기간)
-- [ ] 2-3. 결제이력 탭 → 수강이력 탭으로 전환 (자주 수강한 수업 top 5 — 성향 파악용)
-- [ ] 2-4. 회원 카드에 포인트 잔액 표시 (Phase 1-2 의 포인트 설정 의존)
-- [ ] 2-5. 메모란을 이름 옆으로 이동 (UI 재배치 — 1 row 형태)
-- [ ] 2-6. 기간 정지 파트 (정지 시작·종료일 입력 + 만료일 자동 연장 로직)
+- [x] 2-1. 만료 D-7 빨간색 강조 (members.html 임계값 통일 commit f2bcea6)
+- [x] 2-2. 회원 상세 회원권 이력 리스트 (memberships 탭 — 활성·만료·정지 row 분리)
+- [x] 2-3. 결제이력 → 수강이력 탭 전환 (commit 8458bbf · top 5 자주 들은 수업)
+- [x] 2-4. 회원 카드 포인트 잔액 표시 (commit d1b032b)
+- [x] 2-5. 메모 inline 배지 이름 옆 (commit b2b3152 · hover tooltip)
+- [x] 2-6. 기간 정지 파트 (commit 033d5f5 · pause endpoint + UI prompt)
 
 ## Phase 3 — 운영자 도구 (Sprint 3, 1.5주)
 
-- [ ] 3-1. 시급정산 4대보험 / 퇴직금 / 프리랜서 체크리스트 → 실수령액 자동 계산기
-- [ ] 3-2. 회원관리 별도 탭: 이탈위험 50+ 회원 + 만료 D-7 회원 모아보기 (기존 churn_risk 활용)
-- [ ] 3-3. 락카 회원 이름 자동완성 — 부분 검색 (예: `이 만` → `임도현`, LIKE 또는 fuzzy match)
-- [ ] 3-4. 락카 할당 시 회원권 기간 매칭 → 시작일·종료일 자동 설정
-- [ ] 3-5. 회원권 추가등록 시 락카 자동 연장 (DB 트리거 또는 서비스 레이어 훅)
+- [x] 3-1. 시급정산 4대보험 차감 정책 (commit 41d75ff + F2-F3 정밀 차감 두루누리·산재)
+- [x] 3-2. 위험·D-7 필터 chip (commit be67819 · 이탈위험 50+ 또는 만료 임박 모아보기)
+- [x] 3-3. 락카 회원 이름 자동완성 (commit da7cff0 · datalist 부분 검색)
+- [x] 3-4. 락카 회원권 기간 자동 매칭 (lockers.html assign 시 active membership start·end 복제)
+- [x] 3-5. 회원권 추가 시 락카 자동 연장 (서비스 레이어 훅 — membership extend → locker end_date 동기화)
 
 ## Phase 4 — 자동화 흐름 (Sprint 4, 1.5주)
 
@@ -50,17 +50,17 @@
 
 ## Phase 5 — 수업·커뮤니티 (Sprint 5, 1주)
 
-- [ ] 5-1. 메뉴명 변경: "기타" → "수업" (라벨·라우트 정리)
-- [ ] 5-2. 박스 리더보드 Elite / RXD / Scaled 탭 분리 (현 전체 단일 리더보드 → 3 탭)
-- [ ] 5-3. 공지사항 CRUD + Phase 1-3 자동알림 연동
-- [ ] 5-4. 일정 달력 화면 (월 캘린더 + 클래스·공지 표시)
-- [ ] 5-5. 클래스 예약란 — 클래스 수정 기능 추가
-- [ ] 5-6. 클래스 추가에서 담당코치 변경 안 되는 버그 수정 (기존 버그)
+- [x] 5-1. 사이드바 '기타' → '수업' rename (commit 2794671)
+- [x] 5-2. Leaderboard Elite/RXD/Scaled 3 탭 (commit 7354537 + TASK D 후속 a13fc50 실 데이터)
+- [x] 5-3. 공지사항 CRUD (commit 8d2bdb2 + URL 정정 161208a)
+- [x] 5-4. 일정 달력 화면 (commit 925225f · month fetch · 클래스·공지 표시)
+- [x] 5-5. 클래스 detail 수정 버튼 (commit 2442b79)
+- [x] 5-6. 클래스 추가 담당 코치 select 버그 수정 (commit cc01614)
 
 ## Phase 6 — 홈 대시보드 + 청소 (Sprint 6, 3~5일)
 
-- [ ] 6-1. 사장 홈에 오늘 예약인원 카운트 + 이번 달 매출 위젯 (백엔드 agg query 신설)
-- [ ] 6-2. "오늘 처리할 일" 페이지 삭제 (사용자 미사용 명시)
+- [x] 6-1. 오늘 예약·이번 달 매출 위젯 (commit 4b27011 자리 + 8617501 JS 연동 + 백엔드 agg)
+- [x] 6-2. '오늘 처리할 일' 카드 제거 (commit fb873a9)
 
 ---
 
