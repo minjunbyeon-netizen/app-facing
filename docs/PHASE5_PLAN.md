@@ -44,9 +44,9 @@
 
 ## Phase 4 — 자동화 흐름 (Sprint 4, 1.5주)
 
-- [ ] 4-1. 회원 어플 다운 → 로그인 → 박스 선택 → 자동 가입 (현 join request 흐름을 1-step 자동 승인 옵션)
-- [ ] 4-2. 첫 회원권 결제 직후 자동 계약서 발급 화면 전환 (ContractTemplate 이미 있음, 트리거만 추가)
-- [ ] 4-3. 회원권 추가 시 Phase 1-1 설정 기반 자동 금액 표시 — 1/3/6개월 드롭다운 → price 자동
+- [x] 4-1. 회원 어플 다운 → 로그인 → 박스 선택 → 자동 가입 (commit ae2d46e — self_signup_screen.dart + GET /member/gyms-list + auto-approve gym setting)
+- [x] 4-2. 첫 회원권 결제 직후 자동 계약서 발급 화면 전환 (payments_admin.py is_first_payment 응답 + member_detail.html confirm → /contracts?member_id 이동)
+- [x] 4-3. 회원권 추가 시 Phase 1-1 설정 기반 자동 금액 표시 (commit 6bcb5c8 — member_detail.html msPlanSelect onChange · GYM_ID plans fetch · price·end_date 자동 채움 · plan 미설정 박스 fallback)
 
 ## Phase 5 — 수업·커뮤니티 (Sprint 5, 1주)
 
