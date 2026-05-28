@@ -37,13 +37,11 @@ class _InboxScreenState extends State<InboxScreen> {
       final gym = context.read<GymState>().membership.gym;
       if (gym != null) {
         context.read<InboxState>().bind(gym.id);
-        // Notice 탭 진입 = 공지 읽음 처리
+        // 공지 bind만 — markSeen은 사용자가 실제 탭했을 때만 (main_shell _onTap)
         final annState = context.read<AnnouncementsState>();
         final repo = context.read<GymRepository>();
-        if (annState.boundGymId == gym.id) {
-          annState.markSeen();
-        } else {
-          annState.bind(repo, gym.id).then((_) => annState.markSeen());
+        if (annState.boundGymId != gym.id) {
+          annState.bind(repo, gym.id);
         }
       }
     });

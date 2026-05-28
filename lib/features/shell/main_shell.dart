@@ -132,6 +132,10 @@ class _MainShellState extends State<MainShell> {
     if (i == _index) return;
     Haptic.selection();
     setState(() => _index = i);
+    // Notice 탭(2) 진입 시점에만 공지 읽음 처리
+    if (i == 2) {
+      context.read<AnnouncementsState>().markSeen();
+    }
   }
 
   @override
