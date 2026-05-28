@@ -39,6 +39,7 @@ import 'features/signup/self_signup_screen.dart';
 import 'features/gym/gym_repository.dart';
 import 'features/gym/gym_search_screen.dart';
 import 'features/gym/gym_state.dart';
+import 'features/announcements/announcements_state.dart';
 import 'features/inbox/inbox_repository.dart';
 import 'features/inbox/inbox_state.dart';
 import 'features/mypage/mypage_screen.dart';
@@ -157,6 +158,9 @@ class FacingApp extends StatelessWidget {
         ),
         ChangeNotifierProvider<InboxState>(
           create: (_) => InboxState(InboxRepository(api)),
+        ),
+        ChangeNotifierProvider<AnnouncementsState>(
+          create: (_) => AnnouncementsState(),
         ),
         Provider<AchievementRepository>(
           create: (_) => AchievementRepository(api),
