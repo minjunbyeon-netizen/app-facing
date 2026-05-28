@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+// ignore: unused_import
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/announcement.dart';
@@ -29,9 +31,10 @@ class AnnouncementsState extends ChangeNotifier {
       _unreadCount = items
           .where((a) => a.createdAt.millisecondsSinceEpoch > lastSeenMs)
           .length;
+      debugPrint('[Ann] fetched=${items.length} unread=$_unreadCount lastSeenMs=$lastSeenMs');
       notifyListeners();
-    } catch (_) {
-      // silent — 배지 실패해도 앱 동작 영향 X
+    } catch (e) {
+      debugPrint('[Ann] refresh error: $e');
     }
   }
 
