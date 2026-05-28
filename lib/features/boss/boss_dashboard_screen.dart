@@ -64,7 +64,7 @@ class _BossDashboardScreenState extends State<BossDashboardScreen> {
     final auth = context.watch<BossAuthState>();
     return Scaffold(
       backgroundColor: FacingTokens.bg,
-      appBar: _buildAppBar(auth),
+      appBar: _buildAppBar(context, auth),
       body: _loading
           ? const Center(
               child: CircularProgressIndicator(
@@ -80,7 +80,7 @@ class _BossDashboardScreenState extends State<BossDashboardScreen> {
     );
   }
 
-  AppBar _buildAppBar(BossAuthState auth) => AppBar(
+  AppBar _buildAppBar(BuildContext context, BossAuthState auth) => AppBar(
         backgroundColor: FacingTokens.surface,
         elevation: 0,
         title: Column(
@@ -97,6 +97,13 @@ class _BossDashboardScreenState extends State<BossDashboardScreen> {
           ],
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_outlined,
+                color: FacingTokens.muted, size: 20),
+            tooltip: 'Settings',
+            onPressed: () =>
+                Navigator.of(context).pushNamed('/boss/settings'),
+          ),
           IconButton(
             icon: const Icon(Icons.logout, color: FacingTokens.muted, size: 20),
             tooltip: 'Logout',
@@ -301,7 +308,7 @@ class _ExpiringCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: FacingTokens.surface,
           border: Border.all(
-            color: member.dDay <= 3
+            color: member.dDay <= 7
                 ? FacingTokens.danger.withValues(alpha: 0.5)
                 : FacingTokens.border,
           ),
@@ -315,7 +322,7 @@ class _ExpiringCard extends StatelessWidget {
             Text(
               member.dDay == 0 ? 'D-Day' : 'D-${member.dDay}',
               style: FacingTokens.lead.copyWith(
-                color: member.dDay <= 3
+                color: member.dDay <= 7
                     ? FacingTokens.danger
                     : FacingTokens.warning,
                 fontWeight: FontWeight.w700,

@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'core/api_client.dart';
+import 'core/fcm_register.dart';
 import 'core/connectivity_state.dart';
 import 'core/movements_repository.dart';
 import 'core/notification_service.dart';
@@ -32,9 +35,11 @@ import 'features/achievement/achievement_repository.dart';
 import 'features/achievement/achievement_state.dart';
 import 'features/auth/auth_state.dart';
 import 'features/auth/signup_screen.dart';
+import 'features/signup/self_signup_screen.dart';
 import 'features/gym/gym_repository.dart';
 import 'features/gym/gym_search_screen.dart';
 import 'features/gym/gym_state.dart';
+import 'features/announcements/announcements_state.dart';
 import 'features/inbox/inbox_repository.dart';
 import 'features/inbox/inbox_state.dart';
 import 'features/mypage/mypage_screen.dart';
@@ -46,7 +51,9 @@ import 'features/boss/boss_api_client.dart';
 import 'features/boss/boss_login_screen.dart';
 import 'features/boss/boss_dashboard_screen.dart';
 import 'features/boss/role_entry_screen.dart';
+import 'features/boss/settings_screen.dart';
 import 'features/classes/classes_screen.dart';
+import 'features/wod/wod_today_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -77,6 +84,11 @@ Future<void> main() async {
 
   // v1.17 로컬 푸시 — 알림 채널 초기화. 권한 요청은 첫 진입 화면에서 (사용자 동의 후).
   await NotificationService.instance.init();
+
+  // PHASE5 §6-3 — FCM 토큰 register (placeholder · firebase_messaging 미도입).
+  // 백엔드 _fcm_tokens 에 등록되면 사장 공지 발행 시 push fan-out 에 포함됨.
+  // 실패해도 silent — 앱 동작 영향 없음.
+  unawaited(FcmRegister.registerIfNeeded(api));
 
   // v1.17 사장·코치 폰 SSE — 로그인 상태에 따라 자동 start/stop.
   final staffPush = StaffPushService();
@@ -147,6 +159,9 @@ class FacingApp extends StatelessWidget {
         ChangeNotifierProvider<InboxState>(
           create: (_) => InboxState(InboxRepository(api)),
         ),
+        ChangeNotifierProvider<AnnouncementsState>(
+          create: (_) => AnnouncementsState(),
+        ),
         Provider<AchievementRepository>(
           create: (_) => AchievementRepository(api),
         ),
@@ -187,6 +202,8 @@ class FacingApp extends StatelessWidget {
           '/onboarding/mode': (_) => const ModeSelectScreen(),
           '/onboarding/create-gym': (_) => const CreateGymScreen(),
           '/onboarding/find-gym': (_) => const GymSearchScreen(),
+          // PHASE5 Sprint1 F4 — 신규 회원 박스 선택 + 자동 가입 신청
+          '/signup/self': (_) => const SelfSignupScreen(),
           '/home': (_) => const HomeScreen(),
           '/shell': (_) => const MainShell(),
           '/profile': (_) => const ProfileScreen(),
@@ -199,8 +216,10 @@ class FacingApp extends StatelessWidget {
           '/role-entry': (_) => const RoleEntryScreen(),
           '/boss/login': (_) => const BossLoginScreen(),
           '/boss/dashboard': (_) => const BossDashboardScreen(),
+          '/boss/settings': (_) => const BossSettingsScreen(),
           // PHASE4 §1.1: 회원 폰 클래스 일정·예약
           '/classes': (_) => const ClassesScreen(),
+          '/wod/today': (_) => const WodTodayScreen(),
         },
         onGenerateRoute: (settings) {
           if (settings.name == '/history/detail') {

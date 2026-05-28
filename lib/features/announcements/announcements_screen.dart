@@ -13,6 +13,7 @@ import '../../widgets/coach_badge.dart';
 import '../../widgets/gym_info_card.dart';
 import '../gym/gym_repository.dart';
 import '../gym/gym_state.dart';
+import 'announcements_state.dart';
 
 class AnnouncementsScreen extends StatefulWidget {
   const AnnouncementsScreen({super.key});
@@ -30,6 +31,9 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
   void initState() {
     super.initState();
     _load();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AnnouncementsState>().markSeen();
+    });
   }
 
   Future<void> _load() async {

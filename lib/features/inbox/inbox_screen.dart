@@ -14,6 +14,8 @@ import '../../models/coach_note.dart';
 import '../../widgets/avatar.dart';
 import '../../widgets/coach_badge.dart';
 import '../../widgets/gym_info_card.dart';
+import '../announcements/announcements_state.dart';
+import '../gym/gym_repository.dart';
 import '../gym/gym_state.dart';
 import 'compose_note_screen.dart';
 import 'group_management_screen.dart';
@@ -35,6 +37,12 @@ class _InboxScreenState extends State<InboxScreen> {
       final gym = context.read<GymState>().membership.gym;
       if (gym != null) {
         context.read<InboxState>().bind(gym.id);
+        // 공지 bind만 — markSeen은 사용자가 실제 탭했을 때만 (main_shell _onTap)
+        final annState = context.read<AnnouncementsState>();
+        final repo = context.read<GymRepository>();
+        if (annState.boundGymId != gym.id) {
+          annState.bind(repo, gym.id);
+        }
       }
     });
   }

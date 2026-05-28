@@ -8,8 +8,10 @@ import '../../core/shell_nav_bus.dart';
 import '../../core/theme.dart';
 import '../attendance/attendance_screen.dart';
 import '../gym/box_wod_screen.dart';
+import '../gym/gym_repository.dart';
 import '../gym/gym_state.dart';
 import '../home/home_screen.dart';
+import '../announcements/announcements_state.dart';
 import '../inbox/inbox_screen.dart';
 import '../inbox/inbox_state.dart';
 import '../mypage/mypage_screen.dart';
@@ -130,6 +132,10 @@ class _MainShellState extends State<MainShell> {
     if (i == _index) return;
     Haptic.selection();
     setState(() => _index = i);
+    // Notice 탭(2) 진입 시점에만 공지 읽음 처리
+    if (i == 2) {
+      context.read<AnnouncementsState>().markSeen();
+    }
   }
 
   @override
@@ -138,9 +144,14 @@ class _MainShellState extends State<MainShell> {
     // initState 시점 gym=null 이라 bind 누락되는 케이스 보완.
     final gs = context.watch<GymState>();
     final inboxState = context.read<InboxState>();
+    final annState = context.read<AnnouncementsState>();
     final currentGymId = gs.membership.gym?.id;
     if (currentGymId != null && inboxState.boundGymId != currentGymId) {
       Future.microtask(() => inboxState.bind(currentGymId));
+    }
+    if (currentGymId != null && annState.boundGymId != currentGymId) {
+      final repo = context.read<GymRepository>();
+      Future.microtask(() => annState.bind(repo, currentGymId));
     }
     return PopScope(
       canPop: false,
@@ -210,15 +221,22 @@ class _MainShellState extends State<MainShell> {
                     NavigationDestination(
                       icon: _IconWithDot(
                         icon: _tabs[i].icon,
-                        // v1.21: dot 위치 Profile(4) → Inbox(2).
                         showDot: i == 2 &&
-                            context.watch<InboxState>().unreadCount > 0,
+                            (context.watch<InboxState>().unreadCount > 0 ||
+                                context
+                                        .watch<AnnouncementsState>()
+                                        .unreadCount >
+                                    0),
                         color: FacingTokens.muted,
                       ),
                       selectedIcon: _IconWithDot(
                         icon: _tabs[i].selectedIcon,
                         showDot: i == 2 &&
-                            context.watch<InboxState>().unreadCount > 0,
+                            (context.watch<InboxState>().unreadCount > 0 ||
+                                context
+                                        .watch<AnnouncementsState>()
+                                        .unreadCount >
+                                    0),
                         color: FacingTokens.fg,
                       ),
                       label: _tabs[i].label,
