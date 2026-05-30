@@ -244,7 +244,7 @@ class GymRepository {
         .toList();
   }
 
-  Future<int> submitWodResult({
+  Future<({int resultId, int pointsAwarded})> submitWodResult({
     required int gymId,
     required int wodId,
     int? timeSec,
@@ -260,7 +260,10 @@ class GymRepository {
       'scale_level': scaleLevel,
       'notes': notes,
     });
-    return (data['result_id'] as num).toInt();
+    return (
+      resultId: (data['result_id'] as num).toInt(),
+      pointsAwarded: (data['points_awarded'] as num?)?.toInt() ?? 0,
+    );
   }
 
   Future<List<GymWodComment>> listWodComments(int gymId, int wodId) async {

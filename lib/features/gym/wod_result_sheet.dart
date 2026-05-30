@@ -98,8 +98,8 @@ class _WodResultSheetState extends State<WodResultSheet> {
     final notes = notesParts.join(' · ');
 
     try {
-      // 1) Box leaderboard 결과 제출.
-      await repo.submitWodResult(
+      // 1) Box leaderboard 결과 제출. (첫 제출이면 points_awarded > 0)
+      final res = await repo.submitWodResult(
             gymId: gym.id,
             wodId: widget.wod.id,
             timeSec: timeSec,
@@ -130,10 +130,15 @@ class _WodResultSheetState extends State<WodResultSheet> {
       // 3) Attendance / Trends 즉시 reload.
       bus.bump();
       navigator.pop(true);
+      final earned = res.pointsAwarded > 0;
       messenger.showSnackBar(
-        const SnackBar(
-          content: Text('Recorded. Attendance + 1.'),
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: Text(
+            earned
+                ? 'Recorded. Attendance +1 · +${res.pointsAwarded}P'
+                : 'Recorded. Attendance +1.',
+          ),
+          duration: const Duration(seconds: 2),
         ),
       );
     } on AppException catch (e) {
