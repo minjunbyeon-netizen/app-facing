@@ -222,20 +222,26 @@ class _WodResultSheetState extends State<WodResultSheet> {
               Wrap(
                 spacing: FacingTokens.sp2,
                 children: [
-                  for (final s in const ['rx', 'scaled', 'beginner'])
+                  // 등급 enum: elite / rx(=RXD 표기) / scaled (2026-05-30 통일)
+                  for (final s in const [
+                    ['elite', 'ELITE'],
+                    ['rx', 'RXD'],
+                    ['scaled', 'SCALED'],
+                  ])
                     ChoiceChip(
-                      label: Text(s.toUpperCase()),
-                      selected: _scale == s,
+                      label: Text(s[1]),
+                      selected: _scale == s[0],
                       backgroundColor: FacingTokens.surfaceOverlay,
                       selectedColor: FacingTokens.accent,
                       labelStyle: FacingTokens.caption.copyWith(
-                        color: _scale == s
+                        color: _scale == s[0]
                             ? FacingTokens.fg
                             : FacingTokens.muted,
                         fontWeight: FontWeight.w700,
                       ),
-                      onSelected:
-                          _saving ? null : (_) => setState(() => _scale = s),
+                      onSelected: _saving
+                          ? null
+                          : (_) => setState(() => _scale = s[0]),
                     ),
                 ],
               ),
