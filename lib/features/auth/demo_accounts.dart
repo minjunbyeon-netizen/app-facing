@@ -1,6 +1,7 @@
-// v1.22 회의 데모용: 백엔드 페르소나 시드와 1:1 매핑된 4명.
+// 회의 데모용: 백엔드 페르소나 시드와 1:1 매핑된 3명 (코치 1 + 회원 2). 사장은 Box Owner Login.
 // ⚠️ **가상 데이터** — 실제 사용자 아님. 회의 시연용 프로필 샘플.
 // 누르면 deviceIdSeed 로 device_id 강제 교체 → 백엔드 페르소나 데이터로 즉시 진입.
+// 2026-05-30: 송예준(개인) 카드 제거 · 최서윤 가입대기→회원 승격 (코치+회원2 세트).
 
 class DemoAccount {
   final String id; // internal slug
@@ -35,7 +36,7 @@ class DemoAccount {
   });
 }
 
-/// ⚠️ **가상 데이터** 4건. 회의 데모용 — 백엔드 personas.json 과 동기화.
+/// ⚠️ **가상 데이터** 3건 (코치 1 + 회원 2). 회의 데모용 — 백엔드 personas 와 동기화.
 const List<DemoAccount> kDemoAccounts = [
   // 1. 박지훈 — FACING SEONGSU 코치 (오너)
   DemoAccount(
@@ -84,34 +85,12 @@ const List<DemoAccount> kDemoAccounts = [
     hintTier: 'RX / Engine 66',
     deviceIdSeed: 'persona-member-kim-doyun-2026',
   ),
-  // 3. 송예준 — 박스 무소속, 자체 WOD 사용자
+  // 3. 최서윤 — FACING SEONGSU 정식 회원 (여성 회원 — 2026-05-30 가입대기→승인)
   DemoAccount(
-    id: 'solo_song',
-    nameLabel: '송예준 · 박스 없음 (개인)',
-    personName: '송예준',
-    role: 'solo',
-    boxName: '',
-    bodyWeightKg: 75,
-    heightCm: 174,
-    ageYears: 30,
-    gender: 'male',
-    experienceYears: 4,
-    benchmarks: {
-      'back_squat_1rm_lb': 275,
-      'deadlift_1rm_lb': 365,
-      'clean_1rm_lb': 185,
-      'strict_pull_up_max_ub': 18,
-      'run_mile_sec': 450,
-    },
-    hintTier: 'RX / Engine 66',
-    deviceIdSeed: 'persona-app-song-yejun-2026',
-  ),
-  // 4. 최서윤 — FACING SEONGSU 가입 대기 (pending → 코치가 승인 시연용)
-  DemoAccount(
-    id: 'pending_choi',
-    nameLabel: '최서윤 · 가입 대기 (FACING SEONGSU)',
+    id: 'member_choi',
+    nameLabel: '최서윤 · FACING SEONGSU 회원',
     personName: '최서윤',
-    role: 'pending',
+    role: 'member',
     boxName: 'FACING SEONGSU',
     bodyWeightKg: 56,
     heightCm: 161,
