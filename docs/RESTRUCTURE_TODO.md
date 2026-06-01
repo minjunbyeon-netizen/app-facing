@@ -43,10 +43,10 @@
 
 ## Move E — WOD 카테고리 → WOD 탭 하단 (참조자료 아코디언)
 출처: `home_screen.dart` "CALCULATE WOD" 섹션 → `gym/box_wod_screen.dart`
-- [ ] E1. Girls/Heroes/Games/Custom 카테고리 행 → **WOD 탭 최하단**으로 이동
-- [ ] E2. 형태 = **참조자료용 아코디언** (기본 접힘, "CALCULATE WOD · 프리셋" 헤더 탭하면 펼침)
-- [ ] E3. 진입 동작 유지 — 각 항목 탭 시 PresetsScreen/WodBuilderScreen 그대로 push
-- [ ] E4. Home에서는 이 섹션 완전 제거 (Home = 공지 + 게이미피케이션 전용)
+- [x] E1. Girls/Heroes/Games/Custom 카테고리 행 → **WOD 탭 최하단**으로 이동
+- [x] E2. 형태 = **참조자료용 아코디언** (기본 접힘, "CALCULATE WOD · 프리셋" 헤더 탭하면 펼침)
+- [x] E3. 진입 동작 유지 — 각 항목 탭 시 PresetsScreen/WodBuilderScreen 그대로 push
+- [x] E4. Home에서는 이 섹션 완전 제거 (Home = 공지 + 게이미피케이션 전용)
 
 ## Cross-cutting (정리·동기화)
 - [ ] D1. Home AppBar/구성 재정의 (게이미피케이션 + 공지 중심)

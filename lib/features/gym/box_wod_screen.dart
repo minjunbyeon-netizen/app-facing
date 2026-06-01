@@ -7,6 +7,8 @@ import '../../core/theme.dart';
 import '../../models/gym.dart';
 import '../../widgets/coach_badge.dart';
 import '../../widgets/inbox_bell.dart';
+import '../presets/presets_screen.dart';
+import '../wod_builder/wod_builder_screen.dart';
 import 'gym_repository.dart';
 import 'wod_detail_screen.dart';
 import 'coach_dashboard_screen.dart';
@@ -494,7 +496,124 @@ class _WodList extends StatelessWidget {
                   )),
             ],
           ],
+          // v1.23 Phase 2: Home 의 프리셋 카테고리 → WOD 탭 하단 참조 아코디언.
+          const SizedBox(height: FacingTokens.sp5),
+          const Divider(height: 1, color: FacingTokens.border, thickness: 1),
+          const _PresetAccordion(),
         ],
+      ),
+    );
+  }
+}
+
+/// v1.23 Phase 2: Home 의 "CALCULATE WOD" 카테고리를 WOD 탭 하단으로 이관.
+/// 참조자료용 — 기본 접힘. 펼치면 Girls/Heroes/Games/Custom 프리셋 페이싱 계산 진입.
+class _PresetAccordion extends StatelessWidget {
+  const _PresetAccordion();
+
+  void _openPreset(BuildContext context, String filter, String title) {
+    Haptic.medium();
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => PresetsScreen(
+        initialFilter: filter,
+        lockFilter: true,
+        titleOverride: title,
+      ),
+    ));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Theme(
+      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+      child: ExpansionTile(
+        initiallyExpanded: false,
+        tilePadding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+        childrenPadding: EdgeInsets.zero,
+        collapsedIconColor: FacingTokens.muted,
+        iconColor: FacingTokens.muted,
+        title: const Text('CALCULATE WOD', style: FacingTokens.sectionLabel),
+        subtitle: const Padding(
+          padding: EdgeInsets.only(top: 2),
+          child: Text(
+            'Preset pacing · Girls · Heroes · Games · Custom',
+            style: FacingTokens.caption,
+          ),
+        ),
+        children: [
+          _PresetRow(
+            title: 'Girls',
+            subtitle: 'Fran · Grace · Helen · Diane',
+            onTap: () => _openPreset(context, 'girl', 'GIRLS WODS'),
+          ),
+          const Divider(height: 1, color: FacingTokens.border),
+          _PresetRow(
+            title: 'Heroes',
+            subtitle: 'Murph · DT · JT · Michael',
+            onTap: () => _openPreset(context, 'hero', 'HERO WODS'),
+          ),
+          const Divider(height: 1, color: FacingTokens.border),
+          _PresetRow(
+            title: 'Games',
+            subtitle: 'Amanda .45 · Jackie Pro · 2421 ...',
+            onTap: () => _openPreset(context, 'games', 'GAMES WODS'),
+          ),
+          const Divider(height: 1, color: FacingTokens.border),
+          _PresetRow(
+            title: 'Custom',
+            subtitle: 'Build movements/reps. For Time only.',
+            onTap: () {
+              Haptic.medium();
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => const WodBuilderScreen(),
+              ));
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PresetRow extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+  const _PresetRow({
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          vertical: FacingTokens.sp3,
+          horizontal: 2,
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: FacingTokens.body
+                        .copyWith(fontWeight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(subtitle, style: FacingTokens.caption),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right,
+                color: FacingTokens.muted, size: 20),
+          ],
+        ),
       ),
     );
   }
