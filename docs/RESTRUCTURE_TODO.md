@@ -75,8 +75,16 @@
 3. Notice 아코디언 데이터 → **(b) 쪽지+공지 최신순 통합**
 
 ## 최종 화면 책임 (재배치 후)
-- **Home** = 최상단 공지/쪽지 아코디언 + 게이미피케이션(Level·업적·Milestones)
+- **Home** = 최상단 공지/쪽지 아코디언(접힘 1줄) + 게이미피케이션(Level 히어로·업적·Milestones)
 - **WOD** = 코치 오늘 WOD + 하단 프리셋 카테고리 아코디언(참조)
 - **Notice** = 쪽지/숙제/공지 전체 피드 (변경 없음, Home은 요약본)
-- **Attend** = placeholder (향후 자료 대기)
+- **Attend** = 출석 캘린더 복귀(Profile에서 이동) — 빈 탭 낭비 방지 (리뷰 다)
 - **Profile** = Identity + 점수(숫자만, 그래프 X) + Body + Membership + Locker + MyBox + Settings + Actions
+
+## 설계 리뷰 반영 (2026-06-02)
+- (가) Profile 점수 = Identity 바로 밑. "Tier RX · Engine 45" 한 줄 + LV pill + 6 카테고리 숫자칩 + 약점.
+       대형 "45 ENGINE/100" 히어로 숫자는 **빼고** 담백하게.
+- (나) Home 순서 = 공지 아코디언(접힘) → 캐릭터 LevelCard(히어로) → 업적 → Milestones.
+- (다) Attend = Profile의 출석 캘린더(_AttendanceCompact)를 Attend로 되돌려 채움.
+       → Profile에서는 캘린더 제거, Attend가 출석 전담. (D3 중복 정리와 합쳐짐)
+- 브리프 §10 D25로 폰 탭 책임표 기록 (승인 2026-06-02).

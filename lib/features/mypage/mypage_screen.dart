@@ -7,14 +7,22 @@ import '../../core/api_client.dart';
 import '../../core/app_mode.dart';
 import '../../core/device_id.dart';
 import '../../core/haptic.dart';
+import '../../core/level_system.dart';
 import '../../core/role_labels.dart';
+import '../../core/scoring.dart';
 import '../../core/shell_nav_bus.dart';
 import '../../core/theme.dart';
+import '../../core/tier.dart';
+import '../../core/titles_catalog.dart';
 import '../../core/ui_prefs_state.dart';
 import '../../core/unit_state.dart';
+import '../../core/weak_insight.dart';
+import '../../core/worn_title_store.dart';
 import '../../widgets/inbox_bell.dart';
+import '../../widgets/tier_badge.dart';
 import '../_debug/persona_debug_data.dart';
 import '../_debug/persona_switcher_screen.dart';
+import '../achievement/achievement_state.dart';
 import '../auth/auth_state.dart';
 import '../goals/goals_screen.dart';
 import '../gym/coach_dashboard_screen.dart';
@@ -22,6 +30,7 @@ import '../gym/gym_search_screen.dart';
 import '../gym/gym_state.dart';
 import '../history/history_models.dart';
 import '../history/history_repository.dart';
+import '../home/benchmark_sheet.dart';
 import '../profile/profile_state.dart';
 import 'algorithm_screen.dart';
 import 'edit_profile_screen.dart';
@@ -46,6 +55,8 @@ class MyPageScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp3),
           children: const [
             _IdentityCard(),
+            _SectionDivider(),
+            _ScoreSection(),
             _SectionDivider(),
             _AttendanceCompact(),
             _SectionDivider(),
@@ -73,6 +84,351 @@ class _SectionDivider extends StatelessWidget {
         padding: EdgeInsets.symmetric(vertical: FacingTokens.sp3),
         child: Divider(height: 1, color: FacingTokens.border),
       );
+}
+
+/// v1.23 (2026-06-02) 재배치 — Home HeroCard 의 점수 컨텐츠를 Profile 로 이관.
+/// 담백 버전: radar·sparkline **그래프 제거**, 숫자만 유지.
+/// Tier 배지 · Engine 점수 · LV pill · 칭호 pill · 6 카테고리 숫자칩 · 트렌드 delta · 약점.
+class _ScoreSection extends StatefulWidget {
+  const _ScoreSection();
+
+  @override
+  State<_ScoreSection> createState() => _ScoreSectionState();
+}
+
+class _ScoreSectionState extends State<_ScoreSection> {
+  Future<List<EngineSnapshotRecord>>? _engineFuture;
+  Future<int>? _sessionCountFuture;
+  String? _wornTitleCode;
+
+  @override
+  void initState() {
+    super.initState();
+    final repo = HistoryRepository(context.read<ApiClient>());
+    _engineFuture = repo.listEngineSnapshots(limit: 12);
+    _sessionCountFuture =
+        repo.listWodHistory(limit: 9999).then((r) => r.length);
+    WornTitleStore.get().then((code) {
+      if (mounted) setState(() => _wornTitleCode = code);
+    });
+  }
+
+  int _catScore(Map<String, dynamic>? grade, String key) {
+    if (grade == null) return 0;
+    final data = grade[key];
+    if (data is! Map) return 0;
+    final s = data['score'];
+    if (s is! num) return 0;
+    return engineScoreTo100(s);
+  }
+
+  static PanelBTitle? _findTitle(String? code) {
+    if (code == null) return null;
+    for (final t in kPanelBTitles) {
+      if (t.code == code) return t;
+    }
+    return null;
+  }
+
+  static Color _rarityColor(String rarity) {
+    switch (rarity) {
+      case 'Rare':
+        return FacingTokens.accent;
+      case 'Epic':
+        return FacingTokens.tierElite;
+      case 'Legendary':
+        return FacingTokens.tierGames;
+      default:
+        return FacingTokens.muted;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.watch<ProfileState>();
+    final achState = context.watch<AchievementState>();
+    final g = p.gradeResult;
+    final num? n =
+        g?['overall_number'] is num ? g!['overall_number'] as num : null;
+    final tier = Tier.fromOverallNumber(n);
+    final score100 = engineScoreTo100(g?['overall_score']);
+    final hasScore = score100 > 0;
+    final tierNum = n?.round() ?? 0;
+
+    // 온보딩 전 — 안내만.
+    if (n == null) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('ENGINE', style: FacingTokens.sectionLabel),
+            const SizedBox(height: FacingTokens.sp2),
+            const Text('온보딩 완료 후 표시.', style: FacingTokens.caption),
+            const SizedBox(height: FacingTokens.sp3),
+            OutlinedButton(
+              onPressed: () =>
+                  Navigator.of(context).pushNamed('/onboarding/basic'),
+              child: const Text('Start Onboarding'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final cats = <(String, int)>[
+      ('POWER', _catScore(g, 'power')),
+      ('OLYMPIC', _catScore(g, 'olympic')),
+      ('GYMNASTICS', _catScore(g, 'gymnastics')),
+      ('CARDIO', _catScore(g, 'cardio')),
+      ('METCON', _catScore(g, 'metcon')),
+      ('BODY', _catScore(g, 'body_composition')),
+    ];
+    final titleObj = _findTitle(_wornTitleCode);
+    final achXp = achState.snapshot.unlocked.values.fold<int>(0, (sum, u) {
+      final cat =
+          achState.snapshot.catalog.where((c) => c.code == u.code).toList();
+      if (cat.isEmpty) return sum;
+      return sum + (LevelSystem.rarityXp[cat.first.rarity] ?? 20);
+    });
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('ENGINE', style: FacingTokens.sectionLabel),
+          const SizedBox(height: FacingTokens.sp3),
+          // Tier · Engine · LV · 칭호 — 한 줄 담백.
+          FutureBuilder<int>(
+            future: _sessionCountFuture,
+            builder: (_, snap) {
+              final sessions = snap.data ?? 0;
+              final bd = LevelSystem.compute(
+                totalSessions: sessions,
+                currentStreakDays: 0,
+                tierNumber: tierNum,
+                achievementXp: achXp,
+              );
+              return Wrap(
+                spacing: FacingTokens.sp2,
+                runSpacing: FacingTokens.sp2,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  TierBadge(tier: tier, fontSize: 13),
+                  if (hasScore)
+                    Text(
+                      'Engine $score100',
+                      style: FacingTokens.body.copyWith(
+                        color: tier.color,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  _MiniPill(label: 'LV ${bd.level}', color: tier.color),
+                  if (titleObj != null)
+                    _MiniPill(
+                      label: titleObj.label,
+                      color: _rarityColor(titleObj.rarity),
+                    ),
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: FacingTokens.sp3),
+          // 6 카테고리 숫자 칩 (그래프 없음).
+          LayoutBuilder(
+            builder: (ctx, bc) {
+              final chipW = (bc.maxWidth - FacingTokens.sp2 * 2) / 3;
+              return Wrap(
+                spacing: FacingTokens.sp2,
+                runSpacing: FacingTokens.sp2,
+                children: cats.map((c) {
+                  final hasVal = c.$2 > 0;
+                  return GestureDetector(
+                    onTap: () {
+                      Haptic.light();
+                      showBenchmarkSheet(ctx, c.$1);
+                    },
+                    child: Container(
+                      width: chipW,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 7,
+                        horizontal: FacingTokens.sp2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: FacingTokens.surface,
+                        border: Border.all(color: FacingTokens.border),
+                        borderRadius: BorderRadius.circular(FacingTokens.r2),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            c.$1,
+                            style: FacingTokens.sectionLabel
+                                .copyWith(letterSpacing: 0.6),
+                          ),
+                          const SizedBox(height: 2),
+                          Row(
+                            children: [
+                              Text(
+                                hasVal ? '${c.$2}' : '—',
+                                style: FacingTokens.body.copyWith(
+                                  color: hasVal
+                                      ? FacingTokens.fg
+                                      : FacingTokens.muted,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              const Spacer(),
+                              const Icon(Icons.chevron_right,
+                                  size: 13, color: FacingTokens.muted),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
+              );
+            },
+          ),
+          const SizedBox(height: FacingTokens.sp3),
+          // 트렌드 — delta 숫자만 (sparkline 그래프 제거).
+          FutureBuilder<List<EngineSnapshotRecord>>(
+            future: _engineFuture,
+            builder: (ctx, snap) {
+              if (snap.connectionState != ConnectionState.done) {
+                return const SizedBox.shrink();
+              }
+              final records = snap.data ?? const <EngineSnapshotRecord>[];
+              if (records.length < 2) {
+                return Text(
+                  records.isEmpty
+                      ? 'No history. Measure Engine.'
+                      : 'Need 2+ snapshots for trend.',
+                  style: FacingTokens.caption,
+                );
+              }
+              final sorted = [...records]
+                ..sort((a, b) => a.scoredAt.compareTo(b.scoredAt));
+              final values =
+                  sorted.map((r) => engineScoreTo100(r.overallScore)).toList();
+              final delta = values.last - values.first;
+              return Text(
+                delta > 0
+                    ? '▲ +$delta · ${values.length} snapshots'
+                    : (delta < 0
+                        ? '▼ $delta · ${values.length} snapshots'
+                        : 'Hold · ${values.length} snapshots'),
+                style: FacingTokens.caption.copyWith(
+                  color: delta > 0
+                      ? FacingTokens.success
+                      : (delta < 0
+                          ? FacingTokens.warning
+                          : FacingTokens.muted),
+                  fontWeight: FontWeight.w700,
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: FacingTokens.sp3),
+          // 약점 분석 (숫자 기반).
+          _WeaknessInline(scores: {
+            'POWER': cats[0].$2,
+            'OLYMPIC': cats[1].$2,
+            'GYMNASTICS': cats[2].$2,
+            'CARDIO': cats[3].$2,
+            'METCON': cats[4].$2,
+            'BODY': cats[5].$2,
+          }),
+        ],
+      ),
+    );
+  }
+}
+
+/// 작은 라벨 pill (LV / 칭호). 점수 섹션 전용.
+class _MiniPill extends StatelessWidget {
+  final String label;
+  final Color color;
+  const _MiniPill({required this.label, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        border: Border.all(color: color.withValues(alpha: 0.5), width: 1),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        label,
+        style: FacingTokens.micro.copyWith(
+          color: color,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+}
+
+/// 약점 분석 inline — 6 카테고리 점수에서 가장 약한 영역 1줄 코멘트.
+class _WeaknessInline extends StatelessWidget {
+  final Map<String, int> scores;
+  const _WeaknessInline({required this.scores});
+
+  @override
+  Widget build(BuildContext context) {
+    final hasData = scores.values.any((v) => v > 0);
+    if (!hasData) return const SizedBox.shrink();
+    final insight = analyzeWeakness(scores);
+    if (insight == null) return const SizedBox.shrink();
+    final isBalanced = insight.weakestCategory == 'BALANCED';
+
+    return Container(
+      padding: const EdgeInsets.all(FacingTokens.sp3),
+      decoration: BoxDecoration(
+        color: FacingTokens.surface,
+        border: Border.all(color: FacingTokens.border),
+        borderRadius: BorderRadius.circular(FacingTokens.r3),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 3,
+            height: 36,
+            color: isBalanced ? FacingTokens.success : FacingTokens.accent,
+          ),
+          const SizedBox(width: FacingTokens.sp3),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isBalanced
+                      ? 'BALANCED'
+                      : '${insight.weakestCategory} · WEAKEST',
+                  style: FacingTokens.microLabel.copyWith(
+                    color: isBalanced
+                        ? FacingTokens.success
+                        : FacingTokens.accent,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(insight.comment, style: FacingTokens.caption),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 /// v1.22: 닉네임 + 아바타 + Edit Profile 버튼.
