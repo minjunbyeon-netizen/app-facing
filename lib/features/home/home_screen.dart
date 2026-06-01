@@ -3,8 +3,10 @@ import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
 import '../../core/exception.dart';
+import '../../core/haptic.dart';
 import '../../core/level_system.dart';
 import '../../core/pr_detector.dart';
+import '../../core/shell_nav_bus.dart';
 import '../../core/streak_freeze.dart';
 import '../../core/theme.dart';
 import '../../core/wod_session_bus.dart';
@@ -15,6 +17,8 @@ import '../achievement/achievement_section.dart';
 import '../achievement/achievement_state.dart';
 import '../history/history_models.dart';
 import '../history/history_repository.dart';
+import '../inbox/inbox_screen.dart';
+import '../inbox/inbox_state.dart';
 import '../profile/profile_state.dart';
 
 /// v1.23 (2026-06-02) 재배치 Phase 3: Attend 의 게이미피케이션을 Home 으로 이관.
@@ -124,6 +128,93 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
+/// v1.23 Phase 4 (2026-06-02): Notice 의 쪽지+공지 요약을 Home 최상단 아코디언으로.
+/// 데이터 = InboxState.inbox.items (쪽지·숙제·공지 합쳐진 NOTICE 피드, 최신순).
+/// 기본 접힘 — 최신 1건 헤드라인만 노출. 펼치면 최신 3건 + "더 보기" → Notice 탭.
+class _NoticeAccordion extends StatelessWidget {
+  const _NoticeAccordion();
+
+  @override
+  Widget build(BuildContext context) {
+    final state = context.watch<InboxState>();
+    final items = [...state.inbox.items]
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    if (items.isEmpty) return const SizedBox.shrink();
+    final top = items.take(3).toList();
+    final latest = top.first;
+    final hasUnread = state.unreadCount > 0;
+    final latestPreview =
+        latest.title.isNotEmpty ? latest.title : latest.body;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: FacingTokens.sp4),
+      decoration: BoxDecoration(
+        color: FacingTokens.surface,
+        border: Border.all(color: FacingTokens.border),
+        borderRadius: BorderRadius.circular(FacingTokens.r3),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          initiallyExpanded: false,
+          tilePadding: const EdgeInsets.symmetric(
+              horizontal: FacingTokens.sp3, vertical: 2),
+          childrenPadding: const EdgeInsets.fromLTRB(
+              FacingTokens.sp3, 0, FacingTokens.sp3, FacingTokens.sp3),
+          collapsedIconColor: FacingTokens.muted,
+          iconColor: FacingTokens.muted,
+          title: Row(
+            children: [
+              const Text('NOTICE', style: FacingTokens.sectionLabel),
+              if (hasUnread) ...[
+                const SizedBox(width: FacingTokens.sp2),
+                Container(
+                  width: 7,
+                  height: 7,
+                  decoration: const BoxDecoration(
+                    color: FacingTokens.accent,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ],
+            ],
+          ),
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(
+              latestPreview,
+              style: FacingTokens.caption,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          children: [
+            ...top.map((n) => Padding(
+                  padding: const EdgeInsets.only(bottom: FacingTokens.sp2),
+                  child: CoachDossierTile(note: n),
+                )),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () {
+                  Haptic.light();
+                  context.read<ShellNavBus>().requestTab(2);
+                },
+                style: TextButton.styleFrom(
+                  foregroundColor: FacingTokens.muted,
+                  minimumSize: const Size(0, 36),
+                ),
+                child: const Text('더 보기 →'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _GamificationBody extends StatelessWidget {
   final List<WodHistoryItem> records;
 
@@ -197,7 +288,9 @@ class _GamificationBody extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(FacingTokens.sp4),
       children: [
-        // LEVEL 카드 = 캐릭터 + 진화. 화면 최상단.
+        // v1.23 Phase 4: 공지/쪽지 아코디언 — 화면 최상단(게이미피케이션 위).
+        const _NoticeAccordion(),
+        // LEVEL 카드 = 캐릭터 + 진화.
         _LevelCard(
           totalSessions: totalLifetime,
           currentStreakDays: currentStreak,
