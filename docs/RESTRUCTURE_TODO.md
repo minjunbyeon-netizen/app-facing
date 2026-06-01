@@ -28,7 +28,9 @@
 - [ ] B2. AchievementSection(업적 그리드) → Home
 - [ ] B3. Milestones 3종(Attendance/Sessions/Achievements 진행바) → Home
 - [ ] B4. 데이터 로직(history fetch·streak 계산·StreakFreeze·PrDetector·achievement check) → Home로 이전
-- [ ] B5. **Attend 탭 운명 결정** (게이미피케이션 빠지면 비게 됨 — 결정 #2)
+- [ ] B5. **Attend 탭은 그대로 둠** (결정 #2 = 유지). 게이미피케이션 빠진 뒤 빈 화면 →
+      "준비 중 / 곧 추가" placeholder만 남기고, 향후 다른 자료 들어올 자리로 보존.
+      탭 라벨·아이콘·인덱스 변경 X. 5탭 유지.
 
 ## Move C — Notice 중요내용 → Home 최상단 아코디언
 출처: `inbox_screen.dart` `CoachDossierTile` · `announcements_state.dart`
@@ -36,7 +38,15 @@
 - [ ] C2. 아코디언 — 기본 접힘, 최신 1개 헤드라인만 노출 → 탭하면 펼침
 - [ ] C3. "더 보기" → Notice 탭(index 2) 이동(ShellNavBus.requestTab(2))
 - [ ] C4. 미읽음 표시(accent stripe·dot) 유지
-- [ ] C5. 데이터 소스 결정 — 공지(Announcements) only vs 쪽지+공지 합쳐 최신순 (결정 #3)
+- [ ] C5. **데이터 = 쪽지(InboxState) + 공지(AnnouncementsState) 합쳐 최신순** (결정 #3 = b).
+      두 소스 merge → createdAt desc 정렬 → 상위 N개. 미읽음 우선 가중은 추후 검토.
+
+## Move E — WOD 카테고리 → WOD 탭 하단 (참조자료 아코디언)
+출처: `home_screen.dart` "CALCULATE WOD" 섹션 → `gym/box_wod_screen.dart`
+- [ ] E1. Girls/Heroes/Games/Custom 카테고리 행 → **WOD 탭 최하단**으로 이동
+- [ ] E2. 형태 = **참조자료용 아코디언** (기본 접힘, "CALCULATE WOD · 프리셋" 헤더 탭하면 펼침)
+- [ ] E3. 진입 동작 유지 — 각 항목 탭 시 PresetsScreen/WodBuilderScreen 그대로 push
+- [ ] E4. Home에서는 이 섹션 완전 제거 (Home = 공지 + 게이미피케이션 전용)
 
 ## Cross-cutting (정리·동기화)
 - [ ] D1. Home AppBar/구성 재정의 (게이미피케이션 + 공지 중심)
@@ -50,15 +60,23 @@
 
 ---
 
-## 설계 순서 (제안)
-- **Phase 0** — ARCHITECTURE_BRIEF 충돌 점검 + 결정 게이트(#1·#2·#3) 확정
+## 설계 순서 (확정)
+- **Phase 0** — ARCHITECTURE_BRIEF 충돌 점검 (결정 게이트 완료)
 - **Phase 1** — Move A: Profile에 점수 섹션 신설(숫자만), Home에서 HeroCard 제거
-- **Phase 2** — Move B: Home에 게이미피케이션 이식, Attend 탭 처리
-- **Phase 3** — Move C: Home 최상단 Notice 아코디언
-- **Phase 4** — Cross-cutting 정리(탭 힌트·카피·중복·brief)
-- **Phase 5** — 에뮬 3 페르소나 검증 + 캡처
+- **Phase 2** — Move E: WOD 카테고리 → WOD 탭 하단 아코디언 (Home 비우기 마무리)
+- **Phase 3** — Move B: Home에 게이미피케이션 이식, Attend는 placeholder만 남김
+- **Phase 4** — Move C: Home 최상단 Notice 아코디언(쪽지+공지 통합)
+- **Phase 5** — Cross-cutting 정리(탭 힌트·카피·중복·brief)
+- **Phase 6** — 에뮬 3 페르소나 검증 + 캡처
 
-## 열린 결정 (Phase 0 게이트)
-1. Home "CALCULATE WOD" 카테고리(Girls/Heroes/Games/Custom) 행선지 — (a) Profile (b) WOD 탭 흡수 (c) Home 유지
-2. Attend 탭 — (a) 제거→4탭 (b) 전체 업적/기록 보관함으로 전환 (c) 유지하고 캘린더 복귀
-3. Notice 아코디언 데이터 — (a) 공지만 (b) 쪽지+공지 최신순 통합
+## 결정 (확정 2026-06-02)
+1. WOD 카테고리 → **(b) WOD 탭으로**, 단 **하단에 참조자료용 아코디언** 형태 (= Move E)
+2. Attend 탭 → **유지**. 게이미피케이션만 Home으로 빼고, 빈자리는 placeholder. 향후 자료 들어올 예정
+3. Notice 아코디언 데이터 → **(b) 쪽지+공지 최신순 통합**
+
+## 최종 화면 책임 (재배치 후)
+- **Home** = 최상단 공지/쪽지 아코디언 + 게이미피케이션(Level·업적·Milestones)
+- **WOD** = 코치 오늘 WOD + 하단 프리셋 카테고리 아코디언(참조)
+- **Notice** = 쪽지/숙제/공지 전체 피드 (변경 없음, Home은 요약본)
+- **Attend** = placeholder (향후 자료 대기)
+- **Profile** = Identity + 점수(숫자만, 그래프 X) + Body + Membership + Locker + MyBox + Settings + Actions
