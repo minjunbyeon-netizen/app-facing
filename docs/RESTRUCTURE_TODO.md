@@ -13,14 +13,14 @@
 
 ## Move A — Home 점수 컨텐츠 → Profile (그래프 제거·숫자 유지)
 출처: `home_screen.dart` `_HeroCard` · `_WeaknessInsightInline`
-- [ ] A1. Engine Score 큰 숫자(score100) → Profile
-- [ ] A2. Tier 배지(TierBadge) → Profile
-- [ ] A3. 레벨·칭호 pill(_IdentityRow) → Profile _IdentityCard에 통합 (닉네임 중복 정리)
-- [ ] A4. 6 카테고리 점수 → Profile. **레이더 그래프(_RadarPainter) 삭제**, 숫자 칩만 유지
-- [ ] A5. 트렌드 → **sparkline 그래프(_SparklinePainter) 삭제**, delta 숫자(▲+N)만 텍스트 유지
-- [ ] A6. 약점 분석 카드(_WeaknessInsightInline) → Profile (숫자 기반이라 유지)
-- [ ] A7. Home initState 데이터 로직(_engineFuture·_sessionCountFuture·_wornTitleCode) → Profile로 이전
-- [ ] A8. 안 쓰게 된 _RadarPainter·_SparklinePainter·_RadarAxis 클래스 정리
+- [x] A1. Engine Score 큰 숫자(score100) → Profile
+- [x] A2. Tier 배지(TierBadge) → Profile
+- [x] A3. 레벨·칭호 pill(_IdentityRow) → Profile _IdentityCard에 통합 (닉네임 중복 정리)
+- [x] A4. 6 카테고리 점수 → Profile. **레이더 그래프(_RadarPainter) 삭제**, 숫자 칩만 유지
+- [x] A5. 트렌드 → **sparkline 그래프(_SparklinePainter) 삭제**, delta 숫자(▲+N)만 텍스트 유지
+- [x] A6. 약점 분석 카드(_WeaknessInsightInline) → Profile (숫자 기반이라 유지)
+- [x] A7. Home initState 데이터 로직(_engineFuture·_sessionCountFuture·_wornTitleCode) → Profile로 이전
+- [x] A8. 안 쓰게 된 _RadarPainter·_SparklinePainter·_RadarAxis 클래스 정리
 
 ## Move B — Attend 게이미피케이션 → Home
 출처: `attendance_screen.dart`
