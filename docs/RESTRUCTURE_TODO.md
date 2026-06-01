@@ -24,11 +24,11 @@
 
 ## Move B — Attend 게이미피케이션 → Home
 출처: `attendance_screen.dart`
-- [ ] B1. LevelCard(캐릭터+레벨+XP+progress+격려 캡션) → Home
-- [ ] B2. AchievementSection(업적 그리드) → Home
-- [ ] B3. Milestones 3종(Attendance/Sessions/Achievements 진행바) → Home
-- [ ] B4. 데이터 로직(history fetch·streak 계산·StreakFreeze·PrDetector·achievement check) → Home로 이전
-- [ ] B5. **Attend 탭은 그대로 둠** (결정 #2 = 유지). 게이미피케이션 빠진 뒤 빈 화면 →
+- [x] B1. LevelCard(캐릭터+레벨+XP+progress+격려 캡션) → Home
+- [x] B2. AchievementSection(업적 그리드) → Home
+- [x] B3. Milestones 3종(Attendance/Sessions/Achievements 진행바) → Home
+- [x] B4. 데이터 로직(history fetch·streak 계산·StreakFreeze·PrDetector·achievement check) → Home로 이전
+- [x] B5. **Attend 탭은 그대로 둠** (결정 #2 = 유지). 게이미피케이션 빠진 뒤 빈 화면 →
       "준비 중 / 곧 추가" placeholder만 남기고, 향후 다른 자료 들어올 자리로 보존.
       탭 라벨·아이콘·인덱스 변경 X. 5탭 유지.
 
