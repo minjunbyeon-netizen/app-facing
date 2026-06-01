@@ -49,14 +49,18 @@
 - [x] E4. Home에서는 이 섹션 완전 제거 (Home = 공지 + 게이미피케이션 전용)
 
 ## Cross-cutting (정리·동기화)
-- [ ] D1. Home AppBar/구성 재정의 (게이미피케이션 + 공지 중심)
-- [ ] D2. Profile 섹션 순서 재배치 (Identity → Score → Body → Membership → …)
-- [ ] D3. 중복 제거 (Profile AttendanceCompact ↔ Attend 캘린더, Level 계산 이중)
-- [ ] D4. `docs/ARCHITECTURE_BRIEF.md` 충돌 점검 + 탭 책임 SSOT 갱신
-- [ ] D5. 카피 SSOT(CLAUDE.md 카피 템플릿) — 새 섹션 라벨 영문 규칙 적용
-- [ ] D6. main_shell.dart 탭 힌트 오버레이 _hints 텍스트 갱신
-- [ ] D7. 상단 종(InboxBellAction) 역할 — Home 아코디언과 중복 점검
-- [ ] D8. 에뮬 검증 (3 페르소나: 회원/코치/신규) + 캡처
+- [x] D1. Home AppBar/구성 재정의 (게이미피케이션 + 공지 중심)
+- [x] D2. Profile 섹션 순서 재배치 (Identity → Score → Body → Membership → …)
+- [x] D3. 중복 제거 (Profile AttendanceCompact → Attend 캘린더 이관, 캘린더 단일화)
+- [x] D4. `docs/ARCHITECTURE_BRIEF.md` 충돌 점검 + D25 탭 책임 SSOT 기록
+- [x] D5. 새 섹션 라벨 영문 규칙 적용 (NOTICE·ENGINE·MILESTONES·CALCULATE WOD)
+- [x] D6. main_shell.dart 탭 힌트 오버레이 _hints 텍스트 갱신 + 버전 v3 bump + Inbox→Notice 표기 통일
+- [ ] D7. 상단 종(InboxBellAction) 역할 — Home 아코디언과 중복 (남겨둠, 큰 문제 아님)
+- [~] D8. 에뮬 검증 — 회원 페르소나(김도윤) 5탭 + 재부팅 클린 + 힌트 OK. 코치/신규 페르소나 미검증
+
+## 진행 현황 (2026-06-02)
+- Phase 1~5 완료 (각 단계 에뮬 검증 + 로컬 커밋). push·배포는 안 함 (프로젝트 배포 금지 룰).
+- 남은 자투리: D7(상단 종 중복, 선택) · D8 코치/신규 페르소나 검증 · 라이트/다크 테마(이번 작업 무관, 별건).
 
 ---
 

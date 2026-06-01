@@ -28,7 +28,8 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   static const int _defaultIndex = 1; // WOD as landing tab
-  static const String _kTabHintShown = 'shell_tab_hint_shown_v2';
+  // v1.23 (2026-06-02): 탭 책임 재배치 → 힌트 버전 v3 로 bump (기존 사용자도 1회 재노출).
+  static const String _kTabHintShown = 'shell_tab_hint_shown_v3';
   int _index = _defaultIndex;
   bool _showTabHint = false;
   // v1.21: 베타 피드백 — 더블탭 종료 패턴. 첫 탭 SnackBar, 2초 내 재탭 시 종료.
@@ -306,11 +307,11 @@ class _TabHintOverlay extends StatelessWidget {
   const _TabHintOverlay({required this.onDismiss});
 
   static const List<(String, String)> _hints = [
-    ('Home', 'Tier · Engine Score · WOD 카테고리'),
-    ('WOD', '내 박스 코치의 오늘 WOD'),
-    ('Inbox', '코치 쪽지 · 박스 공지'),
-    ('Attend', '출석 · 레벨 · 해금 · 업적'),
-    ('Profile', '바디 · 설정 · 데이터'),
+    ('Home', '공지 · 레벨 · 업적 · Milestones'),
+    ('WOD', '코치 오늘 WOD · 프리셋 계산'),
+    ('Notice', '코치 쪽지 · 박스 공지'),
+    ('Attend', '월별 출석 캘린더'),
+    ('Profile', 'Engine 점수 · 바디 · 설정'),
   ];
 
   @override
