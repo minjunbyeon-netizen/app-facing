@@ -452,6 +452,7 @@ class _MemberConversationState extends State<_MemberConversation> {
           controller: _ctrl,
           sending: _sending,
           onSend: _send,
+          hint: '코치에게 쪽지…',
         ),
       ],
     );
@@ -634,16 +635,17 @@ class _PinnedAnnouncement extends StatelessWidget {
   }
 }
 
-/// 하단 입력바 — 회원이 코치에게 쪽지 발신.
-/// 전송 버튼은 입력창 suffixIcon 으로 (Row+Expanded 무한너비 회피).
+/// 하단 입력바 — 쪽지 발신. 전송 버튼은 입력창 suffixIcon 으로.
 class _ChatInputBar extends StatelessWidget {
   final TextEditingController controller;
   final bool sending;
   final VoidCallback onSend;
+  final String hint;
   const _ChatInputBar({
     required this.controller,
     required this.sending,
     required this.onSend,
+    this.hint = '메시지…',
   });
 
   @override
@@ -668,7 +670,7 @@ class _ChatInputBar extends StatelessWidget {
         textInputAction: TextInputAction.send,
         onSubmitted: (_) => onSend(),
         decoration: InputDecoration(
-          hintText: '코치에게 쪽지…',
+          hintText: hint,
           hintStyle: FacingTokens.caption,
           counterText: '',
           isDense: true,
@@ -1030,6 +1032,7 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
               controller: _ctrl,
               sending: _sending,
               onSend: _send,
+              hint: '회원에게 쪽지…',
             ),
           ],
         ),
