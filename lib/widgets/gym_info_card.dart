@@ -12,7 +12,14 @@ import '../models/gym.dart';
 
 class GymInfoCard extends StatelessWidget {
   final GymSummary? gym;
-  const GymInfoCard({super.key, required this.gym});
+  // v1.25: WOD 탭 BOX INFO 아코디언 안에서는 ListView 패딩과 이중이라 margin=0 으로.
+  final EdgeInsetsGeometry margin;
+  const GymInfoCard({
+    super.key,
+    required this.gym,
+    this.margin = const EdgeInsets.fromLTRB(
+        FacingTokens.sp4, FacingTokens.sp4, FacingTokens.sp4, 0),
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -30,8 +37,7 @@ class GymInfoCard extends StatelessWidget {
     final motto = (profile?.motto ?? '').trim();
 
     return Container(
-      margin: const EdgeInsets.fromLTRB(
-          FacingTokens.sp4, FacingTokens.sp4, FacingTokens.sp4, 0),
+      margin: margin,
       decoration: BoxDecoration(
         color: FacingTokens.surface,
         borderRadius: BorderRadius.circular(FacingTokens.r2),

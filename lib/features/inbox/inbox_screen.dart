@@ -13,7 +13,6 @@ import '../../core/theme.dart';
 import '../../models/coach_note.dart';
 import '../../widgets/avatar.dart';
 import '../../widgets/coach_badge.dart';
-import '../../widgets/gym_info_card.dart';
 import '../announcements/announcements_state.dart';
 import '../gym/gym_repository.dart';
 import '../gym/gym_state.dart';
@@ -97,10 +96,11 @@ class _InboxScreenState extends State<InboxScreen> {
         ],
       ),
       body: SafeArea(
+        // v1.25: 박스 기본정보(GymInfoCard) → WOD 탭 BOX INFO 아코디언으로 이관.
+        //   Notice 는 쪽지·공지 새 글 전용 피드로 비움.
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            GymInfoCard(gym: gs.membership.gym),
             Expanded(
               child: state.isLoading && items.isEmpty
                   ? const Center(

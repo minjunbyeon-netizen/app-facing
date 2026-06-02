@@ -6,6 +6,7 @@ import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/gym.dart';
 import '../../widgets/coach_badge.dart';
+import '../../widgets/gym_info_card.dart';
 import '../../widgets/inbox_bell.dart';
 import '../presets/presets_screen.dart';
 import '../wod_builder/wod_builder_screen.dart';
@@ -373,6 +374,11 @@ class _WodList extends StatelessWidget {
       child: ListView(
         padding: const EdgeInsets.all(FacingTokens.sp4),
         children: [
+          // v1.25: Notice 상단에 있던 박스 기본정보 → WOD 최상단 BOX INFO 아코디언.
+          _GymInfoAccordion(gym: gym),
+          const SizedBox(height: FacingTokens.sp3),
+          const Divider(height: 1, color: FacingTokens.border, thickness: 1),
+          const SizedBox(height: FacingTokens.sp4),
           Text(gym.name,
               style: FacingTokens.h3.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: FacingTokens.sp1),
@@ -500,6 +506,43 @@ class _WodList extends StatelessWidget {
           const SizedBox(height: FacingTokens.sp5),
           const Divider(height: 1, color: FacingTokens.border, thickness: 1),
           const _PresetAccordion(),
+        ],
+      ),
+    );
+  }
+}
+
+/// v1.25 (2026-06-02): Notice 상단 박스 기본정보(GymInfoCard) → WOD 탭 최상단 아코디언.
+/// Notice 는 새 글(쪽지·공지) 전용으로 비움. 기본 접힘, 펼치면 박스·코치·가격·수업시간.
+class _GymInfoAccordion extends StatelessWidget {
+  final GymSummary gym;
+  const _GymInfoAccordion({required this.gym});
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = gym.location.trim();
+    final sub = loc.isNotEmpty ? '${gym.name} · $loc' : gym.name;
+    return Theme(
+      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+      child: ExpansionTile(
+        initiallyExpanded: false,
+        tilePadding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+        childrenPadding: EdgeInsets.zero,
+        collapsedIconColor: FacingTokens.muted,
+        iconColor: FacingTokens.muted,
+        title: const Text('BOX INFO', style: FacingTokens.sectionLabel),
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: 2),
+          child: Text(
+            sub,
+            style: FacingTokens.caption,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        children: [
+          const SizedBox(height: FacingTokens.sp2),
+          GymInfoCard(gym: gym, margin: EdgeInsets.zero),
         ],
       ),
     );
