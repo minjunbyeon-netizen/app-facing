@@ -55,12 +55,13 @@
 - [x] D4. `docs/ARCHITECTURE_BRIEF.md` 충돌 점검 + D25 탭 책임 SSOT 기록
 - [x] D5. 새 섹션 라벨 영문 규칙 적용 (NOTICE·ENGINE·MILESTONES·CALCULATE WOD)
 - [x] D6. main_shell.dart 탭 힌트 오버레이 _hints 텍스트 갱신 + 버전 v3 bump + Inbox→Notice 표기 통일
-- [ ] D7. 상단 종(InboxBellAction) 역할 — Home 아코디언과 중복 (남겨둠, 큰 문제 아님)
+- [x] D7. 상단 종(InboxBellAction) — Home AppBar 에서만 제거. NOTICE 아코디언 + 하단 Notice 탭과
+      목적지 중복(셋 다 Notice 탭 점프). 다른 탭(WOD/Attend/Profile) 종은 유지(거기엔 아코디언 없음).
 - [~] D8. 에뮬 검증 — 회원 페르소나(김도윤) 5탭 + 재부팅 클린 + 힌트 OK. 코치/신규 페르소나 미검증
 
 ## 진행 현황 (2026-06-02)
 - Phase 1~5 완료 (각 단계 에뮬 검증 + 로컬 커밋). push·배포는 안 함 (프로젝트 배포 금지 룰).
-- 남은 자투리: D7(상단 종 중복, 선택) · D8 코치/신규 페르소나 검증 · 라이트/다크 테마(이번 작업 무관, 별건).
+- D7 완료(Home 상단 종 제거). 남은 자투리: D8 코치/신규 페르소나 검증 · 라이트/다크 테마(이번 작업 무관, 별건).
 
 ---
 
