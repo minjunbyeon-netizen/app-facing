@@ -202,6 +202,10 @@ class _MainShellState extends State<MainShell> {
         SystemNavigator.pop();
       },
       child: Scaffold(
+        // 탭 내부 중첩 화면(채팅 입력바 등)이 키보드를 직접 처리하도록 shell 은
+        // 인셋을 먹지 않는다. 그래야 키보드가 하단 탭바를 덮고, 채팅 입력칸만
+        // 키보드 위로 올라온다 (탭바가 키보드와 입력칸 사이에 끼는 현상 방지).
+        resizeToAvoidBottomInset: false,
         body: Stack(
           children: [
             IndexedStack(index: _index, children: _pages),

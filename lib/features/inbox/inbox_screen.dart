@@ -77,7 +77,7 @@ class _InboxScreenState extends State<InboxScreen> {
               tooltip: 'Groups',
               onPressed: () {
                 Haptic.light();
-                Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
+                Navigator.of(context).push(MaterialPageRoute(
                   builder: (_) => const GroupManagementScreen(),
                 ));
               },
@@ -88,7 +88,7 @@ class _InboxScreenState extends State<InboxScreen> {
               tooltip: 'New Note',
               onPressed: () async {
                 Haptic.light();
-                final ok = await Navigator.of(context, rootNavigator: true).push<bool>(
+                final ok = await Navigator.of(context).push<bool>(
                   MaterialPageRoute(
                     builder: (_) => const ComposeNoteScreen(),
                   ),
@@ -126,7 +126,7 @@ class _InboxScreenState extends State<InboxScreen> {
               foregroundColor: FacingTokens.fg,
               onPressed: () async {
                 Haptic.light();
-                final ok = await Navigator.of(context, rootNavigator: true).push<bool>(
+                final ok = await Navigator.of(context).push<bool>(
                   MaterialPageRoute(
                     builder: (_) => const ComposeNoteScreen(),
                   ),
@@ -151,7 +151,7 @@ class _InboxScreenState extends State<InboxScreen> {
                         : ((gymv.profile?.coachName ?? '').trim().isNotEmpty
                             ? gymv.profile!.coachName!.trim()
                             : '코치');
-                    Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
+                    Navigator.of(context).push(MaterialPageRoute(
                       builder: (_) => ChatThreadScreen(
                         gymId: gymv.id,
                         peerHash: gymv.ownerHash!,
@@ -182,7 +182,7 @@ class CoachDossierTile extends StatelessWidget {
     return InkWell(
       onTap: () async {
         Haptic.light();
-        await Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
+        await Navigator.of(context).push(MaterialPageRoute(
           builder: (_) => NoteDetailScreen(noteId: note.id),
         ));
         if (context.mounted) {
@@ -798,7 +798,7 @@ class _ThreadRow extends StatelessWidget {
     return InkWell(
       onTap: () async {
         Haptic.light();
-        await Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
+        await Navigator.of(context).push(MaterialPageRoute(
           builder: (_) => ChatThreadScreen(
             gymId: gymId,
             peerHash: thread.peerHash,
