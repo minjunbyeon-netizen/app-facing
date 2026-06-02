@@ -8,8 +8,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/api_client.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
+import '../../models/announcement.dart';
+import '../../models/chat_message.dart';
 import '../../models/coach_note.dart';
 import '../../widgets/avatar.dart';
 import '../../widgets/coach_badge.dart';
@@ -18,6 +21,7 @@ import '../gym/gym_repository.dart';
 import '../gym/gym_state.dart';
 import 'compose_note_screen.dart';
 import 'group_management_screen.dart';
+import 'inbox_repository.dart';
 import 'inbox_state.dart';
 import 'note_detail_screen.dart';
 
@@ -51,6 +55,7 @@ class _InboxScreenState extends State<InboxScreen> {
     final state = context.watch<InboxState>();
     final gs = context.watch<GymState>();
     final isCoach = gs.isOwner;
+    final gymId = gs.membership.gym?.id;
 
     // v1.22: 모든 항목(notes/assignments/announcements) 날짜순 단일 피드.
     final items = [...state.inbox.items];
@@ -96,9 +101,15 @@ class _InboxScreenState extends State<InboxScreen> {
         ],
       ),
       body: SafeArea(
-        // v1.25: 박스 기본정보(GymInfoCard) → WOD 탭 BOX INFO 아코디언으로 이관.
-        //   Notice 는 쪽지·공지 새 글 전용 피드로 비움.
-        child: Column(
+        // v1.25: 회원 = 코치와의 1:1 대화뷰(말풍선+입력바). 코치 = 기존 단일 피드.
+        //   박스 기본정보(GymInfoCard)는 WOD 탭 BOX INFO 아코디언으로 이관됨.
+        child: !isCoach
+            ? (gymId == null
+                ? const Center(
+                    child: Text('박스 가입 후 이용 가능.',
+                        style: FacingTokens.caption))
+                : _MemberConversation(gymId: gymId))
+            : Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
@@ -408,4 +419,372 @@ class _DueBadge {
   final String text;
   final Color color;
   const _DueBadge(this.text, {required this.color});
+}
+
+// ─── 회원 ↔ 코치 양방향 대화 (v1.25) ──────────────────────────────────────────
+
+/// 회원 NOTICE = 코치와의 1:1 대화. 상단 공지 핀 + 말풍선 타임라인 + 입력바.
+class _MemberConversation extends StatefulWidget {
+  final int gymId;
+  const _MemberConversation({required this.gymId});
+
+  @override
+  State<_MemberConversation> createState() => _MemberConversationState();
+}
+
+class _MemberConversationState extends State<_MemberConversation> {
+  late final InboxRepository _repo;
+  late final GymRepository _gymRepo;
+  final _ctrl = TextEditingController();
+  Future<List<ChatMessage>>? _future;
+  bool _sending = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final api = context.read<ApiClient>();
+    _repo = InboxRepository(api);
+    _gymRepo = GymRepository(api);
+    _load();
+  }
+
+  void _load() {
+    setState(() => _future = _repo.listMessages(widget.gymId));
+  }
+
+  Future<void> _send() async {
+    final msg = _ctrl.text.trim();
+    if (msg.isEmpty || _sending) return;
+    Haptic.light();
+    setState(() => _sending = true);
+    try {
+      await _gymRepo.memberReport(gymId: widget.gymId, message: msg);
+      _ctrl.clear();
+      _load();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('전송 실패. 다시 시도.')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _sending = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final anns = context.watch<AnnouncementsState>().items;
+    return Column(
+      children: [
+        if (anns.isNotEmpty) _PinnedAnnouncement(announcements: anns),
+        Expanded(
+          child: FutureBuilder<List<ChatMessage>>(
+            future: _future,
+            builder: (ctx, snap) {
+              if (snap.connectionState != ConnectionState.done) {
+                return const Center(
+                  child: CircularProgressIndicator(
+                      color: FacingTokens.muted, strokeWidth: 2),
+                );
+              }
+              final msgs = snap.data ?? const <ChatMessage>[];
+              if (msgs.isEmpty) return _empty();
+              // 서버 desc → reverse:true 로 최신이 하단.
+              return RefreshIndicator(
+                onRefresh: () async => _load(),
+                child: ListView.builder(
+                  reverse: true,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: FacingTokens.sp4,
+                    vertical: FacingTokens.sp3,
+                  ),
+                  itemCount: msgs.length,
+                  itemBuilder: (_, i) => _ChatBubble(msg: msgs[i]),
+                ),
+              );
+            },
+          ),
+        ),
+        _ChatInputBar(
+          controller: _ctrl,
+          sending: _sending,
+          onSend: _send,
+        ),
+      ],
+    );
+  }
+
+  Widget _empty() {
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: const [
+        SizedBox(height: 100),
+        Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('No messages', style: FacingTokens.sectionLabel),
+              SizedBox(height: FacingTokens.sp2),
+              Text('코치에게 첫 쪽지를 보내보세요.', style: FacingTokens.caption),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// 말풍선 — mine(보낸 것)=우측 accent, 받은 것=좌측 surface.
+class _ChatBubble extends StatelessWidget {
+  final ChatMessage msg;
+  const _ChatBubble({required this.msg});
+
+  @override
+  Widget build(BuildContext context) {
+    final mine = msg.mine;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: FacingTokens.sp3),
+      child: Column(
+        crossAxisAlignment:
+            mine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: [
+          if (!mine)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 3, left: 4),
+              child: Text(
+                msg.isAuto
+                    ? 'AUTO'
+                    : (msg.senderName ?? 'COACH').toUpperCase(),
+                style: FacingTokens.microLabel.copyWith(
+                  color:
+                      msg.isAuto ? FacingTokens.success : FacingTokens.muted,
+                ),
+              ),
+            ),
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.74,
+            ),
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: FacingTokens.sp3,
+                vertical: FacingTokens.sp2 + 2,
+              ),
+              decoration: BoxDecoration(
+                color: mine ? FacingTokens.accent : FacingTokens.surface,
+                borderRadius: BorderRadius.only(
+                  topLeft: const Radius.circular(FacingTokens.r3),
+                  topRight: const Radius.circular(FacingTokens.r3),
+                  bottomLeft: Radius.circular(
+                      mine ? FacingTokens.r3 : FacingTokens.r1),
+                  bottomRight: Radius.circular(
+                      mine ? FacingTokens.r1 : FacingTokens.r3),
+                ),
+                border:
+                    mine ? null : Border.all(color: FacingTokens.border),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (msg.title.isNotEmpty) ...[
+                    Text(
+                      msg.title,
+                      style: FacingTokens.body.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: FacingTokens.fg,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                  ],
+                  Text(
+                    msg.body,
+                    style: FacingTokens.body.copyWith(color: FacingTokens.fg),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 3, left: 4, right: 4),
+            child: Text(_timeLabel(msg.createdAt), style: FacingTokens.micro),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static String _timeLabel(DateTime t) {
+    final now = DateTime.now();
+    if (t.year == now.year && t.month == now.month && t.day == now.day) {
+      final hh = t.hour.toString().padLeft(2, '0');
+      final mm = t.minute.toString().padLeft(2, '0');
+      return '$hh:$mm';
+    }
+    final mo = t.month.toString().padLeft(2, '0');
+    final d = t.day.toString().padLeft(2, '0');
+    return '$mo/$d';
+  }
+}
+
+/// 상단 핀 공지 — 최신 1건 요약. 새 소식 제일 위 노출.
+class _PinnedAnnouncement extends StatelessWidget {
+  final List<GymAnnouncement> announcements;
+  const _PinnedAnnouncement({required this.announcements});
+
+  @override
+  Widget build(BuildContext context) {
+    final latest = announcements.first;
+    final more = announcements.length - 1;
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(
+          FacingTokens.sp4, FacingTokens.sp3, FacingTokens.sp4, 0),
+      padding: const EdgeInsets.all(FacingTokens.sp3),
+      decoration: BoxDecoration(
+        color: FacingTokens.surface,
+        borderRadius: BorderRadius.circular(FacingTokens.r2),
+        border: Border.all(
+          color:
+              latest.isUrgent ? FacingTokens.accent : FacingTokens.border,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                'NOTICE',
+                style: FacingTokens.microLabel.copyWith(
+                  color: latest.isUrgent
+                      ? FacingTokens.accent
+                      : FacingTokens.muted,
+                ),
+              ),
+              if (more > 0) ...[
+                const Spacer(),
+                Text('+$more', style: FacingTokens.micro),
+              ],
+            ],
+          ),
+          const SizedBox(height: 4),
+          if (latest.title.isNotEmpty)
+            Text(
+              latest.title,
+              style: FacingTokens.body.copyWith(fontWeight: FontWeight.w700),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          if (latest.body.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Text(
+                latest.body,
+                style: FacingTokens.caption,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 하단 입력바 — 회원이 코치에게 쪽지 발신.
+class _ChatInputBar extends StatelessWidget {
+  final TextEditingController controller;
+  final bool sending;
+  final VoidCallback onSend;
+  const _ChatInputBar({
+    required this.controller,
+    required this.sending,
+    required this.onSend,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(
+        FacingTokens.sp3,
+        FacingTokens.sp2,
+        FacingTokens.sp3,
+        FacingTokens.sp2,
+      ),
+      decoration: const BoxDecoration(
+        color: FacingTokens.bg,
+        border: Border(top: BorderSide(color: FacingTokens.border, width: 1)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Expanded(
+            child: TextField(
+              controller: controller,
+              minLines: 1,
+              maxLines: 4,
+              maxLength: 500,
+              style: FacingTokens.body,
+              decoration: InputDecoration(
+                hintText: '코치에게 쪽지…',
+                hintStyle: FacingTokens.caption,
+                counterText: '',
+                isDense: true,
+                filled: true,
+                fillColor: FacingTokens.surface,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: FacingTokens.sp3,
+                  vertical: FacingTokens.sp2 + 2,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(FacingTokens.r3),
+                  borderSide: const BorderSide(color: FacingTokens.border),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(FacingTokens.r3),
+                  borderSide: const BorderSide(color: FacingTokens.border),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(FacingTokens.r3),
+                  borderSide: const BorderSide(
+                      color: FacingTokens.accent, width: 1.5),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: FacingTokens.sp2),
+          SizedBox(
+            height: 44,
+            child: ElevatedButton(
+              onPressed: sending ? null : onSend,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: FacingTokens.accent,
+                foregroundColor: FacingTokens.fg,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: FacingTokens.sp3),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(FacingTokens.r3),
+                ),
+              ),
+              child: sending
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                          color: FacingTokens.fg, strokeWidth: 2),
+                    )
+                  : const Icon(Icons.arrow_upward, size: 20),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

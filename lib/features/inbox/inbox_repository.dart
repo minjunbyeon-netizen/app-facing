@@ -1,6 +1,7 @@
 // v1.18 Sprint 19: Inbox + Coach Note + Group repository.
 
 import '../../core/api_client.dart';
+import '../../models/chat_message.dart';
 import '../../models/coach_group.dart';
 import '../../models/coach_note.dart';
 
@@ -41,6 +42,16 @@ class InboxRepository {
   Future<CoachNote> getNote(int noteId) async {
     final data = await api.get('/api/v1/gym/notes/$noteId');
     return CoachNote.fromJson(data);
+  }
+
+  /// v1.25: 회원↔코치 양방향 대화 — 보낸 것 + 받은 것 시간순(desc).
+  Future<List<ChatMessage>> listMessages(int gymId) async {
+    final data = await api.get('/api/v1/gym/$gymId/messages');
+    final raw = data['items'];
+    return (raw is List ? raw : const [])
+        .whereType<Map<String, dynamic>>()
+        .map(ChatMessage.fromJson)
+        .toList();
   }
 
   Future<int> postNote({

@@ -13,6 +13,8 @@ class AnnouncementsState extends ChangeNotifier {
 
   int get unreadCount => _unreadCount;
   int? get boundGymId => _boundGymId;
+  // v1.25: 회원 대화 화면 상단 공지 핀용 — 최신순 목록 노출.
+  List<GymAnnouncement> get items => _items;
 
   Future<void> bind(GymRepository repo, int gymId) async {
     if (_boundGymId == gymId && _items.isNotEmpty) return;
