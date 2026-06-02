@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
+import 'rehab_flow_screen.dart';
 import 'rehab_models.dart';
 
 class RehabScreen extends StatefulWidget {
@@ -48,7 +49,18 @@ class _RehabScreenState extends State<RehabScreen> {
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(FacingTokens.r3)),
       ),
-      builder: (_) => _PreviewSheet(preview: preview),
+      builder: (_) => _PreviewSheet(
+        preview: preview,
+        onStart: () {
+          Navigator.of(context).pop();
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) =>
+                  RehabFlowScreen(movementId: mv.id, painSiteId: site.id),
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -113,7 +125,25 @@ class _MovementCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(movement.name, style: FacingTokens.h3),
+          Row(
+            children: [
+              Text(movement.name, style: FacingTokens.h3),
+              if (movement.comingSoon) ...[
+                const SizedBox(width: FacingTokens.sp2),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: FacingTokens.sp2, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: FacingTokens.surfaceMax,
+                    borderRadius: BorderRadius.circular(FacingTokens.r1),
+                  ),
+                  child: Text('준비 중',
+                      style: FacingTokens.micro
+                          .copyWith(color: FacingTokens.muted)),
+                ),
+              ],
+            ],
+          ),
           const SizedBox(height: FacingTokens.sp3),
           Wrap(
             spacing: FacingTokens.sp2,
@@ -158,12 +188,14 @@ class _PainChip extends StatelessWidget {
 
 class _PreviewSheet extends StatelessWidget {
   final RehabPainSitePreview preview;
+  final VoidCallback onStart;
 
-  const _PreviewSheet({required this.preview});
+  const _PreviewSheet({required this.preview, required this.onStart});
 
   @override
   Widget build(BuildContext context) {
     final hasDanger = preview.dangerTitle != null;
+    final ready = preview.questionCount > 0 && !preview.comingSoon;
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(FacingTokens.sp5),
@@ -203,22 +235,34 @@ class _PreviewSheet extends StatelessWidget {
               ),
             ],
             const SizedBox(height: FacingTokens.sp5),
-            Container(
-              padding: const EdgeInsets.all(FacingTokens.sp3),
-              decoration: BoxDecoration(
-                color: FacingTokens.surface,
-                borderRadius: BorderRadius.circular(FacingTokens.r2),
+            if (ready) ...[
+              FilledButton(
+                onPressed: onStart,
+                child: const Text('감별 시작'),
               ),
-              child: const Text(
-                '단계별 감별 플로우는 다음 업데이트에서 열려요.',
-                style: FacingTokens.caption,
+              const SizedBox(height: FacingTokens.sp2),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('닫기'),
               ),
-            ),
-            const SizedBox(height: FacingTokens.sp4),
-            FilledButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('닫기'),
-            ),
+            ] else ...[
+              Container(
+                padding: const EdgeInsets.all(FacingTokens.sp3),
+                decoration: BoxDecoration(
+                  color: FacingTokens.surface,
+                  borderRadius: BorderRadius.circular(FacingTokens.r2),
+                ),
+                child: const Text(
+                  '이 부위 감별은 준비 중이에요.',
+                  style: FacingTokens.caption,
+                ),
+              ),
+              const SizedBox(height: FacingTokens.sp4),
+              FilledButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('닫기'),
+              ),
+            ],
           ],
         ),
       ),
