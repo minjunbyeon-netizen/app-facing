@@ -51,3 +51,6 @@ app.*.map.json
 # tmp 검색 artifact
 tmp/
 .gstack/
+
+# 에뮬레이터 임시 캡처 (검증용, 커밋 금지)
+cap_*.png
