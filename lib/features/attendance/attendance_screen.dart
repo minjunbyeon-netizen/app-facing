@@ -3,9 +3,9 @@ import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
 import '../../core/theme.dart';
-import '../../widgets/inbox_bell.dart';
 import '../history/history_models.dart';
 import '../history/history_repository.dart';
+import '../inbox/inbox_screen.dart' show MessagingFeed;
 
 /// v1.23 (2026-06-02) 재배치 Phase 3: Attend = 출석 캘린더 전담.
 /// 게이미피케이션(Level·업적·Milestones)은 Home 으로 이관됨.
@@ -18,13 +18,17 @@ class AttendanceScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('ATTEND'),
-        actions: const [InboxBellAction()],
       ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp4),
           children: const [
             _AttendanceCalendar(),
+            SizedBox(height: FacingTokens.sp5),
+            Divider(height: 1, color: FacingTokens.border),
+            SizedBox(height: FacingTokens.sp4),
+            // v1.24 (2026-06-03): 공지·쪽지·대화를 Notice 탭에서 캘린더 밑으로 이동.
+            MessagingFeed(),
           ],
         ),
       ),

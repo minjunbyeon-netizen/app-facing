@@ -201,7 +201,7 @@ class _NoticeAccordion extends StatelessWidget {
               child: TextButton(
                 onPressed: () {
                   Haptic.light();
-                  context.read<ShellNavBus>().requestTab(3);
+                  context.read<ShellNavBus>().requestTab(2);
                 },
                 style: TextButton.styleFrom(
                   foregroundColor: FacingTokens.muted,

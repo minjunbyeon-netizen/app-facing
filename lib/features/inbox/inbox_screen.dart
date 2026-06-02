@@ -18,7 +18,6 @@ import '../../models/announcement.dart';
 import '../../models/chat_message.dart';
 import '../../models/coach_note.dart';
 import '../../widgets/avatar.dart';
-import '../../widgets/coach_badge.dart';
 import '../announcements/announcements_state.dart';
 import '../gym/gym_repository.dart';
 import '../gym/gym_state.dart';
@@ -56,113 +55,19 @@ class _InboxScreenState extends State<InboxScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final state = context.watch<InboxState>();
-    final gs = context.watch<GymState>();
-    final isCoach = gs.isOwner;
-    final gymId = gs.membership.gym?.id;
-
+    // v1.24 (2026-06-03): 쪽지·공지·대화는 Attend 탭(캘린더 밑 MessagingFeed)으로 이동.
+    //   Notice 탭은 재활 가이드 전담으로 남는다. (사용자 결정 2026-06-03)
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('NOTICE'),
-        actions: [
-          if (isCoach) const CoachBadgeAction(),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: 'Refresh',
-            onPressed: () => state.refresh(),
-          ),
-          if (isCoach)
-            IconButton(
-              icon: const Icon(Icons.group_outlined),
-              tooltip: 'Groups',
-              onPressed: () {
-                Haptic.light();
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => const GroupManagementScreen(),
-                ));
-              },
-            ),
-          if (isCoach)
-            IconButton(
-              icon: const Icon(Icons.edit_outlined),
-              tooltip: 'New Note',
-              onPressed: () async {
-                Haptic.light();
-                final ok = await Navigator.of(context).push<bool>(
-                  MaterialPageRoute(
-                    builder: (_) => const ComposeNoteScreen(),
-                  ),
-                );
-                if (ok == true && context.mounted) {
-                  await context.read<InboxState>().refresh();
-                }
-              },
-            ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('NOTICE')),
       body: SafeArea(
-        // v1.25: 회원·코치 모두 카톡식 대화로 통일.
-        //   회원 = 코치와의 1:1 대화. 코치 = 회원별 대화목록 → 탭하면 1:1 채팅.
-        child: gymId == null
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: const [
-                  RehabGuideCard(),
-                  Expanded(
-                    child: Center(
-                      child: Text('박스 가입 후 코치 쪽지·공지가 열려요.',
-                          style: FacingTokens.caption),
-                    ),
-                  ),
-                ],
-              )
-            : (isCoach
-                ? _CoachThreadList(gymId: gymId)
-                : _MemberThreadHome(gymId: gymId)),
+        child: ListView(
+          padding: const EdgeInsets.only(
+              top: FacingTokens.sp2, bottom: FacingTokens.sp6),
+          children: const [
+            RehabGuideCard(),
+          ],
+        ),
       ),
-      floatingActionButton: isCoach
-          ? FloatingActionButton.extended(
-              backgroundColor: FacingTokens.accent,
-              foregroundColor: FacingTokens.fg,
-              onPressed: () async {
-                Haptic.light();
-                final ok = await Navigator.of(context).push<bool>(
-                  MaterialPageRoute(
-                    builder: (_) => const ComposeNoteScreen(),
-                  ),
-                );
-                if (ok == true && mounted) {
-                  await state.refresh();
-                }
-              },
-              icon: const Icon(Icons.edit_outlined),
-              label: const Text('New'),
-            )
-          : (gs.membership.gym?.ownerHash != null
-              // v1.25: 회원 — 받은 적 없어도 코치에게 먼저 쪽지 시작.
-              ? FloatingActionButton.extended(
-                  backgroundColor: FacingTokens.accent,
-                  foregroundColor: FacingTokens.fg,
-                  onPressed: () {
-                    Haptic.light();
-                    final gymv = gs.membership.gym!;
-                    final coachName = gs.coaches.isNotEmpty
-                        ? gs.coaches.first.name
-                        : ((gymv.profile?.coachName ?? '').trim().isNotEmpty
-                            ? gymv.profile!.coachName!.trim()
-                            : '코치');
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => ChatThreadScreen(
-                        gymId: gymv.id,
-                        peerHash: gymv.ownerHash!,
-                        peerName: coachName,
-                      ),
-                    ));
-                  },
-                  icon: const Icon(Icons.edit_outlined),
-                  label: const Text('코치에게 쪽지'),
-                )
-              : null),
     );
   }
 }
@@ -654,46 +559,156 @@ StreamSubscription<SseEvent> _listenNoteNew(
   });
 }
 
-// ─── 코치 대화 목록 (회원별 1:1) ──────────────────────────────────────────────
+// ─── 메시징 피드 (Attend 캘린더 밑에 임베드) ─────────────────────────────────
 
-/// 회원 NOTICE = 상단 공지 핀 + 코치별 대화 목록.
-class _MemberThreadHome extends StatelessWidget {
-  final int gymId;
-  const _MemberThreadHome({required this.gymId});
+/// 공지 + 코치/회원 대화목록 + 작성 진입을 한 덩어리로 묶은 임베드 위젯.
+/// v1.24 (2026-06-03): Notice 탭에서 Attend 탭(캘린더 밑)으로 이동.
+/// Scaffold 없이 스크롤 부모(ListView) 안에 들어가도록 자체 스크롤을 쓰지 않는다.
+/// (재활 카드는 포함하지 않음 — 재활은 Notice 탭 유지.)
+class MessagingFeed extends StatelessWidget {
+  const MessagingFeed({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final anns = context.watch<AnnouncementsState>().items;
+    final gs = context.watch<GymState>();
+    final isCoach = gs.isOwner;
+    final gymId = gs.membership.gym?.id;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const RehabGuideCard(),
-        if (anns.isNotEmpty) _PinnedAnnouncement(announcements: anns),
-        Expanded(
-          child: _CoachThreadList(
-            gymId: gymId,
-            emptyHint: '코치 쪽지가 여기 쌓여요.',
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+              FacingTokens.sp4, 0, FacingTokens.sp4, FacingTokens.sp2),
+          child: Row(
+            children: [
+              const Text('MESSAGES', style: FacingTokens.sectionLabel),
+              const Spacer(),
+              if (gymId != null) ..._actions(context, gs, isCoach, gymId),
+            ],
           ),
         ),
+        if (gymId == null)
+          const Padding(
+            padding: EdgeInsets.fromLTRB(FacingTokens.sp4, FacingTokens.sp2,
+                FacingTokens.sp4, FacingTokens.sp4),
+            child: Text('박스 가입 후 코치 쪽지·공지가 열려요.',
+                style: FacingTokens.caption),
+          )
+        else ...[
+          Consumer<AnnouncementsState>(
+            builder: (ctx, ann, _) => ann.items.isEmpty
+                ? const SizedBox.shrink()
+                : _PinnedAnnouncement(announcements: ann.items),
+          ),
+          _EmbeddedThreadList(
+            gymId: gymId,
+            emptyHint:
+                isCoach ? '회원이 보낸 쪽지가 여기 쌓여요.' : '코치 쪽지가 여기 쌓여요.',
+          ),
+        ],
       ],
+    );
+  }
+
+  List<Widget> _actions(
+      BuildContext context, GymState gs, bool isCoach, int gymId) {
+    if (isCoach) {
+      return [
+        _FeedAction(
+          icon: Icons.group_outlined,
+          label: '그룹',
+          onTap: () {
+            Haptic.light();
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => const GroupManagementScreen(),
+            ));
+          },
+        ),
+        const SizedBox(width: FacingTokens.sp2),
+        _FeedAction(
+          icon: Icons.edit_outlined,
+          label: '새 쪽지',
+          onTap: () async {
+            Haptic.light();
+            final ok = await Navigator.of(context).push<bool>(
+              MaterialPageRoute(builder: (_) => const ComposeNoteScreen()),
+            );
+            if (ok == true && context.mounted) {
+              await context.read<InboxState>().refresh();
+            }
+          },
+        ),
+      ];
+    }
+    // 회원 — 코치에게 먼저 쪽지 시작.
+    if (gs.membership.gym?.ownerHash == null) return const [];
+    return [
+      _FeedAction(
+        icon: Icons.edit_outlined,
+        label: '코치에게 쪽지',
+        onTap: () {
+          Haptic.light();
+          final gymv = gs.membership.gym!;
+          final coachName = gs.coaches.isNotEmpty
+              ? gs.coaches.first.name
+              : ((gymv.profile?.coachName ?? '').trim().isNotEmpty
+                  ? gymv.profile!.coachName!.trim()
+                  : '코치');
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => ChatThreadScreen(
+              gymId: gymv.id,
+              peerHash: gymv.ownerHash!,
+              peerName: coachName,
+            ),
+          ));
+        },
+      ),
+    ];
+  }
+}
+
+class _FeedAction extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  const _FeedAction(
+      {required this.icon, required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(FacingTokens.r1),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+            horizontal: FacingTokens.sp2, vertical: FacingTokens.sp1),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 16, color: FacingTokens.accent),
+            const SizedBox(width: 4),
+            Text(label,
+                style:
+                    FacingTokens.micro.copyWith(color: FacingTokens.accent)),
+          ],
+        ),
+      ),
     );
   }
 }
 
-/// 대화 스레드 목록. 코치=회원별, 회원=코치별. 탭하면 1:1 채팅.
-class _CoachThreadList extends StatefulWidget {
+/// 스크롤 부모(ListView) 안에 들어가는 대화 목록 — 자체 스크롤 X, Column 으로 렌더.
+class _EmbeddedThreadList extends StatefulWidget {
   final int gymId;
   final String emptyHint;
-  const _CoachThreadList({
-    required this.gymId,
-    this.emptyHint = '회원이 보낸 쪽지가 여기 쌓여요.',
-  });
+  const _EmbeddedThreadList({required this.gymId, required this.emptyHint});
 
   @override
-  State<_CoachThreadList> createState() => _CoachThreadListState();
+  State<_EmbeddedThreadList> createState() => _EmbeddedThreadListState();
 }
 
-class _CoachThreadListState extends State<_CoachThreadList> {
+class _EmbeddedThreadListState extends State<_EmbeddedThreadList> {
   late final InboxRepository _repo;
   Future<List<CoachThread>>? _future;
   StreamSubscription<SseEvent>? _sseSub;
@@ -726,48 +741,43 @@ class _CoachThreadListState extends State<_CoachThreadList> {
       future: _future,
       builder: (ctx, snap) {
         if (snap.connectionState != ConnectionState.done) {
-          return const Center(
-            child: CircularProgressIndicator(
-                color: FacingTokens.muted, strokeWidth: 2),
+          return const Padding(
+            padding: EdgeInsets.all(FacingTokens.sp5),
+            child: Center(
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                    color: FacingTokens.muted, strokeWidth: 2),
+              ),
+            ),
           );
         }
         final threads = snap.data ?? const <CoachThread>[];
         if (threads.isEmpty) {
-          return ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            children: [
-              const SizedBox(height: 100),
-              Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text('No messages',
-                        style: FacingTokens.sectionLabel),
-                    const SizedBox(height: FacingTokens.sp2),
-                    Text(widget.emptyHint, style: FacingTokens.caption),
-                  ],
-                ),
-              ),
-            ],
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(FacingTokens.sp4,
+                FacingTokens.sp2, FacingTokens.sp4, FacingTokens.sp4),
+            child: Text(widget.emptyHint, style: FacingTokens.caption),
           );
         }
-        return RefreshIndicator(
-          onRefresh: () async => _reload(),
-          child: ListView.separated(
-            padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp2),
-            itemCount: threads.length,
-            separatorBuilder: (_, _) => const Divider(
-              height: 1,
-              color: FacingTokens.border,
-              indent: FacingTokens.sp4,
-              endIndent: FacingTokens.sp4,
-            ),
-            itemBuilder: (_, i) => _ThreadRow(
-              thread: threads[i],
-              gymId: widget.gymId,
-              onReturn: _reload,
-            ),
-          ),
+        return Column(
+          children: [
+            for (var i = 0; i < threads.length; i++) ...[
+              if (i > 0)
+                const Divider(
+                  height: 1,
+                  color: FacingTokens.border,
+                  indent: FacingTokens.sp4,
+                  endIndent: FacingTokens.sp4,
+                ),
+              _ThreadRow(
+                thread: threads[i],
+                gymId: widget.gymId,
+                onReturn: _reload,
+              ),
+            ],
+          ],
         );
       },
     );

@@ -7,7 +7,7 @@ import '../core/theme.dart';
 import '../features/inbox/inbox_state.dart';
 
 /// v1.22: 모든 탭 AppBar 공통 Bell 아이콘.
-/// 탭 시 Inbox(NOTICE) 탭으로 점프. 미읽음 있으면 우상단 빨간 dot.
+/// v1.24: 쪽지·공지가 Attend 탭으로 이동 → 탭 시 Attend(2)로 점프. 미읽음 dot 유지.
 class InboxBellAction extends StatelessWidget {
   const InboxBellAction({super.key});
 
@@ -25,7 +25,7 @@ class InboxBellAction extends StatelessWidget {
             icon: const Icon(Icons.notifications_outlined),
             onPressed: () {
               Haptic.light();
-              context.read<ShellNavBus>().requestTab(3);
+              context.read<ShellNavBus>().requestTab(2);
             },
           ),
           if (hasUnread)

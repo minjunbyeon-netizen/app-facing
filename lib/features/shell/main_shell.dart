@@ -39,8 +39,11 @@ class _MainShellState extends State<MainShell> {
   ShellNavBus? _navBus;
 
   // v1.23: Notice 탭은 중첩 Navigator 로 호스팅 → 재활 가이드 등 탭 내부 화면을
-  // 띄워도 하단 네비바가 계속 노출된다. (쪽지 채팅·작성은 rootNavigator 로 전체화면 유지)
+  // 띄워도 하단 네비바가 계속 노출된다.
   final GlobalKey<NavigatorState> _noticeNavKey = GlobalKey<NavigatorState>();
+  // v1.24: Attend 탭도 중첩 Navigator — 캘린더 밑 MessagingFeed 의 쪽지 채팅·작성도
+  // 탭 안에서 떠서 하단 네비바 유지.
+  final GlobalKey<NavigatorState> _attendNavKey = GlobalKey<NavigatorState>();
 
   @override
   void initState() {
@@ -134,10 +137,21 @@ class _MainShellState extends State<MainShell> {
     );
   }
 
+  // Attend 탭도 중첩 Navigator 로 호스팅 (MessagingFeed 의 채팅·작성 탭 내부 유지).
+  Widget _buildAttend() {
+    return Navigator(
+      key: _attendNavKey,
+      onGenerateRoute: (settings) => MaterialPageRoute(
+        settings: settings,
+        builder: (_) => const AttendanceScreen(),
+      ),
+    );
+  }
+
   late final List<Widget> _pages = [
     const HomeScreen(),
     const BoxWodScreen(),
-    const AttendanceScreen(),
+    _buildAttend(),
     _buildInbox(),
     const MyPageScreen(),
   ];
@@ -146,8 +160,8 @@ class _MainShellState extends State<MainShell> {
     if (i == _index) return;
     Haptic.selection();
     setState(() => _index = i);
-    // Notice 탭(3) 진입 시점에만 공지 읽음 처리
-    if (i == 3) {
+    // v1.24: 공지·쪽지가 Attend(2)로 이동 → Attend 진입 시점에 공지 읽음 처리
+    if (i == 2) {
       context.read<AnnouncementsState>().markSeen();
     }
   }
@@ -171,14 +185,14 @@ class _MainShellState extends State<MainShell> {
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) return;
-        // Notice 탭 내부 중첩 네비게이터가 pop 가능하면 그것부터 처리
-        // (재활 가이드/감별 플로우 등 — RehabFlowScreen 의 자체 PopScope 도 존중).
-        if (_index == 3) {
-          final nav = _noticeNavKey.currentState;
-          if (nav != null && nav.canPop()) {
-            nav.maybePop();
-            return;
-          }
+        // 현재 탭의 중첩 네비게이터가 pop 가능하면 그것부터 처리.
+        // (Notice=재활 플로우, Attend=쪽지 채팅/작성 — 각 화면 자체 PopScope 도 존중)
+        final nestedNav = _index == 3
+            ? _noticeNavKey.currentState
+            : (_index == 2 ? _attendNavKey.currentState : null);
+        if (nestedNav != null && nestedNav.canPop()) {
+          nestedNav.maybePop();
+          return;
         }
         if (_index != _defaultIndex) {
           setState(() => _index = _defaultIndex);
@@ -248,7 +262,7 @@ class _MainShellState extends State<MainShell> {
                     NavigationDestination(
                       icon: _IconWithDot(
                         icon: _tabs[i].icon,
-                        showDot: i == 3 &&
+                        showDot: i == 2 &&
                             (context.watch<InboxState>().unreadCount > 0 ||
                                 context
                                         .watch<AnnouncementsState>()
@@ -258,7 +272,7 @@ class _MainShellState extends State<MainShell> {
                       ),
                       selectedIcon: _IconWithDot(
                         icon: _tabs[i].selectedIcon,
-                        showDot: i == 3 &&
+                        showDot: i == 2 &&
                             (context.watch<InboxState>().unreadCount > 0 ||
                                 context
                                         .watch<AnnouncementsState>()
