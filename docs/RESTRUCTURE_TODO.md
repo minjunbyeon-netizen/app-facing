@@ -48,6 +48,13 @@
 - [x] E3. 진입 동작 유지 — 각 항목 탭 시 PresetsScreen/WodBuilderScreen 그대로 push
 - [x] E4. Home에서는 이 섹션 완전 제거 (Home = 공지 + 게이미피케이션 전용)
 
+## Move F — Notice 박스 기본정보 → WOD 탭 최상단 아코디언 (2026-06-02)
+출처: `inbox_screen.dart` `GymInfoCard` → `gym/box_wod_screen.dart` `_GymInfoAccordion`
+- [x] F1. GymInfoCard(박스명·위치·연락·코치·가격·수업시간·MOTTO) → WOD 탭 **최상단** 아코디언(`BOX INFO`)
+- [x] F2. 형태 = 기본 접힘. subtitle 에 "박스명 · 위치" 1줄. 펼치면 전체 카드.
+- [x] F3. Notice 에서 GymInfoCard 제거 — Notice 는 새 글(쪽지·공지) 전용 피드로 비움.
+- [x] F4. GymInfoCard 에 `margin` 옵션 추가 — 아코디언 안 이중 여백 방지(margin=0).
+
 ## Cross-cutting (정리·동기화)
 - [x] D1. Home AppBar/구성 재정의 (게이미피케이션 + 공지 중심)
 - [x] D2. Profile 섹션 순서 재배치 (Identity → Score → Body → Membership → …)
@@ -81,8 +88,8 @@
 
 ## 최종 화면 책임 (재배치 후)
 - **Home** = 최상단 공지/쪽지 아코디언(접힘 1줄) + 게이미피케이션(Level 히어로·업적·Milestones)
-- **WOD** = 코치 오늘 WOD + 하단 프리셋 카테고리 아코디언(참조)
-- **Notice** = 쪽지/숙제/공지 전체 피드 (변경 없음, Home은 요약본)
+- **WOD** = 최상단 BOX INFO 아코디언(박스·코치·가격·수업시간, 접힘) + 코치 오늘 WOD + 하단 프리셋 카테고리 아코디언(참조)
+- **Notice** = 쪽지/숙제/공지 새 글 전용 피드. 박스 기본정보(GymInfoCard) 는 WOD BOX INFO 로 이관(2026-06-02). Home 은 요약본
 - **Attend** = 출석 캘린더 복귀(Profile에서 이동) — 빈 탭 낭비 방지 (리뷰 다)
 - **Profile** = Identity + 점수(숫자만, 그래프 X) + Body + Membership + Locker + MyBox + Settings + Actions
 
