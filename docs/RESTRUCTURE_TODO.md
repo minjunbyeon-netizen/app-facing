@@ -55,6 +55,15 @@
 - [x] F3. Notice 에서 GymInfoCard 제거 — Notice 는 새 글(쪽지·공지) 전용 피드로 비움.
 - [x] F4. GymInfoCard 에 `margin` 옵션 추가 — 아코디언 안 이중 여백 방지(margin=0).
 
+## Move G — 회원↔코치 양방향 쪽지 (2026-06-02)
+브리프 §160·§383 충족. 백엔드 member-report(회원→코치) 이미 존재 → 대화 합본 + 회원 발신 UI 추가.
+- [x] G1. 백엔드 `GET /api/v1/gym/<id>/messages` — 받은 것(recipient) + 보낸 것(sender) 합쳐 시간순. direction(in/out).
+- [x] G2. 앱 `ChatMessage` 모델 + `InboxRepository.listMessages`.
+- [x] G3. 회원 NOTICE = 카톡식 대화뷰 — 상단 공지 핀(`_PinnedAnnouncement`) + 말풍선(`_ChatBubble`, mine=우측 accent) + 하단 입력바(`_ChatInputBar`, suffixIcon 전송).
+- [x] G4. 회원 발신 = `memberReport`(wod_id 없이). 코치는 기존 인박스에서 수신.
+- [x] G5. 코치 화면은 기존 단일 피드 유지(분기). `AnnouncementsState.items` getter 공개.
+- [x] G6. 에뮬 검증 — 받은 쪽지 좌측 + 보낸 "test from member" 우측 정상. 입력바 무한너비 버그(Row→suffixIcon) 픽스.
+
 ## Cross-cutting (정리·동기화)
 - [x] D1. Home AppBar/구성 재정의 (게이미피케이션 + 공지 중심)
 - [x] D2. Profile 섹션 순서 재배치 (Identity → Score → Body → Membership → …)
