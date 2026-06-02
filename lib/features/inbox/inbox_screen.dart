@@ -445,11 +445,14 @@ class _MemberConversationState extends State<_MemberConversation> {
     final api = context.read<ApiClient>();
     _repo = InboxRepository(api);
     _gymRepo = GymRepository(api);
-    _load();
+    // initState 에선 setState 없이 직접 할당 (lifecycle: created).
+    _future = _repo.listMessages(widget.gymId);
   }
 
-  void _load() {
-    setState(() => _future = _repo.listMessages(widget.gymId));
+  void _reload() {
+    setState(() {
+      _future = _repo.listMessages(widget.gymId);
+    });
   }
 
   Future<void> _send() async {
@@ -460,7 +463,7 @@ class _MemberConversationState extends State<_MemberConversation> {
     try {
       await _gymRepo.memberReport(gymId: widget.gymId, message: msg);
       _ctrl.clear();
-      _load();
+      _reload();
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -498,7 +501,7 @@ class _MemberConversationState extends State<_MemberConversation> {
               if (msgs.isEmpty) return _empty();
               // 서버 desc → reverse:true 로 최신이 하단.
               return RefreshIndicator(
-                onRefresh: () async => _load(),
+                onRefresh: () async => _reload(),
                 child: ListView.builder(
                   reverse: true,
                   padding: const EdgeInsets.symmetric(
