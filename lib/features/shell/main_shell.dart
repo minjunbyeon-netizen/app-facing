@@ -38,6 +38,10 @@ class _MainShellState extends State<MainShell> {
 
   ShellNavBus? _navBus;
 
+  // v1.23: Notice 탭은 중첩 Navigator 로 호스팅 → 재활 가이드 등 탭 내부 화면을
+  // 띄워도 하단 네비바가 계속 노출된다. (쪽지 채팅·작성은 rootNavigator 로 전체화면 유지)
+  final GlobalKey<NavigatorState> _noticeNavKey = GlobalKey<NavigatorState>();
+
   @override
   void initState() {
     super.initState();
@@ -115,9 +119,17 @@ class _MainShellState extends State<MainShell> {
   /// IndexedStack 에 const InboxScreen() 으로 mount 하면 initState 시점 GymState
   /// 미로드 → _isCoach 영구 false 가능. Consumer + ValueKey 로 isOwner 변경 시 재생성.
   Widget _buildInbox() {
-    return Consumer<GymState>(
-      builder: (ctx, gs, _) => InboxScreen(
-        key: ValueKey('inbox-${gs.isOwner}'),
+    // 중첩 Navigator: Notice 탭 내부에서 push 하는 화면(재활 가이드 등)이
+    // 하단 네비바 위 body 영역에만 깔리도록 한다. 루트 = InboxScreen.
+    return Navigator(
+      key: _noticeNavKey,
+      onGenerateRoute: (settings) => MaterialPageRoute(
+        settings: settings,
+        builder: (_) => Consumer<GymState>(
+          builder: (ctx, gs, _) => InboxScreen(
+            key: ValueKey('inbox-${gs.isOwner}'),
+          ),
+        ),
       ),
     );
   }
@@ -159,6 +171,15 @@ class _MainShellState extends State<MainShell> {
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) return;
+        // Notice 탭 내부 중첩 네비게이터가 pop 가능하면 그것부터 처리
+        // (재활 가이드/감별 플로우 등 — RehabFlowScreen 의 자체 PopScope 도 존중).
+        if (_index == 3) {
+          final nav = _noticeNavKey.currentState;
+          if (nav != null && nav.canPop()) {
+            nav.maybePop();
+            return;
+          }
+        }
         if (_index != _defaultIndex) {
           setState(() => _index = _defaultIndex);
           return;
