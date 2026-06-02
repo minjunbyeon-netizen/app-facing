@@ -1,4 +1,4 @@
-# HANDOFF - 2026-06-02 23:19
+# HANDOFF - 2026-06-02 23:28
 
 ## 완료
 - [x] **화면 재배치 Phase 1~5** (`docs/RESTRUCTURE_TODO.md` Move A~G) — 에뮬 검증 + 로컬 커밋
