@@ -108,7 +108,7 @@ class _InboxScreenState extends State<InboxScreen> {
                     style: FacingTokens.caption))
             : (isCoach
                 ? _CoachThreadList(gymId: gymId)
-                : _MemberConversation(gymId: gymId)),
+                : _MemberThreadHome(gymId: gymId)),
       ),
       floatingActionButton: isCoach
           ? FloatingActionButton.extended(
@@ -356,135 +356,6 @@ class _DueBadge {
 }
 
 // ─── 회원 ↔ 코치 양방향 대화 (v1.25) ──────────────────────────────────────────
-
-/// 회원 NOTICE = 코치와의 1:1 대화. 상단 공지 핀 + 말풍선 타임라인 + 입력바.
-class _MemberConversation extends StatefulWidget {
-  final int gymId;
-  const _MemberConversation({required this.gymId});
-
-  @override
-  State<_MemberConversation> createState() => _MemberConversationState();
-}
-
-class _MemberConversationState extends State<_MemberConversation> {
-  late final InboxRepository _repo;
-  late final GymRepository _gymRepo;
-  final _ctrl = TextEditingController();
-  Future<List<ChatMessage>>? _future;
-  bool _sending = false;
-  StreamSubscription<SseEvent>? _sseSub;
-
-  @override
-  void initState() {
-    super.initState();
-    final api = context.read<ApiClient>();
-    _repo = InboxRepository(api);
-    _gymRepo = GymRepository(api);
-    // initState 에선 setState 없이 직접 할당 (lifecycle: created).
-    _future = _repo.listMessages(widget.gymId);
-    _sseSub = _listenNoteNew(context, () {
-      if (mounted) _reload();
-    });
-  }
-
-  void _reload() {
-    setState(() {
-      _future = _repo.listMessages(widget.gymId);
-    });
-  }
-
-  Future<void> _send() async {
-    final msg = _ctrl.text.trim();
-    if (msg.isEmpty || _sending) return;
-    Haptic.light();
-    setState(() => _sending = true);
-    try {
-      await _gymRepo.memberReport(gymId: widget.gymId, message: msg);
-      _ctrl.clear();
-      _reload();
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('전송 실패. 다시 시도.')),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _sending = false);
-    }
-  }
-
-  @override
-  void dispose() {
-    _sseSub?.cancel();
-    _ctrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final anns = context.watch<AnnouncementsState>().items;
-    return Column(
-      // stretch: 입력바 Container 가 full-width 받아야 Row 의 Expanded 가 bounded.
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (anns.isNotEmpty) _PinnedAnnouncement(announcements: anns),
-        Expanded(
-          child: FutureBuilder<List<ChatMessage>>(
-            future: _future,
-            builder: (ctx, snap) {
-              if (snap.connectionState != ConnectionState.done) {
-                return const Center(
-                  child: CircularProgressIndicator(
-                      color: FacingTokens.muted, strokeWidth: 2),
-                );
-              }
-              final msgs = snap.data ?? const <ChatMessage>[];
-              if (msgs.isEmpty) return _empty();
-              // 서버 desc → reverse:true 로 최신이 하단.
-              return RefreshIndicator(
-                onRefresh: () async => _reload(),
-                child: ListView.builder(
-                  reverse: true,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: FacingTokens.sp4,
-                    vertical: FacingTokens.sp3,
-                  ),
-                  itemCount: msgs.length,
-                  itemBuilder: (_, i) => _ChatBubble(msg: msgs[i]),
-                ),
-              );
-            },
-          ),
-        ),
-        _ChatInputBar(
-          controller: _ctrl,
-          sending: _sending,
-          onSend: _send,
-          hint: '코치에게 쪽지…',
-        ),
-      ],
-    );
-  }
-
-  Widget _empty() {
-    return ListView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      children: const [
-        SizedBox(height: 100),
-        Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('No messages', style: FacingTokens.sectionLabel),
-              SizedBox(height: FacingTokens.sp2),
-              Text('코치에게 첫 쪽지를 보내보세요.', style: FacingTokens.caption),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
 
 /// 말풍선 — mine(보낸 것)=우측 accent, 받은 것=좌측 surface.
 class _ChatBubble extends StatelessWidget {
@@ -751,10 +622,37 @@ StreamSubscription<SseEvent> _listenNoteNew(
 
 // ─── 코치 대화 목록 (회원별 1:1) ──────────────────────────────────────────────
 
-/// 코치 NOTICE = 회원별 대화 스레드 목록. 탭하면 그 회원과 1:1 채팅.
+/// 회원 NOTICE = 상단 공지 핀 + 코치별 대화 목록.
+class _MemberThreadHome extends StatelessWidget {
+  final int gymId;
+  const _MemberThreadHome({required this.gymId});
+
+  @override
+  Widget build(BuildContext context) {
+    final anns = context.watch<AnnouncementsState>().items;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (anns.isNotEmpty) _PinnedAnnouncement(announcements: anns),
+        Expanded(
+          child: _CoachThreadList(
+            gymId: gymId,
+            emptyHint: '코치 쪽지가 여기 쌓여요.',
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// 대화 스레드 목록. 코치=회원별, 회원=코치별. 탭하면 1:1 채팅.
 class _CoachThreadList extends StatefulWidget {
   final int gymId;
-  const _CoachThreadList({required this.gymId});
+  final String emptyHint;
+  const _CoachThreadList({
+    required this.gymId,
+    this.emptyHint = '회원이 보낸 쪽지가 여기 쌓여요.',
+  });
 
   @override
   State<_CoachThreadList> createState() => _CoachThreadListState();
@@ -802,16 +700,16 @@ class _CoachThreadListState extends State<_CoachThreadList> {
         if (threads.isEmpty) {
           return ListView(
             physics: const AlwaysScrollableScrollPhysics(),
-            children: const [
-              SizedBox(height: 100),
+            children: [
+              const SizedBox(height: 100),
               Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('No messages', style: FacingTokens.sectionLabel),
-                    SizedBox(height: FacingTokens.sp2),
-                    Text('회원이 보낸 쪽지가 여기 쌓여요.',
-                        style: FacingTokens.caption),
+                    const Text('No messages',
+                        style: FacingTokens.sectionLabel),
+                    const SizedBox(height: FacingTokens.sp2),
+                    Text(widget.emptyHint, style: FacingTokens.caption),
                   ],
                 ),
               ),
@@ -963,6 +861,7 @@ class ChatThreadScreen extends StatefulWidget {
 
 class _ChatThreadScreenState extends State<ChatThreadScreen> {
   late final InboxRepository _repo;
+  late final GymRepository _gymRepo;
   final _ctrl = TextEditingController();
   Future<List<ChatMessage>>? _future;
   bool _sending = false;
@@ -971,7 +870,9 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
   @override
   void initState() {
     super.initState();
-    _repo = InboxRepository(context.read<ApiClient>());
+    final api = context.read<ApiClient>();
+    _repo = InboxRepository(api);
+    _gymRepo = GymRepository(api);
     _future = _repo.listMessages(widget.gymId, peer: widget.peerHash);
     _sseSub = _listenNoteNew(context, () {
       if (mounted) _reload();
@@ -988,16 +889,27 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
     final msg = _ctrl.text.trim();
     if (msg.isEmpty || _sending) return;
     Haptic.light();
+    final isOwner = context.read<GymState>().isOwner;
     setState(() => _sending = true);
     try {
-      await _repo.postNote(
-        gymId: widget.gymId,
-        targetType: 'individual',
-        targetId: widget.peerHash,
-        kind: 'note',
-        title: '',
-        body: msg,
-      );
+      if (isOwner) {
+        // 코치 → 회원: 개별 note.
+        await _repo.postNote(
+          gymId: widget.gymId,
+          targetType: 'individual',
+          targetId: widget.peerHash,
+          kind: 'note',
+          title: '',
+          body: msg,
+        );
+      } else {
+        // 회원 → 코치: member-report 로 그 코치에게.
+        await _gymRepo.memberReport(
+          gymId: widget.gymId,
+          message: msg,
+          to: widget.peerHash,
+        );
+      }
       _ctrl.clear();
       _reload();
     } catch (_) {
@@ -1020,6 +932,7 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isOwner = context.watch<GymState>().isOwner;
     return Scaffold(
       appBar: AppBar(title: Text(widget.peerName)),
       body: SafeArea(
@@ -1068,7 +981,7 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
               controller: _ctrl,
               sending: _sending,
               onSend: _send,
-              hint: '회원에게 쪽지…',
+              hint: isOwner ? '회원에게 쪽지…' : '코치에게 쪽지…',
             ),
           ],
         ),

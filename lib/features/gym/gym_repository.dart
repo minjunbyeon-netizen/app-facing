@@ -503,14 +503,17 @@ class GymRepository {
   }
 
   /// 회원 → 코치 자유 메시지. 코치 NOTICE 탭 인박스에 note로 수신됨.
+  /// [to] 지정 시 그 코치에게 (다중 코치). 미지정 시 박스 오너에게.
   Future<void> memberReport({
     required int gymId,
     required String message,
     int? wodId,
+    String? to,
   }) async {
     await api.post('/api/v1/gym/$gymId/member-report', {
       'message': message,
       'wod_id': ?wodId,
+      if (to != null && to.isNotEmpty) 'to': to,
     });
   }
 }
