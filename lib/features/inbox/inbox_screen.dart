@@ -128,7 +128,31 @@ class _InboxScreenState extends State<InboxScreen> {
               icon: const Icon(Icons.edit_outlined),
               label: const Text('New'),
             )
-          : null,
+          : (gs.membership.gym?.ownerHash != null
+              // v1.25: 회원 — 받은 적 없어도 코치에게 먼저 쪽지 시작.
+              ? FloatingActionButton.extended(
+                  backgroundColor: FacingTokens.accent,
+                  foregroundColor: FacingTokens.fg,
+                  onPressed: () {
+                    Haptic.light();
+                    final gymv = gs.membership.gym!;
+                    final coachName = gs.coaches.isNotEmpty
+                        ? gs.coaches.first.name
+                        : ((gymv.profile?.coachName ?? '').trim().isNotEmpty
+                            ? gymv.profile!.coachName!.trim()
+                            : '코치');
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => ChatThreadScreen(
+                        gymId: gymv.id,
+                        peerHash: gymv.ownerHash!,
+                        peerName: coachName,
+                      ),
+                    ));
+                  },
+                  icon: const Icon(Icons.edit_outlined),
+                  label: const Text('코치에게 쪽지'),
+                )
+              : null),
     );
   }
 }
