@@ -45,12 +45,26 @@ class InboxRepository {
   }
 
   /// v1.25: 회원↔코치 양방향 대화 — 보낸 것 + 받은 것 시간순(desc).
-  Future<List<ChatMessage>> listMessages(int gymId) async {
-    final data = await api.get('/api/v1/gym/$gymId/messages');
+  /// [peer] 지정 시 그 상대와의 1:1 대화만 (코치 스레드용).
+  Future<List<ChatMessage>> listMessages(int gymId, {String? peer}) async {
+    final q = (peer != null && peer.isNotEmpty)
+        ? '?peer=${Uri.encodeQueryComponent(peer)}'
+        : '';
+    final data = await api.get('/api/v1/gym/$gymId/messages$q');
     final raw = data['items'];
     return (raw is List ? raw : const [])
         .whereType<Map<String, dynamic>>()
         .map(ChatMessage.fromJson)
+        .toList();
+  }
+
+  /// v1.25: 코치 대화 목록 — 회원별 1:1 스레드 요약 (최신순).
+  Future<List<CoachThread>> listThreads(int gymId) async {
+    final data = await api.get('/api/v1/gym/$gymId/threads');
+    final raw = data['items'];
+    return (raw is List ? raw : const [])
+        .whereType<Map<String, dynamic>>()
+        .map(CoachThread.fromJson)
         .toList();
   }
 

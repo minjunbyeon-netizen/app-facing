@@ -47,3 +47,33 @@ class ChatMessage {
     );
   }
 }
+
+/// v1.25: 코치 대화 목록의 1개 스레드(회원별 1:1 요약).
+class CoachThread {
+  final String peerHash;
+  final String? peerName;
+  final String? peerColor;
+  final String lastBody;
+  final DateTime lastAt;
+  final int unread;
+
+  const CoachThread({
+    required this.peerHash,
+    required this.peerName,
+    required this.peerColor,
+    required this.lastBody,
+    required this.lastAt,
+    required this.unread,
+  });
+
+  factory CoachThread.fromJson(Map<String, dynamic> j) => CoachThread(
+        peerHash: (j['peer_hash'] ?? '').toString(),
+        peerName: j['peer_name']?.toString(),
+        peerColor: j['peer_color']?.toString(),
+        lastBody: (j['last_body'] ?? '').toString(),
+        lastAt:
+            DateTime.tryParse((j['last_at'] ?? '').toString())?.toLocal() ??
+                DateTime.fromMillisecondsSinceEpoch(0),
+        unread: (j['unread'] as num?)?.toInt() ?? 0,
+      );
+}

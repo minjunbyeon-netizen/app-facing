@@ -57,10 +57,6 @@ class _InboxScreenState extends State<InboxScreen> {
     final isCoach = gs.isOwner;
     final gymId = gs.membership.gym?.id;
 
-    // v1.22: 모든 항목(notes/assignments/announcements) 날짜순 단일 피드.
-    final items = [...state.inbox.items];
-    items.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('NOTICE'),
@@ -101,80 +97,15 @@ class _InboxScreenState extends State<InboxScreen> {
         ],
       ),
       body: SafeArea(
-        // v1.25: 회원 = 코치와의 1:1 대화뷰(말풍선+입력바). 코치 = 기존 단일 피드.
-        //   박스 기본정보(GymInfoCard)는 WOD 탭 BOX INFO 아코디언으로 이관됨.
-        child: !isCoach
-            ? (gymId == null
-                ? const Center(
-                    child: Text('박스 가입 후 이용 가능.',
-                        style: FacingTokens.caption))
-                : _MemberConversation(gymId: gymId))
-            : Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: state.isLoading && items.isEmpty
-                  ? const Center(
-                      child: CircularProgressIndicator(
-                        color: FacingTokens.muted,
-                        strokeWidth: 2,
-                      ),
-                    )
-                  : (state.error != null && items.isEmpty)
-                      ? Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(FacingTokens.sp5),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Text('LOAD FAILED',
-                                    style: FacingTokens.sectionLabel),
-                                const SizedBox(height: FacingTokens.sp2),
-                                Text(state.error!, style: FacingTokens.caption),
-                                const SizedBox(height: FacingTokens.sp3),
-                                OutlinedButton(
-                                  onPressed: () => state.refresh(),
-                                  child: const Text('Retry'),
-                                ),
-                              ],
-                            ),
-                          ),
-                        )
-                      : items.isEmpty
-                          ? Center(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text('No notices.',
-                                      style: FacingTokens.caption),
-                                  if (isCoach) ...[
-                                    const SizedBox(height: FacingTokens.sp2),
-                                    Text(
-                                      '오른쪽 상단 ✏ 또는 + New 버튼으로 쪽지·숙제 발송.',
-                                      style: FacingTokens.micro,
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            )
-                          : RefreshIndicator(
-                              onRefresh: () => state.refresh(),
-                              child: ListView.separated(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: FacingTokens.sp3,
-                                  horizontal: FacingTokens.sp4,
-                                ),
-                                itemCount: items.length,
-                                separatorBuilder: (_, _) =>
-                                    const SizedBox(height: FacingTokens.sp3),
-                                itemBuilder: (ctx, i) =>
-                                    CoachDossierTile(note: items[i]),
-                              ),
-                            ),
-            ),
-          ],
-        ),
+        // v1.25: 회원·코치 모두 카톡식 대화로 통일.
+        //   회원 = 코치와의 1:1 대화. 코치 = 회원별 대화목록 → 탭하면 1:1 채팅.
+        child: gymId == null
+            ? const Center(
+                child: Text('박스 가입 후 이용 가능.',
+                    style: FacingTokens.caption))
+            : (isCoach
+                ? _CoachThreadList(gymId: gymId)
+                : _MemberConversation(gymId: gymId)),
       ),
       floatingActionButton: isCoach
           ? FloatingActionButton.extended(
@@ -777,6 +708,330 @@ class _ChatInputBar extends StatelessWidget {
                       color: FacingTokens.accent),
                   onPressed: onSend,
                 ),
+        ),
+      ),
+    );
+  }
+}
+
+String _shortTime(DateTime t) {
+  final now = DateTime.now();
+  if (t.year == now.year && t.month == now.month && t.day == now.day) {
+    final hh = t.hour.toString().padLeft(2, '0');
+    final mm = t.minute.toString().padLeft(2, '0');
+    return '$hh:$mm';
+  }
+  final mo = t.month.toString().padLeft(2, '0');
+  final d = t.day.toString().padLeft(2, '0');
+  return '$mo/$d';
+}
+
+// ─── 코치 대화 목록 (회원별 1:1) ──────────────────────────────────────────────
+
+/// 코치 NOTICE = 회원별 대화 스레드 목록. 탭하면 그 회원과 1:1 채팅.
+class _CoachThreadList extends StatefulWidget {
+  final int gymId;
+  const _CoachThreadList({required this.gymId});
+
+  @override
+  State<_CoachThreadList> createState() => _CoachThreadListState();
+}
+
+class _CoachThreadListState extends State<_CoachThreadList> {
+  late final InboxRepository _repo;
+  Future<List<CoachThread>>? _future;
+
+  @override
+  void initState() {
+    super.initState();
+    _repo = InboxRepository(context.read<ApiClient>());
+    _future = _repo.listThreads(widget.gymId);
+  }
+
+  void _reload() {
+    setState(() {
+      _future = _repo.listThreads(widget.gymId);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<CoachThread>>(
+      future: _future,
+      builder: (ctx, snap) {
+        if (snap.connectionState != ConnectionState.done) {
+          return const Center(
+            child: CircularProgressIndicator(
+                color: FacingTokens.muted, strokeWidth: 2),
+          );
+        }
+        final threads = snap.data ?? const <CoachThread>[];
+        if (threads.isEmpty) {
+          return ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            children: const [
+              SizedBox(height: 100),
+              Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('No messages', style: FacingTokens.sectionLabel),
+                    SizedBox(height: FacingTokens.sp2),
+                    Text('회원이 보낸 쪽지가 여기 쌓여요.',
+                        style: FacingTokens.caption),
+                  ],
+                ),
+              ),
+            ],
+          );
+        }
+        return RefreshIndicator(
+          onRefresh: () async => _reload(),
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp2),
+            itemCount: threads.length,
+            separatorBuilder: (_, _) => const Divider(
+              height: 1,
+              color: FacingTokens.border,
+              indent: FacingTokens.sp4,
+              endIndent: FacingTokens.sp4,
+            ),
+            itemBuilder: (_, i) => _ThreadRow(
+              thread: threads[i],
+              gymId: widget.gymId,
+              onReturn: _reload,
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// 대화 목록 1줄 — 회원 이름 · 마지막 메시지 · 시각 · 안읽음.
+class _ThreadRow extends StatelessWidget {
+  final CoachThread thread;
+  final int gymId;
+  final VoidCallback onReturn;
+  const _ThreadRow({
+    required this.thread,
+    required this.gymId,
+    required this.onReturn,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final raw = (thread.peerName ?? '').trim();
+    final name = raw.isNotEmpty
+        ? raw
+        : (thread.peerHash.isNotEmpty
+            ? thread.peerHash.substring(
+                0, thread.peerHash.length < 6 ? thread.peerHash.length : 6)
+            : 'MEMBER');
+    final unread = thread.unread > 0;
+    return InkWell(
+      onTap: () async {
+        Haptic.light();
+        await Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => ChatThreadScreen(
+            gymId: gymId,
+            peerHash: thread.peerHash,
+            peerName: name,
+          ),
+        ));
+        onReturn();
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: FacingTokens.sp4,
+          vertical: FacingTokens.sp3,
+        ),
+        child: Row(
+          children: [
+            Avatar(
+              hash: thread.peerHash,
+              displayName: name,
+              colorHex: thread.peerColor,
+            ),
+            const SizedBox(width: FacingTokens.sp3),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          name,
+                          style: FacingTokens.body.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: FacingTokens.fg,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Text(_shortTime(thread.lastAt),
+                          style: FacingTokens.micro),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    thread.lastBody,
+                    style: FacingTokens.caption.copyWith(
+                      color: unread ? FacingTokens.fg : FacingTokens.muted,
+                      fontWeight: unread ? FontWeight.w600 : FontWeight.w400,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            if (unread) ...[
+              const SizedBox(width: FacingTokens.sp2),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: FacingTokens.accent,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  '${thread.unread}',
+                  style: FacingTokens.micro.copyWith(
+                    color: FacingTokens.fg,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 코치 ↔ 특정 회원 1:1 채팅 화면. 말풍선 + 입력바(개별 발신).
+class ChatThreadScreen extends StatefulWidget {
+  final int gymId;
+  final String peerHash;
+  final String peerName;
+  const ChatThreadScreen({
+    super.key,
+    required this.gymId,
+    required this.peerHash,
+    required this.peerName,
+  });
+
+  @override
+  State<ChatThreadScreen> createState() => _ChatThreadScreenState();
+}
+
+class _ChatThreadScreenState extends State<ChatThreadScreen> {
+  late final InboxRepository _repo;
+  final _ctrl = TextEditingController();
+  Future<List<ChatMessage>>? _future;
+  bool _sending = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _repo = InboxRepository(context.read<ApiClient>());
+    _future = _repo.listMessages(widget.gymId, peer: widget.peerHash);
+  }
+
+  void _reload() {
+    setState(() {
+      _future = _repo.listMessages(widget.gymId, peer: widget.peerHash);
+    });
+  }
+
+  Future<void> _send() async {
+    final msg = _ctrl.text.trim();
+    if (msg.isEmpty || _sending) return;
+    Haptic.light();
+    setState(() => _sending = true);
+    try {
+      await _repo.postNote(
+        gymId: widget.gymId,
+        targetType: 'individual',
+        targetId: widget.peerHash,
+        kind: 'note',
+        title: '',
+        body: msg,
+      );
+      _ctrl.clear();
+      _reload();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('전송 실패. 다시 시도.')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _sending = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(widget.peerName)),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: FutureBuilder<List<ChatMessage>>(
+                future: _future,
+                builder: (ctx, snap) {
+                  if (snap.connectionState != ConnectionState.done) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                          color: FacingTokens.muted, strokeWidth: 2),
+                    );
+                  }
+                  final msgs = snap.data ?? const <ChatMessage>[];
+                  if (msgs.isEmpty) {
+                    return ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      children: const [
+                        SizedBox(height: 100),
+                        Center(
+                          child: Text('첫 쪽지를 보내보세요.',
+                              style: FacingTokens.caption),
+                        ),
+                      ],
+                    );
+                  }
+                  return RefreshIndicator(
+                    onRefresh: () async => _reload(),
+                    child: ListView.builder(
+                      reverse: true,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: FacingTokens.sp4,
+                        vertical: FacingTokens.sp3,
+                      ),
+                      itemCount: msgs.length,
+                      itemBuilder: (_, i) => _ChatBubble(msg: msgs[i]),
+                    ),
+                  );
+                },
+              ),
+            ),
+            _ChatInputBar(
+              controller: _ctrl,
+              sending: _sending,
+              onSend: _send,
+            ),
+          ],
         ),
       ),
     );
