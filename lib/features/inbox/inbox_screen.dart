@@ -22,6 +22,7 @@ import '../../widgets/coach_badge.dart';
 import '../announcements/announcements_state.dart';
 import '../gym/gym_repository.dart';
 import '../gym/gym_state.dart';
+import '../rehab/rehab_guide_card.dart';
 import 'compose_note_screen.dart';
 import 'group_management_screen.dart';
 import 'inbox_repository.dart';
@@ -657,6 +658,7 @@ class _MemberThreadHome extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        const RehabGuideCard(),
         if (anns.isNotEmpty) _PinnedAnnouncement(announcements: anns),
         Expanded(
           child: _CoachThreadList(
