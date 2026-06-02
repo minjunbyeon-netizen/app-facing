@@ -104,9 +104,18 @@ class _InboxScreenState extends State<InboxScreen> {
         // v1.25: 회원·코치 모두 카톡식 대화로 통일.
         //   회원 = 코치와의 1:1 대화. 코치 = 회원별 대화목록 → 탭하면 1:1 채팅.
         child: gymId == null
-            ? const Center(
-                child: Text('박스 가입 후 이용 가능.',
-                    style: FacingTokens.caption))
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: const [
+                  RehabGuideCard(),
+                  Expanded(
+                    child: Center(
+                      child: Text('박스 가입 후 코치 쪽지·공지가 열려요.',
+                          style: FacingTokens.caption),
+                    ),
+                  ),
+                ],
+              )
             : (isCoach
                 ? _CoachThreadList(gymId: gymId)
                 : _MemberThreadHome(gymId: gymId)),
