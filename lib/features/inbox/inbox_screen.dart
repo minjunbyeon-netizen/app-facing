@@ -704,6 +704,7 @@ class _PinnedAnnouncement extends StatelessWidget {
 }
 
 /// 하단 입력바 — 회원이 코치에게 쪽지 발신.
+/// 전송 버튼은 입력창 suffixIcon 으로 (Row+Expanded 무한너비 회피).
 class _ChatInputBar extends StatelessWidget {
   final TextEditingController controller;
   final bool sending;
@@ -727,68 +728,56 @@ class _ChatInputBar extends StatelessWidget {
         color: FacingTokens.bg,
         border: Border(top: BorderSide(color: FacingTokens.border, width: 1)),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Expanded(
-            child: TextField(
-              controller: controller,
-              minLines: 1,
-              maxLines: 4,
-              maxLength: 500,
-              style: FacingTokens.body,
-              decoration: InputDecoration(
-                hintText: '코치에게 쪽지…',
-                hintStyle: FacingTokens.caption,
-                counterText: '',
-                isDense: true,
-                filled: true,
-                fillColor: FacingTokens.surface,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: FacingTokens.sp3,
-                  vertical: FacingTokens.sp2 + 2,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(FacingTokens.r3),
-                  borderSide: const BorderSide(color: FacingTokens.border),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(FacingTokens.r3),
-                  borderSide: const BorderSide(color: FacingTokens.border),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(FacingTokens.r3),
-                  borderSide: const BorderSide(
-                      color: FacingTokens.accent, width: 1.5),
-                ),
-              ),
-            ),
+      child: TextField(
+        controller: controller,
+        minLines: 1,
+        maxLines: 4,
+        maxLength: 500,
+        style: FacingTokens.body,
+        textInputAction: TextInputAction.send,
+        onSubmitted: (_) => onSend(),
+        decoration: InputDecoration(
+          hintText: '코치에게 쪽지…',
+          hintStyle: FacingTokens.caption,
+          counterText: '',
+          isDense: true,
+          filled: true,
+          fillColor: FacingTokens.surface,
+          contentPadding: const EdgeInsets.fromLTRB(
+            FacingTokens.sp3,
+            FacingTokens.sp2 + 2,
+            FacingTokens.sp1,
+            FacingTokens.sp2 + 2,
           ),
-          const SizedBox(width: FacingTokens.sp2),
-          SizedBox(
-            height: 44,
-            child: ElevatedButton(
-              onPressed: sending ? null : onSend,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: FacingTokens.accent,
-                foregroundColor: FacingTokens.fg,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: FacingTokens.sp3),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(FacingTokens.r3),
-                ),
-              ),
-              child: sending
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                          color: FacingTokens.fg, strokeWidth: 2),
-                    )
-                  : const Icon(Icons.arrow_upward, size: 20),
-            ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(FacingTokens.r3),
+            borderSide: const BorderSide(color: FacingTokens.border),
           ),
-        ],
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(FacingTokens.r3),
+            borderSide: const BorderSide(color: FacingTokens.border),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(FacingTokens.r3),
+            borderSide:
+                const BorderSide(color: FacingTokens.accent, width: 1.5),
+          ),
+          suffixIcon: sending
+              ? const Padding(
+                  padding: EdgeInsets.all(12),
+                  child: SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                        color: FacingTokens.accent, strokeWidth: 2),
+                  ),
+                )
+              : IconButton(
+                  icon: const Icon(Icons.arrow_upward,
+                      color: FacingTokens.accent),
+                  onPressed: onSend,
+                ),
+        ),
       ),
     );
   }
