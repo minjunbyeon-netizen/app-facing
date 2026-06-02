@@ -11,6 +11,7 @@ import '../../core/streak_freeze.dart';
 import '../../core/theme.dart';
 import '../../core/wod_session_bus.dart';
 import '../../models/achievement.dart';
+import '../../widgets/inbox_bell.dart';
 import '../../widgets/offline_banner.dart';
 import '../achievement/achievement_section.dart';
 import '../achievement/achievement_state.dart';
@@ -79,9 +80,10 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('HOME'),
         automaticallyImplyLeading: false,
-        // D7: Home 상단 종 제거 — 바로 밑 NOTICE 아코디언 + 하단 Notice 탭과
-        // 목적지(Notice 탭)가 중복이라 Home 에서만 뺌. 미읽음은 두 곳에서 이미 표시.
+        // v1.25: 종(쪽지·공지) = 모든 화면 공통 메시징 진입. Home 도 예외 아님.
+        //   (D7 에서 잠깐 뺐다가, 종이 핵심 메시징 버튼이라 전 화면 유지로 복원)
         actions: [
+          const InboxBellAction(),
           IconButton(
             tooltip: 'Refresh',
             icon: const Icon(Icons.refresh),

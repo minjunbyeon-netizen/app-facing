@@ -62,8 +62,8 @@
 - [x] D4. `docs/ARCHITECTURE_BRIEF.md` 충돌 점검 + D25 탭 책임 SSOT 기록
 - [x] D5. 새 섹션 라벨 영문 규칙 적용 (NOTICE·ENGINE·MILESTONES·CALCULATE WOD)
 - [x] D6. main_shell.dart 탭 힌트 오버레이 _hints 텍스트 갱신 + 버전 v3 bump + Inbox→Notice 표기 통일
-- [x] D7. 상단 종(InboxBellAction) — Home AppBar 에서만 제거. NOTICE 아코디언 + 하단 Notice 탭과
-      목적지 중복(셋 다 Notice 탭 점프). 다른 탭(WOD/Attend/Profile) 종은 유지(거기엔 아코디언 없음).
+- [x] D7. (되돌림 2026-06-02) 종(InboxBellAction)은 **쪽지·공지 메시징의 전 화면 공통 진입**이라
+      Home 에도 복원. 모든 화면 우측상단에 종 유지가 사용자 설계. (중복이라 뺐던 D7 판단 무효화)
 - [~] D8. 에뮬 검증 — 회원 페르소나(김도윤) 5탭 + 재부팅 클린 + 힌트 OK. 코치/신규 페르소나 미검증
 
 ## 진행 현황 (2026-06-02)
