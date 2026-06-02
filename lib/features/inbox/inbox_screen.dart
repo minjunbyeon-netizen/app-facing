@@ -485,6 +485,8 @@ class _MemberConversationState extends State<_MemberConversation> {
   Widget build(BuildContext context) {
     final anns = context.watch<AnnouncementsState>().items;
     return Column(
+      // stretch: 입력바 Container 가 full-width 받아야 Row 의 Expanded 가 bounded.
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (anns.isNotEmpty) _PinnedAnnouncement(announcements: anns),
         Expanded(
