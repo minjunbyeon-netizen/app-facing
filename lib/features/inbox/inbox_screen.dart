@@ -5,11 +5,14 @@
 // 미읽음: stripe accent + 굵은 폰트.
 // 읽음: stripe muted + 보통 폰트.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
 import '../../core/haptic.dart';
+import '../../core/sse_client.dart';
 import '../../core/theme.dart';
 import '../../models/announcement.dart';
 import '../../models/chat_message.dart';
@@ -369,6 +372,7 @@ class _MemberConversationState extends State<_MemberConversation> {
   final _ctrl = TextEditingController();
   Future<List<ChatMessage>>? _future;
   bool _sending = false;
+  StreamSubscription<SseEvent>? _sseSub;
 
   @override
   void initState() {
@@ -378,6 +382,9 @@ class _MemberConversationState extends State<_MemberConversation> {
     _gymRepo = GymRepository(api);
     // initState 에선 setState 없이 직접 할당 (lifecycle: created).
     _future = _repo.listMessages(widget.gymId);
+    _sseSub = _listenNoteNew(context, () {
+      if (mounted) _reload();
+    });
   }
 
   void _reload() {
@@ -408,6 +415,7 @@ class _MemberConversationState extends State<_MemberConversation> {
 
   @override
   void dispose() {
+    _sseSub?.cancel();
     _ctrl.dispose();
     super.dispose();
   }
@@ -728,6 +736,19 @@ String _shortTime(DateTime t) {
   return '$mo/$d';
 }
 
+/// v1.25: 새 쪽지 SSE(note.new) 구독 → 디바운스 후 onReload. 대화 자동 갱신.
+StreamSubscription<SseEvent> _listenNoteNew(
+  BuildContext context,
+  void Function() onReload,
+) {
+  Timer? debounce;
+  return context.read<SseClient>().events.listen((ev) {
+    if (ev.type != 'note.new') return;
+    debounce?.cancel();
+    debounce = Timer(const Duration(milliseconds: 400), onReload);
+  });
+}
+
 // ─── 코치 대화 목록 (회원별 1:1) ──────────────────────────────────────────────
 
 /// 코치 NOTICE = 회원별 대화 스레드 목록. 탭하면 그 회원과 1:1 채팅.
@@ -742,12 +763,22 @@ class _CoachThreadList extends StatefulWidget {
 class _CoachThreadListState extends State<_CoachThreadList> {
   late final InboxRepository _repo;
   Future<List<CoachThread>>? _future;
+  StreamSubscription<SseEvent>? _sseSub;
 
   @override
   void initState() {
     super.initState();
     _repo = InboxRepository(context.read<ApiClient>());
     _future = _repo.listThreads(widget.gymId);
+    _sseSub = _listenNoteNew(context, () {
+      if (mounted) _reload();
+    });
+  }
+
+  @override
+  void dispose() {
+    _sseSub?.cancel();
+    super.dispose();
   }
 
   void _reload() {
@@ -935,12 +966,16 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
   final _ctrl = TextEditingController();
   Future<List<ChatMessage>>? _future;
   bool _sending = false;
+  StreamSubscription<SseEvent>? _sseSub;
 
   @override
   void initState() {
     super.initState();
     _repo = InboxRepository(context.read<ApiClient>());
     _future = _repo.listMessages(widget.gymId, peer: widget.peerHash);
+    _sseSub = _listenNoteNew(context, () {
+      if (mounted) _reload();
+    });
   }
 
   void _reload() {
@@ -978,6 +1013,7 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
 
   @override
   void dispose() {
+    _sseSub?.cancel();
     _ctrl.dispose();
     super.dispose();
   }
