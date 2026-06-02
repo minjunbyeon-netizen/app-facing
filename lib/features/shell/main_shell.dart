@@ -16,9 +16,10 @@ import '../inbox/inbox_screen.dart';
 import '../inbox/inbox_state.dart';
 import '../mypage/mypage_screen.dart';
 
-/// v1.21: 5탭 재배치 — Home(default) · WOD · Inbox · Attend · Profile.
+/// v1.21: 5탭 재배치 — Home · WOD · Attend · Notice · Profile.
+/// v1.23 (2026-06-02): Notice(쪽지)를 Attend 자리(index 3)로 이동, Attend → index 2.
 /// Trends 폐지, Calc → Home 격상 (점수 카드 + 카테고리 진입 통합).
-/// dot 위치: Profile(4) → Inbox(2). Default index 2 → 0 (Home leftmost).
+/// dot 위치: Notice(index 3). Default landing = WOD(index 1).
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
 
@@ -28,8 +29,8 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   static const int _defaultIndex = 1; // WOD as landing tab
-  // v1.23 (2026-06-02): 탭 책임 재배치 → 힌트 버전 v3 로 bump (기존 사용자도 1회 재노출).
-  static const String _kTabHintShown = 'shell_tab_hint_shown_v3';
+  // v1.23 (2026-06-02): Notice↔Attend 위치 교체 → 힌트 버전 v4 로 bump (기존 사용자도 1회 재노출).
+  static const String _kTabHintShown = 'shell_tab_hint_shown_v4';
   int _index = _defaultIndex;
   bool _showTabHint = false;
   // v1.21: 베타 피드백 — 더블탭 종료 패턴. 첫 탭 SnackBar, 2초 내 재탭 시 종료.
@@ -81,7 +82,7 @@ class _MainShellState extends State<MainShell> {
     await prefs.setBool(_kTabHintShown, true);
   }
 
-  // v1.21: 5탭 — Home · WOD · Inbox · Attend · Profile.
+  // v1.23: 5탭 — Home · WOD · Attend · Notice · Profile.
   static const List<_TabDef> _tabs = [
     _TabDef(
       icon: Icons.home_outlined,
@@ -94,14 +95,14 @@ class _MainShellState extends State<MainShell> {
       label: 'WOD',
     ),
     _TabDef(
-      icon: Icons.notifications_outlined,
-      selectedIcon: Icons.notifications,
-      label: 'Notice',
-    ),
-    _TabDef(
       icon: Icons.calendar_month_outlined,
       selectedIcon: Icons.calendar_month,
       label: 'Attend',
+    ),
+    _TabDef(
+      icon: Icons.notifications_outlined,
+      selectedIcon: Icons.notifications,
+      label: 'Notice',
     ),
     _TabDef(
       icon: Icons.person_outline,
@@ -124,8 +125,8 @@ class _MainShellState extends State<MainShell> {
   late final List<Widget> _pages = [
     const HomeScreen(),
     const BoxWodScreen(),
-    _buildInbox(),
     const AttendanceScreen(),
+    _buildInbox(),
     const MyPageScreen(),
   ];
 
@@ -133,8 +134,8 @@ class _MainShellState extends State<MainShell> {
     if (i == _index) return;
     Haptic.selection();
     setState(() => _index = i);
-    // Notice 탭(2) 진입 시점에만 공지 읽음 처리
-    if (i == 2) {
+    // Notice 탭(3) 진입 시점에만 공지 읽음 처리
+    if (i == 3) {
       context.read<AnnouncementsState>().markSeen();
     }
   }
@@ -222,7 +223,7 @@ class _MainShellState extends State<MainShell> {
                     NavigationDestination(
                       icon: _IconWithDot(
                         icon: _tabs[i].icon,
-                        showDot: i == 2 &&
+                        showDot: i == 3 &&
                             (context.watch<InboxState>().unreadCount > 0 ||
                                 context
                                         .watch<AnnouncementsState>()
@@ -232,7 +233,7 @@ class _MainShellState extends State<MainShell> {
                       ),
                       selectedIcon: _IconWithDot(
                         icon: _tabs[i].selectedIcon,
-                        showDot: i == 2 &&
+                        showDot: i == 3 &&
                             (context.watch<InboxState>().unreadCount > 0 ||
                                 context
                                         .watch<AnnouncementsState>()
@@ -309,8 +310,8 @@ class _TabHintOverlay extends StatelessWidget {
   static const List<(String, String)> _hints = [
     ('Home', '공지 · 레벨 · 업적 · Milestones'),
     ('WOD', '코치 오늘 WOD · 프리셋 계산'),
-    ('Notice', '코치 쪽지 · 박스 공지'),
     ('Attend', '월별 출석 캘린더'),
+    ('Notice', '코치 쪽지 · 박스 공지'),
     ('Profile', 'Engine 점수 · 바디 · 설정'),
   ];
 

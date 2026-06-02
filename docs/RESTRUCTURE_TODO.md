@@ -36,7 +36,7 @@
 출처: `inbox_screen.dart` `CoachDossierTile` · `announcements_state.dart`
 - [x] C1. 최신 공지/쪽지 N개(기본 3) 요약을 Home **최상단**(게이미피케이션보다 위)에 배치
 - [x] C2. 아코디언 — 기본 접힘, 최신 1개 헤드라인만 노출 → 탭하면 펼침
-- [x] C3. "더 보기" → Notice 탭(index 2) 이동(ShellNavBus.requestTab(2))
+- [x] C3. "더 보기" → Notice 탭(index 3, v1.23에서 2→3) 이동(ShellNavBus.requestTab(3))
 - [x] C4. 미읽음 표시(accent stripe·dot) 유지
 - [x] C5. **데이터 = 쪽지(InboxState) + 공지(AnnouncementsState) 합쳐 최신순** (결정 #3 = b).
       두 소스 merge → createdAt desc 정렬 → 상위 N개. 미읽음 우선 가중은 추후 검토.

@@ -25,7 +25,7 @@ class InboxBellAction extends StatelessWidget {
             icon: const Icon(Icons.notifications_outlined),
             onPressed: () {
               Haptic.light();
-              context.read<ShellNavBus>().requestTab(2);
+              context.read<ShellNavBus>().requestTab(3);
             },
           ),
           if (hasUnread)
