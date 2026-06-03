@@ -34,6 +34,7 @@ import 'features/achievement/achievement_repository.dart';
 import 'features/achievement/achievement_state.dart';
 import 'features/auth/auth_state.dart';
 import 'features/auth/signup_screen.dart';
+import 'features/auth/staff_link_screen.dart';
 import 'features/signup/self_signup_screen.dart';
 import 'features/gym/gym_repository.dart';
 import 'features/gym/gym_search_screen.dart';
@@ -211,6 +212,7 @@ class FacingApp extends StatelessWidget {
           '/result': (_) => const ResultScreen(),
           // PHASE5 §1.1·§1.2: 사장 폰 로그인·대시보드
           '/boss/login': (_) => const BossLoginScreen(),
+          '/auth/link-staff': (_) => const StaffLinkScreen(),
           '/boss/dashboard': (_) => const BossDashboardScreen(),
           '/boss/settings': (_) => const BossSettingsScreen(),
           // PHASE4 §1.1: 회원 폰 클래스 일정·예약

@@ -1,4 +1,6 @@
+import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/foundation.dart';
 
 import 'device_id.dart';
@@ -52,6 +54,9 @@ class ApiClient {
       contentType: 'application/json',
       responseType: ResponseType.json,
     ));
+    // D26 소셜 로그인 — Flask 세션 쿠키 보관(in-memory). /auth/social 로그인 후
+    // /auth/me·/auth/link-staff·/auth/logout 이 같은 세션을 자동으로 실어 보냄.
+    dio.interceptors.add(CookieManager(CookieJar()));
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
         options.headers['X-Device-Id'] = await DeviceIdService.get();

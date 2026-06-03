@@ -1021,6 +1021,13 @@ class _ActionsSection extends StatelessWidget {
             child: const Text('Algorithm'),
           ),
           const SizedBox(height: FacingTokens.sp3),
+          // D26 §4.1 — 코치·사장 계정 연결 (소셜 로그인 후 1회 claim).
+          OutlinedButton(
+            onPressed: () =>
+                Navigator.of(context).pushNamed('/auth/link-staff'),
+            child: const Text('코치·사장 계정 연결'),
+          ),
+          const SizedBox(height: FacingTokens.sp3),
           TextButton(
             style: TextButton.styleFrom(
               foregroundColor: FacingTokens.accent,
