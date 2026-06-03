@@ -394,6 +394,7 @@ retention 정의 = "코호트(가입 월) 의 N개월 후 시점에 attendance �
 | POST | `/api/v1/auth/social` | provider token (body) | **D26 소셜 로그인** — 네이버·구글 검증→계정 upsert→role 반환. 설계: `services/facing/docs/AUTH_SOCIAL_DESIGN.md` |
 | POST | `/api/v1/auth/logout` | 세션 | D26 로그아웃 |
 | GET | `/api/v1/auth/me` | 세션 | D26 본인 정보 + role + 소속 박스 |
+| POST | `/api/v1/auth/link-staff` | 세션 + login_id/PW | D26 전환기 — 기존 코치/사장 계정을 소셜계정에 link → role 자동 boss/coach (설계 §4.1) |
 | POST | `/api/v1/admin/login` | ID/PW → 세션 쿠키 | 사장 로그인 (D26 전환기 fallback) |
 | POST | `/api/v1/admin/logout` | 세션 | 로그아웃 |
 | GET | `/api/v1/admin/me` | 세션 | 본인 정보 + 박스 목록 (다중 박스) |
