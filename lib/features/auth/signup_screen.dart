@@ -26,8 +26,8 @@ class SignupScreen extends StatefulWidget {
 class _SignupScreenState extends State<SignupScreen> {
   bool _busy = false;
 
-  static const SocialAuthService _social = StubSocialAuthService();
-
+  // D26: stub ↔ real 자동 선택 (USE_REAL_AUTH 플래그). 실 OAuth 는 ApiClient 의존
+  // 이라 const 불가 — _signIn 에서 context 로 ApiClient 받아 resolve.
   static const Color _naverGreen = FacingTokens.naverGreen;
   static const Color _googleSurface = FacingTokens.googleSurface;
   static const Color _googleBlue = FacingTokens.googleBlue;
@@ -40,10 +40,11 @@ class _SignupScreenState extends State<SignupScreen> {
     Haptic.medium();
     final auth = context.read<AuthState>();
     final profile = context.read<ProfileState>();
+    final social = resolveSocialAuthService(context.read<ApiClient>());
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
     try {
-      final result = await _social.signIn(provider);
+      final result = await social.signIn(provider);
       await auth.signIn(provider.wireName, displayName: result.displayName);
       if (!mounted) return;
       _routeByRole(navigator, result.role, profile);

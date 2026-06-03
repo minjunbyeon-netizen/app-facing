@@ -22,6 +22,10 @@ dependencies:
   share_plus: ^10.0.0
   # v1.19 P2: 공지 CTA 외부 링크 열기.
   url_launcher: ^6.3.1
+  # D26 소셜 로그인 (네이버·구글). 토큰은 백엔드 /api/v1/auth/social 서버검증.
+  # 활성화: --dart-define=USE_REAL_AUTH=true (미지정 시 StubSocialAuthService).
+  google_sign_in: ^6.2.1
+  flutter_naver_login: ^1.8.0
   # PHASE5: 사장 폰 로그인 — 쿠키 세션 관리 + 보안 토큰 저장
   dio_cookie_manager: ^3.1.1
   cookie_jar: ^4.0.8

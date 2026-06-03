@@ -1,4 +1,9 @@
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_naver_login/flutter_naver_login.dart';
+
+import '../../core/api_client.dart';
 import '../../core/app_mode.dart';
+import '../../core/device_id.dart';
 
 /// 서버가 결정하는 역할 (D26). boss 는 폰 보조 운영(BossAuthState) 경로로,
 /// coach·member·solo 는 [AppMode] 폰 shell 로 분기된다.
@@ -93,3 +98,92 @@ class StubSocialAuthService implements SocialAuthService {
     );
   }
 }
+
+/// 실 OAuth 구현 (D26 Phase 2). provider SDK 로 토큰 획득 →
+/// `POST /api/v1/auth/social` 서버 검증 → 응답 role 로 [SocialAuthResult] 반환.
+///
+/// 활성화: `--dart-define=USE_REAL_AUTH=true` ([resolveSocialAuthService]).
+/// google id_token 은 server client id 필요 → `--dart-define=GOOGLE_SERVER_CLIENT_ID=...`.
+/// 네이버는 AndroidManifest meta-data(client id/secret/name) 설정 필요.
+/// 화면·라우팅은 [SocialAuthService] 인터페이스에만 의존 → 교체 외 변경 0줄.
+class RealSocialAuthService implements SocialAuthService {
+  final ApiClient _api;
+  const RealSocialAuthService(this._api);
+
+  /// google id_token 발급용 server(web) client id. 미지정 시 빈 문자열.
+  static const String _googleServerClientId =
+      String.fromEnvironment('GOOGLE_SERVER_CLIENT_ID');
+
+  @override
+  Future<SocialAuthResult> signIn(SocialProvider provider) async {
+    final token = switch (provider) {
+      SocialProvider.google => await _googleToken(),
+      SocialProvider.naver => await _naverToken(),
+    };
+    final deviceId = await DeviceIdService.get();
+    try {
+      final data = await _api.post('/api/v1/auth/social', {
+        'provider': provider.wireName,
+        'token': token,
+        'device_id': deviceId,
+      });
+      final user = (data['user'] as Map?) ?? const {};
+      return SocialAuthResult(
+        provider: provider,
+        providerUid: (user['id'] ?? '').toString(),
+        displayName: (user['display_name'] ?? '').toString(),
+        email: user['email'] as String?,
+        role: _roleFromString(data['role'] as String?),
+      );
+    } catch (e) {
+      throw SocialAuthException('로그인에 실패했습니다.', 'SOCIAL_BACKEND');
+    }
+  }
+
+  SocialRole _roleFromString(String? r) => switch (r) {
+        'boss' => SocialRole.boss,
+        'coach' => SocialRole.coach,
+        'member' => SocialRole.member,
+        _ => SocialRole.solo,
+      };
+
+  Future<String> _googleToken() async {
+    final google = GoogleSignIn(
+      scopes: const ['email'],
+      serverClientId:
+          _googleServerClientId.isEmpty ? null : _googleServerClientId,
+    );
+    final account = await google.signIn();
+    if (account == null) {
+      throw const SocialAuthException('로그인을 취소했습니다.', 'CANCELLED');
+    }
+    final auth = await account.authentication;
+    final idToken = auth.idToken;
+    if (idToken == null || idToken.isEmpty) {
+      throw const SocialAuthException('구글 토큰을 받지 못했습니다.', 'NO_TOKEN');
+    }
+    return idToken;
+  }
+
+  Future<String> _naverToken() async {
+    final result = await FlutterNaverLogin.logIn();
+    if (result.status != NaverLoginStatus.loggedIn) {
+      throw const SocialAuthException('로그인을 취소했습니다.', 'CANCELLED');
+    }
+    final token = await FlutterNaverLogin.currentAccessToken;
+    final accessToken = token.accessToken;
+    if (accessToken.isEmpty) {
+      throw const SocialAuthException('네이버 토큰을 받지 못했습니다.', 'NO_TOKEN');
+    }
+    return accessToken;
+  }
+}
+
+/// 실 OAuth 활성 스위치. 키·네이티브 설정 완료 후 빌드 플래그 한 줄로 전환.
+///   flutter run --dart-define=USE_REAL_AUTH=true
+const bool kUseRealSocialAuth =
+    bool.fromEnvironment('USE_REAL_AUTH', defaultValue: false);
+
+/// 화면이 호출하는 단일 진입점. 플래그에 따라 stub ↔ real 자동 선택.
+SocialAuthService resolveSocialAuthService(ApiClient api) =>
+    kUseRealSocialAuth ? RealSocialAuthService(api) : const StubSocialAuthService();
