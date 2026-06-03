@@ -207,8 +207,9 @@ class _OnboardingGradeScreenState extends State<OnboardingGradeScreen> {
                 child: ElevatedButton(
                   onPressed: () {
                     Haptic.medium();
+                    // D26: 역할은 로그인 시 결정됨 — 수동 mode-select 폐기, 바로 shell.
                     Navigator.of(context)
-                        .pushNamedAndRemoveUntil('/onboarding/mode', (_) => false);
+                        .pushNamedAndRemoveUntil('/shell', (_) => false);
                   },
                   child: const Text('Next'),
                 ),

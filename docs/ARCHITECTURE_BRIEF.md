@@ -286,8 +286,8 @@ retention 정의 = "코호트(가입 월) 의 N개월 후 시점에 attendance �
 
 | 플랫폼 | 인증 방식 | 비고 |
 |---|---|---|
-| 폰 (회원·코치) | device_hash (X-Device-Id 헤더) | 현재 그대로. 익명 |
-| PC (사장) | ID/PW + 세션 쿠키 (httpOnly Secure) | 신규. bcrypt cost ≥ 12 |
+| 폰 (회원·코치) | device_hash (X-Device-Id 헤더) | ⚠️ **D26으로 대체 예정** — 소셜 로그인 통일. device_hash 는 데이터 연결키로 격하 |
+| PC (사장) | ID/PW + 세션 쿠키 (httpOnly Secure) | ⚠️ **D26으로 대체 예정** — 사장도 소셜 로그인. ID/PW 는 전환기 fallback |
 | 시드 계정 | `boss_seongsu / 1234` (데모) + `APP_TEST_ADMIN_*` env (슈퍼) | CLAUDE.md §3-A 의무 시드 |
 | 출석 체크인 | 1회용 QR (60초 만료) | 박스 입구 디스플레이가 토큰 갱신, 폰이 스캔 → POST `/attendances` |
 | 결제 (Toss Payments) | webhook HMAC-SHA256 서명 검증 + timing-safe compare + idempotency key | reference/payment.md + reference/webhook.md 준수 |
@@ -338,8 +338,8 @@ retention 정의 = "코호트(가입 월) 의 N개월 후 시점에 attendance �
 | # | 결정 | 근거 |
 |---|---|---|
 | D1 | 백엔드 1개 (services/facing) — 분리 X | SSOT 단일성, 작업·인증 일관성 |
-| D2 | 폰은 device_hash 익명 유지 | 회원 가입장벽 ↓, 기존 코드 호환 |
-| D3 | 사장은 ID/PW 로그인 | 개인정보 다루므로 신원 식별 필수 |
+| D2 | ~~폰은 device_hash 익명 유지~~ → **D26으로 대체** (소셜 로그인 통일) | 회원 가입장벽 ↓, 기존 코드 호환 |
+| D3 | ~~사장은 ID/PW 로그인~~ → **D26으로 대체** (사장도 소셜) | 개인정보 다루므로 신원 식별 필수 |
 | D4 | SSE 사용 (WebSocket X) | 단방향 푸시면 충분, Flask Werkzeug 호환 |
 | D5 | 사장 화면 게이미피케이션 X | 운영자 결정 속도 중심, 숫자만 |
 | D6 | 폰·PC 모두 같은 박스(gym_id) 기반 | RBAC 가 gym 단위로 분리 |
@@ -362,6 +362,7 @@ retention 정의 = "코호트(가입 월) 의 N개월 후 시점에 attendance �
 | D23 | **DB 백업**: SQLite `facing.db` 일일 새벽 03:00 → `data/backup/facing-YYYYMMDD.db` (30일 보존) + 주간 외부 백업 (Railway Volume snapshot) | 회원 50명 시점부터 적용 |
 | D24 | **사장의 코치 관리 페이지** 신설 (§14) — 가장 큰 빈약점 보강. 코치 추가/제거·시급·스케줄·페어링 코드 발급 | 통독 M15 |
 | D25 | **폰 탭별 화면 책임 재배치** (2026-06-02): **Home** = 공지/쪽지 아코디언(최상단·접힘) + 게이미피케이션(Level·업적·Milestones) / **WOD** = 코치 오늘 WOD + 하단 프리셋 카테고리 아코디언(참조) / **Notice** = 쪽지·숙제·공지 전체 피드(Home은 요약본) / **Attend** = 출석 캘린더 전담(Profile에서 이동) / **Profile** = Identity + 점수(숫자만, radar·sparkline 그래프 제거) + Body·Membership·Locker·MyBox·Settings·Actions. 페이싱 엔진 Home→Profile 강등은 §11.5 positioning(엔진=부가 기능, 홈 노출 위계↓) 과 정합. 5탭 구조·라벨·인덱스 유지 | 사용자 결정 2026-06-02 + §11.5 |
+| D26 | **인증 통일 (2026-06-03)**: 회원·코치·사장 **전원 소셜 로그인(네이버·구글)**. ① device_hash = 익명 식별 → **데이터 연결키**로 격하 (계정에 link). ② 사장 ID/PW(D3·§7) = 소셜로 대체, 전환기엔 fallback 병행. ③ 로그인 응답에 `role` 포함 → 앱이 자동 분기 (수동 mode_select·role_entry 화면 폐기). ④ **현재는 stub(가짜 버튼)** — `SocialAuthService` 인터페이스 + `StubSocialAuthService`. 실 OAuth(Naver Developers + Google Cloud 키)는 `RealSocialAuthService` 1개 교체로 활성. OAuth 2.1 Authorization Code + PKCE(security.md 준수) | 사용자 결정 2026-06-03 (D2·D3·§7 대체) |
 
 ---
 

@@ -5,14 +5,17 @@ import '../../core/api_client.dart';
 import '../../core/device_id.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
+import '../../core/app_mode.dart';
 import '../gym/gym_state.dart';
 import '../profile/profile_state.dart';
 import 'auth_state.dart';
 import 'demo_accounts.dart';
+import 'social_auth_service.dart';
 
-/// v1.16: 최초 진입 회원가입 화면.
-/// 데모: Naver·Kakao 버튼 탭 시 AuthState.signIn만 기록하고 다음 단계로 이동.
-/// 실제 OAuth는 Phase 2.
+/// 최초 진입 로그인 화면 (D26 — 회원·코치·사장 전원 소셜 로그인 통일).
+/// 현재는 [StubSocialAuthService] (가짜 버튼) — provider 탭 시 즉시 성공 흉내
+/// 후 서버가 내려준 role 로 자동 분기. 실 OAuth 는 [RealSocialAuthService]
+/// 1개 교체로 활성 (security.md OAuth 2.1 + PKCE).
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
 
@@ -23,20 +26,56 @@ class SignupScreen extends StatefulWidget {
 class _SignupScreenState extends State<SignupScreen> {
   bool _busy = false;
 
-  static const Color _naverGreen = FacingTokens.naverGreen;
-  static const Color _kakaoYellow = FacingTokens.kakaoYellow;
-  // v1.16 Sprint 9b: WCAG AA 대비 강화. #FEE500 vs Colors.black 대비비 19.56:1 (AAA).
-  static const Color _kakaoBrown = Colors.black;
+  static const SocialAuthService _social = StubSocialAuthService();
 
-  Future<void> _signIn(String provider) async {
+  static const Color _naverGreen = FacingTokens.naverGreen;
+  static const Color _googleSurface = FacingTokens.googleSurface;
+  static const Color _googleBlue = FacingTokens.googleBlue;
+
+  /// D26: provider 탭 → SocialAuthService → 서버 role 로 자동 분기.
+  /// (현재 stub: role=solo 반환. 실 OAuth 시 박스 연결로 boss/coach/member 결정.)
+  Future<void> _signIn(SocialProvider provider) async {
     if (_busy) return;
     setState(() => _busy = true);
     Haptic.medium();
     final auth = context.read<AuthState>();
-    await auth.signIn(provider);
-    if (!mounted) return;
-    // 로그인 후 → role-entry 에서 회원/코치 vs 사장/매니저 선택
-    Navigator.of(context).pushReplacementNamed('/role-entry');
+    final profile = context.read<ProfileState>();
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+    try {
+      final result = await _social.signIn(provider);
+      await auth.signIn(provider.wireName, displayName: result.displayName);
+      if (!mounted) return;
+      _routeByRole(navigator, result.role, profile);
+    } on SocialAuthException catch (e) {
+      if (!mounted) return;
+      setState(() => _busy = false);
+      messenger.showSnackBar(SnackBar(content: Text(e.message)));
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _busy = false);
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Login failed. Retry.')),
+      );
+    }
+  }
+
+  /// 서버가 내려준 role 로 직접 분기 — 수동 mode_select·role_entry 화면 폐기 (D26).
+  void _routeByRole(
+    NavigatorState navigator,
+    SocialRole role,
+    ProfileState profile,
+  ) {
+    if (role == SocialRole.boss) {
+      // 사장: 실 OAuth 시 서버 세션 수립 후 대시보드. stub 전환기엔 ID/PW fallback.
+      navigator.pushNamed('/boss/login');
+      return;
+    }
+    final mode = role.toAppMode();
+    if (mode != null) AppModeStore.set(mode);
+    // 프로필(등급) 없으면 온보딩, 있으면 바로 shell.
+    final next = profile.hasGrade ? '/shell' : '/onboarding/basic';
+    navigator.pushNamedAndRemoveUntil(next, (_) => false);
   }
 
   /// v1.16 Sprint 8 U1: 데모 계정 선택 → 프로필 프리로드 + grade 계산 + Shell 진입.
@@ -85,8 +124,16 @@ class _SignupScreenState extends State<SignupScreen> {
       } catch (_) {}
     }
     if (!mounted) return;
-    // 데모 계정도 로그인 후 → role-entry 에서 역할 선택
-    Navigator.of(context).pushReplacementNamed('/role-entry');
+    // D26: 데모 계정은 role 을 이미 알고 있으므로 role-entry 없이 바로 분기.
+    final mode = switch (demo.role) {
+      'coach' => AppMode.coach,
+      'solo' => AppMode.solo,
+      _ => AppMode.member, // member · pending
+    };
+    await AppModeStore.set(mode);
+    if (!mounted) return;
+    final next = profile.hasGrade ? '/shell' : '/onboarding/basic';
+    Navigator.of(context).pushNamedAndRemoveUntil(next, (_) => false);
   }
 
   @override
@@ -119,17 +166,20 @@ class _SignupScreenState extends State<SignupScreen> {
                   background: _naverGreen,
                   foreground: Colors.white,
                   markText: 'N',
-                  onPressed: _busy ? null : () => _signIn('naver'),
+                  onPressed:
+                      _busy ? null : () => _signIn(SocialProvider.naver),
                 ),
                 const SizedBox(height: FacingTokens.sp3),
 
-                // Kakao
+                // Google
                 _SocialButton(
-                  label: '카카오로 시작',
-                  background: _kakaoYellow,
-                  foreground: _kakaoBrown,
-                  markText: 'K',
-                  onPressed: _busy ? null : () => _signIn('kakao'),
+                  label: '구글로 시작',
+                  background: _googleSurface,
+                  foreground: Colors.black,
+                  markText: 'G',
+                  markColor: _googleBlue,
+                  onPressed:
+                      _busy ? null : () => _signIn(SocialProvider.google),
                 ),
 
                 const SizedBox(height: FacingTokens.sp4),
@@ -282,6 +332,7 @@ class _SocialButton extends StatelessWidget {
   final Color background;
   final Color foreground;
   final String markText;
+  final Color? markColor;
   final VoidCallback? onPressed;
 
   const _SocialButton({
@@ -290,6 +341,7 @@ class _SocialButton extends StatelessWidget {
     required this.foreground,
     required this.markText,
     required this.onPressed,
+    this.markColor,
   });
 
   @override
@@ -309,7 +361,7 @@ class _SocialButton extends StatelessWidget {
               Text(
                 markText,
                 style: FacingTokens.h3.copyWith(
-                  color: foreground,
+                  color: markColor ?? foreground,
                   fontWeight: FontWeight.w900,
                 ),
               ),

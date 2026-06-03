@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 enum AppMode { coach, member, solo }
 
 /// SharedPreferences 'app_mode' 키 wrapper.
-/// Splash 의 _bootstrap → mode 미설정 시 ModeSelectScreen 진입 분기.
+/// D26 (2026-06-03): 로그인 시 서버 role 로 자동 set. 수동 ModeSelectScreen 폐기.
 class AppModeStore {
   static const _key = 'app_mode';
 

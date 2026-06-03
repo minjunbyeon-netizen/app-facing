@@ -72,6 +72,9 @@ class FacingTokens {
   // ==== 외부 브랜드 색 (소셜 로그인 전용) ====
   static const Color naverGreen = Color(0xFF03C75A);
   static const Color kakaoYellow = Color(0xFFFEE500);
+  /// Google 버튼 — 흰 배경 + 어두운 텍스트 (Google 브랜드 가이드). G 마크 파랑.
+  static const Color googleSurface = Color(0xFFFFFFFF);
+  static const Color googleBlue = Color(0xFF4285F4);
 
   // ==== Tier 색상 (라이트 배경에서 WCAG AA, PC facing-admin 동기화) ====
   /// Scaled — neutral zinc-600.

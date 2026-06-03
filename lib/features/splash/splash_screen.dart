@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/api_client.dart';
-import '../../core/app_mode.dart';
 import '../../core/device_id.dart';
 import '../../core/haptic.dart';
 import '../../core/notification_service.dart';
@@ -105,23 +104,15 @@ class _SplashScreenState extends State<SplashScreen>
     }
     if (!mounted) return;
 
-    AppMode? mode;
-    try {
-      mode = await AppModeStore.get();
-    } catch (_) {
-      mode = null;
-    }
-    if (!mounted) return;
-
     await Future.delayed(const Duration(milliseconds: 2500));
     if (!mounted) return;
-    _onStart(introSeen: introSeen, mode: mode);
+    _onStart(introSeen: introSeen);
   }
 
   /// v1.16 + PHASE5: 로그인 상태 분기.
   /// boss 세션 살아있으면 → /boss/dashboard 직행.
   /// 아니면 기존 회원·코치 플로우.
-  void _onStart({required bool introSeen, required AppMode? mode}) {
+  void _onStart({required bool introSeen}) {
     final profile  = context.read<ProfileState>();
     final auth     = context.read<AuthState>();
     final bossAuth = context.read<BossAuthState>();
@@ -135,7 +126,8 @@ class _SplashScreenState extends State<SplashScreen>
     if (!auth.isSignedIn) {
       next = '/signup'; // 미로그인 → 소셜 로그인 화면 먼저
     } else if (profile.hasGrade) {
-      next = mode == null ? '/onboarding/mode' : '/shell';
+      // D26: 역할은 로그인 시 결정됨 — 수동 mode-select 폐기. shell 직행.
+      next = '/shell';
     } else if (!introSeen) {
       next = '/intro';
     } else {
