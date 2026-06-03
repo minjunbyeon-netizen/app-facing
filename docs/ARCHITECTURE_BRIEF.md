@@ -391,7 +391,10 @@ retention 정의 = "코호트(가입 월) 의 N개월 후 시점에 attendance �
 
 | 동사 | 경로 | 인증 | 용도 |
 |---|---|---|---|
-| POST | `/api/v1/admin/login` | ID/PW → 세션 쿠키 | 사장 로그인 |
+| POST | `/api/v1/auth/social` | provider token (body) | **D26 소셜 로그인** — 네이버·구글 검증→계정 upsert→role 반환. 설계: `services/facing/docs/AUTH_SOCIAL_DESIGN.md` |
+| POST | `/api/v1/auth/logout` | 세션 | D26 로그아웃 |
+| GET | `/api/v1/auth/me` | 세션 | D26 본인 정보 + role + 소속 박스 |
+| POST | `/api/v1/admin/login` | ID/PW → 세션 쿠키 | 사장 로그인 (D26 전환기 fallback) |
 | POST | `/api/v1/admin/logout` | 세션 | 로그아웃 |
 | GET | `/api/v1/admin/me` | 세션 | 본인 정보 + 박스 목록 (다중 박스) |
 | GET | `/api/v1/admin/gyms/{id}/members` | 세션 (boss) | 회원 DB 풀 리스트 |
@@ -547,6 +550,22 @@ retention 정의 = "코호트(가입 월) 의 N개월 후 시점에 attendance �
 | 신규 endpoint | §13 카탈로그 | 6 (GET/PATCH gym profile / GET coach list / GET coach detail / PATCH coach profile / GET coach off-days) | RBAC: 사장 = 전부, 코치 = 본인 only, 회원 = 읽기만 |
 
 > 계약서(`contract_template` / `contract_instance`) 는 **PHASE4 §1.3 으로 이미 등록됨** (위 §11.1). 추가 작업 없음. 박스 프로필 페이지에서 "환불·해지·등록비·보험" 4 항목은 계약서 템플릿 필드로 흡수.
+
+---
+
+### 11.7. D26 소셜 로그인 신규 스키마·엔드포인트 (2026-06-03)
+
+> 등록일: 2026-06-03. 사용자 결정(D26): 회원·코치·사장 전원 소셜 로그인 통일.
+> 상태: **설계만 등록 (미구현)**. 앱은 현재 `StubSocialAuthService`. 상세 설계: `services/facing/docs/AUTH_SOCIAL_DESIGN.md`.
+
+| 변경 | 대상 | 신규 필드 / 모델 | 비고 |
+|---|---|---|---|
+| 신규 테이블 | `social_account` | provider, provider_uid (UNIQUE 복합), email, display_name, created_at, last_login_at | 소셜 계정 ↔ user 매핑 |
+| ALTER | `gym_members` · `gym_managers` | +`user_id` (FK, nullable) | device_hash·login_id → user_id 점진 통합 |
+| 신규 endpoint | §13.2 카탈로그 | 3 (`/auth/social` · `/auth/logout` · `/auth/me`) | 세션 메커니즘은 admin 동일 재사용 |
+| 신규 env | `C:/dev/.env` + Railway | `GOOGLE_CLIENT_ID`/`SECRET` (NAVER_* 는 기존 재사용) | LLM 키(§0-A)와 무관 |
+
+> 마이그레이션은 `models/base.py` `_migrate()` 패턴. 구현 착수 = 네이버·구글 OAuth 키 확보 시점.
 
 ---
 
