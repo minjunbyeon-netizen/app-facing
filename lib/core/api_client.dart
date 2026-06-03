@@ -16,9 +16,20 @@ class ApiClient {
   );
 
   final Dio _dio;
+  final CookieJar _cookieJar;
   final List<Future<void> Function()> _retryQueue = [];
 
-  ApiClient._(this._dio);
+  ApiClient._(this._dio, this._cookieJar);
+
+  /// 현재 보관 중인 Flask 세션 쿠키를 "session=xxx" 헤더 형태로 반환 (없으면 null).
+  /// D26 — 소셜 로그인 세션을 사장 인증(BossAuthState)에 넘겨 재로그인 없이 대시보드 진입.
+  Future<String?> sessionCookie() async {
+    final cookies = await _cookieJar.loadForRequest(Uri.parse(baseUrl));
+    for (final c in cookies) {
+      if (c.name == 'session') return 'session=${c.value}';
+    }
+    return null;
+  }
 
   /// 네트워크 실패로 적재된 요청을 순서대로 재실행.
   /// ConnectivityState가 온라인 복귀 시 호출.
@@ -56,14 +67,15 @@ class ApiClient {
     ));
     // D26 소셜 로그인 — Flask 세션 쿠키 보관(in-memory). /auth/social 로그인 후
     // /auth/me·/auth/link-staff·/auth/logout 이 같은 세션을 자동으로 실어 보냄.
-    dio.interceptors.add(CookieManager(CookieJar()));
+    final cookieJar = CookieJar();
+    dio.interceptors.add(CookieManager(cookieJar));
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
         options.headers['X-Device-Id'] = await DeviceIdService.get();
         handler.next(options);
       },
     ));
-    return ApiClient._(dio);
+    return ApiClient._(dio, cookieJar);
   }
 
   Future<Map<String, dynamic>> post(String path, Map<String, dynamic> body) async {

@@ -6,6 +6,7 @@ import '../../core/app_mode.dart';
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
+import '../boss/boss_auth_state.dart';
 
 /// D26 §4.1 — 코치·사장 계정 연결 (전환기 claim).
 ///
@@ -44,15 +45,26 @@ class _StaffLinkScreenState extends State<StaffLinkScreen> {
     });
     Haptic.medium();
     final api = context.read<ApiClient>();
+    final bossAuth = context.read<BossAuthState>();
     final navigator = Navigator.of(context);
     try {
       final data = await api.post('/api/v1/auth/link-staff', {
         'login_id': _idCtrl.text.trim(),
         'password': _pwCtrl.text,
       });
+      final role = (data['role'] ?? 'solo').toString();
+      // 사장: 소셜 세션을 BossAuthState 로 넘겨 재로그인 없이 대시보드 진입.
+      // (서버는 link 시 admin_* 세션 bridge 를 이미 세팅 → 같은 쿠키로 admin endpoint 인가됨)
+      if (role == 'boss') {
+        await _activateBoss(api, bossAuth, data);
+        if (!mounted) return;
+        Haptic.heavy();
+        navigator.pushNamedAndRemoveUntil('/boss/dashboard', (_) => false);
+        return;
+      }
       if (!mounted) return;
       Haptic.heavy();
-      _routeByRole(navigator, (data['role'] ?? 'solo').toString());
+      _routeByRole(navigator, role);
     } on AppException catch (e) {
       if (!mounted) return;
       setState(() {
@@ -71,9 +83,27 @@ class _StaffLinkScreenState extends State<StaffLinkScreen> {
     }
   }
 
-  /// 연결 성공 후 새 role 로 분기 (signup _routeByRole 과 동일 규칙).
-  /// boss 는 사장 대시보드용 BossAuthState 가 별도라 /boss/login 으로 보내
-  /// 세션을 확립(전환기). coach·member 는 폰 shell 로.
+  /// 사장 연결 — link 응답 + 소셜 세션 쿠키로 BossAuthState 채움.
+  /// 이후 BossApiClient 가 같은 세션을 실어 보내고, main.dart 리스너가 staffPush 시작.
+  Future<void> _activateBoss(
+      ApiClient api, BossAuthState bossAuth, Map<String, dynamic> data) async {
+    final user = (data['user'] as Map?) ?? const {};
+    final gyms = (data['gyms'] as List?) ?? const [];
+    final primary = gyms.isNotEmpty ? (gyms.first as Map) : const {};
+    final cookie = await api.sessionCookie() ?? '';
+    await bossAuth.save(
+      loginId: 'social:${user['id']}',
+      name: (user['display_name'] ?? '').toString(),
+      role: 'boss',
+      gymId: (primary['gym_id'] as num?)?.toInt() ?? 0,
+      gymName: (primary['name'] ?? '').toString(),
+      csrfToken: (data['csrf_token'] ?? '').toString(),
+      sessionCookie: cookie,
+    );
+  }
+
+  /// 연결 성공 후 새 role 로 분기 (boss 는 _link 에서 _activateBoss 로 처리).
+  /// coach·member 는 폰 shell 로. boss 가 여기 오면(이론상 X) /boss/login 폴백.
   void _routeByRole(NavigatorState navigator, String role) {
     if (role == 'boss') {
       navigator.pushNamedAndRemoveUntil('/boss/login', (_) => false);
