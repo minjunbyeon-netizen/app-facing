@@ -182,33 +182,10 @@ class _SignupScreenState extends State<SignupScreen> {
                       _busy ? null : () => _signIn(SocialProvider.google),
                 ),
 
-                const SizedBox(height: FacingTokens.sp4),
-                // v1.17: 사장·매니저 진입로 — BossLoginScreen 으로.
-                // BossAuthState.save() 호출 시 main.dart listener 가
-                // staffPush.start() 트리거 → 가입 신청 등 SSE 알림 수신.
-                OutlinedButton(
-                  onPressed: _busy
-                      ? null
-                      : () => Navigator.of(context)
-                          .pushNamed('/boss/login'),
-                  style: OutlinedButton.styleFrom(
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: FacingTokens.sp4,
-                      vertical: FacingTokens.sp3,
-                    ),
-                    side: const BorderSide(color: FacingTokens.border),
-                  ),
-                  child: Text(
-                    'Box Owner Login',
-                    style: FacingTokens.body.copyWith(
-                      color: FacingTokens.fg,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.4,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: FacingTokens.sp4),
+                const SizedBox(height: FacingTokens.sp5),
+                // D26: 사장도 소셜 로그인으로 통일 — 별도 ID/PW 버튼 제거.
+                // 실 OAuth 시 social → role=boss 응답이면 boss 세션 수립.
+                // 사장 ID/PW 진입은 전환기 동안만 하단 작은 링크로 유지.
                 // v1.16 Sprint 8 U1: 데모 계정 5개 빠른 진입.
                 const Text('DEMO ACCOUNTS',
                     style: FacingTokens.sectionLabel),
@@ -280,6 +257,22 @@ class _SignupScreenState extends State<SignupScreen> {
                       child: Text('개인정보처리방침', style: FacingTokens.caption),
                     ),
                   ],
+                ),
+                const SizedBox(height: FacingTokens.sp1),
+                // D26 전환기: 사장 ID/PW 진입 (실 OAuth 활성 시 제거).
+                // BossLoginScreen → BossAuthState.save() → main.dart listener 가
+                // staffPush.start() 트리거 (가입 신청 SSE 알림 수신).
+                Center(
+                  child: TextButton(
+                    onPressed: _busy
+                        ? null
+                        : () => Navigator.of(context).pushNamed('/boss/login'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: FacingTokens.muted,
+                      minimumSize: const Size(0, 32),
+                    ),
+                    child: Text('사장 로그인 (전환기)', style: FacingTokens.caption),
+                  ),
                 ),
                 const SizedBox(height: FacingTokens.sp2),
               ],
