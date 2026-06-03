@@ -205,7 +205,12 @@ class RealSocialAuthService implements SocialAuthService {
         },
       ),
     );
-    await completer.future;
+    // 콜백이 끝내 안 오는 edge case 방지 — 무한 대기 차단(사용자 입력 고려 120초).
+    await completer.future.timeout(
+      const Duration(seconds: 120),
+      onTimeout: () => throw const SocialAuthException(
+          '네이버 로그인 응답이 없습니다. 다시 시도하세요.', 'TIMEOUT'),
+    );
     final accessToken = await NaverLoginSDK.getAccessToken();
     if (accessToken.isEmpty) {
       throw const SocialAuthException('네이버 토큰을 받지 못했습니다.', 'NO_TOKEN');
