@@ -9,7 +9,8 @@ import 'boss_auth_state.dart';
 // PHASE5 §1.1 — 사장 전용 Dio 인스턴스.
 // 백엔드가 Flask session cookie 기반이므로:
 //   1. 로그인 응답 Set-Cookie → _sessionCookie 추출 → BossAuthState 저장
-//   2. 이후 모든 요청에 Cookie 헤더 + X-CSRFToken 헤더 자동 주입.
+//   2. 이후 모든 요청에 Cookie 헤더 + X-CSRF-Token 헤더 자동 주입.
+//      (헤더명은 백엔드 admin.py require_csrf + CORS allow_headers 와 동일 — X-CSRF-Token)
 class BossApiClient {
   final Dio _dio;
   BossAuthState? _authState;
@@ -126,7 +127,7 @@ class BossApiClient {
       headers['Cookie'] = auth!.sessionCookie!;
     }
     if (auth?.csrfToken != null) {
-      headers['X-CSRFToken'] = auth!.csrfToken!;
+      headers['X-CSRF-Token'] = auth!.csrfToken!;
     }
     return Options(headers: headers);
   }
