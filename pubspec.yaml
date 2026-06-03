@@ -24,8 +24,9 @@ dependencies:
   url_launcher: ^6.3.1
   # D26 소셜 로그인 (네이버·구글). 토큰은 백엔드 /api/v1/auth/social 서버검증.
   # 활성화: --dart-define=USE_REAL_AUTH=true (미지정 시 StubSocialAuthService).
+  # naver_login_sdk: 유지보수되는 패키지(키는 Dart initialize 로 주입 — 안드로이드 설정 0).
   google_sign_in: ^6.2.1
-  flutter_naver_login: ^1.8.0
+  naver_login_sdk: ^3.2.1
   # PHASE5: 사장 폰 로그인 — 쿠키 세션 관리 + 보안 토큰 저장
   dio_cookie_manager: ^3.1.1
   cookie_jar: ^4.0.8

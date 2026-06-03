@@ -1,5 +1,7 @@
+import 'dart:async';
+
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:flutter_naver_login/flutter_naver_login.dart';
+import 'package:naver_login_sdk/naver_login_sdk.dart';
 
 import '../../core/api_client.dart';
 import '../../core/app_mode.dart';
@@ -114,6 +116,15 @@ class RealSocialAuthService implements SocialAuthService {
   static const String _googleServerClientId =
       String.fromEnvironment('GOOGLE_SERVER_CLIENT_ID');
 
+  // 네이버 키 — 빌드 시 --dart-define 으로 주입 (안드로이드 manifest 설정 불필요).
+  static const String _naverClientId = String.fromEnvironment('NAVER_CLIENT_ID');
+  static const String _naverClientSecret =
+      String.fromEnvironment('NAVER_CLIENT_SECRET');
+  static const String _naverClientName =
+      String.fromEnvironment('NAVER_CLIENT_NAME', defaultValue: 'FACING');
+  static const String _naverUrlScheme =
+      String.fromEnvironment('NAVER_URL_SCHEME', defaultValue: 'facing');
+
   @override
   Future<SocialAuthResult> signIn(SocialProvider provider) async {
     final token = switch (provider) {
@@ -166,12 +177,36 @@ class RealSocialAuthService implements SocialAuthService {
   }
 
   Future<String> _naverToken() async {
-    final result = await FlutterNaverLogin.logIn();
-    if (result.status != NaverLoginStatus.loggedIn) {
-      throw const SocialAuthException('로그인을 취소했습니다.', 'CANCELLED');
-    }
-    final token = await FlutterNaverLogin.currentAccessToken;
-    final accessToken = token.accessToken;
+    await NaverLoginSDK.initialize(
+      urlScheme: _naverUrlScheme,
+      clientId: _naverClientId,
+      clientSecret: _naverClientSecret,
+      clientName: _naverClientName,
+    );
+    final completer = Completer<void>();
+    NaverLoginSDK.login(
+      callback: OAuthLoginCallback(
+        onSuccess: () {
+          if (!completer.isCompleted) completer.complete();
+        },
+        onFailure: (httpStatus, message) {
+          if (!completer.isCompleted) {
+            completer.completeError(
+              SocialAuthException('네이버 로그인 실패.', 'NAVER_$httpStatus'),
+            );
+          }
+        },
+        onError: (errorCode, message) {
+          if (!completer.isCompleted) {
+            completer.completeError(
+              const SocialAuthException('로그인을 취소했습니다.', 'CANCELLED'),
+            );
+          }
+        },
+      ),
+    );
+    await completer.future;
+    final accessToken = await NaverLoginSDK.getAccessToken();
     if (accessToken.isEmpty) {
       throw const SocialAuthException('네이버 토큰을 받지 못했습니다.', 'NO_TOKEN');
     }
