@@ -1,50 +1,44 @@
-# HANDOFF - 2026-06-02 23:28
+# HANDOFF - 2026-06-03 14:24
 
-## 완료
-- [x] **화면 재배치 Phase 1~5** (`docs/RESTRUCTURE_TODO.md` Move A~G) — 에뮬 검증 + 로컬 커밋
-  - A 점수→Profile ENGINE(숫자만) / B 게이미피케이션→Home·캘린더→Attend / C Home 공지 아코디언 /
-    E WOD 카테고리→WOD 하단 / F BOX INFO→WOD 최상단 아코디언 / D7 종(🔔) 전 화면 복원
-- [x] **stray 'Test' 박스(gym 5) 삭제** — 박지훈 코치 `/gyms/mine`이 FACING SEONGSU(gym 2) 가리키게 (로컬 SQLite)
-- [x] **회원↔코치 양방향 쪽지 (카톡식) 완성** — 4단계 + 다중 코치 구조 + 실시간 + 먼저 말걸기까지 전부 에뮬 검증
-  - 회원 NOTICE = 공지핀 + **코치별 대화목록** → 탭하면 1:1 채팅 + 하단 "코치에게 쪽지" FAB(받은적 없어도 시작)
-  - 코치 NOTICE = **회원별 대화목록** → 탭하면 1:1 채팅 + "New"(브로드캐스트)
-  - 1:1 채팅 = 말풍선(내것 우측 accent / 상대 좌측), 입력바 역할별 힌트
-  - 발신: 코치=`post_note(individual)`, 회원=`member-report(to=peer)`
-  - **실시간 자동 갱신**: 백엔드 `note.new` SSE publish → 앱 대화/목록 0.4초 디바운스 reload (검증 OK)
-- [x] **코치 시급 정산(payroll) 기능 완전 삭제** (관리자웹 `web/facing-admin` + 백엔드 `services/facing`)
-  - 페이지·라우트·API 5개·RBAC 권한·네비·온보딩카드·로그인 소개문구·코치명단 시급칸 제거
-  - 모델 `GymPayroll` + `utils/payroll_tax.py` 파일 삭제 (단, `needs_employment_type_transition`=코치 일용직 전환권고 로직은 payroll 무관이라 admin.py 에 inline 으로 살림)
-  - **DB까지 제거**: `gym_managers.hourly_wage` 컬럼 DROP + `gym_payrolls` 테이블 DROP (SQLite) + postgres RLS/migrate 스크립트 정리
-  - 검증: 양쪽 `python -c import` OK, health 200, 코드 전체 payroll/시급/hourly_wage 참조 0건
-  - 코치 명단 `/coaches` 자체는 유지(시급 칸만 제거). 폰 앱은 안 건드림
+## 완료 (전부 origin/master 에 push 됨)
+- [x] 재활 감별 전체 플로우 구현 — 질문→자가테스트→원인+6단계 루트 / danger 분기.
+      `lib/features/rehab/{rehab_models,rehab_flow_screen,rehab_screen,rehab_guide_card}.dart`
+      데이터: `assets/data/rehab/*.json` (rahap1 흡수본). 에뮬 전 노드 검증 완료.
+- [x] Notice→Attend 메시징 이동 — 공지·쪽지·대화목록·작성을 Attend 캘린더 밑으로.
+      Notice 탭은 재활 가이드 카드만 남김 (사용자 결정 2026-06-03).
+      `MessagingFeed`(임베드 위젯) = `lib/features/inbox/inbox_screen.dart`,
+      `lib/features/attendance/attendance_screen.dart` 에 배치.
+- [x] Attend·Notice 둘 다 중첩 Navigator — 탭 내부 화면(재활·채팅)서 하단 탭 유지.
+      미읽음 dot·markSeen·벨/더보기 라우팅을 Notice(3)→Attend(2)로 이동.
+      `lib/features/shell/main_shell.dart`, `lib/widgets/inbox_bell.dart`,
+      `lib/features/home/home_screen.dart`. MainShell `resizeToAvoidBottomInset:false`.
+- [x] /dead 데드코드 — `lib/core/athletes.dart`(미연결 86줄) 삭제, master 머지+push.
+      `dart analyze` 0건. 정리 후 cleanup·overnight 브랜치 삭제 → 로컬·원격 master 만 남음.
+- [x] 자동저장 훅 auto-push 차단 — `~/.claude/hooks/autopush-dev.sh` 에 `.nopush` 가드
+      추가(커밋 유지, push 만 스킵). `C:/dev/apps/facing-app/.nopush` 마커 생성.
+      다른 dev 레포는 auto-push 그대로.
 
 ## 진행중
-- (없음)
+- (없음 — 이번 세션 작업 단위 모두 종료)
 
-## 대기 (다음 후보)
-- [ ] **다중 코치 데이터** — 현재 박스당 코치=오너 1명 구조. 코치/매니저 여러 명이 메시지 보내려면 백엔드 역할(권한) 작업 필요. `gym_managers` 테이블 존재. 메시징 UI는 이미 다중 코치 준비됨(목록 N줄 자동)
-- [ ] 안 읽은 쪽지 배지를 하단 탭·종 아이콘에 실시간 반영
-- [ ] 쪽지 도착 시 폰 푸시 알림(앱 종료 시)
-- [ ] D8: 코치/신규 페르소나 5탭 추가 검증
-- [ ] 라이트/다크 테마 — 앱이 라이트로 뜸(CLAUDE.md는 다크 #0A0A0A 기본). 별건
-
-## 관련 파일
-- 앱 (cwd `C:\dev\apps\facing-app`): `lib/features/inbox/inbox_screen.dart` (대화목록·1:1·SSE·FAB — 핵심),
-  `lib/models/chat_message.dart` (ChatMessage·CoachThread), `lib/features/inbox/inbox_repository.dart`,
-  `lib/features/gym/gym_repository.dart` (memberReport to), `lib/features/announcements/announcements_state.dart`, `lib/models/gym.dart` (ownerHash)
-- 백엔드 (`C:\dev\services\facing`): `api/coach_note.py` (messages/threads/peer + note.new SSE), `models/gym_manager.py`(시급 컬럼 제거됨), `scripts/*`(payroll 정리)
-- 관리자 웹 (`C:\dev\web\facing-admin`): payroll 제거 반영 (templates·app.py·static)
-- SSOT 문서: `docs/RESTRUCTURE_TODO.md`, `docs/ARCHITECTURE_BRIEF.md`
+## 대기 / 미검증
+- [ ] Attend 메시징 **코치·사장 화면** 미검증 — 회원(김도윤)으로만 확인. 그룹·새쪽지
+      버튼 + 회원별 대화목록 레이아웃 실제로 봐야 함.
+- [ ] 채팅 **소프트 키보드** 픽셀 미검증 — 에뮬 하드웨어 키보드라 패널 안 뜸.
+      실기 폰에서 타이핑 시 입력칸이 키보드 위로 깔끔히 올라오는지 확인 필요
+      (구조상 `resizeToAvoidBottomInset:false` 로 처리, 비키보드 상태는 OK).
+- [ ] report-only 데드 메서드 11개 — 대부분 repository/API 표면. 특히 **인바이트 코드
+      기능**(`getInviteCode`/`regenerateInviteCode`/`joinByCode` in inbox_repository)이
+      repository엔 있는데 UI 미연결. 살릴지(연결) / 둘지 결정 대기.
+- [ ] Notice 탭이 재활 카드 하나만 있어 휑함 — 채울지 여부.
 
 ## 결정사항 / 주의
-- **배포 금지** — 이 세션 전부 로컬 커밋만. push·Railway 안 함 (`CLAUDE.md` 최상위 룰)
-- 종(🔔) = 모든 화면 공통 메시징 진입. 회원·코치 둘 다 대화목록→1:1 통일
-- SSE는 박스(gym_id) 단위 broadcast. `note.new` 1개로 회원/코치 양쪽 화면 갱신
-- 백엔드 자동 리로드 안 됨 — 코드 수정 시 백엔드 수동 재시작(`cd C:\dev\services\facing && python app.py`)
-- 좀비 주의: 재시작 시 옛 프로세스 정리. 백엔드 죽으면 `netstat :5060` 확인
-- 현재 상태: 백엔드 5060 가동중, 에뮬 emulator-5554에 **회원(김도윤)** 페르소나로 앱 떠 있음. 페르소나 전환 = Profile 하단 QUICK SWITCH
-- 큰 스크린샷은 API 거부됨 → PIL thumbnail(760,1680) 다운스케일 후 Read
-- gym_coach_profiles→gym_managers FK 깨짐 — gym 삭제 시 FK OFF 후 삭제(기존 이슈)
+- 🚫 **배포금지** 유지 — 사용자가 "push/배포/출시" 명시 전엔 push 금지. 이제 `.nopush`
+      로 자동저장 훅도 막힘. (이번 세션 push 는 사용자가 명시 승인해서 진행한 것)
+- rahap1(`Rimseorim/rahap1`)은 **정보 원천**. `additional/`=단방향 흡수 사본(.git 없음).
+      우리 push 는 origin(`minjunbyeon-netizen/app-facing`)으로만. 지침: `docs/ADDITIONAL_SOURCE_GUIDE.md`
+- 재활 데이터 SSOT = `assets/data/rehab/`. rahap1 갱신 시 덮어쓰고 우리 코드로 재구현.
+- 매 응답 PushNotification 발사 룰(프로젝트 Rule 1) 유지.
 
 ## 다음 세션 권장 첫 프롬프트
 `/resume`
