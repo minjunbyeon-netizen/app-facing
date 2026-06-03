@@ -20,7 +20,6 @@ import 'core/wod_session_bus.dart';
 import 'features/home/home_screen.dart';
 import 'features/intro/intro_screen.dart';
 import 'features/onboarding/create_gym_screen.dart';
-import 'features/onboarding/mode_select_screen.dart';
 import 'features/onboarding/onboarding_basic.dart';
 import 'features/onboarding/onboarding_benchmarks.dart';
 import 'features/onboarding/onboarding_grade.dart';
@@ -50,7 +49,6 @@ import 'features/boss/boss_auth_state.dart';
 import 'features/boss/boss_api_client.dart';
 import 'features/boss/boss_login_screen.dart';
 import 'features/boss/boss_dashboard_screen.dart';
-import 'features/boss/role_entry_screen.dart';
 import 'features/boss/settings_screen.dart';
 import 'features/classes/classes_screen.dart';
 import 'features/wod/wod_today_screen.dart';
@@ -199,7 +197,6 @@ class FacingApp extends StatelessWidget {
           '/onboarding/basic': (_) => const OnboardingBasicScreen(),
           '/onboarding/benchmarks': (_) => const OnboardingBenchmarksScreen(),
           '/onboarding/grade': (_) => const OnboardingGradeScreen(),
-          '/onboarding/mode': (_) => const ModeSelectScreen(),
           '/onboarding/create-gym': (_) => const CreateGymScreen(),
           '/onboarding/find-gym': (_) => const GymSearchScreen(),
           // PHASE5 Sprint1 F4 — 신규 회원 박스 선택 + 자동 가입 신청
@@ -213,7 +210,6 @@ class FacingApp extends StatelessWidget {
           '/presets': (_) => const PresetsScreen(),
           '/result': (_) => const ResultScreen(),
           // PHASE5 §1.1·§1.2: 사장 폰 로그인·대시보드
-          '/role-entry': (_) => const RoleEntryScreen(),
           '/boss/login': (_) => const BossLoginScreen(),
           '/boss/dashboard': (_) => const BossDashboardScreen(),
           '/boss/settings': (_) => const BossSettingsScreen(),
