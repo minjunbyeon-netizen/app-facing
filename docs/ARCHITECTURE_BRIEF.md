@@ -417,6 +417,8 @@ retention 정의 = "코호트(가입 월) 의 N개월 후 시점에 attendance �
 | POST | `/api/v1/payments/webhook` | HMAC-SHA256 서명 | Toss webhook (D13) |
 | GET | `/api/v1/member/events` | device_hash | 회원 폰 SSE stream |
 | POST | `/api/v1/member/inquiries` | device_hash | 회원→사장 직접 문의 |
+| POST | `/api/v1/admin/members/{mid}/claim-code` | 세션 (boss) | **이음새 1** — 폰 없이 선등록한 회원에 가입 코드 발급(6자리·7일). 상세: `services/facing/docs/ONBOARDING_FLOW.md §4` |
+| POST | `/api/v1/member/claim` | device_hash + code | **이음새 1** — 회원이 앱에서 코드 입력→임시 레코드에 폰 device_hash 흡수(중복 self-signup 병합) |
 
 **응답 형식** 통일: `{ok: true, data: {...}}` / `{ok: false, error: "한글", code: "MACHINE_CODE"}` (기존 envelope 유지).
 
