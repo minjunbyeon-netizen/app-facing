@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>facing — 서비스 소개 (투자자용)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+  :root{
+    --ink:#17171a; --muted:#6b7280; --line:#e6e6ea; --soft:#f6f6f8;
+    --red:#ee2b2b; --red-soft:#fbe9e9; --green:#0b8457; --green-soft:#e7f4ee;
+    --bg:#ffffff;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Pretendard',system-ui,sans-serif; color:var(--ink); background:var(--soft);
+    letter-spacing:-0.02em; line-height:1.6; -webkit-font-smoothing:antialiased;
+  }
+  .toolbar{
+    position:sticky; top:0; z-index:10; display:flex; justify-content:space-between;
+    align-items:center; padding:14px 22px; background:var(--bg); border-bottom:1px solid var(--line);
+  }
+  .toolbar .brand{font-weight:800; font-size:18px; color:var(--red); letter-spacing:-0.03em;}
+  .toolbar .brand small{color:var(--muted); font-weight:500; margin-left:8px; letter-spacing:-0.01em;}
+  .btn-pdf{
+    border:none; background:var(--ink); color:#fff; font-family:inherit; font-weight:700;
+    font-size:14px; padding:10px 18px; border-radius:8px; cursor:pointer; letter-spacing:-0.02em;
+  }
+  .btn-pdf:active{transform:translateY(1px);}
+
+  .page{max-width:880px; margin:28px auto; background:var(--bg);
+    border:1px solid var(--line); border-radius:14px; overflow:hidden;}
+  .hero{padding:48px 52px 40px; border-bottom:1px solid var(--line);}
+  .hero .logo{font-size:40px; font-weight:800; color:var(--red); letter-spacing:-0.04em;}
+  .hero h1{font-size:27px; font-weight:800; margin-top:18px; letter-spacing:-0.03em; line-height:1.35;}
+  .hero p{font-size:16px; color:var(--muted); margin-top:14px; max-width:620px;}
+  .hero .tags{margin-top:22px; display:flex; gap:8px; flex-wrap:wrap;}
+  .tag{font-size:13px; font-weight:600; color:var(--ink); background:var(--soft);
+    border:1px solid var(--line); padding:6px 12px; border-radius:8px;}
+
+  section{padding:38px 52px;}
+  section + section{border-top:1px solid var(--line);}
+  .sec-head{display:flex; align-items:center; gap:10px; margin-bottom:6px;}
+  .dot{width:12px; height:12px; border-radius:3px;}
+  .dot.on{background:var(--green);}
+  .dot.next{background:var(--red);}
+  .sec-head h2{font-size:21px; font-weight:800; letter-spacing:-0.03em;}
+  .sec-sub{font-size:14px; color:var(--muted); margin-bottom:24px; margin-left:22px;}
+
+  .grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  .item{border:1px solid var(--line); border-radius:10px; padding:18px 20px; background:var(--bg);}
+  .item .mark{font-size:13px; font-weight:800; letter-spacing:-0.01em;}
+  .item.on .mark{color:var(--green);}
+  .item.next .mark{color:var(--red);}
+  .item h3{font-size:16px; font-weight:700; margin:8px 0 6px; letter-spacing:-0.02em;}
+  .item p{font-size:14px; color:var(--muted); letter-spacing:-0.02em;}
+
+  .edge{padding:34px 52px; background:var(--ink); color:#fff;}
+  .edge h2{font-size:19px; font-weight:800; letter-spacing:-0.03em; margin-bottom:14px;}
+  .edge ul{list-style:none; display:grid; gap:10px;}
+  .edge li{font-size:15px; padding-left:20px; position:relative; color:#e9e9ee; letter-spacing:-0.02em;}
+  .edge li::before{content:"—"; position:absolute; left:0; color:var(--red); font-weight:800;}
+
+  footer{padding:24px 52px; font-size:13px; color:var(--muted); display:flex;
+    justify-content:space-between; border-top:1px solid var(--line); letter-spacing:-0.01em;}
+
+  @media print{
+    body{background:#fff;}
+    .toolbar{display:none;}
+    .page{margin:0; border:none; border-radius:0; max-width:100%;}
+  }
+  @media (max-width:620px){
+    .grid{grid-template-columns:1fr;}
+    .hero,section,.edge,footer{padding-left:24px; padding-right:24px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="brand">FACING <small>서비스 소개</small></div>
+  <button class="btn-pdf" onclick="downloadPDF()">PDF 다운로드</button>
+</div>
+
+<div class="page" id="doc">
+
+  <div class="hero">
+    <div class="logo">FACING</div>
+    <h1>회원·코치·사장이 한 앱에서 만나는<br>크로스핏 박스 운영 서비스</h1>
+    <p>수업 예약, 회원권 결제, 전자계약, 운동 코칭까지 — 체육관 운영에 필요한 일을 하나로 묶었습니다.
+       선수용 운동 강도 자동 계산 기능은 다른 운영 앱이 따라오지 못하는 우리만의 무기입니다.</p>
+    <div class="tags">
+      <span class="tag">회원 관리</span>
+      <span class="tag">수업·출석</span>
+      <span class="tag">전자계약</span>
+      <span class="tag">회원권·결제</span>
+      <span class="tag">운동 코칭 앱</span>
+    </div>
+  </div>
+
+  <section>
+    <div class="sec-head"><span class="dot on"></span><h2>지금 바로 되는 것</h2></div>
+    <div class="sec-sub">실제로 만들어져 작동하는 기능입니다.</div>
+    <div class="grid">
+      <div class="item on"><div class="mark">작동 중</div>
+        <h3>회원 관리</h3>
+        <p>회원 등록과 회원권 현황을 한눈에. 만료가 임박했거나 관리가 필요한 회원을 자동으로 골라줍니다.</p></div>
+      <div class="item on"><div class="mark">작동 중</div>
+        <h3>수업 시간표와 예약</h3>
+        <p>수업 일정을 만들고 회원이 예약합니다. 코치별·요일별로 수업을 관리합니다.</p></div>
+      <div class="item on"><div class="mark">작동 중</div>
+        <h3>QR 출석 체크인</h3>
+        <p>회원이 QR을 찍어 출석합니다. 누가 언제 왔는지 기록이 남습니다.</p></div>
+      <div class="item on"><div class="mark">작동 중</div>
+        <h3>전자계약서</h3>
+        <p>회원권 계약서를 발급하고, 현장에서 직접 서명하거나 사장이 대리 서명합니다. 서명된 계약서는 PDF로 보관됩니다.</p></div>
+      <div class="item on"><div class="mark">작동 중</div>
+        <h3>회원권·금액 설정</h3>
+        <p>1개월권·3개월권 등 회원권 종류와 금액을 직접 설정하고, 계약·결제에 자동으로 반영합니다.</p></div>
+      <div class="item on"><div class="mark">작동 중</div>
+        <h3>포인트 적립</h3>
+        <p>회원이 운동 기록을 남기면 포인트가 쌓입니다. 추후 결제 할인으로 연결할 계획입니다.</p></div>
+      <div class="item on"><div class="mark">작동 중</div>
+        <h3>코치·지점 관리</h3>
+        <p>코치를 등록하고 여러 지점에 배정합니다. 코치 정보가 회원 앱에도 노출됩니다.</p></div>
+      <div class="item on"><div class="mark">작동 중</div>
+        <h3>락커 관리</h3>
+        <p>락커 배정과 사용 현황을 관리합니다.</p></div>
+      <div class="item on"><div class="mark">작동 중</div>
+        <h3>운영 통계</h3>
+        <p>매출, 회원 수, 출석 같은 운영 숫자를 대시보드로 보여줍니다.</p></div>
+      <div class="item on"><div class="mark">작동 중</div>
+        <h3>공지사항</h3>
+        <p>박스 공지를 올리면 회원에게 전달됩니다.</p></div>
+      <div class="item on"><div class="mark">작동 중</div>
+        <h3>운동 강도 자동 계산 (앱)</h3>
+        <p>회원의 운동 능력을 측정해 오늘 운동을 어느 속도로 해야 하는지 자동으로 알려줍니다. 우리만의 핵심 기능입니다.</p></div>
+      <div class="item on"><div class="mark">작동 중</div>
+        <h3>등급 측정 (앱)</h3>
+        <p>회원 실력을 6단계 등급으로 보여줘 동기를 부여합니다.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="dot next"></span><h2>준비 중 (곧 나옵니다)</h2></div>
+    <div class="sec-sub">설계는 끝났고, 마무리·연동 단계인 기능입니다.</div>
+    <div class="grid">
+      <div class="item next"><div class="mark">준비 중</div>
+        <h3>카카오·구글 간편 로그인</h3>
+        <p>지금은 아이디·비밀번호 로그인입니다. 간편 로그인은 설계를 마쳤고 연동만 남았습니다.</p></div>
+      <div class="item next"><div class="mark">준비 중</div>
+        <h3>자동 정기결제</h3>
+        <p>매달 회원권 금액을 자동으로 청구합니다. 현재는 수동 결제 기록입니다.</p></div>
+      <div class="item next"><div class="mark">준비 중</div>
+        <h3>앱 푸시 알림</h3>
+        <p>수업 시작·회원권 만료를 폰 알림으로 보냅니다.</p></div>
+      <div class="item next"><div class="mark">준비 중</div>
+        <h3>문자(SMS) 계약서 발송</h3>
+        <p>지금은 메일로 보냅니다. 문자 발송을 추가할 예정입니다.</p></div>
+      <div class="item next"><div class="mark">준비 중</div>
+        <h3>AI 운동 코칭</h3>
+        <p>개인 데이터를 바탕으로 맞춤 운동을 추천합니다.</p></div>
+    </div>
+  </section>
+
+  <div class="edge">
+    <h2>왜 facing 인가</h2>
+    <ul>
+      <li>체육관 운영(예약·결제·계약)과 선수 코칭을 한 앱에 담은 곳은 드뭅니다.</li>
+      <li>운동 강도 자동 계산은 일반 운영 앱이 갖지 못한 차별점입니다.</li>
+      <li>전자계약·QR 출석 등 현장에서 매일 쓰는 기능이 이미 작동합니다.</li>
+      <li>회원·코치·사장 모두가 같은 데이터를 실시간으로 공유합니다.</li>
+    </ul>
+  </div>
+
+  <footer>
+    <span>facing — 크로스핏 박스 운영 서비스</span>
+    <span>2026년 6월 기준</span>
+  </footer>
+
+</div>
+
+<script>
+  function downloadPDF(){
+    var el = document.getElementById('doc');
+    var opt = {
+      margin:[6,6,6,6],
+      filename:'facing-서비스소개.pdf',
+      image:{type:'jpeg', quality:0.98},
+      html2canvas:{scale:2, useCORS:true, backgroundColor:'#ffffff'},
+      jsPDF:{unit:'mm', format:'a4', orientation:'portrait'},
+      pagebreak:{mode:['avoid-all','css']}
+    };
+    html2pdf().set(opt).from(el).save();
+  }
+</script>
+</body>
+</html>
