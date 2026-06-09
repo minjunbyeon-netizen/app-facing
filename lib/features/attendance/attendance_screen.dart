@@ -3,8 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
 import '../../core/theme.dart';
-import '../history/history_models.dart';
-import '../history/history_repository.dart';
+import '../gym/gym_repository.dart';
 import '../inbox/inbox_screen.dart' show MessagingFeed;
 
 /// v1.23 (2026-06-02) 재배치 Phase 3: Attend = 출석 캘린더 전담.
@@ -37,7 +36,9 @@ class AttendanceScreen extends StatelessWidget {
 }
 
 /// 월별 출석 미니 캘린더 + 1줄 통계 (STREAK · TOTAL · THIS MONTH).
-/// 데이터 소스: /api/v1/history/wod. 세션 있는 날은 accent 강도색 + 일자 숫자.
+/// 데이터 소스: /api/v1/member/attendances — 진짜 QR 체크인(gym_attendances).
+/// v1.25 (2026-06-09): 개인 페이싱 계산 기록(/history/wod)을 출석으로 칠하던
+/// 버그 수정. 이제 실제 출석 데이터만 반영. 체크인 있는 날은 accent 강도색.
 class _AttendanceCalendar extends StatefulWidget {
   const _AttendanceCalendar();
 
@@ -46,13 +47,13 @@ class _AttendanceCalendar extends StatefulWidget {
 }
 
 class _AttendanceCalendarState extends State<_AttendanceCalendar> {
-  Future<List<WodHistoryItem>>? _future;
+  Future<Map<DateTime, int>>? _future;
 
   @override
   void initState() {
     super.initState();
-    final repo = HistoryRepository(context.read<ApiClient>());
-    _future = repo.listWodHistory(limit: 200);
+    final repo = GymRepository(context.read<ApiClient>());
+    _future = repo.listMyAttendances();
   }
 
   int _currentStreak(Set<DateTime> days) {
@@ -75,13 +76,13 @@ class _AttendanceCalendarState extends State<_AttendanceCalendar> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
-      child: FutureBuilder<List<WodHistoryItem>>(
+      child: FutureBuilder<Map<DateTime, int>>(
         future: _future,
         builder: (ctx, snap) {
           if (snap.connectionState != ConnectionState.done) {
             return const SizedBox(height: 80);
           }
-          final records = snap.data ?? const <WodHistoryItem>[];
+          final byDay = snap.data ?? const <DateTime, int>{};
           final now = DateTime.now();
           final monthYear = now.year;
           final monthNum = now.month;
@@ -91,13 +92,14 @@ class _AttendanceCalendarState extends State<_AttendanceCalendar> {
 
           final counts = <int, int>{};
           final allDays = <DateTime>{};
-          for (final r in records) {
-            final d = r.createdAt.toLocal();
+          int totalCheckins = 0;
+          byDay.forEach((d, c) {
             allDays.add(DateTime(d.year, d.month, d.day));
+            totalCheckins += c;
             if (d.year == monthYear && d.month == monthNum) {
-              counts[d.day] = (counts[d.day] ?? 0) + 1;
+              counts[d.day] = (counts[d.day] ?? 0) + c;
             }
-          }
+          });
           int maxCount = 1;
           for (final v in counts.values) {
             if (v > maxCount) maxCount = v;
@@ -186,7 +188,7 @@ class _AttendanceCalendarState extends State<_AttendanceCalendar> {
                 children: [
                   _StatBlock(label: 'STREAK', value: '${streak}d'),
                   const SizedBox(width: FacingTokens.sp4),
-                  _StatBlock(label: 'TOTAL', value: '${records.length}'),
+                  _StatBlock(label: 'TOTAL', value: '$totalCheckins'),
                   const SizedBox(width: FacingTokens.sp4),
                   _StatBlock(label: 'THIS MONTH', value: '${attended}d'),
                 ],

@@ -37,6 +37,24 @@ class GymRepository {
     return (data['status'] ?? 'pending').toString();
   }
 
+  /// 회원 실제 QR 출석을 일자별로 조회 (gym_attendances 기반).
+  /// 개인 페이싱 계산 기록(/history/wod)이 아닌 진짜 체크인. v1.25 (2026-06-09).
+  /// 반환: 날짜(local 자정) → 그 날 체크인 횟수.
+  Future<Map<DateTime, int>> listMyAttendances() async {
+    final list = await api.getList('/api/v1/member/attendances');
+    final map = <DateTime, int>{};
+    for (final e in list.whereType<Map<String, dynamic>>()) {
+      final ds = (e['date'] as String?)?.split('-');
+      if (ds == null || ds.length != 3) continue;
+      final y = int.tryParse(ds[0]);
+      final m = int.tryParse(ds[1]);
+      final d = int.tryParse(ds[2]);
+      if (y == null || m == null || d == null) continue;
+      map[DateTime(y, m, d)] = (e['count'] as num?)?.toInt() ?? 0;
+    }
+    return map;
+  }
+
   /// v1.22: 체육관 부가정보 업데이트 (코치 owner 만).
   /// body 에 포함된 키만 갱신 — 빈 문자열은 명시적 비우기.
   Future<GymProfile> updateGymProfile({
