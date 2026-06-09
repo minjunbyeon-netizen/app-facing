@@ -349,8 +349,8 @@ class _TabHintOverlay extends StatelessWidget {
   static const List<(String, String)> _hints = [
     ('Home', '공지 · 레벨 · 업적 · Milestones'),
     ('WOD', '코치 오늘 WOD · 프리셋 계산'),
-    ('Attend', '월별 출석 캘린더'),
-    ('Notice', '코치 쪽지 · 박스 공지'),
+    ('Attend', '월별 출석 캘린더 · 코치 쪽지 · 박스 공지'),
+    ('Notice', '재활 가이드'),
     ('Profile', 'Engine 점수 · 바디 · 설정'),
   ];
 
