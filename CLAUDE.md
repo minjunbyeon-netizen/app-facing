@@ -370,10 +370,15 @@ flutter run -d emulator-5554     # 특정 에뮬레이터
 
 ## 빌드 & 배포 (MVP)
 ```bash
-flutter build apk --release      # APK 생성
+# 배포용 APK — 백엔드 URL 주입 필수 (누락 시 localhost로 박힘)
+flutter build apk --release --dart-define=API_BASE_URL=https://service-facing-production.up.railway.app
 # 생성물: build/app/outputs/flutter-apk/app-release.apk
 # → 갤럭시에 직접 설치 (USB 디버깅 or 파일 전송)
 ```
+> ⚠ `--dart-define=API_BASE_URL` 없이 `flutter build apk --release` 만 쓰면
+> `lib/core/api_client.dart` 의 기본값 `http://10.0.2.2:5060` (에뮬레이터 전용 로컬)로 빌드된다.
+> 실기기·배포 APK는 반드시 prod URL 을 주입할 것. (2026-06-09 릴리즈 검증 중 발견)
+
 v2: Play Store Internal Testing → Closed Testing → Production.
 
 ## 금지
