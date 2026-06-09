@@ -38,7 +38,15 @@
       "Bash(adb -s 192.168.1.101:5555 exec-out screencap -p)",
       "Read(//c/Users/USER/.claude/tmp/**)",
       "mcp__playwright__browser_close",
-      "mcp__playwright__browser_select_option"
+      "mcp__playwright__browser_select_option",
+      "Bash(export MSYS_NO_PATHCONV=1)",
+      "Bash(adb -s emulator-5554 shell input tap 972 2253)",
+      "Bash(adb -s emulator-5554 exec-out screencap -p)",
+      "Bash(adb -s emulator-5554 shell input swipe 540 1800 540 400 300)",
+      "Bash(adb -s emulator-5554 shell input tap 301 421)",
+      "Bash(adb -s emulator-5554 shell input tap 324 2253)",
+      "Bash(adb -s emulator-5554 shell uiautomator dump /sdcard/e.xml)",
+      "Bash(adb -s emulator-5554 shell cat /sdcard/e.xml)"
     ]
   }
 }
