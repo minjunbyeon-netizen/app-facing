@@ -311,22 +311,88 @@ class GymMember {
   }
 }
 
+/// 라운드 내 동작 1개 (#3 동작 레벨 구조화, v1.25 2026-06-09).
+/// 매그넘 레퍼런스의 "동작별 sets·reps·load·rest·영상" 행에 대응.
+class WodMovementItem {
+  final String name;
+  final String slug;
+  final int? sets;
+  final String reps; // "10~12" · "21-15-9" 등 문자열
+  final String loadValue;
+  final String loadUnit;
+  final int? restSec;
+  final String videoUrl;
+
+  const WodMovementItem({
+    required this.name,
+    this.slug = '',
+    this.sets,
+    this.reps = '',
+    this.loadValue = '',
+    this.loadUnit = '',
+    this.restSec,
+    this.videoUrl = '',
+  });
+
+  bool get hasVideo => videoUrl.isNotEmpty;
+
+  /// "Barbell Reverse Lunge · 2×10~12 · 42kg · rest 60s" 형식 1줄.
+  String get displayLine {
+    final parts = <String>[name];
+    if (sets != null && reps.isNotEmpty) {
+      parts.add('$sets×$reps');
+    } else if (sets != null) {
+      parts.add('$sets sets');
+    } else if (reps.isNotEmpty) {
+      parts.add('$reps reps');
+    }
+    if (loadValue.isNotEmpty) parts.add('$loadValue$loadUnit');
+    if (restSec != null) parts.add('rest ${restSec}s');
+    return parts.join(' · ');
+  }
+
+  factory WodMovementItem.fromJson(Map<String, dynamic> j) => WodMovementItem(
+        name: (j['name'] ?? '').toString(),
+        slug: (j['slug'] ?? '').toString(),
+        sets: (j['sets'] as num?)?.toInt(),
+        reps: (j['reps'] ?? '').toString(),
+        loadValue: (j['load_value'] ?? '').toString(),
+        loadUnit: (j['load_unit'] ?? '').toString(),
+        restSec: (j['rest_sec'] as num?)?.toInt(),
+        videoUrl: (j['video_url'] ?? '').toString(),
+      );
+}
+
 class WodRoundItem {
   final String label;
   final String content;
   final int? timeCapSec;
+  final List<WodMovementItem> movements;
 
   const WodRoundItem({
     required this.label,
     required this.content,
     this.timeCapSec,
+    this.movements = const [],
   });
 
-  factory WodRoundItem.fromJson(Map<String, dynamic> j) => WodRoundItem(
-        label: (j['label'] ?? '').toString(),
-        content: (j['content'] ?? '').toString(),
-        timeCapSec: (j['time_cap_sec'] as num?)?.toInt(),
-      );
+  bool get hasMovements => movements.isNotEmpty;
+
+  factory WodRoundItem.fromJson(Map<String, dynamic> j) {
+    final mvRaw = j['movements'];
+    final mv = (mvRaw is List)
+        ? mvRaw
+            .whereType<Map<String, dynamic>>()
+            .map(WodMovementItem.fromJson)
+            .toList()
+        : <WodMovementItem>[];
+    return WodRoundItem(
+      label: (j['label'] ?? '').toString(),
+      content: (j['content'] ?? '').toString(),
+      timeCapSec: (j['time_cap_sec'] as num?)?.toInt(),
+      movements: mv,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'label': label,

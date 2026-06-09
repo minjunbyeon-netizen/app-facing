@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
@@ -205,6 +206,52 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
     ));
   }
 
+  Future<void> _openVideo(String url) async {
+    final uri = Uri.tryParse(url);
+    if (uri == null) return;
+    final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!ok && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('영상 열기 실패.')),
+      );
+    }
+  }
+
+  /// rounds_data 의 movements 를 라운드별 동작 행으로 렌더.
+  /// movements 가 하나도 없으면 빈 리스트 반환(구버전 WOD 영향 0).
+  List<Widget> _buildMovementRounds(GymWodPost wod) {
+    final rounds = wod.roundsData.where((r) => r.hasMovements).toList();
+    if (rounds.isEmpty) return const [];
+    final widgets = <Widget>[const SizedBox(height: FacingTokens.sp3)];
+    for (final r in rounds) {
+      widgets.add(Container(
+        margin: const EdgeInsets.only(bottom: FacingTokens.sp2),
+        padding: const EdgeInsets.all(FacingTokens.sp3),
+        decoration: BoxDecoration(
+          color: FacingTokens.surface,
+          borderRadius: BorderRadius.circular(FacingTokens.r3),
+          border: Border.all(color: FacingTokens.border),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (r.label.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: FacingTokens.sp2),
+                child: Text(r.label.toUpperCase(),
+                    style: FacingTokens.sectionLabel),
+              ),
+            ...r.movements.map((m) => _MovementRow(
+                  movement: m,
+                  onVideo: m.hasVideo ? () => _openVideo(m.videoUrl) : null,
+                )),
+          ],
+        ),
+      ));
+    }
+    return widgets;
+  }
+
   @override
   Widget build(BuildContext context) {
     final wod = widget.wod;
@@ -265,6 +312,9 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
                 ],
               ),
             ),
+            // #3 (v1.25): 동작 레벨 구조화 — 라운드별 동작 행(sets·reps·load·rest·영상).
+            // rounds_data 에 movements 가 있을 때만 노출. RX 본문 아래 보강 표시.
+            ..._buildMovementRounds(wod),
             const SizedBox(height: FacingTokens.sp3),
             ElevatedButton.icon(
               onPressed: _startSession,
@@ -573,5 +623,59 @@ class _CommentRow extends StatelessWidget {
     final l = d.toLocal();
     return '${l.month.toString().padLeft(2, '0')}/${l.day.toString().padLeft(2, '0')} '
         '${l.hour.toString().padLeft(2, '0')}:${l.minute.toString().padLeft(2, '0')}';
+  }
+}
+
+/// #3 (v1.25): WOD 동작 1줄 — 동작명·sets×reps·load·rest + 영상 링크.
+/// 매그넘 레퍼런스의 동작 행을 facing 톤(영문 라벨·무채색 ▶)으로 재해석.
+class _MovementRow extends StatelessWidget {
+  final WodMovementItem movement;
+  final VoidCallback? onVideo;
+  const _MovementRow({required this.movement, this.onVideo});
+
+  @override
+  Widget build(BuildContext context) {
+    final detail = movement.displayLine
+        .replaceFirst(movement.name, '')
+        .replaceFirst(' · ', '');
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp1),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(movement.name, style: FacingTokens.body),
+                if (detail.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 1),
+                    child: Text(detail, style: FacingTokens.micro),
+                  ),
+              ],
+            ),
+          ),
+          if (onVideo != null)
+            InkWell(
+              onTap: onVideo,
+              child: Padding(
+                padding: const EdgeInsets.only(left: FacingTokens.sp2),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.play_circle_outline,
+                        size: 18, color: FacingTokens.muted),
+                    const SizedBox(width: 2),
+                    Text('Demo',
+                        style: FacingTokens.micro
+                            .copyWith(color: FacingTokens.muted)),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 }
