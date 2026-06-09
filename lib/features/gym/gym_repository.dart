@@ -392,29 +392,6 @@ class GymRepository {
     await api.delete('/api/v1/coach/announcements/$id');
   }
 
-  Future<List<GymMessageItem>> listMessages(int gymId, {String? withHash}) async {
-    final qs = withHash == null || withHash.isEmpty
-        ? ''
-        : '?with=${Uri.encodeQueryComponent(withHash)}';
-    final list = await api.getList('/api/v1/gyms/$gymId/messages$qs');
-    return list
-        .whereType<Map<String, dynamic>>()
-        .map(GymMessageItem.fromJson)
-        .toList();
-  }
-
-  Future<int> sendMessage({
-    required int gymId,
-    required String toHash,
-    required String body,
-  }) async {
-    final data = await api.post('/api/v1/gyms/$gymId/messages', {
-      'to_hash': toHash,
-      'body': body,
-    });
-    return (data['message_id'] as num).toInt();
-  }
-
   Future<List<GymWodPost>> listWods({required int gymId, String? date}) async {
     final qs = date != null && date.isNotEmpty ? '?date=$date' : '';
     final data = await api.getList('/api/v1/gyms/$gymId/wods$qs');
