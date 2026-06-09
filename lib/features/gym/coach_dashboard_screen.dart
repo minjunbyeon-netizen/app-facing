@@ -8,7 +8,7 @@ import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/gym.dart';
 import '../../widgets/coach_badge.dart';
-import '../messages/messages_screen.dart';
+import '../inbox/inbox_screen.dart';
 import 'gym_profile_edit_screen.dart';
 import 'gym_repository.dart';
 import 'gym_state.dart';
@@ -422,11 +422,17 @@ class _MemberDetailSheet extends StatelessWidget {
             if (member.deviceHashFull != null) ...[
               ElevatedButton.icon(
                 onPressed: () {
+                  // 통합 v1.26: 옛 GymMessage(MessagesScreen) 경로는 회원이 못 봄(유실).
+                  // GymCoachNote 기반 ChatThreadScreen 으로 일원화 — 회원 Notice탭과 동일 저장소.
+                  final gymId =
+                      context.read<GymState>().membership.gym?.id;
                   Navigator.of(context).pop();
+                  if (gymId == null) return;
                   Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => MessagesScreen(
-                      withHash: member.deviceHashFull!,
-                      withLabel: member.deviceHashPrefix,
+                    builder: (_) => ChatThreadScreen(
+                      gymId: gymId,
+                      peerHash: member.deviceHashFull!,
+                      peerName: 'user:${member.deviceHashPrefix}',
                     ),
                   ));
                 },
