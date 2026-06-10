@@ -20,7 +20,7 @@ class _IntroScreenState extends State<IntroScreen> {
   int _page = 0;
 
   // B-3 (2026-06-10): v1.16.2 포지셔닝 동기화 — Primary value(수업·박스 운영) 2p
-  // + 페이싱 엔진(+α 차별점) 1p. ⚠ 카피 최종본은 사용자 승인 후 확정 (draft).
+  // + 페이싱 엔진(+α 차별점) 1p. 카피 확정 (2026-06-10 사용자 승인 — CLAUDE.md 카피 템플릿 동기화됨).
   static const List<_IntroPage> _pages = [
     _IntroPage(
       stage: 'MANAGE',

@@ -295,9 +295,10 @@ R5. **하드코드 fontSize 금지.** 모든 텍스트 크기는 `FacingTokens` 
 | 위치 | 카피 |
 |---|---|
 | App name (Splash) | **"FACING"** (단어 1개, w800) |
-| Intro 1 headline | **"Split defines rank."** |
-| Intro 2 headline | **"6 metrics. Measure Engine."** |
-| Intro 3 headline | **"Start."** |
+| Intro 1 headline (MANAGE) | **"One app. Every class."** (2026-06-10 승인 — v1.16.2 Primary value 동기화) |
+| Intro 2 headline (TRAIN) | **"Book. Train. Track."** |
+| Intro 3 headline (EDGE) | **"Pull your Split."** (페이싱 = +α 차별점 페이지) |
+| Intro CTA (마지막 p) | **"Start"** (단어 1개 라벨 — 마침표 없음) |
 | Home headline | **"Today's WOD."** / 2줄 **"Pull your Split."** |
 | Home sub (1줄) | **"RX to Games. Auto Split · Burst."** |
 | Step 1 title | **"Enter 1RM."** |

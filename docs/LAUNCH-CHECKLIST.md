@@ -132,7 +132,7 @@ Phase 1 백엔드 코어  →  Phase 2 앱 인증·온보딩  →  Phase 3 웹 �
 
 ### 🟠 B-3. 인트로 카피 재작성 — 30m
 - [x] 코드 draft 반영 — MANAGE "One app. Every class." / TRAIN "Book. Train. Track." / EDGE "Pull your Split." (Primary 2p + 페이싱 1p)
-- [ ] **사용자 카피 승인 대기** — 승인 후 확정. CLAUDE.md 카피 템플릿 동기화도 §2-C-1 (CLAUDE.md 수정 = 사용자 승인 필요) 라 승인과 함께 일괄
+- [x] **사용자 카피 승인 완료 (2026-06-10 "1,2,3" 지시)** — CLAUDE.md 카피 템플릿 Intro 1~3 행 동기화 (§2-C-1 승인 충족). docs/briefs/* 의 구 카피는 시점 기록이라 보존 (§0-B archive 예외 준용)
 - [x] copy_lint_test — 신규 인트로 카피 위반 0건. (flutter test 의 실패 4건은 전부 기존 부채로 판명: 금지용어 3건 = rehab "운동을 멈추세요"·benchmark_data "운동선수" / 하드코드 fontSize 3파일 = attendance·box_wod·gym_info_card / inbox 위젯 테스트 2건 = 10분 timeout 행. 오늘 변경 파일과 전부 무관 — 🟡 POST 이관)
 
 ### 🟠 B-1. 온보딩 진행률 — 20m
