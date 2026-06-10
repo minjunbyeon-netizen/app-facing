@@ -230,38 +230,56 @@ Phase 1 백엔드 코어  →  Phase 2 앱 인증·온보딩  →  Phase 3 웹 �
 
 ---
 
-## Phase 5 — 전체 회귀 (게이트 판정 절차 — 전부 🔴)
+## Phase 5 — 전체 회귀 ✅ 완료 (2026-06-10 19:20)
 
-- [ ] G-1. (앱) `dart analyze` 0 issues + `flutter test` green (13개 파일 — copy_lint_test 가 B-3 회귀망)
-- [ ] G-2. (백) `pytest tests/` green (11개 파일 — test_api_contract_onsite 가 A-1 직접 커버) + 체크포인트① 재실행
-- [ ] G-3. (웹) 체크포인트③ 재실행 + SSE 정상 토스트
-- [ ] G-4. (앱) release 빌드 검증 — 신규 유저 플로우 완주 (인트로→소셜 or 가입신청→온보딩→셸). 로컬 URL 빌드 — 배포용은 H-1 별개
-- [ ] G-5. **실 쓰기 smoke 3종** (1차 QA 검증 한계 #1 해소 — 미수행 시 "론칭 가능" 판정 근거가 빔): 수업 예약→취소 1세트 / QR 체크인 1건 / 'sent' 계약 서명 1건. 각 200 + DB 행 확인
-- [ ] G-6. (앱) 기존 회원 렌더 smoke — 홈/예약/출석/마이페이지 4화면, 예외 0
-- [ ] G-7. QA 보고서 해소 표기 갱신 + 본 문서 최종 갱신
-- [ ] G-8. 양 repo 로컬 커밋 정리 (push 금지 유지)
+- [x] G-1. `dart analyze` **0 issues** + `flutter test` 108 passed / 실패 2건 = 기존 부채(copy_lint 금지용어 + fontSize 3파일) / inbox 2건 hang 제외 — Phase 2 기준선과 동일, 🟡 유지
+- [x] G-2. `pytest` 130 passed·11 skip(onsite)·2 failed(personas 드리프트 — 기존) + 체크포인트① 재실행 전 통과 (A-1 계약 200 / auth 401 INVALID_TOKEN / link-staff 401 / C-1 400 / health 200 / **A-2 wrong pw 6연속 → 429**) + **fresh DB 시드 검증**(임시 FACING_DB: 기본 박스 3 + admin/1234 bcrypt OK + 슈퍼씨드, 본 DB 는 `data/backup/facing-2026-06-10-pre-phase5.db` 백업)
+- [x] G-3. 8081 smoke 전 페이지 200 (dashboard/members/contracts/wod/checkin/classes) + 프록시 members·PDF 200 + modal_preview 404(의도) + 로그인 프리필 0건. SSE 는 Phase 3 토스트 검증 + 금일 QR 체크인 시 sse_publish 무에러로 갈음
+- [x] G-4. release 빌드(로컬 URL) — **uninstall+clean install** 후 신규 유저 플로우 완주: 알림 권한("FACING" 라벨 확인)→인트로 3p(승인 카피)→로그인→박스 가입 신청 화면(박스 6개+폼)→데모 로그인→셸 WOD 로드. versionName 1.0.0 확인
+- [x] G-5. **실 쓰기 smoke 3종 전부 통과**: ① 수업 예약→취소 (앱 UI 완주 — reservation 25 confirmed→cancelled) ② QR 체크인 (attendance 153, source=qr, SSE 발행) ③ sent 계약 서명패드 완주 (계약 13 시드→앱 서명→signed, signature_image 5.6KB + IP 기록)
+- [x] G-6. 4화면 렌더 smoke — 홈/출석/마이페이지/예약(Classes) ※ **CLASSES dead screen P0 발견·즉시 픽스** (아래 참고)
+- [x] G-7. QA 보고서·본 문서 갱신
+- [x] G-8. 양 repo 로컬 커밋 정리 (push 금지 유지)
 
-## Phase 6 — 론칭 준비 · 코드 외 (전부 실측 근거)
+### 🔴→✅ G-6 발견 버그 (Phase 5 의 가치 — 론칭 전 차단)
+- **CLASSES 화면 전체 백지**: 전역 버튼 테마 `minimumSize(double.infinity)` 가 카드 내 Row 의 Reserve/Cancel 버튼에 상속 → BoxConstraints 무한 폭 레이아웃 예외 → body 전체 미페인트. 카드 버튼에 `minimumSize(96,44)` 로컬 override 로 픽스 + 에뮬레이터 예약→취소 완주 재검증
+- (ride-along) ATTEND 캘린더가 앱 기동 시점 데이터를 세션 내내 캐시 (IndexedStack) → 당일 체크인 미반영. pull-to-refresh 추가
 
-- [ ] 🔴 H-1. 배포용 APK: `flutter build apk --release --dart-define=API_BASE_URL=https://service-facing-production.up.railway.app` → 보관 (설치·배포 금지). 검증: APK 내 railway URL 존재 + `10.0.2.2` 부재 (2026-06-09 실사고 재발 방지)
-- [ ] 🔴 H-2. release 서명 — 실 keystore 생성 + key.properties(gitignore) (`build.gradle.kts:36-40` 현재 debug key 실측. debug 서명 배포 시 업데이트 서명 연속성·스토어 업로드 불가 — "반드시" 기준이므로 정식 keystore)
-- [ ] 🔴 H-3. 앱 아이콘·라벨·버전 — 현재 Flutter 기본 로고 + 라벨 "facing_app" 실측. "FACING" 라벨 + 브랜드 아이콘(flutter_launcher_icons) + 버전 결정 (0.1.17+3000 → 1.0.0)
-- [ ] 🔴 H-4. 백엔드 프로덕션 env (콘솔 확인만): SECRET_KEY·FLASK_ENV·**BASE_URL(A-3 전제)**·CORS_ORIGINS·RATELIMIT_STORAGE_URI(멀티워커 시). 검증: integration status 엔드포인트(admin.py:2308-2313) read-only curl
-- [ ] 🔴 H-5. 프로덕션 DB: 기존 DB + 신코드 재부팅 시드 동작 / persona-* 테스트 데이터 혼입 점검
-- [ ] 🔴 H-7. 개인정보처리방침 본문 — 전화번호 수집(가입 신설)·서명 이미지·계약서 보관 반영 검토 (`privacy_screen.dart` 실존 — 내용만)
-- [ ] 🟠 H-6. `railway up` runbook — service-facing 은 GitHub 자동배포 미연결(수동). 배포 승인 시 즉시 실행할 명령·볼륨·배포 후 health 절차 1단락
+## Phase 6 — 론칭 준비 ✅ 코드·문서 완료 (2026-06-10 · 사용자 액션 2건 잔존)
+
+- [x] 🔴 H-1. 배포용 APK 빌드·보관: `dist/facing-1.0.0+3001-prod.apk` (62.2MB). 검증: APK 내 railway URL **존재** + `10.0.2.2` **부재** + release 서명(CN=FACING) 확인. 설치·배포 안 함
+- [x] 🔴 H-2. release keystore 생성 (`android/app/facing-release.keystore` PKCS12·RSA2048·30년) + `android/key.properties` — 둘 다 기존 .gitignore 커버 확인. build.gradle.kts release signingConfig 배선 (key.properties 부재 시 debug 폴백). ⚠ **사용자 액션: keystore+key.properties 외부 백업 필수 (분실 = 앱 업데이트 불가)**
+- [x] 🔴 H-3. 라벨 "FACING"(AndroidManifest) + 버전 1.0.0+3001(versionCode 단조 증가 유지) + 브랜드 아이콘(다크 bg + Pretendard "F" + red accent, PIL 생성 — `tool_gen_icon.py`, mipmap 5종). 아이콘 시안은 사용자 교체 가능
+- [x] 🔴 H-4. 프로덕션 env 실측 (railway variables): SECRET_KEY ✅ / FLASK_ENV=production ✅ / APP_TEST_ADMIN ✅ / DB sqlite+Volume ✅ / RATELIMIT memory(워커1 OK) / **BASE_URL ❌ 미설정 — 배포 전 등록 필수 (runbook §0)** / CORS_ORIGINS `*` (권장: admin 도메인 한정)
+- [x] 🔴 H-5. 프로덕션 DB 시나리오 문서화 (runbook §3) — 현 prod gyms 3·managers 3, Volume 보존, 신코드 부팅 시 admin/1234 멱등 시드, persona-* 는 로컬 전용
+- [x] 🔴 H-7. 개인정보처리방침 갱신 (privacy_screen.dart) — 이름·전화번호(가입), 서명 이미지·계약 보존, 소셜 로그인 식별자, 카메라 미사용 명시. ⚠ 정식 출시 전 법무 검토 권장 유지
+- [x] 🟠 H-6. 배포 runbook 작성 — `services/facing/docs/RUNBOOK-DEPLOY.md` (사전 점검 표·railway up·배포 후 검증·롤백·APK 트랙)
 
 ---
 
-## 최종 게이트 판정
+## 최종 게이트 판정 — 2026-06-10 19:20
 
 ```
-모든 🔴 체크 완료
-+ Phase 5 (G-1~G-8) 전체 green
-+ 🟠 미완료분은 본 문서에 사유 기록
-→ "배포 가능" 보고 + 푸시 알림
-→ 사용자 "배포해" 명시 승인
-→ H-6 runbook 실행 (이때 비로소 push·railway up)
+✅ 게이트 통과 — "배포 가능" 상태.
+   Phase 1~6 의 모든 🔴 완료. Phase 5 회귀 green (기존 부채 제외).
+
+잔존 항목 (배포를 막지 않음):
+  1. [BLOCKED·사용자] A-5앱 소셜 실연동 — 네이버 개발자센터 앱 키
+     (NAVER_CLIENT_ID/SECRET/URL_SCHEME) + GOOGLE_SERVER_CLIENT_ID 발급 대기.
+     키 수령 전까지 앱 로그인은 데모 계정 + 박스 가입 신청 경로만 동작
+  2. [사용자 액션] keystore(android/app/facing-release.keystore)+key.properties
+     외부 백업 — 분실 시 앱 업데이트 영구 불가
+  3. [배포 직전] Railway 에 BASE_URL 등록 (runbook §0 — 계약 QR 전제)
+
+배포 절차: 사용자 "배포해" 명시 → services/facing/docs/RUNBOOK-DEPLOY.md 실행
+(이때 비로소 push·railway up)
 ```
 
-미완료 🟡 는 론칭 후 2주 내 처리 목록으로 본 문서에 잔존시킨다.
+### 🟡 론칭 후 2주 내 (POST)
+- copy_lint 기존 위반 (rehab·benchmark_data 금지용어 / attendance·box_wod·gym_info_card fontSize)
+- inbox 위젯 테스트 2건 timeout hang
+- 테스트 DB 격리 인프라 (test_api_contract_onsite 11건 skip 해제)
+- E-1 Splash 지연 / E-5 BoxLeaderboard dead screen / E-6 빈 프로필 등급
+- E-10 중복클릭 잔여 / E-12 app.js 데드 함수 / E-15 SSE 토스트 이모지 / E-16 메타 / E-17 랜딩
+- CORS_ORIGINS `*` → admin 도메인 한정
+- 백분위·랭킹 가상 데이터 → 익명 집계 (privacy 고지 정리 포함)

@@ -1,7 +1,8 @@
 name: facing_app
 description: "WOD pacing strategy app"
 publish_to: 'none'
-version: 0.1.17+3000
+# H-3 (2026-06-10): 론칭 버전. versionCode 3001 (구 0.1.17+3000 에서 단조 증가 유지).
+version: 1.0.0+3001
 
 environment:
   sdk: ^3.11.5

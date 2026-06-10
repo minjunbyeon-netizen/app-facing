@@ -59,3 +59,5 @@ care_*.png
 
 tmp_*.png
 tmp_*.xml
+
+dist/
