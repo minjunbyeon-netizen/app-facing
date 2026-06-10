@@ -52,6 +52,10 @@ class _AttendanceCalendarState extends State<_AttendanceCalendar> {
   @override
   void initState() {
     super.initState();
+    _reload();
+  }
+
+  void _reload() {
     final repo = GymRepository(context.read<ApiClient>());
     _future = repo.listMyAttendances();
   }
@@ -81,6 +85,22 @@ class _AttendanceCalendarState extends State<_AttendanceCalendar> {
         builder: (ctx, snap) {
           if (snap.connectionState != ConnectionState.done) {
             return const SizedBox(height: 80);
+          }
+          // E-2 (2026-06-10) — 네트워크 실패를 빈 출석으로 오인하지 않도록 분기
+          if (snap.hasError) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp4),
+              child: Column(
+                children: [
+                  Text('Load failed', style: FacingTokens.caption),
+                  const SizedBox(height: FacingTokens.sp2),
+                  TextButton(
+                    onPressed: () => setState(_reload),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            );
           }
           final byDay = snap.data ?? const <DateTime, int>{};
           final now = DateTime.now();

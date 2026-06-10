@@ -155,7 +155,7 @@ Phase 1 백엔드 코어  →  Phase 2 앱 인증·온보딩  →  Phase 3 웹 �
 
 ### ✅ 체크포인트② — 부분 통과 (2026-06-10 14:12)
 - [x] fresh install → 인트로 3p → Start → 로그인 → 박스 가입 신청 화면 → 빈값 토스트 → stub 로그인 → 온보딩 "STEP 1/7 · 14%" 까지 에뮬레이터 완주
-- [ ] **F-1 잔여**: 데모 김도윤 로그인 → WOD 126 상세 `_MovementRow` 렌더 screencap (전 세션 잔여 — 다음 배치에서)
+- [x] **F-1 완료 (2026-06-10 14:53)**: WOD [STRUCT-0609] 상세 — STRENGTH(Back Squat 5×3-3-3·80%1RM·rest120s·Demo)·METCON(Reverse Lunge 42kg/T2B/Wall Ball 9kg) 동작 행 전부 렌더 확인. 전 세션 잔여 해소
 - ⚠ 발견: 구 APK 가 어제(06-09)본으로 남아 install -r 이 Success 만 반환하고 미갱신 — uninstall 후 clean install 로 해결. G-4 release 검증 시 lastUpdateTime 확인 절차 추가
 
 ---
@@ -211,21 +211,21 @@ Phase 1 백엔드 코어  →  Phase 2 앱 인증·온보딩  →  Phase 3 웹 �
 
 ---
 
-## Phase 4 — 크로스 기능
+## Phase 4 — 크로스 기능 ✅ 완료 (2026-06-10 14:55 · E-5 만 🟡 잔존)
 
-### 🟠 B-5. 회원 포인트 잔액 — 40~60m
-- [ ] (백) `GET /api/v1/member/points` — `api/admin.py:862-883` 로직 재사용 (coalesce(sum) 잔액 + 이력), 인증만 X-Device-Id→GymMember. 모델 `models/member_point.py`
-- [ ] (앱) 마이페이지 잔액 표기 ("+NP" 토스트와 신뢰 일치)
+### 🟠 B-5. 회원 포인트 잔액 — ✅ 완료
+- [x] (백) `GET /api/v1/member/points` 신설 (gym.py — X-Device-Id 인증, admin 산식 동일). 실호출 200 (김도윤 balance 0·gym 2)
+- [x] (앱) 마이페이지 Points 행 (`_PointsBalanceRow` — 미소속/실패 시 조용히 숨김)
 
-### 🟠 B-6. 앱 내 계약 화면 풀스펙 (결정4) — 2.5~4h
-- [ ] (백) 회원 계약 **목록** endpoint 신설 (현재 단건 GET+sign 만)
-- [ ] (앱) 마이페이지 → 내 계약 목록 → 상세 → **서명패드** (스트로크 캡처 → PNG → `signature_image_base64` POST. signature 계열 패키지 도입 가능 — patterns.md 기준 충족 확인)
-- [ ] 검증: 'sent' 계약으로 목록→상세→서명 완주, signed 전환·PDF 반영 확인
+### 🟠 B-6. 앱 내 계약 화면 풀스펙 (결정4) — 코드 완료
+- [x] (백) 목록 endpoint — **2차 조사의 "목록 없음"은 오류**: `/member/me/contracts` 실재 (profile.py:142). template_name 만 보강
+- [x] (앱) 마이페이지 Contracts → 목록 → 상세(variables 표) → 서명패드 (`member_contracts_screen.dart` — 외부 패키지 0, CustomPaint 스트로크→PNG→base64)
+- [x] 검증(부분 — 에뮬레이터): 김도윤 데모 로그인 → Profile Points 0P 행 → Contracts 목록(회원권 3개월·SIGNED) → 상세 변수표·서명일 렌더 확인. 서명 POST 완주는 G-5 (sent 계약 시드 필요)
 
-### 🟠 결정3 문서화 — 5m
-- [ ] 회원 셀프 QR 체크인 범위 제외 사유를 ARCHITECTURE_BRIEF 또는 본 문서에 1단락 기록 (_debug 화면은 debug 전용 유지)
+### 🟠 결정3 문서화 — ✅ 완료
+- [x] 본 문서 결정표(결정3)에 기록: 회원 셀프 QR 체크인은 범위 제외 — 출석은 사장 PC 입구 디스플레이(/checkin)에서 회원이 폰 카메라로 QR 스캔하는 운영 모델. `_debug/qr_input_screen` 은 debug 전용 유지
 
-### 🟡 E-2. 출석 캘린더 hasError 분기 (`attendance_screen.dart:79-85` — silent 빈 캘린더 방지)
+### ~~🟡 E-2~~ ✅ 완료 (ride-along) — 출석 캘린더 hasError 분기 + Retry (silent 빈 캘린더 방지)
 ### 🟡 E-5. BoxLeaderboardScreen dead screen — 삭제 or 회원용 endpoint 신설 후 배선
 
 ---

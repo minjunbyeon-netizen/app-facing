@@ -25,6 +25,7 @@ import '../_debug/persona_debug_data.dart';
 import '../_debug/persona_switcher_screen.dart';
 import '../achievement/achievement_state.dart';
 import '../auth/auth_state.dart';
+import '../contracts/member_contracts_screen.dart';
 import '../goals/goals_screen.dart';
 import '../gym/coach_dashboard_screen.dart';
 import '../gym/gym_search_screen.dart';
@@ -989,6 +990,16 @@ class _ActionsSection extends StatelessWidget {
               );
             },
           ),
+          // B-5 (2026-06-10) — 회원 포인트 잔액 (적립 토스트 "+NP" 와 신뢰 일치)
+          const _PointsBalanceRow(),
+          // B-6 (2026-06-10) — 회원 전자계약 목록·상세·서명 진입
+          OutlinedButton(
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => const MemberContractsScreen(),
+            )),
+            child: const Text('Contracts'),
+          ),
+          const SizedBox(height: FacingTokens.sp3),
           OutlinedButton(
             onPressed: () => Navigator.of(context).pushNamed('/history'),
             child: const Text('View History'),
@@ -1817,6 +1828,64 @@ class _LockerCard extends StatelessWidget {
               Text('D-$days',
                   style: FacingTokens.h3
                       .copyWith(color: FacingTokens.warning)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// B-5 (2026-06-10) — 회원 포인트 잔액 행.
+/// 박스 소속(approved)이 아니면 백엔드가 gym:null 을 주므로 행 자체를 숨긴다.
+class _PointsBalanceRow extends StatefulWidget {
+  const _PointsBalanceRow();
+
+  @override
+  State<_PointsBalanceRow> createState() => _PointsBalanceRowState();
+}
+
+class _PointsBalanceRowState extends State<_PointsBalanceRow> {
+  int? _balance;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final api = context.read<ApiClient>();
+      final res = await api.get('/api/v1/member/points');
+      if (!mounted) return;
+      final balance = (res['balance'] as num?)?.toInt();
+      setState(() => _balance = balance);
+    } catch (_) {
+      // 미소속·네트워크 실패 → 행 미표시 (조용히 숨김)
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final balance = _balance;
+    if (balance == null) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: FacingTokens.sp3),
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+            horizontal: FacingTokens.sp4, vertical: FacingTokens.sp3),
+        decoration: BoxDecoration(
+          color: FacingTokens.surface,
+          border: Border.all(color: FacingTokens.border),
+          borderRadius: BorderRadius.circular(FacingTokens.r2),
+        ),
+        child: Row(
+          children: [
+            const Expanded(
+              child: Text('Points', style: FacingTokens.sectionLabel),
+            ),
+            Text('$balance P',
+                style: FacingTokens.h3.copyWith(color: FacingTokens.primary)),
           ],
         ),
       ),
