@@ -718,6 +718,30 @@ class _MyBoxSection extends StatelessWidget {
               '${gs.isOwner ? 'OWNER' : 'MEMBER'} · ${gs.membership.status ?? '-'} · ${gym.memberCount} members',
               style: FacingTokens.caption,
             ),
+            // P1-5 (2026-06-10): 거절 상태 무안내 해소 — 멤버십이 조용히
+            // 사라지는 대신 사유 고지 + 다음 행동(다른 박스 검색) 제시.
+            if (gs.membership.status == 'rejected') ...[
+              const SizedBox(height: FacingTokens.sp3),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(FacingTokens.sp3),
+                decoration: BoxDecoration(
+                  color: FacingTokens.accentSoft,
+                  borderRadius: BorderRadius.circular(FacingTokens.r2),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('가입이 승인되지 않았습니다.',
+                        style: FacingTokens.body
+                            .copyWith(fontWeight: FontWeight.w700)),
+                    const SizedBox(height: FacingTokens.sp1),
+                    const Text('박스에 직접 문의하거나 다른 박스를 찾아보세요.',
+                        style: FacingTokens.caption),
+                  ],
+                ),
+              ),
+            ],
             if (gs.isOwner) ...[
               const SizedBox(height: FacingTokens.sp3),
               OutlinedButton(

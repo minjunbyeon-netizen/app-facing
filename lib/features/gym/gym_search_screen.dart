@@ -138,7 +138,9 @@ class _GymSearchScreenState extends State<GymSearchScreen> {
               Expanded(
                 child: _results.isEmpty
                     ? const Center(
-                        child: Text('검색 결과 없음', style: FacingTokens.caption),
+                        child: Text('검색 결과 없음.\n박스명 일부만 입력해 보세요.',
+                            style: FacingTokens.caption,
+                            textAlign: TextAlign.center),
                       )
                     : ListView.separated(
                         padding: const EdgeInsets.symmetric(
