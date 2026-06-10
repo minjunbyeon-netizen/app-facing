@@ -1,4 +1,4 @@
-// v1.16 Sprint 8 U5: BTWB/Wodify Import placeholder 화면.
+﻿// v1.16 Sprint 8 U5: BTWB/Wodify Import placeholder 화면.
 // ⚠️ **가상 UI** — 실제 Import 로직은 Phase 2. OAuth/CSV 파싱 TODO.
 
 import 'package:flutter/material.dart';
@@ -21,27 +21,27 @@ class ImportScreen extends StatelessWidget {
             const SizedBox(height: FacingTokens.sp2),
             _SourceRow(
               name: 'BTWB (Beyond the Whiteboard)',
-              hint: 'CSV export / API · Phase 2',
+              hint: 'CSV export / API · 지원 예정',
             ),
             _SourceRow(
               name: 'Wodify',
-              hint: 'API / CSV · Phase 2',
+              hint: 'API / CSV · 지원 예정',
             ),
             _SourceRow(
               name: 'TrainHeroic',
-              hint: 'CSV export · Phase 2',
+              hint: 'CSV export · 지원 예정',
             ),
             _SourceRow(
               name: 'Apple Health · Google Fit',
-              hint: 'Cardio / 체중 동기화 · Phase 2',
+              hint: 'Cardio / 체중 동기화 · 지원 예정',
             ),
             _SourceRow(
               name: 'Whoop · Oura',
-              hint: 'HRV · 회복 데이터 · Phase 2',
+              hint: 'HRV · 회복 데이터 · 지원 예정',
             ),
             const SizedBox(height: FacingTokens.sp5),
 
-            const Text('PHASE 2 ROADMAP', style: FacingTokens.sectionLabel),
+            const Text('ROADMAP', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp2),
             const _Note(
               '1. BTWB 계정 OAuth 연동 → 동작별 PR 자동 임포트',
@@ -62,7 +62,7 @@ class ImportScreen extends StatelessWidget {
                 Haptic.light();
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Import는 Phase 2에서 지원 예정.'),
+                    content: Text('Import 는 다음 업데이트에서 지원 예정.'),
                     duration: Duration(seconds: 2),
                   ),
                 );
@@ -76,7 +76,7 @@ class ImportScreen extends StatelessWidget {
                 Haptic.light();
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('CSV 업로드는 Phase 2에서 지원 예정.'),
+                    content: Text('CSV 업로드는 다음 업데이트에서 지원 예정.'),
                     duration: Duration(seconds: 2),
                   ),
                 );

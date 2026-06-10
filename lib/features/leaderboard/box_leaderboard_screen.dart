@@ -1,4 +1,4 @@
-// v1.16 Sprint 13: 박스 내 리더보드 — total_sessions · streak_days 정렬.
+﻿// v1.16 Sprint 13: 박스 내 리더보드 — total_sessions · streak_days 정렬.
 // P5 페르소나 최우선 요구.
 
 import 'package:flutter/material.dart';
@@ -132,7 +132,7 @@ class _BoxLeaderboardScreenState extends State<BoxLeaderboardScreen> {
                         }),
                       const SizedBox(height: FacingTokens.sp3),
                       const Text(
-                        '익명 해시 기반 랭킹. 닉네임은 Phase 2.',
+                        '익명 해시 기반 랭킹. 닉네임 표시는 추후 지원.',
                         style: FacingTokens.caption,
                         textAlign: TextAlign.center,
                       ),

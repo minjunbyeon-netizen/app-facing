@@ -64,8 +64,10 @@ class AlgorithmScreen extends StatelessWidget {
 
             const Text('SCALED WEIGHTING', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp2),
+            // P0-4 (2026-06-10): 내부 용어(mock) 노출 제거 — 가중치 수치는 베타 중 보정.
             const Text(
-              'Scaled 기록은 Tier 반영 시 감산 가중치 적용 (Phase 2 확정 — 현재 mock).',
+              'Scaled 기록은 Tier 반영 시 감산 가중치 적용. '
+              '가중치 수치는 베타 기간 중 보정됩니다.',
               style: FacingTokens.body,
             ),
             const SizedBox(height: FacingTokens.sp5),
@@ -95,14 +97,15 @@ class AlgorithmScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: FacingTokens.sp4),
+            // P0-4: 내부 경로 노출 제거 — 출처 요약은 위 REFERENCES 가 담당.
             const Text(
-              'SSOT: ~/.claude/reference/study/fitness/ (5 sub-file)',
+              '공식·기준치는 상기 문헌 290여 출처 기반.',
               style: FacingTokens.micro,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: FacingTokens.sp1),
             const Text(
-              'Split 시뮬레이터는 Phase 2 예정.',
+              'Split 시뮬레이터는 다음 업데이트에서 제공 예정.',
               style: FacingTokens.caption,
               textAlign: TextAlign.center,
             ),

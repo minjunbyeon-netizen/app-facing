@@ -7,6 +7,8 @@ import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../core/app_mode.dart';
 import '../gym/gym_state.dart';
+import '../mypage/privacy_screen.dart';
+import '../mypage/terms_screen.dart';
 import '../profile/profile_state.dart';
 import 'auth_state.dart';
 import 'demo_accounts.dart';
@@ -244,15 +246,14 @@ class _SignupScreenState extends State<SignupScreen> {
                   child: const Text('박스 가입 신청'),
                 ),
                 const SizedBox(height: FacingTokens.sp2),
-                // v1.16 Sprint 7a: 약관·개인정보 placeholder 링크.
+                // P0-1 (2026-06-10): placeholder 다이얼로그 → 본문 화면으로 교체.
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     TextButton(
-                      onPressed: () => _showLegalSheet(
-                        context,
-                        title: '이용약관',
-                        body: '이용약관 본문은 정식 출시 시 업데이트됩니다.',
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) => const TermsScreen()),
                       ),
                       style: TextButton.styleFrom(
                         foregroundColor: FacingTokens.muted,
@@ -263,11 +264,9 @@ class _SignupScreenState extends State<SignupScreen> {
                     const Text(' · ',
                         style: TextStyle(color: FacingTokens.muted)),
                     TextButton(
-                      onPressed: () => _showLegalSheet(
-                        context,
-                        title: '개인정보처리방침',
-                        body: '개인정보처리방침 본문은 정식 출시 시 업데이트됩니다.\n'
-                            'device_id·프로필은 로컬 저장. 서버 전송 데이터는 없습니다.',
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) => const PrivacyScreen()),
                       ),
                       style: TextButton.styleFrom(
                         foregroundColor: FacingTokens.muted,
@@ -300,43 +299,6 @@ class _SignupScreenState extends State<SignupScreen> {
         ),
     );
   }
-}
-
-void _showLegalSheet(
-  BuildContext context, {
-  required String title,
-  required String body,
-}) {
-  showModalBottomSheet<void>(
-    context: context,
-    backgroundColor: FacingTokens.surface,
-    shape: const RoundedRectangleBorder(
-      borderRadius:
-          BorderRadius.vertical(top: Radius.circular(FacingTokens.r3)),
-    ),
-    builder: (ctx) => SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(FacingTokens.sp5),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: FacingTokens.h2),
-            const SizedBox(height: FacingTokens.sp3),
-            Text(body, style: FacingTokens.body),
-            const SizedBox(height: FacingTokens.sp4),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: () => Navigator.of(ctx).pop(),
-                child: const Text('닫기'),
-              ),
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
 }
 
 class _SocialButton extends StatelessWidget {

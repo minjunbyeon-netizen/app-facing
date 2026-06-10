@@ -1,4 +1,4 @@
-// v1.16 Sprint 7b U4: 약점 카테고리 자동 강조 + mock AI 코멘트.
+﻿// v1.16 Sprint 7b U4: 약점 카테고리 자동 강조 + mock AI 코멘트.
 // UX_QUESTIONS_v1.16 Category N 대응 (P4·P5·P6·P7 공통 요구).
 // ⚠️ **가상 데이터** — 코멘트 템플릿 5종 하드코딩. 실제 AI 모델 연결은 Phase 2.
 
@@ -71,30 +71,30 @@ String _weakComment(String category, int score) {
     case 'POWER':
       return '$score/100 — SBD + OHP 1RM weak. '
           'Priority: BS 1.5×BW, DL 2.0×BW.\n'
-          '(Sample comment · Real AI analysis Phase 2)';
+          '(베타 샘플 코멘트 · AI 분석은 추후 제공)';
     case 'OLYMPIC':
       return '$score/100 — Clean/Snatch technique plateau. '
           'Light weight Tall drills + position reps.\n'
-          '(Sample comment · Real AI analysis Phase 2)';
+          '(베타 샘플 코멘트 · AI 분석은 추후 제공)';
     case 'GYMNASTICS':
       return '$score/100 — Pull-up/HSPU Max UB low. '
           'Strict volume 3×/week. Check Ring/Bar MU progression.\n'
-          '(Sample comment · Real AI analysis Phase 2)';
+          '(베타 샘플 코멘트 · AI 분석은 추후 제공)';
     case 'CARDIO':
       return '$score/100 — Engine capacity low. '
           'Z2 base 2×/week + Row 2K time trial monthly.\n'
-          '(Sample comment · Real AI analysis Phase 2)';
+          '(베타 샘플 코멘트 · AI 분석은 추후 제공)';
     case 'METCON':
       return '$score/100 — 1-min max output weak. '
           'Burpee · DU · Wall Ball per-min tests periodic.\n'
-          '(Sample comment · Real AI analysis Phase 2)';
+          '(베타 샘플 코멘트 · AI 분석은 추후 제공)';
     case 'BODY':
       return '$score/100 — Body composition needs work. '
           'InBody Score / SMM ratio / BF% optimization.\n'
-          '(Sample comment · Real AI analysis Phase 2)';
+          '(베타 샘플 코멘트 · AI 분석은 추후 제공)';
     default:
       return '$score/100 — Weak category improvement needed.\n'
-          '(Sample comment · Real AI analysis Phase 2)';
+          '(베타 샘플 코멘트 · AI 분석은 추후 제공)';
   }
 }
 
@@ -102,14 +102,14 @@ String _balancedComment(int avg) {
   if (avg >= 80) {
     return 'All categories 80+ — Complete Athlete tier.\n'
         'Elite zone reached. Top 3 categories peaking strategy.\n'
-        '(Sample comment · Real AI analysis Phase 2)';
+        '(베타 샘플 코멘트 · AI 분석은 추후 제공)';
   }
   if (avg >= 60) {
     return 'Categories balanced. No dramatic weakness. '
         'Increase total intensity 5% or volume 10%.\n'
-        '(Sample comment · Real AI analysis Phase 2)';
+        '(베타 샘플 코멘트 · AI 분석은 추후 제공)';
   }
   return 'Categories balanced but absolute values low. '
       '3 sessions/week + monthly benchmark.\n'
-      '(Sample comment · Real AI analysis Phase 2)';
+      '(베타 샘플 코멘트 · AI 분석은 추후 제공)';
 }

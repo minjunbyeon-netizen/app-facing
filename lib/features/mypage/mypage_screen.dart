@@ -38,6 +38,7 @@ import 'algorithm_screen.dart';
 import 'edit_profile_screen.dart';
 import 'import_screen.dart';
 import 'privacy_screen.dart';
+import 'terms_screen.dart';
 
 /// v1.22: Profile = identity + 측정값 편집 진입 + 잘안쓰는 actions.
 /// Engine score · Tier · Radar · Category Tier · Trend · Records · RoleModel 등
@@ -1012,6 +1013,14 @@ class _ActionsSection extends StatelessWidget {
             child: const Text('Privacy Policy'),
           ),
           const SizedBox(height: FacingTokens.sp3),
+          // P0-1 (2026-06-10): 이용약관 진입 — 가입 화면 외 상시 접근 경로.
+          OutlinedButton(
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => const TermsScreen(),
+            )),
+            child: const Text('Terms'),
+          ),
+          const SizedBox(height: FacingTokens.sp3),
           OutlinedButton(
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => const ImportScreen(),
@@ -1033,13 +1042,17 @@ class _ActionsSection extends StatelessWidget {
             child: const Text('Algorithm'),
           ),
           const SizedBox(height: FacingTokens.sp3),
-          // 2026-06-10 — 고객 상담 채널 (카카오톡 채널 1:1 채팅).
+          // P0-3 (2026-06-10) — 고객센터 단일 채널 (카카오톡 채널 1:1 채팅).
           OutlinedButton(
             onPressed: () => launchUrl(
               Uri.parse('http://pf.kakao.com/_kxbxanX/chat'),
               mode: LaunchMode.externalApplication,
             ),
-            child: const Text('카카오톡 상담'),
+            child: const Text('고객센터 (카카오톡)'),
+          ),
+          const SizedBox(height: FacingTokens.sp1),
+          const Center(
+            child: Text('평일 10–18시 답변', style: FacingTokens.caption),
           ),
           const SizedBox(height: FacingTokens.sp3),
           // D26 §4.1 — 코치·사장 계정 연결 (소셜 로그인 후 1회 claim).

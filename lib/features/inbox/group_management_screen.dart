@@ -1,4 +1,4 @@
-// v1.18 Sprint 19: 그룹 생성·멤버 추가/제거 (코치 전용).
+﻿// v1.18 Sprint 19: 그룹 생성·멤버 추가/제거 (코치 전용).
 //
 // MVP: 그룹 이름 + 설명만. 멤버 추가는 device hash 입력 (간이).
 // Phase 2: GymMembers 리스트에서 체크박스 일괄 추가 / 그룹 색상·아이콘.
@@ -280,7 +280,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
             ),
             const SizedBox(height: FacingTokens.sp1),
             const Text(
-              '※ Phase 2: 멤버 리스트에서 체크박스 선택. 현재는 hash 직접 입력.',
+              '※ 멤버 선택 UI 는 추후 지원. 현재는 코드 직접 입력.',
               style: FacingTokens.micro,
             ),
             const SizedBox(height: FacingTokens.sp3),

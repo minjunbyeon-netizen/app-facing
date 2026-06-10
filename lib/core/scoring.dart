@@ -50,9 +50,11 @@ String formatTopPercent(double topPercent) {
   return 'Top ${topPercent.round()}%';
 }
 
-/// v1.16 Sprint 7b U5: 백분위 UI에 "가상" 명시 suffix.
+/// v1.16 Sprint 7b U5: 백분위 UI 에 추정치 명시 suffix.
+/// P0-4 (2026-06-10): 내부 용어 "mock" 노출 제거 — 사용자 표기는 "추정".
+/// 실 유저 집계 아님 (익명 집계 전환은 론칭 후 과제 — LAUNCH-CONTENT-TODO 참조).
 String formatTopPercentMock(double topPercent) {
-  return '${formatTopPercent(topPercent)} · mock';
+  return '${formatTopPercent(topPercent)} · 추정';
 }
 
 /// v1.16 버그 fix: 백엔드 grade 문자열 → number(1~6) fallback.
