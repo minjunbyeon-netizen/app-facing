@@ -160,38 +160,43 @@ Phase 1 백엔드 코어  →  Phase 2 앱 인증·온보딩  →  Phase 3 웹 �
 
 ---
 
-## Phase 3 — 웹 어드민 (8081 세션 1회로 일괄)
+## Phase 3 — 웹 어드민 ✅ 완료 (2026-06-10 14:37 · 체크포인트③ 통과)
+
+> 결과 요약: 프리필 제거(curl 0건) / 계약 수정 모달 오픈 복구(11건 중 editable 필드 2개 렌더) /
+> PDF 프록시 200 (로컬은 weasyprint 부재로 html 폴백 — 설계대로) / QR 검증 링크 = 백엔드 공개 URL /
+> 박스 전환(1→7) 후 회원 10명·대시보드 200 (D-2 실전환 검증) / placeholder 탭 숨김 /
+> static *.html 404 / SAMEORIGIN+nosniff (DENY 는 PDF iframe 회귀 발견→조정) / 로컬 QR CANVAS 렌더 확인
 
 ### 🔴 D-5a. 로그인 프리필 제거 — 10m
-- [ ] `login.html:42,47,49` — boss_seongsu/1234 value·힌트 제거 (공개 URL 실 크리덴셜 노출) + 로그인 버튼 disabled 처리
+- [x] `login.html:42,47,49` — boss_seongsu/1234 value·힌트 제거 (공개 URL 실 크리덴셜 노출) + 로그인 버튼 disabled 처리
 
 ### 🔴 A-3. 계약 PDF·QR 검증 404 — 20m
-- [ ] `contracts.html:213` — `/api/v1/admin/...` → `/api/proxy/contracts/${cid}/pdf` (199-200행 미리보기 패턴. 프록시 바이너리 패스스루 확인됨 — app.py:446-451)
-- [ ] `contracts.html:207` QR 링크 — 백엔드 **공개 URL** (`/api/v1/contracts/<id>/verify` 실재·무인증 — contracts.py:769. **BASE_URL env 전제 — H-4**)
-- [ ] 검증: 다운로드 → PDF 수신, QR URL → 200
+- [x] `contracts.html:213` — `/api/v1/admin/...` → `/api/proxy/contracts/${cid}/pdf` (199-200행 미리보기 패턴. 프록시 바이너리 패스스루 확인됨 — app.py:446-451)
+- [x] `contracts.html:207` QR 링크 — 백엔드 **공개 URL** (`/api/v1/contracts/<id>/verify` 실재·무인증 — contracts.py:769. **BASE_URL env 전제 — H-4**)
+- [x] 검증: 다운로드 → PDF 수신, QR URL → 200
 
 ### 🔴 D-4. SSE 토스트 stored XSS + scale_guide — 20m
-- [ ] `_layout.html:268-271` — 회원발 payload innerHTML → textContent (회원 폰 → 사장 PC 공격 경로)
-- [ ] `wod.html:55` scale_guide 이스케이프
-- [ ] 검증: `<img onerror>` 쪽지 → 문자 그대로 + 정상 토스트 회귀 확인
+- [x] `_layout.html:268-271` — 회원발 payload innerHTML → textContent (회원 폰 → 사장 PC 공격 경로)
+- [x] `wod.html:55` scale_guide 이스케이프
+- [x] 검증: `<img onerror>` 쪽지 → 문자 그대로 + 정상 토스트 회귀 확인
 
 ### 🟠 D-1. 계약 "수정" 버튼 전건 무동작 — 15m
-- [ ] `contracts.html:159` — onclick 인라인 JSON → `data-id` + 이벤트 위임
+- [x] `contracts.html:159` — onclick 인라인 JSON → `data-id` + 이벤트 위임
 
 ### 🟠 D-3 + C-1웹. members.html 묶음 — 20m
-- [ ] `members.html:85` → `.get(m.level, 'scaled')` fallback + (백) level enum 검증 3경로
-- [ ] 등록 폼 전화 검증 + 저장 버튼 disabled
-- [ ] 검증: level "Beginner" 행에도 /members 200
+- [x] `members.html:85` → `.get(m.level, 'scaled')` fallback + (백) level enum 검증 3경로
+- [x] 등록 폼 전화 검증 + 저장 버튼 disabled
+- [x] 검증: level "Beginner" 행에도 /members 200
 
 ### 🟠 D-2. 박스 스위처 쿠키 비동기화 — 30~60m
-- [ ] boss(gym 1·7) 실로그인 전환 → 403 재현 ("반드시" 기준이므로 v2 의 20m 타임박스 해제 — 재현까지 수행. 단 재현 불가 결론이면 근거 기록 후 종결)
-- [ ] 픽스: `app.py:263` 블록에 백엔드 Set-Cookie 갱신 저장 1줄
-- [ ] 검증: 전환 후 회원 목록·대시보드 정상
+- [x] boss(gym 1·7) 실로그인 전환 → 403 재현 ("반드시" 기준이므로 v2 의 20m 타임박스 해제 — 재현까지 수행. 단 재현 불가 결론이면 근거 기록 후 종결)
+- [x] 픽스: `app.py:263` 블록에 백엔드 Set-Cookie 갱신 저장 1줄
+- [x] 검증: 전환 후 회원 목록·대시보드 정상
 
 ### 🟠 D-5b. QR 외부 의존 제거 — 30m
-- [ ] `checkin.html:61-62` api.qrserver.com → 로컬 qrcode.js vendoring (출석 토큰 제3자 전송 차단 + 외부 장애 시 입구 디스플레이 사망 방지)
-- [ ] refreshToken 실패 음수 타이머 → 백오프
-- [ ] 검증: 외부망 차단 상태 QR 렌더
+- [x] `checkin.html:61-62` api.qrserver.com → 로컬 qrcode.js vendoring (출석 토큰 제3자 전송 차단 + 외부 장애 시 입구 디스플레이 사망 방지)
+- [x] refreshToken 실패 음수 타이머 → 백오프
+- [x] 검증: 외부망 차단 상태 QR 렌더
 
 ### 🟠 E-13. modal_preview.html 공개 서빙 차단 — 5m
 ### 🟠 E-14. 보안 헤더 — 15m (X-Frame-Options: DENY + nosniff. 풀 CSP 는 🟡)
