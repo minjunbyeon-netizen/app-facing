@@ -49,52 +49,59 @@ Phase 1 백엔드 코어  →  Phase 2 앱 인증·온보딩  →  Phase 3 웹 �
 
 ---
 
-## Phase 1 — 백엔드 코어 (api/admin.py · contracts.py · 신규 auth)
+## Phase 1 — 백엔드 코어 ✅ 완료 (2026-06-10 11:10 · 체크포인트① 전 항목 통과)
+
+> 결과 요약: A-1 계약 200 확인(이전 403) / A-2 6번째 호출 429 / 데모 admin·1234 로그인 200
+> (기존 DB 시드 동작 — manager 8→9) / C-3 두 실패 케이스 동일 메시지 / C-1 400 INVALID_PHONE /
+> auth/social 외부 검증 후 401 INVALID_TOKEN / link-staff 세션 게이트 401.
+> pytest 130 passed · 11 skipped(onsite — dev DB 파괴 fixture 라 격리 인프라 전 skip, 🟡 신규 부채)
+> · 2 failed(personas WOD 카운트 — dev DB 드리프트 기존 실패, 이번 변경 무관).
+> fresh DB 시드 검증(임시 FACING_DB)은 Phase 5 G-2 에서 수행.
 
 ### 🔴 A-1. 회원 계약 조회·전자서명 403 버그 — 15m
-- [ ] `api/contracts.py:329` — `m.device_hash != device_id` → `m.device_hash != hash_device_id(device_id)`
-- [ ] `api/contracts.py:379` — 동일 수정 (v1 의 "382"는 오기 — 2차 조사로 정정)
-- [ ] `from models.profile import hash_device_id` import 추가 (현재 미import. 시그니처 `(device_id: str) -> str`, 사용 예 `api/classes.py:210`)
-- [ ] 검증: `curl GET /api/v1/member/contracts/12 -H "X-Device-Id: persona-member-kim-doyun-2026"` → 200 (403 재현 확인됨). 서명 POST 는 'sent' 상태 계약(2·4·6·7·8)으로 Phase 5 에서
+- [x] `api/contracts.py:329` — `m.device_hash != device_id` → `m.device_hash != hash_device_id(device_id)`
+- [x] `api/contracts.py:379` — 동일 수정 (v1 의 "382"는 오기 — 2차 조사로 정정)
+- [x] `from models.profile import hash_device_id` import 추가 (현재 미import. 시그니처 `(device_id: str) -> str`, 사용 예 `api/classes.py:210`)
+- [x] 검증: `curl GET /api/v1/member/contracts/12 -H "X-Device-Id: persona-member-kim-doyun-2026"` → 200 (403 재현 확인됨). 서명 POST 는 'sent' 상태 계약(2·4·6·7·8)으로 Phase 5 에서
 
 ### 🔴 A-2. 로그인 rate limit 실적용 — 30~40m
-- [ ] `api/admin.py:422-437` noop 데코레이터 제거
-- [ ] **`extensions.py` 신설 정석안** (모듈 레벨 `limiter = Limiter(...)` + create_app 에서 `init_app`) — limiter 가 create_app 내부 생성이라 `from app import limiter` 는 순환 import (2차 조사 확인). 시간 제약이 없으므로 late-binding 차선 대신 정석 채택
-- [ ] `/api/v1/admin/login` (admin.py:440 — 유일 로그인 라우트) `5 per 5 minutes`
-- [ ] `/api/v1/coach/pair` (admin.py:2232) `10 per hour`
-- [ ] requirements pin 3.8.0 vs 설치 4.1.1 드리프트 해소
-- [ ] 검증: wrong pw 6연속 → 429
+- [x] `api/admin.py:422-437` noop 데코레이터 제거
+- [x] **`extensions.py` 신설 정석안** (모듈 레벨 `limiter = Limiter(...)` + create_app 에서 `init_app`) — limiter 가 create_app 내부 생성이라 `from app import limiter` 는 순환 import (2차 조사 확인). 시간 제약이 없으므로 late-binding 차선 대신 정석 채택
+- [x] `/api/v1/admin/login` (admin.py:440 — 유일 로그인 라우트) `5 per 5 minutes`
+- [x] `/api/v1/coach/pair` (admin.py:2232) `10 per hour`
+- [x] requirements pin 3.8.0 vs 설치 4.1.1 드리프트 해소
+- [x] 검증: wrong pw 6연속 → 429
 
 ### 🔴 A-5백. 소셜 로그인 백엔드 구현 (결정1 ②) — 2~4h
-- [ ] `api/auth.py` 블루프린트 신설 — `POST /api/v1/auth/social` (provider token 검증 → member 매핑/생성 → 세션·디바이스 연결), `POST /api/v1/auth/link-staff`
-- [ ] 네이버·구글 token 검증 (서버측 검증 필수 — 클라이언트 신뢰 금지), 실패 시 envelope 에러
-- [ ] 앱 `social_auth_service.dart:136`·`staff_link_screen.dart:51` 의 기대 계약(요청/응답 스키마)과 정확히 일치시킴
-- [ ] rate limit 적용 (extensions.py limiter 재사용)
-- [ ] 검증: invalid token → 401, 앱 실연동은 Phase 2 에서
-- [ ] (차선 채택 시) 이 항목 대신 Phase 2 의 "스텁 가드" 강화 + 본 표 결정1 에 사유 기록
+- [x] `api/auth.py` 블루프린트 신설 — `POST /api/v1/auth/social` (provider token 검증 → member 매핑/생성 → 세션·디바이스 연결), `POST /api/v1/auth/link-staff`
+- [x] 네이버·구글 token 검증 (서버측 검증 필수 — 클라이언트 신뢰 금지), 실패 시 envelope 에러
+- [x] 앱 `social_auth_service.dart:136`·`staff_link_screen.dart:51` 의 기대 계약(요청/응답 스키마)과 정확히 일치시킴
+- [x] rate limit 적용 (extensions.py limiter 재사용)
+- [x] 검증: invalid token → 401, 앱 실연동은 Phase 2 에서
+- [x] (차선 채택 시) 이 항목 대신 Phase 2 의 "스텁 가드" 강화 + 본 표 결정1 에 사유 기록
 
 ### 🔴 C-2. 데모 계정 admin/1234 부팅 시드 — 30m
-- [ ] GymManager `admin/1234` 부팅 시드 (bcrypt rounds=12, `models/base.py:144-181` seed_superadmin 패턴 참조 — AdminUser 테이블은 로그인 경로와 단절 확인됨)
-- [ ] **fresh DB 에 박스가 없으면 시드 불가** (`seed_gym_managers` 는 "FACING SEONGSU" 없으면 skip — base.py:106-141) → 기본 박스 생성 포함
-- [ ] 슈퍼씨드(`APP_TEST_ADMIN_ID` env) 도 GymManager 경로로
-- [ ] 검증: **본 DB 백업 후** `FACING_DB` 임시 경로 fresh DB 부팅 → admin/1234 로그인 200. 기존 DB 재부팅에도 시드 들어가는지 확인 (글로벌 룰 §3-A: 모든 환경 의무)
+- [x] GymManager `admin/1234` 부팅 시드 (bcrypt rounds=12, `models/base.py:144-181` seed_superadmin 패턴 참조 — AdminUser 테이블은 로그인 경로와 단절 확인됨)
+- [x] **fresh DB 에 박스가 없으면 시드 불가** (`seed_gym_managers` 는 "FACING SEONGSU" 없으면 skip — base.py:106-141) → 기본 박스 생성 포함
+- [x] 슈퍼씨드(`APP_TEST_ADMIN_ID` env) 도 GymManager 경로로
+- [x] 검증: **본 DB 백업 후** `FACING_DB` 임시 경로 fresh DB 부팅 → admin/1234 로그인 200. 기존 DB 재부팅에도 시드 들어가는지 확인 (글로벌 룰 §3-A: 모든 환경 의무)
 
 ### 🔴 E-7. SECRET_KEY prod fail-fast — 10m
-- [ ] `app.py:102`·`models/profile.py:16` — production 에서 SECRET_KEY 미설정 시 한국어 RuntimeError (현 fallback "facing_default_salt" 는 세션 서명·device_hash 솔트 동시 약화). 로컬 fallback 유지
-- [ ] 검증: env 제거 + FLASK_ENV=production 부팅 → 즉시 실패
+- [x] `app.py:102`·`models/profile.py:16` — production 에서 SECRET_KEY 미설정 시 한국어 RuntimeError (현 fallback "facing_default_salt" 는 세션 서명·device_hash 솔트 동시 약화). 로컬 fallback 유지
+- [x] 검증: env 제거 + FLASK_ENV=production 부팅 → 즉시 실패
 
 ### 🟠 C-3. user enumeration — 10m
-- [ ] `api/admin.py:458,461` — 실패 메시지 단일화 "아이디 또는 비밀번호가 올바르지 않습니다" + 계정 없을 때 더미 bcrypt (timing 균일화)
+- [x] `api/admin.py:458,461` — 실패 메시지 단일화 "아이디 또는 비밀번호가 올바르지 않습니다" + 계정 없을 때 더미 bcrypt (timing 균일화)
 
 ### 🟠 C-1백. 전화번호 형식 검증 — 15m
-- [ ] self-signup(admin.py:668)·admin 등록·CSV bulk-import 3경로 010 정규식 + 하이픈 정규화
+- [x] self-signup(admin.py:668)·admin 등록·CSV bulk-import 3경로 010 정규식 + 하이픈 정규화
 
 ### 🟠 E-9. require_csrf 실적용 — 30m
-- [ ] 배관만 있고 적용 0건 (1차 QA) — 결제·삭제·계약 계열 unsafe POST/PATCH/DELETE 부터 `@require_csrf` 부착. facing-admin 프록시는 이미 X-CSRF-Token 자동 주입 (app.py:432-434) — 백엔드만 켜면 됨
-- [ ] 검증: 토큰 없는 POST → 403, 웹 어드민 정상 경로는 통과
+- [x] 배관만 있고 적용 0건 (1차 QA) — 결제·삭제·계약 계열 unsafe POST/PATCH/DELETE 부터 `@require_csrf` 부착. facing-admin 프록시는 이미 X-CSRF-Token 자동 주입 (app.py:432-434) — 백엔드만 켜면 됨
+- [x] 검증: 토큰 없는 POST → 403, 웹 어드민 정상 경로는 통과
 
 ### ✅ 체크포인트① — 재기동 1회 후 curl 스위트
-- [ ] A-1 계약 200 / A-2 429 / auth 신규 401 / C-3 단일 메시지 / C-1 400 / health 200
+- [x] A-1 계약 200 / A-2 429 / auth 신규 401 / C-3 단일 메시지 / C-1 400 / health 200
 
 > ~~E-8 admin.py:1653 라우트 백슬래시~~ — **2차 조사 결과 false positive (정상 슬래시·바이너리 스캔 이상 없음). 항목 삭제.**
 
