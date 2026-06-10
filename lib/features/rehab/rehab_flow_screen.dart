@@ -1,4 +1,4 @@
-// 재활 감별 플로우 (상태머신).
+﻿// 재활 감별 플로우 (상태머신).
 //
 // 노드: 질문(q) → 선택지 next 따라 → 질문(q)/테스트(test)/원인(cause)/위험(danger).
 //   - q:<id>     다음 질문
@@ -397,7 +397,7 @@ class _DangerView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final d = detail.danger;
-    final title = d?.title ?? '지금 바로 운동을 멈추세요';
+    final title = d?.title ?? '지금 바로 트레이닝을 멈추세요';
     final reason = d?.reason ?? '';
     final action = d?.action ?? '';
     return Column(

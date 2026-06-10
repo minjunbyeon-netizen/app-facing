@@ -1,4 +1,4 @@
-// 재활 가이드 데이터 모델 + 로더.
+﻿// 재활 가이드 데이터 모델 + 로더.
 //
 // 원천: rahap1(협업 개발자 레포)의 data/movements/*.json 을 흡수한 사본.
 //   → assets/data/rehab/{movement}.json + manifest.json
@@ -164,7 +164,7 @@ class RehabDanger {
   });
 
   factory RehabDanger.fromJson(Map<String, dynamic> j) => RehabDanger(
-        title: (j['title'] as String?) ?? '운동을 멈추세요',
+        title: (j['title'] as String?) ?? '트레이닝을 멈추세요',
         reason: (j['reason'] as String?) ?? '',
         action: (j['action'] as String?) ?? '',
       );

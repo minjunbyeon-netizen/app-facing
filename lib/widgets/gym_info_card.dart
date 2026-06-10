@@ -180,8 +180,8 @@ class _CoachRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('· ',
-              style: TextStyle(color: FacingTokens.muted, fontSize: 14)),
+          Text('· ',
+              style: FacingTokens.body.copyWith(color: FacingTokens.muted)),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

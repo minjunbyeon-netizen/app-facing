@@ -1,4 +1,4 @@
-/// Engine 6 카테고리 벤치마크 레퍼런스 데이터.
+﻿/// Engine 6 카테고리 벤치마크 레퍼런스 데이터.
 /// Source: services/facing/engine/grading.py v3.0/v3.1
 /// Tier mapping: Games=elite(95th) / Elite=advanced(80th) / RX+=rxd(50th)
 ///               RX=intermediate(20th) / Scaled=beginner(5th)
@@ -397,7 +397,7 @@ const _body = CategoryBenchmark(
   context:
       '체성분은 CrossFit 경기력과 강하게 연관된다. '
       'Mangine et al.(2014)은 CrossFit 선수의 골격근량(%SMM)이 일반 인구 상위 10% 수준이며, '
-      '체지방률은 지구력 운동선수와 유사한 수준(남 10~14%, 여 16~20%)임을 보고했다. '
+      '체지방률은 지구력 종목 선수와 유사한 수준(남 10~14%, 여 16~20%)임을 보고했다. '
       'ACE 분류 기준에서 "Athlete" 구간은 남성 6~13%, 여성 14~20%이며, '
       'Games 출전급은 이 구간 하단에 위치한다. '
       'InBody Score 90+는 체중 대비 근육-지방 균형이 최상위 5% 수준을 의미한다. '

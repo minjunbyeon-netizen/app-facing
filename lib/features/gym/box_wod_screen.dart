@@ -878,10 +878,10 @@ class _WodRowState extends State<_WodRow> {
     setState(() => _expanded = !_expanded);
   }
 
-  Widget _dot() => const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 6),
+  Widget _dot() => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6),
         child: Text('·',
-            style: TextStyle(color: FacingTokens.muted, fontSize: 12)),
+            style: FacingTokens.caption.copyWith(color: FacingTokens.muted)),
       );
 
   Widget _kv(String label, Widget value) {

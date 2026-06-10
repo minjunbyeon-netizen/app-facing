@@ -207,8 +207,8 @@ class _AttendanceCalendarState extends State<_AttendanceCalendar> {
                     alignment: Alignment.center,
                     child: Text(
                       '$dayNum',
-                      style: TextStyle(
-                        fontSize: 11,
+                      // R5: 하드코드 fontSize 제거 — micro(13) 토큰 기반.
+                      style: FacingTokens.micro.copyWith(
                         height: 1,
                         fontWeight:
                             isToday ? FontWeight.w800 : FontWeight.w400,

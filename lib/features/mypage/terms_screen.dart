@@ -56,7 +56,7 @@ class TermsScreen extends StatelessWidget {
             SizedBox(height: FacingTokens.sp2),
             _Bullet('포인트 적립·사용 기준은 각 박스가 정하며 박스별로 다를 수 있습니다.'),
             _Bullet('Engine 점수·Tier·페이싱 결과는 입력 기록 기반 추정치로, '
-                '운동 처방·의료 판단의 근거가 아닙니다.'),
+                '트레이닝 처방·의료 판단의 근거가 아닙니다.'),
             SizedBox(height: FacingTokens.sp4),
 
             Text('6. 금지행위', style: FacingTokens.sectionLabel),
@@ -69,7 +69,7 @@ class TermsScreen extends StatelessWidget {
             Text('7. 책임의 한계', style: FacingTokens.sectionLabel),
             SizedBox(height: FacingTokens.sp2),
             Text(
-              '운동 중 발생한 부상, 박스와 회원 간 분쟁, 박스의 폐업·운영 중단에 대해 '
+              '트레이닝 중 발생한 부상, 박스와 회원 간 분쟁, 박스의 폐업·운영 중단에 대해 '
               'FACING 은 책임을 지지 않습니다. 서비스는 베타 운영 중이며 '
               '기능은 사전 공지 후 변경될 수 있습니다. 천재지변·통신 장애 등 '
               '불가항력으로 인한 일시 중단에 대해 책임을 지지 않습니다.',
