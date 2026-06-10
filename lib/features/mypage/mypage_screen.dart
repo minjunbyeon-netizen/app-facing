@@ -37,6 +37,7 @@ import '../profile/profile_state.dart';
 import 'algorithm_screen.dart';
 import 'edit_profile_screen.dart';
 import 'import_screen.dart';
+import 'faq_screen.dart';
 import 'privacy_screen.dart';
 import 'terms_screen.dart';
 
@@ -1064,6 +1065,14 @@ class _ActionsSection extends StatelessWidget {
               builder: (_) => const AlgorithmScreen(),
             )),
             child: const Text('Algorithm'),
+          ),
+          const SizedBox(height: FacingTokens.sp3),
+          // P2-1 (2026-06-11) — FAQ (시드 10문답, 실문의 누적 시 증보).
+          OutlinedButton(
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => const FaqScreen(),
+            )),
+            child: const Text('FAQ'),
           ),
           const SizedBox(height: FacingTokens.sp3),
           // P0-3 (2026-06-10) — 고객센터 단일 채널 (카카오톡 채널 1:1 채팅).
