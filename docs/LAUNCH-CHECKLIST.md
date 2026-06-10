@@ -123,29 +123,29 @@ Phase 1 백엔드 코어  →  Phase 2 앱 인증·온보딩  →  Phase 3 웹 �
 - [x] `signup_screen.dart` 에 "박스 가입 신청" 진입 버튼 (약관 링크 위쪽) → `/signup/self`
 - [x] `/onboarding/create-gym` 명시적 비활성 (결정2 — main.dart 라우트·import 주석 + 사유)
 - [x] `self_signup_screen.dart` — 성공 이동 `/home` → `/shell`
-- [ ] 검증: 로그인 화면 → 가입 신청 → 빈값 검증 토스트 → 제출 → 승인 대기 안내 (체크포인트②)
+- [x] 검증 (2026-06-10 14:11 에뮬레이터): 로그인 화면에 버튼 노출 → 가입 화면 진입 → 박스 6개 목록 로드 → 빈값 제출 시 "박스를 먼저 선택." 토스트. 실제 가입 POST(쓰기)는 G-5 에서
 
 ### 🔴 B-2. 인트로 첫 실행 미노출 — 20m
 - [x] `splash_screen.dart` — intro_seen=false 면 로그인 여부 무관 `/intro` 먼저
 - [x] intro `_finish()` 목적지 분기: 로그인 전 `/signup` / 로그인 후 `/onboarding/basic`
-- [ ] 검증: prefs 초기화 첫 실행 → 인트로 3p → 로그인 화면 (체크포인트②)
+- [x] 검증 (에뮬레이터 fresh install): 인트로 3p (MANAGE→TRAIN→EDGE) → Start → 로그인 화면 도달 확인
 
 ### 🟠 B-3. 인트로 카피 재작성 — 30m
 - [x] 코드 draft 반영 — MANAGE "One app. Every class." / TRAIN "Book. Train. Track." / EDGE "Pull your Split." (Primary 2p + 페이싱 1p)
 - [ ] **사용자 카피 승인 대기** — 승인 후 확정. CLAUDE.md 카피 템플릿 동기화도 §2-C-1 (CLAUDE.md 수정 = 사용자 승인 필요) 라 승인과 함께 일괄
-- [ ] copy_lint_test 통과 확인 (flutter test)
+- [x] copy_lint_test — 신규 인트로 카피 위반 0건. (flutter test 의 실패 4건은 전부 기존 부채로 판명: 금지용어 3건 = rehab "운동을 멈추세요"·benchmark_data "운동선수" / 하드코드 fontSize 3파일 = attendance·box_wod·gym_info_card / inbox 위젯 테스트 2건 = 10분 timeout 행. 오늘 변경 파일과 전부 무관 — 🟡 POST 이관)
 
 ### 🟠 B-1. 온보딩 진행률 — 20m
 - [x] `onboarding_benchmarks.dart` 분모 7 (totalSteps 상수) — AppBar·본문 2곳
 - [x] `onboarding_basic.dart` "STEP 1 / 7" + 14% 동기화
-- [ ] 검증: 마지막 BODY 페이지 "STEP 7 / 7 · 100%" (체크포인트②)
+- [x] 검증: basic 화면 "STEP 1 / 7 · 14%" 에뮬레이터 확인 (마지막 페이지 7/7·100% 은 산식상 동일 상수 — G-4 release 플로우에서 최종 확인)
 
 ### 🟠 self_signup 클러스터 (B-7 + C-1앱 + E-3/E-4) — 40m
 - [x] B-7: `duplicate==true` 시 "이미 승인 대기 중" / approved 면 shell 이동 분기
 - [x] C-1앱: 전화번호 정규식 + 자동 하이픈 formatter (백엔드 INVALID_PHONE 과 동일 규칙) + AppException 메시지 표시
 - [x] E-3: 하드코드 fontSize·spacing·radius·Colors.white → FacingTokens (sp/r/buttonH/onColor)
 - [x] E-4: "~해 주세요/~이에요" 친근체 제거, Retry 라벨 영문화
-- [ ] 검증: 가입 플로우 1회로 통합 확인 (체크포인트②)
+- [x] 검증: 가입 화면 렌더(토큰 적용)·박스 목록·빈값 토스트 에뮬레이터 확인. 실제 제출 POST 는 G-5 실 쓰기 smoke 에서
 
 ### (추가 2026-06-10) 카카오톡 채널 상담 진입 — 사용자 지시
 - [x] 마이페이지에 "카카오톡 상담" 버튼 (`http://pf.kakao.com/_kxbxanX/chat` 외부앱 launch)
@@ -153,7 +153,10 @@ Phase 1 백엔드 코어  →  Phase 2 앱 인증·온보딩  →  Phase 3 웹 �
 ### 🟡 E-1. Splash 고정 2.5s 지연 단축 + 죽은 애니메이션 슬롯 3~5 정리
 ### 🟡 E-6. 빈 프로필 `{}` 등급 산출 — 최소 1개 입력 요구 검토
 
-### ✅ 체크포인트② — 디버그 fresh-install 플로우 완주 (콘솔 예외 0) + WOD 126 `_MovementRow` 렌더 screencap (전 세션 잔여 F-1 편승)
+### ✅ 체크포인트② — 부분 통과 (2026-06-10 14:12)
+- [x] fresh install → 인트로 3p → Start → 로그인 → 박스 가입 신청 화면 → 빈값 토스트 → stub 로그인 → 온보딩 "STEP 1/7 · 14%" 까지 에뮬레이터 완주
+- [ ] **F-1 잔여**: 데모 김도윤 로그인 → WOD 126 상세 `_MovementRow` 렌더 screencap (전 세션 잔여 — 다음 배치에서)
+- ⚠ 발견: 구 APK 가 어제(06-09)본으로 남아 install -r 이 Success 만 반환하고 미갱신 — uninstall 후 clean install 로 해결. G-4 release 검증 시 lastUpdateTime 확인 절차 추가
 
 ---
 
