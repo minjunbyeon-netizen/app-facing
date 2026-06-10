@@ -56,3 +56,6 @@ tmp/
 cap_*.png
 care_*.png
 .shots/
+
+tmp_*.png
+tmp_*.xml
