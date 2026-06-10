@@ -107,44 +107,48 @@ Phase 1 백엔드 코어  →  Phase 2 앱 인증·온보딩  →  Phase 3 웹 �
 
 ---
 
-## Phase 2 — 앱 인증·온보딩 (한 플로우로 설계 후 일괄)
+## Phase 2 — 앱 인증·온보딩 (코드 완료 2026-06-10 · 에뮬레이터 검증 + OAuth 키 대기)
 
 ### 선행: 최종 신규 유저 플로우 확정 — 5m
-- [ ] **Splash → (intro_seen=false) /intro → /signup → 소셜 로그인 or 박스 가입 신청 → /onboarding/basic → … → /shell**
+- [x] **Splash → (intro_seen=false) /intro → /signup → 소셜 로그인 or 박스 가입 신청 → /onboarding/basic → … → /shell**
 
 ### 🔴 A-5앱. 소셜 로그인 실연동 전환 (결정1 ②) — 1~2h
-- [ ] `StubSocialAuthService` → 실서비스 전환 (네이버·구글 SDK 토큰 → Phase 1 신규 endpoint)
-- [ ] StaffLinkScreen — link-staff 실구현 연결 (404 의존 해소됨)
-- [ ] 실패 UX: 토큰 만료·거부·네트워크 각각 한국어 안내
-- [ ] 검증(열거형): 데모 로그인 OK / 소셜 로그인 성공·실패 각 1회 / 박스 가입 신청 도달 OK
+- [x] `RealSocialAuthService` 기 구현 확인 — 백엔드 신규 endpoint 와 계약 일치 (Phase 1 에서 백엔드를 앱 계약에 맞춤)
+- [x] StaffLinkScreen — link-staff 백엔드 404 의존 해소됨 (Phase 1)
+- [x] 실패 UX: 취소·토큰없음·타임아웃·백엔드 실패 한국어 안내 기 구현 확인
+- [ ] **[BLOCKED: 사용자 제공 필요 — 네이버 개발자센터 앱 등록(NAVER_CLIENT_ID/SECRET/URL_SCHEME) + 구글 OAuth server client id(GOOGLE_SERVER_CLIENT_ID)]** 키 수령 후 `--dart-define=USE_REAL_AUTH=true` + 키 4종 주입 빌드로 실연동 검증
+- [ ] 검증(열거형): 데모 로그인 OK / 소셜 로그인 성공·실패 각 1회 / 박스 가입 신청 도달 OK — 키 수령 후
 
 ### 🔴 A-4. 신규 회원 가입 신청 배선 — 60~75m
-- [ ] `signup_screen.dart` 에 "박스 가입 신청" 진입 버튼 (약관 링크 위쪽) → `/signup/self`
-- [ ] `/onboarding/create-gym` 명시적 비활성 (결정2 — 주석 + 사유, 방치 금지)
-- [ ] `self_signup_screen.dart:127` — 성공 이동 `/home` → `/shell` (`/home` 은 실존 라우트 — 크래시가 아니라 하단 탭 셸 우회가 문제)
-- [ ] 검증: 로그인 화면 → 가입 신청 → 빈값 검증 토스트 → 제출 → 승인 대기 안내
+- [x] `signup_screen.dart` 에 "박스 가입 신청" 진입 버튼 (약관 링크 위쪽) → `/signup/self`
+- [x] `/onboarding/create-gym` 명시적 비활성 (결정2 — main.dart 라우트·import 주석 + 사유)
+- [x] `self_signup_screen.dart` — 성공 이동 `/home` → `/shell`
+- [ ] 검증: 로그인 화면 → 가입 신청 → 빈값 검증 토스트 → 제출 → 승인 대기 안내 (체크포인트②)
 
 ### 🔴 B-2. 인트로 첫 실행 미노출 — 20m
-- [ ] `splash_screen.dart:125-135` — 로그인 전이라도 intro_seen=false 면 `/intro` 먼저
-- [ ] intro `_finish()` 목적지 분기: 로그인 전 `/signup` / 로그인 후 `/onboarding/basic`
-- [ ] 검증: prefs 초기화 첫 실행 → 인트로 3p → 로그인 화면
+- [x] `splash_screen.dart` — intro_seen=false 면 로그인 여부 무관 `/intro` 먼저
+- [x] intro `_finish()` 목적지 분기: 로그인 전 `/signup` / 로그인 후 `/onboarding/basic`
+- [ ] 검증: prefs 초기화 첫 실행 → 인트로 3p → 로그인 화면 (체크포인트②)
 
 ### 🟠 B-3. 인트로 카피 재작성 — 30m
-- [ ] `intro_screen.dart:21-48` — Primary value(수업 예약·박스 운영) 1~2p + 페이싱 +α 1p, V1~V11 준수
-- [ ] CLAUDE.md 카피 템플릿 동시 갱신 ("Start." ↔ "Run it." drift — §0-B 같은 커밋)
-- [ ] 완료 기준: **사용자 카피 승인** (순환 기준 금지 — 2차 조사 지적)
+- [x] 코드 draft 반영 — MANAGE "One app. Every class." / TRAIN "Book. Train. Track." / EDGE "Pull your Split." (Primary 2p + 페이싱 1p)
+- [ ] **사용자 카피 승인 대기** — 승인 후 확정. CLAUDE.md 카피 템플릿 동기화도 §2-C-1 (CLAUDE.md 수정 = 사용자 승인 필요) 라 승인과 함께 일괄
+- [ ] copy_lint_test 통과 확인 (flutter test)
 
 ### 🟠 B-1. 온보딩 진행률 — 20m
-- [ ] `onboarding_benchmarks.dart:410-411` 분모 **7** (basic 1 + 카테고리 6 — "/6" 하드코드는 414·433)
-- [ ] `onboarding_basic.dart:62,66,91` "/ 7" 동기화 + AppBar/본문 이중 표기 정리
-- [ ] 검증: 마지막 BODY 페이지 "STEP 7 / 7 · 100%"
+- [x] `onboarding_benchmarks.dart` 분모 7 (totalSteps 상수) — AppBar·본문 2곳
+- [x] `onboarding_basic.dart` "STEP 1 / 7" + 14% 동기화
+- [ ] 검증: 마지막 BODY 페이지 "STEP 7 / 7 · 100%" (체크포인트②)
 
 ### 🟠 self_signup 클러스터 (B-7 + C-1앱 + E-3/E-4) — 40m
-- [ ] B-7: `duplicate==true` 시 "이미 승인 대기 중" 분기 (`self_signup_screen.dart:99-104`)
-- [ ] C-1앱: 전화번호 정규식 + 자동 하이픈 (`:229-231`)
-- [ ] E-3: 하드코드 fontSize·Colors.white·radius → FacingTokens
-- [ ] E-4: "~해 주세요" → V1 명령형, V9 혼용 수정
-- [ ] 검증: 가입 플로우 1회로 통합 확인
+- [x] B-7: `duplicate==true` 시 "이미 승인 대기 중" / approved 면 shell 이동 분기
+- [x] C-1앱: 전화번호 정규식 + 자동 하이픈 formatter (백엔드 INVALID_PHONE 과 동일 규칙) + AppException 메시지 표시
+- [x] E-3: 하드코드 fontSize·spacing·radius·Colors.white → FacingTokens (sp/r/buttonH/onColor)
+- [x] E-4: "~해 주세요/~이에요" 친근체 제거, Retry 라벨 영문화
+- [ ] 검증: 가입 플로우 1회로 통합 확인 (체크포인트②)
+
+### (추가 2026-06-10) 카카오톡 채널 상담 진입 — 사용자 지시
+- [x] 마이페이지에 "카카오톡 상담" 버튼 (`http://pf.kakao.com/_kxbxanX/chat` 외부앱 launch)
 
 ### 🟡 E-1. Splash 고정 2.5s 지연 단축 + 죽은 애니메이션 슬롯 3~5 정리
 ### 🟡 E-6. 빈 프로필 `{}` 등급 산출 — 최소 1개 입력 요구 검토

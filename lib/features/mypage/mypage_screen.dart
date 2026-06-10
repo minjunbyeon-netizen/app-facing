@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/api_client.dart';
 import '../../core/app_mode.dart';
@@ -1019,6 +1020,15 @@ class _ActionsSection extends StatelessWidget {
               builder: (_) => const AlgorithmScreen(),
             )),
             child: const Text('Algorithm'),
+          ),
+          const SizedBox(height: FacingTokens.sp3),
+          // 2026-06-10 — 고객 상담 채널 (카카오톡 채널 1:1 채팅).
+          OutlinedButton(
+            onPressed: () => launchUrl(
+              Uri.parse('http://pf.kakao.com/_kxbxanX/chat'),
+              mode: LaunchMode.externalApplication,
+            ),
+            child: const Text('카카오톡 상담'),
           ),
           const SizedBox(height: FacingTokens.sp3),
           // D26 §4.1 — 코치·사장 계정 연결 (소셜 로그인 후 1회 claim).

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../widgets/hero_background.dart';
+import '../auth/auth_state.dart';
 
 class IntroScreen extends StatefulWidget {
   const IntroScreen({super.key});
@@ -17,31 +19,27 @@ class _IntroScreenState extends State<IntroScreen> {
   final PageController _pc = PageController();
   int _page = 0;
 
-  // v1.15: 각 페이지에 hero 이미지 + stickman SVG (Motivation → Discipline → Obsession)
+  // B-3 (2026-06-10): v1.16.2 포지셔닝 동기화 — Primary value(수업·박스 운영) 2p
+  // + 페이싱 엔진(+α 차별점) 1p. ⚠ 카피 최종본은 사용자 승인 후 확정 (draft).
   static const List<_IntroPage> _pages = [
     _IntroPage(
-      stage: 'MOTIVATION',
-      title: 'Split defines rank.',
-      // v1.15 P1-12: V9 위반 제거 — "1분 all-out은" 영-한 혼용 → 전문 한글.
-      body: '초반 전력 질주는 마지막 5분을 부순다.\n'
-          '논문 공식으로 Split과 Burst 시점을 계산한다.',
+      stage: 'MANAGE',
+      title: 'One app.\nEvery class.',
+      body: '예약 · 출석 · 공지 · 전자계약.\n박스의 하루를 한 곳에 담는다.',
       heroAsset: 'assets/images/hero_intro_1.jpg',
       stickmanAsset: 'assets/icons/stickman_motivation.svg',
     ),
     _IntroPage(
-      stage: 'DISCIPLINE',
-      title: '6 metrics.\nMeasure Engine.',
-      body: 'Body · Power · Olympic · Gymnastics · Cardio · Metcon\n'
-          '아는 것만 입력. 빈 칸은 자동 추론.',
+      stage: 'TRAIN',
+      title: 'Book. Train. Track.',
+      body: '수업 예약부터 QR 출석까지.\n기록은 자동 저장.',
       heroAsset: 'assets/images/hero_intro_2.jpg',
       stickmanAsset: 'assets/icons/stickman_discipline.svg',
     ),
     _IntroPage(
-      stage: 'OBSESSION',
-      // v1.15 P2-2: 버튼 'Start'와 중복 제거 → 'Run it.' (HWPO 톤).
-      title: 'Run it.',
-      body: 'Profile은 언제든 수정 가능.\n'
-          'WOD 붙이면 즉시 전략 출력.',
+      stage: 'EDGE',
+      title: 'Pull your Split.',
+      body: '논문 공식으로 Split과 Burst 자동 계산.\nFACING 만의 페이싱 엔진.',
       heroAsset: 'assets/images/hero_intro_3.jpg',
       stickmanAsset: 'assets/icons/stickman_obsession.svg',
     ),
@@ -51,7 +49,10 @@ class _IntroScreenState extends State<IntroScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('intro_seen', true);
     if (!mounted) return;
-    Navigator.of(context).pushReplacementNamed('/onboarding/basic');
+    // B-2: 첫 실행 인트로는 로그인 전에 노출됨 — 로그인 여부로 목적지 분기.
+    final signedIn = context.read<AuthState>().isSignedIn;
+    Navigator.of(context)
+        .pushReplacementNamed(signedIn ? '/onboarding/basic' : '/signup');
   }
 
   void _next() {

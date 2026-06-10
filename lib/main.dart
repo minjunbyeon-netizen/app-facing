@@ -19,7 +19,8 @@ import 'core/unit_state.dart';
 import 'core/wod_session_bus.dart';
 import 'features/home/home_screen.dart';
 import 'features/intro/intro_screen.dart';
-import 'features/onboarding/create_gym_screen.dart';
+// 결정2 (2026-06-10): create-gym 비활성 — 라우트 주석과 함께 복구.
+// import 'features/onboarding/create_gym_screen.dart';
 import 'features/onboarding/onboarding_basic.dart';
 import 'features/onboarding/onboarding_benchmarks.dart';
 import 'features/onboarding/onboarding_grade.dart';
@@ -198,7 +199,10 @@ class FacingApp extends StatelessWidget {
           '/onboarding/basic': (_) => const OnboardingBasicScreen(),
           '/onboarding/benchmarks': (_) => const OnboardingBenchmarksScreen(),
           '/onboarding/grade': (_) => const OnboardingGradeScreen(),
-          '/onboarding/create-gym': (_) => const CreateGymScreen(),
+          // 결정2 (2026-06-10 LAUNCH-CHECKLIST): create-gym 명시적 비활성.
+          // 박스 개설은 웹 admin 경로로만 운영 (무분별 박스 생성 방지).
+          // 재활성 시 이 라우트 + CreateGymScreen import 복구.
+          // '/onboarding/create-gym': (_) => const CreateGymScreen(),
           '/onboarding/find-gym': (_) => const GymSearchScreen(),
           // PHASE5 Sprint1 F4 — 신규 회원 박스 선택 + 자동 가입 신청
           '/signup/self': (_) => const SelfSignupScreen(),

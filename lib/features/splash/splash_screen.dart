@@ -123,13 +123,15 @@ class _SplashScreenState extends State<SplashScreen>
       return;
     }
     final String next;
-    if (!auth.isSignedIn) {
-      next = '/signup'; // 미로그인 → 소셜 로그인 화면 먼저
+    if (!introSeen) {
+      // B-2 (2026-06-10): 첫 실행은 로그인 여부 무관 서비스 소개 먼저.
+      // (기존엔 미로그인 → /signup 직행이라 신규 유저가 인트로를 영영 못 봄)
+      next = '/intro';
+    } else if (!auth.isSignedIn) {
+      next = '/signup'; // 미로그인 → 소셜 로그인 화면
     } else if (profile.hasGrade) {
       // D26: 역할은 로그인 시 결정됨 — 수동 mode-select 폐기. shell 직행.
       next = '/shell';
-    } else if (!introSeen) {
-      next = '/intro';
     } else {
       next = '/onboarding/basic';
     }

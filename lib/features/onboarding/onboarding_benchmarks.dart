@@ -406,12 +406,14 @@ class _OnboardingBenchmarksScreenState
 
   @override
   Widget build(BuildContext context) {
-    // 전체 위저드 6단계 중 benchmarks는 2~6번 (신체=1, 등급=결과화면).
+    // B-1 (2026-06-10): 전체 위저드 7단계 — 신체=1, benchmarks 카테고리 6개=2~7
+    // (v3.1 에서 body 카테고리 추가로 6개가 됐는데 분모 6 잔존 → "STEP 7/6 · 117%" 버그).
     final stepNumber = _page + 2;
-    final progress = stepNumber / 6;
+    const totalSteps = 7;
+    final progress = stepNumber / totalSteps;
     final pct = (progress * 100).round();
     return Scaffold(
-      appBar: AppBar(title: Text('STEP $stepNumber / 6')),
+      appBar: AppBar(title: Text('STEP $stepNumber / $totalSteps')),
       body: SafeArea(
         child: Column(
           children: [
@@ -430,7 +432,7 @@ class _OnboardingBenchmarksScreenState
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Step $stepNumber / 6',
+                        'Step $stepNumber / $totalSteps',
                         style: FacingTokens.caption,
                       ),
                       Text('$pct%', style: FacingTokens.caption),

@@ -59,11 +59,12 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const progress = 1 / 6;
-    const pct = 17;
+    // B-1 (2026-06-10): 분모 7 동기화 (benchmarks 카테고리 6개 + basic 1).
+    const progress = 1 / 7;
+    const pct = 14;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('STEP 1 / 6'),
+        title: const Text('STEP 1 / 7'),
         // v1.21: 베타 테스터 피드백 — 체중 입력 칸에서 뒤로가기 누락. signup 으로 복귀.
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -88,7 +89,7 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: const [
-                      Text('Step 1 / 6', style: FacingTokens.caption),
+                      Text('Step 1 / 7', style: FacingTokens.caption),
                       Text('$pct%', style: FacingTokens.caption),
                     ],
                   ),

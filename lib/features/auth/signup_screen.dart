@@ -225,6 +225,24 @@ class _SignupScreenState extends State<SignupScreen> {
                         ),
                       ),
                     )),
+                const SizedBox(height: FacingTokens.sp3),
+                // A-4 (2026-06-10): 신규 회원 박스 가입 신청 진입 — /signup/self
+                // 고아 라우트 해소 (PHASE5 F4 화면이 어디서도 push 되지 않던 버그).
+                OutlinedButton(
+                  onPressed: _busy
+                      ? null
+                      : () {
+                          Haptic.light();
+                          Navigator.of(context).pushNamed('/signup/self');
+                        },
+                  style: OutlinedButton.styleFrom(
+                    minimumSize:
+                        const Size(double.infinity, FacingTokens.buttonH),
+                    side: const BorderSide(color: FacingTokens.primary),
+                    foregroundColor: FacingTokens.primary,
+                  ),
+                  child: const Text('박스 가입 신청'),
+                ),
                 const SizedBox(height: FacingTokens.sp2),
                 // v1.16 Sprint 7a: 약관·개인정보 placeholder 링크.
                 Row(
