@@ -1,7 +1,10 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text
 from sqlalchemy.orm import relationship
-from datetime import datetime, timezone
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from .database import Base
+
+KST = ZoneInfo("Asia/Seoul")
 
 class User(Base):
     __tablename__ = "users"
@@ -9,7 +12,7 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     nickname = Column(String, nullable=False)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime, default=lambda: datetime.now(KST))
     records = relationship("RehabRecord", back_populates="user")
 
 class RehabRecord(Base):
@@ -21,6 +24,6 @@ class RehabRecord(Base):
     cause_id = Column(String, nullable=False)
     stage_index = Column(Integer, default=0)
     note = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime, default=lambda: datetime.now(KST))
+    updated_at = Column(DateTime, default=lambda: datetime.now(KST), onupdate=lambda: datetime.now(KST))
     user = relationship("User", back_populates="records")

@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
-from datetime import datetime, timezone
+from datetime import datetime
 from jose import JWTError
 from ..database import get_db
-from ..models import RehabRecord, User
+from ..models import KST, RehabRecord, User
 from ..auth import decode_token
 
 router = APIRouter(prefix="/records", tags=["records"])
@@ -51,7 +51,7 @@ def save_record(req: RecordUpsert, db: Session = Depends(get_db)):
     if record:
         record.cause_id = req.cause_id
         record.stage_index = req.stage_index
-        record.updated_at = datetime.now(timezone.utc)
+        record.updated_at = datetime.now(KST)
     else:
         record = RehabRecord(
             user_id=user.id,
