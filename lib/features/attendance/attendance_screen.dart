@@ -9,8 +9,21 @@ import '../inbox/inbox_screen.dart' show MessagingFeed;
 /// v1.23 (2026-06-02) 재배치 Phase 3: Attend = 출석 캘린더 전담.
 /// 게이미피케이션(Level·업적·Milestones)은 Home 으로 이관됨.
 /// 캘린더는 Profile 의 컴팩트 출석 카드를 이 화면으로 되돌린 것.
-class AttendanceScreen extends StatelessWidget {
+class AttendanceScreen extends StatefulWidget {
   const AttendanceScreen({super.key});
+
+  @override
+  State<AttendanceScreen> createState() => _AttendanceScreenState();
+}
+
+class _AttendanceScreenState extends State<AttendanceScreen> {
+  // G-6 (2026-06-10): IndexedStack 으로 탭 state 가 유지돼 앱 기동 시점
+  // 출석 데이터가 세션 내내 캐시되는 문제 — pull-to-refresh 로 재조회.
+  int _tick = 0;
+
+  Future<void> _refresh() async {
+    setState(() => _tick++);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,16 +32,21 @@ class AttendanceScreen extends StatelessWidget {
         title: const Text('ATTEND'),
       ),
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp4),
-          children: const [
-            _AttendanceCalendar(),
-            SizedBox(height: FacingTokens.sp5),
-            Divider(height: 1, color: FacingTokens.border),
-            SizedBox(height: FacingTokens.sp4),
-            // v1.24 (2026-06-03): 공지·쪽지·대화를 Notice 탭에서 캘린더 밑으로 이동.
-            MessagingFeed(),
-          ],
+        child: RefreshIndicator(
+          onRefresh: _refresh,
+          color: FacingTokens.accent,
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp4),
+            children: [
+              _AttendanceCalendar(key: ValueKey('att-cal-$_tick')),
+              const SizedBox(height: FacingTokens.sp5),
+              const Divider(height: 1, color: FacingTokens.border),
+              const SizedBox(height: FacingTokens.sp4),
+              // v1.24 (2026-06-03): 공지·쪽지·대화를 Notice 탭에서 캘린더 밑으로 이동.
+              MessagingFeed(key: ValueKey('att-feed-$_tick')),
+            ],
+          ),
         ),
       ),
     );
@@ -40,7 +58,7 @@ class AttendanceScreen extends StatelessWidget {
 /// v1.25 (2026-06-09): 개인 페이싱 계산 기록(/history/wod)을 출석으로 칠하던
 /// 버그 수정. 이제 실제 출석 데이터만 반영. 체크인 있는 날은 accent 강도색.
 class _AttendanceCalendar extends StatefulWidget {
-  const _AttendanceCalendar();
+  const _AttendanceCalendar({super.key});
 
   @override
   State<_AttendanceCalendar> createState() => _AttendanceCalendarState();

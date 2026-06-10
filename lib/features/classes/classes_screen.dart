@@ -313,10 +313,13 @@ class _ClassCard extends StatelessWidget {
                     color: FacingTokens.warning),
               const Spacer(),
               if (!isCancelled) ...[
+                // 전역 버튼 테마의 minimumSize(double.infinity) 는 Row 안에서
+                // 무한 폭 layout 예외 → 화면 전체 백지. 카드 내 버튼은 고유 폭.
                 if (isReserved || isWaitlisted)
                   OutlinedButton(
                     onPressed: onCancel,
                     style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(96, 44),
                       foregroundColor: FacingTokens.accent,
                       side:
                           BorderSide(color: FacingTokens.accent.withAlpha(120)),
@@ -330,8 +333,9 @@ class _ClassCard extends StatelessWidget {
                         ? null
                         : onReserve,
                     style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(96, 44),
                       backgroundColor: FacingTokens.accent,
-                      foregroundColor: FacingTokens.fg,
+                      foregroundColor: FacingTokens.onColor,
                     ),
                     child: Text(isFull ? 'Join Waitlist' : 'Reserve'),
                   ),
