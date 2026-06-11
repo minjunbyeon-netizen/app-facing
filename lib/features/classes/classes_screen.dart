@@ -216,7 +216,11 @@ class _ClassesSectionState extends State<ClassesSection> {
             ),
           );
         } else {
-          final classes = snap.data ?? const <ClassSessionDto>[];
+          // v1.26: 내 예약이 없는 취소 클래스는 노이즈 — 리스트에서 제외.
+          // (예약자에게는 CANCELLED 상태 고지가 필요하므로 유지.)
+          final classes = (snap.data ?? const <ClassSessionDto>[])
+              .where((c) => !c.isCancelled || c.myReservation != null)
+              .toList();
           if (classes.isEmpty) {
             body = _inline('등록된 클래스 없음. 사장 등록 시 표시.');
           } else {
