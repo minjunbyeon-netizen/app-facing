@@ -609,7 +609,7 @@ class MessagingFeed extends StatelessWidget {
           const Padding(
             padding: EdgeInsets.fromLTRB(FacingTokens.sp4, FacingTokens.sp2,
                 FacingTokens.sp4, FacingTokens.sp4),
-            child: Text('박스 가입 후 코치 쪽지·공지가 열려요.',
+            child: Text('박스 가입 후 코치 쪽지·공지 사용 가능.',
                 style: FacingTokens.caption),
           )
         else ...[
@@ -621,7 +621,7 @@ class MessagingFeed extends StatelessWidget {
           _EmbeddedThreadList(
             gymId: gymId,
             emptyHint:
-                isCoach ? '회원이 보낸 쪽지가 여기 쌓여요.' : '코치 쪽지가 여기 쌓여요.',
+                isCoach ? '회원 쪽지 도착 시 표시.' : '코치 쪽지 도착 시 표시.',
           ),
         ],
       ],
