@@ -36,7 +36,7 @@ class _RehabScreenState extends State<RehabScreen> {
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('데이터를 불러오지 못했어요. 다시 시도해 주세요.')),
+        const SnackBar(content: Text('Load failed. Retry.')),
       );
       return;
     }
@@ -81,7 +81,7 @@ class _RehabScreenState extends State<RehabScreen> {
             }
             if (snap.hasError || (snap.data?.isEmpty ?? true)) {
               return const Center(
-                child: Text('가이드를 불러오지 못했어요.',
+                child: Text('가이드 로딩 실패.',
                     style: FacingTokens.caption),
               );
             }
@@ -89,10 +89,10 @@ class _RehabScreenState extends State<RehabScreen> {
             return ListView(
               padding: const EdgeInsets.all(FacingTokens.sp4),
               children: [
-                const Text('통증 부위로 원인을 찾고 단계별 재활을 받아요.',
+                const Text('통증 부위로 원인을 찾고 단계별 재활 진행.',
                     style: FacingTokens.body),
                 const SizedBox(height: FacingTokens.sp2),
-                const Text('동작을 고른 뒤 아픈 부위를 눌러 주세요.',
+                const Text('동작 선택 후 아픈 부위 탭.',
                     style: FacingTokens.caption),
                 const SizedBox(height: FacingTokens.sp5),
                 for (final mv in movements)

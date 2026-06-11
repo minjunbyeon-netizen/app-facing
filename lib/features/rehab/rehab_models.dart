@@ -164,7 +164,7 @@ class RehabDanger {
   });
 
   factory RehabDanger.fromJson(Map<String, dynamic> j) => RehabDanger(
-        title: (j['title'] as String?) ?? '트레이닝을 멈추세요',
+        title: (j['title'] as String?) ?? '트레이닝 중단',
         reason: (j['reason'] as String?) ?? '',
         action: (j['action'] as String?) ?? '',
       );

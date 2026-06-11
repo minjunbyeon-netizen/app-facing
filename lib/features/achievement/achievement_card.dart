@@ -58,7 +58,9 @@ class AchievementCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      koreanTitle(catalog.code),
+                      koreanTitle(catalog.code).isEmpty
+                          ? catalog.name
+                          : koreanTitle(catalog.code),
                       style: FacingTokens.h3.copyWith(
                         color:
                             unlocked ? FacingTokens.fg : FacingTokens.muted,
@@ -288,9 +290,16 @@ class AchievementCard extends StatelessWidget {
       case 'VOL_EQUAL':
         return '균등의 기둥';
       default:
-        return '칭호';
+        // 매핑 없는 코드는 빈 문자열 — 호출부에서 catalog.name(업적 고유명)으로 폴백.
+        // (구 '칭호' 폴백이 Home 카드 라벨 중복 원인이었음.)
+        return '';
     }
   }
+
+  /// 그리드 타일용 단어 라벨 — 마침표 3분류(CLAUDE.md): 단어 1~3개 라벨 = 마침표 없음.
+  /// 선언형 원문("First Ten.")은 상세 패널에서만 유지.
+  static String gridLabel(String name) =>
+      name.replaceAll(RegExp(r'\.+$'), '').trim();
 
   static String _formatDate(DateTime d) {
     final l = d.toLocal();

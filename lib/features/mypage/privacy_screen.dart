@@ -82,7 +82,7 @@ class PrivacyScreen extends StatelessWidget {
             ),
             const SizedBox(height: FacingTokens.sp3),
             const Text(
-              '탈퇴 시 서버 DB의 내 기록(Engine·WOD·Gym) 일괄 삭제. 복구 불가.',
+              '탈퇴 시 서버에 저장된 내 기록(Engine·WOD·Gym) 일괄 삭제. 복구 불가.',
               style: FacingTokens.caption,
             ),
             const SizedBox(height: FacingTokens.sp5),

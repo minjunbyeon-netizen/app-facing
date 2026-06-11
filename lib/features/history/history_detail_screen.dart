@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/api_client.dart';
 import '../../core/exception.dart';
 import '../../core/theme.dart';
+import '../gym/wod_type_label.dart';
 import 'history_repository.dart';
 
 class HistoryDetailScreen extends StatefulWidget {
@@ -65,7 +66,7 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
           return ListView(
             padding: const EdgeInsets.all(FacingTokens.sp4),
             children: [
-              Text((wod['wod_type'] ?? '').toString().toUpperCase(),
+              Text(wodTypeLabel((wod['wod_type'] ?? '').toString()),
                   style: FacingTokens.h3),
               const SizedBox(height: FacingTokens.sp1),
               Text(_formatDate(wod['created_at']?.toString()),

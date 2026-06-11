@@ -209,7 +209,7 @@ class RealSocialAuthService implements SocialAuthService {
     await completer.future.timeout(
       const Duration(seconds: 120),
       onTimeout: () => throw const SocialAuthException(
-          '네이버 로그인 응답이 없습니다. 다시 시도하세요.', 'TIMEOUT'),
+          'Naver login timeout. Retry.', 'TIMEOUT'),
     );
     final accessToken = await NaverLoginSDK.getAccessToken();
     if (accessToken.isEmpty) {

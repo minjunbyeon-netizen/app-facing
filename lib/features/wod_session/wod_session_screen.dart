@@ -19,6 +19,7 @@ import '../../core/theme.dart';
 import '../../core/pr_detector.dart';
 import '../../core/wod_session_bus.dart';
 import '../../models/gym.dart';
+import '../gym/wod_type_label.dart';
 import '../achievement/achievement_state.dart';
 import '../achievement/unlock_toast.dart';
 import '../gym/gym_repository.dart';
@@ -189,7 +190,7 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
             children: [
               const Text('SAVE RECORD', style: FacingTokens.sectionLabel),
               const SizedBox(height: FacingTokens.sp1),
-              Text(widget.wod.wodType.toUpperCase(),
+              Text(wodTypeLabel(widget.wod.wodType),
                   style: FacingTokens.h3.copyWith(
                     color: FacingTokens.accent,
                     fontWeight: FontWeight.w800,
@@ -414,7 +415,7 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'PR · ${widget.wod.wodType.toUpperCase()} '
+              'PR · ${wodTypeLabel(widget.wod.wodType)} '
               '$m:${s.toString().padLeft(2, '0')}',
             ),
             duration: const Duration(seconds: 2),
@@ -535,7 +536,7 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(widget.wod.wodType.toUpperCase()),
+          title: Text(wodTypeLabel(widget.wod.wodType)),
         ),
       body: SafeArea(
         child: Padding(

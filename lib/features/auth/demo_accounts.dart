@@ -60,7 +60,8 @@ const List<DemoAccount> kDemoAccounts = [
       'row_500m_sec': 88,
       'double_under_per_min': 100,
     },
-    hintTier: 'Elite / Engine 84',
+    // QA 2026-06-11 #3: 하드코딩 Engine 수치는 백엔드 산정값과 어긋남 — Tier 만 표기.
+    hintTier: 'Elite',
     deviceIdSeed: 'persona-coach-park-2026',
   ),
   // 2. 김도윤 — FACING SEONGSU 정식 회원
@@ -82,7 +83,7 @@ const List<DemoAccount> kDemoAccounts = [
       'strict_pull_up_max_ub': 15,
       'run_mile_sec': 420,
     },
-    hintTier: 'RX / Engine 66',
+    hintTier: 'RX',
     deviceIdSeed: 'persona-member-kim-doyun-2026',
   ),
   // 3. 최서윤 — FACING SEONGSU 정식 회원 (여성 회원 — 2026-05-30 가입대기→승인)
@@ -102,7 +103,7 @@ const List<DemoAccount> kDemoAccounts = [
       'deadlift_1rm_lb': 135,
       'run_mile_sec': 660,
     },
-    hintTier: 'Scaled / Engine 10',
+    hintTier: 'Scaled',
     deviceIdSeed: 'persona-member-choi-seoyun-2026',
   ),
 ];

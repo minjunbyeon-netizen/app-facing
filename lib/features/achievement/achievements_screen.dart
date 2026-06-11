@@ -231,11 +231,12 @@ class _StatsHeader extends StatelessWidget {
               Text('/ $total',
                   style: FacingTokens.h3.copyWith(color: FacingTokens.muted)),
               const Spacer(),
+              // 진척률은 성과·경고 강조 대상 아님 → muted (실기기 QA).
               Text(
                 '${(pct * 100).toInt()}%',
                 style: FacingTokens.h3.copyWith(
                   fontFeatures: FacingTokens.tabular,
-                  color: FacingTokens.accent,
+                  color: FacingTokens.muted,
                 ),
               ),
             ],
@@ -367,7 +368,8 @@ class _FeaturedPanel extends StatelessWidget {
               color: unlockedInUi ? FacingTokens.fg : FacingTokens.muted,
             ),
           ),
-          if (!isHidden) ...[
+          if (!isHidden &&
+              AchievementCard.koreanTitle(catalog.code).isNotEmpty) ...[
             const SizedBox(height: FacingTokens.sp1),
             Text(
               AchievementCard.koreanTitle(catalog.code),
@@ -444,11 +446,13 @@ class _Grid extends StatelessWidget {
   Widget build(BuildContext context) {
     return GridView.builder(
       padding: const EdgeInsets.all(FacingTokens.sp3),
+      // 실기기 QA: 3열은 셀 폭 부족으로 라벨이 단어 중간에서 개행
+      // ("RX STA NDARD") → 2열로 가독 확보.
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
+        crossAxisCount: 2,
         mainAxisSpacing: FacingTokens.sp2,
         crossAxisSpacing: FacingTokens.sp2,
-        childAspectRatio: 0.78,
+        childAspectRatio: 0.9,
       ),
       itemCount: items.length,
       itemBuilder: (ctx, i) {
@@ -526,14 +530,17 @@ class _GridCell extends StatelessWidget {
                 horizontal: FacingTokens.sp1,
                 vertical: FacingTokens.sp1,
               ),
+              // 마침표 3분류: 그리드 타일 = 단어 라벨 → 마침표 없음.
+              // toUpperCase 제거 — 좁은 셀에서 대문자 폭 증가로 단어 중간 개행 유발.
               child: Text(
-                isHidden ? '???' : catalog.name.toUpperCase(),
+                isHidden ? '???' : AchievementCard.gridLabel(catalog.name),
                 maxLines: 2,
                 textAlign: TextAlign.center,
                 overflow: TextOverflow.ellipsis,
+                softWrap: true,
                 style: FacingTokens.micro.copyWith(
                   color: unlocked ? FacingTokens.fg : FacingTokens.muted,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),

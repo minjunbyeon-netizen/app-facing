@@ -17,6 +17,7 @@ import 'gym_search_screen.dart';
 import 'gym_state.dart';
 import 'wod_post_screen.dart';
 import 'wod_result_sheet.dart';
+import 'wod_type_label.dart';
 
 /// v1.15.3: WOD 탭 진입점. GymState 상태 따라 4분기 렌더.
 class BoxWodScreen extends StatelessWidget {
@@ -690,7 +691,7 @@ class _DateAccordion extends StatelessWidget {
     final count = entries.length;
     // preview: 첫 번째 WOD wodType (+ "외 N건" if multiple)
     final firstType = entries.isNotEmpty
-        ? entries.first.wod.wodType.toUpperCase()
+        ? wodTypeLabel(entries.first.wod.wodType)
         : '';
     final previewText = count > 1 ? '$firstType 외 ${count - 1}건' : firstType;
 
@@ -818,7 +819,7 @@ class _LockedWodBanner extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  wodType.toUpperCase(),
+                  wodTypeLabel(wodType),
                   style: FacingTokens.body.copyWith(
                     color: FacingTokens.muted,
                     fontWeight: FontWeight.w700,
@@ -975,7 +976,7 @@ class _WodRowState extends State<_WodRow> {
                     _dot(),
                   ],
                   Text(
-                    wod.wodType.toUpperCase(),
+                    wodTypeLabel(wod.wodType),
                     style: FacingTokens.sectionLabel.copyWith(
                       color: isMinimal
                           ? FacingTokens.muted
@@ -1229,7 +1230,7 @@ class _MsgCoachSheetState extends State<_MsgCoachSheet> {
           const Text('MESSAGE COACH', style: FacingTokens.sectionLabel),
           const SizedBox(height: 4),
           Text(
-            '${widget.wod.wodType.toUpperCase()} · ${widget.wod.postDate}',
+            '${wodTypeLabel(widget.wod.wodType)} · ${widget.wod.postDate}',
             style: FacingTokens.caption,
           ),
           const SizedBox(height: FacingTokens.sp3),

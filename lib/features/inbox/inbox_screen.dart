@@ -1001,7 +1001,7 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
                       children: const [
                         SizedBox(height: 100),
                         Center(
-                          child: Text('첫 쪽지를 보내보세요.',
+                          child: Text('첫 쪽지 작성.',
                               style: FacingTokens.caption),
                         ),
                       ],

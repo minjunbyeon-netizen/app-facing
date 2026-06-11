@@ -13,6 +13,7 @@ import '../../models/gym.dart';
 import '../wod_session/wod_session_screen.dart';
 import 'gym_repository.dart';
 import 'gym_state.dart';
+import 'wod_type_label.dart';
 
 enum _ScaleLevel { rx, scaled, beginner }
 
@@ -261,7 +262,7 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
     final isOwner = context.watch<GymState>().isOwner;
     return Scaffold(
       appBar: AppBar(
-        title: Text(wod.wodType.toUpperCase()),
+        title: Text(wodTypeLabel(wod.wodType)),
         actions: [
           if (isOwner) const CoachBadgeAction(),
           IconButton(icon: const Icon(Icons.refresh), onPressed: _reload),
@@ -330,9 +331,10 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
             Builder(builder: (ctx) {
               final gs = ctx.watch<GymState>();
               if (gs.isOwner) return const SizedBox.shrink();
+              // QA (2026-06-11): 물음표(help) 아이콘 → 전송 아이콘 (의미 일치).
               return OutlinedButton.icon(
                 onPressed: _sendRequest,
-                icon: const Icon(Icons.help_outline, size: 18),
+                icon: const Icon(Icons.send_outlined, size: 18),
                 label: const Text('Send Request to Coach'),
               );
             }),
@@ -345,9 +347,10 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
               future: _feedbackFuture,
               builder: (ctx, snap) {
                 final list = snap.data ?? const <CoachFeedback>[];
+                // QA (2026-06-11): 회원 시점 카피 + V9(영한 혼용) 해소.
                 if (list.isEmpty) {
                   return const Text(
-                    '코치 피드백 없음. Coach Dashboard에서 작성.',
+                    'No coach feedback yet.',
                     style: FacingTokens.caption,
                   );
                 }
@@ -376,10 +379,18 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
                     ),
                   );
                 }
+                // QA (2026-06-11): V9 해소 — 영문 헤드 + 한글 캡션 수직 스택 (V10).
                 if (list.isEmpty) {
-                  return const Text(
-                    '아직 기록 없음. Start Timer → Done으로 첫 기록 제출.',
-                    style: FacingTokens.caption,
+                  return const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('No record yet.', style: FacingTokens.body),
+                      SizedBox(height: 2),
+                      Text(
+                        '타이머 완료 시 첫 기록 자동 제출.',
+                        style: FacingTokens.caption,
+                      ),
+                    ],
                   );
                 }
                 return Column(
@@ -407,7 +418,7 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
                   );
                 }
                 if (list.isEmpty) {
-                  return const Text('첫 댓글을 남겨보세요.',
+                  return const Text('첫 댓글 작성.',
                       style: FacingTokens.caption);
                 }
                 return Column(

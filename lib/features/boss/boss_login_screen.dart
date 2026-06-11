@@ -97,7 +97,7 @@ class _BossLoginScreenState extends State<BossLoginScreen> {
                 Text('Boss Login.', style: FacingTokens.h1),
                 const SizedBox(height: FacingTokens.sp1),
                 Text(
-                  'PC 어드민과 동일한 ID·PW로 로그인.',
+                  'PC 어드민과 동일 계정으로 로그인.',
                   style: FacingTokens.caption,
                 ),
                 const SizedBox(height: FacingTokens.sp6),

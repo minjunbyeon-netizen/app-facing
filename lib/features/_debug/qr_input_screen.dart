@@ -62,7 +62,7 @@ class _QrInputScreenState extends State<QrInputScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('박스 입구 QR 의 토큰을 입력하세요.', style: FacingTokens.body),
+            Text('박스 입구 QR 토큰 입력.', style: FacingTokens.body),
             const SizedBox(height: FacingTokens.sp2),
             Text('사장 PC: /checkin 페이지 QR 아래 표시된 토큰',
                 style: FacingTokens.caption),
@@ -100,7 +100,7 @@ class _QrInputScreenState extends State<QrInputScreen> {
                   border: Border.all(color: FacingTokens.success),
                   borderRadius: BorderRadius.circular(FacingTokens.r2),
                 ),
-                child: Text('✓ 출석 완료: $_result',
+                child: Text('출석 완료: $_result',
                     style: FacingTokens.body.copyWith(color: FacingTokens.success)),
               ),
             if (_error != null)

@@ -37,8 +37,11 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
     _gender = p.gender;
   }
 
-  String _fmt(double v) =>
-      v == v.roundToDouble() ? v.toInt().toString() : v.toString();
+  // QA (2026-06-11): kg↔lb 변환 raw float 노출 방지 — 표시 소수 1자리 (benchmarks 와 동일).
+  String _fmt(double v) {
+    final r = (v * 10).round() / 10;
+    return r == r.roundToDouble() ? r.toInt().toString() : r.toStringAsFixed(1);
+  }
 
   @override
   void dispose() {
@@ -155,10 +158,11 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
                 },
               )),
               const SizedBox(height: FacingTokens.sp4),
+              // QA (2026-06-11): 좌측 라벨과 필드 라벨 불일치 — 'CrossFit XP (yr)' 통일.
               _Row(label: 'CrossFit XP (yr)', child: _Input(
                 controller: _years, hint: 'e.g. 3',
                 suffix: 'yr',
-                semanticLabel: 'CrossFit Experience Years',
+                semanticLabel: 'CrossFit XP (yr)',
                 onChanged: (_) => setState(() {}),
               )),
               const Spacer(),

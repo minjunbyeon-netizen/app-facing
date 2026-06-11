@@ -158,7 +158,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
                   style: FacingTokens.body.copyWith(color: FacingTokens.fg),
                   decoration: const InputDecoration(
                     labelText: 'CTA 버튼 텍스트 (선택)',
-                    hintText: '직접 경험해보세요',
+                    hintText: '예: 자세히 보기',
                   ),
                   maxLength: 60,
                 ),
@@ -506,7 +506,7 @@ class _AnnouncementCardState extends State<_AnnouncementCard> {
       if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
         if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('링크를 열 수 없어요.')),
+          const SnackBar(content: Text('링크 열기 실패.')),
         );
       }
     } catch (e) {

@@ -423,11 +423,11 @@ class _NavItem extends StatelessWidget {
                   size: 22,
                   color: active ? FacingTokens.primary : FacingTokens.muted),
               const SizedBox(height: 2),
+              // R5: 인라인 fontSize 금지 → sectionLabel 토큰 크기 그대로 사용.
               Text(
                 label.toUpperCase(),
                 style: FacingTokens.sectionLabel.copyWith(
                   color: active ? FacingTokens.primary : FacingTokens.mutedStrong,
-                  fontSize: 9,
                 ),
               ),
             ],

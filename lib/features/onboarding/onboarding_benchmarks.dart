@@ -126,7 +126,7 @@ class _OnboardingBenchmarksScreenState
     'bench_press_1rm_lb':
         ('Bench Press 1RM', 'lb', '예: 225', '상체 푸시'),
     'deadlift_1rm_lb':
-        ('Deadlift 1RM', 'lb', '예: 405', '후방 사슬 힘'),
+        ('Deadlift 1RM', 'lb', '예: 405', 'Posterior chain'),
     'ohp_1rm_lb':
         ('OHP 1RM', 'lb', '예: 135', 'Strict 오버헤드'),
     // Olympic
@@ -241,8 +241,12 @@ class _OnboardingBenchmarksScreenState
     return _fmt(stored);
   }
 
-  String _fmt(double v) =>
-      v == v.roundToDouble() ? v.toInt().toString() : v.toString();
+  // QA (2026-06-11): 자동 추론 1RM raw float("129.27382545") 노출 방지 —
+  // 표시 포맷만 소수 1자리. 저장 경로(displayToLb)는 입력 텍스트 기준이라 영향 최소.
+  String _fmt(double v) {
+    final r = (v * 10).round() / 10;
+    return r == r.roundToDouble() ? r.toInt().toString() : r.toStringAsFixed(1);
+  }
 
   bool get _anyFilled {
     for (final k in _allFields) {
@@ -519,18 +523,38 @@ class _OnboardingBenchmarksScreenState
     );
   }
 
+  // QA (2026-06-11): ⓘ 아이콘 2개 중복 렌더 — 1RM·Unbroken TermTip 이 모든
+  // 카테고리에 동시 노출되던 것을 카테고리별 관련 용어 1개만 표시로 정리.
+  String? _tipTermFor(String key) {
+    switch (key) {
+      case 'power':
+      case 'olympic':
+        return '1RM';
+      case 'gymnastics':
+        return 'Unbroken';
+      default:
+        return null;
+    }
+  }
+
   Widget _buildPage(_Category cat) {
     final unit = context.watch<UnitState>();
+    final tipTerm = _tipTermFor(cat.key);
     return ListView(
-      padding: const EdgeInsets.all(FacingTokens.sp4),
+      // QA (2026-06-11): 하단 고정 Next 버튼이 마지막 필드(Deadlift) 가림 —
+      // 버튼 높이(48) + 여유만큼 bottom padding 추가.
+      padding: const EdgeInsets.fromLTRB(
+        FacingTokens.sp4,
+        FacingTokens.sp4,
+        FacingTokens.sp4,
+        96,
+      ),
       children: [
         Row(
           children: [
             Text(cat.title.toUpperCase(), style: FacingTokens.h2),
             const Spacer(),
-            const TermTip(term: '1RM', iconSize: 18),
-            const SizedBox(width: FacingTokens.sp2),
-            const TermTip(term: 'Unbroken', iconSize: 18),
+            if (tipTerm != null) TermTip(term: tipTerm, iconSize: 18),
           ],
         ),
         const SizedBox(height: FacingTokens.sp1),
@@ -543,7 +567,7 @@ class _OnboardingBenchmarksScreenState
         const SizedBox(height: FacingTokens.sp1),
         // v1.16 Sprint 9b: Skip 경로 안내.
         Text(
-          '전부 선택 입력 · 모두 빈 칸이어도 Next. 언제든 Profile에서 수정.',
+          '모든 칸 선택 입력. 다 비워도 Next. 언제든 Profile에서 수정.',
           style: FacingTokens.caption.copyWith(
             color: FacingTokens.muted,
             fontStyle: FontStyle.italic,
@@ -716,7 +740,8 @@ class _BenchmarkRowState extends State<_BenchmarkRow> {
                   widget.onChanged('');
                   setState(() {});
                 },
-                child: const Text('모름', style: FacingTokens.caption),
+                // QA (2026-06-11): V8 — 단어 1개 라벨은 영문 "Skip".
+                child: const Text('Skip', style: FacingTokens.caption),
               ),
             ],
           ),

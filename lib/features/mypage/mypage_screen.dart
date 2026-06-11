@@ -9,9 +9,11 @@ import '../../core/app_mode.dart';
 import '../../core/device_id.dart';
 import '../../core/haptic.dart';
 import '../../core/level_system.dart';
+import '../../core/pr_detector.dart';
 import '../../core/role_labels.dart';
 import '../../core/scoring.dart';
 import '../../core/shell_nav_bus.dart';
+import '../../core/streak_freeze.dart';
 import '../../core/theme.dart';
 import '../../core/tier.dart';
 import '../../core/titles_catalog.dart';
@@ -99,20 +101,60 @@ class _ScoreSection extends StatefulWidget {
 }
 
 class _ScoreSectionState extends State<_ScoreSection> {
+  /// QA 2026-06-11 #1: Home _LevelCard 와 동일 입력으로 LV 계산해야
+  /// 두 화면 레벨이 일치. limit 도 Home 과 같은 200 사용.
+  static const int _kHistoryLimit = 200;
+
   Future<List<EngineSnapshotRecord>>? _engineFuture;
-  Future<int>? _sessionCountFuture;
+  Future<List<WodHistoryItem>>? _historyFuture;
   String? _wornTitleCode;
+  DateTime? _freezeUse;
 
   @override
   void initState() {
     super.initState();
     final repo = HistoryRepository(context.read<ApiClient>());
     _engineFuture = repo.listEngineSnapshots(limit: 12);
-    _sessionCountFuture =
-        repo.listWodHistory(limit: 9999).then((r) => r.length);
+    _historyFuture = repo.listWodHistory(limit: _kHistoryLimit);
+    StreakFreezeStore.lastUse().then((dt) {
+      if (mounted) setState(() => _freezeUse = dt);
+    });
     WornTitleStore.get().then((code) {
       if (mounted) setState(() => _wornTitleCode = code);
     });
+  }
+
+  /// 현재 streak — Home _GamificationBody._currentStreak 와 동일 로직.
+  /// freezeUse 가 있으면 missing day 1일 보호.
+  int _currentStreak(List<WodHistoryItem> records) {
+    final days = records
+        .map((r) {
+          final d = r.createdAt.toLocal();
+          return DateTime(d.year, d.month, d.day);
+        })
+        .toSet();
+    if (days.isEmpty) return 0;
+    final today = DateTime.now();
+    DateTime cursor = DateTime(today.year, today.month, today.day);
+    if (!days.contains(cursor)) {
+      cursor = cursor.subtract(const Duration(days: 1));
+      if (!days.contains(cursor)) return 0;
+    }
+    bool freezeAvailable = _freezeUse != null;
+    int count = 0;
+    while (true) {
+      if (days.contains(cursor)) {
+        count++;
+        cursor = cursor.subtract(const Duration(days: 1));
+      } else if (freezeAvailable) {
+        freezeAvailable = false;
+        count++;
+        cursor = cursor.subtract(const Duration(days: 1));
+      } else {
+        break;
+      }
+    }
+    return count;
   }
 
   int _catScore(Map<String, dynamic>? grade, String key) {
@@ -155,7 +197,9 @@ class _ScoreSectionState extends State<_ScoreSection> {
     final tier = Tier.fromOverallNumber(n);
     final score100 = engineScoreTo100(g?['overall_score']);
     final hasScore = score100 > 0;
-    final tierNum = n?.round() ?? 0;
+    // QA 2026-06-11 #1: Home _LevelCard 와 동일 변환 ((n ?? 1).toInt()) —
+    // round() 사용 시 소수 overall_number 에서 tierXp 가 갈라짐.
+    final tierNum = (n ?? 1).toInt();
 
     // 온보딩 전 — 안내만.
     if (n == null) {
@@ -202,14 +246,17 @@ class _ScoreSectionState extends State<_ScoreSection> {
           const Text('ENGINE', style: FacingTokens.sectionLabel),
           const SizedBox(height: FacingTokens.sp3),
           // Tier · Engine · LV · 칭호 — 한 줄 담백.
-          FutureBuilder<int>(
-            future: _sessionCountFuture,
+          // QA 2026-06-11 #1: streak·PR 누락으로 Home LEVEL 과 다른 LV 가
+          // 표시되던 바인딩 버그 — Home _LevelCard 와 동일 입력으로 통일.
+          FutureBuilder<List<WodHistoryItem>>(
+            future: _historyFuture,
             builder: (_, snap) {
-              final sessions = snap.data ?? 0;
+              final records = snap.data ?? const <WodHistoryItem>[];
               final bd = LevelSystem.compute(
-                totalSessions: sessions,
-                currentStreakDays: 0,
+                totalSessions: records.length,
+                currentStreakDays: _currentStreak(records),
                 tierNumber: tierNum,
+                prCount: PrDetector.countPrs(records),
                 achievementXp: achXp,
               );
               return Wrap(
@@ -385,11 +432,23 @@ class _WeaknessInline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasData = scores.values.any((v) => v > 0);
-    if (!hasData) return const SizedBox.shrink();
-    final insight = analyzeWeakness(scores);
+    // QA 2026-06-11 #4: 미측정(0) 카테고리는 WEAKEST 산정에서 제외.
+    // BODY "—"(미측정) 인데 "BODY · WEAKEST 0/100" 으로 잡히던 모순 해소.
+    final measured = <String, int>{
+      for (final e in scores.entries)
+        if (e.value > 0) e.key: e.value,
+    };
+    if (measured.isEmpty) return const SizedBox.shrink();
+    final insight = analyzeWeakness(measured);
     if (insight == null) return const SizedBox.shrink();
     final isBalanced = insight.weakestCategory == 'BALANCED';
+    // QA 2026-06-11 #4: "(베타 샘플 코멘트 · AI 분석은 추후 제공)" 류
+    // 개발 메모 줄은 사용자 노출 금지 — 표시 직전 제거.
+    final commentText = insight.comment
+        .split('\n')
+        .where((l) => !l.trimLeft().startsWith('('))
+        .join('\n')
+        .trim();
 
     return Container(
       padding: const EdgeInsets.all(FacingTokens.sp3),
@@ -423,7 +482,7 @@ class _WeaknessInline extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 2),
-                Text(insight.comment, style: FacingTokens.caption),
+                Text(commentText, style: FacingTokens.caption),
               ],
             ),
           ),
@@ -737,7 +796,7 @@ class _MyBoxSection extends StatelessWidget {
                         style: FacingTokens.body
                             .copyWith(fontWeight: FontWeight.w700)),
                     const SizedBox(height: FacingTokens.sp1),
-                    const Text('박스에 직접 문의하거나 다른 박스를 찾아보세요.',
+                    const Text('박스에 직접 문의 또는 다른 박스 검색.',
                         style: FacingTokens.caption),
                   ],
                 ),
@@ -1028,7 +1087,7 @@ class _ActionsSection extends StatelessWidget {
           const SizedBox(height: FacingTokens.sp3),
           OutlinedButton(
             onPressed: () => Navigator.of(context).pushNamed('/history'),
-            child: const Text('View History'),
+            child: const Text('History'),
           ),
           const SizedBox(height: FacingTokens.sp3),
           OutlinedButton(
@@ -1081,7 +1140,7 @@ class _ActionsSection extends StatelessWidget {
               Uri.parse('http://pf.kakao.com/_kxbxanX/chat'),
               mode: LaunchMode.externalApplication,
             ),
-            child: const Text('고객센터 (카카오톡)'),
+            child: const Text('Support (KakaoTalk)'),
           ),
           const SizedBox(height: FacingTokens.sp1),
           const Center(
@@ -1092,7 +1151,7 @@ class _ActionsSection extends StatelessWidget {
           OutlinedButton(
             onPressed: () =>
                 Navigator.of(context).pushNamed('/auth/link-staff'),
-            child: const Text('코치·사장 계정 연결'),
+            child: const Text('Link Staff Account'),
           ),
           const SizedBox(height: FacingTokens.sp3),
           TextButton(
@@ -1171,9 +1230,10 @@ class _ActionsSection extends StatelessWidget {
         ),
         title: const Text('Sign Out.'),
         content: const Text(
+          // V9: 영문 명사 + 한글 조사 혼용("provider로") 제거.
           '로그아웃해도 프로필·기록은 이 기기에 그대로 유지됩니다.\n'
-          '같은 provider로 다시 로그인하면 모든 데이터 복구.\n'
-          '계정 자체를 지우려면 Privacy Policy → Delete Account.',
+          '같은 계정으로 다시 로그인하면 모든 데이터가 복구됩니다.\n'
+          '계정 삭제는 Privacy Policy → Delete Account.',
           style: FacingTokens.caption,
         ),
         actions: [
@@ -1502,9 +1562,9 @@ class _QuickPersonaBarState extends State<_QuickPersonaBar> {
                         ),
                         Text(
                           p.displayName,
+                          // R5: 하드코드 fontSize 금지 — micro 토큰 그대로.
                           style: FacingTokens.micro.copyWith(
                             color: FacingTokens.muted,
-                            fontSize: 10,
                           ),
                         ),
                         if (isActive) ...[

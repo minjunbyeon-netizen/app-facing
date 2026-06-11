@@ -138,7 +138,7 @@ class _GymSearchScreenState extends State<GymSearchScreen> {
               Expanded(
                 child: _results.isEmpty
                     ? const Center(
-                        child: Text('검색 결과 없음.\n박스명 일부만 입력해 보세요.',
+                        child: Text('검색 결과 없음.\n박스명 일부로 검색 가능.',
                             style: FacingTokens.caption,
                             textAlign: TextAlign.center),
                       )

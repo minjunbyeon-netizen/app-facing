@@ -62,17 +62,19 @@ class BoxProfileScreen extends StatelessWidget {
           _CoachesCard(coaches: coaches, gymProfile: profile),
           if (profile?.freeNotice != null)
             _Card(title: 'NOTICE', body: profile!.freeNotice!),
+          // QA (2026-06-11): V4 이모지 금지 — 📞💬🚗 프리픽스 → Material outline 아이콘 Row.
           if ((profile?.phone != null) ||
               (profile?.contactKakao != null) ||
               (profile?.parkingInfo != null))
-            _Card(
-              title: 'CONTACT',
-              body: [
-                if (profile?.phone != null) '📞 ${profile!.phone!}',
+            _ContactCard(
+              rows: [
+                if (profile?.phone != null)
+                  (Icons.call_outlined, profile!.phone!),
                 if (profile?.contactKakao != null)
-                  '💬 ${profile!.contactKakao!}',
-                if (profile?.parkingInfo != null) '🚗 ${profile!.parkingInfo!}',
-              ].join('\n'),
+                  (Icons.chat_bubble_outline, profile!.contactKakao!),
+                if (profile?.parkingInfo != null)
+                  (Icons.local_parking_outlined, profile!.parkingInfo!),
+              ],
             ),
         ],
       ),
@@ -128,6 +130,49 @@ class _Card extends StatelessWidget {
           const SizedBox(height: 8),
           Text(body,
               style: FacingTokens.body.copyWith(color: FacingTokens.fg)),
+        ],
+      ),
+    );
+  }
+}
+
+/// QA (2026-06-11): CONTACT 카드 전용 — 아이콘 + 텍스트 행 목록 (V4 이모지 대체).
+class _ContactCard extends StatelessWidget {
+  const _ContactCard({required this.rows});
+  final List<(IconData, String)> rows;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(top: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: FacingTokens.surface,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: FacingTokens.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('CONTACT', style: FacingTokens.sectionLabel),
+          const SizedBox(height: 8),
+          ...rows.map((r) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(r.$1, size: 16, color: FacingTokens.muted),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        r.$2,
+                        style: FacingTokens.body
+                            .copyWith(color: FacingTokens.fg),
+                      ),
+                    ),
+                  ],
+                ),
+              )),
         ],
       ),
     );

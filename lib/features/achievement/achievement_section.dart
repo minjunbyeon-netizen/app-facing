@@ -134,7 +134,8 @@ class AchievementSection extends StatelessWidget {
               crossAxisCount: 3,
               crossAxisSpacing: FacingTokens.sp2,
               mainAxisSpacing: FacingTokens.sp2,
-              childAspectRatio: 0.92,
+              // 0.92 → 0.88: 영문 고유명 2줄 + rarity 라벨 토큰(13sp) 수직 여유 확보.
+              childAspectRatio: 0.88,
             ),
             itemCount: displayItems.length + (hasOverflow ? 1 : 0),
             itemBuilder: (_, i) {
@@ -290,8 +291,10 @@ class _GridTile extends StatelessWidget {
               children: [
                 Icon(icon, size: 28, color: rarityColor),
                 const SizedBox(height: FacingTokens.sp1),
+                // 실기기 QA: koreanTitle 폴백('칭호')이 카드마다 중복 표시 →
+                // 업적 고유명(영문)으로 바인딩, Achievements 그리드와 표기 통일.
                 Text(
-                  AchievementCard.koreanTitle(catalog.code),
+                  AchievementCard.gridLabel(catalog.name),
                   style: FacingTokens.micro.copyWith(
                     color: FacingTokens.fg,
                     fontWeight: FontWeight.w700,
@@ -302,12 +305,12 @@ class _GridTile extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 2),
+                // R5: 인라인 fontSize 금지 → microLabel 토큰
+                // (Achievements featured 패널 rarity 표기와 동일 토큰 — R4).
                 Text(
                   catalog.rarity.toUpperCase(),
-                  style: FacingTokens.micro.copyWith(
+                  style: FacingTokens.microLabel.copyWith(
                     color: rarityColor,
-                    fontSize: 9,
-                    letterSpacing: 0.5,
                     fontWeight: FontWeight.w800,
                   ),
                   textAlign: TextAlign.center,
@@ -380,15 +383,20 @@ class _DetailSheet extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // 상세 시트 타이틀 = 선언형 고유명("First Ten.") 유지.
                       Text(
-                        AchievementCard.koreanTitle(catalog.code),
+                        catalog.name,
                         style: FacingTokens.h3.copyWith(
                           color: FacingTokens.fg,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
-                      const SizedBox(height: 2),
-                      Text(catalog.name, style: FacingTokens.caption),
+                      if (AchievementCard.koreanTitle(catalog.code)
+                          .isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(AchievementCard.koreanTitle(catalog.code),
+                            style: FacingTokens.caption),
+                      ],
                     ],
                   ),
                 ),

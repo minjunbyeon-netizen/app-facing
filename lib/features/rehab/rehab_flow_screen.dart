@@ -193,7 +193,7 @@ class _NodeView extends StatelessWidget {
 
   Widget _fallback() => const Padding(
         padding: EdgeInsets.symmetric(vertical: FacingTokens.sp6),
-        child: Text('다음 단계 데이터를 찾지 못했어요.',
+        child: Text('다음 단계 데이터 없음.',
             style: FacingTokens.caption),
       );
 }
@@ -320,7 +320,7 @@ class _TestView extends StatelessWidget {
           _NoteBox(text: test.note!),
         ],
         const SizedBox(height: FacingTokens.sp5),
-        Text('결과를 선택하세요', style: FacingTokens.sectionLabel),
+        Text('결과 선택', style: FacingTokens.sectionLabel),
         const SizedBox(height: FacingTokens.sp3),
         _OutcomeButton(
           label: test.passText,
@@ -397,7 +397,7 @@ class _DangerView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final d = detail.danger;
-    final title = d?.title ?? '지금 바로 트레이닝을 멈추세요';
+    final title = d?.title ?? '지금 바로 트레이닝 중단';
     final reason = d?.reason ?? '';
     final action = d?.action ?? '';
     return Column(

@@ -71,7 +71,7 @@ class _StaffLinkScreenState extends State<StaffLinkScreen> {
         _busy = false;
         // UNAUTHORIZED = 소셜 세션 없음(먼저 로그인 안 함).
         _error = e.code == 'UNAUTHORIZED'
-            ? '먼저 네이버·구글로 로그인한 뒤 연결해주세요.'
+            ? '네이버·구글 로그인 후 연결 가능.'
             : e.messageKo;
       });
     } catch (_) {

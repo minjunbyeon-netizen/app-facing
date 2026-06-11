@@ -70,46 +70,36 @@ String _weakComment(String category, int score) {
   switch (category) {
     case 'POWER':
       return '$score/100 — SBD + OHP 1RM weak. '
-          'Priority: BS 1.5×BW, DL 2.0×BW.\n'
-          '(베타 샘플 코멘트 · AI 분석은 추후 제공)';
+          'Priority: BS 1.5×BW, DL 2.0×BW.';
     case 'OLYMPIC':
       return '$score/100 — Clean/Snatch technique plateau. '
-          'Light weight Tall drills + position reps.\n'
-          '(베타 샘플 코멘트 · AI 분석은 추후 제공)';
+          'Light weight Tall drills + position reps.';
     case 'GYMNASTICS':
       return '$score/100 — Pull-up/HSPU Max UB low. '
-          'Strict volume 3×/week. Check Ring/Bar MU progression.\n'
-          '(베타 샘플 코멘트 · AI 분석은 추후 제공)';
+          'Strict volume 3×/week. Check Ring/Bar MU progression.';
     case 'CARDIO':
       return '$score/100 — Engine capacity low. '
-          'Z2 base 2×/week + Row 2K time trial monthly.\n'
-          '(베타 샘플 코멘트 · AI 분석은 추후 제공)';
+          'Z2 base 2×/week + Row 2K time trial monthly.';
     case 'METCON':
       return '$score/100 — 1-min max output weak. '
-          'Burpee · DU · Wall Ball per-min tests periodic.\n'
-          '(베타 샘플 코멘트 · AI 분석은 추후 제공)';
+          'Burpee · DU · Wall Ball per-min tests periodic.';
     case 'BODY':
       return '$score/100 — Body composition needs work. '
-          'InBody Score / SMM ratio / BF% optimization.\n'
-          '(베타 샘플 코멘트 · AI 분석은 추후 제공)';
+          'InBody Score / SMM ratio / BF% optimization.';
     default:
-      return '$score/100 — Weak category improvement needed.\n'
-          '(베타 샘플 코멘트 · AI 분석은 추후 제공)';
+      return '$score/100 — Weak category improvement needed.';
   }
 }
 
 String _balancedComment(int avg) {
   if (avg >= 80) {
     return 'All categories 80+ — Complete Athlete tier.\n'
-        'Elite zone reached. Top 3 categories peaking strategy.\n'
-        '(베타 샘플 코멘트 · AI 분석은 추후 제공)';
+        'Elite zone reached. Top 3 categories peaking strategy.';
   }
   if (avg >= 60) {
     return 'Categories balanced. No dramatic weakness. '
-        'Increase total intensity 5% or volume 10%.\n'
-        '(베타 샘플 코멘트 · AI 분석은 추후 제공)';
+        'Increase total intensity 5% or volume 10%.';
   }
   return 'Categories balanced but absolute values low. '
-      '3 sessions/week + monthly benchmark.\n'
-      '(베타 샘플 코멘트 · AI 분석은 추후 제공)';
+      '3 sessions/week + monthly benchmark.';
 }

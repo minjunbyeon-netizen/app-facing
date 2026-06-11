@@ -60,7 +60,7 @@ class _CoachPairScreenState extends State<CoachPairScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('사장이 발급한 페어링 코드 8자리를 입력하세요.', style: FacingTokens.body),
+            Text('사장이 발급한 페어링 코드 8자리 입력.', style: FacingTokens.body),
             const SizedBox(height: FacingTokens.sp1),
             Text('한 번만 사용 가능. 이후 이 폰 = 코치 권한.',
                 style: FacingTokens.caption),
@@ -100,7 +100,7 @@ class _CoachPairScreenState extends State<CoachPairScreen> {
                   border: Border.all(color: FacingTokens.success),
                   borderRadius: BorderRadius.circular(FacingTokens.r2),
                 ),
-                child: Text('✓ 페어링 완료: $_result',
+                child: Text('페어링 완료: $_result',
                     style: FacingTokens.body.copyWith(color: FacingTokens.success)),
               ),
             if (_error != null)

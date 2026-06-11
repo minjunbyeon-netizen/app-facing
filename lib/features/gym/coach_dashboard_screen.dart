@@ -13,6 +13,7 @@ import 'gym_profile_edit_screen.dart';
 import 'gym_repository.dart';
 import 'gym_state.dart';
 import 'member_requests_screen.dart';
+import 'wod_type_label.dart';
 
 class CoachDashboardScreen extends StatefulWidget {
   const CoachDashboardScreen({super.key});
@@ -494,7 +495,7 @@ class _MemberDetailSheet extends StatelessWidget {
                 child: Text('SELECT WOD', style: FacingTokens.sectionLabel),
               ),
               ...wods.map((w) => ListTile(
-                    title: Text(w.wodType.toUpperCase()),
+                    title: Text(wodTypeLabel(w.wodType)),
                     subtitle: Text(
                       w.content.length > 40
                           ? '${w.content.substring(0, 40)}…'
@@ -536,7 +537,7 @@ class _MemberDetailSheet extends StatelessWidget {
                 style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp1),
             Text(
-              'WOD: ${pickedWod!.wodType.toUpperCase()} · ${pickedWod.postDate}',
+              'WOD: ${wodTypeLabel(pickedWod!.wodType)} · ${pickedWod.postDate}',
               style: FacingTokens.caption,
             ),
             const SizedBox(height: FacingTokens.sp3),

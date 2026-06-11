@@ -5,6 +5,7 @@ import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/gym.dart';
 import 'gym_state.dart';
+import 'wod_type_label.dart';
 
 /// v1.15.3: 코치 WOD 작성 폼.
 class WodPostScreen extends StatefulWidget {
@@ -79,7 +80,7 @@ class _WodPostScreenState extends State<WodPostScreen> {
     final content = _contentCtrl.text.trim();
     if (content.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('WOD 내용을 입력하세요.')),
+        const SnackBar(content: Text('WOD 내용 필수.')),
       );
       return;
     }
@@ -201,7 +202,7 @@ class _WodPostScreenState extends State<WodPostScreen> {
               children: const ['for_time', 'amrap', 'emom'].map((t) {
                 final selected = t == _wodType;
                 return ChoiceChip(
-                  label: Text(t.toUpperCase()),
+                  label: Text(wodTypeLabel(t)),
                   selected: selected,
                   backgroundColor: FacingTokens.surface,
                   selectedColor: FacingTokens.accent,
@@ -302,7 +303,7 @@ class _WodPostScreenState extends State<WodPostScreen> {
             ),
             const SizedBox(height: FacingTokens.sp1),
             const Text(
-              '구조화 라운드: Chipper · 3 Rounds · Block 1/2/3 등. 위 CONTENT는 전체 요약.',
+              '구조화 라운드: Chipper · 3 Rounds · Block 1/2/3 등. 위 CONTENT 필드는 전체 요약.',
               style: FacingTokens.caption,
             ),
             const SizedBox(height: FacingTokens.sp2),

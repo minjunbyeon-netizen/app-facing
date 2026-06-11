@@ -123,7 +123,7 @@ class NotificationService {
           id: _idFor('join', inner['member_id']),
           channelId: _channelStaffId,
           title: '[FACING] 새 가입 신청',
-          body: '회원이 박스 가입을 신청했어요. 앱에서 승인해주세요.',
+          body: '박스 가입 신청 도착. 앱에서 승인 필요.',
           importance: Importance.high,
           priority: Priority.high,
         );
@@ -132,7 +132,7 @@ class NotificationService {
           id: _idFor('created', inner['member_id']),
           channelId: _channelStaffId,
           title: '[FACING] 신규 회원 등록',
-          body: '${inner['name'] ?? '새 회원'} 님이 추가됐어요.',
+          body: '${inner['name'] ?? '새 회원'} 등록 완료.',
           importance: Importance.defaultImportance,
           priority: Priority.defaultPriority,
         );
@@ -153,7 +153,7 @@ class NotificationService {
           id: _idFor('announce', inner['announcement_id']),
           channelId: _channelMemberId,
           title: '[FACING] 새 공지',
-          body: (inner['title'] ?? '공지가 올라왔어요.') as String,
+          body: (inner['title'] ?? '새 공지 등록.') as String,
           importance: Importance.defaultImportance,
           priority: Priority.defaultPriority,
         );
@@ -162,7 +162,7 @@ class NotificationService {
           id: _idFor('wod', inner['wod_id']),
           channelId: _channelMemberId,
           title: '[FACING] 오늘의 WOD',
-          body: (inner['title'] ?? '새 WOD 가 올라왔어요.') as String,
+          body: (inner['title'] ?? '새 WOD 등록.') as String,
           importance: Importance.defaultImportance,
           priority: Priority.defaultPriority,
         );

@@ -69,7 +69,7 @@ class _PresetsScreenState extends State<PresetsScreen> {
             final e = snap.error;
             final msg = e is AppException
                 ? e.messageKo
-                : '프리셋 로딩 실패. 다시 시도해주세요.';
+                : 'Preset load failed. Retry.';
             return Padding(
               padding: const EdgeInsets.all(FacingTokens.sp4),
               child: Text(msg, style: FacingTokens.body),

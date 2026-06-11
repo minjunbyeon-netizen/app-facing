@@ -15,6 +15,7 @@ import '../../widgets/inbox_bell.dart';
 import '../../widgets/offline_banner.dart';
 import '../achievement/achievement_section.dart';
 import '../achievement/achievement_state.dart';
+import '../gym/gym_repository.dart';
 import '../history/history_models.dart';
 import '../history/history_repository.dart';
 import '../inbox/inbox_screen.dart';
@@ -36,16 +37,23 @@ class _HomeScreenState extends State<HomeScreen> {
   static const int _kHistoryLimit = 200;
 
   late final HistoryRepository _repo;
+  late final GymRepository _gymRepo;
   WodSessionBus? _bus;
   Future<List<WodHistoryItem>>? _future;
 
   /// Streak Freeze 통합 — 마지막 사용일을 _currentStreak 계산 시 활용.
   DateTime? _freezeUse;
 
+  /// QA 2026-06-11: 실제 QR 출석일 집합 (Attend 탭과 동일 소스 —
+  /// GymRepository.listMyAttendances). null = 로드 실패·미가입 →
+  /// Attendance milestone 숨김. WOD 계산 기록(_future)과 별개.
+  Set<DateTime>? _attendDays;
+
   @override
   void initState() {
     super.initState();
     _repo = HistoryRepository(context.read<ApiClient>());
+    _gymRepo = GymRepository(context.read<ApiClient>());
     _reload();
     _bus = context.read<WodSessionBus>();
     _bus?.addListener(_onSessionBump);
@@ -69,6 +77,14 @@ class _HomeScreenState extends State<HomeScreen> {
     StreakFreezeStore.lastUse().then((dt) {
       if (!mounted) return;
       setState(() => _freezeUse = dt);
+    });
+    // Attend 탭과 동일 소스의 실제 QR 출석 — 실패·미가입이면 milestone 숨김.
+    _gymRepo.listMyAttendances().then((map) {
+      if (!mounted) return;
+      setState(() => _attendDays = map.keys.toSet());
+    }).catchError((_) {
+      if (!mounted) return;
+      setState(() => _attendDays = null);
     });
     // 진입·새로고침마다 업적 자동 체크 (throttle: 10분 1회).
     context.read<AchievementState>().check(throttle: true);
@@ -119,6 +135,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   return _GamificationBody(
                     records: records,
                     freezeUse: _freezeUse,
+                    attendDays: _attendDays,
                   );
                 },
               ),
@@ -222,9 +239,13 @@ class _GamificationBody extends StatelessWidget {
 
   /// 이번 주 freeze 사용 기록. 있으면 streak 1일 보호.
   final DateTime? freezeUse;
+
+  /// 실제 QR 출석일 (Attend 탭 동일 소스). null = 로드 실패·미가입 → 숨김.
+  final Set<DateTime>? attendDays;
   const _GamificationBody({
     required this.records,
     required this.freezeUse,
+    required this.attendDays,
   });
 
   /// 전체 기록에서 고유 일자 집합 (date 기준).
@@ -271,10 +292,6 @@ class _GamificationBody extends StatelessWidget {
     final totalLifetime = records.length;
     final currentStreak = _currentStreak();
     final now = DateTime.now();
-    final thisMonthCount = records.where((r) {
-      final d = r.createdAt.toLocal();
-      return d.year == now.year && d.month == now.month;
-    }).length;
     final daysElapsed = now.day;
     final achState = context.watch<AchievementState>();
     final unlockedCount = achState.snapshot.unlocked.length;
@@ -307,16 +324,24 @@ class _GamificationBody extends StatelessWidget {
         // MILESTONES — 3종 요약 진행바
         const Text('MILESTONES', style: FacingTokens.sectionLabel),
         const SizedBox(height: FacingTokens.sp3),
-        _ProgressStat(
-          title: 'Attendance',
-          subtitle: '이번 달 출석 · $thisMonthCount / $daysElapsed days',
-          value: daysElapsed > 0
-              ? (thisMonthCount / daysElapsed).clamp(0.0, 1.0)
-              : 0.0,
-          trailing: daysElapsed > 0
-              ? '${(thisMonthCount / daysElapsed * 100).round()}%'
-              : '0%',
-        ),
+        // QA 2026-06-11: WOD 계산 기록이 아닌 실제 QR 출석(Attend 탭 동일
+        // 소스)으로 표기 — 두 화면 수치 불일치 해소. 미가입·로드 실패 시 숨김.
+        if (attendDays != null)
+          Builder(builder: (context) {
+            final attendThisMonth = attendDays!
+                .where((d) => d.year == now.year && d.month == now.month)
+                .length;
+            return _ProgressStat(
+              title: 'Attendance',
+              subtitle: '이번 달 출석 · $attendThisMonth / $daysElapsed days',
+              value: daysElapsed > 0
+                  ? (attendThisMonth / daysElapsed).clamp(0.0, 1.0)
+                  : 0.0,
+              trailing: daysElapsed > 0
+                  ? '${(attendThisMonth / daysElapsed * 100).round()}%'
+                  : '0%',
+            );
+          }),
         _ProgressStat(
           title: 'Sessions',
           subtitle: '누적 $totalLifetime회 → $nextMilestone 목표',
@@ -373,7 +398,7 @@ class _LevelCard extends StatelessWidget {
   /// 레벨대별 격려 한 줄. 친근한 톤.
   String _captionForLevel(int level) {
     if (level <= 5) return '좋은 출발. 페이스 유지.';
-    if (level <= 10) return '체력 쌓이는 중.';
+    if (level <= 10) return 'Engine building.';
     if (level <= 15) return '단단해지는 중.';
     if (level <= 20) return 'Discipline 진입.';
     if (level <= 30) return 'Obsession 시작.';

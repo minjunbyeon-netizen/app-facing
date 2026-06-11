@@ -9,6 +9,7 @@ import '../../core/theme.dart';
 import '../../core/tier.dart';
 import '../../core/wod_session_bus.dart';
 import '../../widgets/tier_badge.dart';
+import '../gym/wod_type_label.dart';
 import 'history_models.dart';
 import 'history_repository.dart';
 
@@ -414,7 +415,7 @@ class _WodTab extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(r.wodType.toUpperCase(),
+                          Text(wodTypeLabel(r.wodType),
                               style: FacingTokens.body.copyWith(
                                 fontWeight: FontWeight.w800,
                               )),

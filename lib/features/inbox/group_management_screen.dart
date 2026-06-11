@@ -195,7 +195,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
       final cap = int.tryParse(capText);
       if (cap == null || cap <= 0) {
         messenger.showSnackBar(
-          const SnackBar(content: Text('Capacity는 양수만.')),
+          const SnackBar(content: Text('정원은 양수만.')),
         );
         return;
       }

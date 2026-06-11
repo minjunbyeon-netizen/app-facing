@@ -14,6 +14,7 @@ import '../../models/gym.dart';
 import '../history/history_repository.dart';
 import 'gym_repository.dart';
 import 'gym_state.dart';
+import 'wod_type_label.dart';
 
 /// `wod` 의 종류에 따라 입력 폼이 달라진다.
 /// - For Time: 시간 (mm:ss)
@@ -180,7 +181,7 @@ class _WodResultSheetState extends State<WodResultSheet> {
             children: [
               Row(
                 children: [
-                  Text(widget.wod.wodType.toUpperCase(),
+                  Text(wodTypeLabel(widget.wod.wodType),
                       style: FacingTokens.sectionLabel.copyWith(
                         color: FacingTokens.accent,
                       )),
