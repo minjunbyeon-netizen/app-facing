@@ -11,6 +11,8 @@ import 'classes_repository.dart';
 
 /// PHASE4 §1.1 — 회원 폰 클래스 일정·예약 화면.
 /// PC 사장이 /admin/classes 에서 등록한 클래스를 회원이 그대로 봄.
+/// v1.26 (2026-06-11): 본문을 ClassesSection 으로 분리 — Attend 탭 상단
+/// "수업 허브" 임베드와 이 단독 화면(Profile 진입)이 같은 위젯을 쓴다.
 class ClassesScreen extends StatefulWidget {
   const ClassesScreen({super.key});
 
@@ -19,6 +21,54 @@ class ClassesScreen extends StatefulWidget {
 }
 
 class _ClassesScreenState extends State<ClassesScreen> {
+  int _tick = 0;
+
+  void _reload() => setState(() => _tick++);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('CLASSES'),
+        actions: [
+          IconButton(
+            onPressed: _reload,
+            icon: const Icon(Icons.refresh, size: 20),
+            tooltip: 'Refresh',
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: RefreshIndicator(
+          color: FacingTokens.accent,
+          onRefresh: () async => _reload(),
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(FacingTokens.sp4),
+            children: [
+              ClassesSection(
+                key: ValueKey('cls-$_tick'),
+                showHeader: false,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 임베드 가능한 클래스 예약 섹션 — 스크롤 부모(ListView) 안에서 동작.
+/// showHeader=true 면 'CLASSES' 섹션 라벨을 직접 그린다 (Attend 임베드용).
+class ClassesSection extends StatefulWidget {
+  final bool showHeader;
+  const ClassesSection({super.key, this.showHeader = true});
+
+  @override
+  State<ClassesSection> createState() => _ClassesSectionState();
+}
+
+class _ClassesSectionState extends State<ClassesSection> {
   Future<List<ClassSessionDto>>? _future;
   late final ClassesRepository _repo;
 
@@ -105,93 +155,110 @@ class _ClassesScreenState extends State<ClassesScreen> {
     }
   }
 
+  Widget _header() => const Padding(
+        padding: EdgeInsets.only(bottom: FacingTokens.sp2),
+        child: Text('CLASSES', style: FacingTokens.sectionLabel),
+      );
+
+  Widget _inline(String text, {Widget? action}) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp3),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(text, style: FacingTokens.caption),
+            if (action != null) ...[
+              const SizedBox(height: FacingTokens.sp2),
+              action,
+            ],
+          ],
+        ),
+      );
+
   @override
   Widget build(BuildContext context) {
     final gs = context.watch<GymState>();
     final hasMembership = gs.membership.isApprovedMember || gs.isOwner;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('CLASSES'),
-        actions: [
-          IconButton(
-            onPressed: _reload,
-            icon: const Icon(Icons.refresh, size: 20),
-            tooltip: 'Refresh',
-          ),
+    if (!hasMembership) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (widget.showHeader) _header(),
+          _inline('박스 가입 후 클래스 예약 가능.'),
         ],
-      ),
-      body: SafeArea(
-        child: !hasMembership
-            ? const _EmptyState(
-                title: 'No box',
-                subtitle: '박스 가입 후 클래스 예약 가능.',
-              )
-            : FutureBuilder<List<ClassSessionDto>>(
-                future: _future,
-                builder: (ctx, snap) {
-                  if (snap.connectionState != ConnectionState.done) {
-                    return const Center(
-                      child: CircularProgressIndicator(
-                        color: FacingTokens.accent,
-                      ),
-                    );
-                  }
-                  if (snap.hasError) {
-                    final err = snap.error;
-                    final msg = err is AppException ? err.messageKo : '$err';
-                    return _EmptyState(
-                      title: 'Load failed',
-                      subtitle: msg,
-                      action: ElevatedButton(
-                        onPressed: _reload,
-                        child: const Text('Retry'),
-                      ),
-                    );
-                  }
-                  final classes = snap.data ?? const <ClassSessionDto>[];
-                  if (classes.isEmpty) {
-                    return const _EmptyState(
-                      title: 'No classes',
-                      subtitle: '사장이 클래스를 등록하면 여기 나타납니다.',
-                    );
-                  }
-                  // 날짜별 그룹.
-                  final groups = <String, List<ClassSessionDto>>{};
-                  for (final c in classes) {
-                    final key = _fmtDateKey(c.startAt);
-                    groups.putIfAbsent(key, () => []).add(c);
-                  }
-                  return RefreshIndicator(
-                    color: FacingTokens.accent,
-                    onRefresh: () async => _reload(),
-                    child: ListView(
-                      padding: const EdgeInsets.all(FacingTokens.sp4),
-                      children: [
-                        for (final entry in groups.entries) ...[
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              top: FacingTokens.sp3,
-                              bottom: FacingTokens.sp2,
-                            ),
-                            child: Text(
-                              entry.key.toUpperCase(),
-                              style: FacingTokens.sectionLabel,
-                            ),
-                          ),
-                          for (final c in entry.value)
-                            _ClassCard(
-                              session: c,
-                              onReserve: () => _reserve(c),
-                              onCancel: () => _cancel(c),
-                            ),
-                        ],
-                      ],
-                    ),
-                  );
-                },
+      );
+    }
+    return FutureBuilder<List<ClassSessionDto>>(
+      future: _future,
+      builder: (ctx, snap) {
+        Widget body;
+        if (snap.connectionState != ConnectionState.done) {
+          body = const Padding(
+            padding: EdgeInsets.symmetric(vertical: FacingTokens.sp4),
+            child: Center(
+              child: CircularProgressIndicator(
+                  color: FacingTokens.muted, strokeWidth: 2),
+            ),
+          );
+        } else if (snap.hasError) {
+          final err = snap.error;
+          final msg = err is AppException ? err.messageKo : 'Load failed.';
+          body = _inline(
+            msg,
+            action: TextButton(
+              onPressed: _reload,
+              style: TextButton.styleFrom(
+                foregroundColor: FacingTokens.muted,
+                minimumSize: const Size(0, 36),
+                padding: EdgeInsets.zero,
               ),
-      ),
+              child: const Text('Retry'),
+            ),
+          );
+        } else {
+          final classes = snap.data ?? const <ClassSessionDto>[];
+          if (classes.isEmpty) {
+            body = _inline('등록된 클래스 없음. 사장 등록 시 표시.');
+          } else {
+            // 날짜별 그룹.
+            final groups = <String, List<ClassSessionDto>>{};
+            for (final c in classes) {
+              final key = _fmtDateKey(c.startAt);
+              groups.putIfAbsent(key, () => []).add(c);
+            }
+            body = Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final entry in groups.entries) ...[
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      top: FacingTokens.sp3,
+                      bottom: FacingTokens.sp2,
+                    ),
+                    child: Text(
+                      entry.key.toUpperCase(),
+                      style: FacingTokens.sectionLabel,
+                    ),
+                  ),
+                  for (final c in entry.value)
+                    _ClassCard(
+                      session: c,
+                      onReserve: () => _reserve(c),
+                      onCancel: () => _cancel(c),
+                    ),
+                ],
+              ],
+            );
+          }
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (widget.showHeader) _header(),
+            body,
+          ],
+        );
+      },
     );
   }
 
@@ -374,35 +441,3 @@ class _Pill extends StatelessWidget {
   }
 }
 
-class _EmptyState extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final Widget? action;
-  const _EmptyState({
-    required this.title,
-    required this.subtitle,
-    this.action,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(FacingTokens.sp5),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(title, style: FacingTokens.h2),
-            const SizedBox(height: FacingTokens.sp2),
-            Text(subtitle,
-                style: FacingTokens.caption, textAlign: TextAlign.center),
-            if (action != null) ...[
-              const SizedBox(height: FacingTokens.sp4),
-              action!,
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
