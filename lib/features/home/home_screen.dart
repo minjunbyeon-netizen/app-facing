@@ -6,7 +6,6 @@ import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/level_system.dart';
 import '../../core/pr_detector.dart';
-import '../../core/shell_nav_bus.dart';
 import '../../core/streak_freeze.dart';
 import '../../core/theme.dart';
 import '../../core/wod_session_bus.dart';
@@ -218,7 +217,9 @@ class _NoticeAccordion extends StatelessWidget {
               child: TextButton(
                 onPressed: () {
                   Haptic.light();
-                  context.read<ShellNavBus>().requestTab(2);
+                  // v1.26: 쪽지·공지 풀 피드 = MessagingScreen (종 일원화).
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const MessagingScreen()));
                 },
                 style: TextButton.styleFrom(
                   foregroundColor: FacingTokens.muted,

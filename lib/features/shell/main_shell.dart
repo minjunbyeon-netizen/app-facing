@@ -156,8 +156,8 @@ class _MainShellState extends State<MainShell> {
     if (i == _index) return;
     Haptic.selection();
     setState(() => _index = i);
-    // v1.24: 공지·쪽지가 Attend(2)로 이동 → Attend 진입 시점에 공지 읽음 처리
-    if (i == 2) {
+    // v1.26: 공지 노출처가 WOD 보드 상단 아코디언 → WOD 진입 시점에 읽음 처리
+    if (i == 1) {
       context.read<AnnouncementsState>().markSeen();
     }
   }
@@ -256,24 +256,20 @@ class _MainShellState extends State<MainShell> {
                 destinations: [
                   for (int i = 0; i < _tabs.length; i++)
                     NavigationDestination(
+                      // v1.26: 쪽지 미읽음 dot 은 종(벨)이 담당, 탭 dot 은
+                      // 새 공지(WOD 보드 상단 아코디언)만 표시.
                       icon: _IconWithDot(
                         icon: _tabs[i].icon,
-                        showDot: i == 2 &&
-                            (context.watch<InboxState>().unreadCount > 0 ||
-                                context
-                                        .watch<AnnouncementsState>()
-                                        .unreadCount >
-                                    0),
+                        showDot: i == 1 &&
+                            context.watch<AnnouncementsState>().unreadCount >
+                                0,
                         color: FacingTokens.muted,
                       ),
                       selectedIcon: _IconWithDot(
                         icon: _tabs[i].selectedIcon,
-                        showDot: i == 2 &&
-                            (context.watch<InboxState>().unreadCount > 0 ||
-                                context
-                                        .watch<AnnouncementsState>()
-                                        .unreadCount >
-                                    0),
+                        showDot: i == 1 &&
+                            context.watch<AnnouncementsState>().unreadCount >
+                                0,
                         color: FacingTokens.fg,
                       ),
                       label: _tabs[i].label,
@@ -345,7 +341,7 @@ class _TabHintOverlay extends StatelessWidget {
   static const List<(String, String)> _hints = [
     ('Home', '공지 · 레벨 · 업적 · Milestones'),
     ('WOD', '코치 오늘 WOD · 박스 공지 · 프리셋 계산'),
-    ('Attend', '월별 출석 캘린더 · 코치 쪽지'),
+    ('Attend', '클래스 예약 · 월별 출석 캘린더'),
     ('Rehab', '부위별 통증 감별 · 단계별 재활'),
     ('Profile', 'Engine 점수 · 바디 · 설정'),
   ];

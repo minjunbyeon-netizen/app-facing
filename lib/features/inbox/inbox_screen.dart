@@ -559,12 +559,29 @@ StreamSubscription<SseEvent> _listenNoteNew(
   });
 }
 
-// ─── 메시징 피드 (Attend 캘린더 밑에 임베드) ─────────────────────────────────
+// ─── 메시징 피드 ─────────────────────────────────────────────────────────
+
+/// v1.26 (2026-06-11): 쪽지·공지 진입을 종(벨)으로 일원화 — 벨 탭 시 이 화면.
+/// (구 v1.24 Attend 캘린더 밑 임베드는 ClassesSection 으로 대체됨.)
+class MessagingScreen extends StatelessWidget {
+  const MessagingScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('NOTICE')),
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp4),
+          children: const [MessagingFeed()],
+        ),
+      ),
+    );
+  }
+}
 
 /// 공지 + 코치/회원 대화목록 + 작성 진입을 한 덩어리로 묶은 임베드 위젯.
-/// v1.24 (2026-06-03): Notice 탭에서 Attend 탭(캘린더 밑)으로 이동.
 /// Scaffold 없이 스크롤 부모(ListView) 안에 들어가도록 자체 스크롤을 쓰지 않는다.
-/// (재활 카드는 포함하지 않음 — 재활은 Notice 탭 유지.)
 class MessagingFeed extends StatelessWidget {
   const MessagingFeed({super.key});
 

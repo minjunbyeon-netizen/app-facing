@@ -3,12 +3,13 @@ import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
 import '../../core/theme.dart';
+import '../classes/classes_screen.dart' show ClassesSection;
 import '../gym/gym_repository.dart';
-import '../inbox/inbox_screen.dart' show MessagingFeed;
 
 /// v1.23 (2026-06-02) 재배치 Phase 3: Attend = 출석 캘린더 전담.
 /// 게이미피케이션(Level·업적·Milestones)은 Home 으로 이관됨.
-/// 캘린더는 Profile 의 컴팩트 출석 카드를 이 화면으로 되돌린 것.
+/// v1.26 (2026-06-11): Attend = "수업 허브" — 상단 클래스 예약(ClassesSection)
+/// + 하단 출석 캘린더. 쪽지(MessagingFeed)는 종(벨) → MessagingScreen 으로 일원화.
 class AttendanceScreen extends StatefulWidget {
   const AttendanceScreen({super.key});
 
@@ -39,12 +40,16 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp4),
             children: [
-              _AttendanceCalendar(key: ValueKey('att-cal-$_tick')),
+              // v1.26: 클래스 예약을 최상단으로 — 회원 최빈 행동(예약→출석) 순서.
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: FacingTokens.sp4),
+                child: ClassesSection(key: ValueKey('att-cls-$_tick')),
+              ),
               const SizedBox(height: FacingTokens.sp5),
               const Divider(height: 1, color: FacingTokens.border),
               const SizedBox(height: FacingTokens.sp4),
-              // v1.24 (2026-06-03): 공지·쪽지·대화를 Notice 탭에서 캘린더 밑으로 이동.
-              MessagingFeed(key: ValueKey('att-feed-$_tick')),
+              _AttendanceCalendar(key: ValueKey('att-cal-$_tick')),
             ],
           ),
         ),

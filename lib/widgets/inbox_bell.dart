@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../core/haptic.dart';
-import '../core/shell_nav_bus.dart';
 import '../core/theme.dart';
+import '../features/inbox/inbox_screen.dart' show MessagingScreen;
 import '../features/inbox/inbox_state.dart';
 
 /// v1.22: 모든 탭 AppBar 공통 Bell 아이콘.
-/// v1.24: 쪽지·공지가 Attend 탭으로 이동 → 탭 시 Attend(2)로 점프. 미읽음 dot 유지.
+/// v1.26: 쪽지·공지 진입 일원화 — 탭 시 MessagingScreen push. 미읽음 dot 유지.
 class InboxBellAction extends StatelessWidget {
   const InboxBellAction({super.key});
 
@@ -25,7 +25,9 @@ class InboxBellAction extends StatelessWidget {
             icon: const Icon(Icons.notifications_outlined),
             onPressed: () {
               Haptic.light();
-              context.read<ShellNavBus>().requestTab(2);
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const MessagingScreen()),
+              );
             },
           ),
           if (hasUnread)
