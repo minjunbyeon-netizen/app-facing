@@ -12,14 +12,17 @@ import '../gym/gym_repository.dart';
 import '../gym/gym_state.dart';
 import '../home/home_screen.dart';
 import '../announcements/announcements_state.dart';
-import '../inbox/inbox_screen.dart';
 import '../inbox/inbox_state.dart';
 import '../mypage/mypage_screen.dart';
+import '../rehab/rehab_screen.dart';
 
 /// v1.21: 5탭 재배치 — Home · WOD · Attend · Notice · Profile.
 /// v1.23 (2026-06-02): Notice(쪽지)를 Attend 자리(index 3)로 이동, Attend → index 2.
 /// Trends 폐지, Calc → Home 격상 (점수 카드 + 카테고리 진입 통합).
-/// dot 위치: Notice(index 3). Default landing = WOD(index 1).
+/// v1.26 (2026-06-11): Notice 탭 → Rehab 탭. 재활 브라우즈(RehabScreen)를 탭
+/// 루트로 직접 호스팅 (구 NOTICE + 카드 1장 → 동작·통증부위 바로 노출).
+/// 공지는 WOD 보드 상단 아코디언 + Attend(MessagingFeed) 가 담당.
+/// Default landing = WOD(index 1).
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
 
@@ -29,8 +32,8 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   static const int _defaultIndex = 1; // WOD as landing tab
-  // v1.23 (2026-06-02): Notice↔Attend 위치 교체 → 힌트 버전 v4 로 bump (기존 사용자도 1회 재노출).
-  static const String _kTabHintShown = 'shell_tab_hint_shown_v4';
+  // v1.26 (2026-06-11): Notice → Rehab 탭 전환 → 힌트 버전 v5 로 bump (기존 사용자도 1회 재노출).
+  static const String _kTabHintShown = 'shell_tab_hint_shown_v5';
   int _index = _defaultIndex;
   bool _showTabHint = false;
   // v1.21: 베타 피드백 — 더블탭 종료 패턴. 첫 탭 SnackBar, 2초 내 재탭 시 종료.
@@ -38,9 +41,9 @@ class _MainShellState extends State<MainShell> {
 
   ShellNavBus? _navBus;
 
-  // v1.23: Notice 탭은 중첩 Navigator 로 호스팅 → 재활 가이드 등 탭 내부 화면을
+  // v1.26: Rehab 탭은 중첩 Navigator 로 호스팅 → 감별 플로우 등 탭 내부 화면을
   // 띄워도 하단 네비바가 계속 노출된다.
-  final GlobalKey<NavigatorState> _noticeNavKey = GlobalKey<NavigatorState>();
+  final GlobalKey<NavigatorState> _rehabNavKey = GlobalKey<NavigatorState>();
   // v1.24: Attend 탭도 중첩 Navigator — 캘린더 밑 MessagingFeed 의 쪽지 채팅·작성도
   // 탭 안에서 떠서 하단 네비바 유지.
   final GlobalKey<NavigatorState> _attendNavKey = GlobalKey<NavigatorState>();
@@ -107,9 +110,9 @@ class _MainShellState extends State<MainShell> {
       label: 'Attend',
     ),
     _TabDef(
-      icon: Icons.notifications_outlined,
-      selectedIcon: Icons.notifications,
-      label: 'Notice',
+      icon: Icons.healing_outlined,
+      selectedIcon: Icons.healing,
+      label: 'Rehab',
     ),
     _TabDef(
       icon: Icons.person_outline,
@@ -118,21 +121,14 @@ class _MainShellState extends State<MainShell> {
     ),
   ];
 
-  /// v1.21 (BLOCKER fix): InboxScreen 은 isOwner 따라 TabController 길이 결정.
-  /// IndexedStack 에 const InboxScreen() 으로 mount 하면 initState 시점 GymState
-  /// 미로드 → _isCoach 영구 false 가능. Consumer + ValueKey 로 isOwner 변경 시 재생성.
-  Widget _buildInbox() {
-    // 중첩 Navigator: Notice 탭 내부에서 push 하는 화면(재활 가이드 등)이
-    // 하단 네비바 위 body 영역에만 깔리도록 한다. 루트 = InboxScreen.
+  /// v1.26: Rehab 탭 루트 = RehabScreen (동작·통증부위 브라우즈 직접 노출).
+  /// 중첩 Navigator: 감별 플로우 push 시에도 하단 네비바 유지.
+  Widget _buildRehab() {
     return Navigator(
-      key: _noticeNavKey,
+      key: _rehabNavKey,
       onGenerateRoute: (settings) => MaterialPageRoute(
         settings: settings,
-        builder: (_) => Consumer<GymState>(
-          builder: (ctx, gs, _) => InboxScreen(
-            key: ValueKey('inbox-${gs.isOwner}'),
-          ),
-        ),
+        builder: (_) => const RehabScreen(),
       ),
     );
   }
@@ -152,7 +148,7 @@ class _MainShellState extends State<MainShell> {
     const HomeScreen(),
     const BoxWodScreen(),
     _buildAttend(),
-    _buildInbox(),
+    _buildRehab(),
     const MyPageScreen(),
   ];
 
@@ -186,9 +182,9 @@ class _MainShellState extends State<MainShell> {
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) return;
         // 현재 탭의 중첩 네비게이터가 pop 가능하면 그것부터 처리.
-        // (Notice=재활 플로우, Attend=쪽지 채팅/작성 — 각 화면 자체 PopScope 도 존중)
+        // (Rehab=감별 플로우, Attend=쪽지 채팅/작성 — 각 화면 자체 PopScope 도 존중)
         final nestedNav = _index == 3
-            ? _noticeNavKey.currentState
+            ? _rehabNavKey.currentState
             : (_index == 2 ? _attendNavKey.currentState : null);
         if (nestedNav != null && nestedNav.canPop()) {
           nestedNav.maybePop();
@@ -348,9 +344,9 @@ class _TabHintOverlay extends StatelessWidget {
 
   static const List<(String, String)> _hints = [
     ('Home', '공지 · 레벨 · 업적 · Milestones'),
-    ('WOD', '코치 오늘 WOD · 프리셋 계산'),
-    ('Attend', '월별 출석 캘린더 · 코치 쪽지 · 박스 공지'),
-    ('Notice', '재활 가이드'),
+    ('WOD', '코치 오늘 WOD · 박스 공지 · 프리셋 계산'),
+    ('Attend', '월별 출석 캘린더 · 코치 쪽지'),
+    ('Rehab', '부위별 통증 감별 · 단계별 재활'),
     ('Profile', 'Engine 점수 · 바디 · 설정'),
   ];
 

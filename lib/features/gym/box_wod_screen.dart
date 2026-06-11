@@ -4,8 +4,10 @@ import 'package:provider/provider.dart';
 import '../../core/api_client.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
+import '../../models/announcement.dart';
 import '../../models/gym.dart';
 import '../../widgets/coach_badge.dart';
+import '../announcements/announcements_state.dart';
 import '../../widgets/gym_info_card.dart';
 import '../../widgets/inbox_bell.dart';
 import '../presets/presets_screen.dart';
@@ -377,6 +379,8 @@ class _WodList extends StatelessWidget {
         children: [
           // v1.25: Notice 상단에 있던 박스 기본정보 → WOD 최상단 BOX INFO 아코디언.
           _GymInfoAccordion(gym: gym),
+          // v1.26 (2026-06-11): 공지성 내용을 WOD 보드 상단으로 — 박스 공지 아코디언.
+          const _AnnouncementsAccordion(),
           const SizedBox(height: FacingTokens.sp3),
           const Divider(height: 1, color: FacingTokens.border, thickness: 1),
           const SizedBox(height: FacingTokens.sp4),
@@ -513,8 +517,112 @@ class _WodList extends StatelessWidget {
   }
 }
 
+/// v1.26 (2026-06-11): 박스 공지를 WOD 보드 상단으로 — Rehab 탭 전환에 따라
+/// 공지 노출처를 WOD(여기) + Attend(MessagingFeed) 로 이원화.
+/// 기본 접힘 — 최신 공지 1건 헤드라인. 펼치면 최신 3건 (pinned 우선).
+class _AnnouncementsAccordion extends StatelessWidget {
+  const _AnnouncementsAccordion();
+
+  @override
+  Widget build(BuildContext context) {
+    final items = [...context.watch<AnnouncementsState>().items]
+      ..sort((a, b) {
+        if (a.pinned != b.pinned) return a.pinned ? -1 : 1;
+        return b.createdAt.compareTo(a.createdAt);
+      });
+    if (items.isEmpty) return const SizedBox.shrink();
+    final top = items.take(3).toList();
+    final latest = top.first;
+    final preview = latest.title.isNotEmpty ? latest.title : latest.body;
+
+    return Container(
+      margin: const EdgeInsets.only(top: FacingTokens.sp2),
+      decoration: BoxDecoration(
+        color: FacingTokens.surface,
+        border: Border.all(color: FacingTokens.border),
+        borderRadius: BorderRadius.circular(FacingTokens.r3),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          initiallyExpanded: false,
+          tilePadding: const EdgeInsets.symmetric(
+              horizontal: FacingTokens.sp3, vertical: 2),
+          childrenPadding: const EdgeInsets.fromLTRB(
+              FacingTokens.sp3, 0, FacingTokens.sp3, FacingTokens.sp3),
+          collapsedIconColor: FacingTokens.muted,
+          iconColor: FacingTokens.muted,
+          title: const Text('NOTICE', style: FacingTokens.sectionLabel),
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(
+              preview,
+              style: FacingTokens.caption,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          children: [
+            for (final a in top) _AnnouncementRow(item: a),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AnnouncementRow extends StatelessWidget {
+  final GymAnnouncement item;
+  const _AnnouncementRow({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    final d = item.createdAt.toLocal();
+    final dateLabel =
+        '${d.month.toString().padLeft(2, '0')}.${d.day.toString().padLeft(2, '0')}';
+    return Padding(
+      padding: const EdgeInsets.only(bottom: FacingTokens.sp3),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              if (item.pinned) ...[
+                const Icon(Icons.push_pin_outlined,
+                    size: 14, color: FacingTokens.muted),
+                const SizedBox(width: 4),
+              ],
+              Expanded(
+                child: Text(
+                  item.title.isNotEmpty ? item.title : '공지',
+                  style: FacingTokens.body
+                      .copyWith(fontWeight: FontWeight.w700),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: FacingTokens.sp2),
+              Text(dateLabel, style: FacingTokens.micro),
+            ],
+          ),
+          if (item.body.isNotEmpty) ...[
+            const SizedBox(height: 2),
+            Text(
+              item.body,
+              style: FacingTokens.caption,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
 /// v1.25 (2026-06-02): Notice 상단 박스 기본정보(GymInfoCard) → WOD 탭 최상단 아코디언.
-/// Notice 는 새 글(쪽지·공지) 전용으로 비움. 기본 접힘, 펼치면 박스·코치·가격·수업시간.
+/// (v1.26: Notice 탭은 Rehab 탭으로 전환 — 공지는 위 _AnnouncementsAccordion 참조.)
 class _GymInfoAccordion extends StatelessWidget {
   final GymSummary gym;
   const _GymInfoAccordion({required this.gym});

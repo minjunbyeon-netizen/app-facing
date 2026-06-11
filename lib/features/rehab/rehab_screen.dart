@@ -68,7 +68,8 @@ class _RehabScreenState extends State<RehabScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: FacingTokens.bg,
-      appBar: AppBar(title: const Text('재활 가이드')),
+      // v1.26: Rehab 탭 루트로 승격 — 타 탭 루트(HOME/WOD/PROFILE)와 표기 통일.
+      appBar: AppBar(title: const Text('REHAB')),
       body: SafeArea(
         child: FutureBuilder<List<RehabMovement>>(
           future: _future,
