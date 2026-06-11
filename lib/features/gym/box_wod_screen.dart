@@ -8,6 +8,7 @@ import '../../models/announcement.dart';
 import '../../models/gym.dart';
 import '../../widgets/coach_badge.dart';
 import '../announcements/announcements_state.dart';
+import '../classes/classes_screen.dart' show ClassesSection;
 import '../../widgets/gym_info_card.dart';
 import '../../widgets/inbox_bell.dart';
 import '../presets/presets_screen.dart';
@@ -20,6 +21,9 @@ import 'gym_state.dart';
 import 'wod_post_screen.dart';
 import 'wod_result_sheet.dart';
 import 'wod_type_label.dart';
+
+/// v1.26.1 (2026-06-11): 프리셋 계산(카큘레이터) 아코디언 임시 숨김 플래그.
+const bool _kShowPresetAccordion = false;
 
 /// v1.15.3: WOD 탭 진입점. GymState 상태 따라 4분기 렌더.
 class BoxWodScreen extends StatelessWidget {
@@ -378,27 +382,13 @@ class _WodList extends StatelessWidget {
         padding: const EdgeInsets.all(FacingTokens.sp4),
         children: [
           // v1.25: Notice 상단에 있던 박스 기본정보 → WOD 최상단 BOX INFO 아코디언.
+          // v1.26.1 (2026-06-11): 박스명 대제목 블록 제거 — BOX INFO 아코디언과
+          // 같은 정보 2연속 표기(위계 붕괴 지적)라 아코디언 한 곳만 남김.
           _GymInfoAccordion(gym: gym),
           // v1.26 (2026-06-11): 공지성 내용을 WOD 보드 상단으로 — 박스 공지 아코디언.
           const _AnnouncementsAccordion(),
           const SizedBox(height: FacingTokens.sp3),
           const Divider(height: 1, color: FacingTokens.border, thickness: 1),
-          const SizedBox(height: FacingTokens.sp4),
-          Text(gym.name,
-              style: FacingTokens.h3.copyWith(fontWeight: FontWeight.w800)),
-          const SizedBox(height: FacingTokens.sp1),
-          Row(
-            children: [
-              Text(gymState.todayIso, style: FacingTokens.caption),
-              const SizedBox(width: FacingTokens.sp2),
-              if (gymState.isOwner)
-                Text('· OWNER',
-                    style: FacingTokens.caption.copyWith(
-                      color: FacingTokens.accent,
-                      fontWeight: FontWeight.w700,
-                    )),
-            ],
-          ),
           const SizedBox(height: FacingTokens.sp4),
           if (isEmpty) ...[
             const Text("WOD", style: FacingTokens.sectionLabel),
@@ -507,10 +497,18 @@ class _WodList extends StatelessWidget {
                   )),
             ],
           ],
-          // v1.23 Phase 2: Home 의 프리셋 카테고리 → WOD 탭 하단 참조 아코디언.
+          // v1.26.1 (2026-06-11): WOD 보드에서 바로 수업 예약 — CLASSES 섹션.
           const SizedBox(height: FacingTokens.sp5),
           const Divider(height: 1, color: FacingTokens.border, thickness: 1),
-          const _PresetAccordion(),
+          const SizedBox(height: FacingTokens.sp4),
+          const ClassesSection(),
+          // v1.26.1: 프리셋 계산 아코디언은 당분간 숨김 (사용자 지시 2026-06-11).
+          // 복원 시 _kShowPresetAccordion = true 한 줄.
+          if (_kShowPresetAccordion) ...[
+            const SizedBox(height: FacingTokens.sp5),
+            const Divider(height: 1, color: FacingTokens.border, thickness: 1),
+            const _PresetAccordion(),
+          ],
         ],
       ),
     );
