@@ -145,12 +145,20 @@ class _SignupScreenState extends State<SignupScreen> {
     return Scaffold(
       backgroundColor: FacingTokens.bg,
       body: SafeArea(
-        child: SingleChildScrollView(
+        // 베타 피드백 (2026-06-11): 콘텐츠를 화면 상하좌우 정중앙에 배치.
+        // 작은 화면에서는 minHeight 가 콘텐츠보다 작아져 기존 스크롤 동작 유지.
+        child: LayoutBuilder(
+          builder: (context, constraints) => SingleChildScrollView(
           padding: const EdgeInsets.all(FacingTokens.sp5),
-          child: Column(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: (constraints.maxHeight - FacingTokens.sp5 * 2)
+                  .clamp(0.0, double.infinity),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: FacingTokens.sp5),
                 // v1.21: 베타 피드백 — 상단 브랜드/태그라인 블록 중앙정렬.
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -191,7 +199,8 @@ class _SignupScreenState extends State<SignupScreen> {
                 // 사장 ID/PW 진입은 전환기 동안만 하단 작은 링크로 유지.
                 // v1.16 Sprint 8 U1: 데모 계정 5개 빠른 진입.
                 const Text('DEMO ACCOUNTS',
-                    style: FacingTokens.sectionLabel),
+                    style: FacingTokens.sectionLabel,
+                    textAlign: TextAlign.center),
                 const SizedBox(height: FacingTokens.sp2),
                 ...kDemoAccounts.map((d) => Padding(
                       padding: const EdgeInsets.only(bottom: FacingTokens.sp1),
@@ -296,7 +305,9 @@ class _SignupScreenState extends State<SignupScreen> {
               ],
             ),
           ),
+          ),
         ),
+      ),
     );
   }
 }
