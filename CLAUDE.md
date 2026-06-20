@@ -352,12 +352,11 @@ R5. **하드코드 fontSize 금지.** 모든 텍스트 크기는 `FacingTokens` 
 | 1줄 선언·헤드라인 (동사 포함 2단어+) | **유지** | `Start WOD.` `Your Tier.` `Calculating.` `Measure Engine.` |
 | 수치/열거 (숫자+단위+명사) | **유지** | `Engine: 82/100.` `Split: 15-12-10.` |
 
-## 디자인 원칙 (글로벌 + facing 전용)
-- 이모지 금지 (V4)
+## 디자인 원칙 (facing 전용 — 공통 룰은 글로벌 SSOT 위임)
+> 이모지 금지·그라디언트/과도한 그림자 금지 등 공통 디자인 차단은 글로벌 `rules/design-block.md`·`rules/design-presets.md` 가 SSOT. 아래는 facing-app 고유 확장만.
 - 다크 배경 기본 (`bg=#0A0A0A`). 라이트 모드 제공 안 함.
 - 색상 9토큰 + 5 tier 색 (bg/surface/fg/muted/border/accent/accentPressed/success/warning + tier×5)
-- 폰트 Pretendard 1종 (weight 400/700/800)
-- 그라디언트/과도한 그림자 금지
+- 폰트 Pretendard 1종 (weight 400/700/800) — ※ 글로벌은 Pretendard 차단이나 facing 앱은 예외 유지
 - ROW 우선, 여백 충분히
 - 사진/일러스트 없음. 타이포+수치 중심.
 
