@@ -1,0 +1,30 @@
+{
+  "app": "facing",
+  "platform": "flutter",
+  "brand": {
+    "name": "FACING",
+    "accent": "#EE2B2B",
+    "accentPressed": "#B91C1C",
+    "accentSoft": "#FEF2F2"
+  },
+  "splash": {
+    "enabled": true,
+    "tagline": "",
+    "minMs": 2500
+  },
+  "strings": {
+    "skip": "Skip",
+    "next": "Next",
+    "start": "Start",
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading.",
+    "offline": "OFFLINE · Sync on reconnect",
+    "retry": "Retry",
+    "done": "Done",
+    "edit": "Edit"
+  },
+  "out": {
+    "dart": "lib/core/appkit.gen.dart"
+  }
+}
