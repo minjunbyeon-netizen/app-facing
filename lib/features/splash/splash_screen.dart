@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/api_client.dart';
+import '../../core/appkit.gen.dart';
 import '../../core/device_id.dart';
 import '../../core/haptic.dart';
 import '../../core/notification_service.dart';
@@ -104,7 +105,7 @@ class _SplashScreenState extends State<SplashScreen>
     }
     if (!mounted) return;
 
-    await Future.delayed(const Duration(milliseconds: 2500));
+    await Future.delayed(AppKit.splashMin);
     if (!mounted) return;
     _onStart(introSeen: introSeen);
   }

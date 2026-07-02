@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 
-/// facing 디자인 토큰 (v2.0.0 — 라이트 톤 전면 개편, PC facing-admin 팔레트 통합).
+import 'appkit.gen.dart';
+
+/// facing 디자인 토큰 (v2.1.0 — appkit 공통 조상 배선, 2026-07-03).
+/// 공유 토큰(뉴트럴·상태색·타이포 스케일·간격·모서리·크기·모션)은 AppKit 재수출,
+/// facing 고유(HWPO 임팩트·tier 색·quote)만 이 파일에 남는다.
+/// 마스터: C:/dev/tools/appkit/master/appkit.json → python sync.py
+///
+/// (구 v2.0.0 — 라이트 톤 전면 개편, PC facing-admin 팔레트 통합.)
 /// 컬러: 라이트 배경 + CrossFit red 액센트 (WCAG AA 보장).
 /// 폰트: 이중 모드 — HWPO 임팩트(영혼 숫자 1~2회/화면) + Strava 본문(나머지 전체).
 /// 규칙: ~/.claude/reference/{mobile,ux,design}.md + 프로젝트 CLAUDE.md.
@@ -13,15 +20,15 @@ import 'package:flutter/material.dart';
 class FacingTokens {
   FacingTokens._();
 
-  // ==== 컬러 팔레트 (v2.0.0 라이트 — PC facing-admin 동기화) ====
+  // ==== 컬러 팔레트 (v2.1.0 — appkit 공통 조상 재수출) ====
   /// 기본 배경 (라이트).
-  static const Color bg = Color(0xFFFAFAFA);
+  static const Color bg = AppKit.bg;
   /// 카드·시트 배경 (순백).
-  static const Color surface = Color(0xFFFFFFFF);
+  static const Color surface = AppKit.surface;
   /// 카드 보조 표면 (intro·hover 기반).
-  static const Color surfaceAlt = Color(0xFFF5F5F5);
+  static const Color surfaceAlt = AppKit.surfaceAlt;
   /// hover/pressed 상태 표면.
-  static const Color surfaceHover = Color(0xFFF0F0F0);
+  static const Color surfaceHover = AppKit.surfaceHover;
   /// 호환 alias — surfaceAlt 사용 권장.
   static const Color surfaceHigh = surfaceAlt;
   static const Color surfaceMax = surfaceHover;
@@ -29,40 +36,40 @@ class FacingTokens {
   static const Color surfaceOverlay = surfaceAlt;
 
   /// 본문 텍스트 (zinc-900).
-  static const Color fg = Color(0xFF18181B);
+  static const Color fg = AppKit.text;
   /// 보조 텍스트 (zinc-600).
-  static const Color fgSecondary = Color(0xFF52525B);
+  static const Color fgSecondary = AppKit.textSub;
   /// 흐린 텍스트 (zinc-500).
-  static const Color muted = Color(0xFF71717A);
-  /// 더 강한 muted (zinc-700).
+  static const Color muted = AppKit.muted;
+  /// 더 강한 muted (zinc-700) — facing 고유 (조상에 없음).
   static const Color mutedStrong = Color(0xFF3F3F46);
   /// 구분선 (zinc-200).
-  static const Color border = Color(0xFFE4E4E7);
+  static const Color border = AppKit.border;
   /// 강조 구분선 (zinc-300).
-  static const Color borderStrong = Color(0xFFD4D4D8);
+  static const Color borderStrong = AppKit.borderStrong;
 
   /// v2.0: accent = primary CrossFit red 통합.
   /// @deprecated v2.1에서 제거 — primary 사용.
-  static const Color accent = Color(0xFFEE2B2B);
-  static const Color accentPressed = Color(0xFFB91C1C);
-  /// 탠 어두운 배경 → 라이트에서 #FEF2F2 (red-50) 으로 대체.
-  static const Color accentSoft = Color(0xFFFEF2F2);
+  static const Color accent = AppKit.accent;
+  static const Color accentPressed = AppKit.accentPressed;
+  /// 탠 어두운 배경 → 라이트에서 red-50 으로 대체.
+  static const Color accentSoft = AppKit.accentSoft;
 
   // ==== 액센트 4색 ====
-  /// CrossFit Red — 기본 CTA·강조.
-  static const Color primary = Color(0xFFEE2B2B);
-  static const Color primaryPressed = Color(0xFFB91C1C);
+  /// CrossFit Red — 기본 CTA·강조 (appkit.config.json 브랜드 스킨).
+  static const Color primary = AppKit.accent;
+  static const Color primaryPressed = AppKit.accentPressed;
   /// v2.0 신규 — primary/danger 등 컬러 배경 위 텍스트 (항상 흰색).
   /// 라이트 톤 전환 시 fg(=검정) 사용하면 콘트라스트 미달 → 이 토큰 사용 강제.
-  static const Color onColor = Color(0xFFFFFFFF);
-  /// PR 달성·성공. emerald-500.
-  static const Color success = Color(0xFF10B981);
-  /// 만료 임박·주의. amber-500.
-  static const Color warning = Color(0xFFF59E0B);
-  /// 정보·툴팁·링크. blue-500.
-  static const Color info = Color(0xFF3B82F6);
-  /// 해지·에러. red-600.
-  static const Color danger = Color(0xFFDC2626);
+  static const Color onColor = AppKit.onAccent;
+  /// PR 달성·성공 (조상: 흰 배경 AA).
+  static const Color success = AppKit.success;
+  /// 만료 임박·주의 (조상: 흰 배경 AA).
+  static const Color warning = AppKit.warning;
+  /// 정보·툴팁·링크 (조상: 흰 배경 AA).
+  static const Color info = AppKit.info;
+  /// 해지·에러 (조상: 흰 배경 AA).
+  static const Color danger = AppKit.danger;
 
   /// @deprecated v2.1에서 제거 — danger 사용.
   static const Color error = danger;
@@ -108,13 +115,13 @@ class FacingTokens {
     color: fg,
   );
 
-  /// HWPO #2 — Tier 배지 내 숫자, LEVEL 숫자.
+  /// HWPO #2 — Tier 배지 내 숫자, LEVEL 숫자 (= 조상 display 56).
   static const TextStyle displayCompact = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 56,
-    fontWeight: FontWeight.w900,
-    height: 1.0,
-    letterSpacing: -1.8,
+    fontSize: AppKit.displaySize,
+    fontWeight: AppKit.displayWeight,
+    height: AppKit.displayLh,
+    letterSpacing: AppKit.displayLs,
     fontFeatures: tabular,
     color: fg,
   );
@@ -154,82 +161,83 @@ class FacingTokens {
   //   Strava 차분 모드 — 본문 전체
   // =========================================================
 
-  /// 화면 헤드라인.
+  /// 화면 헤드라인 (조상 h1 28 — 자간 음수 §2-B).
   static const TextStyle h1 = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 32,
-    fontWeight: FontWeight.w600,
-    height: 1.18,
-    letterSpacing: -0.4,
+    fontSize: AppKit.h1Size,
+    fontWeight: AppKit.h1Weight,
+    height: AppKit.h1Lh,
+    letterSpacing: AppKit.h1Ls,
     color: fg,
   );
 
-  /// 섹션 타이틀.
+  /// 섹션 타이틀 (조상 h2 22).
   static const TextStyle h2 = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 22,
-    fontWeight: FontWeight.w600,
-    height: 1.25,
-    letterSpacing: -0.2,
+    fontSize: AppKit.h2Size,
+    fontWeight: AppKit.h2Weight,
+    height: AppKit.h2Lh,
+    letterSpacing: AppKit.h2Ls,
     color: fg,
   );
 
-  /// 카드 타이틀, AppBar title (theme 기본).
+  /// 카드 타이틀, AppBar title (theme 기본) (조상 h3 17).
   static const TextStyle h3 = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 17,
-    fontWeight: FontWeight.w600,
-    height: 1.30,
-    letterSpacing: 0,
+    fontSize: AppKit.h3Size,
+    fontWeight: AppKit.h3Weight,
+    height: AppKit.h3Lh,
+    letterSpacing: AppKit.h3Ls,
     color: fg,
   );
 
-  /// Intro body 등 큰 본문.
+  /// Intro body 등 큰 본문 (조상 lead 18).
   static const TextStyle lead = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 18,
-    fontWeight: FontWeight.w400,
-    height: 1.45,
-    letterSpacing: 0.2,
+    fontSize: AppKit.leadSize,
+    fontWeight: AppKit.leadWeight,
+    height: AppKit.leadLh,
+    letterSpacing: AppKit.leadLs,
     color: fg,
   );
 
-  /// 본문.
+  /// 본문 (조상 body 15 — 자간 음수 §2-B, 구 +0.3 폐기).
   static const TextStyle body = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 15,
-    fontWeight: FontWeight.w400,
-    height: 1.50,
-    letterSpacing: 0.3,
+    fontSize: AppKit.bodySize,
+    fontWeight: AppKit.bodyWeight,
+    height: AppKit.bodyLh,
+    letterSpacing: AppKit.bodyLs,
     color: fg,
   );
 
-  /// 부연 설명.
+  /// 부연 설명 (조상 caption 13).
   static const TextStyle caption = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 13,
-    fontWeight: FontWeight.w400,
-    height: 1.45,
+    fontSize: AppKit.captionSize,
+    fontWeight: AppKit.captionWeight,
+    height: AppKit.captionLh,
+    letterSpacing: AppKit.captionLs,
     color: muted,
   );
 
-  /// 수치 보조.
+  /// 수치 보조 (조상 micro 13 — v1.19 P0-8 노안 가독성 유지).
   static const TextStyle micro = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 13,
-    fontWeight: FontWeight.w500,
-    height: 1.40,
-    letterSpacing: 0.4,
+    fontSize: AppKit.microSize,
+    fontWeight: AppKit.microWeight,
+    height: AppKit.microLh,
+    letterSpacing: AppKit.microLs,
     color: muted,
   );
 
-  /// 섹션 구분 라벨 ALLCAPS. 코드에서 toUpperCase 필수.
+  /// 섹션 구분 라벨 ALLCAPS. 코드에서 toUpperCase 필수 (조상 label 12 — 대문자 영문이라 양수 자간 예외).
   static const TextStyle sectionLabel = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 12,
-    fontWeight: FontWeight.w600,
-    height: 1.20,
-    letterSpacing: 1.4,
+    fontSize: AppKit.labelSize,
+    fontWeight: AppKit.labelWeight,
+    height: AppKit.labelLh,
+    letterSpacing: AppKit.labelLs,
     color: muted,
   );
 
@@ -264,35 +272,36 @@ class FacingTokens {
     color: muted,
   );
 
-  /// 수식·코드 블록.
+  /// 수식·코드 블록 (§2-B-모노: 모노스페이스 전면 금지 — Pretendard + tabular-nums 로 정렬).
   static const TextStyle codeBlock = TextStyle(
-    fontFamily: 'monospace',
-    fontSize: 13,
+    fontFamily: fontFamily,
+    fontSize: AppKit.captionSize,
     fontWeight: FontWeight.w400,
     height: 1.45,
+    fontFeatures: tabular,
     color: muted,
   );
 
-  // ==== 스페이싱 ====
-  static const double sp1 = 4;
-  static const double sp2 = 8;
-  static const double sp3 = 12;
-  static const double sp4 = 16;
-  static const double sp5 = 24;
-  static const double sp6 = 32;
-  static const double sp7 = 48;
-  static const double sp8 = 64;
+  // ==== 스페이싱 (조상) ====
+  static const double sp1 = AppKit.sp1;
+  static const double sp2 = AppKit.sp2;
+  static const double sp3 = AppKit.sp3;
+  static const double sp4 = AppKit.sp4;
+  static const double sp5 = AppKit.sp5;
+  static const double sp6 = AppKit.sp6;
+  static const double sp7 = AppKit.sp7;
+  static const double sp8 = AppKit.sp8;
 
-  // ==== 모서리 ====
-  static const double r1 = 4;
-  static const double r2 = 8;
-  static const double r3 = 12;
-  static const double r4 = 16;
-  static const double r5 = 28;
+  // ==== 모서리 (조상) ====
+  static const double r1 = AppKit.r1;
+  static const double r2 = AppKit.r2;
+  static const double r3 = AppKit.r3;
+  static const double r4 = AppKit.r4;
+  static const double r5 = AppKit.r5;
 
-  static const double touchMin = 48;
-  static const double buttonH = 52;
-  static const double appBarH = 52;
+  static const double touchMin = AppKit.touchMin;
+  static const double buttonH = AppKit.buttonH;
+  static const double appBarH = AppKit.appBarH;
 }
 
 class FacingTheme {
@@ -363,11 +372,11 @@ class FacingTheme {
         textStyle: WidgetStateProperty.all(
           const TextStyle(
             fontFamily: FacingTokens.fontFamily,
-            fontSize: 15,
+            fontSize: AppKit.bodySize,
             fontWeight: FontWeight.w600,
-            letterSpacing: 0,
-            height: 1.50,
-            color: Color(0xFFFFFFFF),
+            letterSpacing: AppKit.bodyLs,
+            height: AppKit.bodyLh,
+            color: AppKit.onAccent,
           ),
         ),
         overlayColor: WidgetStateProperty.all(Colors.transparent),

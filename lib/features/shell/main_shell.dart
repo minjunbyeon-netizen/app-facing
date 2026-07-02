@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../core/appkit.gen.dart';
 import '../../core/haptic.dart';
 import '../../core/shell_nav_bus.dart';
 import '../../core/theme.dart';
@@ -250,7 +251,7 @@ class _MainShellState extends State<MainShell> {
               child: NavigationBar(
                 selectedIndex: _index,
                 onDestinationSelected: _onTap,
-                height: 64,
+                height: AppKit.tabbarH,
                 labelBehavior:
                     NavigationDestinationLabelBehavior.alwaysShow,
                 destinations: [

@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../core/appkit.gen.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../widgets/hero_background.dart';
@@ -109,7 +110,7 @@ class _IntroScreenState extends State<IntroScreen> {
                         Haptic.light();
                         _finish();
                       },
-                      child: const Text('Skip'),
+                      child: const Text(AppKit.strSkip),
                     ),
                   ),
                 ),
@@ -140,7 +141,7 @@ class _IntroScreenState extends State<IntroScreen> {
                       Haptic.light();
                       _next();
                     },
-                    child: Text(isLast ? 'Start' : 'Next'),
+                    child: Text(isLast ? AppKit.strStart : AppKit.strNext),
                   ),
                 ),
               ],
