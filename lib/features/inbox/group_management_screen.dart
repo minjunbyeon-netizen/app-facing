@@ -186,7 +186,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
     if (timeText.isNotEmpty &&
         !RegExp(r'^([01]\d|2[0-3]):[0-5]\d$').hasMatch(timeText)) {
       messenger.showSnackBar(
-        const SnackBar(content: Text('Time 형식 오류 (HH:MM).')),
+        const SnackBar(content: Text('시간 형식 오류 (HH:MM).')),
       );
       return;
     }
@@ -204,7 +204,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
     if (colorText.isNotEmpty &&
         !RegExp(r'^#[0-9A-Fa-f]{6}$').hasMatch(colorText)) {
       messenger.showSnackBar(
-        const SnackBar(content: Text('Color 형식 오류 (#RRGGBB).')),
+        const SnackBar(content: Text('색상 형식 오류 (#RRGGBB).')),
       );
       return;
     }

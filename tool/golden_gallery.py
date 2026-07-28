@@ -12,12 +12,12 @@ GOLDENS = ROOT / "test" / "golden" / "goldens"
 
 # (사이드패널 라벨, 섹션 제목, [(파일 stem, 캡션)])
 SECTIONS = [
-    ("공통", "공통 — 진입 · 인트로 · 로그인 (v1.27 HYPHEN 로고)", [
+    ("공통", "공통 — 진입 · 인트로 · 로그인 (v1.29 한글 카피 + 로고 220 통일)", [
         ("common_01_splash", "스플래시 — HYPHEN 로고 · 자동 전환 대기"),
-        ("common_02_intro_board", "인트로① BOARD — Today's WOD."),
-        ("common_03_intro_earn", "인트로② EARN — Earn your level."),
-        ("common_04_intro_tier", "인트로③ TIER — Your Tier."),
-        ("common_05_signup", "소셜 로그인 — 네이버 · 구글"),
+        ("common_02_intro_board", "인트로① WOD 보드 — 오늘의 WOD."),
+        ("common_03_intro_earn", "인트로② 레벨·업적 — 기록이 레벨이 된다."),
+        ("common_04_intro_tier", "인트로③ TIER — 내 Tier."),
+        ("common_05_signup", "소셜 로그인 — 네이버 아이디 · 구글"),
     ]),
     ("온보딩", "온보딩 — 기본 정보 → Benchmarks → Tier", [
         ("onb_01_basic", "기본 정보 — 체중 · 키 · 경력"),
@@ -107,8 +107,8 @@ HEAD = """<!doctype html>
 NOTE = ("골든 테스트(flutter test --update-goldens test/golden) 산출물 — 실제 앱 위젯을 "
         "가짜 백엔드(test/golden/fakes.dart)로 렌더한 실물 픽셀입니다 (갤S22 급 360×780·2x). "
         "데이터는 샘플입니다. UI 를 바꾸면 --update-goldens 재실행 후 이 갤러리를 다시 생성하세요. "
-        "v1.27 (2026-07-28): 3기둥 집중 — 게이미피케이션 · WOD 보드 · 프로필만 노출 "
-        "(Attend·Rehab 탭, 페이싱 계산기는 숨김 — 코드 보존).")
+        "v1.29 (2026-07-28): 카피 한글 기본 전환 + 로그인·로딩 화면 통일(BrandLogo 220·FkLoadingScreen) "
+        "— 양식 정본 docs/DESIGN-SSOT.md. v1.27 3기둥 집중(게이미피케이션·WOD 보드·프로필) 유지.")
 
 SCRIPT = """<script>
   const btns = document.querySelectorAll('aside nav button');

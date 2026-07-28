@@ -1,4 +1,4 @@
-// /go Phase 3: AchievementsScreen 렌더 회귀 위젯 테스트.
+﻿// /go Phase 3: AchievementsScreen 렌더 회귀 위젯 테스트.
 //
 // 검증:
 // - empty catalog → 'No achievements yet.'
@@ -56,8 +56,8 @@ void main() {
       await tester.pumpWidget(_wrap(state));
       await tester.pumpAndSettle();
 
-      expect(find.text('ACHIEVEMENTS'), findsOneWidget); // AppBar title
-      expect(find.text('No achievements yet.'), findsOneWidget);
+      expect(find.text('업적'), findsOneWidget); // AppBar title
+      expect(find.text('아직 업적 없음.'), findsOneWidget);
     });
 
     testWidgets('AppException 에러 → "업적 로딩 실패" + Retry', (tester) async {
@@ -72,7 +72,7 @@ void main() {
 
       expect(find.text('업적 로딩 실패'), findsOneWidget);
       expect(find.text('서버 연결 실패'), findsOneWidget);
-      expect(find.text('Retry'), findsOneWidget);
+      expect(find.text('다시 시도'), findsOneWidget);
     });
 
     testWidgets('일반 Exception 에러 → error UI 표시', (tester) async {
@@ -86,7 +86,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('업적 로딩 실패'), findsOneWidget);
-      expect(find.text('Retry'), findsOneWidget);
+      expect(find.text('다시 시도'), findsOneWidget);
     });
 
     testWidgets('snapshot 1개 있음 → AppBar + UNLOCKED 섹션 라벨', (tester) async {
@@ -121,9 +121,10 @@ void main() {
       await tester.pumpWidget(_wrap(state));
       await tester.pumpAndSettle();
 
-      expect(find.text('ACHIEVEMENTS'), findsOneWidget);
-      expect(find.text('UNLOCKED'), findsAtLeastNWidgets(1)); // 섹션 라벨
+      expect(find.text('업적'), findsOneWidget);
+      expect(find.text('달성'), findsAtLeastNWidgets(1)); // 섹션 라벨
       expect(find.text('/ 1'), findsOneWidget);
     });
   });
 }
+

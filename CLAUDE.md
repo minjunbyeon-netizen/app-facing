@@ -169,43 +169,20 @@ apps/facing-app/
 
 > **4 벤치마크 충돌 시 우선순위**: 카피 결정은 **HWPO** 톤이 이긴다. 비주얼 결정은 **NOBULL**이 이긴다. 단, 실제 우선순위는 `~/.claude/reference/{mobile,ux,design}.md > 본 문서 (CLAUDE.md)` (위가 우위). — §9 Differentiation 6-pager FAQ Q7.
 
-## Voice & Tone (어투 11원칙 — v1.13.0 미니멀 패스)
-V1. **명령형 기본.** "~하세요" 금지.
-    - 단어 1개 라벨(버튼·탭·배지·헤더 단어 1개) = **마침표 없음**: "Enter" "Confirm" "Calculate" "Save" "Next" "Back" "Skip"
-    - 1줄 선언 헤드라인(동사 포함·2단어 이상) = **마침표 유지**: "Start WOD." "Your Tier." "Earn it."
-V2. **숫자 없으면 동기부여 문구 금지.** "할 수 있다!" 류 공허한 응원 제거. "Fran sub-2:00, 82%" 식 metric 기반만.
-V3. **한 문장 10단어 이하.** 설명 길어지면 분리 또는 삭제.
-V4. **이모지 금지.** 박수·불꽃 없음. 숫자·기호(→ : %) 만 허용.
-V5. **2인칭 금기.** "당신/귀하" 쓰지 말 것. 영문 "you"는 "Your Tier" 같은 소유격 외 생략 기본.
-V6. **영문 전문 용어는 번역 안 함.** 1RM, AMRAP, EMOM, Metcon, Chipper, Engine, Unbroken, Split, Burst 그대로.
-V7. **실패도 전술적으로.** "오류 발생" → "Offline. 연결 시 동기화." 무기력이 아닌 리셋 프레임.
-V8. **짧은 UI 라벨·헤드라인·버튼은 영문 단독.**
-    - 버튼·탭·배지(단어 1개) = 마침표 없음 → "Save" "Next" "History" "Profile"
-    - 헤드라인·진행형·선언문(동사 포함 1줄) = 마침표 유지 → "Calculating." "Start WOD." "Your Tier."
-    HWPO/NOBULL 패턴: 단어 라벨 = 마침표 없음, 선언문 = 마침표 1개.
-V9. **한 문장 내 영문-한글 혼합 금지.** 영문 명사 + 한글 조사("Split**이**", "Engine**을**") 구조 전면 폐기. 동사를 한글로 쓰려면 명사도 한글로(전문용어 제외) 또는 문장 전체를 영문으로.
-V10. **부연 설명·힌트·캡션·지시문은 줄 수 무관 한글 허용 (v1.13 완화).**
-    - 판단 기준: 영문 헤드라인이 "무엇"을 선언하면, 한글 캡션이 "왜·어떻게"를 보충
-    - 허용 패턴: 영문 헤드라인 + 한글 캡션의 **수직 스택 구조**
-    - 금지: 한 문장 내 영문-한글 혼용(V9 유지)
-    - 버튼·탭·배지·토스트(단어 1~3개) = 여전히 영문 단독
-V11. **번역 판단 기준:** 동작명/등급명/시스템명/메트릭명은 항상 영문. 보조 동사("하다/이다/있다") 포함 문장은 전체 영문으로 전환하거나 보조 동사 제거(명사+마침표 형식).
+## Voice & Tone v2.0 — 한글 기본 (v1.29 · 2026-07-28 사용자 지시)
+> **SSOT = `docs/DESIGN-SSOT.md §7`** (구 V1~V11 영문 중심 원칙 폐기 — "안에 너무 영어가 많다" 지시로 전환). 요지:
+- **기본 언어 = 한글.** 버튼·탭·헤더·섹션 라벨·안내·에러 전부 한글.
+- **영문 유지 = 도메인 고정어만**: `HYPHEN`(브랜드) · `WOD` `AMRAP` `EMOM` `RX` `RX+` `Scaled`
+  `Elite` `Games` `1RM` `PR` `UB` `Metcon` `For Time` `Engine` `Split` `Burst` · 단위 `kg/lb` ·
+  `XP` · 벤치마크 WOD 이름(Fran 등) · 동작명(Thruster 등) · Engine 카테고리(POWER/OLYMPIC/…) ·
+  명언(원문 유지, 저자 병기).
+- **톤**: 명사형 간결체 ("오늘의 WOD" · "불러오기 실패"). 버튼 = 2~4자 동사 ("저장" "다음" "다시 시도").
+  공허한 응원·이모지 금지 유지. 숫자 기반 서술 유지 (Mayhem/CompTrain 계승).
+- **혼용 허용**: 도메인 영단어 + 한글 조사 결합 OK ("코치가 올린 오늘의 WOD") — 구 V9 금지 폐기.
+- 공통 문자열(건너뛰기·다음·저장·취소·불러오는 중 등) 정본 = `appkit.config.json > strings`.
 
-한 줄 브랜드 보이스: **"Games-Player의 언어로, 숫자로만 말한다."**
-
-## 용어 팔레트
-### 사용 (영문 단독 원칙)
-`WOD` `AMRAP` `EMOM` `Metcon` `Chipper` `RX` `RX+` `Scaled` `Elite` `Games` `1RM` `Unbroken` `UB` `Box` `Engine` `Split` `Pacing` `Burst` `PR` `For Time` `Regionals` `Open`
-
-### 병기 규칙 (v1.12.0 영문 중심 전환)
-- **동작명**: 영문 단독 (Thruster / Pull-up / Box Jump / Back Squat / Snatch). 한글 번역 금지.
-- **UI 라벨 (탭/버튼/헤더/배지)**: 영문 단독. "저장" → "Save", "계산" → "Calculate", "확인" → "Confirm", "건너뛰기" → "Skip", "다음" → "Next".
-- **등급/시스템/메트릭**: 영문 단독 (RX, Games, Elite, Engine, Split, Burst).
-- **2줄 이상 설명/힌트/에러 상세**: 한글 허용 (V10).
-- **문장 내 영-한 혼용 금지**: "Split이 순위를" / "Engine을 측정" 같은 조사 결합 전부 제거.
-
-### 금지 용어
-운동 · 헬스 · 다이어트 · 건강 · 체중관리 · 체력증진 · 웰니스 · 칼로리 소모 · "쉬운" · "편리한" · "누구나"
+### 금지 용어 (유지 — copy_lint_test 차단)
+운동 · 헬스 · 다이어트 · 건강 · 체중관리 · 체력증진 · 웰니스 · 칼로리 소모 · "쉬운" · "편리한" · "누구나" · 당신 · 귀하
 
 ## 티어 시스템 (등급 표기 SSOT)
 백엔드 응답 `overall_number` (1~6) → 프론트에서 5 티어로 매핑:
@@ -304,80 +281,35 @@ R5. **하드코드 fontSize 금지.** 모든 텍스트 크기는 `FacingTokens` 
 
 추가 시 엘리트 athlete 인용 + 1줄 이내 + 동기부여가 아닌 사실 진술 성격만.
 
-## 카피 템플릿 (화면별 SSOT — v1.12.0 영문 중심)
-짧은 라벨·헤드라인·CTA·에러 토스트는 영문. 2줄 이상 설명·힌트는 한글 허용.
+## 카피 템플릿 (화면별 정본 — v1.29 한글 기본)
+> 규칙 SSOT = `docs/DESIGN-SSOT.md §7`. 대표 카피만 여기 유지 (구 v1.12 영문 표 폐기).
 
-### 짧은 UI (영문 고정)
 | 위치 | 카피 |
 |---|---|
-| App name (Splash) | **HYPHEN 로고** (`widgets/brand_logo.dart` — v1.27 텍스트 워드마크 대체) |
-| Intro 1 headline (BOARD) | **"Today's WOD."** (v1.27 3기둥 동기화 — 2026-07-28) |
-| Intro 2 headline (EARN) | **"Earn your level."** |
-| Intro 3 headline (TIER) | **"Your Tier."** (페이싱 카피 폐기 — 계산기 숨김) |
-| Intro CTA (마지막 p) | **"Start"** (단어 1개 라벨 — 마침표 없음) |
-| Home headline | **"Today's WOD."** / 2줄 **"Pull your Split."** |
-| Home sub (1줄) | **"RX to Games. Auto Split · Burst."** |
-| Step 1 title | **"Enter 1RM."** |
-| Benchmarks title | **"Benchmarks."** |
-| Submit 버튼 | **"Measure Engine"** |
-| Loading 제목 | **"Calculating."** |
-| Grade header | **"Your Tier."** |
-| CTA 홈 이동 | **"Start WOD"** |
-| Offline 배너 | **"OFFLINE · Sync on reconnect"** |
-| Calc error 토스트 | **"Calc failed. Retry."** |
-| Empty profile | **"No 1RM. Enter first."** |
-| MyPage entry | **"Profile"** |
-| History entry | **"History"** |
-| kg/lb 토글 | **"kg"** / **"lb"** |
-| Skip 버튼 | **"Skip"** |
-| Next 버튼 | **"Next"** |
-| Back 버튼 | **"Back"** |
-| Save 버튼 | **"Save"** |
-| Reset 버튼 | **"Reset data"** |
-
-### 긴 설명 / 힌트 (한글 허용, 2줄+)
-| 위치 | 카피 |
-|---|---|
-| Step 1 sub | "체중·키는 등급 산정 기준." (1줄이지만 맥락 유지 위해 한글 허용 — 예외) |
-| Benchmarks hint | "아는 것만. 빈 칸은 자동 추론." |
-| Loading sub | "6 카테고리 Engine 측정." |
-| Grade sub | "Tier에 맞춰 Split · Burst 자동 조정. 언제든 Profile에서 수정." |
-| Error detail (2줄+) | "연결 실패. 백엔드 재시도 중. 잠시 후 다시 시도." |
-
-### 혼합 문장 예시 (허용 vs 금지)
-- 허용(영문 전체): `"Your Tier."`, `"Engine: 82/100"`, `"Start WOD"`
-- 허용(한글 설명 블록): `"Tier에 맞춰 Split과 Burst 자동 조정."` (동사+조사+마침표 완결, 2줄 블록 안)
-- 금지(한 문장 혼용): `"Split이 순위를 만든다."` → `"Split defines rank."` 로
-- 금지(한 문장 혼용): `"Engine을 측정한다."` → `"Measure Engine."` 로
-
-### 영문 헤드라인 + 한글 캡션 수직 스택 (허용 패턴 — v1.13)
-| 화면 | 헤드라인(영문) | 캡션(한글) |
-|---|---|---|
-| Onboarding Step 1 | `Enter 1RM.` | `체중·키는 등급 산정 기준.` |
-| Onboarding Step 2 | `Benchmarks.` | `아는 것만 입력. 빈 칸은 자동 추론.` |
-| Grade 결과 | `Your Tier.` | `Tier에 맞춰 Split과 Burst 자동 조정. Profile 수정 가능.` |
-| Loading 오버레이 | `Calculating.` | `6 카테고리 Engine 측정.` |
-| Offline 배너 | `OFFLINE` | `연결 시 동기화.` |
-| History 빈 상태 | `No Engine history` | `등급 계산 후 자동 저장.` |
-| Home 부연 | `Today's WOD.` / `Pull your Split.` | `RX부터 Games까지. Split과 Burst 자동 계산.` |
-
-### 마침표 3분류 (v1.13 규칙 요약)
-| 유형 | 마침표 | 예시 |
-|---|---|---|
-| 단어 1개 라벨 (버튼·탭·배지·네비) | **없음** | `Save` `Next` `Back` `Skip` `History` `Profile` `Loading` `Body` |
-| 1줄 선언·헤드라인 (동사 포함 2단어+) | **유지** | `Start WOD.` `Your Tier.` `Calculating.` `Measure Engine.` |
-| 수치/열거 (숫자+단위+명사) | **유지** | `Engine: 82/100.` `Split: 15-12-10.` |
+| Splash / 로그인 / 전면 로딩 | **HYPHEN 로고** (BrandLogo 기본 폭 220) — 전면 로딩은 FkLoadingScreen |
+| 인트로 3p | "오늘의 WOD." / "기록이 레벨이 된다." / "내 Tier." (stage: WOD 보드 · 레벨 업적 · TIER) |
+| 인트로 CTA | "시작" (마지막 p) / "다음" / "건너뛰기" — appkit strings |
+| 로그인 버튼 | "네이버 아이디로 로그인" (1순위) · "구글로 시작" — FkSocialButton |
+| 로그인 진행 | FkLoadingScreen(caption: '로그인 중') |
+| 셸 3탭 | 홈 · WOD · 프로필 |
+| 온보딩 | "1RM 입력" → "Benchmarks" → "내 Tier" · 제출 "Engine 측정" · 진행 "계산 중" |
+| 오프라인 배너 | "오프라인" + "연결 시 동기화." |
+| 에러 공통 | FkErrorState — 메시지 + "다시 시도" |
+| 빈 상태 예 | "Engine 기록 없음" / "오늘 WOD 없음." / "아직 업적 없음." |
+| 다이얼로그 확인형 | "~할까요?" + 취소/확정 2버튼 ("WOD를 삭제할까요?") |
 
 ## 디자인 원칙 (facing 전용 — 공통 룰은 글로벌 SSOT 위임)
-> 이모지 금지·그라디언트/과도한 그림자 금지 등 공통 디자인 차단은 글로벌 `rules/design-block.md`·`rules/design-presets.md` 가 SSOT. 아래는 facing-app 고유 확장만.
-- **UI 컴포넌트 SSOT = `lib/widgets/fkit.dart` (FKit — v1.27 신설)**: 카드(FkCard)·배지(FkBadge)·
-  섹션 라벨(FkSectionLabel)·통계 타일(FkStatTile)·빈/에러/로딩 상태(FkEmptyState/FkErrorState/FkLoading)는
-  FKit 것만 사용. 화면마다 새 버튼·배지·레이아웃 variant 신설 금지 — 필요하면 FKit 에 먼저 추가 후 사용
-  (글로벌 §3 코드·클래스 SSOT 의 프로젝트 배선). 완전 원형 pill 금지(글로벌 design-block) — 배지는
-  r1 사각. 티어 표기는 TierBadge 가 별도 SSOT.
-- 다크 배경 기본 (`bg=#0A0A0A`). 라이트 모드 제공 안 함.
-- 색상 9토큰 + 5 tier 색 (bg/surface/fg/muted/border/accent/accentPressed/success/warning + tier×5)
-- 폰트 Pretendard 1종 (weight 400/700/800) — ※ 글로벌은 Pretendard 차단이나 facing 앱은 예외 유지
+> 이모지 금지·그라디언트/과도한 그림자 금지 등 공통 디자인 차단은 글로벌 `rules/design-block.md`·`rules/design-presets.md` 가 SSOT.
+> **레이아웃·크기·폰트 굵기·카피 양식 정본 = `docs/DESIGN-SSOT.md` (v1.29 신설)** — 화면 작업은 그 양식 안에서만. 아래는 요약.
+- **UI 컴포넌트 SSOT = `lib/widgets/fkit.dart` (FKit — v1.27 신설, v1.29 확장)**: 카드(FkCard)·배지(FkBadge)·
+  섹션 라벨(FkSectionLabel)·통계 타일(FkStatTile)·빈/에러/로딩 상태(FkEmptyState/FkErrorState/FkLoading)·
+  전면 로딩(FkLoadingScreen)·소셜 버튼(FkSocialButton)은 FKit 것만 사용. 화면마다 새 버튼·배지·레이아웃
+  variant 신설 금지 — 필요하면 FKit 에 먼저 추가 후 사용 (글로벌 §3 코드·클래스 SSOT 의 프로젝트 배선).
+  완전 원형 pill 금지(글로벌 design-block) — 배지는 r1 사각. 티어 표기는 TierBadge 가 별도 SSOT.
+- 라이트 배경 기본 (`bg=#FAFAFA`, v2.0 라이트 전환 — 구 다크 #0A0A0A 폐기). 다크 모드 제공 안 함.
+- 컬러·타이포·간격·모서리 = appkit 공통 조상 재수출 (FacingTokens) + tier 5색 — 수치는 DESIGN-SSOT §1~4.
+- 폰트 Pretendard 1종. 굵기 4단 정책(400/500/600/700, 로고·display 만 800~900) = DESIGN-SSOT §2.
+  ※ 글로벌은 Pretendard 차단이나 facing 앱은 예외 유지.
 - ROW 우선, 여백 충분히
 - 사진/일러스트 없음. 타이포+수치 중심.
 - **브랜드 로고 = HYPHEN 워드마크 (v1.27)**: `lib/widgets/brand_logo.dart` (BrandLogo — 모티프+워드마크

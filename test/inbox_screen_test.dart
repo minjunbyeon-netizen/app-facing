@@ -1,4 +1,4 @@
-// InboxScreen(NOTICE) 렌더 회귀 위젯 테스트.
+﻿// InboxScreen(NOTICE) 렌더 회귀 위젯 테스트.
 //
 // 2026-07-28 재작성 2차: 원 테스트는 v1.22 에서 폐지된 4탭(ALL/NOTES/ASSIGNMENTS/
 // OUTBOX) UI 를 검증하고 있었다 — 현행 계약(NOTICE 단일 피드)으로 갱신.
@@ -50,14 +50,15 @@ void main() {
         ..['/api/v1/gyms/mine'] = {...gymsMine, 'role': 'owner'};
       await _pumpNotice(tester, FakeApi(world));
 
-      expect(find.text('NOTICE'), findsOneWidget);
+      expect(find.text('공지'), findsOneWidget);
     });
 
     testWidgets('멤버 (approved) → NOTICE 피드 build 통과', (tester) async {
       SharedPreferences.setMockInitialValues({});
       await _pumpNotice(tester, FakeApi(memberWorld())); // 기본 = member/approved
 
-      expect(find.text('NOTICE'), findsOneWidget);
+      expect(find.text('공지'), findsOneWidget);
     });
   });
 }
+

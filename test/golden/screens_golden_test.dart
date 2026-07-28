@@ -1,4 +1,4 @@
-import 'dart:math';
+﻿import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -96,10 +96,10 @@ void main() {
         profile: ProfileState(),
         home: const IntroScreen()));
     await capture(tester, 'common_02_intro_board');
-    await tester.tap(find.text('Next'));
+    await tester.tap(find.text('다음'));
     await tester.pump(const Duration(milliseconds: 300));
     await capture(tester, 'common_03_intro_earn');
-    await tester.tap(find.text('Next'));
+    await tester.tap(find.text('다음'));
     await tester.pump(const Duration(milliseconds: 300));
     await capture(tester, 'common_04_intro_tier');
   });
@@ -173,9 +173,9 @@ void main() {
         gym: gym,
         home: const MainShell()));
     await capture(tester, 'member_01_shell_wod');
-    await tapTab(tester, 'Home');
+    await tapTab(tester, '홈');
     await capture(tester, 'member_02_shell_home');
-    await tapTab(tester, 'Profile');
+    await tapTab(tester, '프로필');
     await capture(tester, 'member_03_shell_profile');
   });
 
@@ -222,3 +222,4 @@ void main() {
     await capture(tester, 'boss_01_login');
   });
 }
+

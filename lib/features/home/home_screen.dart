@@ -328,7 +328,7 @@ class _GamificationBody extends StatelessWidget {
                 .length;
             return _ProgressStat(
               title: '출석',
-              subtitle: '이번 달 출석 · $attendThisMonth / $daysElapsed days',
+              subtitle: '이번 달 출석 · $attendThisMonth / $daysElapsed일',
               value: daysElapsed > 0
                   ? (attendThisMonth / daysElapsed).clamp(0.0, 1.0)
                   : 0.0,
