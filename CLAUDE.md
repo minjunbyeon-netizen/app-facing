@@ -384,7 +384,9 @@ python tool/golden_gallery.py               # 단일 HTML 갤러리 (build/golde
   실행 시점 상대값 (`fakes.dart` — writeplz generations 패턴)
 - 갤러리 등재는 `golden_gallery.py` 가 양방향 검출 (누락 = PNG 없음 / 미등재 = SECTIONS 없음)
 - 상태 변형은 `states_golden_test.dart` 분리 (본편 = screens_golden_test.dart)
-- ⚠ History 처럼 숨은 탭 future 는 에러 시 unhandled 로 테스트가 죽음 — errorPaths 는 보이는 탭 경로만
+- Future 를 필드에 보관하고 FutureBuilder 가 늦게 붙는 화면(숨은 탭·중첩 빌더)은
+  `core/futures.dart retainError()` 로 감쌀 것 — 미적용 시 에러가 unhandled 로 새어 테스트 즉사
+  (2026-07-28 골든에서 발견, history·panel_b 적용 완료)
 
 ## 빌드 & 배포 (MVP)
 ```bash

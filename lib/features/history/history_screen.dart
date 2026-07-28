@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/api_client.dart';
 import '../../core/engine_decay.dart';
 import '../../core/exception.dart';
+import '../../core/futures.dart';
 import '../../core/scoring.dart';
 import '../../core/theme.dart';
 import '../../core/tier.dart';
@@ -46,8 +47,9 @@ class _HistoryScreenState extends State<HistoryScreen>
 
   void _reload() {
     setState(() {
-      _engineFuture = _repo.listEngineSnapshots(limit: 50);
-      _wodFuture = _repo.listWodHistory(limit: 20);
+      // retainError: 숨은 탭 future 가 에러로 완료돼도 unhandled 로 새지 않게.
+      _engineFuture = retainError(_repo.listEngineSnapshots(limit: 50));
+      _wodFuture = retainError(_repo.listWodHistory(limit: 20));
     });
   }
 

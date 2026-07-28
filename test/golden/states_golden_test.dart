@@ -76,10 +76,9 @@ void main() {
   testWidgets('state: history error', (tester) async {
     phone(tester);
     SharedPreferences.setMockInitialValues(signedInPrefs());
-    // engine 탭(보이는 탭)만 에러 — 숨은 WOD 탭 future 는 리스너가 없어
-    // 에러 시 unhandled 로 테스트가 죽는다 (실앱도 동일 구조).
-    final api =
-        FakeApi(memberWorld(), errorPaths: {'/api/v1/history/engine'});
+    // 두 탭 모두 에러 — retainError(core/futures.dart) 적용 전엔 숨은 WOD 탭
+    // future 가 unhandled 로 테스트를 죽였다. 이 캡처가 그 픽스의 회귀 게이트.
+    final api = FakeApi(memberWorld(), errorPaths: {'/api/v1/history'});
     await tester.pumpWidget(harness(
         api: api,
         auth: await signedInAuth(),

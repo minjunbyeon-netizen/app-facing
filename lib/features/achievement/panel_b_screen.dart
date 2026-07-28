@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
+import '../../core/futures.dart';
 import '../../core/haptic.dart';
 import '../../core/pr_detector.dart';
 import '../../core/scoring.dart';
@@ -51,10 +52,14 @@ class _PanelBScreenState extends State<PanelBScreen> {
   void initState() {
     super.initState();
     final api = context.read<ApiClient>();
-    _historyFuture = HistoryRepository(api).listWodHistory(limit: 500);
+    // retainError: _engineFuture·_seasonBadgesFuture 의 FutureBuilder 는
+    // _historyFuture 성공 분기 안에 중첩 — history 가 에러·로딩이면 리스너가
+    // 안 붙어 에러가 unhandled 로 샌다.
+    _historyFuture = retainError(HistoryRepository(api).listWodHistory(limit: 500));
     // /go Tier 3: engine 80+ count signal 추출용 — engine snapshot 로드.
-    _engineFuture = HistoryRepository(api).listEngineSnapshots(limit: 100);
-    _seasonBadgesFuture = SeasonBadgeService.unlockedCodes();
+    _engineFuture =
+        retainError(HistoryRepository(api).listEngineSnapshots(limit: 100));
+    _seasonBadgesFuture = retainError(SeasonBadgeService.unlockedCodes());
     _loadWornCode();
     _loadShareCount();
   }
@@ -242,10 +247,10 @@ class _PanelBScreenState extends State<PanelBScreen> {
                         onPressed: () {
                           setState(() {
                             final api = context.read<ApiClient>();
-                            _historyFuture = HistoryRepository(api)
-                                .listWodHistory(limit: 500);
-                            _engineFuture = HistoryRepository(api)
-                                .listEngineSnapshots(limit: 100);
+                            _historyFuture = retainError(HistoryRepository(api)
+                                .listWodHistory(limit: 500));
+                            _engineFuture = retainError(HistoryRepository(api)
+                                .listEngineSnapshots(limit: 100));
                           });
                         },
                         child: const Text('Retry'),
