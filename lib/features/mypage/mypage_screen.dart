@@ -355,8 +355,8 @@ class _ScoreSectionState extends State<_ScoreSection> {
               if (records.length < 2) {
                 return Text(
                   records.isEmpty
-                      ? 'No history. Measure Engine.'
-                      : 'Need 2+ snapshots for trend.',
+                      ? '기록 없음. Engine 측정 후 표시.'
+                      : '추세는 기록 2회부터 표시.',
                   style: FacingTokens.caption,
                 );
               }
@@ -775,7 +775,12 @@ class _MyBoxSection extends StatelessWidget {
                     FacingTokens.body.copyWith(fontWeight: FontWeight.w800)),
             const SizedBox(height: FacingTokens.sp1),
             Text(
-              '${gs.isOwner ? 'OWNER' : 'MEMBER'} · ${gs.membership.status ?? '-'} · ${gym.memberCount} members',
+              '${gs.isOwner ? '오너' : '회원'} · ${switch (gs.membership.status) {
+                'approved' => '승인됨',
+                'pending' => '대기 중',
+                'rejected' => '거절됨',
+                _ => '-',
+              }} · ${gym.memberCount}명',
               style: FacingTokens.caption,
             ),
             // P1-5 (2026-06-10): 거절 상태 무안내 해소 — 멤버십이 조용히

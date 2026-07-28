@@ -82,7 +82,7 @@ class _BoxLeaderboardScreenState extends State<BoxLeaderboardScreen> {
                             fontWeight: FontWeight.w800,
                           )),
                       const SizedBox(height: FacingTokens.sp1),
-                      Text('${members.length} approved · 익명 랭킹',
+                      Text('승인 회원 ${members.length}명 · 익명 랭킹',
                           style: FacingTokens.caption),
                       const SizedBox(height: FacingTokens.sp3),
                       SegmentedButton<_SortMode>(

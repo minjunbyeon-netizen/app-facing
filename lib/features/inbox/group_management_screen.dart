@@ -268,7 +268,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('ADD MEMBER · ${g.name.toUpperCase()}',
+            Text('회원 추가 · ${g.name.toUpperCase()}',
                 style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp2),
             TextField(
@@ -429,7 +429,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
                                 style: FacingTokens.h3.copyWith(
                                     fontWeight: FontWeight.w800)),
                           ),
-                          Text('$cap members',
+                          Text('$cap명',
                               style: FacingTokens.micro),
                         ],
                       ),
