@@ -34,10 +34,19 @@ SECTIONS = [
     ("계산기", "페이싱 계산기 — facing 만의 +α", [
         ("calc_01_builder", "WOD 빌더 — 동작 카테고리 선택"),
         ("calc_02_presets", "프리셋 — 벤치마크 Girl WOD"),
+        ("calc_03_result_loading", "계산 중 — 최소 1.8초 로딩 오버레이"),
+        ("calc_04_result_fran", "결과 — Fran Split · Burst · 근거"),
     ]),
-    ("기타", "이력 · 사장", [
-        ("hist_01_empty", "History — 빈 상태 (신규 가입)"),
+    ("사장", "사장 — 로그인 · 대시보드", [
         ("boss_01_login", "사장 로그인 — PC 계정"),
+        ("boss_02_dashboard", "대시보드 — 오늘 예약·출석·만료 임박"),
+    ]),
+    ("상태 변형", "상태 변형 — 빈 · 에러 · 오프라인 · 미가입", [
+        ("hist_01_empty", "History — 빈 상태 (신규 가입)"),
+        ("state_01_wod_error", "WOD 보드 로드 실패 — 네트워크 에러"),
+        ("state_02_wod_nogym", "박스 미가입 — 가입 직후 WOD 탭"),
+        ("state_03_home_offline", "Home — OFFLINE 배너"),
+        ("state_04_history_error", "History 로드 실패 — Retry"),
     ]),
 ]
 

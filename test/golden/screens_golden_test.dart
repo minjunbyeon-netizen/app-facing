@@ -3,7 +3,11 @@ import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:facing_app/core/movements_repository.dart';
 import 'package:facing_app/core/quotes.dart';
+import 'package:facing_app/features/boss/boss_dashboard_screen.dart';
+import 'package:facing_app/features/pacing_result/result_screen.dart';
+import 'package:facing_app/features/wod_builder/wod_draft_state.dart';
 import 'package:facing_app/features/_debug/persona_debug_data.dart';
 import 'package:facing_app/features/auth/auth_state.dart';
 import 'package:facing_app/features/auth/signup_screen.dart';
@@ -208,6 +212,49 @@ void main() {
         profile: rxProfile(),
         home: const PresetsScreen()));
     await capture(tester, 'calc_02_presets');
+  });
+
+  // ── 결과 화면: Calculating 오버레이 → Fran 페이싱 플랜 ──
+  testWidgets('calc: result (Fran)', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi(memberWorld());
+    // Fran 프리셋을 드래프트에 적재 (앱과 동일 경로 — 프리셋 → loadFromPreset).
+    final repo = MovementsRepository(api);
+    final cats = await repo.fetchCategoriesList();
+    final bySlug = {
+      for (final c in cats)
+        for (final m in c.movements) m.slug: m,
+    };
+    final presets = await repo.fetchPresets();
+    final draft = WodDraftState()..loadFromPreset(presets.first, bySlug);
+    await tester.pumpWidget(harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        draft: draft,
+        home: const ResultScreen()));
+    // 최소 1.8초 강제 로딩 — 그 전에 캡처하면 Calculating 오버레이.
+    await capture(tester, 'calc_03_result_loading');
+    await tester.pump(const Duration(milliseconds: 1600));
+    await capture(tester, 'calc_04_result_fran');
+  });
+
+  // ── 사장 대시보드 ──
+  testWidgets('boss: dashboard', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues({});
+    final api = FakeApi(memberWorld());
+    final bossApi =
+        FakeBossApi({'/api/v1/admin/gyms/1/dashboard': bossDashboard()});
+    await tester.pumpWidget(harness(
+        api: api,
+        auth: AuthState(),
+        profile: ProfileState(),
+        bossAuth: FakeBossAuth(),
+        bossApi: bossApi,
+        home: const BossDashboardScreen()));
+    await capture(tester, 'boss_02_dashboard');
   });
 
   // ── 이력 (빈 상태) ──

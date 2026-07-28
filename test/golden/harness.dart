@@ -44,6 +44,10 @@ Widget harness({
   required AuthState auth,
   required ProfileState profile,
   GymState? gym,
+  ConnectivityState? connectivity,
+  BossAuthState? bossAuth,
+  BossApiClient? bossApi,
+  WodDraftState? draft,
   required Widget home,
 }) {
   final gymState = gym ?? GymState(GymRepository(api), sse: FakeSse());
@@ -56,9 +60,10 @@ Widget harness({
       Provider<InboxRepository>(create: (_) => InboxRepository(api)),
       ChangeNotifierProvider<ProfileState>.value(value: profile),
       ChangeNotifierProvider<UnitState>(create: (_) => UnitState()),
-      ChangeNotifierProvider<ConnectivityState>(
-          create: (_) => ConnectivityState()),
-      ChangeNotifierProvider<WodDraftState>(create: (_) => WodDraftState()),
+      ChangeNotifierProvider<ConnectivityState>.value(
+          value: connectivity ?? ConnectivityState()),
+      ChangeNotifierProvider<WodDraftState>.value(
+          value: draft ?? WodDraftState()),
       ChangeNotifierProvider<GymState>.value(value: gymState),
       ChangeNotifierProvider<InboxState>(
           create: (_) => InboxState(InboxRepository(api))),
@@ -71,8 +76,9 @@ Widget harness({
               AchievementState(ctx.read<AchievementRepository>())..load()),
       ChangeNotifierProvider<AuthState>.value(value: auth),
       ChangeNotifierProvider<UiPrefsState>(create: (_) => UiPrefsState()),
-      ChangeNotifierProvider<BossAuthState>(create: (_) => BossAuthState()),
-      Provider<BossApiClient>(create: (_) => BossApiClient.create()),
+      ChangeNotifierProvider<BossAuthState>.value(
+          value: bossAuth ?? BossAuthState()),
+      Provider<BossApiClient>.value(value: bossApi ?? BossApiClient.create()),
       ChangeNotifierProvider<WodSessionBus>(create: (_) => WodSessionBus()),
       ChangeNotifierProvider<ShellNavBus>(create: (_) => ShellNavBus()),
       ChangeNotifierProvider<GoalsState>(create: (_) => GoalsState()),

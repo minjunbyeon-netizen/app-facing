@@ -1,8 +1,11 @@
 import 'dart:async';
 
 import 'package:facing_app/core/api_client.dart';
+import 'package:facing_app/core/connectivity_state.dart';
 import 'package:facing_app/core/exception.dart';
 import 'package:facing_app/core/sse_client.dart';
+import 'package:facing_app/features/boss/boss_api_client.dart';
+import 'package:facing_app/features/boss/boss_auth_state.dart';
 
 /// 골든 테스트용 가짜 백엔드 — 경로 prefix → 응답 데이터 맵. 네트워크 0.
 /// ApiClient 를 implements + noSuchMethod 로 대체 (생성자가 private 이라 상속 불가).
@@ -92,6 +95,77 @@ class FakeApi implements ApiClient {
 class FakeSse implements SseClient {
   @override
   Stream<SseEvent> get events => const Stream.empty();
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+/// 오프라인 고정 — connectivity_plus 플러그인 없이 isOnline=false 상태 렌더.
+class OfflineConnectivity extends ConnectivityState {
+  @override
+  bool get isOnline => false;
+}
+
+/// 사장 로그인 완료 상태 — flutter_secure_storage 플러그인 없이 getter 만 대체.
+class FakeBossAuth extends BossAuthState {
+  @override
+  bool get isLoggedIn => true;
+  @override
+  String? get loginId => 'boss01';
+  @override
+  String? get name => '박준서';
+  @override
+  String? get role => 'owner';
+  @override
+  int? get gymId => 1;
+  @override
+  String? get gymName => 'FACING CrossFit 서면';
+  @override
+  String? get csrfToken => 'golden-csrf';
+  @override
+  String? get sessionCookie => 'session=golden';
+}
+
+/// 사장 전용 클라이언트의 가짜 — FakeApi 와 동일한 prefix 맵 방식.
+/// 응답은 unwrap 이후의 data 맵을 그대로 넣는다.
+class FakeBossApi implements BossApiClient {
+  final Map<String, dynamic> responses;
+  final Set<String> errorPaths;
+
+  FakeBossApi(this.responses, {this.errorPaths = const {}});
+
+  Future<Map<String, dynamic>> _respond(String path) async {
+    if (errorPaths.any(path.startsWith)) {
+      throw AppException('백엔드 OFF · 재시도', code: 'NETWORK');
+    }
+    for (final e in responses.entries) {
+      if (path.startsWith(e.key)) {
+        return Map<String, dynamic>.from(e.value as Map);
+      }
+    }
+    throw AppException('골든 미정의 경로: $path', code: 'NO_FAKE');
+  }
+
+  @override
+  void bindAuth(BossAuthState state) {}
+
+  @override
+  Future<Map<String, dynamic>> login(String loginId, String password) =>
+      _respond('/api/v1/admin/login');
+
+  @override
+  Future<Map<String, dynamic>> get(String path) => _respond(path);
+
+  @override
+  Future<Map<String, dynamic>> post(String path, Map<String, dynamic> body) =>
+      _respond(path);
+
+  @override
+  Future<Map<String, dynamic>> patch(String path, Map<String, dynamic> body) =>
+      _respond(path);
+
+  @override
+  Future<Map<String, dynamic>> delete(String path) => _respond(path);
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
@@ -460,6 +534,157 @@ const presetWods = [
   },
 ];
 
+/// /api/v1/pacing/calculate — Fran RX 페이싱 플랜 (백엔드 응답 스키마 동일).
+const pacingPlanFran = {
+  'formula_version': 'v2.3',
+  'estimated_total_sec': 291,
+  'estimated_total_display': '4:51',
+  'segments': [
+    {
+      'movement_slug': 'thruster',
+      'segment_type': 'reps',
+      'split_pattern': [12, 9],
+      'rest_between_sec': 10,
+      'estimated_sec': 55,
+      'estimated_display': '0:55',
+      'is_explosion': false,
+      'rationale_code': 'FRACTION_1RM',
+      'rationale_ko': '1RM 대비 46% — 12+9 분할이 근신경 피로 누적을 지연.',
+    },
+    {
+      'movement_slug': 'pull_up',
+      'segment_type': 'reps',
+      'split_pattern': [11, 10],
+      'rest_between_sec': 15,
+      'estimated_sec': 62,
+      'estimated_display': '1:02',
+      'is_explosion': false,
+      'rationale_code': 'GRIP_DECAY',
+      'rationale_ko': 'Max UB 15회 — 73% 지점 분할로 그립 유지.',
+    },
+    {
+      'movement_slug': 'thruster',
+      'segment_type': 'reps',
+      'split_pattern': [9, 6],
+      'rest_between_sec': 12,
+      'estimated_sec': 44,
+      'estimated_display': '0:44',
+      'is_explosion': false,
+      'rationale_code': 'FRACTION_1RM',
+      'rationale_ko': '라운드 2 — W-prime 잔량 기준 세트 축소.',
+    },
+    {
+      'movement_slug': 'pull_up',
+      'segment_type': 'reps',
+      'split_pattern': [8, 7],
+      'rest_between_sec': 15,
+      'estimated_sec': 50,
+      'estimated_display': '0:50',
+      'is_explosion': false,
+      'rationale_code': 'GRIP_DECAY',
+      'rationale_ko': '그립 잔량 유지 — 8+7.',
+    },
+    {
+      'movement_slug': 'thruster',
+      'segment_type': 'reps',
+      'split_pattern': [9],
+      'rest_between_sec': 0,
+      'estimated_sec': 35,
+      'estimated_display': '0:35',
+      'is_explosion': false,
+      'rationale_code': 'FINAL_ROUND',
+      'rationale_ko': '마지막 라운드 — Unbroken.',
+    },
+    {
+      'movement_slug': 'pull_up',
+      'segment_type': 'reps',
+      'split_pattern': [9],
+      'rest_between_sec': 0,
+      'estimated_sec': 45,
+      'estimated_display': '0:45',
+      'is_explosion': true,
+      'rationale_code': 'BURST_FINAL',
+      'rationale_ko': '마지막 9회 버스트 — 이후 동작 없음, 전량 소진.',
+    },
+  ],
+};
+
+/// /api/v1/admin/gyms/1/dashboard — 사장 대시보드 (오늘 운영, 실행 시점 상대 날짜).
+Map<String, dynamic> bossDashboard() {
+  final now = DateTime.now();
+  return {
+    'today': _ymd(now),
+    'today_reservations': {
+      'count': 14,
+      'members': [
+        {'id': 1, 'name': '김민준'},
+        {'id': 2, 'name': '정하은'},
+        {'id': 3, 'name': '강민재'},
+      ],
+    },
+    'today_attendances': {
+      'count': 9,
+      'members': [
+        {'id': 1, 'name': '김민준'},
+        {'id': 4, 'name': '윤지원'},
+      ],
+    },
+    'new_members_this_week': {
+      'count': 3,
+      'members': [
+        {'id': 8, 'name': '한수아'},
+        {'id': 9, 'name': '최서윤'},
+        {'id': 10, 'name': '송예준'},
+      ],
+    },
+    'today_classes': [
+      {
+        'id': 101,
+        'title': 'WOD Class',
+        'start_at': '${_ymd(now)}T19:00:00',
+        'end_at': '${_ymd(now)}T20:00:00',
+        'reserved': 8,
+        'capacity': 12,
+        'coaches': ['박준서'],
+        'room': 'Main Floor',
+        'status': 'scheduled',
+      },
+      {
+        'id': 102,
+        'title': 'Olympic Lifting',
+        'start_at': '${_ymd(now)}T20:00:00',
+        'end_at': '${_ymd(now)}T21:00:00',
+        'reserved': 12,
+        'capacity': 12,
+        'coaches': ['박준서'],
+        'room': 'Platform',
+        'status': 'scheduled',
+      },
+    ],
+    'expiring_soon': [
+      {
+        'member_id': 2,
+        'name': '정하은',
+        'd_day': 3,
+        'end_date': _ymd(now.add(const Duration(days: 3))),
+      },
+      {
+        'member_id': 5,
+        'name': '윤지원',
+        'd_day': 6,
+        'end_date': _ymd(now.add(const Duration(days: 6))),
+      },
+    ],
+  };
+}
+
+/// /api/v1/gyms/mine — 박스 미가입 (신규 가입 직후) 상태.
+const gymsMineEmpty = {
+  'gym': null,
+  'role': null,
+  'status': null,
+};
+
 /// 회원 셸 공용 기본 응답 맵 — 구체 경로 먼저 (prefix 매칭).
 Map<String, dynamic> memberWorld() => {
       '/health': const <String, dynamic>{},
@@ -505,6 +730,7 @@ Map<String, dynamic> memberWorld() => {
       '/api/v1/achievements': achievementsSnapshot,
       '/api/v1/movements/categories': movementCategories,
       '/api/v1/wods/presets': presetWods,
+      '/api/v1/pacing/calculate': pacingPlanFran,
       '/api/v1/history/engine': const <dynamic>[],
       '/api/v1/history/wod': const <dynamic>[],
       '/api/v1/gym/1/inbox': const {'items': <dynamic>[]},
