@@ -472,13 +472,13 @@ class _WeaknessInline extends StatelessWidget {
               children: [
                 Text(
                   isBalanced
-                      ? 'BALANCED'
-                      : '${insight.weakestCategory} · WEAKEST',
+                      ? '균형'
+                      : '${insight.weakestCategory} · 약점',
                   style: FacingTokens.microLabel.copyWith(
                     color: isBalanced
                         ? FacingTokens.success
                         : FacingTokens.accent,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: 2),

@@ -67,39 +67,40 @@ double _sqrt(double x) {
 /// ⚠️ **가상 데이터**: 카테고리별 mock 코멘트 5종.
 /// 실제 AI 모델 (Claude/GPT 등) 연결 시 이 함수 대체.
 String _weakComment(String category, int score) {
+  // v1.29: 카피 한글 기본 (DESIGN-SSOT §7) — 도메인 용어만 영문 유지.
   switch (category) {
     case 'POWER':
-      return '$score/100 — SBD + OHP 1RM weak. '
-          'Priority: BS 1.5×BW, DL 2.0×BW.';
+      return '$score/100 — SBD·OHP 1RM 부족. '
+          '우선순위: Back Squat 1.5×체중, Deadlift 2.0×체중.';
     case 'OLYMPIC':
-      return '$score/100 — Clean/Snatch technique plateau. '
-          'Light weight Tall drills + position reps.';
+      return '$score/100 — Clean·Snatch 기술 정체. '
+          '가벼운 중량 Tall 드릴 + 포지션 반복.';
     case 'GYMNASTICS':
-      return '$score/100 — Pull-up/HSPU Max UB low. '
-          'Strict volume 3×/week. Check Ring/Bar MU progression.';
+      return '$score/100 — Pull-up·HSPU Max UB 낮음. '
+          'Strict 볼륨 주 3회. Ring/Bar MU 진행 점검.';
     case 'CARDIO':
-      return '$score/100 — Engine capacity low. '
-          'Z2 base 2×/week + Row 2K time trial monthly.';
+      return '$score/100 — Engine 용량 낮음. '
+          'Z2 베이스 주 2회 + 매월 Row 2K 타임 트라이얼.';
     case 'METCON':
-      return '$score/100 — 1-min max output weak. '
-          'Burpee · DU · Wall Ball per-min tests periodic.';
+      return '$score/100 — 1분 최대 출력 약함. '
+          'Burpee · DU · Wall Ball 분당 테스트 주기적으로.';
     case 'BODY':
-      return '$score/100 — Body composition needs work. '
-          'InBody Score / SMM ratio / BF% optimization.';
+      return '$score/100 — 체성분 개선 필요. '
+          'InBody 점수 · 골격근 비율 · 체지방률 최적화.';
     default:
-      return '$score/100 — Weak category improvement needed.';
+      return '$score/100 — 약점 카테고리 보강 필요.';
   }
 }
 
 String _balancedComment(int avg) {
   if (avg >= 80) {
-    return 'All categories 80+ — Complete Athlete tier.\n'
-        'Elite zone reached. Top 3 categories peaking strategy.';
+    return '전 카테고리 80+ — Complete Athlete 구간.\n'
+        'Elite 존 도달. 상위 3개 카테고리 피킹 전략.';
   }
   if (avg >= 60) {
-    return 'Categories balanced. No dramatic weakness. '
-        'Increase total intensity 5% or volume 10%.';
+    return '카테고리 균형. 뚜렷한 약점 없음. '
+        '전체 강도 5% 또는 볼륨 10% 증량.';
   }
-  return 'Categories balanced but absolute values low. '
-      '3 sessions/week + monthly benchmark.';
+  return '카테고리 균형이나 절대값 낮음. '
+      '주 3회 세션 + 월 1회 벤치마크.';
 }
