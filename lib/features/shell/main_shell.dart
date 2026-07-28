@@ -283,10 +283,11 @@ class _TabHintOverlay extends StatelessWidget {
   final VoidCallback onDismiss;
   const _TabHintOverlay({required this.onDismiss});
 
+  // v1.29: 카피 한글 기본 (DESIGN-SSOT §7).
   static const List<(String, String)> _hints = [
-    ('Home', '레벨 · 업적 · Milestones'),
+    ('홈', '레벨 · 업적 · 마일스톤'),
     ('WOD', '코치 오늘 WOD · 박스 공지'),
-    ('Profile', 'Tier · 바디 · 설정'),
+    ('프로필', 'Tier · 신체 · 설정'),
   ];
 
   @override
@@ -316,9 +317,8 @@ class _TabHintOverlay extends StatelessWidget {
                             width: 72,
                             child: Text(h.$1,
                                 style: FacingTokens.body.copyWith(
-                                  fontWeight: FontWeight.w800,
+                                  fontWeight: FontWeight.w700,
                                   color: FacingTokens.accent,
-                                  letterSpacing: 0.4,
                                 )),
                           ),
                           Expanded(
