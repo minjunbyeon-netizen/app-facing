@@ -86,7 +86,11 @@ void main() {
       final inbox = InboxState(_FakeInboxRepo(api));
 
       await tester.pumpWidget(_wrap(gym, inbox));
-      await tester.pumpAndSettle();
+      // pumpAndSettle 금지 — 화면에 끝나지 않는 애니메이션이 있어 10분 타임아웃
+      // (2026-07-28 전체 스위트에서 발견). 골든 하네스와 동일하게 유한 pump.
+      for (var i = 0; i < 4; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
 
       expect(find.text('INBOX'), findsOneWidget);
       expect(find.textContaining('OUTBOX'), findsOneWidget);
@@ -113,7 +117,9 @@ void main() {
       final inbox = InboxState(_FakeInboxRepo(api));
 
       await tester.pumpWidget(_wrap(gym, inbox));
-      await tester.pumpAndSettle();
+      for (var i = 0; i < 4; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
 
       expect(find.text('INBOX'), findsOneWidget);
       expect(find.textContaining('OUTBOX'), findsNothing);
