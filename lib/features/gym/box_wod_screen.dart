@@ -130,12 +130,21 @@ class _NoGymEmpty extends StatelessWidget {
             child: const Text('박스 찾기'),
           ),
           const SizedBox(height: FacingTokens.sp3),
+          // 이음새 1 — PC 선등록 회원 가입 코드 연결.
+          OutlinedButton(
+            onPressed: () {
+              Haptic.light();
+              Navigator.of(context).pushNamed('/signup/claim');
+            },
+            child: const Text('가입 코드 입력'),
+          ),
+          const SizedBox(height: FacingTokens.sp3),
           OutlinedButton(
             onPressed: () {
               Haptic.light();
               _showCreateGymSheet(context);
             },
-            child: const Text('Create Box (Coach)'),
+            child: const Text('박스 만들기 (코치)'),
           ),
         ],
       ),

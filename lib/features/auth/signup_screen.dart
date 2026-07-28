@@ -263,6 +263,21 @@ class _SignupScreenState extends State<SignupScreen> {
                   child: const Text('박스 가입 신청'),
                 ),
                 const SizedBox(height: FacingTokens.sp2),
+                // 이음새 1 — PC 선등록 회원의 가입 코드 연결 진입점.
+                Center(
+                  child: TextButton(
+                    onPressed: _busy
+                        ? null
+                        : () =>
+                            Navigator.of(context).pushNamed('/signup/claim'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: FacingTokens.muted,
+                      minimumSize: const Size(0, 32),
+                    ),
+                    child: Text('가입 코드가 있으신가요?',
+                        style: FacingTokens.caption),
+                  ),
+                ),
                 // P0-1 (2026-06-10): placeholder 다이얼로그 → 본문 화면으로 교체.
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

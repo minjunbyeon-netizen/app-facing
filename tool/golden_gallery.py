@@ -18,6 +18,7 @@ SECTIONS = [
         ("common_03_intro_earn", "인트로② 레벨·업적 — 기록이 레벨이 된다."),
         ("common_04_intro_tier", "인트로③ TIER — 내 Tier."),
         ("common_05_signup", "소셜 로그인 — 네이버 아이디 · 구글"),
+        ("common_06_claim", "가입 코드 입력 — PC 선등록 회원 연결 (이음새 1)"),
     ]),
     ("온보딩", "온보딩 — 기본 정보 → Benchmarks → Tier", [
         ("onb_01_basic", "기본 정보 — 체중 · 키 · 경력"),

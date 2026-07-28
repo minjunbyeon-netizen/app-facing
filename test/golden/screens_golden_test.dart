@@ -18,6 +18,7 @@ import 'package:facing_app/features/onboarding/onboarding_benchmarks.dart';
 import 'package:facing_app/features/onboarding/onboarding_grade.dart';
 import 'package:facing_app/features/profile/profile_state.dart';
 import 'package:facing_app/features/shell/main_shell.dart';
+import 'package:facing_app/features/signup/claim_code_screen.dart';
 import 'package:facing_app/features/splash/splash_screen.dart';
 
 import 'fakes.dart';
@@ -116,6 +117,19 @@ void main() {
         home: const SignupScreen()));
     await precacheAllImages(tester);
     await capture(tester, 'common_05_signup');
+  });
+
+  // ── 공통: 가입 코드 입력 (이음새 1 — PC 선등록 연결) ──
+  testWidgets('common: claim code', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues({});
+    final api = FakeApi(memberWorld());
+    await tester.pumpWidget(harness(
+        api: api,
+        auth: AuthState(),
+        profile: ProfileState(),
+        home: const ClaimCodeScreen()));
+    await capture(tester, 'common_06_claim');
   });
 
   // ── 온보딩: 기본 정보 → Benchmarks → Tier 결과 ──
