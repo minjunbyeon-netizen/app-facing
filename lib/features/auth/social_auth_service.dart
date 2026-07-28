@@ -121,7 +121,7 @@ class RealSocialAuthService implements SocialAuthService {
   static const String _naverClientSecret =
       String.fromEnvironment('NAVER_CLIENT_SECRET');
   static const String _naverClientName =
-      String.fromEnvironment('NAVER_CLIENT_NAME', defaultValue: 'FACING');
+      String.fromEnvironment('NAVER_CLIENT_NAME', defaultValue: 'HYPHEN');
   static const String _naverUrlScheme =
       String.fromEnvironment('NAVER_URL_SCHEME', defaultValue: 'facing');
 

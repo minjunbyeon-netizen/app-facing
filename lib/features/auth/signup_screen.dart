@@ -6,6 +6,7 @@ import '../../core/device_id.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../core/app_mode.dart';
+import '../../widgets/brand_logo.dart';
 import '../gym/gym_state.dart';
 import '../mypage/privacy_screen.dart';
 import '../mypage/terms_screen.dart';
@@ -160,13 +161,12 @@ class _SignupScreenState extends State<SignupScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // v1.21: 베타 피드백 — 상단 브랜드/태그라인 블록 중앙정렬.
-                Column(
+                // v1.28: 텍스트 워드마크 → HYPHEN 로고 (리브랜딩).
+                const Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text('FACING',
-                        style: FacingTokens.brandLogo,
-                        textAlign: TextAlign.center),
-                    const SizedBox(height: FacingTokens.sp2),
+                    BrandLogo(width: 200),
+                    SizedBox(height: FacingTokens.sp2),
                   ],
                 ),
                 const SizedBox(height: FacingTokens.sp5),

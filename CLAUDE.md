@@ -66,6 +66,14 @@
 - **숨김 = 코드 보존** — 화면·라우트·백엔드 배선은 그대로 두고 셸·진입점에서만 제외. 재노출 = 진입점 복원
 - UI 컴포넌트 SSOT = `lib/widgets/fkit.dart` (FKit) — 아래 디자인 원칙 참조
 
+## 리브랜딩 — 표기 브랜드 HYPHEN (v1.28 · 2026-07-28 사용자 지시)
+- **HYPHEN 으로 통일**: MaterialApp title · 런처 라벨(AndroidManifest) · 스플래시/인트로/로그인 로고
+  (BrandLogo) · 공유 문구("HYPHEN WOD") · appkit 스킨 brand.name · 런처 아이콘
+  (`tool/gen_launcher_icon.py` 로 재생성 — BrandLogo 와 동일 기하)
+- **유지 (rename 제외)**: repo·폴더명(facing-app / app-facing) · applicationId
+  `com.netizen.facing.facing_app` (설치 업그레이드 연속성) · 코드 심볼(FacingTokens·FacingTheme 등) ·
+  백엔드 계약 값(GymSummary is_official 의 'FACING' 비교 등) · 백엔드/랜딩 서비스명(service-facing 등)
+
 ## 프로젝트 개요
 - 위치: `C:\dev\apps\facing-app\`
 - Repo: `app-facing` (향후 생성)

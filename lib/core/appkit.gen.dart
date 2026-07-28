@@ -10,7 +10,7 @@ class AppKit {
   AppKit._();
 
   static const String version = '1.1.0';
-  static const String brandName = 'FACING';
+  static const String brandName = 'HYPHEN';
   static const String fontFamily = 'Pretendard';
 
   // ==== 뉴트럴·상태 컬러 (공통 조상) ====

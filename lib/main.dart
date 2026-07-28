@@ -181,7 +181,8 @@ class FacingApp extends StatelessWidget {
       ],
       child: Consumer<UiPrefsState>(
         builder: (ctx, ui, _) => MaterialApp(
-        title: 'FACING',
+        // v1.28 (2026-07-28): 리브랜딩 FACING → HYPHEN (로고·앱명 통일).
+        title: 'HYPHEN',
         theme: FacingTheme.light,
         debugShowCheckedModeBanner: false,
         // v1.16 Sprint 9a: 폰트 확대 옵션 (Masters 접근성).

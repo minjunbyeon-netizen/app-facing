@@ -119,7 +119,7 @@ class FakeBossAuth extends BossAuthState {
   @override
   int? get gymId => 1;
   @override
-  String? get gymName => 'FACING CrossFit 서면';
+  String? get gymName => 'HYPHEN CrossFit 서면';
   @override
   String? get csrfToken => 'golden-csrf';
   @override
@@ -177,7 +177,7 @@ class FakeBossApi implements BossApiClient {
 const gymsMine = {
   'gym': {
     'id': 1,
-    'name': 'FACING CrossFit 서면',
+    'name': 'HYPHEN CrossFit 서면',
     'location': '부산 부산진구',
     'member_count': 42,
     'is_official': false,

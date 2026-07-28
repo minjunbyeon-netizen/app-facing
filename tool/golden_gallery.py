@@ -24,7 +24,7 @@ SECTIONS = [
         ("onb_02_benchmarks", "Benchmarks — 1RM · 기록 입력"),
         ("onb_03_grade_rx", "Tier 결과 — RX (persona 합성 데이터)"),
     ]),
-    ("회원 셸", "회원 셸 3탭 (v1.27 3기둥) — 승인된 회원 (FACING CrossFit 서면)", [
+    ("회원 셸", "회원 셸 3탭 (v1.27 3기둥) — 승인된 회원 (HYPHEN CrossFit 서면)", [
         ("member_01_shell_wod", "WOD 탭 (기본) — 코치 오늘 WOD 보드"),
         ("member_02_shell_home", "Home 탭 — 레벨 · 업적 · Milestones"),
         ("member_03_shell_profile", "Profile 탭 — Tier · 바디 · 설정"),
@@ -47,7 +47,7 @@ HEAD = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FACING 전 화면 골든 캡처</title>
+<title>HYPHEN 전 화면 골든 캡처</title>
 <style>
   :root{
     --bg:#EFEFF1; --ink:#18181B; --sub:#52525B; --line:#E4E4E7;
@@ -134,7 +134,7 @@ def main() -> None:
         nav.append(f'<button data-key="{i}">{label} <span class="cnt">{len(items)}</span></button>')
 
     parts = [HEAD]
-    parts.append('<aside><div class="brand">FACING 화면</div>'
+    parts.append('<aside><div class="brand">HYPHEN 화면</div>'
                  '<div class="sub">골든 캡처 갤러리 — 영역을 골라 보세요.</div>'
                  f'<nav>{"".join(nav)}</nav></aside>')
     parts.append(f'<main><p class="note">{NOTE}</p>')

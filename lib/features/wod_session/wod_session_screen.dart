@@ -349,8 +349,8 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
 
       final notes = StringBuffer();
       notes.writeln(_scaled
-          ? '[SCALED] FACING WOD — ${widget.wod.postDate}'
-          : '[RX] FACING WOD — ${widget.wod.postDate}');
+          ? '[SCALED] HYPHEN WOD — ${widget.wod.postDate}'
+          : '[RX] HYPHEN WOD — ${widget.wod.postDate}');
       if (rounds != null) notes.writeln('Rounds: $rounds');
       if (extraReps != null) notes.writeln('Extra reps: $extraReps');
       notes.writeln('---');

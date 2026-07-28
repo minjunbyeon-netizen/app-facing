@@ -92,7 +92,7 @@ class _BossLoginScreenState extends State<BossLoginScreen> {
               children: [
                 const SizedBox(height: FacingTokens.sp3),
                 // ─── 헤더 ───────────────────────────────────────────
-                Text('FACING', style: FacingTokens.sectionLabel),
+                Text('HYPHEN', style: FacingTokens.sectionLabel),
                 const SizedBox(height: FacingTokens.sp1),
                 Text('Boss Login.', style: FacingTokens.h1),
                 const SizedBox(height: FacingTokens.sp1),

@@ -140,7 +140,7 @@ class _StaffLinkScreenState extends State<StaffLinkScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: FacingTokens.sp3),
-                Text('FACING', style: FacingTokens.sectionLabel),
+                Text('HYPHEN', style: FacingTokens.sectionLabel),
                 const SizedBox(height: FacingTokens.sp1),
                 Text('Link Staff.', style: FacingTokens.h1),
                 const SizedBox(height: FacingTokens.sp2),

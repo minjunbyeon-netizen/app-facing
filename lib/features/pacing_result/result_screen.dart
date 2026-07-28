@@ -38,7 +38,7 @@ class _ResultScreenState extends State<ResultScreen> {
   }
 
   /// /go Phase 3: WOD 결과 텍스트 공유.
-  /// 형식: 'FACING WOD\n예상 완주 M:SS\n분할: 15-12-10\n#facing #crossfit'
+  /// 형식: 'HYPHEN WOD\n예상 완주 M:SS\n분할: 15-12-10\n#hyphen #crossfit'
   Future<void> _shareResult() async {
     Haptic.light();
     final plan = _resolvedPlan;
@@ -54,7 +54,7 @@ class _ResultScreenState extends State<ResultScreen> {
     final draft = context.read<WodDraftState>();
     final profile = context.read<ProfileState>();
     final lines = <String>[];
-    lines.add('FACING WOD');
+    lines.add('HYPHEN WOD');
     if (draft.presetNameKo != null) {
       lines.add('${draft.presetNameKo}');
     }
