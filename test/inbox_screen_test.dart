@@ -1,146 +1,63 @@
-// /go 6 Phase 3: InboxScreen 게이트·렌더 회귀 위젯 테스트.
+// InboxScreen(NOTICE) 렌더 회귀 위젯 테스트.
+//
+// 2026-07-28 재작성 2차: 원 테스트는 v1.22 에서 폐지된 4탭(ALL/NOTES/ASSIGNMENTS/
+// OUTBOX) UI 를 검증하고 있었다 — 현행 계약(NOTICE 단일 피드)으로 갱신.
+// 래핑도 자체 최소 provider → 골든 하네스(main.dart 미러) 재사용으로 교체:
+// 화면이 읽는 provider 가 늘 때마다 깨지던 구조(ProviderNotFound·가짜 repo 구멍
+// → 실 dio 대기 10분 타임아웃)를 제거.
 //
 // 검증:
-// - 코치 (isOwner) → 4 탭 (ALL / NOTES / ASSIGNMENTS / OUTBOX)
-// - 멤버 (approved) → 3 탭 (OUTBOX 미노출)
-// - InboxScreen 컴파일·기본 build 통과 회귀 보장
+// - 코치(owner)·멤버(approved) 모두 NOTICE 화면 build 통과 (예외 0)
+// - AppBar 'NOTICE' 노출
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:facing_app/core/api_client.dart';
-import 'package:facing_app/core/theme.dart';
+import 'package:facing_app/features/auth/auth_state.dart';
 import 'package:facing_app/features/gym/gym_repository.dart';
 import 'package:facing_app/features/gym/gym_state.dart';
-import 'package:facing_app/features/inbox/inbox_repository.dart';
-import 'package:facing_app/features/inbox/inbox_state.dart';
 import 'package:facing_app/features/inbox/inbox_screen.dart';
-import 'package:facing_app/models/coach_profile.dart';
-import 'package:facing_app/models/gym.dart';
-import 'package:facing_app/models/locker.dart';
-import 'package:facing_app/models/membership.dart';
+import 'package:facing_app/features/profile/profile_state.dart';
 
-class _FakeGymRepo extends GymRepository {
-  final GymMembership stub;
-  _FakeGymRepo(super.api, this.stub);
+import 'golden/fakes.dart';
+import 'golden/harness.dart';
 
-  @override
-  Future<GymMembership> getMine() async => stub;
-
-  @override
-  Future<List<GymWodPost>> listWods({
-    required int gymId,
-    String? date,
-  }) async =>
-      const [];
-
-  // loadMine() 이 부르는 부가 fetch 전부 오버라이드 — 하나라도 실 ApiClient 로
-  // 빠지면 fake async 아래에서 dio future 가 영영 안 끝나 10분 타임아웃
-  // (2026-07-28 전체 스위트에서 발견. listCoaches 등은 테스트 작성 후 추가된 호출).
-  @override
-  Future<List<CoachProfile>> listCoaches(int gymId) async => const [];
-
-  @override
-  Future<List<Membership>> listMyMemberships() async => const [];
-
-  @override
-  Future<List<Locker>> listMyLockers() async => const [];
+Future<GymState> _loadedGym(FakeApi api) async {
+  final gym = GymState(GymRepository(api), sse: FakeSse());
+  await gym.loadMine();
+  return gym;
 }
 
-class _FakeInboxRepo extends InboxRepository {
-  _FakeInboxRepo(super.api);
-
-  @override
-  Future<InboxResult> listInbox(int gymId) async => InboxResult.empty;
-
-  @override
-  Future<List<OutboxNote>> listOutbox(int gymId) async => const [];
+Future<void> _pumpNotice(WidgetTester tester, FakeApi api) async {
+  phone(tester);
+  await tester.pumpWidget(harness(
+      api: api,
+      auth: AuthState(),
+      profile: ProfileState(),
+      gym: await _loadedGym(api),
+      home: const InboxScreen()));
+  // pumpAndSettle 금지 — 끝나지 않는 애니메이션이 있어 타임아웃. 유한 pump.
+  for (var i = 0; i < 4; i++) {
+    await tester.pump(const Duration(milliseconds: 100));
+  }
 }
-
-Widget _wrap(GymState gym, InboxState inbox) => MaterialApp(
-      theme: FacingTheme.dark,
-      home: MultiProvider(
-        providers: [
-          ChangeNotifierProvider<GymState>.value(value: gym),
-          ChangeNotifierProvider<InboxState>.value(value: inbox),
-        ],
-        child: const InboxScreen(),
-      ),
-    );
-
-const _testGym = GymSummary(
-  id: 1,
-  name: 'Test Box',
-  location: 'Test City',
-  memberCount: 0,
-);
 
 void main() {
-  late ApiClient api;
-  setUpAll(() {
-    api = ApiClient.create();
-  });
+  group('InboxScreen(NOTICE) 렌더', () {
+    testWidgets('코치 (owner) → NOTICE 피드 build 통과', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final world = memberWorld()
+        ..['/api/v1/gyms/mine'] = {...gymsMine, 'role': 'owner'};
+      await _pumpNotice(tester, FakeApi(world));
 
-  group('InboxScreen 게이트 분기', () {
-    testWidgets('코치 (isOwner) → 4 탭 (OUTBOX 노출)', (tester) async {
-      tester.view.physicalSize = const Size(1080, 2400);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() {
-        tester.view.resetPhysicalSize();
-        tester.view.resetDevicePixelRatio();
-      });
-
-      const owner = GymMembership(
-        gym: _testGym,
-        role: 'owner',
-        status: 'approved',
-      );
-      final gym = GymState(_FakeGymRepo(api, owner));
-      await gym.loadMine();
-      final inbox = InboxState(_FakeInboxRepo(api));
-
-      await tester.pumpWidget(_wrap(gym, inbox));
-      // pumpAndSettle 금지 — 화면에 끝나지 않는 애니메이션이 있어 10분 타임아웃
-      // (2026-07-28 전체 스위트에서 발견). 골든 하네스와 동일하게 유한 pump.
-      for (var i = 0; i < 4; i++) {
-        await tester.pump(const Duration(milliseconds: 100));
-      }
-
-      expect(find.text('INBOX'), findsOneWidget);
-      expect(find.textContaining('OUTBOX'), findsOneWidget);
-      expect(find.textContaining('ALL'), findsOneWidget);
-      expect(find.textContaining('NOTES'), findsOneWidget);
-      expect(find.textContaining('ASSIGNMENTS'), findsOneWidget);
+      expect(find.text('NOTICE'), findsOneWidget);
     });
 
-    testWidgets('멤버 (approved) → 3 탭 (OUTBOX 미노출)', (tester) async {
-      tester.view.physicalSize = const Size(1080, 2400);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() {
-        tester.view.resetPhysicalSize();
-        tester.view.resetDevicePixelRatio();
-      });
+    testWidgets('멤버 (approved) → NOTICE 피드 build 통과', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      await _pumpNotice(tester, FakeApi(memberWorld())); // 기본 = member/approved
 
-      const member = GymMembership(
-        gym: _testGym,
-        role: 'member',
-        status: 'approved',
-      );
-      final gym = GymState(_FakeGymRepo(api, member));
-      await gym.loadMine();
-      final inbox = InboxState(_FakeInboxRepo(api));
-
-      await tester.pumpWidget(_wrap(gym, inbox));
-      for (var i = 0; i < 4; i++) {
-        await tester.pump(const Duration(milliseconds: 100));
-      }
-
-      expect(find.text('INBOX'), findsOneWidget);
-      expect(find.textContaining('OUTBOX'), findsNothing);
-      expect(find.textContaining('ALL'), findsOneWidget);
-      expect(find.textContaining('NOTES'), findsOneWidget);
-      expect(find.textContaining('ASSIGNMENTS'), findsOneWidget);
+      expect(find.text('NOTICE'), findsOneWidget);
     });
   });
 }
