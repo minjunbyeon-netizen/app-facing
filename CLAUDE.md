@@ -58,6 +58,14 @@
 **`C:\dev\services\facing\docs\refer\{카테고리}\findings.md`** (10개 카테고리)
 앱은 UI만 담당하므로 페이싱 알고리즘/공식 관련 질문이면 백엔드 docs/refer 참조. 사본 만들지 말 것 (헷갈림 방지).
 
+## 제품 스코프 — 3기둥 집중 (v1.27 · 2026-07-28 사용자 지시)
+회원 앱에 **게이미피케이션(레벨·업적·Milestones) · WOD 보드(코치 게시 → 회원 열람) · 내 프로필**
+3개만 노출하고 여기에 집중한다.
+- 셸 = 3탭 (Home · WOD · Profile, 기본 landing = WOD). Attend·Rehab 탭 숨김,
+  페이싱 계산기(빌더·프리셋·결과) 진입점 숨김 (`box_wod _kShowPresetAccordion=false`)
+- **숨김 = 코드 보존** — 화면·라우트·백엔드 배선은 그대로 두고 셸·진입점에서만 제외. 재노출 = 진입점 복원
+- UI 컴포넌트 SSOT = `lib/widgets/fkit.dart` (FKit) — 아래 디자인 원칙 참조
+
 ## 프로젝트 개요
 - 위치: `C:\dev\apps\facing-app\`
 - Repo: `app-facing` (향후 생성)
@@ -354,6 +362,11 @@ R5. **하드코드 fontSize 금지.** 모든 텍스트 크기는 `FacingTokens` 
 
 ## 디자인 원칙 (facing 전용 — 공통 룰은 글로벌 SSOT 위임)
 > 이모지 금지·그라디언트/과도한 그림자 금지 등 공통 디자인 차단은 글로벌 `rules/design-block.md`·`rules/design-presets.md` 가 SSOT. 아래는 facing-app 고유 확장만.
+- **UI 컴포넌트 SSOT = `lib/widgets/fkit.dart` (FKit — v1.27 신설)**: 카드(FkCard)·배지(FkBadge)·
+  섹션 라벨(FkSectionLabel)·통계 타일(FkStatTile)·빈/에러/로딩 상태(FkEmptyState/FkErrorState/FkLoading)는
+  FKit 것만 사용. 화면마다 새 버튼·배지·레이아웃 variant 신설 금지 — 필요하면 FKit 에 먼저 추가 후 사용
+  (글로벌 §3 코드·클래스 SSOT 의 프로젝트 배선). 완전 원형 pill 금지(글로벌 design-block) — 배지는
+  r1 사각. 티어 표기는 TierBadge 가 별도 SSOT.
 - 다크 배경 기본 (`bg=#0A0A0A`). 라이트 모드 제공 안 함.
 - 색상 9토큰 + 5 tier 색 (bg/surface/fg/muted/border/accent/accentPressed/success/warning + tier×5)
 - 폰트 Pretendard 1종 (weight 400/700/800) — ※ 글로벌은 Pretendard 차단이나 facing 앱은 예외 유지
@@ -376,8 +389,9 @@ python tool/golden_gallery.py               # 단일 HTML 갤러리 (build/golde
 가짜 백엔드(`test/golden/fakes.dart` — ApiClient implements, 네트워크 0)로 실물 픽셀 렌더
 (갤S22 급 360×780·2x). 폰트는 `test/flutter_test_config.dart` 가 FontManifest 전체
 (Pretendard·MaterialIcons)를 로드. 참조 아키텍처: `apps/writeplz-app` 골든스탠다드.
-현재 **24장** — 공통(스플래시·인트로 3p·로그인) + 온보딩 3 + 회원 셸 5탭 + 계산기 4(빌더·프리셋·
-로딩·Fran 결과) + 사장 2(로그인·대시보드) + 상태 변형 5(빈·에러·오프라인·미가입).
+현재 **18장** — 공통 5(스플래시·인트로 3p·로그인) + 온보딩 3 + 회원 셸 3탭(v1.27) + 사장 2(로그인·
+대시보드) + 상태 변형 5(빈·에러·오프라인·미가입). 페이싱 계산기 캡처는 v1.27 숨김과 함께 제거
+(재노출 시 git 히스토리의 calc_01~04 복원).
 기능을 넣으면 그 상태의 캡처도 같이 넣는다 (골든 없는 기능 = 골든스탠다드 미달).
 - `--update-goldens` 없이 `flutter test test/golden` 이 회귀 게이트 — 커밋된 PNG 와 1픽셀이라도 다르면 실패
 - 명언 랜덤은 `quotes.dart` 의 `quoteRandom` 시드 교체로 결정론 확보. WOD·출석·클래스 날짜는

@@ -7,7 +7,6 @@ import '../../core/appkit.gen.dart';
 import '../../core/haptic.dart';
 import '../../core/shell_nav_bus.dart';
 import '../../core/theme.dart';
-import '../attendance/attendance_screen.dart';
 import '../gym/box_wod_screen.dart';
 import '../gym/gym_repository.dart';
 import '../gym/gym_state.dart';
@@ -15,14 +14,10 @@ import '../home/home_screen.dart';
 import '../announcements/announcements_state.dart';
 import '../inbox/inbox_state.dart';
 import '../mypage/mypage_screen.dart';
-import '../rehab/rehab_screen.dart';
 
-/// v1.21: 5탭 재배치 — Home · WOD · Attend · Notice · Profile.
-/// v1.23 (2026-06-02): Notice(쪽지)를 Attend 자리(index 3)로 이동, Attend → index 2.
-/// Trends 폐지, Calc → Home 격상 (점수 카드 + 카테고리 진입 통합).
-/// v1.26 (2026-06-11): Notice 탭 → Rehab 탭. 재활 브라우즈(RehabScreen)를 탭
-/// 루트로 직접 호스팅 (구 NOTICE + 카드 1장 → 동작·통증부위 바로 노출).
-/// 공지는 WOD 보드 상단 아코디언 + Attend(MessagingFeed) 가 담당.
+/// v1.27 (2026-07-28 사용자 지시): 3기둥 집중 — Home(게이미피케이션) · WOD(보드) ·
+/// Profile 만 노출. Attend·Rehab 탭 숨김 (코드 보존 — 화면·라우트는 잔존, 셸에서만 제외).
+/// 페이싱 계산 진입점도 전부 숨김 상태 유지 (box_wod _kShowPresetAccordion=false).
 /// Default landing = WOD(index 1).
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -33,21 +28,14 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   static const int _defaultIndex = 1; // WOD as landing tab
-  // v1.26 (2026-06-11): Notice → Rehab 탭 전환 → 힌트 버전 v5 로 bump (기존 사용자도 1회 재노출).
-  static const String _kTabHintShown = 'shell_tab_hint_shown_v5';
+  // v1.27 (2026-07-28): 3기둥 개편 → 힌트 버전 v6 로 bump (기존 사용자도 1회 재노출).
+  static const String _kTabHintShown = 'shell_tab_hint_shown_v6';
   int _index = _defaultIndex;
   bool _showTabHint = false;
   // v1.21: 베타 피드백 — 더블탭 종료 패턴. 첫 탭 SnackBar, 2초 내 재탭 시 종료.
   DateTime? _lastBackPress;
 
   ShellNavBus? _navBus;
-
-  // v1.26: Rehab 탭은 중첩 Navigator 로 호스팅 → 감별 플로우 등 탭 내부 화면을
-  // 띄워도 하단 네비바가 계속 노출된다.
-  final GlobalKey<NavigatorState> _rehabNavKey = GlobalKey<NavigatorState>();
-  // v1.24: Attend 탭도 중첩 Navigator — 캘린더 밑 MessagingFeed 의 쪽지 채팅·작성도
-  // 탭 안에서 떠서 하단 네비바 유지.
-  final GlobalKey<NavigatorState> _attendNavKey = GlobalKey<NavigatorState>();
 
   @override
   void initState() {
@@ -93,7 +81,7 @@ class _MainShellState extends State<MainShell> {
     await prefs.setBool(_kTabHintShown, true);
   }
 
-  // v1.23: 5탭 — Home · WOD · Attend · Notice · Profile.
+  // v1.27: 3탭 — Home(게이미피케이션) · WOD(보드) · Profile.
   static const List<_TabDef> _tabs = [
     _TabDef(
       icon: Icons.home_outlined,
@@ -106,50 +94,15 @@ class _MainShellState extends State<MainShell> {
       label: 'WOD',
     ),
     _TabDef(
-      icon: Icons.calendar_month_outlined,
-      selectedIcon: Icons.calendar_month,
-      label: 'Attend',
-    ),
-    _TabDef(
-      icon: Icons.healing_outlined,
-      selectedIcon: Icons.healing,
-      label: 'Rehab',
-    ),
-    _TabDef(
       icon: Icons.person_outline,
       selectedIcon: Icons.person,
       label: 'Profile',
     ),
   ];
 
-  /// v1.26: Rehab 탭 루트 = RehabScreen (동작·통증부위 브라우즈 직접 노출).
-  /// 중첩 Navigator: 감별 플로우 push 시에도 하단 네비바 유지.
-  Widget _buildRehab() {
-    return Navigator(
-      key: _rehabNavKey,
-      onGenerateRoute: (settings) => MaterialPageRoute(
-        settings: settings,
-        builder: (_) => const RehabScreen(),
-      ),
-    );
-  }
-
-  // Attend 탭도 중첩 Navigator 로 호스팅 (MessagingFeed 의 채팅·작성 탭 내부 유지).
-  Widget _buildAttend() {
-    return Navigator(
-      key: _attendNavKey,
-      onGenerateRoute: (settings) => MaterialPageRoute(
-        settings: settings,
-        builder: (_) => const AttendanceScreen(),
-      ),
-    );
-  }
-
   late final List<Widget> _pages = [
     const HomeScreen(),
     const BoxWodScreen(),
-    _buildAttend(),
-    _buildRehab(),
     const MyPageScreen(),
   ];
 
@@ -182,15 +135,6 @@ class _MainShellState extends State<MainShell> {
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) return;
-        // 현재 탭의 중첩 네비게이터가 pop 가능하면 그것부터 처리.
-        // (Rehab=감별 플로우, Attend=쪽지 채팅/작성 — 각 화면 자체 PopScope 도 존중)
-        final nestedNav = _index == 3
-            ? _rehabNavKey.currentState
-            : (_index == 2 ? _attendNavKey.currentState : null);
-        if (nestedNav != null && nestedNav.canPop()) {
-          nestedNav.maybePop();
-          return;
-        }
         if (_index != _defaultIndex) {
           setState(() => _index = _defaultIndex);
           return;
@@ -340,11 +284,9 @@ class _TabHintOverlay extends StatelessWidget {
   const _TabHintOverlay({required this.onDismiss});
 
   static const List<(String, String)> _hints = [
-    ('Home', '공지 · 레벨 · 업적 · Milestones'),
-    ('WOD', '코치 오늘 WOD · 박스 공지 · 프리셋 계산'),
-    ('Attend', '클래스 예약 · 월별 출석 캘린더'),
-    ('Rehab', '부위별 통증 감별 · 단계별 재활'),
-    ('Profile', 'Engine 점수 · 바디 · 설정'),
+    ('Home', '레벨 · 업적 · Milestones'),
+    ('WOD', '코치 오늘 WOD · 박스 공지'),
+    ('Profile', 'Tier · 바디 · 설정'),
   ];
 
   @override
@@ -359,7 +301,7 @@ class _TabHintOverlay extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: FacingTokens.sp5),
-                const Text('5 TABS', style: FacingTokens.sectionLabel),
+                const Text('3 TABS', style: FacingTokens.sectionLabel),
                 const SizedBox(height: FacingTokens.sp2),
                 const Text('하단 내비게이션 구성',
                     style: FacingTokens.caption),

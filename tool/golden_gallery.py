@@ -24,18 +24,10 @@ SECTIONS = [
         ("onb_02_benchmarks", "Benchmarks — 1RM · 기록 입력"),
         ("onb_03_grade_rx", "Tier 결과 — RX (persona 합성 데이터)"),
     ]),
-    ("회원 셸", "회원 셸 5탭 — 승인된 회원 (FACING CrossFit 서면)", [
+    ("회원 셸", "회원 셸 3탭 (v1.27 3기둥) — 승인된 회원 (FACING CrossFit 서면)", [
         ("member_01_shell_wod", "WOD 탭 (기본) — 코치 오늘 WOD 보드"),
         ("member_02_shell_home", "Home 탭 — 레벨 · 업적 · Milestones"),
-        ("member_03_shell_attend", "Attend 탭 — 출석 캘린더 · 쪽지"),
-        ("member_04_shell_rehab", "Rehab 탭 — 부위별 통증 감별"),
-        ("member_05_shell_profile", "Profile 탭 — Engine · 바디 · 설정"),
-    ]),
-    ("계산기", "페이싱 계산기 — facing 만의 +α", [
-        ("calc_01_builder", "WOD 빌더 — 동작 카테고리 선택"),
-        ("calc_02_presets", "프리셋 — 벤치마크 Girl WOD"),
-        ("calc_03_result_loading", "계산 중 — 최소 1.8초 로딩 오버레이"),
-        ("calc_04_result_fran", "결과 — Fran Split · Burst · 근거"),
+        ("member_03_shell_profile", "Profile 탭 — Tier · 바디 · 설정"),
     ]),
     ("사장", "사장 — 로그인 · 대시보드", [
         ("boss_01_login", "사장 로그인 — PC 계정"),
@@ -114,7 +106,9 @@ HEAD = """<!doctype html>
 
 NOTE = ("골든 테스트(flutter test --update-goldens test/golden) 산출물 — 실제 앱 위젯을 "
         "가짜 백엔드(test/golden/fakes.dart)로 렌더한 실물 픽셀입니다 (갤S22 급 360×780·2x). "
-        "데이터는 샘플입니다. UI 를 바꾸면 --update-goldens 재실행 후 이 갤러리를 다시 생성하세요.")
+        "데이터는 샘플입니다. UI 를 바꾸면 --update-goldens 재실행 후 이 갤러리를 다시 생성하세요. "
+        "v1.27 (2026-07-28): 3기둥 집중 — 게이미피케이션 · WOD 보드 · 프로필만 노출 "
+        "(Attend·Rehab 탭, 페이싱 계산기는 숨김 — 코드 보존).")
 
 SCRIPT = """<script>
   const btns = document.querySelectorAll('aside nav button');

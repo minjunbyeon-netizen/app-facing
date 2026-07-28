@@ -10,6 +10,7 @@ import '../../core/streak_freeze.dart';
 import '../../core/theme.dart';
 import '../../core/wod_session_bus.dart';
 import '../../models/achievement.dart';
+import '../../widgets/fkit.dart';
 import '../../widgets/inbox_bell.dart';
 import '../../widgets/offline_banner.dart';
 import '../achievement/achievement_section.dart';
@@ -115,20 +116,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 future: _future,
                 builder: (ctx, snap) {
                   if (snap.connectionState != ConnectionState.done) {
-                    return const Center(
-                      child: SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(
-                            strokeWidth: 2, color: FacingTokens.muted),
-                      ),
-                    );
+                    return const FkLoading();
                   }
                   if (snap.hasError) {
                     final e = snap.error;
                     final msg =
                         e is AppException ? e.messageKo : 'Load failed.';
-                    return _ErrorState(message: msg, onRetry: _reload);
+                    return FkErrorState(message: msg, onRetry: _reload);
                   }
                   final records = snap.data ?? const [];
                   return _GamificationBody(
@@ -614,26 +608,4 @@ class _ProgressStat extends StatelessWidget {
   }
 }
 
-class _ErrorState extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
-  const _ErrorState({required this.message, required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(FacingTokens.sp5),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(message, style: FacingTokens.body, textAlign: TextAlign.center),
-          const SizedBox(height: FacingTokens.sp4),
-          OutlinedButton(
-            onPressed: onRetry,
-            child: const Text('Retry'),
-          ),
-        ],
-      ),
-    );
-  }
-}
+// _ErrorState 삭제 — FkErrorState(widgets/fkit.dart)로 대체 (v1.27 UI SSOT).

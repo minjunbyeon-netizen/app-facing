@@ -3,11 +3,8 @@ import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:facing_app/core/movements_repository.dart';
 import 'package:facing_app/core/quotes.dart';
 import 'package:facing_app/features/boss/boss_dashboard_screen.dart';
-import 'package:facing_app/features/pacing_result/result_screen.dart';
-import 'package:facing_app/features/wod_builder/wod_draft_state.dart';
 import 'package:facing_app/features/_debug/persona_debug_data.dart';
 import 'package:facing_app/features/auth/auth_state.dart';
 import 'package:facing_app/features/auth/signup_screen.dart';
@@ -19,11 +16,9 @@ import 'package:facing_app/features/intro/intro_screen.dart';
 import 'package:facing_app/features/onboarding/onboarding_basic.dart';
 import 'package:facing_app/features/onboarding/onboarding_benchmarks.dart';
 import 'package:facing_app/features/onboarding/onboarding_grade.dart';
-import 'package:facing_app/features/presets/presets_screen.dart';
 import 'package:facing_app/features/profile/profile_state.dart';
 import 'package:facing_app/features/shell/main_shell.dart';
 import 'package:facing_app/features/splash/splash_screen.dart';
-import 'package:facing_app/features/wod_builder/wod_builder_screen.dart';
 
 import 'fakes.dart';
 import 'harness.dart';
@@ -65,7 +60,7 @@ Map<String, Object> signedInPrefs() => {
       'auth_display_name': '김민준',
       'auth_signed_at': '2026-07-01T09:00:00Z',
       'intro_seen': true,
-      'shell_tab_hint_shown_v5': true,
+      'shell_tab_hint_shown_v6': true,
     };
 
 void main() {
@@ -165,8 +160,10 @@ void main() {
     await tester.pump(const Duration(seconds: 2));
   });
 
-  // ── 회원 셸 5탭 (기본 = WOD 보드) ──
-  testWidgets('member: shell 5 tabs', (tester) async {
+  // ── 회원 셸 3탭 (v1.27 3기둥 — 기본 = WOD 보드) ──
+  // 페이싱 계산기(빌더·프리셋·결과) 캡처는 v1.27 기능 숨김과 함께 제거 —
+  // 재노출 시 git 히스토리의 calc_01~04 테스트 복원.
+  testWidgets('member: shell 3 tabs', (tester) async {
     phone(tester);
     SharedPreferences.setMockInitialValues(signedInPrefs());
     final api = FakeApi(memberWorld());
@@ -181,63 +178,8 @@ void main() {
     await capture(tester, 'member_01_shell_wod');
     await tapTab(tester, 'Home');
     await capture(tester, 'member_02_shell_home');
-    await tapTab(tester, 'Attend');
-    await capture(tester, 'member_03_shell_attend');
-    await tapTab(tester, 'Rehab');
-    await capture(tester, 'member_04_shell_rehab');
     await tapTab(tester, 'Profile');
-    await capture(tester, 'member_05_shell_profile');
-  });
-
-  // ── 페이싱 계산기 ──
-  testWidgets('calc: wod builder', (tester) async {
-    phone(tester);
-    SharedPreferences.setMockInitialValues(signedInPrefs());
-    final api = FakeApi(memberWorld());
-    await tester.pumpWidget(harness(
-        api: api,
-        auth: await signedInAuth(),
-        profile: rxProfile(),
-        home: const WodBuilderScreen()));
-    await capture(tester, 'calc_01_builder');
-  });
-
-  testWidgets('calc: presets', (tester) async {
-    phone(tester);
-    SharedPreferences.setMockInitialValues(signedInPrefs());
-    final api = FakeApi(memberWorld());
-    await tester.pumpWidget(harness(
-        api: api,
-        auth: await signedInAuth(),
-        profile: rxProfile(),
-        home: const PresetsScreen()));
-    await capture(tester, 'calc_02_presets');
-  });
-
-  // ── 결과 화면: Calculating 오버레이 → Fran 페이싱 플랜 ──
-  testWidgets('calc: result (Fran)', (tester) async {
-    phone(tester);
-    SharedPreferences.setMockInitialValues(signedInPrefs());
-    final api = FakeApi(memberWorld());
-    // Fran 프리셋을 드래프트에 적재 (앱과 동일 경로 — 프리셋 → loadFromPreset).
-    final repo = MovementsRepository(api);
-    final cats = await repo.fetchCategoriesList();
-    final bySlug = {
-      for (final c in cats)
-        for (final m in c.movements) m.slug: m,
-    };
-    final presets = await repo.fetchPresets();
-    final draft = WodDraftState()..loadFromPreset(presets.first, bySlug);
-    await tester.pumpWidget(harness(
-        api: api,
-        auth: await signedInAuth(),
-        profile: rxProfile(),
-        draft: draft,
-        home: const ResultScreen()));
-    // 최소 1.8초 강제 로딩 — 그 전에 캡처하면 Calculating 오버레이.
-    await capture(tester, 'calc_03_result_loading');
-    await tester.pump(const Duration(milliseconds: 1600));
-    await capture(tester, 'calc_04_result_fran');
+    await capture(tester, 'member_03_shell_profile');
   });
 
   // ── 사장 대시보드 ──
