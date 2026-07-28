@@ -161,12 +161,12 @@ class _WodPostScreenState extends State<WodPostScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('POST WOD'),
+        title: const Text('WOD 게시'),
         actions: [
           TextButton.icon(
             onPressed: _duplicateYesterday,
             icon: const Icon(Icons.copy, size: 16),
-            label: const Text('Duplicate'),
+            label: const Text('복제'),
           ),
         ],
       ),
@@ -174,7 +174,7 @@ class _WodPostScreenState extends State<WodPostScreen> {
         child: ListView(
           padding: const EdgeInsets.all(FacingTokens.sp4),
           children: [
-            const Text('DATE', style: FacingTokens.sectionLabel),
+            const Text('날짜', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp2),
             InkWell(
               onTap: _pickDate,
@@ -195,7 +195,7 @@ class _WodPostScreenState extends State<WodPostScreen> {
               ),
             ),
             const SizedBox(height: FacingTokens.sp4),
-            const Text('TYPE', style: FacingTokens.sectionLabel),
+            const Text('타입', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp2),
             Wrap(
               spacing: FacingTokens.sp2,
@@ -297,7 +297,7 @@ class _WodPostScreenState extends State<WodPostScreen> {
                 TextButton.icon(
                   onPressed: _addRound,
                   icon: const Icon(Icons.add, size: 16),
-                  label: const Text('Add Round'),
+                  label: const Text('라운드 추가'),
                 ),
               ],
             ),

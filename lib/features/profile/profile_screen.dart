@@ -29,14 +29,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: const Text('프로필'),
         automaticallyImplyLeading: !widget.isOnboarding,
       ),
       body: FutureBuilder<List<MovementCategory>>(
         future: _future,
         builder: (ctx, snap) {
           if (snap.connectionState != ConnectionState.done) {
-            return const Center(child: Text('Loading', style: FacingTokens.body));
+            return const Center(child: Text('불러오는 중', style: FacingTokens.body));
           }
           if (snap.hasError) {
             return Center(
@@ -75,7 +75,7 @@ class _ProfileFormState extends State<_ProfileForm> {
         FacingTokens.sp4, FacingTokens.sp3, FacingTokens.sp4, FacingTokens.sp8,
       ),
       children: [
-        const Text('Body Weight', style: FacingTokens.h3),
+        const Text('체중', style: FacingTokens.h3),
         const SizedBox(height: FacingTokens.sp2),
         _NumberField(
           value: state.bodyWeightKg,
@@ -98,7 +98,7 @@ class _ProfileFormState extends State<_ProfileForm> {
             onPressed: state.isEmpty ? null : () {
               Navigator.of(context).pushReplacementNamed('/home');
             },
-            child: const Text('Done'),
+            child: const Text('완료'),
           ),
         ],
       ],

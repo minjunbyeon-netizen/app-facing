@@ -21,20 +21,21 @@ class _IntroScreenState extends State<IntroScreen> {
 
   // v1.27 (2026-07-28): 3기둥 동기화 — WOD 보드 · 게이미피케이션 · Tier 프로필.
   // 사진 히어로·스틱맨 폐기, HYPHEN 로고(BrandLogo) 중심의 클린 레이아웃.
+  // v1.29: 카피 한글 기본 전환 (DESIGN-SSOT §7 — 도메인 용어만 영문 유지).
   static const List<_IntroPage> _pages = [
     _IntroPage(
-      stage: 'BOARD',
-      title: "Today's WOD.",
+      stage: 'WOD 보드',
+      title: '오늘의 WOD.',
       body: '코치가 올린 오늘의 WOD.\n박스 공지까지 한 곳에.',
     ),
     _IntroPage(
-      stage: 'EARN',
-      title: 'Earn your level.',
-      body: '기록할수록 쌓이는\n레벨 · 업적 · Milestones.',
+      stage: '레벨 · 업적',
+      title: '기록이 레벨이 된다.',
+      body: '기록할수록 쌓이는\n레벨 · 업적 · 마일스톤.',
     ),
     _IntroPage(
       stage: 'TIER',
-      title: 'Your Tier.',
+      title: '내 Tier.',
       body: 'Benchmarks 기반 6단계 Tier.\n프로필에서 언제든 수정.',
     ),
   ];
@@ -179,7 +180,8 @@ class _IntroPageView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const Spacer(flex: 3),
-            const BrandLogo(width: 190),
+            // v1.29: 로고 폭 = 기본 220 (진입 화면 통일, DESIGN-SSOT §6).
+            const BrandLogo(),
             const Spacer(flex: 3),
             Text(page.stage,
                 style: FacingTokens.sectionLabel,

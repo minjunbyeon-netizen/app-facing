@@ -29,7 +29,7 @@ class BoxProfileScreen extends StatelessWidget {
       backgroundColor: FacingTokens.bg,
       appBar: AppBar(
         backgroundColor: FacingTokens.bg,
-        title: const Text('Box'),
+        title: const Text('박스'),
         centerTitle: false,
       ),
       body: ListView(
@@ -37,11 +37,11 @@ class BoxProfileScreen extends StatelessWidget {
         children: [
           _Header(gym: gym),
           if (profile?.priceSummary != null)
-            _Card(title: 'PRICE', body: profile!.priceSummary!),
+            _Card(title: '가격', body: profile!.priceSummary!),
           if ((profile?.paymentMethods != null) ||
               (profile?.receiptInfo != null))
             _Card(
-              title: 'PAYMENT',
+              title: '결제',
               body: [
                 if (profile?.paymentMethods != null) profile!.paymentMethods!,
                 if (profile?.receiptInfo != null) profile!.receiptInfo!,
@@ -51,7 +51,7 @@ class BoxProfileScreen extends StatelessWidget {
               (profile?.attireGuide != null) ||
               (profile?.wifiInfo != null))
             _Card(
-              title: 'FIRST VISIT',
+              title: '첫 방문',
               body: [
                 if (profile?.firstVisitGuide != null)
                   profile!.firstVisitGuide!,
@@ -61,7 +61,7 @@ class BoxProfileScreen extends StatelessWidget {
             ),
           _CoachesCard(coaches: coaches, gymProfile: profile),
           if (profile?.freeNotice != null)
-            _Card(title: 'NOTICE', body: profile!.freeNotice!),
+            _Card(title: '공지', body: profile!.freeNotice!),
           // QA (2026-06-11): V4 이모지 금지 — 📞💬🚗 프리픽스 → Material outline 아이콘 Row.
           if ((profile?.phone != null) ||
               (profile?.contactKakao != null) ||
@@ -154,7 +154,7 @@ class _ContactCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('CONTACT', style: FacingTokens.sectionLabel),
+          const Text('연락처', style: FacingTokens.sectionLabel),
           const SizedBox(height: 8),
           ...rows.map((r) => Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),

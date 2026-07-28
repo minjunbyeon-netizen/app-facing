@@ -158,7 +158,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text('LOG ACTUAL', style: FacingTokens.sectionLabel),
+            const Text('실제 기록', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp1),
             Text('세트별 실제 무게·횟수·RPE 기록 (선택).',
                 style: FacingTokens.caption),
@@ -233,12 +233,12 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                 });
                 Navigator.of(ctx).pop(list);
               },
-              child: const Text('Complete'),
+              child: const Text('완료'),
             ),
             const SizedBox(height: FacingTokens.sp1),
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(<ActualSet>[]),
-              child: const Text('Skip log'),
+              child: const Text('기록 생략'),
             ),
           ],
         ),
@@ -275,7 +275,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('DECLINE REASON', style: FacingTokens.sectionLabel),
+              const Text('거절 사유', style: FacingTokens.sectionLabel),
               const SizedBox(height: FacingTokens.sp1),
               Text('이유를 알려주면 코치가 다음 처방 조정.',
                   style: FacingTokens.caption),
@@ -328,11 +328,11 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                   if (free.isNotEmpty) parts.add(free);
                   Navigator.of(ctx).pop(parts.join(' · '));
                 },
-                child: const Text('Decline'),
+                child: const Text('거절'),
               ),
               TextButton(
                 onPressed: () => Navigator.of(ctx).pop(null),
-                child: const Text('Cancel'),
+                child: const Text('취소'),
               ),
             ],
           ),
@@ -364,7 +364,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text('ASK COACH', style: FacingTokens.sectionLabel),
+            const Text('코치에게 질문', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp1),
             Text('거절 대신 질문 1줄. 코치 인박스로 발송.',
                 style: FacingTokens.caption),
@@ -400,11 +400,11 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
             const SizedBox(height: FacingTokens.sp3),
             ElevatedButton(
               onPressed: () => Navigator.of(ctx).pop(ctrl.text),
-              child: const Text('Send'),
+              child: const Text('보내기'),
             ),
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(null),
-              child: const Text('Cancel'),
+              child: const Text('취소'),
             ),
           ],
         ),
@@ -417,7 +417,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('NOTE')),
+      appBar: AppBar(title: const Text('노트')),
       body: SafeArea(
         child: _loading
             ? const Center(
@@ -440,7 +440,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                             });
                             _load();
                           },
-                          child: const Text('Retry'),
+                          child: const Text('다시 시도'),
                         ),
                       ],
                     ),
@@ -450,7 +450,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                     ? _buildBody(_note!)
                     : const Padding(
                         padding: EdgeInsets.all(FacingTokens.sp4),
-                        child: Text('Note unavailable.',
+                        child: Text('노트를 열 수 없음.',
                             style: FacingTokens.caption),
                       ),
       ),
@@ -539,7 +539,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('WHY', style: FacingTokens.sectionLabel),
+                          Text('이유', style: FacingTokens.sectionLabel),
                           const SizedBox(height: 4),
                           Text(n.rationale!, style: FacingTokens.body),
                         ],
@@ -555,7 +555,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
             Text(n.body, style: FacingTokens.lead),
           if (n.dueDate != null && n.dueDate!.isNotEmpty) ...[
             const SizedBox(height: FacingTokens.sp4),
-            Text('DUE', style: FacingTokens.sectionLabel),
+            Text('기한', style: FacingTokens.sectionLabel),
             const SizedBox(height: 2),
             Text(n.dueDate!, style: FacingTokens.body),
           ],
@@ -568,7 +568,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
           ],
           if (n.structured.isNotEmpty) ...[
             const SizedBox(height: FacingTokens.sp4),
-            Text('PRESCRIPTION', style: FacingTokens.sectionLabel),
+            Text('처방', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp2),
             for (final it in n.structured)
               Padding(
@@ -611,7 +611,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
           // 액션 결과(actual / decline_reason) 표시.
           if (n.my?.actual.isNotEmpty == true) ...[
             const SizedBox(height: FacingTokens.sp4),
-            Text('LOGGED', style: FacingTokens.sectionLabel),
+            Text('기록됨', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp1),
             for (final a in n.my!.actual)
               Padding(
@@ -628,7 +628,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
           if (n.my?.declineReason != null &&
               n.my!.declineReason!.isNotEmpty) ...[
             const SizedBox(height: FacingTokens.sp4),
-            Text('DECLINE REASON', style: FacingTokens.sectionLabel),
+            Text('거절 사유', style: FacingTokens.sectionLabel),
             const SizedBox(height: 2),
             Text(n.my!.declineReason!, style: FacingTokens.body),
           ],
@@ -674,7 +674,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
         children: [
           OutlinedButton(
             onPressed: _ask,
-            child: const Text('Ask Coach'),
+            child: const Text('코치에게 질문'),
           ),
         ],
       );
@@ -687,12 +687,12 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
         if (isAccepted)
           ElevatedButton(
             onPressed: _complete,
-            child: const Text('Complete'),
+            child: const Text('완료'),
           )
         else
           ElevatedButton(
             onPressed: _accept,
-            child: const Text('Accept'),
+            child: const Text('수락'),
           ),
         const SizedBox(height: FacingTokens.sp2),
         // v1.19 페르소나 P1-15: Accept/Decline 사이 Ask Coach.
@@ -704,7 +704,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
         TextButton(
           style: TextButton.styleFrom(foregroundColor: FacingTokens.muted),
           onPressed: _decline,
-          child: const Text('Decline'),
+          child: const Text('거절'),
         ),
       ],
     );

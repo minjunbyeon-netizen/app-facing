@@ -107,7 +107,7 @@ class AchievementSection extends StatelessWidget {
         Row(
           children: [
             const Expanded(
-              child: Text('ACHIEVEMENTS', style: FacingTokens.sectionLabel),
+              child: Text('업적', style: FacingTokens.sectionLabel),
             ),
             Text('$unlockedCount / $totalVisible', style: FacingTokens.caption),
             const SizedBox(width: FacingTokens.sp2),
@@ -117,7 +117,7 @@ class AchievementSection extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp2),
               ),
               onPressed: () => _goAll(context),
-              child: const Text('View All'),
+              child: const Text('전체 보기'),
             ),
           ],
         ),

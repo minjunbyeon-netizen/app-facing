@@ -13,16 +13,16 @@
     "minMs": 2500
   },
   "strings": {
-    "skip": "Skip",
-    "next": "Next",
-    "start": "Start",
-    "save": "Save",
-    "cancel": "Cancel",
-    "loading": "Loading.",
-    "offline": "OFFLINE · Sync on reconnect",
-    "retry": "Retry",
-    "done": "Done",
-    "edit": "Edit"
+    "skip": "건너뛰기",
+    "next": "다음",
+    "start": "시작",
+    "save": "저장",
+    "cancel": "취소",
+    "loading": "불러오는 중",
+    "offline": "오프라인 · 연결 시 동기화",
+    "retry": "다시 시도",
+    "done": "완료",
+    "edit": "수정"
   },
   "out": {
     "dart": "lib/core/appkit.gen.dart"

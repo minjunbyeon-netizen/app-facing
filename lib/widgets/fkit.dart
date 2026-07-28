@@ -5,18 +5,20 @@
 /// (글로벌 §3 코드·클래스 SSOT 의 프로젝트 배선). 참조 관례: workcheck gs_* ·
 /// writeplz wp_* — 공통 조상 토큰은 appkit.gen.dart / FacingTokens.
 ///
-/// 고정 규격 (전 화면 동일):
+/// 고정 규격 (전 화면 동일 — 전체 양식 = docs/DESIGN-SSOT.md):
 /// - 카드: surface 면 + 1px border + r3, 내부 패딩 sp4
 /// - 배지: 1px 컬러 보더 + 대문자 + r1 사각 — 완전 원형 pill 금지 (글로벌 design-block)
 /// - 섹션 라벨: sectionLabel 토큰 + 대문자 강제 (코드에서 toUpperCase)
-/// - 로딩 스피너: 22×22 stroke 2 muted 단일 규격
-/// - 에러: 본문 메시지 + OutlinedButton "Retry" (문구 고정)
+/// - 로딩 스피너: 22×22 stroke 2 muted 단일 규격 / 전면 로딩 = FkLoadingScreen
+/// - 에러: 본문 메시지 + OutlinedButton "다시 시도" (문구 고정)
+/// - 소셜 로그인 버튼: FkSocialButton (높이 52 · r3 · 마크+라벨 중앙)
 library;
 
 import 'package:flutter/material.dart';
 
 import '../core/exception.dart';
 import '../core/theme.dart';
+import 'brand_logo.dart';
 
 /// 섹션 구분 라벨 — 대문자 강제.
 class FkSectionLabel extends StatelessWidget {
@@ -161,7 +163,7 @@ class FkErrorState extends StatelessWidget {
             Text(message,
                 style: FacingTokens.body, textAlign: TextAlign.center),
             const SizedBox(height: FacingTokens.sp3),
-            OutlinedButton(onPressed: onRetry, child: const Text('Retry')),
+            OutlinedButton(onPressed: onRetry, child: const Text('다시 시도')),
           ],
         ),
       ),
@@ -181,6 +183,93 @@ class FkLoading extends StatelessWidget {
         height: 22,
         child: CircularProgressIndicator(
             strokeWidth: 2, color: FacingTokens.muted),
+      ),
+    );
+  }
+}
+
+/// 전면 로딩 — 진입·전환 화면 유일 규격 (DESIGN-SSOT §6).
+/// BrandLogo(기본 폭 220) + FkLoading + 선택 캡션. Scaffold body 로 그대로 끼운다.
+class FkLoadingScreen extends StatelessWidget {
+  final String? caption;
+  const FkLoadingScreen({super.key, this.caption});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: FacingTokens.bg,
+      alignment: Alignment.center,
+      padding: const EdgeInsets.all(FacingTokens.sp5),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const BrandLogo(),
+          const SizedBox(height: FacingTokens.sp6),
+          const FkLoading(),
+          if (caption != null) ...[
+            const SizedBox(height: FacingTokens.sp3),
+            Text(caption!,
+                style: FacingTokens.caption, textAlign: TextAlign.center),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// 소셜 로그인 버튼 — 유일 규격 (높이 52 · r3 · 마크+라벨 중앙, DESIGN-SSOT §6).
+/// 색은 FacingTokens 외부 브랜드 색(naverGreen·googleSurface)만 사용.
+class FkSocialButton extends StatelessWidget {
+  final String label;
+  final Color background;
+  final Color foreground;
+  final String markText;
+  final Color? markColor;
+  final VoidCallback? onPressed;
+
+  const FkSocialButton({
+    super.key,
+    required this.label,
+    required this.background,
+    required this.foreground,
+    required this.markText,
+    required this.onPressed,
+    this.markColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: FacingTokens.buttonH,
+      child: Material(
+        color: background,
+        borderRadius: BorderRadius.circular(FacingTokens.r3),
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(FacingTokens.r3),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                markText,
+                style: FacingTokens.h3.copyWith(
+                  color: markColor ?? foreground,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                label,
+                style: FacingTokens.body.copyWith(
+                  color: foreground,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(width: FacingTokens.touchMin),
+            ],
+          ),
+        ),
       ),
     );
   }

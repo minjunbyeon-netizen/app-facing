@@ -211,7 +211,7 @@ class _PanelBScreenState extends State<PanelBScreen> {
     final inbox = context.watch<InboxState>();
     return Scaffold(
       appBar: AppBar(
-        title: const Text('PANEL B · TITLES'),
+        title: const Text('칭호'),
       ),
       body: SafeArea(
         child: FutureBuilder<List<WodHistoryItem>>(
@@ -253,7 +253,7 @@ class _PanelBScreenState extends State<PanelBScreen> {
                                 .listEngineSnapshots(limit: 100));
                           });
                         },
-                        child: const Text('Retry'),
+                        child: const Text('다시 시도'),
                       ),
                     ],
                   ),
@@ -283,7 +283,7 @@ class _PanelBScreenState extends State<PanelBScreen> {
                     _SeasonBadgesPanel(future: _seasonBadgesFuture),
                     const SizedBox(height: FacingTokens.sp4),
                     // /go Tier 3: 착용 안내.
-                    const Text('TITLES',
+                    const Text('칭호',
                         style: FacingTokens.sectionLabel),
                     const SizedBox(height: 2),
                     const Text(
@@ -340,7 +340,7 @@ class _Header extends StatelessWidget {
           ],
         ),
         const SizedBox(height: FacingTokens.sp1),
-        Text('UNLOCKED', style: FacingTokens.sectionLabel),
+        Text('달성', style: FacingTokens.sectionLabel),
         const SizedBox(height: FacingTokens.sp2),
         ClipRRect(
           borderRadius: BorderRadius.circular(FacingTokens.r1),

@@ -17,12 +17,12 @@ class PrivacyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('PRIVACY')),
+      appBar: AppBar(title: const Text('개인정보')),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(FacingTokens.sp4),
           children: [
-            const Text('DATA STORED', style: FacingTokens.sectionLabel),
+            const Text('저장하는 데이터', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp2),
             const _Bullet('device_id (UUID v4) — 로컬 생성, 서버에 해시로만 전송'),
             const _Bullet('이름·전화번호 — 박스 가입 신청 시 입력 (서버 DB, 박스 운영자에게 제공)'),
@@ -35,14 +35,14 @@ class PrivacyScreen extends StatelessWidget {
             const _Bullet('Gym membership: 박스 가입·role·포인트 (서버 DB)'),
             const SizedBox(height: FacingTokens.sp4),
 
-            const Text('NOT COLLECTED', style: FacingTokens.sectionLabel),
+            const Text('수집하지 않는 것', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp2),
             const _Bullet('위치 정보 · 연락처 · 마이크'),
             const _Bullet('카메라 — 앱 권한 없음. QR 스캔은 기기 기본 카메라 사용'),
             const _Bullet('소셜 계정의 친구목록·메시지 (프로필 식별자만 수신)'),
             const SizedBox(height: FacingTokens.sp4),
 
-            const Text('USAGE', style: FacingTokens.sectionLabel),
+            const Text('사용 목적', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp2),
             const Text(
               'profile·grade·WOD 데이터는 본인 Engine 계산·추이 표시 용도로만 사용. '
@@ -55,7 +55,7 @@ class PrivacyScreen extends StatelessWidget {
             ),
             const SizedBox(height: FacingTokens.sp4),
 
-            const Text('RETENTION', style: FacingTokens.sectionLabel),
+            const Text('보관 기간', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp2),
             const Text(
               '탈퇴 시 본인 기록은 일괄 삭제. 단, 서명 완료된 전자계약서는 '
@@ -65,7 +65,7 @@ class PrivacyScreen extends StatelessWidget {
             ),
             const SizedBox(height: FacingTokens.sp4),
 
-            const Text('YOUR RIGHTS', style: FacingTokens.sectionLabel),
+            const Text('이용자 권리', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp2),
             const _Bullet('언제든 Sign out (계정 기록만 해제, 프로필 유지)'),
             const _Bullet('언제든 Reset data (로컬 전체 삭제)'),
@@ -78,7 +78,7 @@ class PrivacyScreen extends StatelessWidget {
                 side: const BorderSide(color: FacingTokens.error),
               ),
               onPressed: () => _confirmDelete(context),
-              child: const Text('Delete Account'),
+              child: const Text('계정 삭제'),
             ),
             const SizedBox(height: FacingTokens.sp3),
             const Text(
@@ -87,7 +87,7 @@ class PrivacyScreen extends StatelessWidget {
             ),
             const SizedBox(height: FacingTokens.sp5),
 
-            const Text('LAST UPDATED', style: FacingTokens.sectionLabel),
+            const Text('최종 갱신', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp2),
             const Text('2026-06-10 · 전화번호 수집·전자계약·소셜 로그인 반영. 정식 출시 시 법무 검토.',
                 style: FacingTokens.caption),
@@ -105,7 +105,7 @@ class PrivacyScreen extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(FacingTokens.r5),
         ),
-        title: const Text('Delete Account.'),
+        title: const Text('계정 삭제'),
         content: const Text(
           '서버·로컬 모든 데이터가 영구 삭제됩니다.\n'
           '복구 불가. 계속하시겠습니까?',
@@ -114,12 +114,12 @@ class PrivacyScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: const Text('취소'),
           ),
           TextButton(
             style: TextButton.styleFrom(foregroundColor: FacingTokens.error),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete'),
+            child: const Text('삭제'),
           ),
         ],
       ),

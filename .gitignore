@@ -52,6 +52,9 @@ app.*.map.json
 tmp/
 .gstack/
 
+# 실 소셜 로그인 키 (dart-define-from-file 용, env.json.example 만 커밋)
+env.json
+
 # 에뮬레이터 임시 캡처 (검증용, 커밋 금지)
 cap_*.png
 care_*.png

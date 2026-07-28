@@ -335,7 +335,7 @@ class _OnboardingBenchmarksScreenState
       await minShow;
       if (mounted && !_cancelled) {
         _hideLoadingOverlay();
-        setState(() => _error = 'Calc failed. Retry.');
+        setState(() => _error = '계산 실패. 다시 시도해 주세요.');
       }
       debugPrint('[Benchmarks._compute] $e');
     } finally {
@@ -350,7 +350,7 @@ class _OnboardingBenchmarksScreenState
     if (mounted) {
       setState(() {
         _submitting = false;
-        _error = 'Cancelled.';
+        _error = '취소됨.';
       });
     }
   }
@@ -490,7 +490,7 @@ class _OnboardingBenchmarksScreenState
                                   _prev();
                                 },
                           icon: const Icon(Icons.arrow_back_ios_new, size: 14),
-                          label: const Text('Back'),
+                          label: const Text('뒤로'),
                         ),
                       ),
                     if (_page > 0) const SizedBox(width: FacingTokens.sp3),
@@ -503,12 +503,12 @@ class _OnboardingBenchmarksScreenState
                                 Haptic.light();
                                 _next();
                               },
-                        // v1.15 P1-7: 버튼 카피 영문 단독 일관. 'Calculating.' / 'Next' / 'Skip' 3 상태.
+                        // v1.29: 버튼 카피 한글 (DESIGN-SSOT §7). 계산 중 / Engine 측정 / 건너뛰기 3 상태.
                         child: Text(
                           _submitting
-                              ? 'Calculating.'
+                              ? '계산 중'
                               : (_isLastPage
-                                  ? (_anyFilled ? 'Measure Engine' : 'Skip')
+                                  ? (_anyFilled ? 'Engine 측정' : '건너뛰기')
                                   : 'Next'),
                         ),
                       ),
@@ -649,7 +649,7 @@ class _ComputeLoadingDialog extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: FacingTokens.sp3),
-              const Text('Calculating.', style: FacingTokens.body),
+              const Text('계산 중', style: FacingTokens.body),
               const SizedBox(height: FacingTokens.sp1),
               const Text('6 카테고리 Engine 측정 중.',
                   style: FacingTokens.caption),
@@ -665,7 +665,7 @@ class _ComputeLoadingDialog extends StatelessWidget {
                     minimumSize: const Size(FacingTokens.touchMin,
                         FacingTokens.touchMin),
                   ),
-                  child: const Text('Cancel'),
+                  child: const Text('취소'),
                 ),
               ],
             ],
@@ -741,7 +741,7 @@ class _BenchmarkRowState extends State<_BenchmarkRow> {
                   setState(() {});
                 },
                 // QA (2026-06-11): V8 — 단어 1개 라벨은 영문 "Skip".
-                child: const Text('Skip', style: FacingTokens.caption),
+                child: const Text('건너뛰기', style: FacingTokens.caption),
               ),
             ],
           ),

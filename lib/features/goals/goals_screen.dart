@@ -51,7 +51,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
   Widget build(BuildContext context) {
     final goals = context.watch<GoalsState>();
     return Scaffold(
-      appBar: AppBar(title: const Text('GOALS')),
+      appBar: AppBar(title: const Text('목표')),
       body: SafeArea(
         child: FutureBuilder<List<WodHistoryItem>>(
           future: _history,
@@ -63,7 +63,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
               padding: const EdgeInsets.all(FacingTokens.sp4),
               children: [
                 // Weekly
-                const Text('THIS WEEK', style: FacingTokens.sectionLabel),
+                const Text('이번 주', style: FacingTokens.sectionLabel),
                 const SizedBox(height: FacingTokens.sp2),
                 _ProgressRow(
                   label: '세션',
@@ -82,7 +82,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                 const SizedBox(height: FacingTokens.sp5),
 
                 // Monthly
-                const Text('THIS MONTH', style: FacingTokens.sectionLabel),
+                const Text('이번 달', style: FacingTokens.sectionLabel),
                 const SizedBox(height: FacingTokens.sp2),
                 _ProgressRow(
                   label: '세션',
@@ -101,7 +101,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                 const SizedBox(height: FacingTokens.sp5),
 
                 // PR Goals
-                const Text('PR GOALS', style: FacingTokens.sectionLabel),
+                const Text('PR 목표', style: FacingTokens.sectionLabel),
                 const SizedBox(height: FacingTokens.sp2),
                 _PrGoalRow(
                   label: 'Fran',
@@ -118,7 +118,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                 const SizedBox(height: FacingTokens.sp5),
 
                 // Target Tier
-                const Text('TARGET TIER', style: FacingTokens.sectionLabel),
+                const Text('목표 Tier', style: FacingTokens.sectionLabel),
                 const SizedBox(height: FacingTokens.sp2),
                 Wrap(
                   spacing: FacingTokens.sp2,
@@ -138,7 +138,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                 const SizedBox(height: FacingTokens.sp5),
 
                 // Season goal
-                const Text('SEASON GOAL', style: FacingTokens.sectionLabel),
+                const Text('시즌 목표', style: FacingTokens.sectionLabel),
                 const SizedBox(height: FacingTokens.sp2),
                 _SeasonGoalField(
                   initial: goals.seasonGoal,
@@ -165,7 +165,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: FacingTokens.surfaceOverlay,
-        title: const Text('Fran PR Target'),
+        title: const Text('Fran PR 목표'),
         content: TextField(
           controller: ctrl,
           autofocus: true,
@@ -178,7 +178,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: const Text('취소'),
           ),
           TextButton(
             onPressed: () {
@@ -190,7 +190,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
               }
               Navigator.pop(ctx);
             },
-            child: const Text('Save'),
+            child: const Text('저장'),
           ),
         ],
       ),
@@ -214,7 +214,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: const Text('취소'),
           ),
           TextButton(
             onPressed: () {
@@ -222,7 +222,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
               if (v != null) goals.setBackSquatKg(v);
               Navigator.pop(ctx);
             },
-            child: const Text('Save'),
+            child: const Text('저장'),
           ),
         ],
       ),

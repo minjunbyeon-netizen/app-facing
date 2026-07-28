@@ -7,6 +7,7 @@ import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../core/app_mode.dart';
 import '../../widgets/brand_logo.dart';
+import '../../widgets/fkit.dart';
 import '../gym/gym_state.dart';
 import '../mypage/privacy_screen.dart';
 import '../mypage/terms_screen.dart';
@@ -59,7 +60,7 @@ class _SignupScreenState extends State<SignupScreen> {
       if (!mounted) return;
       setState(() => _busy = false);
       messenger.showSnackBar(
-        const SnackBar(content: Text('Login failed. Retry.')),
+        const SnackBar(content: Text('로그인 실패. 다시 시도해 주세요.')),
       );
     }
   }
@@ -142,7 +143,14 @@ class _SignupScreenState extends State<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // v1.20: HeroBackground 제거 → Splash 와 동일한 단색 검정 배경 (일관성).
+    // v1.29: 로그인 진행 중 = 전면 로딩 규격 (DESIGN-SSOT §6 — 스플래시와 동일 골격).
+    if (_busy) {
+      return const Scaffold(
+        backgroundColor: FacingTokens.bg,
+        body: SafeArea(child: FkLoadingScreen(caption: '로그인 중')),
+      );
+    }
+    // v1.20: HeroBackground 제거 → Splash 와 동일한 단색 배경 (일관성).
     return Scaffold(
       backgroundColor: FacingTokens.bg,
       body: SafeArea(
@@ -161,19 +169,19 @@ class _SignupScreenState extends State<SignupScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // v1.21: 베타 피드백 — 상단 브랜드/태그라인 블록 중앙정렬.
-                // v1.28: 텍스트 워드마크 → HYPHEN 로고 (리브랜딩).
+                // v1.29: 로고 폭 = BrandLogo 기본 220 (진입 화면 통일, DESIGN-SSOT §6).
                 const Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    BrandLogo(width: 200),
+                    BrandLogo(),
                     SizedBox(height: FacingTokens.sp2),
                   ],
                 ),
                 const SizedBox(height: FacingTokens.sp5),
 
-                // Naver
-                _SocialButton(
-                  label: '네이버로 시작',
+                // 네이버 (실서비스 1순위 — 실 로그인 배선: RealSocialAuthService)
+                FkSocialButton(
+                  label: '네이버 아이디로 로그인',
                   background: _naverGreen,
                   foreground: Colors.white,
                   markText: 'N',
@@ -182,8 +190,8 @@ class _SignupScreenState extends State<SignupScreen> {
                 ),
                 const SizedBox(height: FacingTokens.sp3),
 
-                // Google
-                _SocialButton(
+                // 구글
+                FkSocialButton(
                   label: '구글로 시작',
                   background: _googleSurface,
                   foreground: Colors.black,
@@ -198,7 +206,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 // 실 OAuth 시 social → role=boss 응답이면 boss 세션 수립.
                 // 사장 ID/PW 진입은 전환기 동안만 하단 작은 링크로 유지.
                 // v1.16 Sprint 8 U1: 데모 계정 5개 빠른 진입.
-                const Text('DEMO ACCOUNTS',
+                const Text('데모 계정',
                     style: FacingTokens.sectionLabel,
                     textAlign: TextAlign.center),
                 const SizedBox(height: FacingTokens.sp2),
@@ -312,58 +320,4 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 }
 
-class _SocialButton extends StatelessWidget {
-  final String label;
-  final Color background;
-  final Color foreground;
-  final String markText;
-  final Color? markColor;
-  final VoidCallback? onPressed;
-
-  const _SocialButton({
-    required this.label,
-    required this.background,
-    required this.foreground,
-    required this.markText,
-    required this.onPressed,
-    this.markColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: FacingTokens.buttonH,
-      child: Material(
-        color: background,
-        borderRadius: BorderRadius.circular(FacingTokens.r3),
-        child: InkWell(
-          onTap: onPressed,
-          borderRadius: BorderRadius.circular(FacingTokens.r3),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                markText,
-                style: FacingTokens.h3.copyWith(
-                  color: markColor ?? foreground,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Text(
-                label,
-                style: FacingTokens.body.copyWith(
-                  color: foreground,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.2,
-                ),
-              ),
-              const SizedBox(width: 48),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+// v1.29: _SocialButton → FkSocialButton (FKit SSOT 이동, DESIGN-SSOT §5).

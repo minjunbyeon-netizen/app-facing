@@ -64,7 +64,7 @@ class _GymProfileEditScreenState extends State<GymProfileEditScreen> {
     setState(() => _saving = false);
     if (ok) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile saved.')),
+        const SnackBar(content: Text('프로필 저장 완료.')),
       );
       Navigator.of(context).pop(true);
     } else {
@@ -79,7 +79,7 @@ class _GymProfileEditScreenState extends State<GymProfileEditScreen> {
     final gym = context.watch<GymState>().membership.gym;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('EDIT GYM PROFILE'),
+        title: const Text('박스 프로필 수정'),
         actions: [
           TextButton(
             onPressed: _saving ? null : _save,
@@ -90,7 +90,7 @@ class _GymProfileEditScreenState extends State<GymProfileEditScreen> {
                     child: CircularProgressIndicator(
                         color: FacingTokens.fg, strokeWidth: 2),
                   )
-                : const Text('Save'),
+                : const Text('저장'),
           ),
         ],
       ),
@@ -109,36 +109,36 @@ class _GymProfileEditScreenState extends State<GymProfileEditScreen> {
                   Text(gym.location, style: FacingTokens.caption),
                   const SizedBox(height: FacingTokens.sp5),
                   _Field(
-                    label: 'PHONE',
+                    label: '전화',
                     controller: _phone,
                     hint: '02-1234-5678',
                     keyboardType: TextInputType.phone,
                   ),
                   _Field(
-                    label: 'COACH NAME',
+                    label: '코치 이름',
                     controller: _coachName,
                     hint: '박지훈',
                   ),
                   _Field(
-                    label: 'COACH BIO',
+                    label: '코치 소개',
                     controller: _coachBio,
                     hint: 'CrossFit L2 Trainer · 경력 9년 · 올림픽 리프팅 전문',
                     maxLines: 3,
                   ),
                   _Field(
-                    label: 'CLASS SCHEDULE',
+                    label: '수업 시간표',
                     controller: _classSchedule,
                     hint:
                         '평일  06:00 · 07:00 · 18:30 · 19:30\n주말  09:00 · 10:00',
                     maxLines: 4,
                   ),
                   _Field(
-                    label: 'MOTTO',
+                    label: '모토',
                     controller: _motto,
                     hint: 'Earn it.',
                   ),
                   _Field(
-                    label: 'INSTAGRAM',
+                    label: '인스타그램',
                     controller: _instagram,
                     hint: '@facing.seongsu',
                   ),

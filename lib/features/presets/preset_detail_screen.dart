@@ -51,14 +51,14 @@ class PresetDetailScreen extends StatelessWidget {
                   const SizedBox(height: FacingTokens.sp5),
 
                   // HOW TO — 동작 순서 리스트
-                  const Text('HOW TO', style: FacingTokens.sectionLabel),
+                  const Text('방법', style: FacingTokens.sectionLabel),
                   const SizedBox(height: FacingTokens.sp3),
                   ..._buildItemRows(),
 
                   // RX 시간 참고 (있으면)
                   if (preset.rxTimeAdvancedSec != null) ...[
                     const SizedBox(height: FacingTokens.sp5),
-                    const Text('RX REFERENCE', style: FacingTokens.sectionLabel),
+                    const Text('RX 기준', style: FacingTokens.sectionLabel),
                     const SizedBox(height: FacingTokens.sp2),
                     Text(
                       'Advanced 기준 완주 시간: ${_formatSec(preset.rxTimeAdvancedSec!)}',
@@ -82,7 +82,7 @@ class PresetDetailScreen extends StatelessWidget {
                         .loadFromPreset(preset, movementBySlug);
                     Navigator.of(context).pushNamed('/result');
                   },
-                  child: const Text('Measure Engine'),
+                  child: const Text('Engine 측정'),
                 ),
               ),
             ),

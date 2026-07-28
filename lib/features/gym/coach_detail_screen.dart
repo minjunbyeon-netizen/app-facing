@@ -17,7 +17,7 @@ class CoachDetailScreen extends StatelessWidget {
       backgroundColor: FacingTokens.bg,
       appBar: AppBar(
         backgroundColor: FacingTokens.bg,
-        title: const Text('Coach'),
+        title: const Text('코치'),
         centerTitle: false,
       ),
       body: ListView(
@@ -25,18 +25,18 @@ class CoachDetailScreen extends StatelessWidget {
         children: [
           _PhotoHeader(coach: coach),
           if (coach.career != null)
-            _Card(title: 'CAREER', body: coach.career!),
+            _Card(title: '경력', body: coach.career!),
           if (coach.certifications != null)
-            _Card(title: 'CERTIFICATIONS', body: coach.certifications!),
+            _Card(title: '자격증', body: coach.certifications!),
           if (coach.specialty != null)
-            _Card(title: 'SPECIALTY', body: coach.specialty!),
+            _Card(title: '전문 분야', body: coach.specialty!),
           if (coach.competitionRecords != null)
-            _Card(title: 'COMPETITION', body: coach.competitionRecords!),
+            _Card(title: '대회 기록', body: coach.competitionRecords!),
           if (coach.demoVideoUrl != null)
-            _LinkCard(title: 'DEMO VIDEO', url: coach.demoVideoUrl!),
+            _LinkCard(title: '시범 영상', url: coach.demoVideoUrl!),
           if (coach.ptBookable) _PtBookCard(coach: coach),
           if (coach.offDays.isNotEmpty)
-            _Card(title: 'OFF-DAYS', body: coach.offDays.join(' · ')),
+            _Card(title: '휴무', body: coach.offDays.join(' · ')),
           if (coach.snsUrl != null)
             _LinkCard(title: 'SNS', url: coach.snsUrl!),
         ],
@@ -185,10 +185,10 @@ class _PtBookCard extends StatelessWidget {
               onPressed: () {
                 // TODO(v1.16.2): PT 예약 흐름 연결 (별도 작업)
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('PT booking — coming soon.')),
+                  const SnackBar(content: Text('PT 예약 — 준비 중.')),
                 );
               },
-              child: const Text('Book PT'),
+              child: const Text('PT 예약'),
             ),
           ),
         ],

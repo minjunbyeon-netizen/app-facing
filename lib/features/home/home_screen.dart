@@ -94,7 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('HOME'),
+        title: const Text('홈'),
         automaticallyImplyLeading: false,
         // v1.25: 종(쪽지·공지) = 모든 화면 공통 메시징 진입. Home 도 예외 아님.
         //   (D7 에서 잠깐 뺐다가, 종이 핵심 메시징 버튼이라 전 화면 유지로 복원)
@@ -178,7 +178,7 @@ class _NoticeAccordion extends StatelessWidget {
           iconColor: FacingTokens.muted,
           title: Row(
             children: [
-              const Text('NOTICE', style: FacingTokens.sectionLabel),
+              const Text('공지', style: FacingTokens.sectionLabel),
               if (hasUnread) ...[
                 const SizedBox(width: FacingTokens.sp2),
                 Container(
@@ -317,7 +317,7 @@ class _GamificationBody extends StatelessWidget {
         const SizedBox(height: FacingTokens.sp5),
 
         // MILESTONES — 3종 요약 진행바
-        const Text('MILESTONES', style: FacingTokens.sectionLabel),
+        const Text('마일스톤', style: FacingTokens.sectionLabel),
         const SizedBox(height: FacingTokens.sp3),
         // QA 2026-06-11: WOD 계산 기록이 아닌 실제 QR 출석(Attend 탭 동일
         // 소스)으로 표기 — 두 화면 수치 불일치 해소. 미가입·로드 실패 시 숨김.
@@ -327,7 +327,7 @@ class _GamificationBody extends StatelessWidget {
                 .where((d) => d.year == now.year && d.month == now.month)
                 .length;
             return _ProgressStat(
-              title: 'Attendance',
+              title: '출석',
               subtitle: '이번 달 출석 · $attendThisMonth / $daysElapsed days',
               value: daysElapsed > 0
                   ? (attendThisMonth / daysElapsed).clamp(0.0, 1.0)
@@ -338,14 +338,14 @@ class _GamificationBody extends StatelessWidget {
             );
           }),
         _ProgressStat(
-          title: 'Sessions',
+          title: '세션',
           subtitle: '누적 $totalLifetime회 → $nextMilestone 목표',
           value: (totalLifetime / nextMilestone).clamp(0.0, 1.0),
           trailing:
               totalLifetime >= 365 ? 'MAX' : '$totalLifetime / $nextMilestone',
         ),
         _ProgressStat(
-          title: 'Achievements',
+          title: '업적',
           subtitle: '업적 해금',
           value: achState.snapshot.visibleCount > 0
               ? (unlockedCount / achState.snapshot.visibleCount)
@@ -393,10 +393,10 @@ class _LevelCard extends StatelessWidget {
   /// 레벨대별 격려 한 줄. 친근한 톤.
   String _captionForLevel(int level) {
     if (level <= 5) return '좋은 출발. 페이스 유지.';
-    if (level <= 10) return 'Engine building.';
+    if (level <= 10) return 'Engine 만드는 중.';
     if (level <= 15) return '단단해지는 중.';
-    if (level <= 20) return 'Discipline 진입.';
-    if (level <= 30) return 'Obsession 시작.';
+    if (level <= 20) return '루틴이 잡혔다.';
+    if (level <= 30) return '몰입 구간.';
     if (level <= 40) return '베테랑.';
     return '경지에 올랐다.';
   }
@@ -479,7 +479,7 @@ class _LevelCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('LEVEL', style: FacingTokens.sectionLabel),
+                  const Text('레벨', style: FacingTokens.sectionLabel),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     textBaseline: TextBaseline.alphabetic,
@@ -526,8 +526,8 @@ class _LevelCard extends StatelessWidget {
                   const SizedBox(height: FacingTokens.sp1),
                   Text(
                     isMax
-                        ? 'MAX LEVEL'
-                        : '$pct% · next Lv${bd.level + 1} · ${bd.xpToNext} XP',
+                        ? '최고 레벨'
+                        : '$pct% · 다음 Lv${bd.level + 1} · ${bd.xpToNext} XP',
                     style: FacingTokens.micro,
                   ),
                   const SizedBox(height: FacingTokens.sp2),

@@ -188,7 +188,7 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('SAVE RECORD', style: FacingTokens.sectionLabel),
+              const Text('기록 저장', style: FacingTokens.sectionLabel),
               const SizedBox(height: FacingTokens.sp1),
               Text(wodTypeLabel(widget.wod.wodType),
                   style: FacingTokens.h3.copyWith(
@@ -256,7 +256,7 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
                       onPressed: _saving
                           ? null
                           : () => Navigator.of(sheetCtx).pop(),
-                      child: const Text('Cancel'),
+                      child: const Text('취소'),
                     ),
                   ),
                   const SizedBox(width: FacingTokens.sp3),
@@ -598,7 +598,7 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
                     if (widget.wod.scaleGuide != null &&
                         widget.wod.scaleGuide!.isNotEmpty) ...[
                       const SizedBox(height: FacingTokens.sp3),
-                      Text('SCALE',
+                      Text('스케일',
                           style: FacingTokens.micro.copyWith(
                             color: FacingTokens.muted,
                             fontWeight: FontWeight.w700,
@@ -631,7 +631,7 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: _reset,
-                      child: const Text('Reset'),
+                      child: const Text('초기화'),
                     ),
                   ),
                   const SizedBox(width: FacingTokens.sp3),
@@ -640,7 +640,7 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
                     child: _running
                         ? ElevatedButton(
                             onPressed: _pause,
-                            child: const Text('Pause'),
+                            child: const Text('일시정지'),
                           )
                         : ElevatedButton(
                             // QA B-PF-5: _start/_resume 동일 함수였음. 단일 호출로 정리.
@@ -658,7 +658,7 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
                         foregroundColor: FacingTokens.fg,
                       ),
                       onPressed: _elapsedSec == 0 ? null : _complete,
-                      child: const Text('Done'),
+                      child: const Text('완료'),
                     ),
                   ),
                 ],

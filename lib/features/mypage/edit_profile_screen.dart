@@ -11,12 +11,12 @@ class EditProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('EDIT PROFILE')),
+      appBar: AppBar(title: const Text('프로필 수정')),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(FacingTokens.sp4),
           children: const [
-            Text('AREAS', style: FacingTokens.sectionLabel),
+            Text('수정 영역', style: FacingTokens.sectionLabel),
             SizedBox(height: FacingTokens.sp1),
             Text(
               '편집할 영역 선택. 입력값은 저장 시 즉시 반영.',
@@ -24,7 +24,7 @@ class EditProfileScreen extends StatelessWidget {
             ),
             SizedBox(height: FacingTokens.sp4),
             _AreaCard(
-              title: 'Basic',
+              title: '기본 정보',
               subtitle: '체중 · 키 · 나이 · 성별 · CrossFit 경력',
               route: '/onboarding/basic',
             ),

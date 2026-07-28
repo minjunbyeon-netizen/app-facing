@@ -29,7 +29,7 @@ class _ClassesScreenState extends State<ClassesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('CLASSES'),
+        title: const Text('수업'),
         actions: [
           IconButton(
             onPressed: _reload,
@@ -118,7 +118,7 @@ class _ClassesSectionState extends State<ClassesSection> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(FacingTokens.r4),
         ),
-        title: const Text('Cancel reservation?'),
+        title: const Text('예약을 취소할까요?'),
         content: Text(
           '${c.title} · ${_fmtDateTime(c.startAt)}',
           style: FacingTokens.caption,
@@ -126,12 +126,12 @@ class _ClassesSectionState extends State<ClassesSection> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Keep'),
+            child: const Text('유지'),
           ),
           TextButton(
             style: TextButton.styleFrom(foregroundColor: FacingTokens.accent),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Cancel'),
+            child: const Text('취소'),
           ),
         ],
       ),
@@ -157,7 +157,7 @@ class _ClassesSectionState extends State<ClassesSection> {
 
   Widget _header() => const Padding(
         padding: EdgeInsets.only(bottom: FacingTokens.sp2),
-        child: Text('CLASSES', style: FacingTokens.sectionLabel),
+        child: Text('수업', style: FacingTokens.sectionLabel),
       );
 
   Widget _inline(String text, {Widget? action}) => Padding(
@@ -212,7 +212,7 @@ class _ClassesSectionState extends State<ClassesSection> {
                 minimumSize: const Size(0, 36),
                 padding: EdgeInsets.zero,
               ),
-              child: const Text('Retry'),
+              child: const Text('다시 시도'),
             ),
           );
         } else {
@@ -375,12 +375,12 @@ class _ClassCard extends StatelessWidget {
           Row(
             children: [
               if (isCancelled)
-                _Pill(label: 'CANCELLED', color: FacingTokens.muted)
+                _Pill(label: '취소됨', color: FacingTokens.muted)
               else if (isReserved)
-                _Pill(label: 'RESERVED', color: FacingTokens.success)
+                _Pill(label: '예약됨', color: FacingTokens.success)
               else if (isWaitlisted)
                 _Pill(
-                    label: 'WAITLIST #${session.myWaitlistPosition}',
+                    label: '대기 #${session.myWaitlistPosition}',
                     color: FacingTokens.warning),
               const Spacer(),
               if (!isCancelled) ...[
@@ -395,7 +395,7 @@ class _ClassCard extends StatelessWidget {
                       side:
                           BorderSide(color: FacingTokens.accent.withAlpha(120)),
                     ),
-                    child: const Text('Cancel'),
+                    child: const Text('취소'),
                   )
                 else
                   ElevatedButton(

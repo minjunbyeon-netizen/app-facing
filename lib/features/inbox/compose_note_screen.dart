@@ -99,7 +99,7 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text('ADD MOVEMENT', style: FacingTokens.sectionLabel),
+                const Text('동작 추가', style: FacingTokens.sectionLabel),
                 const SizedBox(height: FacingTokens.sp2),
                 TextField(
                   controller: movementCtrl,
@@ -137,7 +137,7 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                 ]),
                 const SizedBox(height: FacingTokens.sp3),
                 // v1.19 페르소나 P0-3: Load 단위 picker.
-                Text('LOAD UNIT', style: FacingTokens.sectionLabel),
+                Text('중량 단위', style: FacingTokens.sectionLabel),
                 const SizedBox(height: FacingTokens.sp1),
                 Wrap(
                   spacing: FacingTokens.sp1,
@@ -209,7 +209,7 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                 const SizedBox(height: FacingTokens.sp3),
                 ElevatedButton(
                   onPressed: () => Navigator.of(ctx).pop(true),
-                  child: const Text('Add'),
+                  child: const Text('추가'),
                 ),
               ],
             ),
@@ -373,7 +373,7 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('NEW NOTE'),
+        title: const Text('새 노트'),
         actions: const [CoachBadgeAction()],
       ),
       body: SafeArea(
@@ -382,7 +382,7 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('TARGET', style: FacingTokens.sectionLabel),
+              const Text('대상', style: FacingTokens.sectionLabel),
               const SizedBox(height: FacingTokens.sp2),
               Wrap(
                 spacing: FacingTokens.sp2,
@@ -408,7 +408,7 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                 ),
               if (_targetType == 'group') _buildGroupPicker(),
               const SizedBox(height: FacingTokens.sp4),
-              const Text('KIND', style: FacingTokens.sectionLabel),
+              const Text('종류', style: FacingTokens.sectionLabel),
               const SizedBox(height: FacingTokens.sp2),
               Wrap(
                 spacing: FacingTokens.sp2,
@@ -458,13 +458,13 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                 Row(
                   children: [
                     const Expanded(
-                      child: Text('PRESCRIPTION',
+                      child: Text('처방',
                           style: FacingTokens.sectionLabel),
                     ),
                     TextButton.icon(
                       onPressed: _addItem,
                       icon: const Icon(Icons.add, size: 16),
-                      label: const Text('Add'),
+                      label: const Text('추가'),
                     ),
                   ],
                 ),
@@ -551,7 +551,7 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
         if (snap.connectionState != ConnectionState.done) {
           return const Padding(
             padding: EdgeInsets.symmetric(vertical: FacingTokens.sp2),
-            child: Text('Loading groups.', style: FacingTokens.caption),
+            child: Text('그룹 불러오는 중', style: FacingTokens.caption),
           );
         }
         // QA B-FB-2: hasError 분기 추가.
@@ -582,7 +582,7 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                       builder: (_) => const GroupManagementScreen(),
                     ),
                   ),
-                  child: const Text('Manage Groups'),
+                  child: const Text('그룹 관리'),
                 ),
               ],
             ),

@@ -53,7 +53,7 @@ class MyPageScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('PROFILE'),
+        title: const Text('프로필'),
         actions: const [InboxBellAction()],
       ),
       body: SafeArea(
@@ -215,7 +215,7 @@ class _ScoreSectionState extends State<_ScoreSection> {
             OutlinedButton(
               onPressed: () =>
                   Navigator.of(context).pushNamed('/onboarding/basic'),
-              child: const Text('Start Onboarding'),
+              child: const Text('온보딩 시작'),
             ),
           ],
         ),
@@ -606,7 +606,7 @@ class _IdentityCard extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      const Text('GYM RECORD',
+                      const Text('박스 기록',
                           style: FacingTokens.sectionLabel),
                       const Spacer(),
                       if (mp.updatedAt != null)
@@ -620,18 +620,18 @@ class _IdentityCard extends StatelessWidget {
                   if ((mp.level ?? '').isNotEmpty)
                     _ProfileRow(label: 'Tier', value: mp.level!),
                   if ((mp.phone ?? '').isNotEmpty)
-                    _ProfileRow(label: 'Phone', value: mp.phone!),
+                    _ProfileRow(label: '전화', value: mp.phone!),
                   if ((mp.birthDate ?? '').isNotEmpty)
-                    _ProfileRow(label: 'Birth', value: mp.birthDate!),
+                    _ProfileRow(label: '생년월일', value: mp.birthDate!),
                   if ((mp.gender ?? '').isNotEmpty)
-                    _ProfileRow(label: 'Gender', value: mp.gender!),
+                    _ProfileRow(label: '성별', value: mp.gender!),
                   if ((mp.preferredTimeSlot ?? '').isNotEmpty)
                     _ProfileRow(
-                        label: 'Preferred', value: mp.preferredTimeSlot!),
+                        label: '선호 시간', value: mp.preferredTimeSlot!),
                   if ((mp.safetyNote ?? '').isNotEmpty)
-                    _ProfileRow(label: 'Safety', value: mp.safetyNote!),
+                    _ProfileRow(label: '주의 사항', value: mp.safetyNote!),
                   if ((mp.note ?? '').isNotEmpty)
-                    _ProfileRow(label: 'Note', value: mp.note!),
+                    _ProfileRow(label: '메모', value: mp.note!),
                 ],
               ),
             ),
@@ -645,7 +645,7 @@ class _IdentityCard extends StatelessWidget {
               ));
             },
             icon: const Icon(Icons.edit_outlined, size: 18),
-            label: const Text('Edit Profile'),
+            label: const Text('프로필 수정'),
           ),
         ],
       ),
@@ -697,7 +697,7 @@ class _MyBoxSection extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(FacingTokens.r5),
         ),
-        title: const Text('Leave Box?'),
+        title: const Text('박스를 탈퇴할까요?'),
         content: Text(
           '$gymName 에서 탈퇴합니다.\n'
           '탈퇴 후 다른 박스에 가입하거나 새로 만들 수 있습니다.',
@@ -706,12 +706,12 @@ class _MyBoxSection extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogCtx, false),
-            child: const Text('Cancel'),
+            child: const Text('취소'),
           ),
           TextButton(
             style: TextButton.styleFrom(foregroundColor: FacingTokens.accent),
             onPressed: () => Navigator.pop(dialogCtx, true),
-            child: const Text('Leave'),
+            child: const Text('탈퇴'),
           ),
         ],
       ),
@@ -747,7 +747,7 @@ class _MyBoxSection extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Text('MY BOX', style: FacingTokens.sectionLabel),
+              const Text('내 박스', style: FacingTokens.sectionLabel),
               const Spacer(),
               if (gym != null && !gs.isOwner)
                 TextButton(
@@ -761,13 +761,13 @@ class _MyBoxSection extends StatelessWidget {
                     Haptic.light();
                     _confirmLeave(context, gs);
                   },
-                  child: const Text('Change'),
+                  child: const Text('변경'),
                 ),
             ],
           ),
           const SizedBox(height: FacingTokens.sp2),
           if (gym == null)
-            const Text('No Box. Find Box on WOD tab.',
+            const Text('박스 없음. WOD 탭에서 찾기.',
                 style: FacingTokens.caption)
           else ...[
             Text(gym.name,
@@ -811,7 +811,7 @@ class _MyBoxSection extends StatelessWidget {
                     builder: (_) => const CoachDashboardScreen(),
                   ));
                 },
-                child: const Text('Manage Members'),
+                child: const Text('회원 관리'),
               ),
             ],
             // 클래스 일정 진입 (회원·owner 모두). PC 사장이 등록한 클래스를 본다.
@@ -823,7 +823,7 @@ class _MyBoxSection extends StatelessWidget {
                   Navigator.of(context).pushNamed('/classes');
                 },
                 icon: const Icon(Icons.event_outlined, size: 18),
-                label: const Text('Classes'),
+                label: const Text('수업'),
               ),
             ],
           ],
@@ -851,12 +851,12 @@ class _BodyStats extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('BODY', style: FacingTokens.sectionLabel),
+          const Text('신체', style: FacingTokens.sectionLabel),
           const SizedBox(height: FacingTokens.sp2),
-          _Kv(label: 'Weight', value: weightDisplay),
-          _Kv(label: 'Height', value: height),
-          _Kv(label: 'Age', value: age),
-          _Kv(label: 'Sex', value: sex),
+          _Kv(label: '체중', value: weightDisplay),
+          _Kv(label: '키', value: height),
+          _Kv(label: '나이', value: age),
+          _Kv(label: '성별', value: sex),
         ],
       ),
     );
@@ -900,13 +900,13 @@ class _SettingsSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('SETTINGS', style: FacingTokens.sectionLabel),
+          const Text('설정', style: FacingTokens.sectionLabel),
           const SizedBox(height: FacingTokens.sp2),
           const _ModeRow(),
           const SizedBox(height: FacingTokens.sp3),
           Row(
             children: [
-              const Expanded(child: Text('Unit', style: FacingTokens.body)),
+              const Expanded(child: Text('단위', style: FacingTokens.body)),
               Consumer<UnitState>(
                 builder: (ctx, u, _) => _UnitToggle(u: u),
               ),
@@ -917,7 +917,7 @@ class _SettingsSection extends StatelessWidget {
             builder: (ctx, ui, _) => Row(
               children: [
                 const Expanded(
-                    child: Text('Font Size', style: FacingTokens.body)),
+                    child: Text('글자 크기', style: FacingTokens.body)),
                 _TextScaleToggle(current: ui.textScale, state: ui),
               ],
             ),
@@ -1068,7 +1068,7 @@ class _ActionsSection extends StatelessWidget {
                         foregroundColor: FacingTokens.muted,
                       ),
                       onPressed: () => _confirmSignOut(context),
-                      child: const Text('Sign Out'),
+                      child: const Text('로그아웃'),
                     ),
                   ],
                 ),
@@ -1082,19 +1082,19 @@ class _ActionsSection extends StatelessWidget {
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => const MemberContractsScreen(),
             )),
-            child: const Text('Contracts'),
+            child: const Text('계약'),
           ),
           const SizedBox(height: FacingTokens.sp3),
           OutlinedButton(
             onPressed: () => Navigator.of(context).pushNamed('/history'),
-            child: const Text('History'),
+            child: const Text('히스토리'),
           ),
           const SizedBox(height: FacingTokens.sp3),
           OutlinedButton(
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => const PrivacyScreen(),
             )),
-            child: const Text('Privacy Policy'),
+            child: const Text('개인정보처리방침'),
           ),
           const SizedBox(height: FacingTokens.sp3),
           // P0-1 (2026-06-10): 이용약관 진입 — 가입 화면 외 상시 접근 경로.
@@ -1102,28 +1102,28 @@ class _ActionsSection extends StatelessWidget {
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => const TermsScreen(),
             )),
-            child: const Text('Terms'),
+            child: const Text('이용약관'),
           ),
           const SizedBox(height: FacingTokens.sp3),
           OutlinedButton(
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => const ImportScreen(),
             )),
-            child: const Text('Import Data'),
+            child: const Text('데이터 가져오기'),
           ),
           const SizedBox(height: FacingTokens.sp3),
           OutlinedButton(
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => const GoalsScreen(),
             )),
-            child: const Text('Goals'),
+            child: const Text('목표'),
           ),
           const SizedBox(height: FacingTokens.sp3),
           OutlinedButton(
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => const AlgorithmScreen(),
             )),
-            child: const Text('Algorithm'),
+            child: const Text('알고리즘'),
           ),
           const SizedBox(height: FacingTokens.sp3),
           // P2-1 (2026-06-11) — FAQ (시드 10문답, 실문의 누적 시 증보).
@@ -1151,7 +1151,7 @@ class _ActionsSection extends StatelessWidget {
           OutlinedButton(
             onPressed: () =>
                 Navigator.of(context).pushNamed('/auth/link-staff'),
-            child: const Text('Link Staff Account'),
+            child: const Text('직원 계정 연결'),
           ),
           const SizedBox(height: FacingTokens.sp3),
           TextButton(
@@ -1159,7 +1159,7 @@ class _ActionsSection extends StatelessWidget {
               foregroundColor: FacingTokens.accent,
             ),
             onPressed: () => _confirmReset(context),
-            child: const Text('Reset data'),
+            child: const Text('데이터 초기화'),
           ),
           if (kDebugMode) ...[
             const SizedBox(height: FacingTokens.sp5),
@@ -1194,7 +1194,7 @@ class _ActionsSection extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(FacingTokens.r5),
         ),
-        title: const Text('Reset data?'),
+        title: const Text('데이터를 초기화할까요?'),
         content: const Text(
           '프로필·등급·벤치마크를 전부 삭제합니다.\n'
           '되돌릴 수 없습니다.',
@@ -1203,12 +1203,12 @@ class _ActionsSection extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogCtx, false),
-            child: const Text('Cancel'),
+            child: const Text('취소'),
           ),
           TextButton(
             style: TextButton.styleFrom(foregroundColor: FacingTokens.accent),
             onPressed: () => Navigator.pop(dialogCtx, true),
-            child: const Text('Reset'),
+            child: const Text('초기화'),
           ),
         ],
       ),
@@ -1228,7 +1228,7 @@ class _ActionsSection extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(FacingTokens.r5),
         ),
-        title: const Text('Sign Out.'),
+        title: const Text('로그아웃'),
         content: const Text(
           // V9: 영문 명사 + 한글 조사 혼용("provider로") 제거.
           '로그아웃해도 프로필·기록은 이 기기에 그대로 유지됩니다.\n'
@@ -1239,12 +1239,12 @@ class _ActionsSection extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogCtx, false),
-            child: const Text('Cancel'),
+            child: const Text('취소'),
           ),
           TextButton(
             style: TextButton.styleFrom(foregroundColor: FacingTokens.muted),
             onPressed: () => Navigator.pop(dialogCtx, true),
-            child: const Text('Sign Out'),
+            child: const Text('로그아웃'),
           ),
         ],
       ),
@@ -1313,7 +1313,7 @@ class _ModeRowState extends State<_ModeRow> {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('Mode', style: FacingTokens.body),
+            const Text('모드', style: FacingTokens.body),
             const SizedBox(width: FacingTokens.sp2),
             if (_saving)
               const SizedBox(
@@ -1495,7 +1495,7 @@ class _QuickPersonaBarState extends State<_QuickPersonaBar> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('QUICK SWITCH', style: FacingTokens.sectionLabel),
+        const Text('빠른 전환', style: FacingTokens.sectionLabel),
         const SizedBox(height: FacingTokens.sp2),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -1633,7 +1633,7 @@ class _MembershipCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('MEMBERSHIP', style: FacingTokens.sectionLabel),
+            Text('회원권', style: FacingTokens.sectionLabel),
             const SizedBox(height: 8),
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -1912,7 +1912,7 @@ class _LockerCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('MY LOCKER', style: FacingTokens.sectionLabel),
+                  Text('내 락커', style: FacingTokens.sectionLabel),
                   const SizedBox(height: 4),
                   Text(
                     lk.endDate != null && lk.endDate!.isNotEmpty
@@ -1988,7 +1988,7 @@ class _PointsBalanceRowState extends State<_PointsBalanceRow> {
         child: Row(
           children: [
             const Expanded(
-              child: Text('Points', style: FacingTokens.sectionLabel),
+              child: Text('포인트', style: FacingTokens.sectionLabel),
             ),
             Text('$balance P',
                 style: FacingTokens.h3.copyWith(color: FacingTokens.primary)),

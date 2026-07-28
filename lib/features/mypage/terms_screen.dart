@@ -11,7 +11,7 @@ class TermsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('TERMS')),
+      appBar: AppBar(title: const Text('이용약관')),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(FacingTokens.sp4),
@@ -86,7 +86,7 @@ class TermsScreen extends StatelessWidget {
             ),
             SizedBox(height: FacingTokens.sp5),
 
-            Text('LAST UPDATED', style: FacingTokens.sectionLabel),
+            Text('최종 갱신', style: FacingTokens.sectionLabel),
             SizedBox(height: FacingTokens.sp2),
             Text('2026-06-10 · 베타 운영 기준. 개정 시 앱 내 공지.',
                 style: FacingTokens.caption),

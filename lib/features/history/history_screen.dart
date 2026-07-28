@@ -64,7 +64,7 @@ class _HistoryScreenState extends State<HistoryScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('History'),
+        title: const Text('히스토리'),
         bottom: TabBar(
           controller: _tc,
           labelColor: FacingTokens.fg,
@@ -106,7 +106,7 @@ class _EngineTab extends StatelessWidget {
         final rows = snap.data ?? const [];
         if (rows.isEmpty) {
           return const FkEmptyState(
-            title: 'No Engine history',
+            title: 'Engine 기록 없음',
             caption: '등급 계산 후 자동 저장.\n'
                 '다음 Engine 측정부터 시계열 축적.',
           );
@@ -173,7 +173,7 @@ class _EngineSparkline extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('ENGINE SCORE', style: FacingTokens.sectionLabel),
+              const Text('Engine 점수', style: FacingTokens.sectionLabel),
               Row(
                 children: [
                   if (decayLabel != null) ...[
@@ -250,7 +250,7 @@ class _EngineSparkline extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(_formatShort(firstDate), style: FacingTokens.micro),
-              Text('since start', style: FacingTokens.micro),
+              Text('시작 이후', style: FacingTokens.micro),
               Text(_formatShort(lastDate), style: FacingTokens.micro),
             ],
           ),
@@ -393,7 +393,7 @@ class _WodTab extends StatelessWidget {
         final rows = snap.data ?? const [];
         if (rows.isEmpty) {
           return const FkEmptyState(
-            title: 'No WOD records',
+            title: 'WOD 기록 없음',
             caption: 'WOD 계산 후 자동 저장.\n'
                 'Split · Burst · 예상 완주 시간 전부 보존.',
           );

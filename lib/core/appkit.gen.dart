@@ -108,14 +108,14 @@ class AppKit {
   static const Duration splashFade = Duration(milliseconds: 300);
 
   // ==== 공통 UI 문자열 (스킨: 앱별 언어·톤) ====
-  static const String strSkip = 'Skip';
-  static const String strNext = 'Next';
-  static const String strStart = 'Start';
-  static const String strSave = 'Save';
-  static const String strCancel = 'Cancel';
-  static const String strLoading = 'Loading.';
-  static const String strOffline = 'OFFLINE · Sync on reconnect';
-  static const String strRetry = 'Retry';
-  static const String strDone = 'Done';
-  static const String strEdit = 'Edit';
+  static const String strSkip = '건너뛰기';
+  static const String strNext = '다음';
+  static const String strStart = '시작';
+  static const String strSave = '저장';
+  static const String strCancel = '취소';
+  static const String strLoading = '불러오는 중';
+  static const String strOffline = '오프라인 · 연결 시 동기화';
+  static const String strRetry = '다시 시도';
+  static const String strDone = '완료';
+  static const String strEdit = '수정';
 }

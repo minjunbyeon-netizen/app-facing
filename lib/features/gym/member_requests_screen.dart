@@ -74,7 +74,7 @@ class _MemberRequestsScreenState extends State<MemberRequestsScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text('RESPOND', style: FacingTokens.sectionLabel),
+            const Text('답변', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp1),
             Text(
               '${r.fromHashPrefix} · ${r.subject.isNotEmpty ? r.subject : "(no subject)"}',
@@ -102,7 +102,7 @@ class _MemberRequestsScreenState extends State<MemberRequestsScreen> {
                       if (!ctx.mounted) return;
                       Navigator.of(ctx).pop();
                     },
-                    child: const Text('Dismiss'),
+                    child: const Text('닫기'),
                   ),
                 ),
                 const SizedBox(width: FacingTokens.sp2),
@@ -113,7 +113,7 @@ class _MemberRequestsScreenState extends State<MemberRequestsScreen> {
                       if (!ctx.mounted) return;
                       Navigator.of(ctx).pop();
                     },
-                    child: const Text('Send & Resolve'),
+                    child: const Text('보내고 해결'),
                   ),
                 ),
               ],
@@ -159,7 +159,7 @@ class _MemberRequestsScreenState extends State<MemberRequestsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('MEMBER REQUESTS'),
+        title: const Text('회원 요청'),
         actions: [
           const CoachBadgeAction(),
           IconButton(icon: const Icon(Icons.refresh), onPressed: _reload),
@@ -172,9 +172,9 @@ class _MemberRequestsScreenState extends State<MemberRequestsScreen> {
               padding: const EdgeInsets.all(FacingTokens.sp3),
               child: SegmentedButton<String>(
                 segments: const [
-                  ButtonSegment(value: 'open', label: Text('Open')),
-                  ButtonSegment(value: 'resolved', label: Text('Resolved')),
-                  ButtonSegment(value: '', label: Text('All')),
+                  ButtonSegment(value: 'open', label: Text('진행 중')),
+                  ButtonSegment(value: 'resolved', label: Text('해결됨')),
+                  ButtonSegment(value: '', label: Text('전체')),
                 ],
                 selected: {_filter},
                 onSelectionChanged: (s) {

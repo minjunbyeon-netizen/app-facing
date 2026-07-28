@@ -27,10 +27,10 @@ class OfflineBanner extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'OFFLINE',
+                  '오프라인',
                   style: FacingTokens.bannerLabel.copyWith(
                     color: FacingTokens.accent,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w600,
                   ),
                   textAlign: TextAlign.center,
                 ),

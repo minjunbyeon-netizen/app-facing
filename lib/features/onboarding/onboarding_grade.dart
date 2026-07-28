@@ -43,7 +43,7 @@ class _OnboardingGradeScreenState extends State<OnboardingGradeScreen> {
     final grade = p.gradeResult;
     if (grade == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('YOUR TIER')),
+        appBar: AppBar(title: const Text('내 Tier')),
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(FacingTokens.sp5),
@@ -51,7 +51,7 @@ class _OnboardingGradeScreenState extends State<OnboardingGradeScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text('No 1RM.', style: FacingTokens.h2),
+                const Text('1RM 없음.', style: FacingTokens.h2),
                 const SizedBox(height: FacingTokens.sp2),
                 const Text('Enter first. Benchmarks 완료하면 Tier 확정.',
                     style: FacingTokens.caption),
@@ -62,7 +62,7 @@ class _OnboardingGradeScreenState extends State<OnboardingGradeScreen> {
                     Navigator.of(context)
                         .pushReplacementNamed('/onboarding/basic');
                   },
-                  child: const Text('Start Onboarding'),
+                  child: const Text('온보딩 시작'),
                 ),
               ],
             ),
@@ -79,7 +79,7 @@ class _OnboardingGradeScreenState extends State<OnboardingGradeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('YOUR TIER'),
+        title: const Text('내 Tier'),
         automaticallyImplyLeading: false,
         // P2-3 (2026-06-10): 미구현 공유 버튼 숨김 — 누르면 "지원 예정" 토스트만
         // 나오는 죽은 버튼은 신뢰 손상. 구현(Tier 카드 이미지 + SNS 공유) 시 복원.
@@ -111,7 +111,7 @@ class _OnboardingGradeScreenState extends State<OnboardingGradeScreen> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text('YOUR TIER', style: FacingTokens.h1),
+                      Text('내 Tier', style: FacingTokens.h1),
                       const SizedBox(width: FacingTokens.sp3),
                       const TermTip(term: 'Tier', iconSize: 18),
                       const SizedBox(width: FacingTokens.sp1),
@@ -197,7 +197,7 @@ class _OnboardingGradeScreenState extends State<OnboardingGradeScreen> {
                     Navigator.of(context)
                         .pushNamedAndRemoveUntil('/shell', (_) => false);
                   },
-                  child: const Text('Next'),
+                  child: const Text('다음'),
                 ),
               ),
             ),

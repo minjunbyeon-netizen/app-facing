@@ -40,7 +40,7 @@ class _BoxLeaderboardScreenState extends State<BoxLeaderboardScreen> {
     final gs = context.watch<GymState>();
     final gym = gs.membership.gym;
     return Scaffold(
-      appBar: AppBar(title: const Text('LEADERBOARD')),
+      appBar: AppBar(title: const Text('리더보드')),
       body: SafeArea(
         child: gym == null
             ? const Center(
@@ -89,11 +89,11 @@ class _BoxLeaderboardScreenState extends State<BoxLeaderboardScreen> {
                         segments: const [
                           ButtonSegment(
                             value: _SortMode.sessions,
-                            label: Text('Sessions'),
+                            label: Text('세션'),
                           ),
                           ButtonSegment(
                             value: _SortMode.streak,
-                            label: Text('Streak'),
+                            label: Text('스트릭'),
                           ),
                         ],
                         selected: {_sort},

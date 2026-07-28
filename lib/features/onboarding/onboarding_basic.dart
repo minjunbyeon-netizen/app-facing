@@ -67,7 +67,7 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
     const pct = 14;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('STEP 1 / 7'),
+        title: const Text('1 / 7 단계'),
         // v1.21: 베타 테스터 피드백 — 체중 입력 칸에서 뒤로가기 누락. signup 으로 복귀.
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -92,7 +92,7 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: const [
-                      Text('Step 1 / 7', style: FacingTokens.caption),
+                      Text('1 / 7 단계', style: FacingTokens.caption),
                       Text('$pct%', style: FacingTokens.caption),
                     ],
                   ),
@@ -114,7 +114,7 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
               const SizedBox(height: FacingTokens.sp3),
               Row(
                 children: const [
-                  Text('BODY', style: FacingTokens.sectionLabel),
+                  Text('신체', style: FacingTokens.sectionLabel),
                   SizedBox(width: FacingTokens.sp2),
                   TermTip(term: 'Tier', iconSize: 16),
                 ],
@@ -144,13 +144,13 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
                 onChanged: (_) => setState(() {}),
               )),
               const SizedBox(height: FacingTokens.sp4),
-              _Row(label: 'Age', child: _Input(
+              _Row(label: '나이', child: _Input(
                 controller: _age, hint: 'e.g. 32', suffix: 'yr',
                 semanticLabel: 'Age',
                 onChanged: (_) => setState(() {}),
               )),
               const SizedBox(height: FacingTokens.sp4),
-              _Row(label: 'Sex', child: _GenderToggle(
+              _Row(label: '성별', child: _GenderToggle(
                 value: _gender,
                 onChanged: (g) {
                   Haptic.selection();
@@ -173,7 +173,7 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
                         _onNext();
                       }
                     : null,
-                child: const Text('Next'),
+                child: const Text('다음'),
               ),
                 ],
               ),
@@ -280,13 +280,13 @@ class _GenderToggle extends StatelessWidget {
     return Row(
       children: [
         _Pill(
-          label: 'Male',
+          label: '남',
           selected: value == 'male',
           onTap: () => onChanged('male'),
         ),
         const SizedBox(width: FacingTokens.sp2),
         _Pill(
-          label: 'Female',
+          label: '여',
           selected: value == 'female',
           onTap: () => onChanged('female'),
         ),

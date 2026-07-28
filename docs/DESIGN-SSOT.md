@@ -1,0 +1,120 @@
+# DESIGN-SSOT — 화면 양식 정본 (v1.29 · 2026-07-28)
+
+> **모든 레이아웃·크기·폰트 굵기·카피 결정의 단일 정본.** 화면 작업은 이 양식 안에서만 움직인다.
+> 새 수치·새 variant 가 필요하면 **이 문서와 FKit/토큰에 먼저 추가한 뒤** 화면에 쓴다 (역순 금지).
+> 상위 정본: 공통 조상 토큰 = `lib/core/appkit.gen.dart` (AppKit — `C:/dev/tools/appkit` 마스터,
+> `python sync.py` 재생성) → facing 재수출 = `lib/core/theme.dart` (FacingTokens) →
+> 컴포넌트 = `lib/widgets/fkit.dart` (FKit) + `lib/widgets/brand_logo.dart` (BrandLogo).
+
+## 0. 집행 규칙 (강제)
+
+- 인라인 `fontSize:` 숫자 금지 — `test/copy_lint_test.dart` 가 차단 (theme.dart 만 예외).
+- 인라인 `FontWeight` 는 아래 §2 굵기 정책 4단만 허용. 새 굵기 필요 시 이 문서 갱신 먼저.
+- 간격·모서리·크기는 `FacingTokens.sp*` / `r*` / `touchMin·buttonH·appBarH` 상수만.
+  (미세 보정 ±2px 이내 리터럴은 허용 — 예: 배지 vertical 3, 도트 크기.)
+- 카드·배지·섹션 라벨·통계 타일·빈/에러/로딩 상태·소셜 버튼·전면 로딩은 **FKit 것만** 사용.
+- UI 를 바꾸면 골든 재생성 (`flutter test --update-goldens test/golden`) + 갤러리 갱신이 완료 조건.
+
+## 1. 타이포 스케일 (토큰 = 유일 출처)
+
+| 토큰 | 크기/굵기/자간 | 용도 (여기 없는 용도 금지) |
+|---|---|---|
+| `display` | 72 w900 -2.4 | 화면당 ≤1 "영혼 숫자" (Engine 점수·총시간) |
+| `displayCompact` | 56 w900 (조상) | LEVEL 숫자·Tier 배지 큰 숫자 |
+| `h1` | 28 w700 (조상) | 화면 단일 헤드라인 (인트로·풀스크린 화면) |
+| `h2` | 22 w700 (조상) | 섹션 큰 타이틀 (AppBar 없는 화면 한정) |
+| `h3` | 17 w600 (조상) | 카드 타이틀 · AppBar title (테마 기본) |
+| `lead` | 18 w400 (조상) | 인트로 본문 등 큰 본문 |
+| `body` | 15 w400 (조상) | 본문 기본 |
+| `caption` | 13 w400 muted | 부연 설명 |
+| `micro` | 13 w500 muted | 수치 보조 (개수·%·포인트) |
+| `sectionLabel` | 12 w600 +1.32 muted | 섹션 구분 라벨 — FkSectionLabel 로만 사용 |
+| `tierLabel` | 14 w900 +1.6 | TierBadge 내부 전용 |
+| `bannerLabel` | 12 w600 +1.0 | 오프라인 등 배너 전용 |
+| `quote` | 14 w500 italic | 영어 명언 전용 |
+
+**계층 규칙**: R1 화면당 h1 1개 (AppBar 있으면 h1·h2 헤드라인 금지) · R2 동일 지표 = 동일 토큰
+(화면 막론) · R3 섹션 헤더 = FkSectionLabel 단독 · R4 하드코드 fontSize 금지 · R5 한글 자간 음수
+(조상이 보장 — copyWith 로 0/양수 자간 금지, 대문자 영문 라벨만 예외).
+
+## 2. 폰트 굵기 정책 (4단만)
+
+| 굵기 | 허용 용도 |
+|---|---|
+| w400 | 본문·캡션 기본 |
+| w500 | micro·quote |
+| w600 | 버튼 텍스트 · h3 · sectionLabel · bannerLabel · 리스트 항목 강조 |
+| w700 | h1 · h2 · 이름/값 강조 (`body.copyWith(fontWeight: w700)` 만 허용되는 인라인) |
+| w800~900 | **BrandLogo·display·tierLabel 전용** — 일반 텍스트 금지 |
+
+## 3. 컬러 사용처 (FacingTokens)
+
+- 면: `bg`(화면) / `surface`(카드) / `surfaceAlt`(중첩·hover)
+- 텍스트: `fg`(본문) / `fgSecondary`(보조) / `muted`(흐림) — 컬러 배경 위는 항상 `onColor`
+- 액션: `primary`(CTA 1개/화면) / `danger`(파괴) / `success·warning·info`(상태)
+- 소셜: `naverGreen` / `googleSurface`+`googleBlue` (외부 브랜드 — 다른 용도 금지)
+- 티어: `tierScaled~tierGames` 5색 (TierBadge 전용)
+
+## 4. 스페이싱·모서리·크기
+
+| 항목 | 값 |
+|---|---|
+| 화면 수평 패딩 | AppBar 화면 = `sp4`(16) · 풀스크린(스플래시·인트로·로그인) = `sp5`(24) |
+| 섹션 사이 | `sp5`(24) — 섹션 라벨→내용 = `sp2`(8) |
+| 카드 내부 | `sp4`(16) — FkCard 기본 |
+| 요소 사이 | 밀접 `sp1`(4) · 기본 `sp2`(8) · 구분 `sp3`(12) |
+| 모서리 | `r1`(4) 배지 · `r2`(8) 입력·작은 버튼 · `r3`(12) 카드·소셜 버튼 · `r4`(16) CTA 버튼 · `r5`(28) 시트 |
+| 크기 | 터치 최소 48 · 버튼 높이 52 · AppBar 52 · 탭바 64 · 스피너 22×22 stroke 2 |
+
+## 5. FKit 컴포넌트 (여기 없으면 FKit 에 추가 후 사용)
+
+| 컴포넌트 | 규격 |
+|---|---|
+| `FkCard` | surface + 1px border + r3, 패딩 sp4 |
+| `FkBadge` | 1px 컬러 보더 + 대문자 + r1 사각 — pill 금지 |
+| `FkSectionLabel` | sectionLabel + 대문자 강제 |
+| `FkStatTile` | 라벨 위 + 값(h3) 아래 |
+| `FkEmptyState` | h3 제목 + caption 캡션 수직 스택 |
+| `FkErrorState` | body 메시지 + "다시 시도" — `.fromError` 로 메시지 통일 매핑 |
+| `FkLoading` | 22×22 stroke 2 muted 스피너 (인라인 로딩 유일 규격) |
+| `FkLoadingScreen` | **전면 로딩 유일 규격** — BrandLogo + FkLoading + 선택 캡션 |
+| `FkSocialButton` | 소셜 로그인 버튼 유일 규격 — 높이 52 · r3 · 마크+라벨 중앙 |
+| `BrandLogo` | 브랜드 로고 정본 — **기본 폭 220 고정** (진입·로딩 화면 전부 동일) |
+| `TierBadge` | 티어 표기 별도 정본 |
+
+## 6. 진입·로딩 화면 양식 (로그인·로딩 통일 — v1.29)
+
+모든 진입 계열 화면(스플래시·인트로·로그인·전면 로딩)은 같은 골격:
+
+```
+┌──────────────────────────┐
+│        (Spacer)          │
+│     BrandLogo (220)      │   ← 항상 기본 폭 220 · 수평 중앙
+│        (Spacer)          │
+│   [화면별 콘텐츠 슬롯]      │   ← 로그인: 소셜 버튼 스택 / 스플래시: 명언+스피너
+│                          │      전면 로딩: FkLoadingScreen (로고+스피너+캡션)
+└──────────────────────────┘  패딩 sp5 · 배경 bg
+```
+
+- 로그인 진행 중(_busy) 화면 = `FkLoadingScreen(caption: '로그인 중')` — 버튼 비활성만으로 때우지 않는다.
+- 소셜 버튼 순서: 네이버(실서비스 1순위) → 구글. 규격은 FkSocialButton 만.
+- 네이버 실 로그인 배선: `RealSocialAuthService` + `--dart-define=USE_REAL_AUTH=true`
+  (키 주입 절차 = `docs/NATIVE_AUTH_SETUP.md`, 키 하드코딩 금지).
+
+## 7. 카피 규칙 v2.0 — 한글 기본 (2026-07-28 사용자 지시로 영문 중심 폐기)
+
+- **기본 언어 = 한글.** 버튼·탭·헤더·섹션 라벨·안내·에러 전부 한글.
+- **영문 유지 (도메인 고정어만)**: 브랜드 `HYPHEN` · CrossFit 용어 `WOD` `AMRAP` `EMOM` `RX`
+  `RX+` `Scaled` `Elite` `Games` `1RM` `PR` `UB` `Metcon` `For Time` `Engine` `Split` `Burst` ·
+  단위 `kg/lb` · `XP` · 벤치마크 WOD 이름(Fran 등) · 동작명(Thruster 등) · 명언(원문).
+- **문장 톤**: 명사형 간결체 ("오늘의 WOD" · "불러오기 실패"). 완곡·응원·이모지 금지는 유지.
+  버튼 = 동사 명령형 2~4자 ("저장" "다음" "다시 시도"). "~하세요" 남발 금지, 안내문은 "~합니다/됩니다" 격식.
+- **혼용 허용**: 도메인 영단어 + 한글 조사 결합 허용 ("코치가 올린 오늘의 WOD") — 구 V9 금지 폐기.
+- **금지 용어 유지**: 운동·헬스·다이어트·웰니스·체중관리·쉬운·편리한·누구나·당신·귀하 (copy_lint).
+- 공통 문자열(건너뛰기·다음·저장·취소 등)은 appkit 스킨 `appkit.config.json > strings` = 정본.
+
+## 8. 변경 절차
+
+1. 양식 변경 = 이 문서 + 토큰/FKit 먼저 → 화면 적용 → 골든 재생성 → 갤러리.
+2. 조상 값 변경은 `C:/dev/tools/appkit` 마스터에서 (`--check` 드리프트 0 유지).
+3. CLAUDE.md 의 디자인·카피 요약이 이 문서와 어긋나면 이 문서가 이긴다 (§0-B 위임).

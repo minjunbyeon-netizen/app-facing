@@ -78,7 +78,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
     final gym = gs.membership.gym;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('COACH DASHBOARD'),
+        title: const Text('코치 대시보드'),
         actions: [
           const CoachBadgeAction(),
           IconButton(icon: const Icon(Icons.refresh), onPressed: _reload),
@@ -144,7 +144,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                           ));
                         },
                         icon: const Icon(Icons.inbox_outlined, size: 18),
-                        label: const Text('Member Requests'),
+                        label: const Text('회원 요청'),
                       ),
                       const SizedBox(height: FacingTokens.sp2),
                       // v1.22: 체육관 정보 (전화·코치·수업·모토) 편집 진입점.
@@ -158,7 +158,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                           _reload();
                         },
                         icon: const Icon(Icons.edit_note_outlined, size: 18),
-                        label: const Text('Edit Gym Profile'),
+                        label: const Text('박스 프로필 수정'),
                       ),
                       const SizedBox(height: FacingTokens.sp5),
                       if (pending.isNotEmpty) ...[
@@ -235,11 +235,11 @@ class _PendingRow extends StatelessWidget {
               ],
             ),
           ),
-          TextButton(onPressed: onApprove, child: const Text('Approve')),
+          TextButton(onPressed: onApprove, child: const Text('승인')),
           TextButton(
             style: TextButton.styleFrom(foregroundColor: FacingTokens.muted),
             onPressed: onReject,
-            child: const Text('Reject'),
+            child: const Text('거절'),
           ),
         ],
       ),
@@ -301,9 +301,9 @@ class _RosterRow extends StatelessWidget {
                 ],
               ),
             ),
-            _numBlock(label: 'SESSIONS', value: '${member.totalSessions}'),
+            _numBlock(label: '세션', value: '${member.totalSessions}'),
             const SizedBox(width: FacingTokens.sp3),
-            _numBlock(label: 'STREAK', value: '${member.streakDays}'),
+            _numBlock(label: '스트릭', value: '${member.streakDays}'),
             const SizedBox(width: FacingTokens.sp2),
             const Icon(Icons.chevron_right, color: FacingTokens.muted, size: 18),
           ],
@@ -401,7 +401,7 @@ class _MemberDetailSheet extends StatelessWidget {
             _kv('마지막 WOD',
                 member.lastWodAt == null ? '-' : _dateShort(member.lastWodAt!)),
             const SizedBox(height: FacingTokens.sp4),
-            const Text('COACH NOTES', style: FacingTokens.sectionLabel),
+            const Text('코치 노트', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp2),
             Container(
               padding: const EdgeInsets.all(FacingTokens.sp3),
@@ -438,7 +438,7 @@ class _MemberDetailSheet extends StatelessWidget {
                   ));
                 },
                 icon: const Icon(Icons.chat_bubble_outline, size: 18),
-                label: const Text('Send Message'),
+                label: const Text('메시지 보내기'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: FacingTokens.accent,
                   foregroundColor: FacingTokens.fg,
@@ -452,7 +452,7 @@ class _MemberDetailSheet extends StatelessWidget {
                   await _coachNoteFlow(context, member);
                 },
                 icon: const Icon(Icons.edit_note, size: 18),
-                label: const Text('Leave Coach Note'),
+                label: const Text('코치 노트 남기기'),
               ),
             ],
             const SizedBox(height: FacingTokens.sp2),
@@ -460,7 +460,7 @@ class _MemberDetailSheet extends StatelessWidget {
               alignment: Alignment.centerRight,
               child: TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Close'),
+                child: const Text('닫기'),
               ),
             ),
           ],
@@ -492,7 +492,7 @@ class _MemberDetailSheet extends StatelessWidget {
             children: [
               const Padding(
                 padding: EdgeInsets.all(FacingTokens.sp4),
-                child: Text('SELECT WOD', style: FacingTokens.sectionLabel),
+                child: Text('WOD 선택', style: FacingTokens.sectionLabel),
               ),
               ...wods.map((w) => ListTile(
                     title: Text(wodTypeLabel(w.wodType)),
@@ -588,7 +588,7 @@ class _MemberDetailSheet extends StatelessWidget {
                   );
                 }
               },
-              child: const Text('Save Note'),
+              child: const Text('노트 저장'),
             ),
           ],
         ),

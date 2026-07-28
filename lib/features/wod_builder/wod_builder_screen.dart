@@ -44,11 +44,11 @@ class _WodBuilderScreenState extends State<WodBuilderScreen> {
     final draft = context.watch<WodDraftState>();
     return Scaffold(
       appBar: AppBar(
-        title: const Text('CUSTOM WOD'),
+        title: const Text('커스텀 WOD'),
         actions: [
           TextButton(
             onPressed: draft.isEmpty ? null : () => draft.clear(),
-            child: const Text('Reset'),
+            child: const Text('초기화'),
           ),
         ],
       ),
@@ -56,7 +56,7 @@ class _WodBuilderScreenState extends State<WodBuilderScreen> {
         future: _future,
         builder: (ctx, snap) {
           if (snap.connectionState != ConnectionState.done) {
-            return const Center(child: Text('Loading.', style: FacingTokens.body));
+            return const Center(child: Text('불러오는 중', style: FacingTokens.body));
           }
           if (snap.hasError) {
             // QA B-ER-2: 기술 정보 노출 차단.
@@ -116,7 +116,7 @@ class _Body extends StatelessWidget {
                 },
               ),
               const SizedBox(height: FacingTokens.sp6),
-              const Text('MOVEMENTS', style: FacingTokens.sectionLabel),
+              const Text('동작', style: FacingTokens.sectionLabel),
               const SizedBox(height: FacingTokens.sp2),
               if (draft.items.isEmpty)
                 Container(
@@ -141,7 +141,7 @@ class _Body extends StatelessWidget {
                       alignment: Alignment.centerRight,
                       padding: const EdgeInsets.only(right: FacingTokens.sp4),
                       color: FacingTokens.border,
-                      child: const Text('Delete', style: FacingTokens.body),
+                      child: const Text('삭제', style: FacingTokens.body),
                     ),
                     child: _ItemRow(index: i + 1, item: item),
                   );
@@ -152,7 +152,7 @@ class _Body extends StatelessWidget {
                   final added = await showMovementPicker(context, cats);
                   if (added != null) draft.addItem(added);
                 },
-                child: const Text('Add Movement'),
+                child: const Text('동작 추가'),
               ),
             ],
           ),
@@ -165,7 +165,7 @@ class _Body extends StatelessWidget {
               onPressed: draft.isEmpty
                   ? null
                   : () => Navigator.of(context).pushNamed('/result'),
-              child: const Text('Calculate'),
+              child: const Text('계산'),
             ),
           ),
         ),

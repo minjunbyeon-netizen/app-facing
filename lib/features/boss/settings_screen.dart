@@ -35,7 +35,7 @@ class _BossSettingsScreenState extends State<BossSettingsScreen>
       appBar: AppBar(
         backgroundColor: FacingTokens.bg,
         elevation: 0,
-        title: Text('Settings.', style: FacingTokens.h3),
+        title: Text('설정', style: FacingTokens.h3),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: FacingTokens.fg),
           onPressed: () => Navigator.of(context).pop(),
@@ -47,10 +47,10 @@ class _BossSettingsScreenState extends State<BossSettingsScreen>
           unselectedLabelColor: FacingTokens.muted,
           labelStyle: FacingTokens.body.copyWith(fontWeight: FontWeight.w700),
           tabs: const [
-            Tab(text: 'Plans'),
-            Tab(text: 'Points'),
-            Tab(text: 'Notifications'),
-            Tab(text: 'Auto-Join'),
+            Tab(text: '요금제'),
+            Tab(text: '포인트'),
+            Tab(text: '알림'),
+            Tab(text: '자동 가입'),
           ],
         ),
       ),
@@ -130,7 +130,7 @@ class _PlansTabState extends State<_PlansTab> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('No plans yet.', style: FacingTokens.h3),
+                      Text('요금제 없음', style: FacingTokens.h3),
                       const SizedBox(height: FacingTokens.sp2),
                       Text('회원권을 추가하면\n회원 등록 시 자동 금액이 떠요.',
                           textAlign: TextAlign.center,
@@ -177,7 +177,7 @@ class _PlansTabState extends State<_PlansTab> {
                           if (!active)
                             const Padding(
                               padding: EdgeInsets.only(right: FacingTokens.sp2),
-                              child: Text('inactive', style: FacingTokens.micro),
+                              child: Text('비활성', style: FacingTokens.micro),
                             ),
                           // PHASE5 §1-1 plan soft delete (is_active=false). 활성만 노출.
                           if (active)
@@ -215,7 +215,7 @@ class _PlansTabState extends State<_PlansTab> {
                 shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.zero),
               ),
-              child: Text('Add Plan',
+              child: Text('요금제 추가',
                   style: FacingTokens.body.copyWith(
                       fontWeight: FontWeight.w700, letterSpacing: 0.6)),
             ),
@@ -247,7 +247,7 @@ Future<void> _showCreateSheet(BuildContext ctx,
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('New plan.', style: FacingTokens.h2),
+          Text('새 요금제', style: FacingTokens.h2),
           const SizedBox(height: FacingTokens.sp4),
           TextField(
             controller: nameCtrl,
@@ -294,7 +294,7 @@ Future<void> _showCreateSheet(BuildContext ctx,
                   borderRadius: BorderRadius.zero),
               padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp3),
             ),
-            child: Text('Save', style: FacingTokens.body),
+            child: Text('저장', style: FacingTokens.body),
           ),
           const SizedBox(height: FacingTokens.sp4),
         ],

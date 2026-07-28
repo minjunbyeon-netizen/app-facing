@@ -85,7 +85,7 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text('SEND REQUEST TO COACH',
+            const Text('코치에게 요청',
                 style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp1),
             const Text(
@@ -142,7 +142,7 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
                   );
                 }
               },
-              child: const Text('Send'),
+              child: const Text('보내기'),
             ),
           ],
         ),
@@ -320,7 +320,7 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
             ElevatedButton.icon(
               onPressed: _startSession,
               icon: const Icon(Icons.play_arrow, size: 18),
-              label: const Text('Start Timer'),
+              label: const Text('타이머 시작'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: FacingTokens.accent,
                 foregroundColor: FacingTokens.fg,
@@ -335,13 +335,13 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
               return OutlinedButton.icon(
                 onPressed: _sendRequest,
                 icon: const Icon(Icons.send_outlined, size: 18),
-                label: const Text('Send Request to Coach'),
+                label: const Text('코치에게 요청'),
               );
             }),
             const SizedBox(height: FacingTokens.sp5),
 
             // v1.16 Sprint 17: 코치 피드백.
-            const Text('COACH FEEDBACK', style: FacingTokens.sectionLabel),
+            const Text('코치 피드백', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp2),
             FutureBuilder<List<CoachFeedback>>(
               future: _feedbackFuture,
@@ -364,7 +364,7 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
             const SizedBox(height: FacingTokens.sp5),
 
             // Leaderboard
-            const Text('LEADERBOARD', style: FacingTokens.sectionLabel),
+            const Text('리더보드', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp2),
             FutureBuilder<List<GymWodResult>>(
               future: _resultsFuture,
@@ -384,7 +384,7 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
                   return const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('No record yet.', style: FacingTokens.body),
+                      Text('아직 기록 없음.', style: FacingTokens.body),
                       SizedBox(height: 2),
                       Text(
                         '타이머 완료 시 첫 기록 자동 제출.',
@@ -402,7 +402,7 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
             const SizedBox(height: FacingTokens.sp5),
 
             // Comments
-            const Text('COMMENTS', style: FacingTokens.sectionLabel),
+            const Text('댓글', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp2),
             FutureBuilder<List<GymWodComment>>(
               future: _commentsFuture,
@@ -678,7 +678,7 @@ class _MovementRow extends StatelessWidget {
                     const Icon(Icons.play_circle_outline,
                         size: 18, color: FacingTokens.muted),
                     const SizedBox(width: 2),
-                    Text('Demo',
+                    Text('데모',
                         style: FacingTokens.micro
                             .copyWith(color: FacingTokens.muted)),
                   ],

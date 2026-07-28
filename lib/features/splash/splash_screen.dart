@@ -10,6 +10,7 @@ import '../../core/notification_service.dart';
 import '../../core/quotes.dart';
 import '../../core/theme.dart';
 import '../../widgets/brand_logo.dart';
+import '../../widgets/fkit.dart';
 import '../../widgets/quote_card.dart';
 import '../auth/auth_state.dart';
 import '../boss/boss_auth_state.dart';
@@ -161,25 +162,16 @@ class _SplashScreenState extends State<SplashScreen>
             children: [
               const Spacer(),
               // v1.27 (2026-07-28): 텍스트 워드마크 → HYPHEN 로고 (BrandLogo).
+              // v1.29: 로고 폭 = 기본 220 (진입 화면 통일, DESIGN-SSOT §6).
               _fadeSlide(
                 0,
-                const Center(child: BrandLogo(width: 240)),
+                const Center(child: BrandLogo()),
               ),
               const SizedBox(height: FacingTokens.sp5),
               const Spacer(),
               _fadeSlide(1, QuoteCard(quote: q, compact: true)),
               const SizedBox(height: FacingTokens.sp5),
-              _fadeOnly(
-                2,
-                const SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: FacingTokens.muted,
-                  ),
-                ),
-              ),
+              _fadeOnly(2, const FkLoading()),
               const SizedBox(height: FacingTokens.sp3),
             ],
           ),

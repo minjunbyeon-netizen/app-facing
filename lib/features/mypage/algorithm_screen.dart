@@ -14,27 +14,27 @@ class AlgorithmScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('ALGORITHM')),
+      appBar: AppBar(title: const Text('알고리즘')),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(FacingTokens.sp4),
           children: [
-            const Text('ENGINE SCORE', style: FacingTokens.sectionLabel),
+            const Text('Engine 점수', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp2),
             const Text('6 카테고리 개별 점수(1.0-6.0)의 가중 평균.',
                 style: FacingTokens.body),
             const SizedBox(height: FacingTokens.sp2),
             const _FormulaLine(
-                label: 'Overall', value: 'weighted_avg(gymnastics·weightlifting·cardio·power·olympic·metcon)'),
+                label: '종합', value: 'weighted_avg(gymnastics·weightlifting·cardio·power·olympic·metcon)'),
             const _FormulaLine(
-                label: 'Scale', value: '1.0 (Untrained) → 6.0 (Elite/Games)'),
+                label: '범위', value: '1.0 (Untrained) → 6.0 (Elite/Games)'),
             const _FormulaLine(
-                label: 'Source', value: 'fitness/power.md §A3 + olympic-lifting.md §5 (Strength Level 2024 + IWF)'),
+                label: '출처', value: 'fitness/power.md §A3 + olympic-lifting.md §5 (Strength Level 2024 + IWF)'),
             const _FormulaLine(
                 label: 'UI MAP', value: '0–100 선형 매핑 (engineScoreTo100)'),
             const SizedBox(height: FacingTokens.sp5),
 
-            const Text('TIER MAPPING', style: FacingTokens.sectionLabel),
+            const Text('Tier 매핑', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp2),
             const _TierRow(num: '1', tier: 'Scaled', color: FacingTokens.tierScaled),
             const _TierRow(num: '2', tier: 'Scaled', color: FacingTokens.tierScaled),
@@ -58,11 +58,11 @@ class AlgorithmScreen extends StatelessWidget {
                 label: 'Burst',
                 value: 'W-prime 85% 소진 시점(Noakes/Skiba 기반)'),
             const _FormulaLine(
-                label: 'Rest',
+                label: '휴식',
                 value: '세트 간 5-15초, 페이스 ≤ 임계 LT2'),
             const SizedBox(height: FacingTokens.sp5),
 
-            const Text('SCALED WEIGHTING', style: FacingTokens.sectionLabel),
+            const Text('Scaled 가중치', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp2),
             // P0-4 (2026-06-10): 내부 용어(mock) 노출 제거 — 가중치 수치는 베타 중 보정.
             const Text(
@@ -72,7 +72,7 @@ class AlgorithmScreen extends StatelessWidget {
             ),
             const SizedBox(height: FacingTokens.sp5),
 
-            const Text('REFERENCES', style: FacingTokens.sectionLabel),
+            const Text('근거 자료', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp3),
             ...kFormulaReferences.map(
               (r) => Padding(

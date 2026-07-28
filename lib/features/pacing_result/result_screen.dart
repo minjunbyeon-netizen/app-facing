@@ -140,7 +140,7 @@ class _ResultScreenState extends State<ResultScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('PACING STRATEGY'),
+        title: const Text('페이싱 전략'),
         actions: [
           // /go Phase 3: 결과 공유 — share_plus 텍스트 공유.
           // RepaintBoundary 카드 캡처는 후속 트랙 (이미지 공유).
@@ -193,7 +193,7 @@ class _LoadingView extends StatefulWidget {
 
 class _LoadingViewState extends State<_LoadingView> {
   static const List<String> _captions = [
-    'Calculating.',
+    '계산 중',
     'Profiling Engine.',
     'Pulling Split.',
   ];
@@ -248,7 +248,7 @@ class _LoadingViewState extends State<_LoadingView> {
             const SizedBox(height: FacingTokens.sp6),
             TextButton(
               onPressed: widget.onCancel,
-              child: const Text('Cancel'),
+              child: const Text('취소'),
             ),
           ],
         ),
@@ -280,7 +280,7 @@ class _ErrorView extends StatelessWidget {
           const SizedBox(height: FacingTokens.sp3),
           OutlinedButton(
             onPressed: onRetry,
-            child: const Text('Retry'),
+            child: const Text('다시 시도'),
           ),
         ],
       ),
@@ -332,7 +332,7 @@ class _ResultBody extends StatelessWidget {
         const SizedBox(height: FacingTokens.sp4),
 
         // 2. PACE STRATEGY
-        const Text('PACE STRATEGY', style: FacingTokens.sectionLabel),
+        const Text('페이스 전략', style: FacingTokens.sectionLabel),
         const SizedBox(height: FacingTokens.sp2),
         ...strategyLines.map((line) => Padding(
               padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp1),
@@ -341,14 +341,14 @@ class _ResultBody extends StatelessWidget {
         const SizedBox(height: FacingTokens.sp4),
 
         // 3. SPLIT SEQUENCE
-        const Text('SPLIT SEQUENCE', style: FacingTokens.sectionLabel),
+        const Text('Split 시퀀스', style: FacingTokens.sectionLabel),
         const SizedBox(height: FacingTokens.sp3),
         ...plan.segments.map((s) => _SegmentCard(segment: s)),
         const SizedBox(height: FacingTokens.sp3),
 
         // 4. BURST POINTS
         if (burstPoints.isNotEmpty) ...[
-          const Text('BURST POINTS', style: FacingTokens.sectionLabel),
+          const Text('Burst 포인트', style: FacingTokens.sectionLabel),
           const SizedBox(height: FacingTokens.sp2),
           ...burstPoints.map((p) => Padding(
                 padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp1),
@@ -366,7 +366,7 @@ class _ResultBody extends StatelessWidget {
         ],
 
         // 5. REST STRATEGY
-        const Text('REST STRATEGY', style: FacingTokens.sectionLabel),
+        const Text('휴식 전략', style: FacingTokens.sectionLabel),
         const SizedBox(height: FacingTokens.sp2),
         Text(
           maxRest == 0
@@ -382,7 +382,7 @@ class _ResultBody extends StatelessWidget {
           child: ExpansionTile(
             tilePadding: EdgeInsets.zero,
             childrenPadding: EdgeInsets.zero,
-            title: const Text('RATIONALE', style: FacingTokens.sectionLabel),
+            title: const Text('근거', style: FacingTokens.sectionLabel),
             iconColor: FacingTokens.muted,
             collapsedIconColor: FacingTokens.muted,
             children: [
@@ -401,7 +401,7 @@ class _ResultBody extends StatelessWidget {
                     ),
                     const SizedBox(height: FacingTokens.sp4),
                     // 핵심 공식 요약.
-                    const Text('PACING FORMULA',
+                    const Text('페이싱 공식',
                         style: FacingTokens.sectionLabel),
                     const SizedBox(height: FacingTokens.sp2),
                     Text(
@@ -412,7 +412,7 @@ class _ResultBody extends StatelessWidget {
                     ),
                     const SizedBox(height: FacingTokens.sp4),
                     // 근거 논문·표준.
-                    const Text('REFERENCES',
+                    const Text('근거 자료',
                         style: FacingTokens.sectionLabel),
                     const SizedBox(height: FacingTokens.sp2),
                     ...kFormulaReferences.map((r) => Padding(

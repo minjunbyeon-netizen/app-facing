@@ -93,7 +93,7 @@ class BoxWodScreen extends StatelessWidget {
                 ));
               },
               icon: const Icon(Icons.add),
-              label: const Text('Post WOD'),
+              label: const Text('WOD 게시'),
             )
           : null,
     );
@@ -113,7 +113,7 @@ class _NoGymEmpty extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('NO BOX', style: FacingTokens.sectionLabel),
+          const Text('박스 미가입', style: FacingTokens.sectionLabel),
           const SizedBox(height: FacingTokens.sp2),
           const Text(
             '박스 가입 시 코치 WOD 공개.',
@@ -127,7 +127,7 @@ class _NoGymEmpty extends StatelessWidget {
                 builder: (_) => const GymSearchScreen(),
               ));
             },
-            child: const Text('Find Box'),
+            child: const Text('박스 찾기'),
           ),
           const SizedBox(height: FacingTokens.sp3),
           OutlinedButton(
@@ -171,7 +171,7 @@ void _showCreateGymSheet(BuildContext context) {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('CREATE BOX', style: FacingTokens.sectionLabel),
+              const Text('박스 만들기', style: FacingTokens.sectionLabel),
               const SizedBox(height: FacingTokens.sp1),
               const Text('코치가 자기 박스를 생성합니다.',
                   style: FacingTokens.caption),
@@ -238,7 +238,7 @@ class _PendingState extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('PENDING', style: FacingTokens.sectionLabel),
+          const Text('승인 대기', style: FacingTokens.sectionLabel),
           const SizedBox(height: FacingTokens.sp2),
           Text(gym.name,
               style: FacingTokens.h3.copyWith(fontWeight: FontWeight.w800)),
@@ -253,7 +253,7 @@ class _PendingState extends StatelessWidget {
               Haptic.light();
               context.read<GymState>().loadMine();
             },
-            child: const Text('Refresh'),
+            child: const Text('새로고침'),
           ),
         ],
       ),
@@ -273,7 +273,7 @@ class _RejectedState extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('REJECTED', style: FacingTokens.sectionLabel),
+          const Text('거절됨', style: FacingTokens.sectionLabel),
           const SizedBox(height: FacingTokens.sp2),
           Text(gym.name, style: FacingTokens.h3),
           const SizedBox(height: FacingTokens.sp2),
@@ -287,7 +287,7 @@ class _RejectedState extends StatelessWidget {
                 builder: (_) => const GymSearchScreen(),
               ));
             },
-            child: const Text('Find Another'),
+            child: const Text('다른 박스 찾기'),
           ),
         ],
       ),
@@ -396,7 +396,7 @@ class _WodList extends StatelessWidget {
           ] else ...[
             // PAST 섹션
             if (pastGroups.isNotEmpty) ...[
-              const Text('PAST', style: FacingTokens.sectionLabel),
+              const Text('지난 WOD', style: FacingTokens.sectionLabel),
               const SizedBox(height: FacingTokens.sp1),
               const Divider(
                   height: 1, color: FacingTokens.border, thickness: 1),
@@ -433,7 +433,7 @@ class _WodList extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     textBaseline: TextBaseline.alphabetic,
                     children: [
-                      Text('TODAY',
+                      Text('오늘',
                           style: FacingTokens.sectionLabel.copyWith(
                             color: FacingTokens.accent,
                           )),
@@ -477,7 +477,7 @@ class _WodList extends StatelessWidget {
             // UPCOMING 섹션 — owner는 카드 표시, 일반 멤버는 lock 배너.
             if (futureGroups.isNotEmpty) ...[
               const SizedBox(height: FacingTokens.sp5),
-              const Text('UPCOMING', style: FacingTokens.sectionLabel),
+              const Text('예정', style: FacingTokens.sectionLabel),
               const SizedBox(height: FacingTokens.sp1),
               const Divider(
                   height: 1, color: FacingTokens.border, thickness: 1),
@@ -546,7 +546,7 @@ class _AnnouncementsAccordion extends StatelessWidget {
               FacingTokens.sp3, 0, FacingTokens.sp3, FacingTokens.sp3),
           collapsedIconColor: FacingTokens.muted,
           iconColor: FacingTokens.muted,
-          title: const Text('NOTICE', style: FacingTokens.sectionLabel),
+          title: const Text('공지', style: FacingTokens.sectionLabel),
           subtitle: Padding(
             padding: const EdgeInsets.only(top: 2),
             child: Text(
@@ -632,7 +632,7 @@ class _GymInfoAccordion extends StatelessWidget {
         childrenPadding: EdgeInsets.zero,
         collapsedIconColor: FacingTokens.muted,
         iconColor: FacingTokens.muted,
-        title: const Text('BOX INFO', style: FacingTokens.sectionLabel),
+        title: const Text('박스 정보', style: FacingTokens.sectionLabel),
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 2),
           child: Text(
@@ -677,7 +677,7 @@ class _PresetAccordion extends StatelessWidget {
         childrenPadding: EdgeInsets.zero,
         collapsedIconColor: FacingTokens.muted,
         iconColor: FacingTokens.muted,
-        title: const Text('CALCULATE WOD', style: FacingTokens.sectionLabel),
+        title: const Text('WOD 계산', style: FacingTokens.sectionLabel),
         subtitle: const Padding(
           padding: EdgeInsets.only(top: 2),
           child: Text(
@@ -705,8 +705,8 @@ class _PresetAccordion extends StatelessWidget {
           ),
           const Divider(height: 1, color: FacingTokens.border),
           _PresetRow(
-            title: 'Custom',
-            subtitle: 'Build movements/reps. For Time only.',
+            title: '커스텀',
+            subtitle: '동작·횟수 직접 구성. For Time 전용.',
             onTap: () {
               Haptic.medium();
               Navigator.of(context).push(MaterialPageRoute(
@@ -1191,7 +1191,7 @@ class _WodRowState extends State<_WodRow> {
                     TextButton.icon(
                       onPressed: () => _openResultSheet(context),
                       icon: const Icon(Icons.check, size: 16),
-                      label: const Text('Mark Done'),
+                      label: const Text('완료 표시'),
                       style: TextButton.styleFrom(
                         foregroundColor: FacingTokens.accent,
                         padding: const EdgeInsets.symmetric(
@@ -1207,7 +1207,7 @@ class _WodRowState extends State<_WodRow> {
                         onPressed: () => _openMsgSheet(context),
                         icon: const Icon(Icons.chat_bubble_outline,
                             size: 15),
-                        label: const Text('Message'),
+                        label: const Text('메시지'),
                         style: TextButton.styleFrom(
                           foregroundColor: FacingTokens.muted,
                           padding: const EdgeInsets.symmetric(
@@ -1241,17 +1241,17 @@ class _WodRowState extends State<_WodRow> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: FacingTokens.surfaceOverlay,
-        title: const Text('Delete WOD?'),
+        title: const Text('WOD를 삭제할까요?'),
         content: const Text('멤버에게 더 이상 보이지 않음.',
             style: FacingTokens.caption),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Cancel')),
+              child: const Text('취소')),
           TextButton(
             style: TextButton.styleFrom(foregroundColor: FacingTokens.accent),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete'),
+            child: const Text('삭제'),
           ),
         ],
       ),
@@ -1328,7 +1328,7 @@ class _MsgCoachSheetState extends State<_MsgCoachSheet> {
             ),
           ),
           const SizedBox(height: FacingTokens.sp4),
-          const Text('MESSAGE COACH', style: FacingTokens.sectionLabel),
+          const Text('코치에게 메시지', style: FacingTokens.sectionLabel),
           const SizedBox(height: 4),
           Text(
             '${wodTypeLabel(widget.wod.wodType)} · ${widget.wod.postDate}',
@@ -1380,7 +1380,7 @@ class _MsgCoachSheetState extends State<_MsgCoachSheet> {
                     child: CircularProgressIndicator(
                         color: FacingTokens.fg, strokeWidth: 2),
                   )
-                : const Text('Send'),
+                : const Text('보내기'),
           ),
         ],
       ),

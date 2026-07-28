@@ -30,7 +30,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ATTEND'),
+        title: const Text('출석'),
       ),
       body: SafeArea(
         child: RefreshIndicator(
@@ -115,11 +115,11 @@ class _AttendanceCalendarState extends State<_AttendanceCalendar> {
               padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp4),
               child: Column(
                 children: [
-                  Text('Load failed', style: FacingTokens.caption),
+                  Text('불러오기 실패', style: FacingTokens.caption),
                   const SizedBox(height: FacingTokens.sp2),
                   TextButton(
                     onPressed: () => setState(_reload),
-                    child: const Text('Retry'),
+                    child: const Text('다시 시도'),
                   ),
                 ],
               ),
@@ -155,7 +155,7 @@ class _AttendanceCalendarState extends State<_AttendanceCalendar> {
             children: [
               Row(
                 children: [
-                  const Text('ATTENDANCE', style: FacingTokens.sectionLabel),
+                  const Text('출석', style: FacingTokens.sectionLabel),
                   const Spacer(),
                   Text(
                     '$monthYear.${monthNum.toString().padLeft(2, '0')}',
@@ -229,11 +229,11 @@ class _AttendanceCalendarState extends State<_AttendanceCalendar> {
               // 1줄 통계 — streak · total · 이달 출석.
               Row(
                 children: [
-                  _StatBlock(label: 'STREAK', value: '${streak}d'),
+                  _StatBlock(label: '스트릭', value: '${streak}d'),
                   const SizedBox(width: FacingTokens.sp4),
-                  _StatBlock(label: 'TOTAL', value: '$totalCheckins'),
+                  _StatBlock(label: '누적', value: '$totalCheckins'),
                   const SizedBox(width: FacingTokens.sp4),
-                  _StatBlock(label: 'THIS MONTH', value: '${attended}d'),
+                  _StatBlock(label: '이번 달', value: '${attended}d'),
                 ],
               ),
             ],

@@ -62,7 +62,7 @@ class _CreateGymScreenState extends State<CreateGymScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('CREATE BOX'),
+        title: const Text('박스 만들기'),
         automaticallyImplyLeading: false,
       ),
       body: SafeArea(
@@ -72,7 +72,7 @@ class _CreateGymScreenState extends State<CreateGymScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: FacingTokens.sp2),
-              const Text('Register Box.', style: FacingTokens.h2),
+              const Text('박스 등록', style: FacingTokens.h2),
               const SizedBox(height: FacingTokens.sp2),
               const Text(
                 '코치가 직접 박스 등록, WOD 게시 가능.',
@@ -83,7 +83,7 @@ class _CreateGymScreenState extends State<CreateGymScreen> {
                 controller: _nameCtrl,
                 enabled: !_creating,
                 decoration: const InputDecoration(
-                  labelText: 'Box Name',
+                  labelText: '박스 이름',
                   hintText: '예: FACING SEONGSU',
                 ),
                 maxLength: 80,
@@ -101,7 +101,7 @@ class _CreateGymScreenState extends State<CreateGymScreen> {
               const Spacer(),
               ElevatedButton(
                 onPressed: _creating ? null : _create,
-                child: Text(_creating ? 'Creating.' : 'Create Box'),
+                child: Text(_creating ? '만드는 중' : '박스 만들기'),
               ),
               const SizedBox(height: FacingTokens.sp2),
               TextButton(

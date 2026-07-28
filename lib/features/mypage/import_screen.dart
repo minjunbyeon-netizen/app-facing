@@ -12,12 +12,12 @@ class ImportScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('IMPORT DATA')),
+      appBar: AppBar(title: const Text('데이터 가져오기')),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(FacingTokens.sp4),
           children: [
-            const Text('SUPPORTED', style: FacingTokens.sectionLabel),
+            const Text('지원 형식', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp2),
             _SourceRow(
               name: 'BTWB (Beyond the Whiteboard)',
@@ -41,7 +41,7 @@ class ImportScreen extends StatelessWidget {
             ),
             const SizedBox(height: FacingTokens.sp5),
 
-            const Text('ROADMAP', style: FacingTokens.sectionLabel),
+            const Text('로드맵', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp2),
             const _Note(
               '1. BTWB 계정 OAuth 연동 → 동작별 PR 자동 임포트',

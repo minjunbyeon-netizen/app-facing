@@ -86,7 +86,7 @@ class _MainShellState extends State<MainShell> {
     _TabDef(
       icon: Icons.home_outlined,
       selectedIcon: Icons.home,
-      label: 'Home',
+      label: '홈',
     ),
     _TabDef(
       icon: Icons.list_alt_outlined,
@@ -96,7 +96,7 @@ class _MainShellState extends State<MainShell> {
     _TabDef(
       icon: Icons.person_outline,
       selectedIcon: Icons.person,
-      label: 'Profile',
+      label: '프로필',
     ),
   ];
 
@@ -301,7 +301,7 @@ class _TabHintOverlay extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: FacingTokens.sp5),
-                const Text('3 TABS', style: FacingTokens.sectionLabel),
+                const Text('3탭', style: FacingTokens.sectionLabel),
                 const SizedBox(height: FacingTokens.sp2),
                 const Text('하단 내비게이션 구성',
                     style: FacingTokens.caption),

@@ -218,7 +218,7 @@ class _WodResultSheetState extends State<WodResultSheet> {
                 ),
               ],
               const SizedBox(height: FacingTokens.sp3),
-              const Text('SCALE', style: FacingTokens.sectionLabel),
+              const Text('스케일', style: FacingTokens.sectionLabel),
               const SizedBox(height: FacingTokens.sp1),
               Wrap(
                 spacing: FacingTokens.sp2,

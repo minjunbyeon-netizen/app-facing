@@ -33,7 +33,7 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
         future: _future,
         builder: (ctx, snap) {
           if (snap.connectionState != ConnectionState.done) {
-            return const Center(child: Text('Loading', style: FacingTokens.body));
+            return const Center(child: Text('불러오는 중', style: FacingTokens.body));
           }
           if (snap.hasError) {
             // /go 전수조사: 원본 exception toString 노출 차단.
@@ -94,7 +94,7 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
                 const Text('페이싱 플랜 없음.',
                     style: FacingTokens.caption),
               const SizedBox(height: FacingTokens.sp5),
-              const Text('ITEMS', style: FacingTokens.sectionLabel),
+              const Text('항목', style: FacingTokens.sectionLabel),
               const SizedBox(height: FacingTokens.sp2),
               ...((wod['items'] as List? ?? const []))
                   .whereType<Map<String, dynamic>>()

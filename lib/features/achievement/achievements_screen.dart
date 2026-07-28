@@ -108,7 +108,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ACHIEVEMENTS'),
+        title: const Text('업적'),
         actions: [
           // v1.20 Phase 2.5: Panel B 20-title 진입.
           IconButton(
@@ -142,7 +142,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                           const SizedBox(height: FacingTokens.sp3),
                           OutlinedButton(
                             onPressed: () => state.load(),
-                            child: const Text('Retry'),
+                            child: const Text('다시 시도'),
                           ),
                         ],
                       ),
@@ -163,7 +163,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
             Expanded(
               child: filtered.isEmpty
                   ? const Center(
-                      child: Text('No achievements yet.',
+                      child: Text('아직 업적 없음.',
                           style: FacingTokens.caption),
                     )
                   : Row(
@@ -242,7 +242,7 @@ class _StatsHeader extends StatelessWidget {
             ],
           ),
           const SizedBox(height: FacingTokens.sp1),
-          Text('UNLOCKED', style: FacingTokens.sectionLabel),
+          Text('달성', style: FacingTokens.sectionLabel),
           const SizedBox(height: FacingTokens.sp2),
           ClipRRect(
             borderRadius: BorderRadius.circular(FacingTokens.r1),
@@ -410,11 +410,11 @@ class _FeaturedPanel extends StatelessWidget {
             // demoUnlocked (백엔드 trigger 미연동) — 'Demo' 표시.
             const Divider(height: 1, color: FacingTokens.border),
             const SizedBox(height: FacingTokens.sp2),
-            Text('Demo unlocked.', style: FacingTokens.micro),
+            Text('데모 달성.', style: FacingTokens.micro),
           ] else ...[
             const Divider(height: 1, color: FacingTokens.border),
             const SizedBox(height: FacingTokens.sp2),
-            Text('LOCKED',
+            Text('미달성',
                 style: FacingTokens.microLabel.copyWith(
                   fontWeight: FontWeight.w800,
                 )),

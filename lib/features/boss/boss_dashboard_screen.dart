@@ -138,17 +138,17 @@ class _Body extends StatelessWidget {
         const SizedBox(height: FacingTokens.sp3),
 
         // ─── 오늘 현황 3 카운터 ───────────────────────────────────────
-        Text('TODAY.', style: FacingTokens.sectionLabel),
+        Text('오늘', style: FacingTokens.sectionLabel),
         const SizedBox(height: FacingTokens.sp2),
         Row(
           children: [
-            _CounterCard(label: 'RESERVATION',
+            _CounterCard(label: '예약',
                 count: data.todayReservations.count),
             const SizedBox(width: FacingTokens.sp2),
-            _CounterCard(label: 'ATTENDANCE',
+            _CounterCard(label: '출석',
                 count: data.todayAttendances.count),
             const SizedBox(width: FacingTokens.sp2),
-            _CounterCard(label: 'NEW / WEEK',
+            _CounterCard(label: '주간 신규',
                 count: data.newMembersThisWeek.count),
           ],
         ),
@@ -156,7 +156,7 @@ class _Body extends StatelessWidget {
 
         // ─── 회원 운영 관리 CTA ───────────────────────────────────────
         _PrimaryCtaButton(
-          label: 'Member Management',
+          label: '회원 관리',
           onTap: () {
             // TODO PHASE5 §1.3: /boss/members 진입
             ScaffoldMessenger.of(context).showSnackBar(
@@ -181,7 +181,7 @@ class _Body extends StatelessWidget {
 
         // ─── 만료 임박 ────────────────────────────────────────────────
         if (data.expiringSoon.isNotEmpty) ...[
-          Text('EXPIRING SOON.', style: FacingTokens.sectionLabel),
+          Text('만료 임박', style: FacingTokens.sectionLabel),
           const SizedBox(height: FacingTokens.sp2),
           ...data.expiringSoon.map((m) => _ExpiringCard(member: m)),
           const SizedBox(height: FacingTokens.sp5),
@@ -364,7 +364,7 @@ class _ErrorView extends StatelessWidget {
             const SizedBox(height: FacingTokens.sp3),
             GestureDetector(
               onTap: onRetry,
-              child: Text('Retry.',
+              child: Text('다시 시도',
                   style: FacingTokens.body.copyWith(
                       color: FacingTokens.primary,
                       decoration: TextDecoration.underline)),
@@ -385,13 +385,13 @@ class _BottomNav extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _NavItem(icon: Icons.home, label: 'Home', active: true,
+            _NavItem(icon: Icons.home, label: '홈', active: true,
                 onTap: () {}),
-            _NavItem(icon: Icons.people_outline, label: 'Members',
+            _NavItem(icon: Icons.people_outline, label: '회원',
                 onTap: () {}),
-            _NavItem(icon: Icons.event_note_outlined, label: 'Classes',
+            _NavItem(icon: Icons.event_note_outlined, label: '수업',
                 onTap: () {}),
-            _NavItem(icon: Icons.settings_outlined, label: 'Settings',
+            _NavItem(icon: Icons.settings_outlined, label: '설정',
                 onTap: () {}),
           ],
         ),

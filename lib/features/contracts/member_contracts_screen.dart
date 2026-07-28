@@ -101,7 +101,7 @@ class _MemberContractsScreenState extends State<MemberContractsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: FacingTokens.bg,
-      appBar: AppBar(title: const Text('CONTRACTS')),
+      appBar: AppBar(title: const Text('계약')),
       body: SafeArea(
         child: FutureBuilder<List<ContractSummary>>(
           future: _future,
@@ -118,7 +118,7 @@ class _MemberContractsScreenState extends State<MemberContractsScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('No contracts', style: FacingTokens.h3),
+                    Text('계약 없음', style: FacingTokens.h3),
                     const SizedBox(height: FacingTokens.sp2),
                     Text('박스가 계약서를 발급하면 여기에 표시.',
                         style: FacingTokens.caption),
@@ -215,9 +215,9 @@ class _ErrorRetry extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('Load failed', style: FacingTokens.h3),
+          Text('불러오기 실패', style: FacingTokens.h3),
           const SizedBox(height: FacingTokens.sp3),
-          TextButton(onPressed: onRetry, child: const Text('Retry')),
+          TextButton(onPressed: onRetry, child: const Text('다시 시도')),
         ],
       ),
     );
@@ -263,7 +263,7 @@ class _ContractDetailScreenState extends State<ContractDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: FacingTokens.bg,
-      appBar: AppBar(title: const Text('CONTRACT')),
+      appBar: AppBar(title: const Text('계약')),
       body: SafeArea(
         child: FutureBuilder<Map<String, dynamic>>(
           future: _future,
@@ -344,7 +344,7 @@ class _ContractDetailScreenState extends State<ContractDetailScreen> {
                           backgroundColor: FacingTokens.primary,
                           foregroundColor: FacingTokens.onColor,
                         ),
-                        child: const Text('Sign'),
+                        child: const Text('서명'),
                       ),
                     ),
                   ),
@@ -435,13 +435,13 @@ class _SignaturePadScreenState extends State<SignaturePadScreen> {
     return Scaffold(
       backgroundColor: FacingTokens.bg,
       appBar: AppBar(
-        title: const Text('SIGN'),
+        title: const Text('서명'),
         actions: [
           TextButton(
             onPressed: _submitting
                 ? null
                 : () => setState(_strokes.clear),
-            child: const Text('Clear'),
+            child: const Text('지우기'),
           ),
         ],
       ),
@@ -497,7 +497,7 @@ class _SignaturePadScreenState extends State<SignaturePadScreen> {
                           child: CircularProgressIndicator(
                               color: FacingTokens.onColor, strokeWidth: 2.4),
                         )
-                      : const Text('Submit'),
+                      : const Text('제출'),
                 ),
               ),
             ),

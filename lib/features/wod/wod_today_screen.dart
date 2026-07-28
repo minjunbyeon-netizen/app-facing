@@ -74,7 +74,7 @@ class _WodTodayScreenState extends State<WodTodayScreen> {
                           Center(
                             child: Column(
                               children: [
-                                Text('No WOD today.',
+                                Text('오늘 WOD 없음.',
                                     style: FacingTokens.h3),
                                 const SizedBox(height: FacingTokens.sp2),
                                 Text('박스에서 오늘 일정 배치 전이에요.',

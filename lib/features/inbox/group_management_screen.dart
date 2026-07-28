@@ -83,7 +83,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text('NEW GROUP', style: FacingTokens.sectionLabel),
+                const Text('새 그룹', style: FacingTokens.sectionLabel),
                 const SizedBox(height: FacingTokens.sp2),
                 TextField(
                   controller: nameCtrl,
@@ -103,7 +103,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
                 ),
                 const SizedBox(height: FacingTokens.sp3),
                 // v1.19 페르소나 P1-10 (C4): 요일·시간·정원·색상.
-                Text('SCHEDULE', style: FacingTokens.sectionLabel),
+                Text('스케줄', style: FacingTokens.sectionLabel),
                 const SizedBox(height: FacingTokens.sp1),
                 Wrap(
                   spacing: FacingTokens.sp1,
@@ -165,7 +165,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
                 const SizedBox(height: FacingTokens.sp3),
                 ElevatedButton(
                   onPressed: () => Navigator.of(ctx).pop(true),
-                  child: const Text('Create'),
+                  child: const Text('만들기'),
                 ),
               ],
             ),
@@ -286,7 +286,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
             const SizedBox(height: FacingTokens.sp3),
             ElevatedButton(
               onPressed: () => Navigator.of(ctx).pop(true),
-              child: const Text('Add'),
+              child: const Text('추가'),
             ),
           ],
         ),
@@ -324,7 +324,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('GROUPS'),
+        title: const Text('그룹'),
         actions: [
           const CoachBadgeAction(),
           IconButton(
@@ -362,7 +362,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('No groups', style: FacingTokens.sectionLabel),
+                    Text('그룹 없음', style: FacingTokens.sectionLabel),
                     SizedBox(height: FacingTokens.sp1),
                     Text('우상단 + 버튼으로 추가.', style: FacingTokens.caption),
                   ],
@@ -411,7 +411,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
         foregroundColor: FacingTokens.fg,
         onPressed: _openCreate,
         icon: const Icon(Icons.add),
-        label: const Text('New'),
+        label: const Text('새 그룹'),
       ),
     );
   }
@@ -450,7 +450,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
                       const SizedBox(height: FacingTokens.sp2),
                       OutlinedButton(
                         onPressed: () => _openAddMember(g),
-                        child: const Text('Add Member'),
+                        child: const Text('회원 추가'),
                       ),
                     ],
                   );

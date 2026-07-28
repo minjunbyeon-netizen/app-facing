@@ -342,7 +342,7 @@ class _ErrorView extends StatelessWidget {
             const SizedBox(height: FacingTokens.sp4),
             TextButton(
               onPressed: onRetry,
-              child: const Text('Retry'),
+              child: const Text('다시 시도'),
             ),
           ],
         ),

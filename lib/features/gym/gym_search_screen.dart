@@ -107,7 +107,7 @@ class _GymSearchScreenState extends State<GymSearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('FIND BOX')),
+      appBar: AppBar(title: const Text('박스 찾기')),
       body: SafeArea(
         child: Column(
           children: [

@@ -112,7 +112,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text('NEW ANNOUNCEMENT', style: FacingTokens.sectionLabel),
+                const Text('새 공지', style: FacingTokens.sectionLabel),
                 const SizedBox(height: FacingTokens.sp3),
                 // 카테고리
                 Wrap(
@@ -232,11 +232,11 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
                       debugPrint('[Announcements._compose] $e');
                       if (!ctx.mounted) return;
                       ScaffoldMessenger.of(ctx).showSnackBar(
-                        const SnackBar(content: Text('Calc failed. Retry.')),
+                        const SnackBar(content: Text('요청 실패. 다시 시도해 주세요.')),
                       );
                     }
                   },
-                  child: const Text('Post'),
+                  child: const Text('게시'),
                 ),
               ],
             ),
@@ -257,7 +257,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
     final gym = gs.membership.gym;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ANNOUNCEMENTS'),
+        title: const Text('공지'),
         actions: [
           if (gs.isOwner) const CoachBadgeAction(),
           IconButton(icon: const Icon(Icons.refresh), onPressed: _load),
@@ -278,7 +278,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
               foregroundColor: FacingTokens.fg,
               onPressed: _openCompose,
               icon: const Icon(Icons.campaign_outlined),
-              label: const Text('New'),
+              label: const Text('새 공지'),
             )
           : null,
     );
@@ -304,7 +304,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
     }
     if (_items.isEmpty) {
       return const Center(
-        child: Text('No Engine history', style: FacingTokens.caption),
+        child: Text('Engine 기록 없음', style: FacingTokens.caption),
       );
     }
     return RefreshIndicator(

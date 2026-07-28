@@ -36,7 +36,7 @@ class _RehabScreenState extends State<RehabScreen> {
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Load failed. Retry.')),
+        const SnackBar(content: Text('불러오기 실패. 다시 시도해 주세요.')),
       );
       return;
     }
@@ -69,7 +69,7 @@ class _RehabScreenState extends State<RehabScreen> {
     return Scaffold(
       backgroundColor: FacingTokens.bg,
       // v1.26: Rehab 탭 루트로 승격 — 타 탭 루트(HOME/WOD/PROFILE)와 표기 통일.
-      appBar: AppBar(title: const Text('REHAB')),
+      appBar: AppBar(title: const Text('재활')),
       body: SafeArea(
         child: FutureBuilder<List<RehabMovement>>(
           future: _future,

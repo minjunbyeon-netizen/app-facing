@@ -52,12 +52,15 @@ flutter run \
   --dart-define=GOOGLE_SERVER_CLIENT_ID=<2번의 Web client id> \
   --dart-define=NAVER_CLIENT_ID=<1번 Client ID> \
   --dart-define=NAVER_CLIENT_SECRET=<1번 Client Secret> \
-  --dart-define=NAVER_CLIENT_NAME=FACING \
+  --dart-define=NAVER_CLIENT_NAME=HYPHEN \
   --dart-define=API_BASE_URL=http://10.0.2.2:5060
 ```
 - `GOOGLE_SERVER_CLIENT_ID` = 백엔드 `GOOGLE_CLIENT_ID` 와 **같은 Web client id** 여야
   서버 `aud` 검증 통과.
-- 빌드 플래그가 많으면 `--dart-define-from-file=env.json` 으로 묶어도 됨.
+- **권장: `env.json.example` → `env.json` 복사 후 값 채우고
+  `flutter run --dart-define-from-file=env.json`** (env.json 은 .gitignore — 커밋 금지).
+- `NAVER_CLIENT_NAME` 은 네이버 로그인 동의창에 뜨는 서비스명 — 표기 브랜드 `HYPHEN`
+  (코드 기본값과 동일, v1.28 리브랜딩).
 
 ## 4. 검증 (AUTH_SOCIAL_DESIGN.md §9-7)
 

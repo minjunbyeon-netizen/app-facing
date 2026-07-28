@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
+import '../../widgets/brand_logo.dart';
+import '../../widgets/fkit.dart';
 import 'boss_api_client.dart';
 import 'boss_auth_state.dart';
 
@@ -91,10 +93,10 @@ class _BossLoginScreenState extends State<BossLoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: FacingTokens.sp3),
-                // ─── 헤더 ───────────────────────────────────────────
-                Text('HYPHEN', style: FacingTokens.sectionLabel),
-                const SizedBox(height: FacingTokens.sp1),
-                Text('Boss Login.', style: FacingTokens.h1),
+                // ─── 헤더 (v1.29: 로그인 화면 통일 — BrandLogo 220, DESIGN-SSOT §6) ───
+                const Center(child: BrandLogo()),
+                const SizedBox(height: FacingTokens.sp5),
+                Text('사장 로그인', style: FacingTokens.h1),
                 const SizedBox(height: FacingTokens.sp1),
                 Text(
                   'PC 어드민과 동일 계정으로 로그인.',
@@ -103,7 +105,7 @@ class _BossLoginScreenState extends State<BossLoginScreen> {
                 const SizedBox(height: FacingTokens.sp6),
 
                 // ─── ID 필드 ─────────────────────────────────────────
-                _FieldLabel('ID'),
+                _FieldLabel('아이디'),
                 const SizedBox(height: FacingTokens.sp1),
                 TextFormField(
                   controller: _idCtrl,
@@ -112,12 +114,12 @@ class _BossLoginScreenState extends State<BossLoginScreen> {
                   textInputAction: TextInputAction.next,
                   autocorrect: false,
                   validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? 'ID 필수' : null,
+                      (v == null || v.trim().isEmpty) ? '아이디를 입력해 주세요.' : null,
                 ),
                 const SizedBox(height: FacingTokens.sp3),
 
                 // ─── PW 필드 ─────────────────────────────────────────
-                _FieldLabel('Password'),
+                _FieldLabel('비밀번호'),
                 const SizedBox(height: FacingTokens.sp1),
                 TextFormField(
                   controller: _pwCtrl,
@@ -137,7 +139,7 @@ class _BossLoginScreenState extends State<BossLoginScreen> {
                   textInputAction: TextInputAction.done,
                   onFieldSubmitted: (_) => _login(),
                   validator: (v) =>
-                      (v == null || v.isEmpty) ? 'Password 필수' : null,
+                      (v == null || v.isEmpty) ? '비밀번호를 입력해 주세요.' : null,
                 ),
 
                 // ─── 에러 메시지 ──────────────────────────────────────
@@ -162,19 +164,11 @@ class _BossLoginScreenState extends State<BossLoginScreen> {
 
                 const SizedBox(height: FacingTokens.sp6),
 
-                // ─── 로그인 버튼 ──────────────────────────────────────
+                // ─── 로그인 버튼 (v1.29: 테마 ElevatedButton = CTA 유일 규격) ───
                 _busy
-                    ? const Center(
-                        child: SizedBox(
-                          width: 22,
-                          height: 22,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: FacingTokens.primary,
-                          ),
-                        ),
-                      )
-                    : _PrimaryButton(label: 'Login', onTap: _login),
+                    ? const FkLoading()
+                    : ElevatedButton(
+                        onPressed: _login, child: const Text('로그인')),
               ],
             ),
           ),
@@ -191,20 +185,20 @@ class _BossLoginScreenState extends State<BossLoginScreen> {
         contentPadding: const EdgeInsets.symmetric(
             horizontal: FacingTokens.sp3, vertical: FacingTokens.sp3),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.zero,
+          borderRadius: BorderRadius.circular(FacingTokens.r2),
           borderSide: const BorderSide(color: FacingTokens.border),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.zero,
+          borderRadius: BorderRadius.circular(FacingTokens.r2),
           borderSide:
               const BorderSide(color: FacingTokens.primary, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.zero,
+          borderRadius: BorderRadius.circular(FacingTokens.r2),
           borderSide: const BorderSide(color: FacingTokens.danger),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.zero,
+          borderRadius: BorderRadius.circular(FacingTokens.r2),
           borderSide:
               const BorderSide(color: FacingTokens.danger, width: 1.5),
         ),
@@ -216,33 +210,7 @@ class _FieldLabel extends StatelessWidget {
   final String text;
   const _FieldLabel(this.text);
   @override
-  Widget build(BuildContext context) => Text(
-        text.toUpperCase(),
-        style: FacingTokens.sectionLabel,
-      );
+  Widget build(BuildContext context) => FkSectionLabel(text);
 }
 
-class _PrimaryButton extends StatelessWidget {
-  final String label;
-  final VoidCallback onTap;
-  const _PrimaryButton({required this.label, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp4),
-        color: FacingTokens.primary,
-        alignment: Alignment.center,
-        child: Text(
-          label,
-          style: FacingTokens.h3.copyWith(
-            color: FacingTokens.onColor,
-            letterSpacing: 1.2,
-          ),
-        ),
-      ),
-    );
-  }
-}
+// v1.29: _PrimaryButton 폐기 — CTA 는 테마 ElevatedButton 유일 규격 (DESIGN-SSOT §5).

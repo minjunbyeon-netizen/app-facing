@@ -14,7 +14,7 @@ class CalcEntryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('CALC'),
+        title: const Text('계산'),
         automaticallyImplyLeading: false,
       ),
       body: SafeArea(
@@ -67,7 +67,7 @@ class CalcEntryScreen extends StatelessWidget {
                 );
               }),
               const SizedBox(height: FacingTokens.sp4),
-              const Text('PICK A WOD', style: FacingTokens.sectionLabel),
+              const Text('WOD 선택', style: FacingTokens.sectionLabel),
               const SizedBox(height: FacingTokens.sp1),
               const Text(
                 'Pick a WOD. Split · Burst auto-calc.',
@@ -121,8 +121,8 @@ class CalcEntryScreen extends StatelessWidget {
               ),
               const Divider(height: 1, color: FacingTokens.border),
               _ChoiceRow(
-                title: 'Custom',
-                subtitle: 'Build movements/reps. For Time only.',
+                title: '커스텀',
+                subtitle: '동작·횟수 직접 구성. For Time 전용.',
                 onTap: () {
                   Haptic.medium();
                   Navigator.of(context).push(MaterialPageRoute(

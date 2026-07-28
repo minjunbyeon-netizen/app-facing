@@ -212,7 +212,7 @@ class _PersonaSwitcherScreenState extends State<PersonaSwitcherScreen> {
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
         backgroundColor: FacingTokens.surface,
-        title: Text('Switched.', style: FacingTokens.h3),
+        title: Text('전환 완료.', style: FacingTokens.h3),
         content: Text(
           '페르소나: ${p.displayName} (${p.role})\n'
           'GymState 즉시 재로딩 시도. 화면 갱신 안 되면 앱 재시작 권장.',
@@ -221,7 +221,7 @@ class _PersonaSwitcherScreenState extends State<PersonaSwitcherScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('OK'),
+            child: const Text('확인'),
           ),
         ],
       ),

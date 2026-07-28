@@ -90,7 +90,7 @@ class _BenchmarkSheetState extends State<_BenchmarkSheet> {
                 // Context paragraph
                 if (widget.bench.context.isNotEmpty) ...[
                   _SectionBox(
-                    label: 'CONTEXT',
+                    label: '맥락',
                     child: Text(
                       widget.bench.context,
                       style: FacingTokens.caption.copyWith(
@@ -104,7 +104,7 @@ class _BenchmarkSheetState extends State<_BenchmarkSheet> {
                 // References
                 if (widget.bench.refs.isNotEmpty) ...[
                   _SectionBox(
-                    label: 'REFERENCES',
+                    label: '근거 자료',
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: widget.bench.refs
@@ -118,7 +118,7 @@ class _BenchmarkSheetState extends State<_BenchmarkSheet> {
                 ],
                 // Source
                 _SectionBox(
-                  label: 'SOURCE',
+                  label: '출처',
                   child: Text(widget.bench.sourceShort, style: FacingTokens.micro),
                 ),
                 SizedBox(height: mq.viewInsets.bottom + FacingTokens.sp4),

@@ -88,17 +88,17 @@ class GymInfoCard extends StatelessWidget {
 
                     if (times.isNotEmpty) ...[
                       const SizedBox(height: FacingTokens.sp3),
-                      _InfoBlock(label: 'CLASS', value: times),
+                      _InfoBlock(label: '수업', value: times),
                     ],
 
                     if (price.isNotEmpty) ...[
                       const SizedBox(height: FacingTokens.sp3),
-                      _InfoBlock(label: 'PRICE', value: price),
+                      _InfoBlock(label: '가격', value: price),
                     ],
 
                     if (motto.isNotEmpty) ...[
                       const SizedBox(height: FacingTokens.sp3),
-                      Text('MOTTO', style: FacingTokens.sectionLabel),
+                      Text('모토', style: FacingTokens.sectionLabel),
                       const SizedBox(height: FacingTokens.sp1),
                       Text(motto, style: FacingTokens.quote),
                     ],
@@ -130,7 +130,7 @@ class _CoachesSection extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('COACH', style: FacingTokens.sectionLabel),
+          Text('코치', style: FacingTokens.sectionLabel),
           const SizedBox(height: FacingTokens.sp1),
           Text(
             name.isNotEmpty ? '$name 코치' : bio,
