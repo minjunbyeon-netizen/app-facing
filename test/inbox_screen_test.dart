@@ -16,7 +16,10 @@ import 'package:facing_app/features/gym/gym_state.dart';
 import 'package:facing_app/features/inbox/inbox_repository.dart';
 import 'package:facing_app/features/inbox/inbox_state.dart';
 import 'package:facing_app/features/inbox/inbox_screen.dart';
+import 'package:facing_app/models/coach_profile.dart';
 import 'package:facing_app/models/gym.dart';
+import 'package:facing_app/models/locker.dart';
+import 'package:facing_app/models/membership.dart';
 
 class _FakeGymRepo extends GymRepository {
   final GymMembership stub;
@@ -31,6 +34,18 @@ class _FakeGymRepo extends GymRepository {
     String? date,
   }) async =>
       const [];
+
+  // loadMine() 이 부르는 부가 fetch 전부 오버라이드 — 하나라도 실 ApiClient 로
+  // 빠지면 fake async 아래에서 dio future 가 영영 안 끝나 10분 타임아웃
+  // (2026-07-28 전체 스위트에서 발견. listCoaches 등은 테스트 작성 후 추가된 호출).
+  @override
+  Future<List<CoachProfile>> listCoaches(int gymId) async => const [];
+
+  @override
+  Future<List<Membership>> listMyMemberships() async => const [];
+
+  @override
+  Future<List<Locker>> listMyLockers() async => const [];
 }
 
 class _FakeInboxRepo extends InboxRepository {
