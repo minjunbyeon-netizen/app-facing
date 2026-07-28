@@ -85,7 +85,7 @@ void main() {
     await tester.pump(const Duration(seconds: 4));
   });
 
-  // ── 공통: 인트로 3p (MANAGE → TRAIN → EDGE) ──
+  // ── 공통: 인트로 3p (v1.27 3기둥 — BOARD → EARN → TIER, HYPHEN 로고) ──
   testWidgets('common: intro 3p', (tester) async {
     phone(tester);
     SharedPreferences.setMockInitialValues({});
@@ -95,16 +95,13 @@ void main() {
         auth: AuthState(),
         profile: ProfileState(),
         home: const IntroScreen()));
-    await precacheAllImages(tester);
-    await capture(tester, 'common_02_intro_manage');
+    await capture(tester, 'common_02_intro_board');
     await tester.tap(find.text('Next'));
     await tester.pump(const Duration(milliseconds: 300));
-    await precacheAllImages(tester);
-    await capture(tester, 'common_03_intro_train');
+    await capture(tester, 'common_03_intro_earn');
     await tester.tap(find.text('Next'));
     await tester.pump(const Duration(milliseconds: 300));
-    await precacheAllImages(tester);
-    await capture(tester, 'common_04_intro_edge');
+    await capture(tester, 'common_04_intro_tier');
   });
 
   // ── 공통: 소셜 로그인 ──

@@ -302,10 +302,10 @@ R5. **하드코드 fontSize 금지.** 모든 텍스트 크기는 `FacingTokens` 
 ### 짧은 UI (영문 고정)
 | 위치 | 카피 |
 |---|---|
-| App name (Splash) | **"FACING"** (단어 1개, w800) |
-| Intro 1 headline (MANAGE) | **"One app. Every class."** (2026-06-10 승인 — v1.16.2 Primary value 동기화) |
-| Intro 2 headline (TRAIN) | **"Book. Train. Track."** |
-| Intro 3 headline (EDGE) | **"Pull your Split."** (페이싱 = +α 차별점 페이지) |
+| App name (Splash) | **HYPHEN 로고** (`widgets/brand_logo.dart` — v1.27 텍스트 워드마크 대체) |
+| Intro 1 headline (BOARD) | **"Today's WOD."** (v1.27 3기둥 동기화 — 2026-07-28) |
+| Intro 2 headline (EARN) | **"Earn your level."** |
+| Intro 3 headline (TIER) | **"Your Tier."** (페이싱 카피 폐기 — 계산기 숨김) |
 | Intro CTA (마지막 p) | **"Start"** (단어 1개 라벨 — 마침표 없음) |
 | Home headline | **"Today's WOD."** / 2줄 **"Pull your Split."** |
 | Home sub (1줄) | **"RX to Games. Auto Split · Burst."** |
@@ -372,6 +372,9 @@ R5. **하드코드 fontSize 금지.** 모든 텍스트 크기는 `FacingTokens` 
 - 폰트 Pretendard 1종 (weight 400/700/800) — ※ 글로벌은 Pretendard 차단이나 facing 앱은 예외 유지
 - ROW 우선, 여백 충분히
 - 사진/일러스트 없음. 타이포+수치 중심.
+- **브랜드 로고 = HYPHEN 워드마크 (v1.27)**: `lib/widgets/brand_logo.dart` (BrandLogo — 모티프+워드마크
+  벡터 재현, 테마 색 추종)가 SSOT. 원본 사진 = `docs/brand/hyphen-logo-source.png` (앱 번들 미포함).
+  스플래시·인트로의 사진 히어로·스틱맨은 폐기 (v1.27) — 로고 중심 클린 레이아웃.
 
 ## 로컬 실행
 ```bash

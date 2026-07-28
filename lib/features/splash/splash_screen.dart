@@ -9,6 +9,7 @@ import '../../core/haptic.dart';
 import '../../core/notification_service.dart';
 import '../../core/quotes.dart';
 import '../../core/theme.dart';
+import '../../widgets/brand_logo.dart';
 import '../../widgets/quote_card.dart';
 import '../auth/auth_state.dart';
 import '../boss/boss_auth_state.dart';
@@ -159,13 +160,10 @@ class _SplashScreenState extends State<SplashScreen>
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Spacer(),
+              // v1.27 (2026-07-28): 텍스트 워드마크 → HYPHEN 로고 (BrandLogo).
               _fadeSlide(
                 0,
-                Text(
-                  'FACING',
-                  style: FacingTokens.brandLogo,
-                  textAlign: TextAlign.center,
-                ),
+                const Center(child: BrandLogo(width: 240)),
               ),
               const SizedBox(height: FacingTokens.sp5),
               const Spacer(),

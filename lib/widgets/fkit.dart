@@ -15,6 +15,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../core/exception.dart';
 import '../core/theme.dart';
 
 /// 섹션 구분 라벨 — 대문자 강제.
@@ -111,7 +112,7 @@ class FkStatTile extends StatelessWidget {
   }
 }
 
-/// 빈 상태 — 제목(영문 헤드라인) + 한글 캡션 수직 스택 (V10 패턴).
+/// 빈 상태 — h3 제목(영문 헤드라인) + 한글 캡션 수직 스택 (V10 패턴).
 class FkEmptyState extends StatelessWidget {
   final String title;
   final String? caption;
@@ -119,40 +120,50 @@ class FkEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(FacingTokens.sp5),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(title, style: FacingTokens.body, textAlign: TextAlign.center),
-          if (caption != null) ...[
-            const SizedBox(height: FacingTokens.sp2),
-            Text(caption!,
-                style: FacingTokens.caption, textAlign: TextAlign.center),
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(FacingTokens.sp5),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(title, style: FacingTokens.h3, textAlign: TextAlign.center),
+            if (caption != null) ...[
+              const SizedBox(height: FacingTokens.sp2),
+              Text(caption!,
+                  style: FacingTokens.caption, textAlign: TextAlign.center),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
 }
 
 /// 에러 상태 — 메시지 + Retry. 전 화면 문구·간격 고정.
+/// AppException 이면 messageKo, 그 외 '로딩 실패.' — fromError 로 통일 매핑.
 class FkErrorState extends StatelessWidget {
   final String message;
   final VoidCallback onRetry;
   const FkErrorState({super.key, required this.message, required this.onRetry});
 
+  FkErrorState.fromError(Object? error,
+      {super.key, required this.onRetry})
+      : message = error is AppException ? error.messageKo : '로딩 실패.';
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(FacingTokens.sp5),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(message, style: FacingTokens.body, textAlign: TextAlign.center),
-          const SizedBox(height: FacingTokens.sp4),
-          OutlinedButton(onPressed: onRetry, child: const Text('Retry')),
-        ],
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(FacingTokens.sp5),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(message,
+                style: FacingTokens.body, textAlign: TextAlign.center),
+            const SizedBox(height: FacingTokens.sp3),
+            OutlinedButton(onPressed: onRetry, child: const Text('Retry')),
+          ],
+        ),
       ),
     );
   }

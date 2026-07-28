@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/appkit.gen.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
-import '../../widgets/hero_background.dart';
+import '../../widgets/brand_logo.dart';
 import '../auth/auth_state.dart';
 
 class IntroScreen extends StatefulWidget {
@@ -20,29 +19,23 @@ class _IntroScreenState extends State<IntroScreen> {
   final PageController _pc = PageController();
   int _page = 0;
 
-  // B-3 (2026-06-10): v1.16.2 포지셔닝 동기화 — Primary value(수업·박스 운영) 2p
-  // + 페이싱 엔진(+α 차별점) 1p. 카피 확정 (2026-06-10 사용자 승인 — CLAUDE.md 카피 템플릿 동기화됨).
+  // v1.27 (2026-07-28): 3기둥 동기화 — WOD 보드 · 게이미피케이션 · Tier 프로필.
+  // 사진 히어로·스틱맨 폐기, HYPHEN 로고(BrandLogo) 중심의 클린 레이아웃.
   static const List<_IntroPage> _pages = [
     _IntroPage(
-      stage: 'MANAGE',
-      title: 'One app.\nEvery class.',
-      body: '예약 · 출석 · 공지 · 전자계약.\n박스의 하루를 한 곳에 담는다.',
-      heroAsset: 'assets/images/hero_intro_1.jpg',
-      stickmanAsset: 'assets/icons/stickman_motivation.svg',
+      stage: 'BOARD',
+      title: "Today's WOD.",
+      body: '코치가 올린 오늘의 WOD.\n박스 공지까지 한 곳에.',
     ),
     _IntroPage(
-      stage: 'TRAIN',
-      title: 'Book. Train. Track.',
-      body: '수업 예약부터 QR 출석까지.\n기록은 자동 저장.',
-      heroAsset: 'assets/images/hero_intro_2.jpg',
-      stickmanAsset: 'assets/icons/stickman_discipline.svg',
+      stage: 'EARN',
+      title: 'Earn your level.',
+      body: '기록할수록 쌓이는\n레벨 · 업적 · Milestones.',
     ),
     _IntroPage(
-      stage: 'EDGE',
-      title: 'Pull your Split.',
-      body: '논문 공식으로 Split과 Burst 자동 계산.\nFACING 만의 페이싱 엔진.',
-      heroAsset: 'assets/images/hero_intro_3.jpg',
-      stickmanAsset: 'assets/icons/stickman_obsession.svg',
+      stage: 'TIER',
+      title: 'Your Tier.',
+      body: 'Benchmarks 기반 6단계 Tier.\n프로필에서 언제든 수정.',
     ),
   ];
 
@@ -80,142 +73,125 @@ class _IntroScreenState extends State<IntroScreen> {
       // v1.19 차수 5 (B-LW-10): 뒤로가기로 Splash 복귀 차단. Intro 종료는 Skip/Next.
       canPop: false,
       child: Scaffold(
-      body: Stack(
-        children: [
-          PageView.builder(
-            controller: _pc,
-            itemCount: _pages.length,
-            onPageChanged: (i) => setState(() => _page = i),
-            itemBuilder: (_, i) => _IntroPageView(page: _pages[i]),
-          ),
-          // UI 오버레이 (Skip + dots + Next)
-          SafeArea(
-            child: Column(
-              children: [
-                Align(
-                  alignment: Alignment.topRight,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: FacingTokens.sp3,
-                      vertical: FacingTokens.sp2,
-                    ),
-                    // v1.15 P1-15: Skip 48dp 터치 타겟 + P2-4 토큰 사용.
-                    child: TextButton(
-                      style: TextButton.styleFrom(
-                        minimumSize: const Size(
-                            FacingTokens.touchMin, FacingTokens.touchMin),
-                        foregroundColor: FacingTokens.muted,
+        backgroundColor: FacingTokens.bg,
+        body: Stack(
+          children: [
+            PageView.builder(
+              controller: _pc,
+              itemCount: _pages.length,
+              onPageChanged: (i) => setState(() => _page = i),
+              itemBuilder: (_, i) => _IntroPageView(page: _pages[i]),
+            ),
+            // UI 오버레이 (Skip + dots + Next)
+            SafeArea(
+              child: Column(
+                children: [
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: FacingTokens.sp3,
+                        vertical: FacingTokens.sp2,
                       ),
+                      // v1.15 P1-15: Skip 48dp 터치 타겟 + P2-4 토큰 사용.
+                      child: TextButton(
+                        style: TextButton.styleFrom(
+                          minimumSize: const Size(
+                              FacingTokens.touchMin, FacingTokens.touchMin),
+                          foregroundColor: FacingTokens.muted,
+                        ),
+                        onPressed: () {
+                          Haptic.light();
+                          _finish();
+                        },
+                        child: const Text(AppKit.strSkip),
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(_pages.length, (i) {
+                      final active = i == _page;
+                      return AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: FacingTokens.sp1),
+                        height: FacingTokens.sp2 - 2,
+                        width: active
+                            ? FacingTokens.sp5 - 2
+                            : FacingTokens.sp2 - 2,
+                        decoration: BoxDecoration(
+                          color: active
+                              ? FacingTokens.accent
+                              : FacingTokens.border,
+                          borderRadius:
+                              BorderRadius.circular(FacingTokens.r1),
+                        ),
+                      );
+                    }),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(FacingTokens.sp4),
+                    child: ElevatedButton(
                       onPressed: () {
                         Haptic.light();
-                        _finish();
+                        _next();
                       },
-                      child: const Text(AppKit.strSkip),
+                      child: Text(isLast ? AppKit.strStart : AppKit.strNext),
                     ),
                   ),
-                ),
-                const Spacer(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(_pages.length, (i) {
-                    final active = i == _page;
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: FacingTokens.sp1),
-                      height: FacingTokens.sp2 - 2,
-                      width:
-                          active ? FacingTokens.sp5 - 2 : FacingTokens.sp2 - 2,
-                      decoration: BoxDecoration(
-                        color:
-                            active ? FacingTokens.accent : FacingTokens.border,
-                        borderRadius: BorderRadius.circular(FacingTokens.r1),
-                      ),
-                    );
-                  }),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(FacingTokens.sp4),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Haptic.light();
-                      _next();
-                    },
-                    child: Text(isLast ? AppKit.strStart : AppKit.strNext),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
       ),
     );
   }
 }
 
 class _IntroPage {
-  /// v1.15 P2-5: 3단계 서사 라벨 (MOTIVATION / DISCIPLINE / OBSESSION).
   final String stage;
   final String title;
   final String body;
-  final String heroAsset;
-  final String stickmanAsset;
   const _IntroPage({
     required this.stage,
     required this.title,
     required this.body,
-    required this.heroAsset,
-    required this.stickmanAsset,
   });
 }
 
+/// v1.27: 클린 페이지 — HYPHEN 로고 + stage 라벨 + 영문 헤드라인 + 한글 캡션 스택.
 class _IntroPageView extends StatelessWidget {
   final _IntroPage page;
   const _IntroPageView({required this.page});
 
   @override
   Widget build(BuildContext context) {
-    return HeroBackground(
-      imageAsset: page.heroAsset,
-      strongGrain: true,
-      darkenStrength: 0.55,
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: FacingTokens.sp5,
-            vertical: FacingTokens.sp5,
-          ),
-          // v1.21: 베타 피드백 — 인트로 텍스트 중앙정렬.
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: FacingTokens.sp7),
-              // stickman (서사 시각화)
-              SvgPicture.asset(
-                page.stickmanAsset,
-                width: 140,
-                height: 140,
-                colorFilter: const ColorFilter.mode(
-                  FacingTokens.fg,
-                  BlendMode.srcIn,
-                ),
-              ),
-              const Spacer(),
-              Text(page.stage,
-                  style: FacingTokens.sectionLabel,
-                  textAlign: TextAlign.center),
-              const SizedBox(height: FacingTokens.sp2),
-              Text(page.title,
-                  style: FacingTokens.h1,
-                  textAlign: TextAlign.center),
-              const SizedBox(height: FacingTokens.sp4),
-              Text(page.body,
-                  style: FacingTokens.lead,
-                  textAlign: TextAlign.center),
-              const SizedBox(height: FacingTokens.sp8 + FacingTokens.sp7),
-            ],
-          ),
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: FacingTokens.sp5,
+          vertical: FacingTokens.sp5,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Spacer(flex: 3),
+            const BrandLogo(width: 190),
+            const Spacer(flex: 3),
+            Text(page.stage,
+                style: FacingTokens.sectionLabel,
+                textAlign: TextAlign.center),
+            const SizedBox(height: FacingTokens.sp2),
+            Text(page.title,
+                style: FacingTokens.h1, textAlign: TextAlign.center),
+            const SizedBox(height: FacingTokens.sp4),
+            Text(page.body,
+                style: FacingTokens.lead, textAlign: TextAlign.center),
+            const SizedBox(height: FacingTokens.sp8 + FacingTokens.sp7),
+          ],
         ),
       ),
     );

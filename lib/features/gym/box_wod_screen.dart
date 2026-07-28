@@ -7,6 +7,7 @@ import '../../core/theme.dart';
 import '../../models/announcement.dart';
 import '../../models/gym.dart';
 import '../../widgets/coach_badge.dart';
+import '../../widgets/fkit.dart';
 import '../announcements/announcements_state.dart';
 import '../classes/classes_screen.dart' show ClassesSection;
 import '../../widgets/gym_info_card.dart';
@@ -35,8 +36,7 @@ class BoxWodScreen extends StatelessWidget {
 
     Widget body;
     if (gs.isLoading && !gs.hasGym) {
-      body = const _Centered(child: CircularProgressIndicator(
-          color: FacingTokens.muted, strokeWidth: 2));
+      body = const FkLoading();
     } else if (!gs.hasGym) {
       body = const _NoGymEmpty();
     } else if (gs.membership.isPending) {
@@ -100,12 +100,7 @@ class BoxWodScreen extends StatelessWidget {
   }
 }
 
-class _Centered extends StatelessWidget {
-  final Widget child;
-  const _Centered({required this.child});
-  @override
-  Widget build(BuildContext context) => Center(child: child);
-}
+// _Centered 삭제 — FkLoading(widgets/fkit.dart)으로 대체 (v1.27 UI SSOT).
 
 class _NoGymEmpty extends StatelessWidget {
   const _NoGymEmpty();

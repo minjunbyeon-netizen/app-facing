@@ -12,11 +12,11 @@ GOLDENS = ROOT / "test" / "golden" / "goldens"
 
 # (사이드패널 라벨, 섹션 제목, [(파일 stem, 캡션)])
 SECTIONS = [
-    ("공통", "공통 — 진입 · 인트로 · 로그인", [
-        ("common_01_splash", "스플래시 — 백엔드 확인 중 자동 전환 대기"),
-        ("common_02_intro_manage", "인트로① MANAGE — One app. Every class."),
-        ("common_03_intro_train", "인트로② TRAIN — Book. Train. Track."),
-        ("common_04_intro_edge", "인트로③ EDGE — Pull your Split."),
+    ("공통", "공통 — 진입 · 인트로 · 로그인 (v1.27 HYPHEN 로고)", [
+        ("common_01_splash", "스플래시 — HYPHEN 로고 · 자동 전환 대기"),
+        ("common_02_intro_board", "인트로① BOARD — Today's WOD."),
+        ("common_03_intro_earn", "인트로② EARN — Earn your level."),
+        ("common_04_intro_tier", "인트로③ TIER — Your Tier."),
         ("common_05_signup", "소셜 로그인 — 네이버 · 구글"),
     ]),
     ("온보딩", "온보딩 — 기본 정보 → Benchmarks → Tier", [

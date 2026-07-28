@@ -3,12 +3,12 @@ import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
 import '../../core/engine_decay.dart';
-import '../../core/exception.dart';
 import '../../core/futures.dart';
 import '../../core/scoring.dart';
 import '../../core/theme.dart';
 import '../../core/tier.dart';
 import '../../core/wod_session_bus.dart';
+import '../../widgets/fkit.dart';
 import '../../widgets/tier_badge.dart';
 import '../gym/wod_type_label.dart';
 import 'history_models.dart';
@@ -98,16 +98,16 @@ class _EngineTab extends StatelessWidget {
       future: future,
       builder: (ctx, snap) {
         if (snap.connectionState != ConnectionState.done) {
-          return const Center(child: Text('Loading', style: FacingTokens.body));
+          return const FkLoading();
         }
         if (snap.hasError) {
-          return _ErrorView(error: snap.error, onRetry: onRetry);
+          return FkErrorState.fromError(snap.error, onRetry: onRetry);
         }
         final rows = snap.data ?? const [];
         if (rows.isEmpty) {
-          return const _EmptyView(
+          return const FkEmptyState(
             title: 'No Engine history',
-            body: '등급 계산 후 자동 저장.\n'
+            caption: '등급 계산 후 자동 저장.\n'
                 '다음 Engine 측정부터 시계열 축적.',
           );
         }
@@ -385,16 +385,16 @@ class _WodTab extends StatelessWidget {
       future: future,
       builder: (ctx, snap) {
         if (snap.connectionState != ConnectionState.done) {
-          return const Center(child: Text('Loading', style: FacingTokens.body));
+          return const FkLoading();
         }
         if (snap.hasError) {
-          return _ErrorView(error: snap.error, onRetry: onRetry);
+          return FkErrorState.fromError(snap.error, onRetry: onRetry);
         }
         final rows = snap.data ?? const [];
         if (rows.isEmpty) {
-          return const _EmptyView(
+          return const FkEmptyState(
             title: 'No WOD records',
-            body: 'WOD 계산 후 자동 저장.\n'
+            caption: 'WOD 계산 후 자동 저장.\n'
                 'Split · Burst · 예상 완주 시간 전부 보존.',
           );
         }
@@ -444,55 +444,7 @@ class _WodTab extends StatelessWidget {
   }
 }
 
-class _EmptyView extends StatelessWidget {
-  final String title;
-  final String body;
-  const _EmptyView({required this.title, required this.body});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(FacingTokens.sp5),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(title, style: FacingTokens.h3),
-            const SizedBox(height: FacingTokens.sp2),
-            Text(body,
-                style: FacingTokens.caption, textAlign: TextAlign.center),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ErrorView extends StatelessWidget {
-  final Object? error;
-  final VoidCallback onRetry;
-  const _ErrorView({required this.error, required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    final msg = error is AppException
-        ? (error as AppException).messageKo
-        : '로딩 실패.';
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(FacingTokens.sp5),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(msg, style: FacingTokens.body),
-            const SizedBox(height: FacingTokens.sp3),
-            OutlinedButton(onPressed: onRetry, child: const Text('Retry')),
-          ],
-        ),
-      ),
-    );
-  }
-}
+// _EmptyView·_ErrorView 삭제 — FkEmptyState·FkErrorState(widgets/fkit.dart)로 대체 (v1.27 UI SSOT).
 
 String _formatDate(DateTime dt) {
   final local = dt.toLocal();
