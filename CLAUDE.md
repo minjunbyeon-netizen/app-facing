@@ -368,6 +368,22 @@ flutter run                      # 기본 연결된 기기/에뮬레이터
 flutter run -d emulator-5554     # 특정 에뮬레이터
 ```
 
+## 화면 골든 캡처 (골든스탠다드 — 2026-07-28 적용)
+```bash
+flutter test --update-goldens test/golden   # 전 화면 PNG → test/golden/goldens/
+python tool/golden_gallery.py               # 단일 HTML 갤러리 (build/goldens_gallery.html)
+```
+가짜 백엔드(`test/golden/fakes.dart` — ApiClient implements, 네트워크 0)로 실물 픽셀 렌더
+(갤S22 급 360×780·2x). 폰트는 `test/flutter_test_config.dart` 가 FontManifest 전체
+(Pretendard·MaterialIcons)를 로드. 참조 아키텍처: `apps/writeplz-app` 골든스탠다드.
+현재 **17장** — 공통(스플래시·인트로 3p·로그인) + 온보딩 3 + 회원 셸 5탭 + 계산기 2 + 이력·사장.
+기능을 넣으면 그 상태의 캡처도 같이 넣는다 (골든 없는 기능 = 골든스탠다드 미달).
+- `--update-goldens` 없이 `flutter test test/golden` 이 회귀 게이트 — 커밋된 PNG 와 1픽셀이라도 다르면 실패
+- 명언 랜덤은 `quotes.dart` 의 `quoteRandom` 시드 교체로 결정론 확보. WOD·출석·클래스 날짜는
+  실행 시점 상대값 (`fakes.dart` — writeplz generations 패턴)
+- 갤러리 등재는 `golden_gallery.py` 가 양방향 검출 (누락 = PNG 없음 / 미등재 = SECTIONS 없음)
+- 남은 확장: 결과 화면(ResultScreen 계산 플로우)·보스 대시보드·상태 변형(에러·오프라인·로딩)
+
 ## 빌드 & 배포 (MVP)
 ```bash
 # 배포용 APK — 백엔드 URL 주입 필수 (누락 시 localhost로 박힘)

@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
+
 class Quote {
   final String text;
   final String author;
@@ -25,9 +27,13 @@ const List<Quote> kQuotes = [
       'Mat Fraser'),
 ];
 
+/// 골든 테스트가 시드 고정 Random 으로 교체 — 캡처 결정론 확보 (프로덕션은 무시드).
+@visibleForTesting
+Random quoteRandom = Random();
+
 /// 완전 랜덤. splash / loading 용.
 Quote randomQuote() {
-  return kQuotes[Random().nextInt(kQuotes.length)];
+  return kQuotes[quoteRandom.nextInt(kQuotes.length)];
 }
 
 /// seed 기반 결정론적 선택. 같은 등급이면 같은 명언을 고정 노출.
