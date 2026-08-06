@@ -158,7 +158,7 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 | 역할 | 클라이언트 | 권한 |
 |---|---|---|
 | **회원** (member) | 폰 | 자기 WOD·페이싱·결과 제출·박스 공지 보기·코치에게 쪽지·배지·tier |
-| **코치** (coach) | 폰 | 회원 모든 권한 + WOD 게시·회원 목록·쪽지·피드백·가입 승인 |
+| **코치** (coach) | **폰 주 + PC 보조 (D28)** | 회원 모든 권한 + WOD 게시·회원 목록·쪽지·피드백·가입 승인. 쪽지는 폰·PC 양쪽에서 읽고 회신 (D28) |
 | **사장** (boss) | **PC 주 + 폰 보조 (PHASE5)** | 회원 DB CRUD·회원권 발급/연장·락커·전자계약·통계 (게이미피케이션 X) |
 | **매니저** (manager) | **PC 주 + 폰 보조 (PHASE5)** | 사장 위임 운영권 (회원 운영·예약 응대·결제 확인) |
 
@@ -208,13 +208,27 @@ QR 또는 카운터 안내    →    1. 박스 찾기 화면
 GET /api/v1/admin/events  → Server-Sent Events stream (사장 PC 구독)
 GET /api/v1/member/events → 회원 폰 구독 (또는 30초 poll fallback)
 
-이벤트 종류:
+이벤트 종류 (대표 — 전체 목록의 정본은 코드):
 - member_join_request   : 폰 → 사장 (신규 신청)
-- member_approved       : 사장 → 폰 (승인됨)
-- member_expiring       : 시스템 → 사장 (만료 14일 내)
-- wod_result_posted     : 폰 → 코치 (회원 결과 제출)
-- locker_freed          : 사장 → 사장 (락커 해제)
+- member.created        : 사장 PC → 구독자 (회원 등록)
+- membership.issued     : 사장 PC → 구독자 (회원권 발급)
+- wod.posted            : 코치 → 회원 (오늘 WOD 게시)
+- wod_result.posted     : 폰 → 코치 (회원 결과 제출)
+- note.new              : 폰·PC → 구독자 (1:1 쪽지 — payload preview·sender_name)
 ```
+
+> **이벤트명 SSOT = 코드 두 곳** (2026-08-06 §0-B 정정): 발행 = `api/*.py` 의
+> `sse_publish(gym_id, "<이름>", …)` 호출부(현재 35종) / 수신 = `facing-admin`
+> `templates/_layout.html` 의 `_eventToastMap` 키. **두 목록의 키는 반드시 일치**해야 한다 —
+> 어긋나면 토스트가 조용히 죽는다 (D28 에서 `message.received` 사문 발견). 명명 규약은
+> 점 표기(`도메인.동작`)가 기본이며, 초기 도입분 일부(`member_join_request`·
+> `attendance_checked`·`contract_issued` 등)는 밑줄 표기로 남아 있다.
+>
+> **2026-08-06 대조 결과**: 수신만 있고 발행 없는 사문 = 0건. 발행하지만 PC 토스트가 없는
+> 10종(`coach.profile.updated`·`gym.profile.updated`·`locker.added`·`wod.deleted`·
+> `membership.paused|resumed|updated`·`daily_plan.created|updated|deleted`)은 **전부
+> PC 에서 시작한 동작**이라 자기 행동 되울림이 되므로 의도적 무음. 폰에서 시작하는 이벤트는
+> 전부 토스트가 있어야 하며, 이 대조에서 `member.self_signup`(앱 자가가입) 누락을 발견해 추가했다.
 
 - **모바일은 SSE 끊김 잦음** → 폰은 SSE 시도 + 실패 시 30초 poll fallback
 - **PC 브라우저는 EventSource 안정적** → SSE 만
@@ -364,6 +378,7 @@ retention 정의 = "코호트(가입 월) 의 N개월 후 시점에 attendance �
 | D25 | **폰 탭별 화면 책임 재배치** (2026-06-02): **Home** = 공지/쪽지 아코디언(최상단·접힘) + 게이미피케이션(Level·업적·Milestones) / **WOD** = 코치 오늘 WOD + 하단 프리셋 카테고리 아코디언(참조) / **Notice** = 쪽지·숙제·공지 전체 피드(Home은 요약본) / **Attend** = 출석 캘린더 전담(Profile에서 이동) / **Profile** = Identity + 점수(숫자만, radar·sparkline 그래프 제거) + Body·Membership·Locker·MyBox·Settings·Actions. 페이싱 엔진 Home→Profile 강등은 §11.5 positioning(엔진=부가 기능, 홈 노출 위계↓) 과 정합. 5탭 구조·라벨·인덱스 유지 | 사용자 결정 2026-06-02 + §11.5 |
 | D26 | **인증 통일 (2026-06-03)**: 회원·코치·사장 **전원 소셜 로그인(네이버·구글)**. ① device_hash = 익명 식별 → **데이터 연결키**로 격하 (계정에 link). ② 사장 ID/PW(D3·§7) = 소셜로 대체, 전환기엔 fallback 병행. ③ 로그인 응답에 `role` 포함 → 앱이 자동 분기 (수동 mode_select·role_entry 화면 폐기). ④ **백엔드·앱 실 구현 완료 (2026-06-03), 실 OAuth 키 대기**: 백엔드 3 라우트(`/auth/social`·`logout`·`me`)·`social_accounts` 테이블·`gym_managers/members.user_id` 링크·httpx 토큰검증(google tokeninfo·naver userinfo)·role 결정·세션·rate limit 구현+모킹검증 완료. 앱 `RealSocialAuthService`+`resolveSocialAuthService` 팩토리(`USE_REAL_AUTH` 플래그)+pubspec(google_sign_in·naver_login_sdk, **디버그 APK 빌드 통과**) 완료. 기본은 여전히 `StubSocialAuthService`. 키는 전부 `--dart-define` 주입(안드로이드 manifest 수정 0). **남은 것 = GOOGLE_CLIENT_ID/SECRET 발급 → `--dart-define=USE_REAL_AUTH=true` (절차: `apps/facing-app/docs/NATIVE_AUTH_SETUP.md`)**. OAuth 2.1 Authorization Code + PKCE(security.md). 상세: `services/facing/docs/AUTH_SOCIAL_DESIGN.md` | 사용자 결정 2026-06-03 (D2·D3·§7 대체) |
 | D27 | **기본 전자계약 흐름 단순화 (2026-06-05)**: ㉠회원폰·㉡현장·㉢이메일 3경로를 **"현장 1기기 서명 + 메일 발송"** 하나로 통일. 코치·사장 폰(또는 PC) 한 대를 회원에게 건네 **회원 본인이 직접 서명**(코치 대필 금지 — 전자서명법 §3) → 완성 PDF 를 **회원 이메일로 발송**. 회원 이메일 = D26 소셜 로그인(네이버·구글) 계정 이메일 자동 사용(미로그인 시 등록폼 1칸). 발송 채널 = Mailgun(D22). 회원 앱 설치 불요. 구현 시 staff-기기 서명 경로(proxy-sign 변형, "현장 본인 서명" vs "대리" 구분) + 메일 발송 1건 추가. 상세: `services/facing/docs/ONBOARDING_FLOW.md §2·§4` | 사용자 결정 2026-06-05 (㉠㉡㉢ 단순화) |
+| D28 | **쪽지 = 폰 + PC 양쪽 (2026-08-06)**: 회원이 보낸 1:1 쪽지를 코치·사장이 **PC 어드민에서도 읽고 회신**한다. 기존엔 폰 전용(device_hash 인증)이라 "중요한 일은 PC 에서 처리"가 불가능했다. 데이터·직렬화는 그대로 `gym_coach_notes`(+recipients) 1벌 — 조회 로직을 `api/coach_note.build_threads()`·`build_messages()` 로 추출해 폰(device 인증)·PC(세션 인증)가 **같은 코드**를 쓴다. PC 신원 환산: boss·manager = `gyms.owner_hash`, coach = 페어링된 `gym_managers.device_hash`(미페어링이면 안내문과 함께 빈 목록). 신규 엔드포인트 3개 = §13.2. 함께 수정: SSE 이벤트명 — PC 는 `message.received` 를 듣고 있었으나 백엔드는 그 이름을 **한 번도 발행한 적이 없어** 쪽지 토스트가 죽어 있었다 → `note.new` 로 교체 + payload 에 `preview`·`sender_name` 동봉 | 사용자 결정 2026-08-06 (§2 RBAC 코치 클라이언트 갱신 동반) |
 
 ---
 
@@ -382,7 +397,7 @@ retention 정의 = "코호트(가입 월) 의 N개월 후 시점에 attendance �
 | GET/POST/DELETE | `/api/v1/gyms/{id}/wods` | device_hash | 오늘의 WOD |
 | GET/POST/PATCH | `/api/v1/gyms/{id}/members` | device_hash (owner) | 회원 목록·승인 |
 | GET/POST/DELETE | `/api/v1/gyms/{id}/announcements` | device_hash | 공지 |
-| GET/POST | `/api/v1/gyms/{id}/messages` | device_hash | 1:1 쪽지 |
+| GET | `/api/v1/gym/{id}/messages` · `/threads` | device_hash | 1:1 쪽지 타임라인·스레드 목록 (발송은 `/gym/{id}/notes`·`/member-report`). **경로가 `gym` 단수** — 다른 행의 `gyms` 복수와 다름 (2026-08-06 실경로 대조 정정) |
 | GET/POST | `/api/v1/gyms/{id}/wods/{wid}/results` | device_hash | 결과·리더보드 |
 | GET/POST/DELETE | `/api/v1/gyms/{id}/wods/{wid}/comments` | device_hash | WOD 댓글 |
 | GET/POST/DELETE | `/api/v1/gyms/{id}/wods/{wid}/feedback` | device_hash (owner) | 코치 1:1 피드백 |
@@ -412,6 +427,9 @@ retention 정의 = "코호트(가입 월) 의 N개월 후 시점에 attendance �
 | GET | `/api/v1/admin/gyms/{id}/stats` | 세션 (boss) | §6 통계 한 묶음 |
 | GET/POST/PATCH/DELETE | `/api/v1/admin/gyms/{id}/coaches` | 세션 (boss) | **코치 관리 §14 (D24)** |
 | POST | `/api/v1/admin/gyms/{id}/coaches/{cid}/pairing-code` | 세션 (boss) | 코치 폰 페어링 코드 발급 |
+| GET | `/api/v1/admin/gyms/{id}/message-threads` | 세션 (boss·manager·coach) | **D28 회원 쪽지** — 상대별 1:1 스레드 요약(안읽음 포함) |
+| GET | `/api/v1/admin/gyms/{id}/messages?peer=&read=1` | 세션 (boss·manager·coach) | D28 — 특정 회원과의 타임라인. `read=1` 이면 열람 시 읽음 처리 |
+| POST | `/api/v1/admin/gyms/{id}/messages` | 세션 + CSRF | D28 — PC 에서 회원에게 1:1 회신 (500자) |
 | POST | `/api/v1/admin/members/{mid}/inquiries/{iid}/respond` | 세션 (boss) | 회원 문의 답변 |
 | GET | `/api/v1/admin/events` | 세션 (boss) | **SSE stream §4** |
 | POST | `/api/v1/attendances` | device_hash + QR 토큰 | 출석 체크인 (D13) |
@@ -586,6 +604,22 @@ retention 정의 = "코호트(가입 월) 의 N개월 후 시점에 attendance �
 | 사장 폰 로그인 | 없음 | PC 와 동일 ID/PW | 백엔드 admin login endpoint 확장 |
 
 > §10 결정사항 표에는 PHASE5 착수 시점에 D-번호 부여 후 추가.
+
+### 11.8. D28 쪽지 PC 확장 등록 (2026-08-06)
+
+> 등록일: 2026-08-06. 사용자 지시 — "코치(사장) 중요한 일은 PC 에서 처리".
+> 실기 검증 완료: 회원 폰 발송 → PC 토스트·타임라인 즉시 반영, PC 회신 → 회원 폰 대화 반영.
+
+| 변경 항목 | Before | After | 영향 범위 |
+|---|---|---|---|
+| 코치 클라이언트 (§2) | 폰 | 폰 주 + PC 보조 | 브리프 §2 RBAC 표 |
+| 쪽지 조회 로직 | `coach_note` 엔드포인트 안에 인라인 | `build_threads()`·`build_messages()` 공용 함수 (SSOT) | `api/coach_note.py` |
+| PC 쪽지 API | 없음 (폰 device_hash 전용) | admin 3 엔드포인트 (§13.2) | `api/admin.py`·`web/facing-admin` |
+| SSE 쪽지 이벤트 | PC 가 `message.received` 수신 대기 (백엔드 미발행 = 사문) | `note.new` + `preview`·`sender_name` payload | `api/coach_note.py`·`templates/_layout.html` |
+
+- **스키마 변경 없음** — 기존 `gym_coach_notes` · `gym_coach_note_recipients` 그대로 사용.
+- 미해결: 폰 미페어링 코치는 PC 에서 쪽지 열람 불가 (안내문 노출). 페어링 없이도 되게 하려면
+  `gym_managers` 에 staff 전용 식별 해시를 부여하는 별도 결정이 필요하다.
 
 ---
 
