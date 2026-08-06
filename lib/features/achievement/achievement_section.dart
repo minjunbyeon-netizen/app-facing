@@ -152,11 +152,9 @@ class AchievementSection extends StatelessWidget {
     );
   }
 
-  /// 행 제목 — 한글 칭호 우선, 없으면 업적 고유명(영문).
-  static String _rowTitle(AchievementCatalog c) {
-    final ko = AchievementCard.koreanTitle(c.code);
-    return ko.isEmpty ? AchievementCard.gridLabel(c.name) : ko;
-  }
+  /// 행 제목 — 한글 칭호 우선, 없으면 업적 고유명(영문). 표기 정본 = AchievementCard.
+  static String _rowTitle(AchievementCatalog c) =>
+      AchievementCard.displayTitle(c);
 
   // 부제 = 업적 설명(한글). 해금일은 행에 싣지 않고 상세 시트에서만 노출.
 }
@@ -315,9 +313,7 @@ class _DetailSheet extends StatelessWidget {
     );
   }
 
-  String _hint() => catalog.isHidden
-      ? '· · · (조건 공개 안 됨)'
-      : AchievementCard.triggerHint(catalog.code);
+  String _hint() => AchievementCard.lockedHint(catalog);
 
   String _fmt(DateTime d) {
     final l = d.toLocal();

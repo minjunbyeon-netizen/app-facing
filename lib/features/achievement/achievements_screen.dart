@@ -32,28 +32,43 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   String _filter = 'ALL';
   String? _featuredCode;
 
+  // v1.29 한글 기본 — PR 은 도메인 고정어라 영문 유지.
   static const List<(String, String)> _filters = [
-    ('ALL', 'All'),
+    ('ALL', '전체'),
     ('TIER', 'Tier'),
-    ('STREAK', 'Streak'),
+    ('ENGINE', 'Engine'),
+    ('STREAK', '연속'),
     ('PR', 'PR'),
-    ('SEASON', 'Season'),
-    ('VOLUME', 'Volume'),
-    ('EASTER', 'Hidden'),
+    ('SEASON', '시즌'),
+    ('VOLUME', '누적'),
+    ('EASTER', '히든'),
   ];
 
+  /// v1.30: TIER 가 잡동사니 통이던 문제 해소 — Engine 점수·카테고리 숙련은
+  /// 별도 ENGINE 으로 분리하고, 시즌 이벤트(CF_*)는 SEASON 으로 넣는다.
   static String _category(String code) {
     if (code.startsWith('REACH_') || code == 'TITLE_POLYMATH') return 'TIER';
+    if (code.startsWith('SCORE_') ||
+        code.startsWith('ALL_CAT_') ||
+        code.startsWith('CAT_') ||
+        code == 'HOLY_TRINITY' ||
+        code == 'VOL_EQUAL' ||
+        code == 'FIRST_ENGINE' ||
+        code == 'TITLE_SCHOLAR') {
+      return 'ENGINE';
+    }
     if (code.startsWith('STREAK_') ||
         code == 'TITLE_OBSESSED' ||
-        code == 'TITLE_RELENTLESS') {
+        code == 'TITLE_RELENTLESS' ||
+        code == 'VOL_TRIPLE_STREAK' ||
+        code.startsWith('VOL_COMEBACK')) {
       return 'STREAK';
     }
     if (code.startsWith('PR_')) return 'PR';
-    if (code.startsWith('SEASON_')) return 'SEASON';
+    if (code.startsWith('SEASON_') || code.startsWith('CF_')) return 'SEASON';
     if (code.startsWith('EGG_')) return 'EASTER';
     if (code.startsWith('VOL_') ||
-        code == 'WOD_50' ||
+        code.startsWith('WOD_') ||
         code == 'TITLE_UNDEFEATED') {
       return 'VOLUME';
     }
@@ -112,7 +127,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
         actions: [
           // v1.20 Phase 2.5: Panel B 20-title 진입.
           IconButton(
-            tooltip: 'Panel B Titles',
+            tooltip: '칭호',
             icon: const Icon(Icons.workspace_premium_outlined, size: 20),
             onPressed: () => openPanelB(context),
           ),
@@ -362,8 +377,9 @@ class _FeaturedPanel extends StatelessWidget {
             ),
           ),
           const SizedBox(height: FacingTokens.sp1),
+          // v1.30: 한글 칭호가 제목, 영문 고유명이 부제 (홈 표와 표기 통일).
           Text(
-            isHidden ? '???' : catalog.name,
+            isHidden ? '???' : AchievementCard.displayTitle(catalog),
             style: FacingTokens.h3.copyWith(
               color: unlockedInUi ? FacingTokens.fg : FacingTokens.muted,
             ),
@@ -372,11 +388,8 @@ class _FeaturedPanel extends StatelessWidget {
               AchievementCard.koreanTitle(catalog.code).isNotEmpty) ...[
             const SizedBox(height: FacingTokens.sp1),
             Text(
-              AchievementCard.koreanTitle(catalog.code),
-              style: FacingTokens.body.copyWith(
-                color: FacingTokens.muted,
-                fontWeight: FontWeight.w700,
-              ),
+              AchievementCard.gridLabel(catalog.name),
+              style: FacingTokens.caption,
             ),
           ],
           const SizedBox(height: FacingTokens.sp3),
@@ -385,7 +398,7 @@ class _FeaturedPanel extends StatelessWidget {
                 ? '· · · 조건 비공개. 해금 후 공개.'
                 : (unlockedInUi
                     ? catalog.description
-                    : AchievementCard.triggerHint(catalog.code)),
+                    : AchievementCard.lockedHint(catalog)),
             style: FacingTokens.caption,
           ),
           const Spacer(),
@@ -397,11 +410,16 @@ class _FeaturedPanel extends StatelessWidget {
                 const Icon(Icons.check_circle,
                     size: 14, color: FacingTokens.success),
                 const SizedBox(width: FacingTokens.sp1),
-                Text(
-                  'Earned · ${_formatDate(unlock!.unlockedAt)}',
-                  style: FacingTokens.micro.copyWith(
-                    color: FacingTokens.success,
-                    fontWeight: FontWeight.w700,
+                // 좁은 좌측 패널에서 가로 오버플로우 나던 자리 — Expanded 로 고정.
+                Expanded(
+                  child: Text(
+                    '달성 · ${_formatDate(unlock!.unlockedAt)}',
+                    style: FacingTokens.micro.copyWith(
+                      color: FacingTokens.success,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
@@ -533,7 +551,7 @@ class _GridCell extends StatelessWidget {
               // 마침표 3분류: 그리드 타일 = 단어 라벨 → 마침표 없음.
               // toUpperCase 제거 — 좁은 셀에서 대문자 폭 증가로 단어 중간 개행 유발.
               child: Text(
-                isHidden ? '???' : AchievementCard.gridLabel(catalog.name),
+                isHidden ? '???' : AchievementCard.displayTitle(catalog),
                 maxLines: 2,
                 textAlign: TextAlign.center,
                 overflow: TextOverflow.ellipsis,

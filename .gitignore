@@ -64,3 +64,6 @@ tmp_*.png
 tmp_*.xml
 
 dist/
+
+# 골든 실패 진단 산출물 (일회성)
+test/golden/failures/
