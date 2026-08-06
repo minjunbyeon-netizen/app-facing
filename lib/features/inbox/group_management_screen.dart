@@ -158,7 +158,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
                 TextField(
                   controller: notesCtrl,
                   decoration: const InputDecoration(
-                    labelText: 'Notes (선택)',
+                    labelText: '메모 (선택)',
                   ),
                   maxLength: 500,
                 ),

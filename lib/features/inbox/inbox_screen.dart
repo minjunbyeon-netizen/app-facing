@@ -58,7 +58,7 @@ class _InboxScreenState extends State<InboxScreen> {
     // v1.24 (2026-06-03): 쪽지·공지·대화는 Attend 탭(캘린더 밑 MessagingFeed)으로 이동.
     //   Notice 탭은 재활 가이드 전담으로 남는다. (사용자 결정 2026-06-03)
     return Scaffold(
-      appBar: AppBar(title: const Text('공지')),
+      appBar: AppBar(title: const Text('재활 가이드')),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.only(
@@ -569,7 +569,8 @@ class MessagingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('공지')),
+      // 쪽지·숙제·공지가 함께 쌓이는 화면이라 '공지' 는 내용과 불일치 (2026-08-06).
+      appBar: AppBar(title: const Text('알림함')),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp4),

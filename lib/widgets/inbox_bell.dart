@@ -21,7 +21,7 @@ class InboxBellAction extends StatelessWidget {
         clipBehavior: Clip.none,
         children: [
           IconButton(
-            tooltip: 'Notice',
+            tooltip: '알림함',
             icon: const Icon(Icons.notifications_outlined),
             onPressed: () {
               Haptic.light();

@@ -186,7 +186,7 @@ class _WodResultSheetState extends State<WodResultSheet> {
                         color: FacingTokens.accent,
                       )),
                   const SizedBox(width: FacingTokens.sp2),
-                  const Text('· Mark Done', style: FacingTokens.sectionLabel),
+                  const Text('· 완료 기록', style: FacingTokens.sectionLabel),
                   const Spacer(),
                   IconButton(
                     icon: const Icon(Icons.close, size: 20),
@@ -271,7 +271,7 @@ class _WodResultSheetState extends State<WodResultSheet> {
                           ),
                         )
                       : const Icon(Icons.check, size: 18),
-                  label: Text(_saving ? 'Saving' : 'Submit & Attend'),
+                  label: Text(_saving ? '저장 중' : '제출하고 출석'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: FacingTokens.accent,
                     foregroundColor: FacingTokens.fg,
@@ -295,7 +295,7 @@ class _TimeField extends StatelessWidget {
       controller: controller,
       keyboardType: TextInputType.text,
       decoration: const InputDecoration(
-        labelText: 'Time (mm:ss)',
+        labelText: '기록 (분:초)',
         hintText: '12:34',
       ),
     );
@@ -337,7 +337,7 @@ class _WeightField extends StatelessWidget {
       controller: controller,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       decoration: const InputDecoration(
-        labelText: 'Weight (kg, 선택)',
+        labelText: '중량 (kg · 선택)',
         hintText: '예: 60',
       ),
     );
@@ -354,7 +354,7 @@ class _NotesField extends StatelessWidget {
       maxLines: 2,
       maxLength: 200,
       decoration: const InputDecoration(
-        labelText: 'Notes (선택)',
+        labelText: '메모 (선택)',
         hintText: 'PR · UB · 부상부위 등',
       ),
     );
