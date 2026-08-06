@@ -312,46 +312,51 @@ class _GamificationBody extends StatelessWidget {
         ),
         const SizedBox(height: FacingTokens.sp4),
 
-        // ACHIEVEMENTS — 캐릭터 바로 아래 그리드
+        // 업적 — 캐릭터 바로 아래 표 (v1.30: 그리드 → 한 줄 한 항목)
         const AchievementSection(),
         const SizedBox(height: FacingTokens.sp5),
 
-        // MILESTONES — 3종 요약 진행바
-        const Text('마일스톤', style: FacingTokens.sectionLabel),
-        const SizedBox(height: FacingTokens.sp3),
-        // QA 2026-06-11: WOD 계산 기록이 아닌 실제 QR 출석(Attend 탭 동일
-        // 소스)으로 표기 — 두 화면 수치 불일치 해소. 미가입·로드 실패 시 숨김.
-        if (attendDays != null)
-          Builder(builder: (context) {
-            final attendThisMonth = attendDays!
-                .where((d) => d.year == now.year && d.month == now.month)
-                .length;
-            return _ProgressStat(
-              title: '출석',
-              subtitle: '이번 달 출석 · $attendThisMonth / $daysElapsed일',
-              value: daysElapsed > 0
-                  ? (attendThisMonth / daysElapsed).clamp(0.0, 1.0)
+        // 마일스톤 — 3종 요약 진행바 (업적과 같은 표 리듬)
+        const FkSectionLabel('마일스톤'),
+        const SizedBox(height: FacingTokens.sp2),
+        FkRowCard(
+          rows: [
+            // QA 2026-06-11: WOD 계산 기록이 아닌 실제 QR 출석(Attend 탭 동일
+            // 소스)으로 표기 — 두 화면 수치 불일치 해소. 미가입·로드 실패 시 숨김.
+            if (attendDays != null)
+              Builder(builder: (context) {
+                final attendThisMonth = attendDays!
+                    .where((d) => d.year == now.year && d.month == now.month)
+                    .length;
+                return _ProgressStat(
+                  title: '출석',
+                  subtitle: '이번 달 $attendThisMonth / $daysElapsed일',
+                  value: daysElapsed > 0
+                      ? (attendThisMonth / daysElapsed).clamp(0.0, 1.0)
+                      : 0.0,
+                  trailing: daysElapsed > 0
+                      ? '${(attendThisMonth / daysElapsed * 100).round()}%'
+                      : '0%',
+                );
+              }),
+            _ProgressStat(
+              title: '세션',
+              subtitle: '누적 $totalLifetime회 → $nextMilestone 목표',
+              value: (totalLifetime / nextMilestone).clamp(0.0, 1.0),
+              trailing: totalLifetime >= 365
+                  ? 'MAX'
+                  : '$totalLifetime / $nextMilestone',
+            ),
+            _ProgressStat(
+              title: '업적',
+              subtitle: '해금한 업적',
+              value: achState.snapshot.visibleCount > 0
+                  ? (unlockedCount / achState.snapshot.visibleCount)
+                      .clamp(0.0, 1.0)
                   : 0.0,
-              trailing: daysElapsed > 0
-                  ? '${(attendThisMonth / daysElapsed * 100).round()}%'
-                  : '0%',
-            );
-          }),
-        _ProgressStat(
-          title: '세션',
-          subtitle: '누적 $totalLifetime회 → $nextMilestone 목표',
-          value: (totalLifetime / nextMilestone).clamp(0.0, 1.0),
-          trailing:
-              totalLifetime >= 365 ? 'MAX' : '$totalLifetime / $nextMilestone',
-        ),
-        _ProgressStat(
-          title: '업적',
-          subtitle: '업적 해금',
-          value: achState.snapshot.visibleCount > 0
-              ? (unlockedCount / achState.snapshot.visibleCount)
-                  .clamp(0.0, 1.0)
-              : 0.0,
-          trailing: '$unlockedCount / ${achState.snapshot.visibleCount}',
+              trailing: '$unlockedCount / ${achState.snapshot.visibleCount}',
+            ),
+          ],
         ),
       ],
     );
@@ -436,13 +441,7 @@ class _LevelCard extends StatelessWidget {
     final isMax = bd.level >= LevelSystem.maxLevel;
     final charColor = _colorForLevel(bd.level);
 
-    return Container(
-      padding: const EdgeInsets.all(FacingTokens.sp4),
-      decoration: BoxDecoration(
-        color: FacingTokens.surface,
-        border: Border.all(color: FacingTokens.border),
-        borderRadius: BorderRadius.circular(FacingTokens.r3),
-      ),
+    return FkCard(
       child: IntrinsicHeight(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -479,7 +478,7 @@ class _LevelCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('레벨', style: FacingTokens.sectionLabel),
+                  const FkSectionLabel('레벨'),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     textBaseline: TextBaseline.alphabetic,
@@ -541,7 +540,8 @@ class _LevelCard extends StatelessWidget {
   }
 }
 
-/// MILESTONES 3종 요약 진행바 (Attendance / Sessions / Achievements).
+/// 마일스톤 3종 요약 진행바 (출석 / 세션 / 업적).
+/// v1.30: 자체 레이아웃 폐기 — FkListRow(제목·부제·우측 값) + below 슬롯 진행바.
 class _ProgressStat extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -557,52 +557,27 @@ class _ProgressStat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final done = value >= 1.0;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp2),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  style:
-                      FacingTokens.body.copyWith(fontWeight: FontWeight.w700),
-                ),
+    return FkListRow(
+      title: title,
+      subtitle: subtitle,
+      trailing: trailing,
+      trailingColor: done ? FacingTokens.accent : FacingTokens.muted,
+      below: ClipRRect(
+        borderRadius: BorderRadius.circular(FacingTokens.r1),
+        child: Stack(
+          children: [
+            Container(height: 4, color: FacingTokens.border),
+            FractionallySizedBox(
+              widthFactor: value,
+              child: Container(
+                height: 4,
+                color: done
+                    ? FacingTokens.accent
+                    : FacingTokens.accent.withValues(alpha: 0.55),
               ),
-              Text(
-                trailing,
-                style: FacingTokens.micro.copyWith(
-                  color: done ? FacingTokens.accent : FacingTokens.muted,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0.8,
-                  fontFeatures: FacingTokens.tabular,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: FacingTokens.sp1),
-          Text(subtitle, style: FacingTokens.caption),
-          const SizedBox(height: FacingTokens.sp2),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(FacingTokens.r1),
-            child: Stack(
-              children: [
-                Container(height: 4, color: FacingTokens.border),
-                FractionallySizedBox(
-                  widthFactor: value,
-                  child: Container(
-                    height: 4,
-                    color: done
-                        ? FacingTokens.accent
-                        : FacingTokens.accent.withValues(alpha: 0.55),
-                  ),
-                ),
-              ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

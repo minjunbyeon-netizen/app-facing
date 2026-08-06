@@ -4,12 +4,13 @@ import 'package:provider/provider.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/achievement.dart';
+import '../../widgets/fkit.dart';
 import 'achievement_card.dart';
 import 'achievement_state.dart';
 import 'achievements_screen.dart';
 
-/// 업적 섹션 — 최근 해금 최대 6칸 고정 그리드.
-/// 6개 초과 시 마지막 칸을 "+N more" 오버플로우 타일로 대체.
+/// 업적 섹션 — 최근 해금 최대 5줄 표 (v1.30: 색 타일 3열 그리드 → 한 줄 한 항목).
+/// 5개 초과 시 마지막 줄이 "그 외 N개" → 전체 보기.
 /// Locked 항목은 이 섹션에서 제거 → AchievementsScreen 전용.
 class AchievementSection extends StatelessWidget {
   const AchievementSection({super.key});
@@ -93,12 +94,12 @@ class AchievementSection extends StatelessWidget {
         return ub.compareTo(ua);
       });
 
-    // 6칸 고정: >6이면 5개 타일 + 오버플로우 타일
-    const int kMax = 6;
+    // 5줄 고정: 초과분은 마지막 "그 외 N개" 줄로 접는다.
+    const int kMax = 5;
     final bool hasOverflow = unlockedList.length > kMax;
     final displayItems =
-        hasOverflow ? unlockedList.take(kMax - 1).toList() : unlockedList;
-    final overflowCount = unlockedCount - (kMax - 1);
+        hasOverflow ? unlockedList.take(kMax).toList() : unlockedList;
+    final overflowCount = unlockedCount - kMax;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -106,9 +107,7 @@ class AchievementSection extends StatelessWidget {
         // 헤더
         Row(
           children: [
-            const Expanded(
-              child: Text('업적', style: FacingTokens.sectionLabel),
-            ),
+            const Expanded(child: FkSectionLabel('업적')),
             Text('$unlockedCount / $totalVisible', style: FacingTokens.caption),
             const SizedBox(width: FacingTokens.sp2),
             TextButton(
@@ -121,45 +120,45 @@ class AchievementSection extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: FacingTokens.sp3),
+        const SizedBox(height: FacingTokens.sp2),
 
         if (unlockedList.isEmpty)
           // 빈 상태 — 아직 해금 없음
           _EmptyState(onTap: () => _goAll(context))
         else
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              crossAxisSpacing: FacingTokens.sp2,
-              mainAxisSpacing: FacingTokens.sp2,
-              // 0.92 → 0.88: 영문 고유명 2줄 + rarity 라벨 토큰(13sp) 수직 여유 확보.
-              childAspectRatio: 0.88,
-            ),
-            itemCount: displayItems.length + (hasOverflow ? 1 : 0),
-            itemBuilder: (_, i) {
-              // 마지막 칸: 오버플로우
-              if (hasOverflow && i == displayItems.length) {
-                return _OverflowTile(
-                  count: overflowCount,
+          FkRowCard(
+            rows: [
+              for (final c in displayItems)
+                FkListRow(
+                  icon: _iconFor(c.code),
+                  iconColor: _rarityColor(c.rarity),
+                  title: _rowTitle(c),
+                  subtitle: c.description,
+                  trailing: c.rarity.toUpperCase(),
+                  trailingColor: _rarityColor(c.rarity),
+                  onTap: () => _showDetail(context, c, snap.unlocked[c.code]),
+                ),
+              if (hasOverflow)
+                FkListRow(
+                  icon: Icons.more_horiz,
+                  title: '그 외 $overflowCount개',
+                  trailing: '전체 보기',
+                  trailingColor: FacingTokens.accent,
                   onTap: () => _goAll(context),
-                );
-              }
-              final c = displayItems[i];
-              final rc = _rarityColor(c.rarity);
-              return _GridTile(
-                catalog: c,
-                unlock: snap.unlocked[c.code],
-                rarityColor: rc,
-                icon: _iconFor(c.code),
-                onTap: () => _showDetail(context, c, snap.unlocked[c.code]),
-              );
-            },
+                ),
+            ],
           ),
       ],
     );
   }
+
+  /// 행 제목 — 한글 칭호 우선, 없으면 업적 고유명(영문).
+  static String _rowTitle(AchievementCatalog c) {
+    final ko = AchievementCard.koreanTitle(c.code);
+    return ko.isEmpty ? AchievementCard.gridLabel(c.name) : ko;
+  }
+
+  // 부제 = 업적 설명(한글). 해금일은 행에 싣지 않고 상세 시트에서만 노출.
 }
 
 // ─── 빈 상태 ─────────────────────────────────────────────────────────────────
@@ -184,140 +183,17 @@ class _EmptyState extends StatelessWidget {
                 size: 28, color: FacingTokens.muted),
             const SizedBox(height: FacingTokens.sp2),
             Text(
-              'No achievements yet.',
+              '아직 업적 없음.',
               style: FacingTokens.caption,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 2),
             Text(
-              'Complete a WOD to start.',
+              'WOD를 완료하면 해금됩니다.',
               style: FacingTokens.micro,
               textAlign: TextAlign.center,
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-// ─── 오버플로우 타일 (+N more) ──────────────────────────────────────────────
-
-class _OverflowTile extends StatelessWidget {
-  final int count;
-  final VoidCallback onTap;
-  const _OverflowTile({required this.count, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(FacingTokens.r2),
-      child: Material(
-        color: FacingTokens.surface,
-        child: InkWell(
-          onTap: onTap,
-          splashColor: FacingTokens.accent.withValues(alpha: 0.12),
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: FacingTokens.border, width: 0.8),
-              borderRadius: BorderRadius.circular(FacingTokens.r2),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  '+$count',
-                  style: FacingTokens.h3.copyWith(
-                    color: FacingTokens.accent,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'more',
-                  style: FacingTokens.micro.copyWith(
-                    color: FacingTokens.muted,
-                    letterSpacing: 0.4,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ─── 그리드 타일 ─────────────────────────────────────────────────────────────
-
-class _GridTile extends StatelessWidget {
-  final AchievementCatalog catalog;
-  final AchievementUnlock? unlock;
-  final Color rarityColor;
-  final IconData icon;
-  final VoidCallback onTap;
-
-  const _GridTile({
-    required this.catalog,
-    required this.unlock,
-    required this.rarityColor,
-    required this.icon,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(FacingTokens.r2),
-      child: Material(
-        color: rarityColor.withValues(alpha: 0.10),
-        child: InkWell(
-          onTap: onTap,
-          splashColor: rarityColor.withValues(alpha: 0.20),
-          highlightColor: rarityColor.withValues(alpha: 0.12),
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border.all(
-                  color: rarityColor.withValues(alpha: 0.50), width: 1),
-              borderRadius: BorderRadius.circular(FacingTokens.r2),
-            ),
-            padding: const EdgeInsets.symmetric(
-              horizontal: FacingTokens.sp2,
-              vertical: FacingTokens.sp3,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(icon, size: 28, color: rarityColor),
-                const SizedBox(height: FacingTokens.sp1),
-                // 실기기 QA: koreanTitle 폴백('칭호')이 카드마다 중복 표시 →
-                // 업적 고유명(영문)으로 바인딩, Achievements 그리드와 표기 통일.
-                Text(
-                  AchievementCard.gridLabel(catalog.name),
-                  style: FacingTokens.micro.copyWith(
-                    color: FacingTokens.fg,
-                    fontWeight: FontWeight.w700,
-                    height: 1.25,
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                // R5: 인라인 fontSize 금지 → microLabel 토큰
-                // (Achievements featured 패널 rarity 표기와 동일 토큰 — R4).
-                Text(
-                  catalog.rarity.toUpperCase(),
-                  style: FacingTokens.microLabel.copyWith(
-                    color: rarityColor,
-                    fontWeight: FontWeight.w800,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          ),
         ),
       ),
     );
@@ -428,7 +304,7 @@ class _DetailSheet extends StatelessWidget {
             if (isUnlocked) ...[
               const SizedBox(height: FacingTokens.sp3),
               Text(
-                'Unlocked ${_fmt(unlock!.unlockedAt)}',
+                '${_fmt(unlock!.unlockedAt)} 해금',
                 style: FacingTokens.caption.copyWith(color: FacingTokens.accent),
               ),
             ],

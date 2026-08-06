@@ -74,6 +74,8 @@
 | `FkBadge` | 1px 컬러 보더 + 대문자 + r1 사각 — pill 금지 |
 | `FkSectionLabel` | sectionLabel + 대문자 강제 |
 | `FkStatTile` | 라벨 위 + 값(h3) 아래 |
+| `FkListRow` | **표 행 유일 규격** — 좌 아이콘(20) · 제목(body w600)/부제(caption) · 우 값(micro) · below 슬롯(진행바). 패딩 sp4×sp3 |
+| `FkRowCard` | 표 카드 — FkListRow 를 1px 구분선(indent sp4)으로 쌓음. 카드 1개 = 표 1개 |
 | `FkEmptyState` | h3 제목 + caption 캡션 수직 스택 |
 | `FkErrorState` | body 메시지 + "다시 시도" — `.fromError` 로 메시지 통일 매핑 |
 | `FkLoading` | 22×22 stroke 2 muted 스피너 (인라인 로딩 유일 규격) |
@@ -112,6 +114,14 @@
 - **혼용 허용**: 도메인 영단어 + 한글 조사 결합 허용 ("코치가 올린 오늘의 WOD") — 구 V9 금지 폐기.
 - **금지 용어 유지**: 운동·헬스·다이어트·웰니스·체중관리·쉬운·편리한·누구나·당신·귀하 (copy_lint).
 - 공통 문자열(건너뛰기·다음·저장·취소 등)은 appkit 스킨 `appkit.config.json > strings` = 정본.
+
+## 7-A. 나열형 데이터 표기 (v1.30 · 2026-08-06 사용자 지시)
+
+- **한 줄에 한 항목.** 업적·마일스톤처럼 개수가 늘어나는 목록은 `FkRowCard` + `FkListRow` 표로만
+  표기한다. **색 채운 타일 그리드 금지** (rarity 색 배경 3열 그리드가 산만 — v1.30 폐기).
+- 색은 면이 아니라 **아이콘·우측 값 글자색**으로만 (rarity·달성 여부). 면은 항상 `surface` 1색.
+- 목록이 길면 상단 헤더에 `n / m` + "전체 보기", 본문은 **최대 5줄** + "그 외 N개" 마지막 행.
+- 항목 상세(해금일·조건 등)는 행에 싣지 않고 탭 → 상세 시트에서 노출.
 
 ## 8. 변경 절차
 

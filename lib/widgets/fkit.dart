@@ -114,6 +114,129 @@ class FkStatTile extends StatelessWidget {
   }
 }
 
+/// 표 행 — 좌 아이콘(선택) · 제목/부제 · 우 값. "한 줄에 한 항목" 표기의 유일 규격.
+/// 홈 업적·마일스톤처럼 나열형 데이터는 그리드 타일 대신 이 행으로 쌓는다
+/// (v1.30 — 색 타일 그리드가 산만하다는 사용자 지시로 표 형태 전환).
+class FkListRow extends StatelessWidget {
+  final IconData? icon;
+  final Color? iconColor;
+  final String title;
+  final String? subtitle;
+  final String? trailing;
+  final Color? trailingColor;
+
+  /// 행 하단 슬롯 — 진행바 등. 없으면 생략.
+  final Widget? below;
+  final VoidCallback? onTap;
+
+  const FkListRow({
+    super.key,
+    required this.title,
+    this.icon,
+    this.iconColor,
+    this.subtitle,
+    this.trailing,
+    this.trailingColor,
+    this.below,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final row = Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: FacingTokens.sp4,
+        vertical: FacingTokens.sp3,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              if (icon != null) ...[
+                Icon(icon, size: 20, color: iconColor ?? FacingTokens.muted),
+                const SizedBox(width: FacingTokens.sp3),
+              ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: FacingTokens.body
+                          .copyWith(fontWeight: FontWeight.w600),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle!,
+                        style: FacingTokens.caption,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              if (trailing != null) ...[
+                const SizedBox(width: FacingTokens.sp3),
+                Text(
+                  trailing!,
+                  style: FacingTokens.micro.copyWith(
+                    color: trailingColor ?? FacingTokens.muted,
+                    fontWeight: FontWeight.w600,
+                    fontFeatures: FacingTokens.tabular,
+                  ),
+                ),
+              ],
+            ],
+          ),
+          if (below != null) ...[
+            const SizedBox(height: FacingTokens.sp2),
+            below!,
+          ],
+        ],
+      ),
+    );
+    if (onTap == null) return row;
+    return InkWell(onTap: onTap, child: row);
+  }
+}
+
+/// 표 카드 — FkListRow 들을 1px 구분선으로 쌓는다 (카드 1개 = 표 1개).
+class FkRowCard extends StatelessWidget {
+  final List<Widget> rows;
+  final EdgeInsetsGeometry? margin;
+  const FkRowCard({super.key, required this.rows, this.margin});
+
+  @override
+  Widget build(BuildContext context) {
+    final children = <Widget>[];
+    for (var i = 0; i < rows.length; i++) {
+      if (i > 0) {
+        children.add(const Divider(
+          height: 1,
+          thickness: 1,
+          color: FacingTokens.border,
+          indent: FacingTokens.sp4,
+          endIndent: FacingTokens.sp4,
+        ));
+      }
+      children.add(rows[i]);
+    }
+    return FkCard(
+      margin: margin,
+      padding: EdgeInsets.zero,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(FacingTokens.r3),
+        child: Column(children: children),
+      ),
+    );
+  }
+}
+
 /// 빈 상태 — h3 제목(영문 헤드라인) + 한글 캡션 수직 스택 (V10 패턴).
 class FkEmptyState extends StatelessWidget {
   final String title;
