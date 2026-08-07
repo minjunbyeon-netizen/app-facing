@@ -330,27 +330,11 @@ class _UnitToggle extends StatelessWidget {
         final selected = u == unit;
         return Padding(
           padding: const EdgeInsets.only(left: FacingTokens.sp1),
-          child: InkWell(
+          child: FkBadge(
+            u,
+            color: FacingTokens.fg,
+            selected: selected,
             onTap: () => onChanged(u),
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: FacingTokens.sp3,
-                vertical: FacingTokens.sp2,
-              ),
-              decoration: BoxDecoration(
-                color: selected ? FacingTokens.fg : FacingTokens.bg,
-                border: Border.all(
-                  color: selected ? FacingTokens.fg : FacingTokens.border,
-                ),
-                borderRadius: BorderRadius.circular(FacingTokens.r2),
-              ),
-              child: Text(
-                u,
-                style: FacingTokens.body.copyWith(
-                  color: selected ? FacingTokens.bg : FacingTokens.fg,
-                ),
-              ),
-            ),
           ),
         );
       }).toList(),

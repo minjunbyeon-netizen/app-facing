@@ -17,6 +17,7 @@ import 'package:provider/provider.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/achievement.dart';
+import '../../widgets/fkit.dart';
 import 'achievement_card.dart';
 import 'achievement_state.dart';
 import 'panel_b_screen.dart';
@@ -300,29 +301,11 @@ class _FilterRow extends StatelessWidget {
         itemBuilder: (ctx, i) {
           final (code, label) = filters[i];
           final selected = current == code;
-          return InkWell(
+          return FkBadge(
+            label,
+            color: FacingTokens.fg,
+            selected: selected,
             onTap: () => onTap(code),
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: FacingTokens.sp3,
-                vertical: FacingTokens.sp1,
-              ),
-              decoration: BoxDecoration(
-                color: selected ? FacingTokens.fg : Colors.transparent,
-                border: Border.all(
-                  color: selected ? FacingTokens.fg : FacingTokens.border,
-                ),
-                borderRadius: BorderRadius.circular(FacingTokens.r2),
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                label.toUpperCase(),
-                style: FacingTokens.microLabel.copyWith(
-                  color: selected ? FacingTokens.bg : FacingTokens.muted,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ),
           );
         },
       ),
@@ -511,6 +494,7 @@ class _GridCell extends StatelessWidget {
         decoration: BoxDecoration(
           color: FacingTokens.surface,
           border: Border.all(
+            // badge-lint: ignore — 배지가 아니라 선택 상태를 갖는 카드(그리드 칸).
             color: selected ? FacingTokens.fg : FacingTokens.border,
             width: selected ? 1.5 : 1,
           ),

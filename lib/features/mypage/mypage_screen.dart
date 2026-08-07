@@ -925,31 +925,14 @@ class _TextScaleToggle extends StatelessWidget {
         final selected = (current - o.$1).abs() < 0.01;
         return Padding(
           padding: const EdgeInsets.only(left: FacingTokens.sp1),
-          child: InkWell(
+          child: FkBadge(
+            o.$2,
+            color: FacingTokens.fg,
+            selected: selected,
             onTap: () {
               Haptic.light();
               state.setTextScale(o.$1);
             },
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: FacingTokens.sp3,
-                vertical: FacingTokens.sp2,
-              ),
-              decoration: BoxDecoration(
-                color: selected ? FacingTokens.fg : FacingTokens.bg,
-                border: Border.all(
-                  color: selected ? FacingTokens.fg : FacingTokens.border,
-                ),
-                borderRadius: BorderRadius.circular(FacingTokens.r2),
-              ),
-              child: Text(
-                o.$2,
-                style: FacingTokens.body.copyWith(
-                  color: selected ? FacingTokens.bg : FacingTokens.fg,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
           ),
         );
       }).toList(),

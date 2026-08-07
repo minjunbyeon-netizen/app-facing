@@ -7,6 +7,7 @@ import '../../core/movements_repository.dart';
 import '../../core/theme.dart';
 import '../../models/movement.dart';
 import '../../models/preset_wod.dart';
+import '../../widgets/fkit.dart';
 import 'preset_detail_screen.dart';
 
 class PresetsScreen extends StatefulWidget {
@@ -143,29 +144,11 @@ class _FilterBar extends StatelessWidget {
           final selected = value == current;
           return Padding(
             padding: const EdgeInsets.only(right: FacingTokens.sp2),
-            child: InkWell(
+            child: FkBadge(
+              label,
+              color: FacingTokens.fg,
+              selected: selected,
               onTap: () => onTap(value),
-              borderRadius: BorderRadius.circular(FacingTokens.r4),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: FacingTokens.sp4,
-                  vertical: FacingTokens.sp2,
-                ),
-                decoration: BoxDecoration(
-                  color: selected ? FacingTokens.fg : FacingTokens.bg,
-                  border: Border.all(
-                    color: selected ? FacingTokens.fg : FacingTokens.border,
-                  ),
-                  borderRadius: BorderRadius.circular(FacingTokens.r4),
-                ),
-                child: Text(
-                  label,
-                  style: FacingTokens.body.copyWith(
-                    color: selected ? FacingTokens.bg : FacingTokens.fg,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
             ),
           );
         }).toList(),

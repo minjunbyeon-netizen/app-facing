@@ -151,6 +151,10 @@
   거절 대상 — 색(`color`)으로만 구분한다.
 - `TierBadge` 만 예외(티어 5색 전용 별도 정본). 코치 표시(`CoachBadge`)는 FkBadge 를 감싼
   **의미 배선**일 뿐 모양을 따로 갖지 않는다.
+- **자동 게이트 = `test/badge_lint_test.dart`** (3종): ① 화면 로컬 Pill/Chip/Tag 선언 0건
+  ② 인라인 선택 칩(`BoxDecoration` 안에서 `selected ?` 로 면·보더를 바꾸는 코드) 0건
+  ③ Material 칩 위젯 0건. 배지가 아닌 컴포넌트(선택 상태를 갖는 카드 등)만
+  `// badge-lint: ignore — 사유` 로 명시 면제한다.
 
 ## 8. 변경 절차
 

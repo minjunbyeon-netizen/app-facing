@@ -50,6 +50,44 @@ void main() {
       );
     });
 
+    test('인라인 선택 칩 0건 (선택 여부로 면·보더를 바꾸는 BoxDecoration)', () {
+      // 클래스로 빼지 않고 build 안에서 바로 그리던 선택 칩까지 잡는다.
+      // decoration: BoxDecoration( 이후 12줄 안에 selected 삼항이 있으면 칩으로 본다.
+      const window = 12;
+      final violations = <String>[];
+      for (final f in Directory('lib').listSync(recursive: true)) {
+        if (f is! File || !f.path.endsWith('.dart')) continue;
+        final normalized = f.path.replaceAll('\\', '/');
+        // FkBadge 자신이 유일하게 이 패턴을 가질 수 있다.
+        if (normalized.endsWith('lib/widgets/fkit.dart')) continue;
+        final lines = f.readAsStringSync().split('\n');
+        for (var i = 0; i < lines.length; i++) {
+          if (!lines[i].contains('BoxDecoration(')) continue;
+          final end = (i + window).clamp(0, lines.length);
+          for (var j = i + 1; j < end; j++) {
+            if (!RegExp(r'(color|border):.*\bselected\s*\?').hasMatch(lines[j])) {
+              continue;
+            }
+            // 배지가 아닌 컴포넌트(선택 상태를 갖는 카드 등)는 바로 위 줄에
+            // `// badge-lint: ignore — 사유` 를 달아 명시 면제한다.
+            final prev = j > 0 ? lines[j - 1] : '';
+            if (prev.contains('badge-lint: ignore') ||
+                lines[j].contains('badge-lint: ignore')) {
+              break;
+            }
+            violations.add('$normalized:${j + 1}: ${lines[j].trim()}');
+            break;
+          }
+        }
+      }
+      expect(
+        violations,
+        isEmpty,
+        reason: '선택 칩은 FkBadge(selected: …, onTap: …) 하나뿐입니다 '
+            '(DESIGN-SSOT §7-C):\n${violations.join('\n')}',
+      );
+    });
+
     test('Material 기본 칩 위젯 0건 (Chip/ChoiceChip/FilterChip/…)', () {
       final pattern =
           RegExp(r'\b(Chip|ChoiceChip|FilterChip|ActionChip|InputChip)\(');
