@@ -11,6 +11,7 @@ import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/coach_group.dart';
 import '../../widgets/coach_badge.dart';
+import '../../widgets/fkit.dart';
 import '../../models/coach_note.dart';
 import '../gym/gym_state.dart';
 import 'group_management_screen.dart';
@@ -151,12 +152,11 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                       ('sec_per_500m', 'sec/500m'),
                       ('feel', 'feel'),
                     ])
-                      ChoiceChip(
-                        label: Text(u.$2),
+                      FkBadge(
+                        u.$2,
+                        color: FacingTokens.fg,
                         selected: unit == u.$1,
-                        backgroundColor: FacingTokens.surface,
-                        selectedColor: FacingTokens.accent,
-                        onSelected: (_) => setSheet(() => unit = u.$1),
+                        onTap: () => setSheet(() => unit = u.$1),
                       ),
                   ],
                 ),
@@ -388,12 +388,11 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                 spacing: FacingTokens.sp2,
                 children: [
                   for (final t in const ['individual', 'group', 'all'])
-                    ChoiceChip(
-                      label: Text(t.toUpperCase()),
+                    FkBadge(
+                      t,
+                      color: FacingTokens.fg,
                       selected: _targetType == t,
-                      backgroundColor: FacingTokens.surface,
-                      selectedColor: FacingTokens.accent,
-                      onSelected: (_) => setState(() => _targetType = t),
+                      onTap: () => setState(() => _targetType = t),
                     ),
                 ],
               ),
@@ -414,12 +413,11 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                 spacing: FacingTokens.sp2,
                 children: [
                   for (final k in const ['note', 'assignment'])
-                    ChoiceChip(
-                      label: Text(k.toUpperCase()),
+                    FkBadge(
+                      k,
+                      color: FacingTokens.fg,
                       selected: _kind == k,
-                      backgroundColor: FacingTokens.surface,
-                      selectedColor: FacingTokens.accent,
-                      onSelected: (_) => setState(() => _kind = k),
+                      onTap: () => setState(() => _kind = k),
                     ),
                 ],
               ),
@@ -593,12 +591,11 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
           runSpacing: FacingTokens.sp2,
           children: [
             for (final g in groups)
-              ChoiceChip(
-                label: Text('${g.name} · ${g.memberCount}'),
+              FkBadge(
+                '${g.name} · ${g.memberCount}',
+                color: FacingTokens.fg,
                 selected: _selectedGroup?.id == g.id,
-                backgroundColor: FacingTokens.surface,
-                selectedColor: FacingTokens.accent,
-                onSelected: (_) => setState(() => _selectedGroup = g),
+                onTap: () => setState(() => _selectedGroup = g),
               ),
           ],
         );

@@ -13,6 +13,7 @@ import '../../core/app_mode.dart';
 import '../../core/device_id.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
+import '../../widgets/fkit.dart';
 import '../auth/auth_state.dart';
 import '../gym/gym_state.dart';
 import '../profile/profile_state.dart';
@@ -372,7 +373,7 @@ class _PersonaTile extends StatelessWidget {
                             style: FacingTokens.h3,
                           ),
                           const SizedBox(width: FacingTokens.sp2),
-                          _Badge(label: persona.tier),
+                          FkBadge(persona.tier),
                         ],
                       ),
                       const SizedBox(height: 2),
@@ -403,22 +404,3 @@ class _PersonaTile extends StatelessWidget {
   }
 }
 
-class _Badge extends StatelessWidget {
-  final String label;
-  const _Badge({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: FacingTokens.sp2,
-        vertical: 2,
-      ),
-      decoration: BoxDecoration(
-        border: Border.all(color: FacingTokens.border, width: 1),
-        borderRadius: BorderRadius.circular(FacingTokens.r1),
-      ),
-      child: Text(label, style: FacingTokens.tierLabel),
-    );
-  }
-}

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../core/theme.dart';
 import '../../core/unit_state.dart';
 import '../../models/movement.dart';
+import '../../widgets/fkit.dart';
 import 'wod_draft_state.dart';
 
 Future<WodItemDraft?> showMovementPicker(
@@ -109,8 +110,9 @@ class _CategorySheetState extends State<_CategorySheet> {
                     final c = widget.categories[i];
                     return Padding(
                       padding: const EdgeInsets.only(right: FacingTokens.sp2),
-                      child: _CategoryChip(
-                        label: c.nameKo,
+                      child: FkBadge(
+                        c.nameKo,
+                        color: FacingTokens.fg,
                         selected: selected,
                         onTap: () => setState(() => _catIndex = i),
                       ),
@@ -179,46 +181,6 @@ class _CategorySheetState extends State<_CategorySheet> {
       case 'seconds': return '초';
       default: return unit;
     }
-  }
-}
-
-class _CategoryChip extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  const _CategoryChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(FacingTokens.r4),
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: FacingTokens.sp4,
-          vertical: FacingTokens.sp2,
-        ),
-        decoration: BoxDecoration(
-          color: selected ? FacingTokens.fg : FacingTokens.bg,
-          border: Border.all(
-            color: selected ? FacingTokens.fg : FacingTokens.border,
-            width: 1,
-          ),
-          borderRadius: BorderRadius.circular(FacingTokens.r4),
-        ),
-        child: Text(
-          label,
-          style: FacingTokens.body.copyWith(
-            color: selected ? FacingTokens.bg : FacingTokens.fg,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ),
-    );
   }
 }
 

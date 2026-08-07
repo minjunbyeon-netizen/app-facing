@@ -6,6 +6,7 @@ import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/class_session.dart';
+import '../../widgets/fkit.dart';
 import '../gym/gym_state.dart';
 import 'classes_repository.dart';
 
@@ -375,12 +376,11 @@ class _ClassCard extends StatelessWidget {
           Row(
             children: [
               if (isCancelled)
-                _Pill(label: '취소됨', color: FacingTokens.muted)
+                const FkBadge('취소됨', color: FacingTokens.muted)
               else if (isReserved)
-                _Pill(label: '예약됨', color: FacingTokens.success)
+                const FkBadge('예약됨', color: FacingTokens.success)
               else if (isWaitlisted)
-                _Pill(
-                    label: '대기 #${session.myWaitlistPosition}',
+                FkBadge('대기 #${session.myWaitlistPosition}',
                     color: FacingTokens.warning),
               const Spacer(),
               if (!isCancelled) ...[
@@ -414,32 +414,6 @@ class _ClassCard extends StatelessWidget {
             ],
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _Pill extends StatelessWidget {
-  final String label;
-  final Color color;
-  const _Pill({required this.label, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: color.withAlpha(40),
-        border: Border.all(color: color.withAlpha(120)),
-        borderRadius: BorderRadius.circular(3),
-      ),
-      child: Text(
-        label,
-        style: FacingTokens.micro.copyWith(
-          color: color,
-          fontWeight: FontWeight.w800,
-          letterSpacing: 0.6,
-        ),
       ),
     );
   }

@@ -15,6 +15,7 @@ import '../../core/theme.dart';
 import '../../core/unit_state.dart';
 import '../../models/coach_note.dart';
 import '../../widgets/avatar.dart';
+import '../../widgets/fkit.dart';
 import '../profile/profile_state.dart';
 import 'inbox_repository.dart';
 import 'inbox_state.dart';
@@ -291,12 +292,11 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                     'TIME',
                     'SUBSTITUTE',
                   ])
-                    ChoiceChip(
-                      label: Text(r),
+                    FkBadge(
+                      r,
+                      color: FacingTokens.fg,
                       selected: selectedReason == r,
-                      backgroundColor: FacingTokens.surface,
-                      selectedColor: FacingTokens.accent,
-                      onSelected: (_) {
+                      onTap: () {
                         setSheet(() {
                           selectedReason = r;
                           if (r == 'INJURY' &&
@@ -378,9 +378,10 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                   '동작 대체 가능?',
                   '날짜 조정 부탁',
                 ])
-                  ActionChip(
-                    label: Text(t, style: FacingTokens.micro),
-                    onPressed: () {
+                  FkBadge(
+                    t,
+                    color: FacingTokens.fg,
+                    onTap: () {
                       // QA B-ST-12: 같은 템플릿 중복 append 방지.
                       if (ctrl.text.contains(t)) return;
                       ctrl.text = ctrl.text.isEmpty ? t : '${ctrl.text}\n$t';

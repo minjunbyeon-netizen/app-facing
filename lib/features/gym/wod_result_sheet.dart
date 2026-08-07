@@ -11,6 +11,7 @@ import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../core/wod_session_bus.dart';
 import '../../models/gym.dart';
+import '../../widgets/fkit.dart';
 import '../history/history_repository.dart';
 import 'gym_repository.dart';
 import 'gym_state.dart';
@@ -229,20 +230,12 @@ class _WodResultSheetState extends State<WodResultSheet> {
                     ['rx', 'RXD'],
                     ['scaled', 'SCALED'],
                   ])
-                    ChoiceChip(
-                      label: Text(s[1]),
+                    FkBadge(
+                      s[1],
+                      color: FacingTokens.fg,
                       selected: _scale == s[0],
-                      backgroundColor: FacingTokens.surfaceOverlay,
-                      selectedColor: FacingTokens.accent,
-                      labelStyle: FacingTokens.caption.copyWith(
-                        color: _scale == s[0]
-                            ? FacingTokens.fg
-                            : FacingTokens.muted,
-                        fontWeight: FontWeight.w700,
-                      ),
-                      onSelected: _saving
-                          ? null
-                          : (_) => setState(() => _scale = s[0]),
+                      onTap:
+                          _saving ? null : () => setState(() => _scale = s[0]),
                     ),
                 ],
               ),

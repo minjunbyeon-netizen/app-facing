@@ -7,6 +7,7 @@ import '../../core/api_client.dart';
 import '../../core/goals_state.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
+import '../../widgets/fkit.dart';
 import '../history/history_models.dart';
 import '../history/history_repository.dart';
 
@@ -123,12 +124,11 @@ class _GoalsScreenState extends State<GoalsScreen> {
                 Wrap(
                   spacing: FacingTokens.sp2,
                   children: const ['RX', 'RX+', 'Elite', 'Games']
-                      .map((t) => ChoiceChip(
-                            label: Text(t),
+                      .map((t) => FkBadge(
+                            t,
+                            color: FacingTokens.fg,
                             selected: goals.targetTier == t,
-                            backgroundColor: FacingTokens.surface,
-                            selectedColor: FacingTokens.accent,
-                            onSelected: (_) {
+                            onTap: () {
                               Haptic.selection();
                               goals.setTargetTier(t);
                             },

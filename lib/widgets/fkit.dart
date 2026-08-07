@@ -65,27 +65,67 @@ class FkCard extends StatelessWidget {
   }
 }
 
-/// 표준 배지 — 1px 컬러 보더 + 대문자 + r1 사각. (TierBadge 는 티어 전용 별도 SSOT)
+/// 배지 — **표시·선택 통합 유일 규격** (v1.32 · 2026-08-07 "1종으로 통합" 지시).
+/// 1px 컬러 보더 + r1(4) 사각 + micro w700 대문자. 원형 pill 금지.
+///
+/// [onTap] 을 주면 선택 컨트롤로 동작한다 — 터치 최소 48 보장, [selected] 면 면 채움 반전.
+/// 화면마다 따로 만들던 `_Pill`·`_MiniPill`·`_StatusChip`·`_CategoryChip`·`_PainChip`·
+/// `_chip` 등 11종은 v1.32 에서 전부 이 하나로 흡수했다. 새 variant 신설 금지 —
+/// 모양이 다른 배지가 필요하면 여기부터 고친다. (TierBadge 만 티어 전용 별도 정본)
 class FkBadge extends StatelessWidget {
   final String text;
   final Color color;
-  const FkBadge(this.text, {super.key, this.color = FacingTokens.muted});
+
+  /// 면 채움(반전) 여부. 선택 컨트롤에서만 의미가 있다.
+  final bool selected;
+
+  /// null 이면 표시 전용 배지, 주면 탭 가능한 선택 컨트롤.
+  final VoidCallback? onTap;
+
+  const FkBadge(
+    this.text, {
+    super.key,
+    this.color = FacingTokens.muted,
+    this.selected = false,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final tappable = onTap != null;
+    // 시각 크기는 표시·선택이 완전히 같다 (1종 강제). 다른 건 터치 영역뿐.
+    final box = Container(
       padding: const EdgeInsets.symmetric(
-          horizontal: FacingTokens.sp2, vertical: 3),
+        horizontal: FacingTokens.sp2,
+        vertical: 3,
+      ),
       decoration: BoxDecoration(
+        color: selected ? color : Colors.transparent,
         border: Border.all(color: color),
         borderRadius: BorderRadius.circular(FacingTokens.r1),
       ),
       child: Text(
         text.toUpperCase(),
         style: FacingTokens.micro.copyWith(
-          color: color,
+          color: selected ? FacingTokens.bg : color,
           fontWeight: FontWeight.w700,
           letterSpacing: 0.8,
+        ),
+      ),
+    );
+    if (!tappable) return box;
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: text,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(FacingTokens.r1),
+        // 배지 자체는 작게 두고 손가락이 닿을 48 만 세로로 확보한다.
+        // widthFactor: 1 — 가로는 글자 폭에 딱 맞춘다 (Row 안에서 늘어나지 않게).
+        child: SizedBox(
+          height: FacingTokens.touchMin,
+          child: Center(widthFactor: 1, child: box),
         ),
       ),
     );

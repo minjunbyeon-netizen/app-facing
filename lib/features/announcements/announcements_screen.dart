@@ -9,6 +9,7 @@ import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/announcement.dart';
+import '../../widgets/fkit.dart';
 import '../../widgets/coach_badge.dart';
 import '../../widgets/gym_info_card.dart';
 import '../gym/gym_repository.dart';
@@ -119,18 +120,11 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
                   spacing: FacingTokens.sp2,
                   children: [
                     for (final c in ['notice', 'event', 'promotion'])
-                      ChoiceChip(
-                        label: Text(AnnouncementCategory.fromString(c).label),
+                      FkBadge(
+                        AnnouncementCategory.fromString(c).label,
+                        color: _categoryColor(c),
                         selected: category == c,
-                        backgroundColor: FacingTokens.surface,
-                        selectedColor: _categoryColor(c),
-                        labelStyle: FacingTokens.micro.copyWith(
-                          color: category == c
-                              ? FacingTokens.bg
-                              : FacingTokens.muted,
-                          fontWeight: FontWeight.w700,
-                        ),
-                        onSelected: (_) => setSheet(() => category = c),
+                        onTap: () => setSheet(() => category = c),
                       ),
                   ],
                 ),
@@ -188,14 +182,13 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
                 Wrap(
                   spacing: FacingTokens.sp2,
                   children: ['normal', 'urgent']
-                      .map((p) => ChoiceChip(
-                            label: Text(p.toUpperCase()),
-                            selected: priority == p,
-                            backgroundColor: FacingTokens.surface,
-                            selectedColor: p == 'urgent'
+                      .map((p) => FkBadge(
+                            p,
+                            color: p == 'urgent'
                                 ? FacingTokens.accent
                                 : FacingTokens.muted,
-                            onSelected: (_) => setSheet(() => priority = p),
+                            selected: priority == p,
+                            onTap: () => setSheet(() => priority = p),
                           ))
                       .toList(),
                 ),

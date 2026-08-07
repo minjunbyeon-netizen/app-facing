@@ -12,6 +12,7 @@ import '../../core/theme.dart';
 import '../../models/coach_group.dart';
 import '../../widgets/coach_badge.dart';
 import '../../widgets/avatar.dart';
+import '../../widgets/fkit.dart';
 import '../gym/gym_state.dart';
 import 'inbox_repository.dart';
 
@@ -109,16 +110,15 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
                   spacing: FacingTokens.sp1,
                   children: [
                     for (int d = 0; d < 7; d++)
-                      ChoiceChip(
-                        label: Text(const ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][d]),
+                      FkBadge(
+                        const ['월', '화', '수', '목', '금', '토', '일'][d],
+                        color: FacingTokens.fg,
                         selected: selectedDays.contains(d),
-                        backgroundColor: FacingTokens.surface,
-                        selectedColor: FacingTokens.accent,
-                        onSelected: (sel) => setSheet(() {
-                          if (sel) {
-                            selectedDays.add(d);
-                          } else {
+                        onTap: () => setSheet(() {
+                          if (selectedDays.contains(d)) {
                             selectedDays.remove(d);
+                          } else {
+                            selectedDays.add(d);
                           }
                         }),
                       ),

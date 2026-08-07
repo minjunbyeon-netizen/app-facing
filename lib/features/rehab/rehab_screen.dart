@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
+import '../../widgets/fkit.dart';
 import 'rehab_flow_screen.dart';
 import 'rehab_models.dart';
 
@@ -151,37 +152,14 @@ class _MovementCard extends StatelessWidget {
             runSpacing: FacingTokens.sp2,
             children: [
               for (final site in movement.painSites)
-                _PainChip(
-                  label: site.name,
+                FkBadge(
+                  site.name,
+                  color: FacingTokens.fg,
                   onTap: () => onTapSite(movement, site),
                 ),
             ],
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _PainChip extends StatelessWidget {
-  final String label;
-  final VoidCallback onTap;
-
-  const _PainChip({required this.label, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: FacingTokens.surfaceMax,
-      borderRadius: BorderRadius.circular(FacingTokens.r1),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(FacingTokens.r1),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-              horizontal: FacingTokens.sp3, vertical: FacingTokens.sp2),
-          child: Text(label, style: FacingTokens.body),
-        ),
       ),
     );
   }

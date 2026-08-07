@@ -8,6 +8,7 @@ import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/gym.dart';
 import '../../widgets/coach_badge.dart';
+import '../../widgets/fkit.dart';
 import '../inbox/inbox_screen.dart';
 import 'gym_profile_edit_screen.dart';
 import 'gym_repository.dart';
@@ -286,11 +287,11 @@ class _RosterRow extends StatelessWidget {
                       ),
                       const SizedBox(width: FacingTokens.sp2),
                       if ((member.level ?? '').isNotEmpty)
-                        _statusChip(member.level!, FacingTokens.accent),
+                        FkBadge(member.level!, color: FacingTokens.accent),
                       if (member.isDormant)
-                        _statusChip('DORMANT', FacingTokens.warning)
+                        const FkBadge('DORMANT', color: FacingTokens.warning)
                       else if (member.lastWodAt == null && member.isApproved)
-                        _statusChip('NEW', FacingTokens.muted),
+                        const FkBadge('NEW', color: FacingTokens.muted),
                     ],
                   ),
                   const SizedBox(height: 2),
@@ -323,23 +324,6 @@ class _RosterRow extends StatelessWidget {
               fontWeight: FontWeight.w700,
             )),
       ],
-    );
-  }
-
-  Widget _statusChip(String label, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-      decoration: BoxDecoration(
-        border: Border.all(color: color, width: 1),
-        borderRadius: BorderRadius.circular(FacingTokens.r1),
-      ),
-      child: Text(
-        label,
-        style: FacingTokens.microLabel.copyWith(
-          color: color,
-          fontWeight: FontWeight.w800,
-        ),
-      ),
     );
   }
 

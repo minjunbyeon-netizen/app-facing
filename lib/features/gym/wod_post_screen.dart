@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/gym.dart';
+import '../../widgets/fkit.dart';
 import 'gym_state.dart';
 import 'wod_type_label.dart';
 
@@ -201,16 +202,11 @@ class _WodPostScreenState extends State<WodPostScreen> {
               spacing: FacingTokens.sp2,
               children: const ['for_time', 'amrap', 'emom'].map((t) {
                 final selected = t == _wodType;
-                return ChoiceChip(
-                  label: Text(wodTypeLabel(t)),
+                return FkBadge(
+                  wodTypeLabel(t),
+                  color: FacingTokens.fg,
                   selected: selected,
-                  backgroundColor: FacingTokens.surface,
-                  selectedColor: FacingTokens.accent,
-                  labelStyle: FacingTokens.caption.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: selected ? FacingTokens.fg : FacingTokens.muted,
-                  ),
-                  onSelected: (_) {
+                  onTap: () {
                     Haptic.selection();
                     setState(() => _wodType = t);
                   },

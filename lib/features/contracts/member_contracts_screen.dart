@@ -8,6 +8,7 @@ import '../../core/api_client.dart';
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
+import '../../widgets/fkit.dart';
 
 /// B-6 (2026-06-10) — 회원 전자계약: 목록 → 상세 → 서명패드 (결정4 풀스펙).
 ///
@@ -168,8 +169,10 @@ class _MemberContractsScreenState extends State<MemberContractsScreen> {
                             ],
                           ),
                         ),
-                        _StatusChip(label: c.statusLabel,
-                            highlight: c.signable),
+                        FkBadge(c.statusLabel,
+                            color: c.signable
+                                ? FacingTokens.primary
+                                : FacingTokens.muted),
                       ],
                     ),
                   ),
@@ -179,28 +182,6 @@ class _MemberContractsScreenState extends State<MemberContractsScreen> {
           },
         ),
       ),
-    );
-  }
-}
-
-class _StatusChip extends StatelessWidget {
-  final String label;
-  final bool highlight;
-  const _StatusChip({required this.label, required this.highlight});
-
-  @override
-  Widget build(BuildContext context) {
-    final color = highlight ? FacingTokens.primary : FacingTokens.muted;
-    return Container(
-      padding: const EdgeInsets.symmetric(
-          horizontal: FacingTokens.sp2, vertical: FacingTokens.sp1),
-      decoration: BoxDecoration(
-        border: Border.all(color: color, width: 1.5),
-        borderRadius: BorderRadius.circular(FacingTokens.r1),
-      ),
-      child: Text(label,
-          style: FacingTokens.micro.copyWith(
-              color: color, fontWeight: FontWeight.w800)),
     );
   }
 }
@@ -290,14 +271,16 @@ class _ContractDetailScreenState extends State<ContractDetailScreen> {
                       Text((d['template_name'] ?? '') as String,
                           style: FacingTokens.h2),
                       const SizedBox(height: FacingTokens.sp2),
-                      _StatusChip(
-                        label: switch (status) {
+                      FkBadge(
+                        switch (status) {
                           'signed' => 'SIGNED',
                           'sent' || 'viewed' => 'WAITING',
                           'cancelled' => 'CANCELLED',
                           _ => status.toUpperCase(),
                         },
-                        highlight: signable,
+                        color: signable
+                            ? FacingTokens.primary
+                            : FacingTokens.muted,
                       ),
                       const SizedBox(height: FacingTokens.sp4),
                       const Text('내용', style: FacingTokens.sectionLabel),

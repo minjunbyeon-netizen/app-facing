@@ -273,10 +273,10 @@ class _ScoreSectionState extends State<_ScoreSection> {
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                  _MiniPill(label: 'LV ${bd.level}', color: tier.color),
+                  FkBadge('LV ${bd.level}', color: tier.color),
                   if (titleObj != null)
-                    _MiniPill(
-                      label: titleObj.label,
+                    FkBadge(
+                      titleObj.label,
                       color: _rarityColor(titleObj.rarity),
                     ),
                 ],
@@ -393,33 +393,6 @@ class _ScoreSectionState extends State<_ScoreSection> {
             'BODY': cats[5].$2,
           }),
         ],
-      ),
-    );
-  }
-}
-
-/// 작은 라벨 pill (LV / 칭호). 점수 섹션 전용.
-class _MiniPill extends StatelessWidget {
-  final String label;
-  final Color color;
-  const _MiniPill({required this.label, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        border: Border.all(color: color.withValues(alpha: 0.5), width: 1),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(
-        label,
-        style: FacingTokens.micro.copyWith(
-          color: color,
-          fontWeight: FontWeight.w800,
-          letterSpacing: 0.5,
-        ),
       ),
     );
   }
@@ -992,60 +965,20 @@ class _UnitToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        _Pill(
-            label: 'kg',
+        FkBadge('kg',
+            color: FacingTokens.fg,
             selected: u.isKg,
             onTap: () {
               if (!u.isKg) u.toggle();
             }),
         const SizedBox(width: FacingTokens.sp2),
-        _Pill(
-            label: 'lb',
+        FkBadge('lb',
+            color: FacingTokens.fg,
             selected: !u.isKg,
             onTap: () {
               if (u.isKg) u.toggle();
             }),
       ],
-    );
-  }
-}
-
-class _Pill extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  const _Pill(
-      {required this.label, required this.selected, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      selected: selected,
-      label: label,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(FacingTokens.r4),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: FacingTokens.touchMin),
-          child: Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: FacingTokens.sp4,
-              vertical: FacingTokens.sp2,
-            ),
-            decoration: BoxDecoration(
-              color: selected ? FacingTokens.fg : Colors.transparent,
-              borderRadius: BorderRadius.circular(FacingTokens.r4),
-            ),
-            alignment: Alignment.center,
-            child: Text(label,
-                style: FacingTokens.body.copyWith(
-                  color: selected ? FacingTokens.bg : FacingTokens.muted,
-                  fontWeight: FontWeight.w700,
-                )),
-          ),
-        ),
-      ),
     );
   }
 }
@@ -1358,24 +1291,11 @@ class _ModeRowState extends State<_ModeRow> {
             spacing: FacingTokens.sp2,
             children: [
               for (final m in AppMode.values)
-                Semantics(
-                  label:
-                      'Mode ${_label(m)}${_mode == m ? " selected" : ""}',
-                  button: true,
+                FkBadge(
+                  _label(m),
+                  color: FacingTokens.fg,
                   selected: _mode == m,
-                  container: true,
-                  child: ChoiceChip(
-                    label: Text(_label(m)),
-                    selected: _mode == m,
-                    backgroundColor: FacingTokens.surface,
-                    selectedColor: FacingTokens.accent,
-                    labelStyle: FacingTokens.caption.copyWith(
-                      color:
-                          _mode == m ? FacingTokens.fg : FacingTokens.muted,
-                      fontWeight: FontWeight.w700,
-                    ),
-                    onSelected: _saving ? null : (_) => _setMode(m),
-                  ),
+                  onTap: _saving ? null : () => _setMode(m),
                 ),
             ],
           ),

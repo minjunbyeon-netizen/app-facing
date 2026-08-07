@@ -6,6 +6,7 @@ import '../../core/glossary.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../core/unit_state.dart';
+import '../../widgets/fkit.dart';
 import '../profile/profile_state.dart';
 
 class OnboardingBasicScreen extends StatefulWidget {
@@ -279,14 +280,16 @@ class _GenderToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        _Pill(
-          label: '남',
+        FkBadge(
+          '남',
+          color: FacingTokens.fg,
           selected: value == 'male',
           onTap: () => onChanged('male'),
         ),
         const SizedBox(width: FacingTokens.sp2),
-        _Pill(
-          label: '여',
+        FkBadge(
+          '여',
+          color: FacingTokens.fg,
           selected: value == 'female',
           onTap: () => onChanged('female'),
         ),
@@ -295,51 +298,3 @@ class _GenderToggle extends StatelessWidget {
   }
 }
 
-class _Pill extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  const _Pill({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    // v1.15 P1-3: Semantics — 스크린리더에게 button/selected 상태 전달.
-    return Semantics(
-      button: true,
-      selected: selected,
-      label: label,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(FacingTokens.r4),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: FacingTokens.touchMin),
-          child: Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: FacingTokens.sp4,
-              vertical: FacingTokens.sp2,
-            ),
-            decoration: BoxDecoration(
-              color: selected ? FacingTokens.fg : Colors.transparent,
-              border: selected
-                  ? null
-                  : Border.all(color: FacingTokens.border),
-              borderRadius: BorderRadius.circular(FacingTokens.r4),
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              label,
-              style: FacingTokens.body.copyWith(
-                color: selected ? FacingTokens.bg : FacingTokens.muted,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}

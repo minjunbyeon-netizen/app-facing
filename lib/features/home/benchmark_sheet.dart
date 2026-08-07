@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/benchmark_data.dart';
 import '../../core/theme.dart';
+import '../../widgets/fkit.dart';
 
 void showBenchmarkSheet(BuildContext context, String categoryKey) {
   final bench = kBenchmarks[categoryKey];
@@ -223,40 +224,19 @@ class _GenderToggle extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _chip('M', !female, () => onChanged(false)),
-        const SizedBox(width: 6),
-        _chip('F', female, () => onChanged(true)),
+        FkBadge('M',
+            color: FacingTokens.fg,
+            selected: !female,
+            onTap: () => onChanged(false)),
+        const SizedBox(width: FacingTokens.sp2),
+        FkBadge('F',
+            color: FacingTokens.fg,
+            selected: female,
+            onTap: () => onChanged(true)),
       ],
     );
   }
 
-  Widget _chip(String label, bool selected, VoidCallback onTap) {
-    return TextButton(
-      onPressed: onTap,
-      style: TextButton.styleFrom(
-        minimumSize: const Size(44, 44),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-        backgroundColor: selected
-            ? FacingTokens.accent.withValues(alpha: 0.15)
-            : Colors.transparent,
-        side: BorderSide(
-          color: selected ? FacingTokens.accent : FacingTokens.border,
-        ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-        foregroundColor: selected ? FacingTokens.accent : FacingTokens.muted,
-        overlayColor: FacingTokens.accent.withValues(alpha: 0.1),
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      ),
-      child: Text(
-        label,
-        style: FacingTokens.micro.copyWith(
-          color: selected ? FacingTokens.accent : FacingTokens.muted,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.6,
-        ),
-      ),
-    );
-  }
 }
 
 class _TierHeaderRow extends StatelessWidget {
