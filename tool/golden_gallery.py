@@ -29,7 +29,7 @@ SECTIONS = [
         ("member_01_shell_wod", "WOD 탭 (기본) — 코치 오늘 WOD 보드"),
         ("member_02_shell_home", "Home 탭 — 레벨 · 업적 · Milestones"),
         ("member_03_shell_profile", "Profile 탭 — Tier · 바디 · 설정"),
-        ("member_04_profile_menu", "Profile 하단 메뉴 — 접힘 기본 (v1.31 아코디언)"),
+        ("member_04_profile_menu", "Profile 하단 — 신체·설정·메뉴 접힘 (v1.31 아코디언)"),
         ("member_05_profile_menu_open", "Profile 메뉴 펼침 — 표 1개 (계약~이용약관)"),
     ]),
     ("사장", "사장 — 로그인 · 대시보드", [

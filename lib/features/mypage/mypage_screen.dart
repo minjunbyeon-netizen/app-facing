@@ -65,8 +65,7 @@ class MyPageScreen extends StatelessWidget {
             _SectionDivider(),
             _ScoreSection(),
             _SectionDivider(),
-            _MembershipCard(),
-            _LockerCard(),
+            _MembershipSection(),
             _SectionDivider(),
             _MyBoxSection(),
             _SectionDivider(),
@@ -741,31 +740,20 @@ class _MyBoxSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final gs = context.watch<GymState>();
     final gym = gs.membership.gym;
+    final statusKo = switch (gs.membership.status) {
+      'approved' => '승인됨',
+      'pending' => '대기 중',
+      'rejected' => '거절됨',
+      _ => '-',
+    };
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: FkAccordion(
+        title: '내 박스',
+        subtitle: gym == null
+            ? '박스 없음'
+            : '${gym.name} · ${gs.isOwner ? '오너' : '회원'} · $statusKo',
         children: [
-          Row(
-            children: [
-              const Text('내 박스', style: FacingTokens.sectionLabel),
-              const Spacer(),
-              if (gym != null && !gs.isOwner)
-                TextButton(
-                  style: TextButton.styleFrom(
-                    foregroundColor: FacingTokens.muted,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: FacingTokens.sp2),
-                    textStyle: FacingTokens.micro,
-                  ),
-                  onPressed: () {
-                    Haptic.light();
-                    _confirmLeave(context, gs);
-                  },
-                  child: const Text('변경'),
-                ),
-            ],
-          ),
           const SizedBox(height: FacingTokens.sp2),
           if (gym == null)
             const Text('박스 없음. WOD 탭에서 찾기.',
@@ -776,12 +764,7 @@ class _MyBoxSection extends StatelessWidget {
                     FacingTokens.body.copyWith(fontWeight: FontWeight.w800)),
             const SizedBox(height: FacingTokens.sp1),
             Text(
-              '${gs.isOwner ? '오너' : '회원'} · ${switch (gs.membership.status) {
-                'approved' => '승인됨',
-                'pending' => '대기 중',
-                'rejected' => '거절됨',
-                _ => '-',
-              }} · ${gym.memberCount}명',
+              '${gs.isOwner ? '오너' : '회원'} · $statusKo · ${gym.memberCount}명',
               style: FacingTokens.caption,
             ),
             // P1-5 (2026-06-10): 거절 상태 무안내 해소 — 멤버십이 조용히
@@ -832,7 +815,26 @@ class _MyBoxSection extends StatelessWidget {
                 label: const Text('수업'),
               ),
             ],
+            // 박스 변경(= 탈퇴 후 재검색). 구 헤더 우측 '변경' 버튼을 본문 하단으로
+            // 옮겼다 — 아코디언 헤더는 제목·부제만 싣는다 (DESIGN-SSOT §7-B).
+            if (!gs.isOwner) ...[
+              const SizedBox(height: FacingTokens.sp2),
+              TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: FacingTokens.muted,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: FacingTokens.sp2),
+                  textStyle: FacingTokens.micro,
+                ),
+                onPressed: () {
+                  Haptic.light();
+                  _confirmLeave(context, gs);
+                },
+                child: const Text('박스 변경'),
+              ),
+            ],
           ],
+          const SizedBox(height: FacingTokens.sp2),
         ],
       ),
     );
@@ -854,15 +856,16 @@ class _BodyStats extends StatelessWidget {
     final sex = p.gender == 'female' ? 'Female' : 'Male';
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: FkAccordion(
+        title: '신체',
+        subtitle: '체중 $weightDisplay · 키 $height · $age',
         children: [
-          const Text('신체', style: FacingTokens.sectionLabel),
           const SizedBox(height: FacingTokens.sp2),
           _Kv(label: '체중', value: weightDisplay),
           _Kv(label: '키', value: height),
           _Kv(label: '나이', value: age),
           _Kv(label: '성별', value: sex),
+          const SizedBox(height: FacingTokens.sp2),
         ],
       ),
     );
@@ -903,10 +906,10 @@ class _SettingsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: FkAccordion(
+        title: '설정',
+        subtitle: '모드 · 단위 · 글자 크기',
         children: [
-          const Text('설정', style: FacingTokens.sectionLabel),
           const SizedBox(height: FacingTokens.sp2),
           const _ModeRow(),
           const SizedBox(height: FacingTokens.sp3),
@@ -928,6 +931,7 @@ class _SettingsSection extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(height: FacingTokens.sp2),
         ],
       ),
     );
@@ -1613,6 +1617,47 @@ class _QuickPersonaBarState extends State<_QuickPersonaBar> {
 /// v1.16.2 (2026-05-24) — 내 회원권 카드 (진행 막대 + 월별 타임라인).
 /// GymState.currentMembership 에서 fetch. 회원권 없으면 안 그림.
 /// 갱신 시 늘어난 구간은 primary 색, 이미 지난 구간은 muted 색으로 분리.
+/// v1.31 — 회원권 + 락커를 아코디언 1개로 묶는다. 만료 임박처럼 놓치면 안 되는
+/// 값은 접힌 상태에서도 보이도록 헤더 부제에 싣는다 (DESIGN-SSOT §7-B).
+class _MembershipSection extends StatelessWidget {
+  const _MembershipSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final gs = context.watch<GymState>();
+    final ms = gs.currentMembership;
+    final lk = gs.myLocker;
+    if (ms == null && lk == null) return const SizedBox.shrink();
+
+    final parts = <String>[];
+    if (ms != null) {
+      final days = ms.daysUntilExpiry;
+      if (days == null) {
+        parts.add('기간 정보 없음');
+      } else if (days < 0) {
+        parts.add('만료됨');
+      } else {
+        parts.add('$days일 남음');
+      }
+    }
+    if (lk != null) parts.add('락커 ${lk.lockerNo}');
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
+      child: FkAccordion(
+        title: '회원권',
+        subtitle: parts.join(' · '),
+        children: const [
+          SizedBox(height: FacingTokens.sp2),
+          _MembershipCard(),
+          _LockerCard(),
+          SizedBox(height: FacingTokens.sp2),
+        ],
+      ),
+    );
+  }
+}
+
 class _MembershipCard extends StatelessWidget {
   const _MembershipCard();
 
@@ -1641,7 +1686,8 @@ class _MembershipCard extends StatelessWidget {
     } catch (_) {}
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
+      // 가로 여백은 감싸는 _MembershipSection 아코디언이 준다.
+      padding: EdgeInsets.zero,
       child: Container(
         padding: const EdgeInsets.all(FacingTokens.sp4),
         decoration: BoxDecoration(
@@ -1652,8 +1698,6 @@ class _MembershipCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('회원권', style: FacingTokens.sectionLabel),
-            const SizedBox(height: 8),
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
@@ -1861,17 +1905,20 @@ class _MembershipTimeline extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          // today 텍스트
+          // 오늘 표식. clamp 상한이 라벨 실폭(약 30)이 아니라 24 로 잡혀 있어
+          // 만료 직전(todayX 가 오른쪽 끝)이면 글자가 잘렸다 — v1.31 정정.
           SizedBox(
             height: 14,
             child: Stack(
               clipBehavior: Clip.none,
               children: [
                 Positioned(
-                  left: (todayX - 12).clamp(0, width - 24).toDouble(),
+                  left: (todayX - 15)
+                      .clamp(0, (width - 30).clamp(0, double.infinity))
+                      .toDouble(),
                   top: 0,
                   child: Text(
-                    'TODAY',
+                    '오늘',
                     style: FacingTokens.caption.copyWith(
                       color: FacingTokens.fg,
                       fontWeight: FontWeight.w700,
@@ -1899,12 +1946,8 @@ class _LockerCard extends StatelessWidget {
     if (lk == null) return const SizedBox.shrink();
     final days = lk.daysUntilExpiry;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        FacingTokens.sp4,
-        FacingTokens.sp3,
-        FacingTokens.sp4,
-        0,
-      ),
+      // 가로 여백은 감싸는 _MembershipSection 아코디언이 준다.
+      padding: const EdgeInsets.only(top: FacingTokens.sp3),
       child: Container(
         padding: const EdgeInsets.all(FacingTokens.sp4),
         decoration: BoxDecoration(
