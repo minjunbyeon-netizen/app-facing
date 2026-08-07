@@ -1,5 +1,6 @@
 ﻿import 'dart:math';
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -15,6 +16,7 @@ import 'package:facing_app/features/history/history_screen.dart';
 import 'package:facing_app/features/intro/intro_screen.dart';
 import 'package:facing_app/features/onboarding/onboarding_basic.dart';
 import 'package:facing_app/features/onboarding/onboarding_benchmarks.dart';
+import 'package:facing_app/features/mypage/mypage_screen.dart';
 import 'package:facing_app/features/onboarding/onboarding_grade.dart';
 import 'package:facing_app/features/profile/profile_state.dart';
 import 'package:facing_app/features/shell/main_shell.dart';
@@ -191,6 +193,34 @@ void main() {
     await capture(tester, 'member_02_shell_home');
     await tapTab(tester, '프로필');
     await capture(tester, 'member_03_shell_profile');
+    // v1.31 — 프로필 하단 메뉴. 접힘이 기본(헤더 한 줄) → 펼치면 표 1개.
+    // 상단 캡처(member_03)는 프레임 밖이라 이 구역을 못 덮는다.
+    // 2단 스크롤: ① scrollUntilVisible 로 sliver 가 이 구역을 build 하게 만들고
+    // (아직 트리에 없으면 ensureVisible 은 "No element"), ② ensureVisible 로
+    // 실제 뷰포트에 정렬한다 (scrollUntilVisible 은 build 되면 화면 밖이어도 멈춤).
+    // .first = 세로 ListView — Engine 카테고리 등 가로 스크롤러가 같이 잡힌다.
+    final profileScroll = find
+        .descendant(
+          of: find.byType(MyPageScreen),
+          matching: find.byType(Scrollable),
+        )
+        .first;
+    await tester.scrollUntilVisible(find.text('메뉴'), 300,
+        scrollable: profileScroll);
+    await tester.ensureVisible(find.text('메뉴'));
+    await tester.pump(const Duration(milliseconds: 100));
+    await capture(tester, 'member_04_profile_menu');
+    await tester.tap(find.text('메뉴'));
+    // 펼침 애니메이션이 레이아웃에 반영될 때까지 프레임을 여러 번 돌린다.
+    // 한 번만 pump 하면 maxScrollExtent 가 아직 안 늘어 드래그가 먹지 않는다.
+    for (var i = 0; i < 6; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    // 표 하단(이용약관·데이터 초기화)까지 올린다. ensureVisible 은 여기서
+    // 스크롤을 안 움직여(대상이 이미 build 된 상태) 고정 드래그로 처리.
+    await tester.drag(profileScroll, const Offset(0, -420));
+    await tester.pump(const Duration(milliseconds: 200));
+    await capture(tester, 'member_05_profile_menu_open');
   });
 
   // ── 사장 대시보드 ──

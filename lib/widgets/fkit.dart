@@ -237,6 +237,63 @@ class FkRowCard extends StatelessWidget {
   }
 }
 
+/// 아코디언 — 기본 접힘 묶음 구획. ExpansionTile 반복 배선(기본 divider 제거 ·
+/// muted 화살표 · sectionLabel 제목 · 부제 preview)의 유일 규격.
+/// 자주 쓰지 않는 항목 다발은 펼치기 전까지 헤더 한 줄만 차지한다
+/// (v1.31 — 프로필 메뉴가 세로로 주렁주렁 길다는 사용자 지시로 도입).
+/// [inset] = 카드 안에 넣을 때 true (좌우 여백을 카드 내부에 맞춤).
+class FkAccordion extends StatelessWidget {
+  final String title;
+  final String? subtitle;
+  final List<Widget> children;
+  final bool initiallyExpanded;
+  final bool inset;
+
+  const FkAccordion({
+    super.key,
+    required this.title,
+    required this.children,
+    this.subtitle,
+    this.initiallyExpanded = false,
+    this.inset = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Theme(
+      // ExpansionTile 기본 상·하단 divider 제거.
+      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+      child: ExpansionTile(
+        initiallyExpanded: initiallyExpanded,
+        tilePadding: EdgeInsets.symmetric(
+          horizontal: inset ? FacingTokens.sp3 : 2,
+          vertical: 2,
+        ),
+        childrenPadding: inset
+            ? const EdgeInsets.fromLTRB(
+                FacingTokens.sp3, 0, FacingTokens.sp3, FacingTokens.sp3)
+            : EdgeInsets.zero,
+        collapsedIconColor: FacingTokens.muted,
+        iconColor: FacingTokens.muted,
+        expandedCrossAxisAlignment: CrossAxisAlignment.start,
+        title: FkSectionLabel(title),
+        subtitle: subtitle == null
+            ? null
+            : Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Text(
+                  subtitle!,
+                  style: FacingTokens.caption,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+        children: children,
+      ),
+    );
+  }
+}
+
 /// 빈 상태 — h3 제목(영문 헤드라인) + 한글 캡션 수직 스택 (V10 패턴).
 class FkEmptyState extends StatelessWidget {
   final String title;

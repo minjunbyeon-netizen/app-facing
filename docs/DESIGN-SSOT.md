@@ -76,6 +76,7 @@
 | `FkStatTile` | 라벨 위 + 값(h3) 아래 |
 | `FkListRow` | **표 행 유일 규격** — 좌 아이콘(20) · 제목(body w600)/부제(caption) · 우 값(micro) · below 슬롯(진행바). 패딩 sp4×sp3 |
 | `FkRowCard` | 표 카드 — FkListRow 를 1px 구분선(indent sp4)으로 쌓음. 카드 1개 = 표 1개 |
+| `FkAccordion` | **접힘 구획 유일 규격** — 기본 접힘 · sectionLabel 제목 + caption 부제(내용 preview) · muted 화살표 · 기본 divider 제거. `inset=true` 면 카드 내부 여백(sp3) |
 | `FkEmptyState` | h3 제목 + caption 캡션 수직 스택 |
 | `FkErrorState` | body 메시지 + "다시 시도" — `.fromError` 로 메시지 통일 매핑 |
 | `FkLoading` | 22×22 stroke 2 muted 스피너 (인라인 로딩 유일 규격) |
@@ -122,6 +123,15 @@
 - 색은 면이 아니라 **아이콘·우측 값 글자색**으로만 (rarity·달성 여부). 면은 항상 `surface` 1색.
 - 목록이 길면 상단 헤더에 `n / m` + "전체 보기", 본문은 **최대 5줄** + "그 외 N개" 마지막 행.
 - 항목 상세(해금일·조건 등)는 행에 싣지 않고 탭 → 상세 시트에서 노출.
+
+## 7-B. 메뉴·설정 항목 표기 (v1.31 · 2026-08-07 사용자 지시)
+
+- **같은 모양 버튼을 세로로 쌓지 않는다.** 화면 진입만 하는 메뉴 항목이 3개를 넘으면
+  `FkAccordion`(기본 접힘) **1개** 안에 `FkRowCard` 표로 넣는다 — 접힘 상태에서 헤더 한 줄.
+  (구 프로필 탭의 OutlinedButton 10개 세로 나열은 v1.31 폐기.)
+- 아코디언 부제에 내용 preview 를 넣어 펼치지 않아도 무엇이 들어 있는지 보이게 한다.
+- 파괴적 동작(데이터 초기화 등)은 표 밖·아코디언 **안** 맨 아래에 `danger` 텍스트 버튼으로.
+- 부연 안내(응대 시간 등)는 별도 줄로 띄우지 말고 해당 행의 `subtitle` 로 흡수.
 
 ## 8. 변경 절차
 

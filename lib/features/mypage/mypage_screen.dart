@@ -21,6 +21,7 @@ import '../../core/ui_prefs_state.dart';
 import '../../core/unit_state.dart';
 import '../../core/weak_insight.dart';
 import '../../core/worn_title_store.dart';
+import '../../widgets/fkit.dart';
 import '../../widgets/inbox_bell.dart';
 import '../../widgets/tier_badge.dart';
 import '../_debug/persona_debug_data.dart';
@@ -1082,89 +1083,102 @@ class _ActionsSection extends StatelessWidget {
           ),
           // B-5 (2026-06-10) — 회원 포인트 잔액 (적립 토스트 "+NP" 와 신뢰 일치)
           const _PointsBalanceRow(),
-          // B-6 (2026-06-10) — 회원 전자계약 목록·상세·서명 진입
-          OutlinedButton(
-            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => const MemberContractsScreen(),
-            )),
-            child: const Text('계약'),
-          ),
+          // v1.31 (2026-08-07) — 메뉴 10종이 세로로 주렁주렁 길다는 사용자 지시로
+          // 단일 아코디언(기본 접힘) + 표(FkRowCard) 로 통합. 항목·진입 경로는
+          // 그대로, 접힘 상태에서 헤더 한 줄만 차지한다.
           const SizedBox(height: FacingTokens.sp3),
-          OutlinedButton(
-            onPressed: () => Navigator.of(context).pushNamed('/history'),
-            child: const Text('히스토리'),
-          ),
-          const SizedBox(height: FacingTokens.sp3),
-          OutlinedButton(
-            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => const PrivacyScreen(),
-            )),
-            child: const Text('개인정보처리방침'),
-          ),
-          const SizedBox(height: FacingTokens.sp3),
-          // P0-1 (2026-06-10): 이용약관 진입 — 가입 화면 외 상시 접근 경로.
-          OutlinedButton(
-            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => const TermsScreen(),
-            )),
-            child: const Text('이용약관'),
-          ),
-          const SizedBox(height: FacingTokens.sp3),
-          OutlinedButton(
-            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => const ImportScreen(),
-            )),
-            child: const Text('데이터 가져오기'),
-          ),
-          const SizedBox(height: FacingTokens.sp3),
-          OutlinedButton(
-            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => const GoalsScreen(),
-            )),
-            child: const Text('목표'),
-          ),
-          const SizedBox(height: FacingTokens.sp3),
-          OutlinedButton(
-            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => const AlgorithmScreen(),
-            )),
-            child: const Text('알고리즘'),
-          ),
-          const SizedBox(height: FacingTokens.sp3),
-          // P2-1 (2026-06-11) — FAQ (시드 10문답, 실문의 누적 시 증보).
-          OutlinedButton(
-            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => const FaqScreen(),
-            )),
-            child: const Text('FAQ'),
-          ),
-          const SizedBox(height: FacingTokens.sp3),
-          // P0-3 (2026-06-10) — 고객센터 단일 채널 (카카오톡 채널 1:1 채팅).
-          OutlinedButton(
-            onPressed: () => launchUrl(
-              Uri.parse('http://pf.kakao.com/_kxbxanX/chat'),
-              mode: LaunchMode.externalApplication,
-            ),
-            child: const Text('Support (KakaoTalk)'),
-          ),
-          const SizedBox(height: FacingTokens.sp1),
-          const Center(
-            child: Text('평일 10–18시 답변', style: FacingTokens.caption),
-          ),
-          const SizedBox(height: FacingTokens.sp3),
-          // D26 §4.1 — 코치·사장 계정 연결 (소셜 로그인 후 1회 claim).
-          OutlinedButton(
-            onPressed: () =>
-                Navigator.of(context).pushNamed('/auth/link-staff'),
-            child: const Text('직원 계정 연결'),
-          ),
-          const SizedBox(height: FacingTokens.sp3),
-          TextButton(
-            style: TextButton.styleFrom(
-              foregroundColor: FacingTokens.accent,
-            ),
-            onPressed: () => _confirmReset(context),
-            child: const Text('데이터 초기화'),
+          FkAccordion(
+            title: '메뉴',
+            subtitle: '계약 · 히스토리 · 목표 · 약관 · 고객지원',
+            children: [
+              const SizedBox(height: FacingTokens.sp2),
+              FkRowCard(rows: [
+                // B-6 (2026-06-10) — 회원 전자계약 목록·상세·서명 진입
+                FkListRow(
+                  icon: Icons.assignment_outlined,
+                  title: '계약',
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => const MemberContractsScreen(),
+                  )),
+                ),
+                FkListRow(
+                  icon: Icons.history,
+                  title: '히스토리',
+                  onTap: () => Navigator.of(context).pushNamed('/history'),
+                ),
+                FkListRow(
+                  icon: Icons.flag_outlined,
+                  title: '목표',
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => const GoalsScreen(),
+                  )),
+                ),
+                FkListRow(
+                  icon: Icons.download_outlined,
+                  title: '데이터 가져오기',
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => const ImportScreen(),
+                  )),
+                ),
+                FkListRow(
+                  icon: Icons.calculate_outlined,
+                  title: '알고리즘',
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => const AlgorithmScreen(),
+                  )),
+                ),
+                // P2-1 (2026-06-11) — FAQ (시드 10문답, 실문의 누적 시 증보).
+                FkListRow(
+                  icon: Icons.help_outline,
+                  title: 'FAQ',
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => const FaqScreen(),
+                  )),
+                ),
+                // P0-3 (2026-06-10) — 고객센터 단일 채널 (카카오톡 채널 1:1 채팅).
+                FkListRow(
+                  icon: Icons.chat_bubble_outline,
+                  title: '고객지원',
+                  subtitle: '카카오톡 · 평일 10–18시 답변',
+                  onTap: () => launchUrl(
+                    Uri.parse('http://pf.kakao.com/_kxbxanX/chat'),
+                    mode: LaunchMode.externalApplication,
+                  ),
+                ),
+                // D26 §4.1 — 코치·사장 계정 연결 (소셜 로그인 후 1회 claim).
+                FkListRow(
+                  icon: Icons.badge_outlined,
+                  title: '직원 계정 연결',
+                  onTap: () =>
+                      Navigator.of(context).pushNamed('/auth/link-staff'),
+                ),
+                FkListRow(
+                  icon: Icons.lock_outline,
+                  title: '개인정보처리방침',
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => const PrivacyScreen(),
+                  )),
+                ),
+                // P0-1 (2026-06-10): 이용약관 진입 — 가입 화면 외 상시 접근 경로.
+                FkListRow(
+                  icon: Icons.article_outlined,
+                  title: '이용약관',
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => const TermsScreen(),
+                  )),
+                ),
+              ]),
+              const SizedBox(height: FacingTokens.sp2),
+              Center(
+                child: TextButton(
+                  style: TextButton.styleFrom(
+                    foregroundColor: FacingTokens.danger,
+                  ),
+                  onPressed: () => _confirmReset(context),
+                  child: const Text('데이터 초기화'),
+                ),
+              ),
+            ],
           ),
           if (kDebugMode) ...[
             const SizedBox(height: FacingTokens.sp5),
