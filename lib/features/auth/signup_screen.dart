@@ -30,6 +30,14 @@ class SignupScreen extends StatefulWidget {
 class _SignupScreenState extends State<SignupScreen> {
   bool _busy = false;
 
+  // v1.33 (2026-08-10 사용자 지시): 소셜 로그인·데모 계정을 진입점에서 내리고
+  // **실제 회원가입(박스 가입 신청)** 을 주 동선으로 올린다. 실 OAuth 키가 없어
+  // stub(가짜 로그인)만 도는 상태였고, 가입 신청은 백엔드까지 실제로 배선돼 있다.
+  // 프로젝트 룰 "숨김 = 코드 보존" — 화면·라우트·서비스는 그대로 두고 이 상수만
+  // false. 실 OAuth 키 확보 후 true 한 줄로 원복.
+  static const bool _kShowSocialLogin = false;
+  static const bool _kShowDemoAccounts = false;
+
   // D26: stub ↔ real 자동 선택 (USE_REAL_AUTH 플래그). 실 OAuth 는 ApiClient 의존
   // 이라 const 불가 — _signIn 에서 context 로 ApiClient 받아 resolve.
   static const Color _naverGreen = FacingTokens.naverGreen;
@@ -179,105 +187,101 @@ class _SignupScreenState extends State<SignupScreen> {
                 ),
                 const SizedBox(height: FacingTokens.sp5),
 
-                // 네이버 (실서비스 1순위 — 실 로그인 배선: RealSocialAuthService)
-                FkSocialButton(
-                  label: '네이버 아이디로 로그인',
-                  background: _naverGreen,
-                  foreground: Colors.white,
-                  markText: 'N',
-                  onPressed:
-                      _busy ? null : () => _signIn(SocialProvider.naver),
-                ),
-                const SizedBox(height: FacingTokens.sp3),
+                // v1.33: 소셜 로그인 블록 — 실 OAuth 키 확보 전까지 숨김.
+                if (_kShowSocialLogin) ...[
+                  // 네이버 (실서비스 1순위 — 실 로그인 배선: RealSocialAuthService)
+                  FkSocialButton(
+                    label: '네이버 아이디로 로그인',
+                    background: _naverGreen,
+                    foreground: Colors.white,
+                    markText: 'N',
+                    onPressed:
+                        _busy ? null : () => _signIn(SocialProvider.naver),
+                  ),
+                  const SizedBox(height: FacingTokens.sp3),
 
-                // 구글
-                FkSocialButton(
-                  label: '구글로 시작',
-                  background: _googleSurface,
-                  foreground: Colors.black,
-                  markText: 'G',
-                  markColor: _googleBlue,
-                  onPressed:
-                      _busy ? null : () => _signIn(SocialProvider.google),
-                ),
+                  // 구글
+                  FkSocialButton(
+                    label: '구글로 시작',
+                    background: _googleSurface,
+                    foreground: Colors.black,
+                    markText: 'G',
+                    markColor: _googleBlue,
+                    onPressed:
+                        _busy ? null : () => _signIn(SocialProvider.google),
+                  ),
+                  const SizedBox(height: FacingTokens.sp5),
+                ],
 
-                const SizedBox(height: FacingTokens.sp5),
-                // D26: 사장도 소셜 로그인으로 통일 — 별도 ID/PW 버튼 제거.
-                // 실 OAuth 시 social → role=boss 응답이면 boss 세션 수립.
-                // 사장 ID/PW 진입은 전환기 동안만 하단 작은 링크로 유지.
-                // v1.16 Sprint 8 U1: 데모 계정 5개 빠른 진입.
-                const Text('데모 계정',
-                    style: FacingTokens.sectionLabel,
-                    textAlign: TextAlign.center),
-                const SizedBox(height: FacingTokens.sp2),
-                ...kDemoAccounts.map((d) => Padding(
-                      padding: const EdgeInsets.only(bottom: FacingTokens.sp1),
-                      child: OutlinedButton(
-                        onPressed: _busy ? null : () => _useDemo(d),
-                        style: OutlinedButton.styleFrom(
-                          alignment: Alignment.centerLeft,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: FacingTokens.sp4,
-                            vertical: FacingTokens.sp3,
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                children: [
-                                  Text(d.nameLabel,
-                                      style: FacingTokens.body.copyWith(
-                                        fontWeight: FontWeight.w700,
-                                      )),
-                                  const SizedBox(height: 2),
-                                  Text(d.hintTier,
-                                      style: FacingTokens.caption),
-                                ],
-                              ),
-                            ),
-                            const Icon(Icons.chevron_right,
-                                color: FacingTokens.muted, size: 18),
-                          ],
-                        ),
-                      ),
-                    )),
-                const SizedBox(height: FacingTokens.sp3),
-                // A-4 (2026-06-10): 신규 회원 박스 가입 신청 진입 — /signup/self
-                // 고아 라우트 해소 (PHASE5 F4 화면이 어디서도 push 되지 않던 버그).
-                OutlinedButton(
+                // v1.33 주 CTA — 실제 회원가입. 박스 선택 → 실명·전화 →
+                // 가입 신청(pending) → 사장 승인 → 회원 활성.
+                // A-4 (2026-06-10): /signup/self 고아 라우트 해소 이력 유지.
+                ElevatedButton(
                   onPressed: _busy
                       ? null
                       : () {
                           Haptic.light();
                           Navigator.of(context).pushNamed('/signup/self');
                         },
-                  style: OutlinedButton.styleFrom(
-                    minimumSize:
-                        const Size(double.infinity, FacingTokens.buttonH),
-                    side: const BorderSide(color: FacingTokens.primary),
-                    foregroundColor: FacingTokens.primary,
-                  ),
-                  child: const Text('박스 가입 신청'),
+                  child: const Text('가입 신청'),
                 ),
-                const SizedBox(height: FacingTokens.sp2),
+                const SizedBox(height: FacingTokens.sp3),
                 // 이음새 1 — PC 선등록 회원의 가입 코드 연결 진입점.
-                Center(
-                  child: TextButton(
-                    onPressed: _busy
-                        ? null
-                        : () =>
-                            Navigator.of(context).pushNamed('/signup/claim'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: FacingTokens.muted,
-                      minimumSize: const Size(0, 32),
-                    ),
-                    child: Text('가입 코드가 있으신가요?',
-                        style: FacingTokens.caption),
-                  ),
+                // v1.33: 작은 텍스트 링크 → 보조 버튼으로 승격 (소셜 내린 자리).
+                OutlinedButton(
+                  onPressed: _busy
+                      ? null
+                      : () {
+                          Haptic.light();
+                          Navigator.of(context).pushNamed('/signup/claim');
+                        },
+                  child: const Text('가입 코드로 연결'),
                 ),
+
+                // v1.16 Sprint 8 U1: 데모 계정 5개 빠른 진입 (v1.33 숨김).
+                if (_kShowDemoAccounts) ...[
+                  const SizedBox(height: FacingTokens.sp5),
+                  const Text('데모 계정',
+                      style: FacingTokens.sectionLabel,
+                      textAlign: TextAlign.center),
+                  const SizedBox(height: FacingTokens.sp2),
+                  ...kDemoAccounts.map((d) => Padding(
+                        padding:
+                            const EdgeInsets.only(bottom: FacingTokens.sp1),
+                        child: OutlinedButton(
+                          onPressed: _busy ? null : () => _useDemo(d),
+                          style: OutlinedButton.styleFrom(
+                            alignment: Alignment.centerLeft,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: FacingTokens.sp4,
+                              vertical: FacingTokens.sp3,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                  children: [
+                                    Text(d.nameLabel,
+                                        style: FacingTokens.body.copyWith(
+                                          fontWeight: FontWeight.w700,
+                                        )),
+                                    const SizedBox(height: 2),
+                                    Text(d.hintTier,
+                                        style: FacingTokens.caption),
+                                  ],
+                                ),
+                              ),
+                              const Icon(Icons.chevron_right,
+                                  color: FacingTokens.muted, size: 18),
+                            ],
+                          ),
+                        ),
+                      )),
+                ],
+                const SizedBox(height: FacingTokens.sp3),
                 // P0-1 (2026-06-10): placeholder 다이얼로그 → 본문 화면으로 교체.
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

@@ -3,9 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
+import '../../core/app_mode.dart';
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
+import '../auth/auth_state.dart';
+import '../profile/profile_state.dart';
 
 /// C-1앱 (2026-06-10) — 전화번호 검증·자동 하이픈.
 final RegExp _phoneRe = RegExp(r'^01[016789]-?\d{3,4}-?\d{4}$');
@@ -116,8 +119,11 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
     }
     setState(() => _submitting = true);
     Haptic.medium();
+    // v1.33: await 전 context.read 일괄 캡처 (QA B-AS-1 패턴).
+    final api = context.read<ApiClient>();
+    final auth = context.read<AuthState>();
+    final profile = context.read<ProfileState>();
     try {
-      final api = context.read<ApiClient>();
       final res = await api.post(
         '/api/v1/member/gyms/${gym.id}/self-signup',
         {
@@ -128,18 +134,28 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
       if (!mounted) return;
       final status = (res['status'] ?? 'pending') as String;
       final duplicate = res['duplicate'] == true;
+
+      // v1.33 (2026-08-10): 가입 신청 성공 = 이 기기의 신원 확정.
+      // AuthState 를 세워두지 않으면 다음 앱 실행 때 splash 가 !isSignedIn 을
+      // 보고 로그인 화면으로 되돌려 보낸다 (소셜 버튼을 내린 지금은 그대로 막힘).
+      // device_hash 가 실질 계정 키이므로 provider 는 'self' 로 기록.
+      await auth.signIn('self', displayName: name);
+      await AppModeStore.set(AppMode.member);
+      if (!mounted) return;
+
       // B-7: 재신청을 신규 신청과 구분 — "또 신청됐다" 오인 방지.
       if (duplicate) {
         if (status == 'pending') {
           _toast('이미 승인 대기 중. 사장 승인 후 이용 가능.');
         } else {
           _toast('이미 가입된 회원.');
-          Navigator.of(context).pushReplacementNamed('/shell');
         }
+        _goNext(profile);
       } else if (status == 'pending') {
-        _showApprovalDialog(gym.name);
+        _showApprovalDialog(gym.name, profile);
       } else {
         _toast('이미 가입된 회원.');
+        _goNext(profile);
       }
     } on AppException catch (e) {
       if (!mounted) return;
@@ -152,7 +168,7 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
     }
   }
 
-  void _showApprovalDialog(String gymName) {
+  void _showApprovalDialog(String gymName, ProfileState profile) {
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -166,14 +182,23 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
           TextButton(
             onPressed: () {
               Navigator.of(ctx).pop();
-              // A-4: /home 은 하단 탭 셸 우회 진입 — 표준 진입점 /shell 로.
-              Navigator.of(context).pushReplacementNamed('/shell');
+              _goNext(profile);
             },
             child: const Text('확인'),
           ),
         ],
       ),
     );
+  }
+
+  /// v1.33: 가입 직후 목적지. 등급(온보딩) 미완료면 온보딩부터 —
+  /// splash 의 분기(`hasGrade ? /shell : /onboarding/basic`)와 같은 규칙이라
+  /// 앱을 껐다 켜도 같은 자리로 돌아온다.
+  /// A-4: /home 은 하단 탭 셸 우회 진입 — 표준 진입점 /shell 로.
+  void _goNext(ProfileState profile) {
+    if (!mounted) return;
+    final next = profile.hasGrade ? '/shell' : '/onboarding/basic';
+    Navigator.of(context).pushNamedAndRemoveUntil(next, (_) => false);
   }
 
   void _toast(String msg) {

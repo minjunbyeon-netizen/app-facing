@@ -65,11 +65,17 @@ class _ClaimCodeScreenState extends State<ClaimCodeScreen> {
         SnackBar(content: Text('$gymName 연결 완료.')),
       );
       Haptic.heavy();
-      if (auth.isSignedIn) {
-        navigator.pushNamedAndRemoveUntil('/shell', (_) => false);
-      } else {
-        navigator.pop(); // 로그인 전 진입 — 소셜 로그인 화면으로 복귀.
+      // v1.33 (2026-08-10): 코드 연결 성공 = 이 기기가 선등록 회원 행을 흡수 —
+      // 신원이 확정된 상태다. 예전엔 미로그인 진입이면 로그인 화면으로 되돌려
+      // 보냈는데, 소셜 버튼을 내린 지금은 그게 막다른 길이 된다.
+      if (!auth.isSignedIn) {
+        // 백엔드 응답 필드는 `name` (api/claim.py). 조기 반환 경로엔 없어 빈 값 방어.
+        final memberName = (data['name'] ?? '').toString();
+        await auth.signIn('claim',
+            displayName: memberName.isEmpty ? null : memberName);
       }
+      if (!mounted) return;
+      navigator.pushNamedAndRemoveUntil('/shell', (_) => false);
     } on AppException catch (e) {
       if (!mounted) return;
       setState(() {
