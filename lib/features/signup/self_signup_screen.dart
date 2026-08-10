@@ -305,25 +305,21 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
             decoration: _inputDeco('010-0000-0000'),
           ),
           const SizedBox(height: FacingTokens.sp5),
+          // v1.33: 스타일 전부 테마(elevatedButtonTheme)에 위임. 직전까지는
+          // child 에 `FacingTokens.body`(color: fg — 어두운 색 내장) 를 씌워
+          // 버튼의 흰 글자색을 덮어써서, 빨간 배경에 어두운 글자가 찍혔다.
+          // 로그인 화면의 같은 CTA 와도 색이 어긋났다.
           SizedBox(
             height: FacingTokens.buttonH,
             child: ElevatedButton(
               onPressed: _submitting ? null : _submit,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: FacingTokens.primary,
-                foregroundColor: FacingTokens.onColor,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(FacingTokens.r2)),
-              ),
               child: _submitting
                   ? const SizedBox(
                       height: 22,
                       width: 22,
                       child: CircularProgressIndicator(
                           color: FacingTokens.onColor, strokeWidth: 2.4))
-                  : Text('가입 신청',
-                      style: FacingTokens.body
-                          .copyWith(fontWeight: FontWeight.w700)),
+                  : const Text('가입 신청'),
             ),
           ),
         ],

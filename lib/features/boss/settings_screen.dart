@@ -215,8 +215,11 @@ class _PlansTabState extends State<_PlansTab> {
                 shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.zero),
               ),
+              // v1.33: color 명시 — FacingTokens.body 가 어두운 fg 를 품고 있어
+              // 위 foregroundColor(흰색) 를 덮어쓰고 빨간 배경에 어두운 글자가 됐다.
               child: Text('요금제 추가',
                   style: FacingTokens.body.copyWith(
+                      color: FacingTokens.onColor,
                       fontWeight: FontWeight.w700, letterSpacing: 0.6)),
             ),
           ),
