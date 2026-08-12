@@ -34,7 +34,9 @@ class CoachDetailScreen extends StatelessWidget {
             _Card(title: '대회 기록', body: coach.competitionRecords!),
           if (coach.demoVideoUrl != null)
             _LinkCard(title: '시범 영상', url: coach.demoVideoUrl!),
-          if (coach.ptBookable) _PtBookCard(coach: coach),
+          // v2.6 (2026-08-13 사용자 지시): 'PT 예약' 카드 제외 — 버튼을 눌러도
+          // "준비 중" 스낵바만 뜨는 죽은 버튼이었다. 예약 흐름이 실제로 붙는
+          // 커밋에서 이 한 줄을 되살린다 (_PtBookCard 는 보존).
           if (coach.offDays.isNotEmpty)
             _Card(title: '휴무', body: coach.offDays.join(' · ')),
           if (coach.snsUrl != null)
@@ -152,6 +154,7 @@ class _LinkCard extends StatelessWidget {
   }
 }
 
+// ignore: unused_element  — 진입점만 끊었다 ("숨김 = 코드 보존", 위 build 주석 참조).
 class _PtBookCard extends StatelessWidget {
   const _PtBookCard({required this.coach});
   final CoachProfile coach;

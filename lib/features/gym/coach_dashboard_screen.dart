@@ -388,23 +388,26 @@ class _MemberDetailSheet extends StatelessWidget {
             const SizedBox(height: FacingTokens.sp4),
             const Text('코치 노트', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp2),
-            Container(
-              padding: const EdgeInsets.all(FacingTokens.sp3),
-              decoration: BoxDecoration(
-                color: FacingTokens.surfaceOverlay,
-                borderRadius: BorderRadius.circular(FacingTokens.r2),
-                border: Border.all(color: FacingTokens.border),
+            // v2.6 (2026-08-13 사용자 지시): 할 말이 있을 때만 띄운다.
+            // 종전엔 평범한 회원에게 '부상 메모·목표 기록은 준비 중' 이라는
+            // 없는 기능 예고가 기본값으로 깔렸다.
+            if (member.isDormant || member.totalSessions == 0) ...[
+              Container(
+                padding: const EdgeInsets.all(FacingTokens.sp3),
+                decoration: BoxDecoration(
+                  color: FacingTokens.surfaceOverlay,
+                  borderRadius: BorderRadius.circular(FacingTokens.r2),
+                  border: Border.all(color: FacingTokens.border),
+                ),
+                child: Text(
+                  member.isDormant
+                      ? '2주 이상 미참석. 재참여 캠페인 추천.'
+                      : '신규 회원. 첫 WOD 유도 필요.',
+                  style: FacingTokens.caption,
+                ),
               ),
-              child: Text(
-                member.isDormant
-                    ? '2주 이상 미참석. 재참여 캠페인 추천.'
-                    : member.totalSessions == 0
-                        ? '신규 멤버. 첫 WOD 유도 필요.'
-                        : '부상 메모·목표 기록은 준비 중.',
-                style: FacingTokens.caption,
-              ),
-            ),
-            const SizedBox(height: FacingTokens.sp4),
+              const SizedBox(height: FacingTokens.sp4),
+            ],
             if (member.deviceHashFull != null) ...[
               ElevatedButton.icon(
                 onPressed: () {
