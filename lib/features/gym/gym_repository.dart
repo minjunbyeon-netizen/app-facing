@@ -187,8 +187,11 @@ class GymRepository {
     required int coachUserId,
     required String name,
   }) async {
+    // 코치 '프로필'(공개 소개 카드) 생성. 코치 '계정' 생성
+    // (POST /api/v1/admin/gyms/<id>/coaches) 과는 다른 엔드포인트다 —
+    // 2026-08-12 백엔드에서 두 기능의 URL 충돌을 풀며 이쪽이 /api/v1/gyms/ 로 이동.
     final data = await api.post(
-      '/api/v1/admin/gyms/$gymId/coaches',
+      '/api/v1/gyms/$gymId/coaches',
       {
         'coach_user_id': coachUserId,
         'name': name,
