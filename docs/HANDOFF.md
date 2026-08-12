@@ -1,127 +1,127 @@
-# HANDOFF - 2026-08-12 22:00
+# HANDOFF - 2026-08-12 22:45
 
-> 주제: **회원 진입 동선 대폭 축소 + WOD·수업 화면 컴팩트화 (v2.3)**.
-> 이번 세션은 `apps/facing-app` 과 `services/facing` **두 repo**를 만졌다 (PC 웹 0건).
-> **push·배포 0건.** 로컬 커밋만.
-> 사용자 지시의 큰 줄기: "이 앱은 **HYPHEN 한 박스 전용**이다. 회원에게 최소한만 묻고,
-> 화면은 컴팩트하게."
+> 주제: **WOD 탭을 주간 아코디언으로 재구성(v2.4) + 버튼·프로필·홈 전면 컴팩트화(v2.5)**.
+> 이번 세션은 `apps/facing-app` 한 repo만 만졌다 (백엔드·PC 웹 코드 변경 0건).
+> **push·배포 0건.** 로컬 커밋만. 에뮬레이터(emulator-5554)·폰(192.168.1.100:5555)에
+> 디버그 APK 설치까지 완료.
+> 사용자 지시의 큰 줄기: "WOD 들어가면 보기가 너무 힘들다" → 주간 아코디언,
+> 그리고 "칸을 쓸데없이 크게 쓴다, 50% 수준으로" → 전 화면 컴팩트화.
 
 ## 완료
 
-### 1. 로딩·로그인 화면 정리 — `f44cfab`
-- [x] 스플래시 하단 **명언 카드 삭제** (`QuoteCard` 호출만 제거, 위젯은 등급·계산 로딩에서 계속 사용)
-- [x] 로그인 첫 화면 **`코치·사장 로그인` 줄+구분선 제거** (`_kShowBossEntry=false`, 라우트 보존)
-- [x] 라벨 명확화: `가입 신청` → **`박스 가입 신청`**, `가입 코드로 연결` → **`가입 코드 입력`**
-      (뒤 문구는 `claim_code_screen` 제목과 표기 통일, §0-B)
+### 1. WOD 탭 = 그 주 월~일 아코디언 — `e48731a` (v2.4)
+- [x] `lib/features/gym/week_board.dart` **신설**. 한 주가 7줄로 고정되고, 요일·날짜를
+      누르면 그 자리에서 **그날 WOD + 그날 수업(줄마다 예약 버튼)** 이 펼쳐진다.
+      한 번에 한 날만 열리고(다시 누르면 접힘), 헤더 ◀ ▶ 로 주 이동.
+- [x] 구 3섹션(오늘·예정·지난) + 하단 ClassesSection 임베드 **폐기**.
+      `_DateAccordion`·`_groupByDate`·`_WodEntry` 삭제.
+- [x] `lib/features/gym/wod_row.dart` **분리** — `WodRow`·`LockedWodBanner`·코치 메시지
+      시트를 box_wod_screen 에서 꺼내 보드와 공유 (같은 행 위젯 두 벌 방지).
+- [x] 예약·취소 흐름을 `reserveClassFlow`/`cancelClassFlow` **한 벌**로 통일
+      (`features/classes/classes_screen.dart` top-level). 수업 화면·주간 보드가 같이 쓴다.
+- [x] 수업은 **주 단위 1회 조회** (`GET /api/v1/member/classes?from=월&to=다음 월`).
+      백엔드 변경 0건 — `from` 이 과거여도 그대로 받는다(코드 확인, 실호출 미검증).
+- [x] 하루에 WOD 가 둘 이상이면 **첫 개만 펼침** (둘 다 펼치니 수업이 화면 밖으로 밀렸다).
+- [x] 예약 직후 재조회 때 **주간 요약이 통째로 빈칸으로 깜빡이던 것** 제거 —
+      FutureBuilder 를 걷고 이전 결과를 들고 있다가 갈아끼운다.
+- [x] WOD 로드 실패가 "게시된 WOD 없음"으로 읽히던 것 → 경고 배너 + 다시 시도
+      (`_LoadErrorBanner`).
+- [x] 브리프에 **D33** 기록.
 
-### 2. 가입 동선 축소 + 로그인 계정 생성 — `c0e899c` (앱) / 백엔드는 `f6fb70a` 에 흡수
-- [x] **박스 번호 칸 삭제.** 가입 화면 = 아이디 + 비밀번호 + 비밀번호 확인 **3칸**.
-      박스는 `gyms-list` 에서 이름이 `HYPHEN` 인 행으로 자동 결정 (`_kBrandGymName`,
-      폴백 `_kFallbackGymId=2`)
-- [x] 백엔드 `member_self_signup` 이 `login_id`/`password` 를 받아 **MemberCredential 생성**
-      (bcrypt cost 12). 아이디 선점 검사(회원·스태프 양쪽) → 409.
-      **중복 기기 분기에서도 자격증명 upsert** — 기기로만 가입해 둔 회원이 아이디를 만드는
-      유일한 경로라, 여기서 건너뛰면 폰 교체 시 계정을 잃는다
-- [x] 이름 미전송 시 아이디를 표시용 이름으로 사용 (사장이 승인하며 실명으로 수정)
-- [x] **실호출 6케이스 검증 완료**: 신규 201 / 아이디중복 409 / 로그인 200 / 틀린비번 401 /
-      없는박스 404 / 짧은비번 400 (`scratchpad/test_signup.py`)
-
-### 3. 온보딩 축소 + 인트로 삭제 — `c0e899c`
-- [x] 온보딩 `/onboarding/basic` 을 **성별 + 경력 2문항**으로 재작성.
-      체중·키·나이 삭제, **벤치마크 6단계(운동능력) 진입 삭제**, 7단계 진행바 삭제
-- [x] 경력 = **1년 미만 / 1~3년 / 3년 이상** 3구간 (`_kExpBands`, 대표값 0.5·2·5년).
-      사용자가 말한 경계(1년·3년)는 유지하되 "1년 이상"과 "3년 미만"이 겹치는 문제만 제거
-- [x] **첫 실행 인트로 3장 진입 삭제** (`/intro` 화면·라우트는 보존). splash → 미로그인이면
-      `/signup`, 로그인 상태면 `/shell` 직행
-- [x] `hasGrade` 로 온보딩에 붙잡던 분기 전부 제거 (splash·member_login·self_signup)
-- [x] 회원 로그인 화면(`member_login_screen`)의 `코치·사장이신가요?` 줄도 삭제
-
-### 4. WOD·수업 화면 컴팩트 — `c0e899c`, `7345dcb`
-- [x] **오늘 WOD 를 최상단으로.** 순서 = 오늘 → 예정 → 지난 → 수업 → 박스정보·공지
-      (전에는 박스정보·공지·지난WOD 를 지나야 오늘 것이 나왔다)
-- [x] 여백 축소: ListView `sp4→sp3`, 섹션 간격 `sp5→sp3`, `_kv` 줄 간격 `6→3`
-- [x] **라운드가 1개면 `A. METCON` 행 생략** — 바로 위 본문과 같은 내용이 두 번 나왔다
-- [x] 수업 카드 여백 `sp4→sp3` / margin `sp3→sp2`
-- [x] 수업 정원 표기 `8/12` → **`8명 / 12명`** (날짜 8월 12일로 읽혔다)
-
-### 5. 예약 → 코치 PC 반영 점검 (코드 변경 0건 — 이미 구현돼 있었다)
-- [x] `GET /api/v1/admin/classes/<id>/reservations` 가 예약자·대기자 명단을 이름·전화·
-      예약시각·상태로 반환 (고아 예약은 `탈퇴 회원` 으로 노출)
-- [x] PC 웹 `web/facing-admin/templates/classes.html` 에 **예약자 명단 블록 + 출석 표시 버튼**
-      존재 (D29)
-- [x] PII: 코치는 `members_name_full` scope 로 **이름 평문**, 연락처만 마스킹 (D30 정책대로)
-- [x] 실DB 확인 — 회원 `member`(member_id 123) 의 21:46 예약이 `confirmed` 로 정상 기록
-
-### 검증
-`flutter analyze` 0 issues · `flutter test` **134 passed** · 골든 4장 갱신
-(`common_01_splash`·`common_05_signup`·`onb_01_basic`·`member_01_shell_wod`·`state_01_wod_error`) ·
-갤러리 22장 · 에뮬레이터 실물 확인 완료
+### 2. 버튼·프로필·홈 컴팩트화 — `600b23a` (v2.5)
+- [x] **버튼 한 규격 36** — `FacingTokens.buttonHCompact` 신설(appkit 마스터 52 는 불변).
+      세로 패딩 16→4, 모서리 r4→r3. FkButton 3종(채움·외곽선·글자) 높이 통일.
+- [x] WOD 수업 줄의 예약·대기·취소·마감·종료를 **전부 FkBadge 한 규격**으로
+      (예약됨과 같은 크기). 완료 표시는 전폭 채움 → 글자 폭 컴팩트.
+- [x] 프로필: 아바타 56→40, 이름 h2→h3, 전폭 '프로필 수정' 버튼 → 이름 줄 연필 아이콘.
+      섹션 구분선 여백 24→4. FkAccordion `dense`+`minTileHeight 44` (헤더 72→44).
+- [x] 프로필 **박스 기록에서 Tier·전화·생년월일·성별·선호 시간 삭제** — 앱이 쓰지 않는
+      되비추기 값. 코치가 남긴 주의 사항·메모만 남기고 둘 다 없으면 카드 자체 숨김.
+      로그인 수단(NAVER) 표기도 삭제. 설정·메뉴 아코디언 부제 삭제 → 한 줄 버튼.
+- [x] 홈: 업적 빈 상태 아이콘+2줄 → 한 줄. `FkListRow` 여백 12→8 (업적·마일스톤·
+      프로필 메뉴 공통). 바깥 여백·섹션 간격 16/24→12.
+- [x] 검증: `flutter analyze` 0 · `flutter test` **134 통과** · 골든 **22장 갱신** ·
+      갤러리 22장 · 에뮬레이터에서 WOD·프로필·홈 3탭 실물 확인 · 예약 버튼 실호출 성공.
 
 ## 진행중
 
-없음.
+없음. (아래 '대기' 1번이 사용자가 방금 지시한 다음 작업이다.)
 
-## 대기 (사용자 결정 필요 / 다음 후보)
+## 대기 (다음 세션 첫 작업 — 사용자 지시 2026-08-12 22:43)
 
-- [ ] **홈·프로필 탭은 아직 손대지 않았다.** WOD·수업과 같은 기준(여백·중복 표기)으로 정리 필요
-- [ ] **코치 PC 화면을 브라우저로 직접 열어 명단 확인** — 이번엔 코드·DB 로만 확인했다
-      (`web/facing-admin` 로컬 기동 + 코치 로그인 필요)
-- [ ] **앱에서 신규 가입 성공 다이얼로그를 실물로 못 봤다.** API 6케이스는 통과했고 앱에서
-      요청도 정상 전송되지만, 화면 캡처로 확인한 것은 "이미 가입된 회원" 분기까지다
-- [ ] **벤치마크·등급 화면이 고아가 됐다.** `/onboarding/benchmarks`·`/onboarding/grade` 는
-      살아 있고 `mypage/edit_profile_screen` 에서만 닿는다. 존치할지 진입점까지 뺄지 결정 필요
-- [ ] `_kShowSocialLogin=false` (실 OAuth 키 대기) 는 그대로 둠
-- [ ] `applyPersonaSnapshot()` 이름 잔재 (지난 세션 대기 항목, 그대로 남음)
-- [ ] `button_lint_test.dart` 신설 (§7-D 버튼 규칙 자동 게이트, 지난 세션 대기 항목)
+- [ ] **① ENGINE 섹션 삭제.** "engine 은 우리가 쓸 데 없다."
+      대상 = `lib/features/mypage/mypage_screen.dart` 의 `_ScoreSection`
+      (ENGINE 라벨 · Tier/Engine 점수/LV/칭호 줄 · 6 카테고리 칩 · 트렌드 delta ·
+      `_WeaknessInline` 약점 카드) + `MyPageScreen` children 의 `_ScoreSection()` 과
+      그 앞뒤 `_SectionDivider()`.
+      ⚠ **"숨김 = 코드 보존" 원칙**(CLAUDE.md)대로 진입점만 끊을지, 파일째 지울지
+      먼저 판단할 것. 권장 = 화면에서 제외 + 클래스 보존(온보딩 `/onboarding/grade`·
+      벤치마크 시트가 같은 데이터를 쓴다). 삭제 시 딸려가는 것:
+      `_ScoreSectionState`·`_WeaknessInline`·`benchmark_sheet` 진입·`_rarityColor`.
+      골든 `member_03_shell_profile` 재생성 필요.
+- [ ] **② 완료 표시 버튼을 '예약됨' 수준으로 더 축소.** "지금도 좀 커서 거북하다."
+      현재 = `FkButton.primary('완료 표시', icon: Icons.check, expand: false)` 높이 36
+      (`lib/features/gym/wod_row.dart` 액션 행). 예약됨 = `FkBadge` 높이 약 24.
+      권장 = 수업 줄과 같이 **FkBadge(onTap)** 로 내리거나 `buttonHCompact` 를 28~30 으로.
+      전자면 WOD 행 액션 3개(완료 표시·메시지·자세히)를 배지 줄로 통일하는 편이 깔끔하다.
+
+## 대기 (이전부터 남은 것)
+
+- [ ] 코치 PC 화면(`web/facing-admin`)을 브라우저로 열어 예약자 명단 실사 — 이번에도 못 함
+- [ ] 벤치마크·등급 화면(`/onboarding/benchmarks`·`/onboarding/grade`) 존치 여부 결정
+      (①과 함께 결정하면 좋다 — 둘 다 Engine 계열)
+- [ ] `_kShowSocialLogin=false` (실 OAuth 키 대기)
+- [ ] `applyPersonaSnapshot()` 이름 잔재
+- [ ] `button_lint_test.dart` 신설 (§7-D 버튼 규칙 자동 게이트)
 
 ## 결정사항 / 주의
 
-1. **이 repo 에서 `dart format` 금지.** 옛 SDK 포맷이라 118개 파일이 통째로 재포맷된다.
-2. **auto-save 훅이 백엔드 커밋을 남의 커밋에 흡수한다.** 이번에도 `api/admin.py` 변경이
-   다른 세션 커밋 `f6fb70a`("QR 출석 체크인 폐지")에 섞여 들어갔다. 코드는 HEAD 에 정상
-   반영돼 있으나, 커밋 단위로 되돌리려 하면 남의 작업까지 딸려온다.
-3. **백엔드는 `use_reloader=False`** 라 코드를 고치면 반드시 프로세스를 죽였다 다시 띄워야
-   한다. 이번 세션에서 이걸 놓쳐 "가입이 안 된다"고 한 번 오진했다 (실제로는 백엔드가 꺼져 있었다).
-4. **adb `keyevent 111`(ESC)은 Flutter 화면을 pop 시킨다.** 자동화로 키보드를 닫을 때 쓰면
-   입력하던 화면이 뒤로 넘어간다 — 키보드는 그냥 두고 버튼을 누르는 편이 안전하다.
-5. **폰(갤S22)에 있던 기존 앱이 서명 불일치로 삭제·재설치됐다** (`INSTALL_FAILED_UPDATE_INCOMPATIBLE`).
-   릴리즈 서명으로 깔려 있던 앱의 로컬 데이터(세션·기기 ID)는 초기화됐다.
-6. **"숨김 = 코드 보존" 원칙 유지.** 인트로·코치사장 진입·벤치마크는 전부 상수/진입점만
-   끊었고 화면·라우트·백엔드는 살아 있다. 되살리려면 상수 한 줄이면 된다.
+1. **완전 원형 pill 은 넣지 않았다.** 사용자가 "pill 버튼 모드"를 요청했으나 글로벌
+   `rules/design-block.md` §2-B 차단 항목이라 r3(12) 사각으로 뒀다. 높이 36 에서 r4 를
+   주면 사실상 원형이 된다. 예외를 원하면 사용자 승인이 필요하다.
+2. **버튼 높이 36 은 DESIGN-SSOT 의 터치 48 기준보다 작다.** 사용자 지시 우선으로 내렸다.
+   ②를 하면 더 작아지므로 터치 영역(FkBadge 는 내부에서 48 확보)을 반드시 확인할 것.
+3. **`FacingTokens.buttonHCompact` 는 facing 전용이다.** appkit 마스터(52)를 고치면
+   workcheck·writeplz 까지 따라 내려간다 — 건드리지 말 것.
+4. **이 repo 에서 `dart format` 금지** (옛 SDK 포맷 — 118개 파일 재포맷).
+5. **auto-save 훅이 작업 중간에 커밋을 만든다.** 이번에도 `8ecc0db`·`abbb85b` 로
+   중간 상태가 커밋됐다. 코드는 HEAD 에 정상.
+6. **백엔드는 `use_reloader=False`** — 고치면 프로세스를 죽였다 다시 띄울 것.
 7. **배포 금지 유지.** 사용자가 "배포해"라고 하기 전까지 push·railway up 금지.
 8. UI 를 바꾸면 **골든 재생성 + 갤러리 갱신이 완료 조건**
    (`flutter test --update-goldens test/golden` → `python tool/golden_gallery.py`).
+9. **adb `input tap` 이 간헐적으로 하단 탭바로 튄다.** 새 Bash 호출의 첫 탭이 엉뚱한
+   곳에 꽂히는 일이 두 번 있었다 — 무해한 첫 탭을 한 번 넣고 실제 탭을 보내면 됐다.
+10. 검증 중 **목요일 07시 수업에 테스트 예약 1건**이 실제로 들어갔다 (회원 `member`).
+    필요 없으면 앱에서 취소.
 
 ## 관련 파일
 
 | 경로 | 역할 |
 |---|---|
-| `lib/features/signup/self_signup_screen.dart` | 가입 3칸 (박스 자동 결정 `_kBrandGymName`) |
-| `lib/features/onboarding/onboarding_basic.dart` | 성별·경력 2문항 (`_kExpBands`) |
-| `lib/features/splash/splash_screen.dart` | 인트로·hasGrade 분기 제거 |
-| `lib/features/auth/signup_screen.dart` | 로그인 첫 화면 (`_kShowBossEntry`) |
-| `lib/features/auth/member_login_screen.dart` | 아이디 로그인 (코치·사장 줄 제거) |
-| `lib/features/gym/box_wod_screen.dart` | WOD 보드 순서·여백·`_kv`·라운드 중복 |
-| `lib/features/classes/classes_screen.dart` | 수업 카드 여백·정원 표기 |
-| `C:/dev/services/facing/api/admin.py` | `member_self_signup` + `_upsert_credential()` |
-| `C:/dev/services/facing/api/classes.py` | `admin_list_class_reservations` (코치 명단) |
-| `C:/dev/web/facing-admin/templates/classes.html` | PC 예약자 명단 UI (D29) |
-| `C:/dev/tools/linko-screens/REVIEW.md` | 링코 결함 F1~F10 — 밀도·대비 판단 근거 |
+| `lib/features/gym/week_board.dart` | 주간 아코디언 (신설) — 요일 줄·수업 줄·예약 배지 |
+| `lib/features/gym/wod_row.dart` | WOD 행 (분리) — **②의 '완료 표시' 버튼이 여기** |
+| `lib/features/gym/box_wod_screen.dart` | WOD 탭 셸 + 박스정보·공지 아코디언 + 에러 배너 |
+| `lib/features/classes/classes_screen.dart` | `reserveClassFlow`/`cancelClassFlow` 정본 |
+| `lib/features/mypage/mypage_screen.dart` | 프로필 — **①의 `_ScoreSection` 이 여기** |
+| `lib/features/home/home_screen.dart` | 홈 — 마일스톤 `_ProgressStat` |
+| `lib/features/achievement/achievement_section.dart` | 업적 섹션·빈 상태 한 줄 |
+| `lib/widgets/fkit.dart` | 버튼·배지·행·아코디언 규격 SSOT (높이 36·dense) |
+| `lib/core/theme.dart` | `buttonHCompact` 및 전역 버튼 테마 |
+| `docs/ARCHITECTURE_BRIEF.md` | D33 (WOD 탭 = 주간 아코디언) 기록 |
 
 ## 로컬 실행 메모
 
 ```
 백엔드   cd C:/dev/services/facing && python app.py          # 0.0.0.0:5060, 수정 시 재시작 필수
-앱(에뮬) flutter run -d emulator-5554 --dart-define=API_BASE_URL=http://10.0.2.2:5060
-앱(실기) flutter run -d 192.168.1.100:5555 --dart-define=API_BASE_URL=http://192.168.1.103:5060
+빌드     flutter build apk --debug --dart-define=API_BASE_URL=http://192.168.1.103:5060
+설치     adb -s emulator-5554 install -r build/app/outputs/flutter-apk/app-debug.apk
+콜드스타트 adb -s emulator-5554 shell am force-stop com.netizen.facing.facing_app
+          adb -s emulator-5554 shell am start -n com.netizen.facing.facing_app/.MainActivity
+캡처     adb -s emulator-5554 exec-out screencap -p > out.png
 ```
 테스트 계정: 회원 `member` / `1234` (gym 2 = HYPHEN, approved)
 
 ## 다음 세션 권장 첫 프롬프트
 
-`/resume`
-
-이어서 하려면 대기 항목 중 하나를 골라 지시:
-1. 홈·프로필 탭도 같은 기준으로 컴팩트 정리
-2. 코치 PC 화면 브라우저로 열어 예약자 명단 실사 확인
-3. 벤치마크·등급 화면 존치 여부 결정
+`/resume` → 대기 ①②를 한 커밋으로 처리하고 골든 갱신까지.
