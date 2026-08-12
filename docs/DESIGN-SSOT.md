@@ -1,4 +1,4 @@
-# DESIGN-SSOT — 화면 양식 정본 (v1.29 · 2026-07-28)
+# DESIGN-SSOT — 화면 양식 정본 (v2.2 · 2026-08-12)
 
 > **모든 레이아웃·크기·폰트 굵기·카피 결정의 단일 정본.** 화면 작업은 이 양식 안에서만 움직인다.
 > 새 수치·새 variant 가 필요하면 **이 문서와 FKit/토큰에 먼저 추가한 뒤** 화면에 쓴다 (역순 금지).
@@ -50,8 +50,11 @@
 ## 3. 컬러 사용처 (FacingTokens)
 
 - 면: `bg`(화면) / `surface`(카드) / `surfaceAlt`(중첩·hover)
-- 텍스트: `fg`(본문) / `fgSecondary`(보조) / `muted`(흐림) — 컬러 배경 위는 항상 `onColor`
+- 텍스트: `fg`(본문) / `fgSecondary`(보조) / `muted`(흐림·비활성 전용) / `placeholder`(입력 안내)
+  — 컬러 배경 위는 항상 `onColor`. **읽어야 하는 값에 `muted` 금지** (§7-D 4)
 - 액션: `primary`(CTA 1개/화면) / `danger`(파괴) / `success·warning·info`(상태)
+- **`primary` = #CC1F1F** (v2.2 — 구 #EE2B2B 는 흰 배경 4.01:1 · 흰 글씨 4.19:1 로
+  양방향 AA 미달이었다. 값 정본은 `appkit.config.json` 브랜드 스킨 → `python sync.py`)
 - 소셜: `naverGreen` / `googleSurface`+`googleBlue` (외부 브랜드 — 다른 용도 금지)
 - 티어: `tierScaled~tierGames` 5색 (TierBadge 전용)
 
@@ -70,11 +73,12 @@
 
 | 컴포넌트 | 규격 |
 |---|---|
+| `FkButton` | **버튼 유일 규격 (v2.2)** — primary 채움 52 / secondary 외곽선 52 / tertiary 글자 48. 화면당 primary 1개. 옵션 `expand`·`neutral`·`danger` 뿐. 상세 = §7-D |
 | `FkCard` | surface + 1px border + r3, 패딩 sp4 |
 | `FkBadge` | **배지·선택칩 통합 유일 규격 (v1.32)** — 1px 컬러 보더 + 대문자 + r1(4) 사각, 원형 pill 금지. `onTap` 주면 선택 컨트롤(터치 48 보장), `selected` 면 면 채움 반전 |
 | `FkSectionLabel` | sectionLabel + 대문자 강제 |
 | `FkStatTile` | 라벨 위 + 값(h3) 아래 |
-| `FkListRow` | **표 행 유일 규격** — 좌 아이콘(20) · 제목(body w600)/부제(caption) · 우 값(micro) · below 슬롯(진행바). 패딩 sp4×sp3 |
+| `FkListRow` | **표 행 유일 규격** — 좌 아이콘(20) · 제목(body w600)/부제(caption) · 우 값(micro) · below 슬롯(진행바). 패딩 sp4×sp3. `onTap` 이 있고 우측 값이 없으면 **화살표 자동** (v2.2) |
 | `FkRowCard` | 표 카드 — FkListRow 를 1px 구분선(indent sp4)으로 쌓음. 카드 1개 = 표 1개 |
 | `FkAccordion` | **접힘 구획 유일 규격** — 기본 접힘 · sectionLabel 제목 + caption 부제(내용 preview) · muted 화살표 · 기본 divider 제거. `inset=true` 면 카드 내부 여백(sp3) |
 | `FkEmptyState` | h3 제목 + caption 캡션 수직 스택 |
@@ -138,6 +142,52 @@
 - 아코디언 헤더에는 제목·부제만. 동작 버튼(변경·삭제 등)은 펼친 본문 안으로.
 - 파괴적 동작(데이터 초기화 등)은 표 밖·아코디언 **안** 맨 아래에 `danger` 텍스트 버튼으로.
 - 부연 안내(응대 시간 등)는 별도 줄로 띄우지 말고 해당 행의 `subtitle` 로 흡수.
+
+## 7-D. 버튼 1종 강제 · 가시성 (v2.2 · 2026-08-12 사용자 지시 "가시성·버튼 편의 리디자인")
+
+> 배경: 링코(`com.linkcoach`) 화면 27장 분석(`C:/dev/tools/linko-screens/REVIEW.md`)을
+> 우리 골든 22장에 같은 잣대로 대본 결과. 링코가 지적당한 F1·F6·F7·F8 과 **구조가 같은
+> 결함이 우리 앱에도 있었다** — 아래는 그 재발을 막는 규격이다.
+
+### 버튼 = `FkButton` 하나뿐 (배지 1종 강제와 같은 등급)
+
+| 종류 | 모양 | 쓰는 자리 |
+|---|---|---|
+| `FkButton.primary` | 채움 + 흰 글씨 · 높이 52 · r4 | **화면당 1개.** 지금 해야 할 단 하나 |
+| `FkButton.secondary` | 외곽선 · 높이 52 · r4 | 같이 놓이는 대등한 선택지 |
+| `FkButton.tertiary` | 글자만 · 터치 48 | 부수 동작·이동 |
+
+- 옵션은 셋뿐이다: `expand`(전체폭 여부) · `neutral`(tertiary 글자색을 중립으로) ·
+  `danger`(되돌릴 수 없는 동작 — primary 는 danger 채움, secondary 는 danger 테두리).
+- **금지**: 화면에서 `GestureDetector`+`Container` 로 버튼 모양 직접 그리기 ·
+  `minimumSize` 를 48 아래로 낮추기 · `TextButton.styleFrom(foregroundColor: muted)`
+  (비활성처럼 보인다 — 중립이 필요하면 `neutral: true` = `fgSecondary`).
+- 터치 48 은 `theme.dart` 의 `textButtonTheme`·`iconButtonTheme` 이 앱 전역에서 보장한다.
+  화면에서 되돌리지 말 것.
+
+### 가시성 규칙 (링코 대조로 도출)
+
+1. **면을 브랜드색으로 덮지 않는다** (링코 F1). 카드 전체를 연한 브랜드색으로 채우면
+   그 안 글자·라벨이 전부 색 위에 얹혀 대비가 깎인다. 강조는 **좌측 4px 바** 또는
+   테두리 한 곳으로. 본문은 흰 면 위에 둔다.
+2. **한 카드/화면에 브랜드색은 3곳까지.** 구획(바) → 분류(타입 라벨) → 동작(버튼) 순으로
+   양보한다. 넷째부터는 `fg`/`fgSecondary` 로 내린다.
+3. **진행도를 투명도로 표현하지 않는다.** 라이트 배경에서 반투명 브랜드색은 "덜 채워짐"이
+   아니라 "비활성"으로 읽힌다. 채운 **길이**가 진행도를 말한다. 진행바 높이는 6.
+4. **읽어야 하는 값에 `muted` 를 쓰지 않는다** (링코 F2). 내용은 `fg`/`fgSecondary`,
+   `muted` 는 부연·비활성 전용. 입력 안내는 `placeholder`(#84848D).
+5. **안내값과 입력값을 같은 모양으로 두지 않는다** (링코 F8). placeholder 는 색·굵기를
+   낮추고, 숫자 모양(`000000`·`0kg`)보다 말(`6자리 숫자`)로 쓴다.
+6. **같은 아이콘 2개를 라벨 없이 나란히 두지 않는다** (링코 F6). `TermTip` 은
+   `showLabel: true` 로 용어 이름을 붙인다.
+7. **빈 상태는 `FkEmptyState` 규격 하나** (링코 F7) — h3 제목 + caption. 화면마다
+   제목 크기를 다르게 두지 않는다. 문구는 그 화면의 것으로 (다른 화면 문구 재사용 금지).
+8. **같은 말을 두 번 쓰지 않는다.** AppBar title 과 화면 헤드라인(R1), 좌측 폼 라벨과
+   입력칸 `labelText`, 섹션 라벨과 본문 첫 줄 — 겹치면 하나를 뺀다.
+9. **누를 수 있는 행에는 신호를 준다.** `FkListRow` 는 `onTap` 이 있고 우측 값이 없으면
+   화살표를 자동으로 붙인다.
+10. **날짜·시각은 사람이 읽는 형식으로.** DB 원문(`2026-08-12T19:00:00`) 노출 금지.
+    큰 수는 세 자리마다 쉼표(`1,570`).
 
 ## 7-C. 배지·칩 1종 강제 (v1.32 · 2026-08-07 사용자 지시 "1종으로 통합해라 강제로라도")
 

@@ -23,19 +23,23 @@ class _IntroScreenState extends State<IntroScreen> {
   // 사진 히어로·스틱맨 폐기, HYPHEN 로고(BrandLogo) 중심의 클린 레이아웃.
   // v1.29: 카피 한글 기본 전환 (DESIGN-SSOT §7 — 도메인 용어만 영문 유지).
   static const List<_IntroPage> _pages = [
+    // v2.2 (H16): 1p 가 'WOD 보드 / 오늘의 WOD. / 코치가 올린 오늘의 WOD.' 로
+    // 세 줄 중 두 줄이 같은 말이었다. 본문은 제목이 말하지 않은 것만 담는다.
+    // 헤드라인 끝 마침표도 뺀다 — 한 줄 제목에 마침표는 문장처럼 읽혀 무겁다
+    // (3p 'Tier' 는 도메인 고정어라 영문 유지).
     _IntroPage(
       stage: 'WOD 보드',
-      title: '오늘의 WOD.',
-      body: '코치가 올린 오늘의 WOD.\n박스 공지까지 한 곳에.',
+      title: '오늘의 WOD',
+      body: '코치가 올린 그날의 훈련과\n박스 공지를 한 곳에서.',
     ),
     _IntroPage(
       stage: '레벨 · 업적',
-      title: '기록이 레벨이 된다.',
+      title: '기록이 레벨이 된다',
       body: '기록할수록 쌓이는\n레벨 · 업적 · 마일스톤.',
     ),
     _IntroPage(
       stage: 'TIER',
-      title: '내 Tier.',
+      title: '내 Tier',
       body: 'Benchmarks 기반 6단계 Tier.\n프로필에서 언제든 수정.',
     ),
   ];

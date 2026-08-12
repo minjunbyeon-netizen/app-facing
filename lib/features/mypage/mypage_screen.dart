@@ -989,12 +989,14 @@ class _ActionsSection extends StatelessWidget {
                         style: FacingTokens.caption,
                       ),
                     ),
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        foregroundColor: FacingTokens.fgSecondary,
-                      ),
+                    // v2.2 (H18): 계정을 끊는 동작인데 옆 계정 표시와 같은
+                    // 글자 덩어리라 눌리는지 보이지 않았다. 테두리를 줘서
+                    // "동작"임을 알린다 (파괴적이진 않으므로 danger 는 아니다 —
+                    // 확인 다이얼로그가 이미 붙어 있다).
+                    FkButton.secondary(
+                      '로그아웃',
+                      expand: false,
                       onPressed: () => _confirmSignOut(context),
-                      child: const Text('로그아웃'),
                     ),
                   ],
                 ),
