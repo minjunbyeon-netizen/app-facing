@@ -262,16 +262,27 @@ List<Map<String, dynamic>> memberAttendances() {
   ];
 }
 
-/// /api/v1/member/classes — 오늘 저녁 2 + 내일 아침 1 (마감 1 포함).
+/// 오늘 안에서 [minutes] 뒤 시각 — 자정을 넘기면 23:5x 로 눌러 오늘에 붙든다.
+/// 캡처 시각이 언제든 "아직 안 지난 오늘 수업"이 있어야 예약 버튼이 골든에 남는다
+/// (v2.4 — 고정 19:00 이면 밤에 캡처할 때 전부 '종료' 로 찍혔다).
+String _todayLater(DateTime now, int minutes) {
+  final endOfDay = DateTime(now.year, now.month, now.day, 23, 50);
+  var t = now.add(Duration(minutes: minutes));
+  if (t.isAfter(endOfDay)) t = endOfDay;
+  final hh = t.hour.toString().padLeft(2, '0');
+  final mm = ((t.minute ~/ 10) * 10).toString().padLeft(2, '0');
+  return '${_ymd(now)}T$hh:$mm:00';
+}
+
+/// /api/v1/member/classes — 오늘 남은 시간대 2 + 내일 아침 1 (마감 1 포함).
 List<Map<String, dynamic>> memberClasses() {
   final now = DateTime.now();
-  final today = _ymd(now);
   final tomorrow = _ymd(now.add(const Duration(days: 1)));
   return [
     {
       'id': 101,
       'gym_id': 1,
-      'start_at': '${today}T19:00:00',
+      'start_at': _todayLater(now, 60),
       'duration_minutes': 60,
       'title': 'WOD Class',
       'description': '오늘의 WOD · 스케일 옵션 제공',
@@ -288,7 +299,7 @@ List<Map<String, dynamic>> memberClasses() {
     {
       'id': 102,
       'gym_id': 1,
-      'start_at': '${today}T20:00:00',
+      'start_at': _todayLater(now, 120),
       'duration_minutes': 60,
       'title': 'Olympic Lifting',
       'description': 'Snatch 테크닉 · 소그룹',

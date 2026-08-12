@@ -10,6 +10,87 @@ import '../../widgets/fkit.dart';
 import '../gym/gym_state.dart';
 import 'classes_repository.dart';
 
+/// 예약 실행 — 성공/대기 등록 시 스낵바 + true, 실패 시 에러 스낵바 + false.
+/// v2.4 (2026-08-12): 주간 보드(week_board.dart)도 같은 흐름을 쓰므로 화면 밖으로
+/// 꺼냈다 — 예약 로직이 두 벌이 되면 정책이 갈라진다 (§3 코드 SSOT).
+Future<bool> reserveClassFlow(
+  BuildContext context,
+  ClassesRepository repo,
+  ClassSessionDto c,
+) async {
+  Haptic.medium();
+  final messenger = ScaffoldMessenger.of(context);
+  try {
+    final result = await repo.reserve(c.id);
+    final status = (result['status'] ?? '').toString();
+    messenger.showSnackBar(SnackBar(
+      content: Text(status == 'waitlisted'
+          ? '대기열 ${result['position']}번 등록.'
+          : '예약 완료.'),
+      duration: const Duration(seconds: 2),
+    ));
+    return true;
+  } on AppException catch (e) {
+    messenger.showSnackBar(SnackBar(
+      content: Text(e.messageKo),
+      duration: const Duration(seconds: 3),
+    ));
+    return false;
+  }
+}
+
+/// 예약 취소 — 확인 다이얼로그 → 취소. 취소가 성사되면 true.
+Future<bool> cancelClassFlow(
+  BuildContext context,
+  ClassesRepository repo,
+  ClassSessionDto c,
+) async {
+  final res = c.myReservation;
+  if (res == null) return false;
+  final l = c.startAt.toLocal();
+  final when = '${l.month}/${l.day} '
+      '${l.hour.toString().padLeft(2, '0')}:${l.minute.toString().padLeft(2, '0')}';
+  final ok = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      backgroundColor: FacingTokens.surfaceOverlay,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(FacingTokens.r4),
+      ),
+      title: const Text('예약을 취소할까요?'),
+      content: Text('${c.title} · $when', style: FacingTokens.caption),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, false),
+          child: const Text('유지'),
+        ),
+        TextButton(
+          style: TextButton.styleFrom(foregroundColor: FacingTokens.accent),
+          onPressed: () => Navigator.pop(ctx, true),
+          child: const Text('취소'),
+        ),
+      ],
+    ),
+  );
+  if (ok != true || !context.mounted) return false;
+  Haptic.medium();
+  final messenger = ScaffoldMessenger.of(context);
+  try {
+    await repo.cancel(res.reservationId);
+    messenger.showSnackBar(const SnackBar(
+      content: Text('예약 취소.'),
+      duration: Duration(seconds: 2),
+    ));
+    return true;
+  } on AppException catch (e) {
+    messenger.showSnackBar(SnackBar(
+      content: Text(e.messageKo),
+      duration: const Duration(seconds: 3),
+    ));
+    return false;
+  }
+}
+
 /// PHASE4 §1.1 — 회원 폰 클래스 일정·예약 화면.
 /// PC 사장이 /admin/classes 에서 등록한 클래스를 회원이 그대로 봄.
 /// v1.26 (2026-06-11): 본문을 ClassesSection 으로 분리 — Attend 탭 상단
@@ -87,73 +168,13 @@ class _ClassesSectionState extends State<ClassesSection> {
   }
 
   Future<void> _reserve(ClassSessionDto c) async {
-    Haptic.medium();
-    try {
-      final result = await _repo.reserve(c.id);
-      if (!mounted) return;
-      final status = (result['status'] ?? '').toString();
-      final msg = status == 'waitlisted'
-          ? '대기열 ${result['position']}번 등록.'
-          : '예약 완료.';
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(msg),
-        duration: const Duration(seconds: 2),
-      ));
-      _reload();
-    } on AppException catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(e.messageKo),
-        duration: const Duration(seconds: 3),
-      ));
-    }
+    final ok = await reserveClassFlow(context, _repo, c);
+    if (ok && mounted) _reload();
   }
 
   Future<void> _cancel(ClassSessionDto c) async {
-    final res = c.myReservation;
-    if (res == null) return;
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: FacingTokens.surfaceOverlay,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(FacingTokens.r4),
-        ),
-        title: const Text('예약을 취소할까요?'),
-        content: Text(
-          '${c.title} · ${_fmtDateTime(c.startAt)}',
-          style: FacingTokens.caption,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('유지'),
-          ),
-          TextButton(
-            style: TextButton.styleFrom(foregroundColor: FacingTokens.accent),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('취소'),
-          ),
-        ],
-      ),
-    );
-    if (ok != true) return;
-    Haptic.medium();
-    try {
-      await _repo.cancel(res.reservationId);
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('예약 취소.'),
-        duration: Duration(seconds: 2),
-      ));
-      _reload();
-    } on AppException catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(e.messageKo),
-        duration: const Duration(seconds: 3),
-      ));
-    }
+    final ok = await cancelClassFlow(context, _repo, c);
+    if (ok && mounted) _reload();
   }
 
   Widget _header() => const Padding(
@@ -274,12 +295,6 @@ class _ClassesSectionState extends State<ClassesSection> {
     return '${local.month}/${local.day} $dow';
   }
 
-  String _fmtDateTime(DateTime dt) {
-    final l = dt.toLocal();
-    final hh = l.hour.toString().padLeft(2, '0');
-    final mm = l.minute.toString().padLeft(2, '0');
-    return '${l.month}/${l.day} $hh:$mm';
-  }
 }
 
 class _ClassCard extends StatelessWidget {
