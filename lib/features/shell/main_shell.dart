@@ -175,10 +175,12 @@ class _MainShellState extends State<MainShell> {
             indicatorShape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(FacingTokens.r2),
             ),
+            // v2.2: 켜진 탭을 브랜드색으로. 그전엔 아이콘·라벨이 둘 다 검정이라
+            // 연분홍 인디케이터 면 하나로만 구분돼 어느 탭인지 흐렸다.
             labelTextStyle: WidgetStateProperty.resolveWith((states) {
               final selected = states.contains(WidgetState.selected);
               return FacingTokens.micro.copyWith(
-                color: selected ? FacingTokens.fg : FacingTokens.muted,
+                color: selected ? FacingTokens.primary : FacingTokens.muted,
                 fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                 letterSpacing: 0.1,
               );
@@ -215,7 +217,7 @@ class _MainShellState extends State<MainShell> {
                         showDot: i == 1 &&
                             context.watch<AnnouncementsState>().unreadCount >
                                 0,
-                        color: FacingTokens.fg,
+                        color: FacingTokens.primary,
                       ),
                       label: _tabs[i].label,
                     ),

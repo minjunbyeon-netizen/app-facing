@@ -7,8 +7,9 @@
 
 ## 완료
 
-- [x] **D29 코치 = 사장** — 운영 권한 전부 개방. `api/admin.py BOSS_LEVEL_ROLES` ·
-      `api/classes.py _STAFF_ROLES` 두 상수가 정본. 웹 nav·버튼의 coach 분기 전면 제거
+- [x] **D29 코치 = 사장** — 운영 권한 전부 개방. 정본은 `api/roles.py STAFF_ROLES`
+      **한 곳** (2026-08-12 이름 통일 — 옛 BOSS_LEVEL_ROLES·_STAFF_ROLES 두 상수는 삭제).
+      웹 nav·버튼의 coach 분기 전면 제거
 - [x] **D30 코치 이름 평문** — `ROLE_SCOPES` 의 coach 3종에 `members_name_full` 추가.
       연락처·생년월일은 계속 마스킹 (PIPA §29 최소권한 유지). 실측: 코치 `김도윤`/`010-****-7782`
 - [x] **D31 명단 출석 체크** — `PATCH /api/v1/admin/reservations/<id>/status`
@@ -69,10 +70,11 @@
 | 경로 | 역할 |
 |---|---|
 | `apps/facing-app/docs/ARCHITECTURE_BRIEF.md` | **최상위 SSOT.** §2-0 대전제 · D29~D33 |
-| `services/facing/api/admin.py` | `BOSS_LEVEL_ROLES` · `ROLE_SCOPES` · `_mask_pii` |
-| `services/facing/api/classes.py` | `_STAFF_ROLES` · 명단 API · 출석 PATCH · 대기 순번 |
-| `services/facing/api/contracts.py` | `_require_staff` (옛 이름 2개는 별칭) |
-| `services/facing/tests/test_rules_prem.py` | 3줄 규칙 회귀 테스트 7개 |
+| `services/facing/api/roles.py` | **운영 권한 정본** — `STAFF_ROLES`·`is_staff`·`FORBIDDEN_STAFF_MSG` |
+| `services/facing/api/admin.py` | `require_staff` 데코레이터 · `ROLE_SCOPES` · `_mask_pii` |
+| `services/facing/api/classes.py` | 명단 API · 출석 PATCH · 대기 순번 (권한은 `is_staff`) |
+| `services/facing/api/contracts.py` | 공용 `require_staff` 사용 (자체 게이트·별칭 전부 삭제) |
+| `services/facing/tests/test_rules_prem.py` | 3줄 규칙 회귀 테스트 (이름 중복·문구 분화까지 검사) |
 | `services/facing/scripts/fix_orphans.py` | 고아 행 점검·정리 (기본 점검만) |
 | `apps/facing-app/lib/features/boss/class_roster_sheet.dart` | 명단 시트 + 출석 토글 |
 | `apps/facing-app/lib/widgets/fkit.dart` | FKit — `FkListRow.trailingWidget` 추가 |

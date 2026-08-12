@@ -181,7 +181,8 @@ study `gym-management-saas.md` §14.1 권고 그대로 — 첫 박스 추가 시
   - 박스별 device_hash 분리 매핑
   - 화면 상단 박스 indicator + 전환
 - [ ] **M4-4**. **API 권한 재검증**
-  - 모든 sensitive endpoint 가 `require_role(request, gym_id, expected_role)` 호출 (study §7.3 패턴)
+  - 모든 sensitive endpoint 가 권한 게이트 통과 (study §7.3 패턴)
+    *(2026-08-12: 구현은 `@require_staff` 하나로 통일 — `require_role()` 은 삭제)*
   - 다른 박스 자원 접근 = 403 (study §8.3 horizontal escalation 방어)
 - [ ] **M4-5**. **회원 측 영향 (선택)**
   - 회원이 박스 A 가입 + 박스 B 게스트 방문 시나리오 처리
@@ -257,7 +258,7 @@ Railway/Vercel production 배포 + 실 박스 5곳 invite + 30일 안정 운영.
 ### 7.1 보안 (study §8 OWASP A01 준수)
 
 - IDOR 방어: 모든 `/:resource_id` endpoint 에 `gym_id` 검증 (study §8.3 Failure 1 패턴)
-- vertical escalation: `require_role()` 매 sensitive endpoint (study §8.3 Failure 2)
+- vertical escalation: `@require_staff` 매 sensitive endpoint (study §8.3 Failure 2)
 - horizontal escalation: JWT 재검증 + 자원 owner 매칭 (study §8.3 Failure 3)
 - 시크릿: `.env` 절대 commit 금지 (글로벌 §2-A-1)
 

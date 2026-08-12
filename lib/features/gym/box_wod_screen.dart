@@ -419,32 +419,41 @@ class _WodList extends StatelessWidget {
                   )),
               const SizedBox(height: FacingTokens.sp5),
             ],
-            // TODAY 섹션 — accentSoft bg로 강조.
+            // TODAY 섹션 — v2.2: 연분홍 면 전체 채우기를 걷고 흰 카드 + 좌측 브랜드 바.
+            // 면을 색으로 덮으면 그 안 글자·라벨이 전부 색 위에 얹혀 대비가 깎인다
+            // (링코 F1 과 같은 구조). 강조는 4px 바 하나로 충분하고, 본문은 흰
+            // 배경 위로 돌아와 읽기 쉬워진다.
             Container(
-              padding: const EdgeInsets.fromLTRB(
-                FacingTokens.sp3,
-                FacingTokens.sp3,
-                FacingTokens.sp3,
-                FacingTokens.sp2,
-              ),
               decoration: BoxDecoration(
-                color: FacingTokens.accentSoft,
+                color: FacingTokens.surface,
                 borderRadius: BorderRadius.circular(FacingTokens.r3),
-                border: Border.all(
-                  color: FacingTokens.accent.withValues(alpha: 0.35),
-                  width: 1,
-                ),
+                border: Border.all(color: FacingTokens.border),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(FacingTokens.r3),
+                child: IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Container(width: 4, color: FacingTokens.primary),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(
+                            FacingTokens.sp3,
+                            FacingTokens.sp3,
+                            FacingTokens.sp3,
+                            FacingTokens.sp2,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     textBaseline: TextBaseline.alphabetic,
                     children: [
                       Text('오늘',
                           style: FacingTokens.sectionLabel.copyWith(
-                            color: FacingTokens.accent,
+                            color: FacingTokens.primary,
                           )),
                       const SizedBox(width: FacingTokens.sp2),
                       Text(
@@ -480,7 +489,13 @@ class _WodList extends StatelessWidget {
                                   isToday: true,
                                 ),
                         ),
-                ],
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
             // UPCOMING 섹션 — owner는 카드 표시, 일반 멤버는 lock 배너.
@@ -995,6 +1010,9 @@ class _WodRowState extends State<_WodRow> {
             style: FacingTokens.caption.copyWith(color: FacingTokens.muted)),
       );
 
+  /// 라벨(좌) + 값(우) 한 줄. 라벨 폭 72 는 'A. METCON'·'VERSIONS' 를 못 담아
+  /// 두 줄로 쪼개졌다 — 세로로 흐트러진 라벨은 그 자체로 오류처럼 보인다.
+  /// 92 로 넓히고 간격을 명시해 한 줄 안에 들어오게 한다 (v2.2).
   Widget _kv(String label, Widget value) {
     return Padding(
       padding: const EdgeInsets.only(top: 6),
@@ -1002,9 +1020,15 @@ class _WodRowState extends State<_WodRow> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 72,
-            child: Text(label, style: FacingTokens.microLabel),
+            width: 92,
+            child: Text(
+              label,
+              style: FacingTokens.microLabel,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
+          const SizedBox(width: FacingTokens.sp2),
           Expanded(child: value),
         ],
       ),

@@ -142,7 +142,7 @@ critical path (순서 의무):
 ### 3.7 UX·접근성 P1 (3 task)
 
 - [x] **B-7** 회원 상세 5탭 — `web/facing-admin/templates/member_detail.html` + `/members/<int:member_id>` 라우트. 탭: 회원권·결제 이력·출석·계약서·메모. 결제 추가·환불 인라인 UI. 회원 행 클릭 시 자동 이동. (2026-05-23)
-- [x] **N6-2-추가** 매니저 RBAC + enforcement — `models/gym_manager.py` role enum 'manager' + `api/admin.py` `require_boss_or_manager` 데코레이터. 회원·결제·계약 endpoint 는 매니저 통과·코치 추가/박스 설정/환불은 `require_boss` 유지. (2026-05-23)
+- [x] **N6-2-추가** 매니저 RBAC + enforcement — `models/gym_manager.py` role enum 'manager' + `api/admin.py` `require_boss_or_manager` 데코레이터. *(2026-08-12: 이 데코레이터는 삭제됨 — 운영 권한 정본은 `api/roles.py STAFF_ROLES` 하나.)* 회원·결제·계약 endpoint 는 매니저 통과·코치 추가/박스 설정/환불은 `require_boss` 유지. (2026-05-23)
 - [x] **F-3·F-4** PT 회원-코치 매핑 + 예약 — `models/pt_session.py` 2 테이블 (PTMembership · PTSession). status enum (reserved·confirmed·completed·canceled_24h·canceled_late·no_show) + refund_pct. PHASE3_REVISION_v2 §3.2 취소 정책 3단계 schema 반영. (2026-05-23)
 - [x] **WCAG-AA** 잔여 — `static/style.css` 사이드바 nav 14px + padding 12px + min-height 44px (WCAG 2.5.5 터치 타겟) + `:focus-visible` outline + `@media (prefers-contrast: more)` muted/border 보정. (2026-05-23)
 

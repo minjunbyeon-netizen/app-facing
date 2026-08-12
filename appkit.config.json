@@ -3,7 +3,7 @@
   "platform": "flutter",
   "brand": {
     "name": "HYPHEN",
-    "accent": "#EE2B2B",
+    "accent": "#CC1F1F",
     "accentPressed": "#B91C1C",
     "accentSoft": "#FEF2F2"
   },

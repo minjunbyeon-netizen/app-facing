@@ -35,7 +35,7 @@ class AppKit {
   static const Color onAccent = Color(0xFFFFFFFF);
 
   // ==== 브랜드 스킨 (앱별 config) ====
-  static const Color accent = Color(0xFFEE2B2B);
+  static const Color accent = Color(0xFFCC1F1F);
   static const Color accentPressed = Color(0xFFB91C1C);
   static const Color accentSoft = Color(0xFFFEF2F2);
 

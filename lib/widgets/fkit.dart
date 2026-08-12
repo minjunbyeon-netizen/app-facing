@@ -6,6 +6,8 @@
 /// writeplz wp_* — 공통 조상 토큰은 appkit.gen.dart / FacingTokens.
 ///
 /// 고정 규격 (전 화면 동일 — 전체 양식 = docs/DESIGN-SSOT.md):
+/// - 버튼: FkButton 3단(primary 채움 52 / secondary 외곽선 52 / tertiary 글자 48).
+///   화면당 primary 는 1개. 새 버튼 모양 신설 금지
 /// - 카드: surface 면 + 1px border + r3, 내부 패딩 sp4
 /// - 배지: 1px 컬러 보더 + 대문자 + r1 사각 — 완전 원형 pill 금지 (글로벌 design-block)
 /// - 섹션 라벨: sectionLabel 토큰 + 대문자 강제 (코드에서 toUpperCase)
@@ -19,6 +21,97 @@ import 'package:flutter/material.dart';
 import '../core/exception.dart';
 import '../core/theme.dart';
 import 'brand_logo.dart';
+
+/// 버튼 위계 3단 — **누르는 것의 유일 규격** (v2.2 · 2026-08-12 가시성 개편 지시).
+///
+/// 그전까지 화면마다 `ElevatedButton`·`OutlinedButton`·`TextButton`·`InkWell` 을
+/// 골라 쓰고 `minimumSize` 도 제각각(36·40·52)이라, 같은 무게의 동작이 화면마다
+/// 다르게 보였다. 이제 셋 중 하나를 고르는 것으로 끝낸다.
+///
+/// - [FkButtonKind.primary] — 이 화면에서 지금 해야 할 **단 하나**. 채움 + 흰 글씨.
+///   화면당 1개 원칙 (링코 F1 의 교훈 — 강조가 여섯 번이면 강조가 아니다).
+/// - [FkButtonKind.secondary] — 같이 놓이는 대등한 선택지. 외곽선.
+/// - [FkButtonKind.tertiary] — 부수 동작·이동. 글자만, 그래도 터치는 48 보장.
+enum FkButtonKind { primary, secondary, tertiary }
+
+class FkButton extends StatelessWidget {
+  final String label;
+  final VoidCallback? onPressed;
+  final IconData? icon;
+  final FkButtonKind kind;
+
+  /// 가로를 꽉 채울지. false 면 글자 폭 + 패딩만 차지한다 (행 안에 나란히 둘 때).
+  final bool expand;
+
+  const FkButton(
+    this.label, {
+    super.key,
+    required this.onPressed,
+    this.kind = FkButtonKind.primary,
+    this.icon,
+    this.expand = true,
+  });
+
+  const FkButton.primary(this.label,
+      {super.key, required this.onPressed, this.icon, this.expand = true})
+      : kind = FkButtonKind.primary;
+
+  const FkButton.secondary(this.label,
+      {super.key, required this.onPressed, this.icon, this.expand = true})
+      : kind = FkButtonKind.secondary;
+
+  const FkButton.tertiary(this.label,
+      {super.key, required this.onPressed, this.icon, this.expand = false})
+      : kind = FkButtonKind.tertiary;
+
+  @override
+  Widget build(BuildContext context) {
+    // 전체폭이 아니면 테마의 minimumSize(무한대)를 눌러 글자 폭에 맞춘다.
+    final size = WidgetStatePropertyAll<Size>(
+      Size(expand ? double.infinity : 0, _height),
+    );
+    final shrink = expand
+        ? null
+        : const WidgetStatePropertyAll<MaterialTapTargetSize>(
+            MaterialTapTargetSize.shrinkWrap);
+
+    final child = icon == null
+        ? Text(label)
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 18),
+              const SizedBox(width: FacingTokens.sp2),
+              Flexible(child: Text(label, overflow: TextOverflow.ellipsis)),
+            ],
+          );
+
+    switch (kind) {
+      case FkButtonKind.primary:
+        return ElevatedButton(
+          onPressed: onPressed,
+          style: ButtonStyle(minimumSize: size, tapTargetSize: shrink),
+          child: child,
+        );
+      case FkButtonKind.secondary:
+        return OutlinedButton(
+          onPressed: onPressed,
+          style: ButtonStyle(minimumSize: size, tapTargetSize: shrink),
+          child: child,
+        );
+      case FkButtonKind.tertiary:
+        return TextButton(
+          onPressed: onPressed,
+          style: ButtonStyle(minimumSize: size, tapTargetSize: shrink),
+          child: child,
+        );
+    }
+  }
+
+  double get _height => kind == FkButtonKind.tertiary
+      ? FacingTokens.touchMin
+      : FacingTokens.buttonH;
+}
 
 /// 섹션 구분 라벨 — 대문자 강제.
 class FkSectionLabel extends StatelessWidget {

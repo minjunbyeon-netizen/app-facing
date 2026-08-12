@@ -48,6 +48,12 @@ class FacingTokens {
   /// 강조 구분선 (zinc-300).
   static const Color borderStrong = AppKit.borderStrong;
 
+  /// 입력 안내 문구(placeholder) — facing 고유.
+  /// 조상 `AppKit.placeholder`(#A1A1AA)는 흰 배경 2.56:1 로 읽기 어려워 한 단 내렸다
+  /// (3.71:1). 입력값이 아니라 안내라 본문 4.5 기준 대상은 아니지만, 노안·야외
+  /// 가독성 확보용. v2.2 가시성 개편.
+  static const Color placeholder = Color(0xFF84848D);
+
   /// v2.0: accent = primary CrossFit red 통합.
   /// @deprecated v2.1에서 제거 — primary 사용.
   static const Color accent = AppKit.accent;
@@ -412,6 +418,63 @@ class FacingTheme {
             borderRadius: BorderRadius.circular(FacingTokens.r4),
           ),
         ),
+      ),
+    ),
+    // v2.2 가시성 개편 — 텍스트 버튼도 손가락이 닿는 크기로.
+    // 기존엔 화면마다 minimumSize 를 제각각(36·0) 주어 "눌리는 것"이 글자 높이만
+    // 했다. 여기서 한 번 잡으면 앱 전체 TextButton 이 같이 올라간다.
+    textButtonTheme: TextButtonThemeData(
+      style: ButtonStyle(
+        minimumSize: WidgetStateProperty.all(
+          const Size(0, FacingTokens.touchMin),
+        ),
+        foregroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.disabled)) return FacingTokens.muted;
+          return FacingTokens.primary;
+        }),
+        textStyle: WidgetStateProperty.all(
+          FacingTokens.body.copyWith(fontWeight: FontWeight.w600),
+        ),
+        padding: WidgetStateProperty.all(
+          const EdgeInsets.symmetric(horizontal: FacingTokens.sp3),
+        ),
+        shape: WidgetStateProperty.all(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(FacingTokens.r2),
+          ),
+        ),
+        overlayColor: WidgetStateProperty.all(Colors.transparent),
+      ),
+    ),
+    // 아이콘 버튼 터치 48 보장 (앱바 종·새로고침, 행 끝 아이콘 등).
+    iconButtonTheme: IconButtonThemeData(
+      style: ButtonStyle(
+        minimumSize: WidgetStateProperty.all(
+          const Size(FacingTokens.touchMin, FacingTokens.touchMin),
+        ),
+        foregroundColor: WidgetStateProperty.all(FacingTokens.fg),
+        overlayColor: WidgetStateProperty.all(Colors.transparent),
+      ),
+    ),
+    // 입력칸 — 안내 문구 대비 상향 + 포커스 테두리를 브랜드색으로 명확히.
+    inputDecorationTheme: InputDecorationTheme(
+      hintStyle: FacingTokens.body.copyWith(color: FacingTokens.placeholder),
+      labelStyle: FacingTokens.caption,
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: FacingTokens.sp4,
+        vertical: FacingTokens.sp3,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(FacingTokens.r3),
+        borderSide: const BorderSide(color: FacingTokens.borderStrong),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(FacingTokens.r3),
+        borderSide: const BorderSide(color: FacingTokens.primary, width: 2),
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(FacingTokens.r3),
+        borderSide: const BorderSide(color: FacingTokens.borderStrong),
       ),
     ),
     cardTheme: CardThemeData(
