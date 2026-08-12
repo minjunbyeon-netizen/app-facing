@@ -391,17 +391,11 @@ class _WodList extends StatelessWidget {
     return RefreshIndicator(
       onRefresh: () => context.read<GymState>().loadMine(),
       child: ListView(
-        padding: const EdgeInsets.all(FacingTokens.sp4),
+        // v2.3 (2026-08-12 사용자 지시): 화면이 헐거워 한 눈에 안 들어왔다.
+        // ① 바깥 여백 sp4→sp3 ② 오늘 WOD 를 맨 위로 (전에는 박스 정보·공지·
+        // 지난 WOD 를 지나야 오늘 것이 나왔다) ③ 박스 정보·공지는 맨 아래로.
+        padding: const EdgeInsets.all(FacingTokens.sp3),
         children: [
-          // v1.25: Notice 상단에 있던 박스 기본정보 → WOD 최상단 BOX INFO 아코디언.
-          // v1.26.1 (2026-06-11): 박스명 대제목 블록 제거 — BOX INFO 아코디언과
-          // 같은 정보 2연속 표기(위계 붕괴 지적)라 아코디언 한 곳만 남김.
-          _GymInfoAccordion(gym: gym),
-          // v1.26 (2026-06-11): 공지성 내용을 WOD 보드 상단으로 — 박스 공지 아코디언.
-          const _AnnouncementsAccordion(),
-          const SizedBox(height: FacingTokens.sp3),
-          const Divider(height: 1, color: FacingTokens.border, thickness: 1),
-          const SizedBox(height: FacingTokens.sp4),
           if (isEmpty) ...[
             const Text("WOD", style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp3),
@@ -411,22 +405,6 @@ class _WodList extends StatelessWidget {
                   style: FacingTokens.caption),
             ),
           ] else ...[
-            // PAST 섹션
-            if (pastGroups.isNotEmpty) ...[
-              const Text('지난 WOD', style: FacingTokens.sectionLabel),
-              const SizedBox(height: FacingTokens.sp1),
-              const Divider(
-                  height: 1, color: FacingTokens.border, thickness: 1),
-              ...pastGroups.map((g) => _DateAccordion(
-                    dateLabel: g.dateLabel,
-                    entries: g.entries,
-                    isToday: false,
-                    initiallyExpanded: false,
-                    canDelete: gymState.isOwner,
-                    isOwner: gymState.isOwner,
-                  )),
-              const SizedBox(height: FacingTokens.sp5),
-            ],
             // TODAY 섹션 — v2.2: 연분홍 면 전체 채우기를 걷고 흰 카드 + 좌측 브랜드 바.
             // 면을 색으로 덮으면 그 안 글자·라벨이 전부 색 위에 얹혀 대비가 깎인다
             // (링코 F1 과 같은 구조). 강조는 4px 바 하나로 충분하고, 본문은 흰
@@ -508,7 +486,7 @@ class _WodList extends StatelessWidget {
             ),
             // UPCOMING 섹션 — owner는 카드 표시, 일반 멤버는 lock 배너.
             if (futureGroups.isNotEmpty) ...[
-              const SizedBox(height: FacingTokens.sp5),
+              const SizedBox(height: FacingTokens.sp3),
               const Text('예정', style: FacingTokens.sectionLabel),
               const SizedBox(height: FacingTokens.sp1),
               const Divider(
@@ -523,12 +501,33 @@ class _WodList extends StatelessWidget {
                     isFuture: true,
                   )),
             ],
+            // 지난 WOD — 오늘·예정 다음. 접힌 줄이라 자리를 거의 안 먹는다.
+            if (pastGroups.isNotEmpty) ...[
+              const SizedBox(height: FacingTokens.sp3),
+              const Text('지난 WOD', style: FacingTokens.sectionLabel),
+              const SizedBox(height: FacingTokens.sp1),
+              const Divider(
+                  height: 1, color: FacingTokens.border, thickness: 1),
+              ...pastGroups.map((g) => _DateAccordion(
+                    dateLabel: g.dateLabel,
+                    entries: g.entries,
+                    isToday: false,
+                    initiallyExpanded: false,
+                    canDelete: gymState.isOwner,
+                    isOwner: gymState.isOwner,
+                  )),
+            ],
           ],
           // v1.26.1 (2026-06-11): WOD 보드에서 바로 수업 예약 — CLASSES 섹션.
-          const SizedBox(height: FacingTokens.sp5),
+          const SizedBox(height: FacingTokens.sp3),
           const Divider(height: 1, color: FacingTokens.border, thickness: 1),
-          const SizedBox(height: FacingTokens.sp4),
+          const SizedBox(height: FacingTokens.sp3),
           const ClassesSection(),
+          // 박스 정보·공지는 맨 아래 (자주 보는 것이 아니다 — 접힌 줄로 유지).
+          const SizedBox(height: FacingTokens.sp3),
+          const Divider(height: 1, color: FacingTokens.border, thickness: 1),
+          _GymInfoAccordion(gym: gym),
+          const _AnnouncementsAccordion(),
           // v1.26.1: 프리셋 계산 아코디언은 당분간 숨김 (사용자 지시 2026-06-11).
           // 복원 시 _kShowPresetAccordion = true 한 줄.
           if (_kShowPresetAccordion) ...[
@@ -1023,7 +1022,8 @@ class _WodRowState extends State<_WodRow> {
   /// 92 로 넓히고 간격을 명시해 한 줄 안에 들어오게 한다 (v2.2).
   Widget _kv(String label, Widget value) {
     return Padding(
-      padding: const EdgeInsets.only(top: 6),
+      // v2.3: 줄 사이가 벌어져 카드가 길어 보였다. 6 → 3.
+      padding: const EdgeInsets.only(top: 3),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1176,7 +1176,10 @@ class _WodRowState extends State<_WodRow> {
                   wod.content,
                   style: FacingTokens.body.copyWith(color: fgColor),
                 ),
-                if (wod.roundsData.isNotEmpty) ...[
+                // v2.3: 라운드가 하나뿐이면 그 내용은 바로 위 본문과 같은 말이다
+                // ('21-15-9 Thruster + Pull-up' 이 두 번). 카드 길이만 늘리고
+                // 읽을 것은 안 늘어나므로 여러 라운드일 때만 펼친다.
+                if (wod.roundsData.length > 1) ...[
                   ...wod.roundsData.asMap().entries.map((e) {
                     final i = e.key;
                     final r = e.value;

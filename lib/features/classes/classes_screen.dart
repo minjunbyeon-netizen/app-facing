@@ -303,8 +303,9 @@ class _ClassCard extends StatelessWidget {
     final isFull = session.isFull;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: FacingTokens.sp3),
-      padding: const EdgeInsets.all(FacingTokens.sp4),
+      // v2.3 (2026-08-12 사용자 지시): 카드가 헐거워 한 화면에 두 개도 안 들어왔다.
+      margin: const EdgeInsets.only(bottom: FacingTokens.sp2),
+      padding: const EdgeInsets.all(FacingTokens.sp3),
       decoration: BoxDecoration(
         color: FacingTokens.surface,
         border: Border.all(
@@ -372,7 +373,7 @@ class _ClassCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: FacingTokens.sp3),
+          const SizedBox(height: FacingTokens.sp2),
           Row(
             children: [
               if (isCancelled)
