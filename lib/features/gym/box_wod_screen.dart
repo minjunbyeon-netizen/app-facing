@@ -13,7 +13,6 @@ import '../../widgets/inbox_bell.dart';
 import '../presets/presets_screen.dart';
 import '../wod_builder/wod_builder_screen.dart';
 import 'coach_dashboard_screen.dart';
-import 'gym_search_screen.dart';
 import 'gym_state.dart';
 import 'week_board.dart';
 import 'wod_post_screen.dart';
@@ -123,31 +122,17 @@ class _NoGymEmpty extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: FacingTokens.sp5),
+          // v2.6 (2026-08-13 사용자 지시): '박스 찾기'·'박스 만들기(코치)' 삭제.
+          // 1인 샵 전용 앱이라 박스는 코치 본인 것 하나뿐이다 — 찾을 목록도,
+          // 만들 두 번째 박스도 없다. 회원이 들어오는 길은 코치가 준 가입 코드,
+          // 또는 로그인 화면의 '박스 가입 신청' 둘뿐이다.
+          // (GymSearchScreen·박스 생성 시트 코드는 보존 — "숨김 = 코드 보존")
           ElevatedButton(
             onPressed: () {
               Haptic.medium();
-              Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => const GymSearchScreen(),
-              ));
-            },
-            child: const Text('박스 찾기'),
-          ),
-          const SizedBox(height: FacingTokens.sp3),
-          // 이음새 1 — PC 선등록 회원 가입 코드 연결.
-          OutlinedButton(
-            onPressed: () {
-              Haptic.light();
               Navigator.of(context).pushNamed('/signup/claim');
             },
             child: const Text('가입 코드 입력'),
-          ),
-          const SizedBox(height: FacingTokens.sp3),
-          OutlinedButton(
-            onPressed: () {
-              Haptic.light();
-              _showCreateGymSheet(context);
-            },
-            child: const Text('박스 만들기 (코치)'),
           ),
         ],
       ),
@@ -155,6 +140,9 @@ class _NoGymEmpty extends StatelessWidget {
   }
 }
 
+// v2.6 (2026-08-13): 진입점은 끊었지만 코드는 남긴다 ("숨김 = 코드 보존").
+// 1인 샵이 아닌 형태로 확장할 때 버튼 한 줄만 되살리면 그대로 동작한다.
+// ignore: unused_element
 void _showCreateGymSheet(BuildContext context) {
   final nameCtrl = TextEditingController();
   final locCtrl = TextEditingController();
@@ -289,18 +277,10 @@ class _RejectedState extends StatelessWidget {
           const SizedBox(height: FacingTokens.sp2),
           Text(gym.name, style: FacingTokens.h3),
           const SizedBox(height: FacingTokens.sp2),
-          const Text('가입 거절. 다른 박스 검색 권장.',
+          // v2.6: 박스가 하나뿐이라 "다른 박스" 는 존재하지 않는다.
+          // 거절 사유는 코치에게 직접 묻는 것이 유일한 다음 행동이다.
+          const Text('가입이 승인되지 않았습니다. 코치에게 문의해 주세요.',
               style: FacingTokens.caption),
-          const SizedBox(height: FacingTokens.sp5),
-          OutlinedButton(
-            onPressed: () {
-              Haptic.light();
-              Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => const GymSearchScreen(),
-              ));
-            },
-            child: const Text('다른 박스 찾기'),
-          ),
         ],
       ),
     );

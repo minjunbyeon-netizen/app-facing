@@ -17,7 +17,6 @@ import '../auth/auth_state.dart';
 import '../contracts/member_contracts_screen.dart';
 import '../goals/goals_screen.dart';
 import '../gym/coach_dashboard_screen.dart';
-import '../gym/gym_search_screen.dart';
 import '../gym/gym_state.dart';
 import '../profile/profile_state.dart';
 import 'algorithm_screen.dart';
@@ -270,6 +269,9 @@ class _ProfileRow extends StatelessWidget {
 class _MyBoxSection extends StatelessWidget {
   const _MyBoxSection();
 
+  // v2.6 (2026-08-13): '박스 변경' 진입점을 끊으면서 호출부가 사라졌다.
+  // 탈퇴 자체를 없앤 결정은 아니므로 흐름은 그대로 둔다 ("숨김 = 코드 보존").
+  // ignore: unused_element
   Future<void> _confirmLeave(BuildContext context, GymState gs) async {
     final gymName = gs.membership.gym?.name ?? '박스';
     final ok = await showDialog<bool>(
@@ -311,11 +313,9 @@ class _MyBoxSection extends StatelessWidget {
       );
       return;
     }
-    // 탈퇴 성공 → WOD 탭(index 1)으로 이동해 박스 찾기 유도.
+    // v2.6 (2026-08-13): 탈퇴 후 '박스 찾기'로 보내지 않는다 — 박스는 하나뿐이라
+    // 찾을 목록이 없다. WOD 탭으로만 보내면 그곳의 가입 코드 입력이 다음 길이다.
     context.read<ShellNavBus>().requestTab(1);
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => const GymSearchScreen(),
-    ));
   }
 
   @override
@@ -397,24 +397,9 @@ class _MyBoxSection extends StatelessWidget {
                 label: const Text('수업'),
               ),
             ],
-            // 박스 변경(= 탈퇴 후 재검색). 구 헤더 우측 '변경' 버튼을 본문 하단으로
-            // 옮겼다 — 아코디언 헤더는 제목·부제만 싣는다 (DESIGN-SSOT §7-B).
-            if (!gs.isOwner) ...[
-              const SizedBox(height: FacingTokens.sp2),
-              TextButton(
-                style: TextButton.styleFrom(
-                  foregroundColor: FacingTokens.fgSecondary,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: FacingTokens.sp2),
-                  textStyle: FacingTokens.micro,
-                ),
-                onPressed: () {
-                  Haptic.light();
-                  _confirmLeave(context, gs);
-                },
-                child: const Text('박스 변경'),
-              ),
-            ],
+            // v2.6 (2026-08-13 사용자 지시): '박스 변경' 삭제. 1인 샵 전용이라
+            // 옮겨 갈 다른 박스가 없다. 탈퇴가 필요하면 코치에게 말하는 쪽이 맞다.
+            // (leaveGym·_confirmLeave 코드는 보존 — 진입점만 끊었다)
           ],
           const SizedBox(height: FacingTokens.sp2),
         ],
