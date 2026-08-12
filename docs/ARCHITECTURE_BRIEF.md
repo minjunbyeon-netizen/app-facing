@@ -218,6 +218,25 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 >   created→None→removed 기대대로, 같은 회원 하루 2수업 분기에서 첫 수업만 되돌렸을 때
 >   출석행 유지 확인, 잘못된 status 3종 400, 타 박스 스태프 403.
 
+> **D32 (2026-08-12) — 고아 행 정리 + FK 강제 실증.**
+> D29 에서 "예약 2명인데 명단 0명" 을 만든 고아 데이터의 뿌리를 정리했다.
+>
+> - **원인**: SQLite FK 는 연결마다 켜야 강제된다. `models/base.py` 의 connect 이벤트가
+>   `PRAGMA foreign_keys=ON` 을 거는데, **그 리스너가 붙기 전에 지워진 회원**의 자식 행이
+>   남은 것이다. 지금은 정상 — 임시 회원+예약+프로필을 만들어 회원만 지웠을 때
+>   자식이 함께 사라지는 것을 실증했다 (`PRAGMA foreign_keys = 1` 확인).
+>   raw `sqlite3.connect` 경로는 2곳뿐이고(스키마 편집·Postgres 내보내기) 행 삭제를 안 한다.
+> - **도구**: `services/facing/scripts/fix_orphans.py` — `PRAGMA foreign_key_list` 로
+>   FK 를 introspect 하므로 테이블이 늘어도 그대로 쓴다. 기본은 점검만, `--apply` 로 삭제.
+>   삭제 전 `data/backup/` 에 DB 스냅샷(`sqlite3.backup` — WAL 안전). `ON DELETE CASCADE`
+>   인 FK 의 고아만 지우고, 그 외는 의도일 수 있어 보고만 한다.
+> - **로컬 DB 결과**: 14건 삭제 (class_reservations 12 · class_waitlist_promotions 1 ·
+>   gym_member_profiles 1, 전부 `gym_members` 참조). 이후 `PRAGMA foreign_key_check` 0건.
+> - **⚠ 운영 DB 는 아직 안 함** — Railway 볼륨은 사용자 승인 후
+>   `python scripts/fix_orphans.py --db /app/data/facing.db` 로 먼저 점검할 것.
+> - 명단 API 의 `orphan` 처리(outerjoin + '탈퇴 회원')는 **그대로 둔다** — 운영 DB 가
+>   아직 안 정리됐고, 데이터가 깨끗해져도 방어로서 값이 싸다.
+
 - **사장은 운영자**, PHASE5 부터는 **외출·이동 중 폰 보조 운영 가능** (linko 격차 해소 — `docs/PHASE5_ROADMAP.md` 참조). PC 가 주, 폰이 보조. **폰 사장 로그인 = PC 동일 ID/PW** 사용. 회원·코치는 device_hash 익명 유지.
 - 한 사람이 두 역할 가질 수 있어요 (예: 박지훈 = 사장 + 코치). DB 상으로는 `gym_managers` 에 두 행 (또는 role 컬럼 set 형).
 - **PHASE5 추가 가정**: facing-app 진입 시 `user_type` 분기 — `device_hash` (회원·코치 익명) vs `login_id` (사장·매니저 ID/PW). 같은 앱 바이너리, 다른 진입 플로우.
