@@ -676,13 +676,10 @@ class _ActionsSection extends StatelessWidget {
                     mode: LaunchMode.externalApplication,
                   ),
                 ),
-                // D26 §4.1 — 코치·사장 계정 연결 (소셜 로그인 후 1회 claim).
-                FkListRow(
-                  icon: Icons.badge_outlined,
-                  title: '직원 계정 연결',
-                  onTap: () =>
-                      Navigator.of(context).pushNamed('/auth/link-staff'),
-                ),
+                // v2.6 (2026-08-12 사용자 지시): '직원 계정 연결' 행 삭제.
+                // 코치가 곧 사장 본인 한 명이라 연결할 직원이 없다. 직원 고용은
+                // 나중 일 — 화면·라우트(`/auth/link-staff`)는 그대로 살아 있어
+                // 이 6줄만 되살리면 복귀한다 ("숨김 = 코드 보존", BRIEF D37).
                 FkListRow(
                   icon: Icons.lock_outline,
                   title: '개인정보처리방침',
