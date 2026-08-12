@@ -96,25 +96,19 @@ class _SplashScreenState extends State<SplashScreen>
     } catch (_) {}
     if (!mounted) return;
 
-    bool introSeen = false;
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      introSeen = prefs.getBool('intro_seen') ?? false;
-    } catch (_) {
-      introSeen = true;
-    }
-    if (!mounted) return;
-
     await Future.delayed(AppKit.splashMin);
     if (!mounted) return;
-    _onStart(introSeen: introSeen);
+    _onStart();
   }
 
   /// v1.16 + PHASE5: 로그인 상태 분기.
   /// boss 세션 살아있으면 → /boss/dashboard 직행.
   /// 아니면 기존 회원·코치 플로우.
-  void _onStart({required bool introSeen}) {
-    final profile  = context.read<ProfileState>();
+  /// v2.3 (2026-08-12 사용자 지시): 첫 실행 인트로 3장을 없앴다. 앱을 켜면
+  /// 로그인 화면이 바로 뜬다 (`/intro` 화면·라우트는 보존 — 진입만 끊음).
+  /// 등급(Tier) 유무로 온보딩에 붙잡아 두던 분기도 뺐다. 성별·경력은 가입
+  /// 직후 한 번만 묻고, 이미 로그인한 사람은 언제나 홈으로 들어간다.
+  void _onStart() {
     final auth     = context.read<AuthState>();
     final bossAuth = context.read<BossAuthState>();
     Haptic.medium();
@@ -123,20 +117,8 @@ class _SplashScreenState extends State<SplashScreen>
       Navigator.of(context).pushReplacementNamed('/boss/dashboard');
       return;
     }
-    final String next;
-    if (!introSeen) {
-      // B-2 (2026-06-10): 첫 실행은 로그인 여부 무관 서비스 소개 먼저.
-      // (기존엔 미로그인 → /signup 직행이라 신규 유저가 인트로를 영영 못 봄)
-      next = '/intro';
-    } else if (!auth.isSignedIn) {
-      next = '/signup'; // 미로그인 → 소셜 로그인 화면
-    } else if (profile.hasGrade) {
-      // D26: 역할은 로그인 시 결정됨 — 수동 mode-select 폐기. shell 직행.
-      next = '/shell';
-    } else {
-      next = '/onboarding/basic';
-    }
-    Navigator.of(context).pushReplacementNamed(next);
+    Navigator.of(context)
+        .pushReplacementNamed(auth.isSignedIn ? '/shell' : '/signup');
   }
 
   Widget _fadeSlide(int slot, Widget child) => SlideTransition(

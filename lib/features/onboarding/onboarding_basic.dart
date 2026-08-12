@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/glossary.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
-import '../../core/unit_state.dart';
 import '../../widgets/fkit.dart';
 import '../profile/profile_state.dart';
 
+/// 가입 직후 한 번 묻는 화면 — 성별과 경력 두 가지가 전부다.
+///
+/// v2.3 (2026-08-12 사용자 지시): 체중·키·나이와 6단계 벤치마크(운동 능력)를
+/// 전부 뺐다. 이 앱은 HYPHEN 한 박스에서 예약·공지를 주고받는 것이 본업이라,
+/// 가입하자마자 7단계 측정을 시키는 것이 앞을 막고 있었다.
+///
+/// 뺀 값들은 화면에서 사라진 것이지 코드가 사라진 것은 아니다 — 프로필 편집의
+/// 신체·벤치마크 화면(`/onboarding/benchmarks`)은 그대로 살아 있고, Tier 를
+/// 다시 쓰려면 그 진입점만 열면 된다 ("숨김 = 코드 보존").
 class OnboardingBasicScreen extends StatefulWidget {
   const OnboardingBasicScreen({super.key});
 
@@ -16,296 +22,126 @@ class OnboardingBasicScreen extends StatefulWidget {
   State<OnboardingBasicScreen> createState() => _OnboardingBasicScreenState();
 }
 
+/// 경력 구간. 사용자가 말한 경계(1년·3년)를 그대로 쓰되 서로 겹치지 않게 나눴다.
+/// `years` 는 서버·등급 로직이 쓰는 대표값이다.
+class _ExpBand {
+  final String label;
+  final double years;
+  const _ExpBand(this.label, this.years);
+}
+
+const List<_ExpBand> _kExpBands = [
+  _ExpBand('1년 미만', 0.5),
+  _ExpBand('1~3년', 2),
+  _ExpBand('3년 이상', 5),
+];
+
 class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
-  final _weight = TextEditingController();
-  final _height = TextEditingController();
-  final _age = TextEditingController();
-  final _years = TextEditingController();
   String _gender = 'male';
+  int? _bandIndex;
 
   @override
   void initState() {
     super.initState();
     final p = context.read<ProfileState>();
-    final unit = context.read<UnitState>();
-    if (p.bodyWeightKg != null) {
-      final disp = unit.kgToDisplay(p.bodyWeightKg!)!;
-      _weight.text = _fmt(disp);
-    }
-    if (p.heightCm != null) _height.text = _fmt(p.heightCm!);
-    if (p.ageYears != null) _age.text = _fmt(p.ageYears!);
-    if (p.experienceYears > 0) _years.text = _fmt(p.experienceYears);
     _gender = p.gender;
+    final y = p.experienceYears;
+    if (y > 0) {
+      _bandIndex = y < 1
+          ? 0
+          : y < 3
+              ? 1
+              : 2;
+    }
   }
 
-  // QA (2026-06-11): kg↔lb 변환 raw float 노출 방지 — 표시 소수 1자리 (benchmarks 와 동일).
-  String _fmt(double v) {
-    final r = (v * 10).round() / 10;
-    return r == r.roundToDouble() ? r.toInt().toString() : r.toStringAsFixed(1);
-  }
+  bool get _canContinue => _bandIndex != null;
 
-  @override
-  void dispose() {
-    _weight.dispose();
-    _height.dispose();
-    _age.dispose();
-    _years.dispose();
-    super.dispose();
-  }
-
-  // v1.10.1: 모든 필드 선택. 체중만 있으면 진행 가능(등급 산정 최소 기준).
-  // 비우면 다음 단계에서 평균값 추론.
-  // QA B-IN-7: 체중 양수+합리적 범위 검증.
-  bool get _canContinue {
-    final v = double.tryParse(_weight.text.trim());
-    return v != null && v > 0 && v < 500;
+  void _onDone() {
+    final p = context.read<ProfileState>();
+    p.setBasic(
+      gender: _gender,
+      experienceYears: _kExpBands[_bandIndex!].years,
+    );
+    Navigator.of(context).pushNamedAndRemoveUntil('/shell', (_) => false);
   }
 
   @override
   Widget build(BuildContext context) {
-    // B-1 (2026-06-10): 분모 7 동기화 (benchmarks 카테고리 6개 + basic 1).
-    const progress = 1 / 7;
-    const pct = 14;
     return Scaffold(
+      backgroundColor: FacingTokens.bg,
       appBar: AppBar(
-        // v2.2 (H14): 앱바 제목과 바로 아래 진행 표시가 둘 다 '1 / 7 단계' 라
-        // 같은 말이 두 번이었다 (CLAUDE.md R1). 진행바 쪽을 남기고 앱바를 비운다.
-        // v1.21: 베타 테스터 피드백 — 체중 입력 칸에서 뒤로가기 누락. signup 으로 복귀.
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pushReplacementNamed('/signup'),
-        ),
+        title: const Text('기본 정보'),
+        backgroundColor: FacingTokens.bg,
+        automaticallyImplyLeading: false,
       ),
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // v1.15 P1-13: 6단계 진행률 시각화
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                FacingTokens.sp4,
-                FacingTokens.sp3,
-                FacingTokens.sp4,
-                FacingTokens.sp2,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text('1 / 7 단계', style: FacingTokens.caption),
-                      Text('$pct%', style: FacingTokens.caption),
-                    ],
-                  ),
-                  const SizedBox(height: FacingTokens.sp1),
-                  const LinearProgressIndicator(
-                    value: progress,
-                    minHeight: 4,
-                    backgroundColor: FacingTokens.border,
-                    color: FacingTokens.fg,
-                  ),
-                ],
-              ),
-            ),
-            Expanded(child: Padding(
-              padding: const EdgeInsets.all(FacingTokens.sp4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-              const SizedBox(height: FacingTokens.sp3),
+        child: Padding(
+          padding: const EdgeInsets.all(FacingTokens.sp5),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: FacingTokens.sp2),
+              const FkSectionLabel('성별'),
+              const SizedBox(height: FacingTokens.sp2),
               Row(
-                children: const [
-                  Text('신체', style: FacingTokens.sectionLabel),
-                  SizedBox(width: FacingTokens.sp2),
-                  TermTip(term: 'Tier', iconSize: 16),
+                children: [
+                  FkBadge(
+                    '남',
+                    color: FacingTokens.fg,
+                    selected: _gender == 'male',
+                    onTap: () {
+                      Haptic.selection();
+                      setState(() => _gender = 'male');
+                    },
+                  ),
+                  const SizedBox(width: FacingTokens.sp2),
+                  FkBadge(
+                    '여',
+                    color: FacingTokens.fg,
+                    selected: _gender == 'female',
+                    onTap: () {
+                      Haptic.selection();
+                      setState(() => _gender = 'female');
+                    },
+                  ),
                 ],
-              ),
-              const SizedBox(height: FacingTokens.sp1),
-              const Text(
-                '체중·키는 Tier 산정 기준. 성별·경력은 난이도 보정.',
-                style: FacingTokens.caption,
               ),
               const SizedBox(height: FacingTokens.sp6),
-              // v2.2 (H12): 같은 폼에서 '나이·성별'은 한글인데 체중·키·경력만
-              // 영문이라 언어가 섞여 있었다. 도메인 고정어(kg·cm·CrossFit)만
-              // 남기고 한글로 통일한다 (v1.29 한글 기본).
-              Consumer<UnitState>(
-                builder: (ctx, u, _) => _Row(
-                  label: '체중 (${u.weightSuffix})',
-                  child: _Input(
-                    controller: _weight,
-                    semanticLabel: '체중',
-                    hint: u.isKg ? '예: 75' : '예: 165',
-                    suffix: u.weightSuffix,
-                    onChanged: (_) => setState(() {}),
-                  ),
-                ),
+
+              const FkSectionLabel('크로스핏 경력'),
+              const SizedBox(height: FacingTokens.sp2),
+              Wrap(
+                spacing: FacingTokens.sp2,
+                runSpacing: FacingTokens.sp2,
+                children: [
+                  for (var i = 0; i < _kExpBands.length; i++)
+                    FkBadge(
+                      _kExpBands[i].label,
+                      color: FacingTokens.fg,
+                      selected: _bandIndex == i,
+                      onTap: () {
+                        Haptic.selection();
+                        setState(() => _bandIndex = i);
+                      },
+                    ),
+                ],
               ),
-              const SizedBox(height: FacingTokens.sp4),
-              _Row(label: '키 (cm)', child: _Input(
-                controller: _height, hint: '예: 176', suffix: 'cm',
-                semanticLabel: '키',
-                onChanged: (_) => setState(() {}),
-              )),
-              const SizedBox(height: FacingTokens.sp4),
-              _Row(label: '나이', child: _Input(
-                controller: _age, hint: '예: 32', suffix: '세',
-                semanticLabel: '나이',
-                onChanged: (_) => setState(() {}),
-              )),
-              const SizedBox(height: FacingTokens.sp4),
-              _Row(label: '성별', child: _GenderToggle(
-                value: _gender,
-                onChanged: (g) {
-                  Haptic.selection();
-                  setState(() => _gender = g);
-                },
-              )),
-              const SizedBox(height: FacingTokens.sp4),
-              // v2.2: 'CrossFit XP (yr)' → '크로스핏 경력 (년)'.
-              // XP 는 이 앱에서 레벨 경험치를 뜻하는데 여기선 '경력 연차'라
-              // 같은 낱말이 두 뜻으로 쓰여 홈 화면의 XP 와 충돌했다.
-              _Row(label: '크로스핏 경력 (년)', child: _Input(
-                controller: _years, hint: '예: 3',
-                suffix: '년',
-                semanticLabel: '크로스핏 경력',
-                onChanged: (_) => setState(() {}),
-              )),
+
               const Spacer(),
-              ElevatedButton(
+              FkButton.primary(
+                '시작하기',
                 onPressed: _canContinue
                     ? () {
                         Haptic.light();
-                        _onNext();
+                        _onDone();
                       }
                     : null,
-                child: const Text('다음'),
               ),
-                ],
-              ),
-            )),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
-
-  void _onNext() {
-    final p = context.read<ProfileState>();
-    final unit = context.read<UnitState>();
-    final weightDisplay = double.tryParse(_weight.text.trim());
-    final heightVal = double.tryParse(_height.text.trim());
-    final ageVal = double.tryParse(_age.text.trim());
-    p.setBasic(
-      bodyWeightKg: unit.displayToKg(weightDisplay),
-      // QA B-IN-8: 신장 100~250cm, 나이 10~80 범위 외 입력은 null 처리.
-      heightCm: (heightVal != null && heightVal >= 100 && heightVal <= 250)
-          ? heightVal
-          : null,
-      ageYears: (ageVal != null && ageVal >= 10 && ageVal <= 80)
-          ? ageVal
-          : null,
-      gender: _gender,
-      experienceYears: double.tryParse(_years.text.trim()) ?? 0,
-    );
-    Navigator.of(context).pushNamed('/onboarding/benchmarks');
-  }
 }
-
-class _Row extends StatelessWidget {
-  final String label;
-  final Widget child;
-  const _Row({required this.label, required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Expanded(flex: 4, child: Text(label, style: FacingTokens.body)),
-        Expanded(flex: 5, child: child),
-      ],
-    );
-  }
-}
-
-class _Input extends StatelessWidget {
-  final TextEditingController controller;
-  final String hint;
-  final String suffix;
-  final String? semanticLabel;
-  final ValueChanged<String> onChanged;
-  const _Input({
-    required this.controller,
-    required this.hint,
-    required this.suffix,
-    required this.onChanged,
-    this.semanticLabel,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    // v2.2 (H12): labelText 로 넣던 이름이 좌측 _Row 라벨과 **같은 말**이라
-    // 한 줄에 같은 단어가 두 번 나왔다. 화면에서는 좌측 라벨 하나만 두고,
-    // 스크린리더용 이름은 Semantics 로 옮긴다 (접근성 유지, 시각 중복 제거).
-    return Semantics(
-      label: semanticLabel,
-      textField: true,
-      child: TextField(
-        controller: controller,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        inputFormatters: [
-          FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
-          TextInputFormatter.withFunction((oldValue, newValue) {
-            final dots = '.'.allMatches(newValue.text).length;
-            if (dots > 1) return oldValue;
-            return newValue;
-          }),
-        ],
-        decoration: InputDecoration(
-          hintText: hint,
-          suffixText: suffix.isEmpty ? null : suffix,
-          isDense: true,
-          enabledBorder: OutlineInputBorder(
-            borderSide: const BorderSide(color: FacingTokens.border),
-            borderRadius: BorderRadius.circular(FacingTokens.r2),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: const BorderSide(color: FacingTokens.primary, width: 2),
-            borderRadius: BorderRadius.circular(FacingTokens.r2),
-          ),
-        ),
-        onChanged: onChanged,
-      ),
-    );
-  }
-}
-
-class _GenderToggle extends StatelessWidget {
-  final String value;
-  final ValueChanged<String> onChanged;
-  const _GenderToggle({required this.value, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        FkBadge(
-          '남',
-          color: FacingTokens.fg,
-          selected: value == 'male',
-          onTap: () => onChanged('male'),
-        ),
-        const SizedBox(width: FacingTokens.sp2),
-        FkBadge(
-          '여',
-          color: FacingTokens.fg,
-          selected: value == 'female',
-          onTap: () => onChanged('female'),
-        ),
-      ],
-    );
-  }
-}
-

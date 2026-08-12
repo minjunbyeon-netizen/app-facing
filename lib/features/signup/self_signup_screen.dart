@@ -11,17 +11,23 @@ import '../../widgets/fkit.dart';
 import '../auth/auth_state.dart';
 import '../profile/profile_state.dart';
 
-/// 회원 가입 신청 — 박스 번호 + 아이디 + 비밀번호(2회)만 받는다.
+/// 회원 가입 신청 — 아이디 + 비밀번호(2회)만 받는다.
 ///
-/// v2.3 (2026-08-12 사용자 지시): 박스를 목록에서 고르고 이름·전화까지 받던
-/// 화면이 너무 길었다. 폰에서 받는 것은 **네 칸**뿐이다.
-///   ① 박스 번호(체육관 고유 번호) ② 아이디 ③ 비밀번호 ④ 비밀번호 확인
-/// 이름·전화·성별 같은 항목은 사장이 승인하면서 채운다. 아이디는 그대로
-/// 표시용 이름으로 들어간다 (backend api/admin.py member_self_signup).
+/// v2.3 (2026-08-12 사용자 지시): 이 앱은 **HYPHEN 한 박스 전용**이다. 코치와
+/// 회원이 그 안에서 예약·공지를 주고받는 것이 전부라, 박스를 고르거나 번호를
+/// 넣는 절차 자체가 없다. 이름·전화·성별은 사장이 승인하면서 채운다.
+/// 아이디가 그대로 표시용 이름으로 들어간다.
+///
+/// 박스 id 는 `/api/v1/member/gyms-list` 에서 이름이 HYPHEN 인 행으로 찾는다
+/// (목록이 안 오면 [_kFallbackGymId]). 나중에 박스가 늘어나면 이 화면에
+/// 선택 UI 를 되살리는 것이 아니라, 서버가 기본 박스를 내려주게 하면 된다.
 ///
 /// 백엔드: POST /api/v1/member/gyms/`<gid>`/self-signup
 ///   body {login_id, password} · header X-Device-Id
 ///   → status='pending' 으로 신청 + MemberCredential 생성 (승인 후 바로 로그인)
+const String _kBrandGymName = 'HYPHEN';
+const int _kFallbackGymId = 2;
+
 class SelfSignupScreen extends StatefulWidget {
   const SelfSignupScreen({super.key});
 
@@ -31,58 +37,49 @@ class SelfSignupScreen extends StatefulWidget {
 
 class _SelfSignupScreenState extends State<SelfSignupScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _gymCtrl = TextEditingController();
   final _idCtrl = TextEditingController();
   final _pwCtrl = TextEditingController();
   final _pw2Ctrl = TextEditingController();
 
-  /// 번호 → 박스 이름. 오타로 남의 박스에 신청하는 것을 막으려고 입력한
-  /// 번호의 이름을 바로 아래에 보여 준다 (목록 로드 실패해도 신청은 가능).
-  Map<int, String> _gymNames = const {};
+  int _gymId = _kFallbackGymId;
   bool _submitting = false;
   bool _pwVisible = false;
 
   @override
   void initState() {
     super.initState();
-    _loadGyms();
-    _gymCtrl.addListener(() => setState(() {}));
+    _resolveGym();
   }
 
   @override
   void dispose() {
-    _gymCtrl.dispose();
     _idCtrl.dispose();
     _pwCtrl.dispose();
     _pw2Ctrl.dispose();
     super.dispose();
   }
 
-  Future<void> _loadGyms() async {
+  /// 가입 대상 박스를 이름으로 찾는다. 목록을 못 받으면 폴백 id 로 그대로 진행 —
+  /// 신청 자체를 막을 이유가 없다 (서버가 없는 박스면 404 로 알려준다).
+  Future<void> _resolveGym() async {
     try {
       final api = context.read<ApiClient>();
       final raw = await api.getList('/api/v1/member/gyms-list');
       if (!mounted) return;
-      setState(() {
-        _gymNames = {
-          for (final e in raw)
-            (e['id'] as num).toInt(): (e['name'] ?? '?') as String,
-        };
-      });
+      for (final e in raw) {
+        if ((e['name'] ?? '') == _kBrandGymName) {
+          setState(() => _gymId = (e['id'] as num).toInt());
+          return;
+        }
+      }
     } catch (_) {
-      // 이름 미리보기는 부가 기능 — 실패해도 화면은 그대로 쓴다.
+      // 폴백 id 유지.
     }
-  }
-
-  String? get _gymName {
-    final id = int.tryParse(_gymCtrl.text.trim());
-    if (id == null) return null;
-    return _gymNames[id];
   }
 
   Future<void> _submit() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    final gymId = int.parse(_gymCtrl.text.trim());
+    final gymId = _gymId;
     final loginId = _idCtrl.text.trim();
 
     setState(() => _submitting = true);
@@ -112,7 +109,7 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
             : '이미 가입된 회원입니다.');
         _goNext(profile);
       } else if (status == 'pending') {
-        _showApprovalDialog(_gymName ?? '$gymId번 박스', profile);
+        _showApprovalDialog(_kBrandGymName, profile);
       } else {
         _toast('이미 가입된 회원입니다.');
         _goNext(profile);
@@ -151,12 +148,12 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
     );
   }
 
-  /// 가입 직후 목적지. 등급(온보딩) 미완료면 온보딩부터 — splash 분기와 같은
-  /// 규칙이라 앱을 껐다 켜도 같은 자리로 돌아온다.
+  /// 가입 직후 목적지. v2.3: 성별·경력 두 가지만 묻는 짧은 화면 하나로 보낸다.
+  /// (등급 산정용 신체·벤치마크 단계는 이 흐름에서 뺐다.)
   void _goNext(ProfileState profile) {
     if (!mounted) return;
-    final next = profile.hasGrade ? '/shell' : '/onboarding/basic';
-    Navigator.of(context).pushNamedAndRemoveUntil(next, (_) => false);
+    Navigator.of(context)
+        .pushNamedAndRemoveUntil('/onboarding/basic', (_) => false);
   }
 
   void _toast(String msg) {
@@ -167,7 +164,6 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final gymName = _gymName;
     return Scaffold(
       backgroundColor: FacingTokens.bg,
       appBar: AppBar(
@@ -183,27 +179,6 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const FkSectionLabel('박스 번호'),
-                const SizedBox(height: FacingTokens.sp1),
-                TextFormField(
-                  controller: _gymCtrl,
-                  style: FacingTokens.body.copyWith(color: FacingTokens.fg),
-                  decoration: _deco('박스에서 받은 번호'),
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  textInputAction: TextInputAction.next,
-                  validator: (v) => int.tryParse((v ?? '').trim()) == null
-                      ? '박스 번호를 입력해 주세요.'
-                      : null,
-                ),
-                if (gymName != null) ...[
-                  const SizedBox(height: FacingTokens.sp1),
-                  Text(gymName,
-                      style: FacingTokens.caption
-                          .copyWith(color: FacingTokens.fg)),
-                ],
-                const SizedBox(height: FacingTokens.sp4),
-
                 const FkSectionLabel('아이디'),
                 const SizedBox(height: FacingTokens.sp1),
                 TextFormField(
