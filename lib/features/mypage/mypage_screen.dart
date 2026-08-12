@@ -593,9 +593,13 @@ class _ActionsSection extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: FacingTokens.sp3),
                 child: Row(
                   children: [
+                    // v2.6: 앞에 붙던 로그인 수단이 실기에서 'MEMBER_ID' 라는
+                    // 내부 코드값 그대로 나왔다. 회원이 이 화면에서 그걸로 할 수
+                    // 있는 일이 없다 — 이름만 남긴다 (v2.5 에 IdentityCard 에서
+                    // 같은 이유로 지운 표기가 여기 한 줄 남아 있었다).
                     Expanded(
                       child: Text(
-                        '${auth.provider?.toUpperCase() ?? '-'} · ${auth.displayName ?? ''}',
+                        auth.displayName ?? '',
                         style: FacingTokens.caption,
                       ),
                     ),
