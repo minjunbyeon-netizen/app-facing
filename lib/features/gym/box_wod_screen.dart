@@ -128,8 +128,8 @@ class _NoGymEmpty extends StatelessWidget {
           // 그 회원의 아이디·비밀번호를 언제 만드는지가 불분명했다. 가입은
           // **로그인 화면의 '박스 가입 신청' 한 길**뿐이다.
           const Text(
-            '로그인 화면의 [박스 가입 신청] 으로 신청하면
-코치가 승인한 뒤 이용할 수 있습니다.',
+            '로그인 화면의 [박스 가입 신청] 으로 신청하면 '
+            '코치가 승인한 뒤 이용할 수 있습니다.',
             style: FacingTokens.caption,
             textAlign: TextAlign.center,
           ),
