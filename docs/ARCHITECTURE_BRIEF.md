@@ -170,8 +170,16 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > - `web/facing-admin` 은 nav·버튼의 coach 분기를 전면 제거 (`_layout.html`·`members.html`).
 > - **⚠ 미포함(의도적)**: `ROLE_SCOPES` 의 PII 마스킹은 그대로다. 코치는 여전히
 >   phone·birth_date 등이 마스킹된다 — PIPA §29 최소권한 안전조치라 제품 권한과 축을 분리했다.
-> - **⚠ manager 는 이번 결정에 미포함**. 현재 `require_boss` 기준으로 manager < coach 인
->   역전 상태다 (구 코드에서도 manager 는 require_boss 에서 403 이었다). 정리 필요.
+> - **manager 포함** (2026-08-12 후속). 코치만 올리면 manager < coach 역전이 생겨
+>   `BOSS_LEVEL_ROLES = ("boss", "manager", "coach")` 로 함께 정리했다.
+> - 클래스 CRUD 의 인라인 role 체크(`api/classes.py` `_STAFF_ROLES`)도 같이 열었다 —
+>   `require_boss` 데코레이터가 아니라 함수 안 `if` 라 상수 변경만으로는 안 열렸다.
+>
+> **실기 검증 (2026-08-12, 로컬 5060 · coach_park/1234)**
+> 락커·계약서·요금제·코치목록·회원목록·대시보드·알림설정·클래스목록 8종 전부 200,
+> 수업 생성(201)→수정(200)→명단(200)→취소(200) 4단계 통과. 타 박스 클래스는 403 유지
+> (테넌트 격리 정상). PII 마스킹 실동작 확인: 코치 `윤**`/`010-****-6612`,
+> 사장 `윤지원`/`010-3349-6612`.
 
 - **사장은 운영자**, PHASE5 부터는 **외출·이동 중 폰 보조 운영 가능** (linko 격차 해소 — `docs/PHASE5_ROADMAP.md` 참조). PC 가 주, 폰이 보조. **폰 사장 로그인 = PC 동일 ID/PW** 사용. 회원·코치는 device_hash 익명 유지.
 - 한 사람이 두 역할 가질 수 있어요 (예: 박지훈 = 사장 + 코치). DB 상으로는 `gym_managers` 에 두 행 (또는 role 컬럼 set 형).
