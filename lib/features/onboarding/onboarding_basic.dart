@@ -68,7 +68,8 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
     const pct = 14;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('1 / 7 단계'),
+        // v2.2 (H14): 앱바 제목과 바로 아래 진행 표시가 둘 다 '1 / 7 단계' 라
+        // 같은 말이 두 번이었다 (CLAUDE.md R1). 진행바 쪽을 남기고 앱바를 비운다.
         // v1.21: 베타 테스터 피드백 — 체중 입력 칸에서 뒤로가기 누락. signup 으로 복귀.
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -126,28 +127,31 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
                 style: FacingTokens.caption,
               ),
               const SizedBox(height: FacingTokens.sp6),
+              // v2.2 (H12): 같은 폼에서 '나이·성별'은 한글인데 체중·키·경력만
+              // 영문이라 언어가 섞여 있었다. 도메인 고정어(kg·cm·CrossFit)만
+              // 남기고 한글로 통일한다 (v1.29 한글 기본).
               Consumer<UnitState>(
                 builder: (ctx, u, _) => _Row(
-                  label: 'Body Weight (${u.weightSuffix})',
+                  label: '체중 (${u.weightSuffix})',
                   child: _Input(
                     controller: _weight,
-                    semanticLabel: 'Body Weight',
-                    hint: u.isKg ? 'e.g. 75' : 'e.g. 165',
+                    semanticLabel: '체중',
+                    hint: u.isKg ? '예: 75' : '예: 165',
                     suffix: u.weightSuffix,
                     onChanged: (_) => setState(() {}),
                   ),
                 ),
               ),
               const SizedBox(height: FacingTokens.sp4),
-              _Row(label: 'Height (cm)', child: _Input(
-                controller: _height, hint: 'e.g. 176', suffix: 'cm',
-                semanticLabel: 'Height',
+              _Row(label: '키 (cm)', child: _Input(
+                controller: _height, hint: '예: 176', suffix: 'cm',
+                semanticLabel: '키',
                 onChanged: (_) => setState(() {}),
               )),
               const SizedBox(height: FacingTokens.sp4),
               _Row(label: '나이', child: _Input(
-                controller: _age, hint: 'e.g. 32', suffix: 'yr',
-                semanticLabel: 'Age',
+                controller: _age, hint: '예: 32', suffix: '세',
+                semanticLabel: '나이',
                 onChanged: (_) => setState(() {}),
               )),
               const SizedBox(height: FacingTokens.sp4),
@@ -159,11 +163,13 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
                 },
               )),
               const SizedBox(height: FacingTokens.sp4),
-              // QA (2026-06-11): 좌측 라벨과 필드 라벨 불일치 — 'CrossFit XP (yr)' 통일.
-              _Row(label: 'CrossFit XP (yr)', child: _Input(
-                controller: _years, hint: 'e.g. 3',
-                suffix: 'yr',
-                semanticLabel: 'CrossFit XP (yr)',
+              // v2.2: 'CrossFit XP (yr)' → '크로스핏 경력 (년)'.
+              // XP 는 이 앱에서 레벨 경험치를 뜻하는데 여기선 '경력 연차'라
+              // 같은 낱말이 두 뜻으로 쓰여 홈 화면의 XP 와 충돌했다.
+              _Row(label: '크로스핏 경력 (년)', child: _Input(
+                controller: _years, hint: '예: 3',
+                suffix: '년',
+                semanticLabel: '크로스핏 경력',
                 onChanged: (_) => setState(() {}),
               )),
               const Spacer(),
@@ -240,33 +246,38 @@ class _Input extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
-        TextInputFormatter.withFunction((oldValue, newValue) {
-          final dots = '.'.allMatches(newValue.text).length;
-          if (dots > 1) return oldValue;
-          return newValue;
-        }),
-      ],
-      decoration: InputDecoration(
-        // v1.15 P1-6: 접근성 — 스크린리더가 필드 용도 인식 가능.
-        labelText: semanticLabel,
-        hintText: hint,
-        suffixText: suffix.isEmpty ? null : suffix,
-        isDense: true,
-        enabledBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: FacingTokens.border),
-          borderRadius: BorderRadius.circular(FacingTokens.r2),
+    // v2.2 (H12): labelText 로 넣던 이름이 좌측 _Row 라벨과 **같은 말**이라
+    // 한 줄에 같은 단어가 두 번 나왔다. 화면에서는 좌측 라벨 하나만 두고,
+    // 스크린리더용 이름은 Semantics 로 옮긴다 (접근성 유지, 시각 중복 제거).
+    return Semantics(
+      label: semanticLabel,
+      textField: true,
+      child: TextField(
+        controller: controller,
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        inputFormatters: [
+          FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+          TextInputFormatter.withFunction((oldValue, newValue) {
+            final dots = '.'.allMatches(newValue.text).length;
+            if (dots > 1) return oldValue;
+            return newValue;
+          }),
+        ],
+        decoration: InputDecoration(
+          hintText: hint,
+          suffixText: suffix.isEmpty ? null : suffix,
+          isDense: true,
+          enabledBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: FacingTokens.border),
+            borderRadius: BorderRadius.circular(FacingTokens.r2),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: FacingTokens.primary, width: 2),
+            borderRadius: BorderRadius.circular(FacingTokens.r2),
+          ),
         ),
-        focusedBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: FacingTokens.fg),
-          borderRadius: BorderRadius.circular(FacingTokens.r2),
-        ),
+        onChanged: onChanged,
       ),
-      onChanged: onChanged,
     );
   }
 }

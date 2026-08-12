@@ -328,7 +328,7 @@ class _ClassCard extends StatelessWidget {
                 children: [
                   Text('$hh:$mm', style: FacingTokens.h3),
                   const SizedBox(height: 2),
-                  Text('${session.durationMinutes}min',
+                  Text('${session.durationMinutes}분',
                       style: FacingTokens.micro),
                 ],
               ),
@@ -366,7 +366,7 @@ class _ClassCard extends StatelessWidget {
                     ),
                   ),
                   if (session.waitlistCount > 0)
-                    Text('WL ${session.waitlistCount}',
+                    Text('대기 ${session.waitlistCount}',
                         style: FacingTokens.micro),
                 ],
               ),
@@ -408,7 +408,7 @@ class _ClassCard extends StatelessWidget {
                       backgroundColor: FacingTokens.accent,
                       foregroundColor: FacingTokens.onColor,
                     ),
-                    child: Text(isFull ? 'Join Waitlist' : 'Reserve'),
+                    child: Text(isFull ? '대기 신청' : '예약'),
                   ),
               ],
             ],
