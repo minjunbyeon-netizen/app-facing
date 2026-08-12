@@ -46,7 +46,8 @@
       "Bash(adb -s emulator-5554 shell input tap 301 421)",
       "Bash(adb -s emulator-5554 shell input tap 324 2253)",
       "Bash(adb -s emulator-5554 shell uiautomator dump /sdcard/e.xml)",
-      "Bash(adb -s emulator-5554 shell cat /sdcard/e.xml)"
+      "Bash(adb -s emulator-5554 shell cat /sdcard/e.xml)",
+      "mcp__playwright__browser_find"
     ]
   }
 }
