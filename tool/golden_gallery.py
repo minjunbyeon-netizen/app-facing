@@ -12,25 +12,25 @@ GOLDENS = ROOT / "test" / "golden" / "goldens"
 
 # (사이드패널 라벨, 섹션 제목, [(파일 stem, 캡션)])
 SECTIONS = [
-    ("공통", "공통 — 진입 · 인트로 · 로그인 (v1.29 한글 카피 + 로고 220 통일)", [
+    ("공통", "공통 — 진입 · 인트로 2p · 로그인", [
         ("common_01_splash", "스플래시 — HYPHEN 로고 · 자동 전환 대기"),
-        ("common_02_intro_board", "인트로① WOD 보드 — 오늘의 WOD."),
-        ("common_03_intro_earn", "인트로② 레벨·업적 — 기록이 레벨이 된다."),
-        ("common_05_signup", "소셜 로그인 — 네이버 아이디 · 구글"),
+        ("common_02_intro_board", "인트로① WOD 보드 — 코치가 올린 그날 훈련 + 박스 공지"),
+        ("common_03_intro_earn", "인트로② 레벨 · 업적 — 마지막 장, CTA '시작'"),
+        ("common_05_signup", "로그인 — 아이디 · 박스 가입 신청 · 가입 코드 (소셜은 키 대기로 숨김)"),
         ("common_06_claim", "가입 코드 입력 — PC 선등록 회원 연결 (이음새 1)"),
     ]),
     ("온보딩", "온보딩 — 가입 직후 한 화면 (성별 · 경력)", [
         ("onb_01_basic", "기본 정보 — 성별 · CrossFit 경력 (레벨 기준)"),
     ]),
-    ("회원 셸", "회원 셸 3탭 (v1.27 3기둥) — 승인된 회원 (HYPHEN CrossFit 서면)", [
-        ("member_01_shell_wod", "WOD 탭 (기본) — 코치 오늘 WOD 보드"),
-        ("member_02_shell_home", "Home 탭 — 레벨 · 업적 · Milestones"),
-        ("member_03_shell_profile", "Profile 탭 — Tier · 바디 · 설정"),
-        ("member_04_profile_menu", "Profile 하단 — 신체·설정·메뉴 접힘 (v1.31 아코디언)"),
-        ("member_05_profile_menu_open", "Profile 메뉴 펼침 — 표 1개 (계약~이용약관)"),
+    ("회원 셸", "회원 셸 3탭 — 홈 · WOD · 프로필 (승인된 회원 · HYPHEN CrossFit 서면)", [
+        ("member_01_shell_wod", "WOD 탭 (기본) — 그 주 월~일 아코디언 + 그날 수업 예약"),
+        ("member_02_shell_home", "홈 탭 — 레벨 · 업적 · 마일스톤"),
+        ("member_03_shell_profile", "프로필 탭 — 회원권 · 내 박스 · 신체 · 설정 (ENGINE 폐기)"),
+        ("member_04_profile_menu", "프로필 하단 — 아코디언 접힘 상태"),
+        ("member_05_profile_menu_open", "프로필 메뉴 펼침 — 계약~이용약관 (직원 계정 연결 폐기)"),
     ]),
-    ("사장", "사장 — 로그인 · 대시보드", [
-        ("boss_01_login", "사장 로그인 — PC 계정"),
+    ("코치", "코치 — 로그인 · 대시보드 · 명단", [
+        ("boss_01_login", "코치 로그인 — PC 와 같은 아이디"),
         ("boss_02_dashboard", "대시보드 — 오늘 예약·출석·만료 임박"),
         ("boss_03_class_roster", "수업 예약자 명단 — 카드 탭 시 (D29)"),
     ]),
@@ -108,8 +108,9 @@ HEAD = """<!doctype html>
 NOTE = ("골든 테스트(flutter test --update-goldens test/golden) 산출물 — 실제 앱 위젯을 "
         "가짜 백엔드(test/golden/fakes.dart)로 렌더한 실물 픽셀입니다 (갤S22 급 360×780·2x). "
         "데이터는 샘플입니다. UI 를 바꾸면 --update-goldens 재실행 후 이 갤러리를 다시 생성하세요. "
-        "v1.29 (2026-07-28): 카피 한글 기본 전환 + 로그인·로딩 화면 통일(BrandLogo 220·FkLoadingScreen) "
-        "— 양식 정본 docs/DESIGN-SSOT.md. v1.27 3기둥 집중(게이미피케이션·WOD 보드·프로필) 유지.")
+        "여기 실린 19장은 **지금 회원·코치가 실제로 도달할 수 있는 화면**만 남긴 것입니다 "
+        "(2026-08-13 · v2.6). 진입점이 사라진 화면은 갤러리에서 뺐습니다 — 페이싱 계산기, "
+        "Benchmarks·Tier 결과, 인트로 TIER 장. 양식 정본 docs/DESIGN-SSOT.md.")
 
 SCRIPT = """<script>
   const btns = document.querySelectorAll('aside nav button');
