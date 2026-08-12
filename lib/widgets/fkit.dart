@@ -165,6 +165,10 @@ class FkListRow extends StatelessWidget {
   final String? trailing;
   final Color? trailingColor;
 
+  /// 우측 슬롯을 위젯으로 — 출석 체크 배지처럼 값이 아니라 조작이 붙을 때.
+  /// [trailing] 과 동시 사용 금지 (둘 다 오른쪽 자리를 쓴다).
+  final Widget? trailingWidget;
+
   /// 행 하단 슬롯 — 진행바 등. 없으면 생략.
   final Widget? below;
   final VoidCallback? onTap;
@@ -177,9 +181,11 @@ class FkListRow extends StatelessWidget {
     this.subtitle,
     this.trailing,
     this.trailingColor,
+    this.trailingWidget,
     this.below,
     this.onTap,
-  });
+  }) : assert(trailing == null || trailingWidget == null,
+            'trailing 과 trailingWidget 은 같은 자리다 — 하나만 쓴다');
 
   @override
   Widget build(BuildContext context) {
@@ -230,6 +236,10 @@ class FkListRow extends StatelessWidget {
                     fontFeatures: FacingTokens.tabular,
                   ),
                 ),
+              ],
+              if (trailingWidget != null) ...[
+                const SizedBox(width: FacingTokens.sp3),
+                trailingWidget!,
               ],
             ],
           ),

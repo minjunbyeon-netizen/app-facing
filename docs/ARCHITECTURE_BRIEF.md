@@ -158,7 +158,7 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 | 역할 | 클라이언트 | 권한 |
 |---|---|---|
 | **회원** (member) | 폰 | 자기 WOD·페이싱·결과 제출·박스 공지 보기·코치에게 쪽지·배지·tier |
-| **코치** (coach) | **폰 + PC 양쪽 (D29)** | **사장과 동일** — 아래 D29 참조 |
+| **코치** (coach) | **폰 + PC 양쪽 (D29)** | **사장과 동일** (PII 는 이름만 평문 · 연락처 마스킹) — 아래 D29·D30·D31 참조 |
 | **사장** (boss) | **PC 주 + 폰 보조 (PHASE5)** | 회원 DB CRUD·회원권 발급/연장·락커·전자계약·통계 (게이미피케이션 X) |
 | **매니저** (manager) | **PC 주 + 폰 보조 (PHASE5)** | 사장 위임 운영권 (회원 운영·예약 응대·결제 확인) |
 
@@ -168,8 +168,7 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > - 구현 지점 1곳: `services/facing/api/admin.py` `BOSS_LEVEL_ROLES = ("boss", "coach")`
 >   — `require_boss` 를 쓰는 91곳(9파일)의 접근 주체를 이 상수가 정한다. 되돌리려면 `("boss",)`.
 > - `web/facing-admin` 은 nav·버튼의 coach 분기를 전면 제거 (`_layout.html`·`members.html`).
-> - **⚠ 미포함(의도적)**: `ROLE_SCOPES` 의 PII 마스킹은 그대로다. 코치는 여전히
->   phone·birth_date 등이 마스킹된다 — PIPA §29 최소권한 안전조치라 제품 권한과 축을 분리했다.
+> - **⚠ 미포함(의도적)**: `ROLE_SCOPES` 의 PII 마스킹은 그대로다 → **D30 에서 이름만 개방.**
 > - **manager 포함** (2026-08-12 후속). 코치만 올리면 manager < coach 역전이 생겨
 >   `BOSS_LEVEL_ROLES = ("boss", "manager", "coach")` 로 함께 정리했다.
 > - 클래스 CRUD 의 인라인 role 체크(`api/classes.py` `_STAFF_ROLES`)도 같이 열었다 —
@@ -179,7 +178,40 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > 락커·계약서·요금제·코치목록·회원목록·대시보드·알림설정·클래스목록 8종 전부 200,
 > 수업 생성(201)→수정(200)→명단(200)→취소(200) 4단계 통과. 타 박스 클래스는 403 유지
 > (테넌트 격리 정상). PII 마스킹 실동작 확인: 코치 `윤**`/`010-****-6612`,
-> 사장 `윤지원`/`010-3349-6612`.
+> 사장 `윤지원`/`010-3349-6612` (이름 부분은 D30 으로 변경됨).
+
+> **D30 (2026-08-12 사용자 결정) — 코치는 회원 '이름' 만 평문.**
+> D29 명단을 실기로 열어보니 `윤**` 로는 사람을 특정할 수 없어 명단 기능이 성립하지 않았다.
+> 전면 개방(`members_full`) 대신 **항목 단위**로 이름만 열어 PIPA §29 최소권한을 유지한다.
+>
+> - 구현: `api/admin.py` `ROLE_SCOPES` 의 coach 3종에 `members_name_full` 추가 +
+>   `_mask_pii()` 가 이름 마스킹만 이 토큰으로 건너뛴다. 되돌리려면 토큰 제거 1곳.
+> - **계속 마스킹**: phone·birth_date·email·address — 수업 운영에 불필요한 항목.
+> - 적용 범위는 명단만이 아니라 `_mask_pii` 를 타는 모든 회원 응답 (정책 1벌 원칙).
+> - 검증: 코치 `김도윤`/`010-****-7782`, 사장 `김도윤`/`010-2341-7782`.
+
+> **D31 (2026-08-12) — 명단에서 출석 체크 + 대기 순번 정정.**
+>
+> - **대기 순번**: `class_waitlist_promotions.promoted_position` 은 "줄 설 때" 번호라
+>   앞사람이 승격·이탈해도 안 줄어든다 (실측: 대기 1명인데 화면엔 `대기 4`).
+>   표시용 순번은 `api/classes.py _current_waitlist_position()` 으로 **매 조회마다 다시 센다**.
+>   적용 3곳: 관리자 명단 · 회원 클래스 목록(`my_waitlist_position`) · 회원 예약 목록.
+>   저장 컬럼은 이력용으로 보존하고 명단 응답에 `original_position` 으로 함께 내려준다.
+> - **출석 체크**: `PATCH /api/v1/admin/reservations/<id>/status`
+>   `{status: confirmed|attended|no_show}`. `cancelled` 는 의도적으로 거부 —
+>   예약 취소는 회원 DELETE / 클래스 전체 취소 경로에만 있어야 이력이 남는다.
+>   스태프(`_STAFF_ROLES`) 전용 · 박스 일치 검사 · `AuditLog(class.reservation_status)` 기록.
+> - **gym_attendances 동기화**: '출석' 시 그날 출석행이 없으면 `source='manual'` 1건 생성
+>   (통계가 `distinct(member_id)` 라 QR 과 겹쳐도 중복 집계 없음). 되돌릴 때는
+>   **같은 날 다른 수업에 출석 표시가 하나도 안 남았을 때만** manual 행을 지우고,
+>   `source='qr'` 행은 실제 출입 기록이라 어떤 경우에도 건드리지 않는다.
+> - UI: 앱 `class_roster_sheet.dart` 행 우측 [출석][노쇼] FkBadge 토글(같은 배지 재탭 = 확정
+>   되돌리기) + 상단 '출석' 카운터, 시트를 바꾼 채 닫으면 대시보드 재조회.
+>   웹 `classes.html` 상세 모달 명단에 같은 규칙의 버튼 2개.
+>   대기자·고아(탈퇴 회원) 행에는 버튼을 붙이지 않는다.
+> - 검증 (로컬, 계정 coach_park·boss_seongsu·admin): 상태 왕복 4단계 `synced`
+>   created→None→removed 기대대로, 같은 회원 하루 2수업 분기에서 첫 수업만 되돌렸을 때
+>   출석행 유지 확인, 잘못된 status 3종 400, 타 박스 스태프 403.
 
 - **사장은 운영자**, PHASE5 부터는 **외출·이동 중 폰 보조 운영 가능** (linko 격차 해소 — `docs/PHASE5_ROADMAP.md` 참조). PC 가 주, 폰이 보조. **폰 사장 로그인 = PC 동일 ID/PW** 사용. 회원·코치는 device_hash 익명 유지.
 - 한 사람이 두 역할 가질 수 있어요 (예: 박지훈 = 사장 + 코치). DB 상으로는 `gym_managers` 에 두 행 (또는 role 컬럼 set 형).

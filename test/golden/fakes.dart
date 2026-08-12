@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 
 import 'package:facing_app/core/api_client.dart';
 import 'package:facing_app/core/connectivity_state.dart';
@@ -610,8 +610,10 @@ const pacingPlanFran = {
 };
 
 /// /api/v1/admin/classes/101/reservations — D29 수업별 예약자 명단.
-/// 코치 세션 가정이라 이름·전화가 이미 마스킹된 값 (마스킹 SSOT = 백엔드 _mask_pii).
+/// 코치 세션 가정 — D30 이후 이름은 평문, 전화만 마스킹된 값이 온다
+/// (마스킹 SSOT = 백엔드 _mask_pii · scope members_name_full).
 /// 고아 예약(회원 행 삭제 + 예약 잔존) 1건 포함 — 실DB 에 존재하는 상태다.
+/// 대기 position 은 저장값이 아니라 백엔드가 매번 다시 센 현재 순번 (D31).
 Map<String, dynamic> classRoster() => {
       'class_session_id': 101,
       'title': 'WOD Class',
@@ -626,7 +628,7 @@ Map<String, dynamic> classRoster() => {
           'kind': 'reservation',
           'reservation_id': 1,
           'member_id': 11,
-          'name': '김**',
+          'name': '김도윤',
           'phone': '010-****-1234',
           'status': 'confirmed',
           'orphan': false,
@@ -637,7 +639,7 @@ Map<String, dynamic> classRoster() => {
           'kind': 'reservation',
           'reservation_id': 2,
           'member_id': 12,
-          'name': '정**',
+          'name': '정하은',
           'phone': '010-****-5678',
           'status': 'attended',
           'orphan': false,
@@ -648,7 +650,7 @@ Map<String, dynamic> classRoster() => {
           'kind': 'reservation',
           'reservation_id': 3,
           'member_id': 13,
-          'name': '강**',
+          'name': '강민석',
           'phone': '010-****-9012',
           'status': 'no_show',
           'orphan': false,
@@ -670,7 +672,7 @@ Map<String, dynamic> classRoster() => {
           'kind': 'waitlist',
           'waitlist_id': 7,
           'member_id': 14,
-          'name': '한**',
+          'name': '한서연',
           'phone': '010-****-3456',
           'status': 'waitlisted',
           'orphan': false,
@@ -681,7 +683,7 @@ Map<String, dynamic> classRoster() => {
           'kind': 'waitlist',
           'waitlist_id': 8,
           'member_id': 15,
-          'name': '최**',
+          'name': '최지우',
           'phone': '010-****-7890',
           'status': 'waitlisted',
           'orphan': false,

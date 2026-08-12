@@ -75,7 +75,7 @@ class _BossDashboardScreenState extends State<BossDashboardScreen> {
               : RefreshIndicator(
                   onRefresh: _load,
                   color: FacingTokens.primary,
-                  child: _Body(data: _data!),
+                  child: _Body(data: _data!, onRefresh: _load),
                 ),
       bottomNavigationBar: _BottomNav(),
     );
@@ -123,7 +123,10 @@ class _BossDashboardScreenState extends State<BossDashboardScreen> {
 
 class _Body extends StatelessWidget {
   final DashboardData data;
-  const _Body({required this.data});
+
+  /// 대시보드 재조회 — 명단에서 출석을 찍고 나온 경우에만 불린다 (D31).
+  final Future<void> Function()? onRefresh;
+  const _Body({required this.data, this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
@@ -177,7 +180,9 @@ class _Body extends StatelessWidget {
         if (data.todayClasses.isEmpty)
           _EmptyCard(message: '오늘 수업 없음.')
         else
-          ...data.todayClasses.map((c) => _ClassCard(cls: c)),
+          // onChanged: 명단에서 출석을 찍으면 위쪽 '오늘 출석' 숫자가 달라진다 (D31).
+          ...data.todayClasses.map(
+              (c) => _ClassCard(cls: c, onChanged: onRefresh)),
         const SizedBox(height: FacingTokens.sp5),
 
         // ─── 만료 임박 ────────────────────────────────────────────────
@@ -251,7 +256,10 @@ class _PrimaryCtaButton extends StatelessWidget {
 
 class _ClassCard extends StatelessWidget {
   final TodayClass cls;
-  const _ClassCard({required this.cls});
+
+  /// 명단에서 출석을 바꾼 채 시트가 닫혔을 때 — 대시보드 재조회.
+  final VoidCallback? onChanged;
+  const _ClassCard({required this.cls, this.onChanged});
 
   // D29 (2026-08-12): 카드 탭 → 예약자 명단 시트. 그동안 예약 "수"만 보이고
   // "누가" 를 볼 곳이 없었다 — 코치 핵심 동선이라 여기서 한 번 탭으로 연다.
@@ -259,7 +267,7 @@ class _ClassCard extends StatelessWidget {
   Widget build(BuildContext context) => InkWell(
         onTap: () {
           Haptic.light();
-          showClassRosterSheet(context, cls.id);
+          showClassRosterSheet(context, cls.id, onChanged: onChanged);
         },
         child: Container(
           margin: const EdgeInsets.only(bottom: FacingTokens.sp2),

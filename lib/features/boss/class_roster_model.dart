@@ -2,7 +2,7 @@
 /// GET /api/v1/admin/classes/{class_id}/reservations
 ///
 /// PII 는 백엔드 `_viewer_scope()` + `_mask_pii()` 가 role 별로 처리해서 내려준다.
-/// 코치 세션이면 name='윤**', phone='010-****-6612' 형태로 이미 마스킹된 값이 온다 —
+/// 코치 세션이면 이름은 평문, 전화는 '010-****-6612' 로 마스킹돼서 온다 (D30) —
 /// 앱에서 추가 가공하지 않는다 (마스킹 정책 SSOT = 백엔드).
 library;
 
@@ -13,13 +13,17 @@ class RosterEntry {
   final String name;
   final String? phone;
 
+  /// 예약 행 id — 출석 체크(PATCH)의 대상. kind='waitlist' 면 null.
+  final int? reservationId;
+
   /// confirmed | attended | no_show | waitlisted
   final String status;
 
   /// 회원 행이 지워졌는데 예약만 남은 고아 (name='탈퇴 회원').
   final bool orphan;
 
-  /// 대기 순번 (kind='waitlist' 일 때만).
+  /// 대기 **현재** 순번 (kind='waitlist' 일 때만).
+  /// 백엔드가 매 조회마다 다시 센 값 — 앞사람이 빠지면 줄어든다 (D31).
   final int? position;
 
   /// 대기열에서 승격된 예약인지.
@@ -32,17 +36,34 @@ class RosterEntry {
     required this.status,
     required this.orphan,
     this.phone,
+    this.reservationId,
     this.position,
     this.promotedFromWaitlist = false,
   });
 
   bool get isWaitlist => kind == 'waitlist';
 
+  /// 출석 체크 가능 여부 — 대기자·고아(회원 행 없음)는 찍을 대상이 아니다.
+  bool get markable => !isWaitlist && !orphan && reservationId != null;
+
+  RosterEntry withStatus(String next) => RosterEntry(
+        kind: kind,
+        memberId: memberId,
+        name: name,
+        status: next,
+        orphan: orphan,
+        phone: phone,
+        reservationId: reservationId,
+        position: position,
+        promotedFromWaitlist: promotedFromWaitlist,
+      );
+
   factory RosterEntry.fromJson(Map<String, dynamic> j) => RosterEntry(
         kind: j['kind']?.toString() ?? 'reservation',
         memberId: (j['member_id'] as num?)?.toInt() ?? 0,
         name: j['name']?.toString() ?? '이름 미등록',
         phone: j['phone']?.toString(),
+        reservationId: (j['reservation_id'] as num?)?.toInt(),
         status: j['status']?.toString() ?? 'confirmed',
         orphan: j['orphan'] == true,
         position: (j['position'] as num?)?.toInt(),
