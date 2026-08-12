@@ -353,33 +353,37 @@ class _WodRowState extends State<WodRow> {
                       ),
                     ),
                   ),
-                const SizedBox(height: FacingTokens.sp2),
                 // v2.2 액션 위계 — 주 동작만 채움 버튼, 나머지는 글자 버튼.
                 // v2.4: 두 줄(채움 + 글자줄)이 100px 를 먹어 그 밑 수업이 화면
                 // 밖으로 밀렸다. 한 줄로 합쳐 주 동작은 그대로 채움으로 남긴다.
+                // v2.6 (2026-08-12 사용자 지시 "지금도 좀 커서 거북하다"):
+                // 세 동작을 전부 FkBadge 한 규격으로 내렸다 — 바로 아래 수업 줄의
+                // 예약·대기 배지와 같은 크기다. 주 동작(완료 표시)만 면 채움으로
+                // 남겨 위계는 유지하고, 손가락 영역 48 은 FkBadge 가 내부에서
+                // 확보하므로 터치 기준은 그대로다 (DESIGN-SSOT §3).
                 Row(
                   children: [
-                    // v2.5: 가로 꽉 채운 채움 버튼이 한 줄을 통째로 먹었다.
-                    // 글자 폭만 차지하는 컴팩트 버튼으로 (사용자 지시).
-                    FkButton.primary(
+                    FkBadge(
                       '완료 표시',
-                      icon: Icons.check,
-                      expand: false,
-                      onPressed: () => _openResultSheet(context),
+                      color: FacingTokens.primary,
+                      selected: true,
+                      onTap: () => _openResultSheet(context),
                     ),
                     const Spacer(),
                     // 회원 전용: 코치에게 메시지 (owner는 숨김)
-                    if (!context.watch<GymState>().isOwner)
-                      FkButton.tertiary(
+                    if (!context.watch<GymState>().isOwner) ...[
+                      FkBadge(
                         '메시지',
-                        neutral: true,
-                        onPressed: () => _openMsgSheet(context),
+                        color: FacingTokens.fgSecondary,
+                        onTap: () => _openMsgSheet(context),
                       ),
+                      const SizedBox(width: FacingTokens.sp2),
+                    ],
                     // v1.29 한글 기본 — 'Detail' 은 도메인 고정어가 아니다.
-                    FkButton.tertiary(
+                    FkBadge(
                       '자세히',
-                      neutral: true,
-                      onPressed: () => _openDetail(context),
+                      color: FacingTokens.fgSecondary,
+                      onTap: () => _openDetail(context),
                     ),
                   ],
                 ),

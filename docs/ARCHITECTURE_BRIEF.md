@@ -318,6 +318,21 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > - D25 의 "WOD 탭 = 코치 오늘 WOD" 는 유지 — 오늘이 기본으로 열린 날일 뿐,
 >   책임이 바뀐 것은 아니다.
 
+> **D34 (2026-08-12 사용자 지시) — 회원 프로필에서 ENGINE 섹션 내림.**
+> "engine 은 우리가 쓸 데 없다" 는 지시. 3기둥(게이미피케이션·WOD 보드·프로필)
+> 집중(v1.27)의 연장선이다.
+>
+> - **화면에서만 제외, 코드는 보존** (CLAUDE.md "숨김 = 코드 보존"). Tier 배지 ·
+>   Engine 점수 · LV · 칭호 · 6 카테고리 칩 · 추세 delta · 약점 카드 일습은
+>   `lib/features/mypage/score_section.dart` 로 옮겨 두었다 (`ScoreSection`).
+>   되살리려면 `MyPageScreen` children 에 `ScoreSection()` 한 줄이면 된다.
+> - 같은 데이터를 쓰는 **온보딩 `/onboarding/grade` · 벤치마크 시트는 그대로 산다** —
+>   Engine 측정 자체를 없앤 결정이 아니다. 프로필에서 되비추던 자리만 없앴다.
+> - 백엔드 계약 변경 0건 (`overall_number`·`overall_score`·카테고리 응답 그대로).
+> - 함께 처리: WOD 행의 '완료 표시'를 FkBadge 로 내려 수업 줄의 예약·대기 배지와
+>   같은 크기로 통일 ("지금도 좀 커서 거북하다"). 터치 48 은 FkBadge 가 내부에서
+>   확보하므로 DESIGN-SSOT §3 터치 기준은 유지된다.
+
 - **사장은 운영자**, PHASE5 부터는 **외출·이동 중 폰 보조 운영 가능** (linko 격차 해소 — `docs/PHASE5_ROADMAP.md` 참조). PC 가 주, 폰이 보조. **폰 사장 로그인 = PC 동일 ID/PW** 사용. 회원·코치는 device_hash 익명 유지.
 - 한 사람이 두 역할 가질 수 있어요 (예: 박지훈 = 사장 + 코치). DB 상으로는 `gym_managers` 에 두 행 (또는 role 컬럼 set 형).
 - **PHASE5 추가 가정**: facing-app 진입 시 `user_type` 분기 — `device_hash` (회원·코치 익명) vs `login_id` (사장·매니저 ID/PW). 같은 앱 바이너리, 다른 진입 플로우.
