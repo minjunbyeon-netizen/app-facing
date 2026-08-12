@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
 import '../../core/haptic.dart';
+import '../../core/input_formatters.dart';
 import '../../core/theme.dart';
 import '../../core/tier.dart';
 import '../../widgets/fkit.dart';
@@ -96,7 +97,11 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
   }
 
   bool get _canContinue =>
-      _bandIndex != null && _nameCtrl.text.trim().isNotEmpty && !_saving;
+      _bandIndex != null &&
+      _nameCtrl.text.trim().isNotEmpty &&
+      // 안 적은 건 통과, 적었는데 없는 날짜면 막는다 (서버로 쓰레기 안 보냄).
+      birthDateError(_birthCtrl.text) == null &&
+      !_saving;
 
   Future<void> _onDone() async {
     final years = _kExpBands[_bandIndex!].years;
@@ -152,12 +157,17 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
               decoration: const InputDecoration(labelText: '이름'),
             ),
             const SizedBox(height: FacingTokens.sp3),
+            // v2.6: 숫자만 치면 하이픈이 알아서 들어간다. 8자리를 다 채우기
+            // 전에는 오류를 띄우지 않는다 (타이핑 도중 빨간 글씨는 방해다).
             TextField(
               controller: _birthCtrl,
-              keyboardType: TextInputType.datetime,
-              decoration: const InputDecoration(
+              keyboardType: TextInputType.number,
+              inputFormatters: [BirthDateInputFormatter()],
+              onChanged: (_) => setState(() {}),
+              decoration: InputDecoration(
                 labelText: '생년월일 (선택)',
                 hintText: '1995-01-01',
+                errorText: birthDateError(_birthCtrl.text),
               ),
             ),
             const SizedBox(height: FacingTokens.sp3),
