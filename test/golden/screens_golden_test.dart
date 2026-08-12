@@ -240,6 +240,29 @@ void main() {
     await capture(tester, 'boss_02_dashboard');
   });
 
+  // ── 수업 예약자 명단 시트 (D29) ──
+  testWidgets('boss: class roster sheet', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues({});
+    final api = FakeApi(memberWorld());
+    final bossApi = FakeBossApi({
+      '/api/v1/admin/gyms/1/dashboard': bossDashboard(),
+      '/api/v1/admin/classes/101/reservations': classRoster(),
+    });
+    await tester.pumpWidget(harness(
+        api: api,
+        auth: AuthState(),
+        profile: ProfileState(),
+        bossAuth: FakeBossAuth(),
+        bossApi: bossApi,
+        home: const BossDashboardScreen()));
+    await tester.pumpAndSettle();
+    // 오늘 수업 첫 카드(class 101) 탭 → 명단 시트.
+    await tester.tap(find.text('WOD Class').first);
+    await tester.pumpAndSettle();
+    await capture(tester, 'boss_03_class_roster');
+  });
+
   // ── 이력 (빈 상태) ──
   testWidgets('history: empty', (tester) async {
     phone(tester);

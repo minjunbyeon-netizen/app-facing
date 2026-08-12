@@ -7,6 +7,7 @@ import '../../core/theme.dart';
 import 'boss_api_client.dart';
 import 'boss_auth_state.dart';
 import 'boss_dashboard_model.dart';
+import 'class_roster_sheet.dart';
 
 // PHASE5 §1.2 — 사장 폰 Dashboard.
 // GET /api/v1/admin/gyms/{gym_id}/dashboard → 오늘 운영 데이터.
@@ -252,46 +253,57 @@ class _ClassCard extends StatelessWidget {
   final TodayClass cls;
   const _ClassCard({required this.cls});
 
+  // D29 (2026-08-12): 카드 탭 → 예약자 명단 시트. 그동안 예약 "수"만 보이고
+  // "누가" 를 볼 곳이 없었다 — 코치 핵심 동선이라 여기서 한 번 탭으로 연다.
   @override
-  Widget build(BuildContext context) => Container(
-        margin: const EdgeInsets.only(bottom: FacingTokens.sp2),
-        padding: const EdgeInsets.all(FacingTokens.sp3),
-        decoration: BoxDecoration(
-          color: FacingTokens.surface,
-          border: Border.all(color: FacingTokens.border),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+  Widget build(BuildContext context) => InkWell(
+        onTap: () {
+          Haptic.light();
+          showClassRosterSheet(context, cls.id);
+        },
+        child: Container(
+          margin: const EdgeInsets.only(bottom: FacingTokens.sp2),
+          padding: const EdgeInsets.all(FacingTokens.sp3),
+          decoration: BoxDecoration(
+            color: FacingTokens.surface,
+            border: Border.all(color: FacingTokens.border),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(cls.title, style: FacingTokens.lead.copyWith(
+                        color: FacingTokens.fg, fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${cls.startAt} – ${cls.endAt}'
+                      '${cls.coaches.isNotEmpty ? '  ·  ${cls.coaches.join(", ")}' : ''}',
+                      style: FacingTokens.caption,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: FacingTokens.sp3),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(cls.title, style: FacingTokens.lead.copyWith(
-                      color: FacingTokens.fg, fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 4),
                   Text(
-                    '${cls.startAt} – ${cls.endAt}'
-                    '${cls.coaches.isNotEmpty ? '  ·  ${cls.coaches.join(", ")}' : ''}',
-                    style: FacingTokens.caption,
+                    cls.reserved.toString(),
+                    style: FacingTokens.h2.copyWith(color: FacingTokens.fg),
+                  ),
+                  Text(
+                    cls.capacity != null ? '/ ${cls.capacity}명' : '명',
+                    style: FacingTokens.micro,
                   ),
                 ],
               ),
-            ),
-            const SizedBox(width: FacingTokens.sp3),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  cls.reserved.toString(),
-                  style: FacingTokens.h2.copyWith(color: FacingTokens.fg),
-                ),
-                Text(
-                  cls.capacity != null ? '/ ${cls.capacity}명' : '명',
-                  style: FacingTokens.micro,
-                ),
-              ],
-            ),
-          ],
+              const SizedBox(width: FacingTokens.sp1),
+              const Icon(Icons.chevron_right,
+                  size: 18, color: FacingTokens.mutedStrong),
+            ],
+          ),
         ),
       );
 }

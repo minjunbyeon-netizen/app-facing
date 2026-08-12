@@ -609,6 +609,88 @@ const pacingPlanFran = {
   ],
 };
 
+/// /api/v1/admin/classes/101/reservations — D29 수업별 예약자 명단.
+/// 코치 세션 가정이라 이름·전화가 이미 마스킹된 값 (마스킹 SSOT = 백엔드 _mask_pii).
+/// 고아 예약(회원 행 삭제 + 예약 잔존) 1건 포함 — 실DB 에 존재하는 상태다.
+Map<String, dynamic> classRoster() => {
+      'class_session_id': 101,
+      'title': 'WOD Class',
+      'start_at': '2026-08-12T19:00:00',
+      'room': 'Main Floor',
+      'coach_user_id': 'coach_park',
+      'capacity': 12,
+      'confirmed_count': 4,
+      'waitlist_count': 2,
+      'items': [
+        {
+          'kind': 'reservation',
+          'reservation_id': 1,
+          'member_id': 11,
+          'name': '김**',
+          'phone': '010-****-1234',
+          'status': 'confirmed',
+          'orphan': false,
+          'promoted_from_waitlist': false,
+          'reserved_at': '2026-08-11T09:12:00',
+        },
+        {
+          'kind': 'reservation',
+          'reservation_id': 2,
+          'member_id': 12,
+          'name': '정**',
+          'phone': '010-****-5678',
+          'status': 'attended',
+          'orphan': false,
+          'promoted_from_waitlist': false,
+          'reserved_at': '2026-08-11T10:30:00',
+        },
+        {
+          'kind': 'reservation',
+          'reservation_id': 3,
+          'member_id': 13,
+          'name': '강**',
+          'phone': '010-****-9012',
+          'status': 'no_show',
+          'orphan': false,
+          'promoted_from_waitlist': true,
+          'reserved_at': '2026-08-11T18:05:00',
+        },
+        {
+          'kind': 'reservation',
+          'reservation_id': 4,
+          'member_id': 99,
+          'name': '탈퇴 회원',
+          'phone': null,
+          'status': 'confirmed',
+          'orphan': true,
+          'promoted_from_waitlist': false,
+          'reserved_at': '2026-08-10T21:40:00',
+        },
+        {
+          'kind': 'waitlist',
+          'waitlist_id': 7,
+          'member_id': 14,
+          'name': '한**',
+          'phone': '010-****-3456',
+          'status': 'waitlisted',
+          'orphan': false,
+          'position': 1,
+          'waitlisted_at': '2026-08-12T08:00:00',
+        },
+        {
+          'kind': 'waitlist',
+          'waitlist_id': 8,
+          'member_id': 15,
+          'name': '최**',
+          'phone': '010-****-7890',
+          'status': 'waitlisted',
+          'orphan': false,
+          'position': 2,
+          'waitlisted_at': '2026-08-12T08:20:00',
+        },
+      ],
+    };
+
 /// /api/v1/admin/gyms/1/dashboard — 사장 대시보드 (오늘 운영, 실행 시점 상대 날짜).
 Map<String, dynamic> bossDashboard() {
   final now = DateTime.now();

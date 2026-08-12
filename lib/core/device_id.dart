@@ -28,15 +28,20 @@ class DeviceIdService {
     }
   }
 
-  /// v1.19 차수 5+ (트랙 A): 디버그용 페르소나 강제 주입.
-  /// SharedPreferences device_id 덮어쓰기 + 메모리 캐시 갱신.
-  /// 주의: kDebugMode 환경에서만 호출할 것 (Production guard 는 호출자 책임).
-  static Future<void> overrideForDebug(String newDeviceId) async {
+  /// 서버가 확정한 회원 device_id 를 이 기기의 신원으로 채택한다.
+  ///
+  /// 아이디·비밀번호 로그인(`/api/v1/auth/member-login`)이 내려준 값을 저장하면
+  /// 폰을 바꾸거나 앱을 다시 설치해도 같은 회원의 기록으로 이어진다.
+  static Future<void> adopt(String deviceId) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_key, newDeviceId);
-    _cached = newDeviceId;
+    await prefs.setString(_key, deviceId);
+    _cached = deviceId;
     _inFlight = null;
   }
+
+  /// v1.19 차수 5+ (트랙 A): 디버그용 페르소나 강제 주입.
+  /// 동작은 [adopt] 와 같다 — 호출 의도 구분을 위해 이름만 유지.
+  static Future<void> overrideForDebug(String newDeviceId) => adopt(newDeviceId);
 
   /// 캐시된 device_id (없으면 null). 동기 조회 — 로딩 후 사용.
   static String? get cached => _cached;
