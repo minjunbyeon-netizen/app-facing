@@ -171,9 +171,12 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
               ),
             ),
             const SizedBox(height: FacingTokens.sp3),
+            // v2.6: 생년월일과 같은 이유로 하이픈을 자동으로 넣는다 —
+            // 코치 명단의 번호 표기를 한 가지로 고정한다.
             TextField(
               controller: _phoneCtrl,
               keyboardType: TextInputType.phone,
+              inputFormatters: [PhoneInputFormatter()],
               decoration: const InputDecoration(
                 labelText: '전화 (선택)',
                 hintText: '010-0000-0000',

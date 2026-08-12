@@ -40,7 +40,6 @@ import 'features/auth/staff_link_screen.dart';
 import 'features/signup/claim_code_screen.dart';
 import 'features/signup/self_signup_screen.dart';
 import 'features/gym/gym_repository.dart';
-import 'features/gym/gym_search_screen.dart';
 import 'features/gym/gym_state.dart';
 import 'features/announcements/announcements_state.dart';
 import 'features/inbox/inbox_repository.dart';
@@ -206,7 +205,11 @@ class FacingApp extends StatelessWidget {
           // 박스 개설은 웹 admin 경로로만 운영 (무분별 박스 생성 방지).
           // 재활성 시 이 라우트 + CreateGymScreen import 복구.
           // '/onboarding/create-gym': (_) => const CreateGymScreen(),
-          '/onboarding/find-gym': (_) => const GymSearchScreen(),
+          // v2.6 (2026-08-13 사용자 지시): 1인 샵 전용이라 '박스 찾기'도 폐기.
+          // 버튼은 이미 없앴지만 라우트가 살아 있으면 딥링크로 열린다.
+          // 재활성 시 이 라우트 + GymSearchScreen import 복구
+          // (화면 파일 features/gym/gym_search_screen.dart 는 보존 — "숨김 = 코드 보존").
+          // '/onboarding/find-gym': (_) => const GymSearchScreen(),
           // PHASE5 Sprint1 F4 — 신규 회원 박스 선택 + 자동 가입 신청
           '/signup/self': (_) => const SelfSignupScreen(),
           // 이음새 1 — PC 선등록 회원 가입 코드 연결 (backend api/claim.py)

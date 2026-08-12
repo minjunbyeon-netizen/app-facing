@@ -262,17 +262,20 @@ List<Map<String, dynamic>> memberAttendances() {
   ];
 }
 
-/// 오늘 안에서 [minutes] 뒤 시각 — 자정을 넘기면 23:5x 로 눌러 오늘에 붙든다.
-/// 캡처 시각이 언제든 "아직 안 지난 오늘 수업"이 있어야 예약 버튼이 골든에 남는다
-/// (v2.4 — 고정 19:00 이면 밤에 캡처할 때 전부 '종료' 로 찍혔다).
-String _todayLater(DateTime now, int minutes) {
-  final endOfDay = DateTime(now.year, now.month, now.day, 23, 50);
-  var t = now.add(Duration(minutes: minutes));
-  if (t.isAfter(endOfDay)) t = endOfDay;
-  final hh = t.hour.toString().padLeft(2, '0');
-  final mm = ((t.minute ~/ 10) * 10).toString().padLeft(2, '0');
-  return '${_ymd(now)}T$hh:$mm:00';
-}
+/// 오늘 [hour] 시 정각.
+///
+/// v2.6 (2026-08-13): 구 `_todayLater(now, minutes)` 폐기 — "지금부터 N분 뒤"를
+/// 10분 단위로 깎아 쓰다 보니 **화면에 찍히는 시각이 10분마다 바뀌어**
+/// `member_01_shell_wod` · `state_01_wod_error` 골든이 계속 깨졌다 (회귀 게이트가
+/// 아니라 시계를 검사하고 있었다). 시각을 고정하면 라벨이 결정론적이 된다.
+///
+/// 저녁 시간대를 쓰는 이유는 v2.4 때와 같다 — 캡처 시점이 대개 그 전이라
+/// "아직 안 지난 오늘 수업"으로 남아 예약 버튼이 골든에 찍힌다.
+/// (남은 흔들림: **날짜**는 여전히 실행 시점이라 날이 바뀌면 주간 보드가 통째로
+/// 달라진다. 없애려면 앱 코드의 `DateTime.now()` 47곳을 `package:clock` 으로
+/// 갈아야 해서 별건으로 둔다.)
+String _todayAt(DateTime now, int hour) =>
+    '${_ymd(now)}T${hour.toString().padLeft(2, '0')}:00:00';
 
 /// /api/v1/member/classes — 오늘 남은 시간대 2 + 내일 아침 1 (마감 1 포함).
 List<Map<String, dynamic>> memberClasses() {
@@ -282,7 +285,7 @@ List<Map<String, dynamic>> memberClasses() {
     {
       'id': 101,
       'gym_id': 1,
-      'start_at': _todayLater(now, 60),
+      'start_at': _todayAt(now, 20),
       'duration_minutes': 60,
       'title': 'WOD Class',
       'description': '오늘의 WOD · 스케일 옵션 제공',
@@ -299,7 +302,7 @@ List<Map<String, dynamic>> memberClasses() {
     {
       'id': 102,
       'gym_id': 1,
-      'start_at': _todayLater(now, 120),
+      'start_at': _todayAt(now, 21),
       'duration_minutes': 60,
       'title': 'Olympic Lifting',
       'description': 'Snatch 테크닉 · 소그룹',
