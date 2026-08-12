@@ -186,21 +186,10 @@ class _SignupScreenState extends State<SignupScreen> {
                   // 통하지 않았다. 실제 동작(박스를 골라 등록을 신청)을 라벨에 넣는다.
                   child: const Text('박스 가입 신청'),
                 ),
-                const SizedBox(height: FacingTokens.sp3),
-                // 이음새 1 — PC 선등록 회원의 가입 코드 연결 진입점.
-                // v1.33: 작은 텍스트 링크 → 보조 버튼으로 승격 (소셜 내린 자리).
-                OutlinedButton(
-                  onPressed: _busy
-                      ? null
-                      : () {
-                          Haptic.light();
-                          Navigator.of(context).pushNamed('/signup/claim');
-                        },
-                  // v2.3: '연결' 이 무엇과 무엇을 잇는지 불명확했다. 실제로는
-                  // 박스에서 받은 6자리 코드를 넣는 화면이라 그 화면 제목
-                  // ('가입 코드 입력') 과 표기를 맞춘다 (§0-B 이름 일원화).
-                  child: const Text('가입 코드 입력'),
-                ),
+                // v2.7 (2026-08-13 사용자 지시) — '가입 코드 입력' 삭제.
+                // 코드로 기기를 잇는 길과 신청서로 들어오는 길이 갈려 있어서,
+                // 코드로 들어온 회원은 아이디·비밀번호를 만들 자리가 없었다.
+                // 가입은 위 '박스 가입 신청' 하나로만 한다.
 
                 const SizedBox(height: FacingTokens.sp3),
                 // P0-1 (2026-06-10): placeholder 다이얼로그 → 본문 화면으로 교체.

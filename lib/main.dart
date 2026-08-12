@@ -37,7 +37,6 @@ import 'features/auth/auth_state.dart';
 import 'features/auth/member_login_screen.dart';
 import 'features/auth/signup_screen.dart';
 import 'features/auth/staff_link_screen.dart';
-import 'features/signup/claim_code_screen.dart';
 import 'features/signup/self_signup_screen.dart';
 import 'features/gym/gym_repository.dart';
 import 'features/gym/gym_state.dart';
@@ -212,8 +211,6 @@ class FacingApp extends StatelessWidget {
           // '/onboarding/find-gym': (_) => const GymSearchScreen(),
           // PHASE5 Sprint1 F4 — 신규 회원 박스 선택 + 자동 가입 신청
           '/signup/self': (_) => const SelfSignupScreen(),
-          // 이음새 1 — PC 선등록 회원 가입 코드 연결 (backend api/claim.py)
-          '/signup/claim': (_) => const ClaimCodeScreen(),
           // 회원 아이디·비밀번호 로그인 (backend api/member_auth.py)
           '/login/member': (_) => const MemberLoginScreen(),
           '/home': (_) => const HomeScreen(),
