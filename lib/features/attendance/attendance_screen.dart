@@ -59,7 +59,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
 }
 
 /// 월별 출석 미니 캘린더 + 1줄 통계 (STREAK · TOTAL · THIS MONTH).
-/// 데이터 소스: /api/v1/member/attendances — 진짜 QR 체크인(gym_attendances).
+/// 데이터 소스: /api/v1/member/attendances — 진짜 출석 기록(gym_attendances).
 /// v1.25 (2026-06-09): 개인 페이싱 계산 기록(/history/wod)을 출석으로 칠하던
 /// 버그 수정. 이제 실제 출석 데이터만 반영. 체크인 있는 날은 accent 강도색.
 class _AttendanceCalendar extends StatefulWidget {

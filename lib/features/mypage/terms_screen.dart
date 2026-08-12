@@ -61,7 +61,7 @@ class TermsScreen extends StatelessWidget {
 
             Text('6. 금지행위', style: FacingTokens.sectionLabel),
             SizedBox(height: FacingTokens.sp2),
-            _Bullet('타인 계정·QR 코드 도용 (대리 출석 포함)'),
+            _Bullet('타인 계정 도용 (대리 출석 포함)'),
             _Bullet('서비스의 비정상적 이용 (자동화 도구, 취약점 악용)'),
             _Bullet('다른 이용자·운영자에 대한 욕설·괴롭힘 (쪽지·댓글 포함)'),
             SizedBox(height: FacingTokens.sp4),

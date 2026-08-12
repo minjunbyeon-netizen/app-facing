@@ -28,7 +28,7 @@ class PrivacyScreen extends StatelessWidget {
             const _Bullet('이름·전화번호 — 박스 가입 신청 시 입력 (서버 DB, 박스 운영자에게 제공)'),
             const _Bullet('소셜 로그인: 네이버·구글 계정 식별자·표시명 (서버 DB)'),
             const _Bullet('전자계약: 계약 내용·서명 이미지·서명 일시·IP (서버 DB)'),
-            const _Bullet('QR 출석 기록: 체크인 일시·박스 (서버 DB)'),
+            const _Bullet('출석 기록: 출석 일시·박스 — 코치가 수업 명단에서 기록 (서버 DB)'),
             const _Bullet('profile: 체중·키·나이·성별·1RM·벤치마크 (로컬·서버 DB)'),
             const _Bullet('gradeResult: Tier·6 카테고리 점수 (로컬·서버 DB)'),
             const _Bullet('WOD history: 계산 기록·일시 (서버 DB)'),
@@ -38,7 +38,7 @@ class PrivacyScreen extends StatelessWidget {
             const Text('수집하지 않는 것', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp2),
             const _Bullet('위치 정보 · 연락처 · 마이크'),
-            const _Bullet('카메라 — 앱 권한 없음. QR 스캔은 기기 기본 카메라 사용'),
+            const _Bullet('카메라 — 앱 권한 없음. 수집하지 않습니다'),
             const _Bullet('소셜 계정의 친구목록·메시지 (프로필 식별자만 수신)'),
             const SizedBox(height: FacingTokens.sp4),
 

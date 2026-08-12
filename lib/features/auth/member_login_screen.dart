@@ -86,11 +86,9 @@ class _MemberLoginScreenState extends State<MemberLoginScreen> {
       Haptic.heavy();
       // 박스 승인 회원은 곧장 홈으로. 온보딩(7단계)은 페이싱 등급 산정용이라
       // 쪽지·와드·수업 예약과는 무관하다 — 로그인 직후 붙잡아 두지 않는다.
-      final approved = data['status']?.toString() == 'approved';
-      navigator.pushNamedAndRemoveUntil(
-        (approved || profile.hasGrade) ? '/shell' : '/onboarding/basic',
-        (_) => false,
-      );
+      // v2.3: 등급(Tier) 유무로 온보딩에 붙잡던 분기 제거 — 성별·경력은 가입
+      // 직후 한 번만 묻는다. 로그인한 사람은 승인 여부와 무관하게 홈으로.
+      navigator.pushNamedAndRemoveUntil('/shell', (_) => false);
     } on AppException catch (e) {
       setState(() => _error = e.messageKo);
     } catch (_) {
@@ -192,20 +190,9 @@ class _MemberLoginScreenState extends State<MemberLoginScreen> {
                     ? const FkLoading()
                     : ElevatedButton(
                         onPressed: _login, child: const Text('로그인')),
-                const SizedBox(height: FacingTokens.sp3),
-                Center(
-                  child: TextButton(
-                    onPressed: _busy
-                        ? null
-                        : () => Navigator.of(context).pushNamed('/boss/login'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: FacingTokens.fgSecondary,
-                      minimumSize: const Size(0, FacingTokens.touchMin),
-                    ),
-                    child: Text('코치·사장이신가요?',
-                        style: FacingTokens.caption),
-                  ),
-                ),
+                // v2.3 (2026-08-12 사용자 지시): 회원 화면에서 코치·사장 진입
+                // 줄을 내렸다 (로그인 첫 화면과 같은 처리). /boss/login 라우트는
+                // 그대로 살아 있다 — 필요해지면 이 자리에 다시 놓으면 된다.
               ],
             ),
           ),

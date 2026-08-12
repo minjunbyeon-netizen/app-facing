@@ -37,7 +37,7 @@ class GymRepository {
     return (data['status'] ?? 'pending').toString();
   }
 
-  /// 회원 실제 QR 출석을 일자별로 조회 (gym_attendances 기반).
+  /// 회원 실제 출석을 일자별로 조회 (gym_attendances 기반).
   /// 개인 페이싱 계산 기록(/history/wod)이 아닌 진짜 체크인. v1.25 (2026-06-09).
   /// 반환: 날짜(local 자정) → 그 날 체크인 횟수.
   Future<Map<DateTime, int>> listMyAttendances() async {

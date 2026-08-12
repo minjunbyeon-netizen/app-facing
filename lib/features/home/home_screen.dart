@@ -44,7 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
   /// Streak Freeze 통합 — 마지막 사용일을 _currentStreak 계산 시 활용.
   DateTime? _freezeUse;
 
-  /// QA 2026-06-11: 실제 QR 출석일 집합 (Attend 탭과 동일 소스 —
+  /// QA 2026-06-11: 실제 출석일 집합 (Attend 탭과 동일 소스 —
   /// GymRepository.listMyAttendances). null = 로드 실패·미가입 →
   /// Attendance milestone 숨김. WOD 계산 기록(_future)과 별개.
   Set<DateTime>? _attendDays;
@@ -78,7 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
       if (!mounted) return;
       setState(() => _freezeUse = dt);
     });
-    // Attend 탭과 동일 소스의 실제 QR 출석 — 실패·미가입이면 milestone 숨김.
+    // Attend 탭과 동일 소스의 실제 출석 — 실패·미가입이면 milestone 숨김.
     _gymRepo.listMyAttendances().then((map) {
       if (!mounted) return;
       setState(() => _attendDays = map.keys.toSet());
@@ -235,7 +235,7 @@ class _GamificationBody extends StatelessWidget {
   /// 이번 주 freeze 사용 기록. 있으면 streak 1일 보호.
   final DateTime? freezeUse;
 
-  /// 실제 QR 출석일 (Attend 탭 동일 소스). null = 로드 실패·미가입 → 숨김.
+  /// 실제 출석일 (Attend 탭 동일 소스). null = 로드 실패·미가입 → 숨김.
   final Set<DateTime>? attendDays;
   const _GamificationBody({
     required this.records,
@@ -321,7 +321,7 @@ class _GamificationBody extends StatelessWidget {
         const SizedBox(height: FacingTokens.sp2),
         FkRowCard(
           rows: [
-            // QA 2026-06-11: WOD 계산 기록이 아닌 실제 QR 출석(Attend 탭 동일
+            // QA 2026-06-11: WOD 계산 기록이 아닌 실제 출석(Attend 탭 동일
             // 소스)으로 표기 — 두 화면 수치 불일치 해소. 미가입·로드 실패 시 숨김.
             if (attendDays != null)
               Builder(builder: (context) {
