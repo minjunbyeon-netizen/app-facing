@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FACING 앱 설치</title>
+<meta name="description" content="FACING 안드로이드 앱 내려받기. 크로스핏 박스 수업 예약·출석·기록.">
+<meta property="og:title" content="FACING 앱 설치">
+<meta property="og:description" content="안드로이드 앱 내려받기">
+<style>
+  :root {
+    --bg: #FFFFFF;
+    --fg: #18181B;
+    --border: #E4E4E7;
+    --primary: #EE2B2B;
+    --success: #10B981;
+    --warning: #F59E0B;
+    --dim: 0.65;
+    --r-sm: 4px;
+    --r-md: 8px;
+    --r-lg: 12px;
+    --font: -apple-system, BlinkMacSystemFont, "Pretendard", "Segoe UI", sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--fg);
+    letter-spacing: -0.01em;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    padding: 32px 20px 64px;
+  }
+  .wrap { max-width: 460px; margin: 0 auto; }
+
+  .brand {
+    font-size: 13px; font-weight: 800; color: var(--primary);
+    letter-spacing: -0.01em; margin-bottom: 6px;
+  }
+  h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
+  .sub { font-size: 14px; margin-top: 8px; opacity: var(--dim); }
+
+  .meta {
+    display: flex; gap: 16px; flex-wrap: wrap;
+    margin: 20px 0 24px; font-size: 13px;
+  }
+  .meta div { opacity: var(--dim); }
+  .meta b { font-weight: 700; opacity: 1; }
+
+  .cta {
+    display: block; width: 100%; text-align: center;
+    background: var(--primary); color: var(--bg);
+    font-size: 17px; font-weight: 800; letter-spacing: -0.01em;
+    padding: 18px 20px; border-radius: var(--r-md);
+    text-decoration: none; border: 0; cursor: pointer;
+  }
+  .cta:active { opacity: 0.86; }
+  .cta-note { font-size: 12px; text-align: center; margin-top: 10px; opacity: var(--dim); }
+
+  h2 {
+    font-size: 16px; font-weight: 800; letter-spacing: -0.02em;
+    margin: 36px 0 12px; padding-bottom: 8px;
+    border-bottom: 2px solid var(--fg);
+  }
+  ol { list-style: none; counter-reset: step; }
+  li {
+    counter-increment: step; position: relative;
+    padding: 12px 0 12px 34px; border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  li:last-child { border-bottom: 0; }
+  li::before {
+    content: counter(step);
+    position: absolute; left: 0; top: 12px;
+    width: 22px; height: 22px; border-radius: var(--r-sm);
+    background: var(--fg); color: var(--bg);
+    font-size: 12px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+  }
+  li .hint { display: block; font-size: 12px; margin-top: 3px; opacity: var(--dim); }
+
+  .warn {
+    margin-top: 24px; padding: 14px 16px;
+    border: 1px solid var(--border); border-left: 3px solid var(--warning);
+    border-radius: var(--r-sm); font-size: 13px;
+  }
+  .warn b { font-weight: 800; }
+
+  footer {
+    margin-top: 40px; padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-size: 12px; opacity: var(--dim);
+  }
+  footer a { color: var(--primary); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="brand">FACING</div>
+  <h1>앱 설치하기</h1>
+  <p class="sub">수업 예약 · 출석 · 기록을 폰에서. 안드로이드 전용입니다.</p>
+
+  <div class="meta">
+    <div>버전 <b id="ver">1.0.0</b></div>
+    <div>용량 <b id="size">약 60MB</b></div>
+    <div>안드로이드 <b>7.0 이상</b></div>
+  </div>
+
+  <a class="cta" id="dl"
+     href="https://github.com/minjunbyeon-netizen/app-facing/releases/latest/download/facing.apk">
+    앱 내려받기
+  </a>
+  <div class="cta-note">눌러도 안 받아지면 크롬으로 열어 주십시오.</div>
+
+  <h2>설치 방법</h2>
+  <ol>
+    <li>위 버튼을 눌러 파일을 내려받습니다.
+      <span class="hint">알림창이나 &lsquo;다운로드&rsquo; 폴더에 파일이 생깁니다.</span></li>
+    <li>내려받은 파일을 누릅니다.
+      <span class="hint">&lsquo;이 출처의 앱 설치&rsquo; 를 허용하겠냐고 물으면 허용합니다.</span></li>
+    <li>설치를 누르면 끝입니다.
+      <span class="hint">한 번 허용하면 다음부터는 안 묻습니다.</span></li>
+  </ol>
+
+  <div class="warn">
+    <b>&ldquo;위험한 앱&rdquo; 이라고 뜨는 경우</b><br>
+    스토어를 거치지 않은 앱이라 나오는 안내입니다. 앱 자체 문제가 아니며,
+    <b>무시하고 설치</b> 를 누르시면 됩니다.
+  </div>
+
+  <h2>업데이트</h2>
+  <p style="font-size:14px">
+    새 버전이 나오면 이 페이지에서 다시 받아 설치하시면 됩니다.
+    지우지 않고 덮어써도 기록은 그대로입니다.
+  </p>
+
+  <footer>
+    이 페이지 주소는 바뀌지 않습니다. 즐겨찾기 해두시면 편합니다.<br>
+    문제가 있으면 <a href="https://github.com/minjunbyeon-netizen/app-facing/releases">전체 버전 목록</a>에서 이전 버전을 받으실 수 있습니다.
+  </footer>
+
+</div>
+
+<script>
+  // 릴리스 정보(버전·용량)를 실제 값으로 채운다. 실패해도 버튼은 그대로 동작한다.
+  fetch('https://api.github.com/repos/minjunbyeon-netizen/app-facing/releases/latest')
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (d) {
+      if (!d) return;
+      if (d.tag_name) document.getElementById('ver').textContent = d.tag_name.replace(/^v/, '');
+      var apk = (d.assets || []).filter(function (a) { return /\.apk$/.test(a.name); })[0];
+      if (apk) {
+        document.getElementById('size').textContent = Math.round(apk.size / 1048576) + 'MB';
+        document.getElementById('dl').href = apk.browser_download_url;
+      }
+    })
+    .catch(function () { /* 오프라인이어도 기본 링크로 받아진다 */ });
+</script>
+</body>
+</html>
