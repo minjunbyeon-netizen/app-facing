@@ -307,6 +307,12 @@ class FacingTokens {
 
   static const double touchMin = AppKit.touchMin;
   static const double buttonH = AppKit.buttonH;
+
+  /// v2.5 (2026-08-12 사용자 지시): 앱 전체 버튼 높이 — appkit 상속값 52 는
+  /// 폰 화면에서 한 줄이 너무 두꺼워 카드 하나가 화면 절반을 먹었다.
+  /// "모든 버튼을 컴팩트하게 통일" 지시로 facing 앱만 36 으로 내린다.
+  /// (appkit 마스터 값은 건드리지 않는다 — 다른 앱까지 따라 내려가면 안 된다.)
+  static const double buttonHCompact = 36;
   static const double appBarH = AppKit.appBarH;
 }
 
@@ -364,7 +370,7 @@ class FacingTheme {
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ButtonStyle(
         minimumSize: WidgetStateProperty.all(
-          const Size(double.infinity, FacingTokens.buttonH),
+          const Size(double.infinity, FacingTokens.buttonHCompact),
         ),
         backgroundColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.disabled)) return FacingTokens.surfaceHover;
@@ -386,15 +392,17 @@ class FacingTheme {
           ),
         ),
         overlayColor: WidgetStateProperty.all(Colors.transparent),
+        // 높이가 36 으로 내려온 뒤 r4(16) 은 사실상 완전 원형 pill 이 된다
+        // (글로벌 design-block 차단 대상). r3 으로 낮춰 모서리만 둥근 사각 유지.
         shape: WidgetStateProperty.all(
           RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(FacingTokens.r4),
+            borderRadius: BorderRadius.circular(FacingTokens.r3),
           ),
         ),
         padding: WidgetStateProperty.all(
           const EdgeInsets.symmetric(
-            horizontal: FacingTokens.sp5,
-            vertical: FacingTokens.sp4,
+            horizontal: FacingTokens.sp4,
+            vertical: FacingTokens.sp1,
           ),
         ),
         elevation: WidgetStateProperty.all(0),
@@ -404,7 +412,7 @@ class FacingTheme {
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: ButtonStyle(
         minimumSize: WidgetStateProperty.all(
-          const Size(double.infinity, FacingTokens.buttonH),
+          const Size(double.infinity, FacingTokens.buttonHCompact),
         ),
         foregroundColor: WidgetStateProperty.all(FacingTokens.fg),
         side: WidgetStateProperty.all(
@@ -413,9 +421,15 @@ class FacingTheme {
         textStyle: WidgetStateProperty.all(
           FacingTokens.body.copyWith(fontWeight: FontWeight.w600),
         ),
+        padding: WidgetStateProperty.all(
+          const EdgeInsets.symmetric(
+            horizontal: FacingTokens.sp4,
+            vertical: FacingTokens.sp1,
+          ),
+        ),
         shape: WidgetStateProperty.all(
           RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(FacingTokens.r4),
+            borderRadius: BorderRadius.circular(FacingTokens.r3),
           ),
         ),
       ),
@@ -426,7 +440,7 @@ class FacingTheme {
     textButtonTheme: TextButtonThemeData(
       style: ButtonStyle(
         minimumSize: WidgetStateProperty.all(
-          const Size(0, FacingTokens.touchMin),
+          const Size(0, FacingTokens.buttonHCompact),
         ),
         foregroundColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.disabled)) return FacingTokens.muted;

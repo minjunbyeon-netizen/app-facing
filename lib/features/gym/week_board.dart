@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
-import '../../core/futures.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/class_session.dart';
@@ -36,7 +35,9 @@ class _WeekBoardState extends State<WeekBoard> {
   late DateTime _today;
   late DateTime _weekStart; // 그 주 월요일 00:00
   late int _selected; // 0(월)~6(일)
-  Future<List<ClassSessionDto>>? _classes;
+  List<ClassSessionDto> _classes = const [];
+  bool _classesLoading = false;
+  bool _classesError = false;
 
   @override
   void initState() {
@@ -49,15 +50,35 @@ class _WeekBoardState extends State<WeekBoard> {
     _loadClasses();
   }
 
-  void _loadClasses() {
-    // 이 주 전체(월 00:00 ~ 다음 월 00:00) 한 번에 받아 날짜별로 나눈다.
-    // 요일마다 따로 부르면 7배 왕복 — 한 주는 한 요청이면 충분하다.
+  /// 이 주 전체(월 00:00 ~ 다음 월 00:00) 한 번에 받아 날짜별로 나눈다.
+  /// 요일마다 따로 부르면 7배 왕복 — 한 주는 한 요청이면 충분하다.
+  ///
+  /// FutureBuilder 를 쓰지 않는 이유: 예약 직후 다시 부를 때 스냅샷이 waiting
+  /// 으로 초기화되면서 **한 주 요약이 통째로 빈칸으로 깜빡였다** (에뮬 확인).
+  /// 이전 결과를 그대로 들고 있다가 새 결과로 갈아끼운다.
+  Future<void> _loadClasses({bool keepPrevious = true}) async {
     setState(() {
-      _classes = retainError(_repo.listClasses(
+      _classesLoading = true;
+      _classesError = false;
+      if (!keepPrevious) _classes = const [];
+    });
+    try {
+      final list = await _repo.listClasses(
         from: _weekStart,
         to: _weekStart.add(const Duration(days: 7)),
-      ));
-    });
+      );
+      if (!mounted) return;
+      setState(() {
+        _classes = list;
+        _classesLoading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _classesLoading = false;
+        _classesError = true;
+      });
+    }
   }
 
   void _shiftWeek(int weeks) {
@@ -70,7 +91,8 @@ class _WeekBoardState extends State<WeekBoard> {
           _today.isBefore(next.add(const Duration(days: 7)));
       _selected = isThisWeek ? _today.weekday - 1 : 0;
     });
-    _loadClasses();
+    // 주가 바뀌면 이전 주 수업은 남겨 둘 이유가 없다 (다른 날짜의 데이터).
+    _loadClasses(keepPrevious: false);
   }
 
   void _select(int i) {
@@ -90,71 +112,62 @@ class _WeekBoardState extends State<WeekBoard> {
       wodsByDate.putIfAbsent(w.postDate, () => []).add(w);
     }
 
-    return FutureBuilder<List<ClassSessionDto>>(
-      future: _classes,
-      builder: (ctx, snap) {
-        final loadingClasses = snap.connectionState != ConnectionState.done;
-        final classesByDate = <String, List<ClassSessionDto>>{};
-        for (final c in (snap.data ?? const <ClassSessionDto>[])) {
-          // 내 예약이 없는 취소 수업은 노이즈 — 목록에서 제외 (v1.26 규칙 유지).
-          if (c.isCancelled && c.myReservation == null) continue;
-          classesByDate
-              .putIfAbsent(_ymd(c.startAt.toLocal()), () => [])
-              .add(c);
-        }
-        for (final list in classesByDate.values) {
-          list.sort((a, b) => a.startAt.compareTo(b.startAt));
-        }
+    final classesByDate = <String, List<ClassSessionDto>>{};
+    for (final c in _classes) {
+      // 내 예약이 없는 취소 수업은 노이즈 — 목록에서 제외 (v1.26 규칙 유지).
+      if (c.isCancelled && c.myReservation == null) continue;
+      classesByDate.putIfAbsent(_ymd(c.startAt.toLocal()), () => []).add(c);
+    }
+    for (final list in classesByDate.values) {
+      list.sort((a, b) => a.startAt.compareTo(b.startAt));
+    }
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _weekHeader(),
-            const SizedBox(height: FacingTokens.sp2),
-            Container(
-              decoration: BoxDecoration(
-                color: FacingTokens.surface,
-                border: Border.all(color: FacingTokens.border),
-                borderRadius: BorderRadius.circular(FacingTokens.r3),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: Column(
-                children: [
-                  for (var i = 0; i < 7; i++)
-                    _DayTile(
-                      date: _weekStart.add(Duration(days: i)),
-                      weekdayLabel: _wk[i],
-                      isToday:
-                          _weekStart.add(Duration(days: i)) == _today,
-                      isSelected: _selected == i,
-                      isLast: i == 6,
-                      wods: wodsByDate[
-                              _ymd(_weekStart.add(Duration(days: i)))] ??
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _weekHeader(),
+        const SizedBox(height: FacingTokens.sp2),
+        Container(
+          decoration: BoxDecoration(
+            color: FacingTokens.surface,
+            border: Border.all(color: FacingTokens.border),
+            borderRadius: BorderRadius.circular(FacingTokens.r3),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            children: [
+              for (var i = 0; i < 7; i++)
+                _DayTile(
+                  date: _weekStart.add(Duration(days: i)),
+                  weekdayLabel: _wk[i],
+                  isToday: _weekStart.add(Duration(days: i)) == _today,
+                  isSelected: _selected == i,
+                  isLast: i == 6,
+                  wods: wodsByDate[_ymd(_weekStart.add(Duration(days: i)))] ??
+                      const [],
+                  classes:
+                      classesByDate[_ymd(_weekStart.add(Duration(days: i)))] ??
                           const [],
-                      classes: classesByDate[
-                              _ymd(_weekStart.add(Duration(days: i)))] ??
-                          const [],
-                      classesLoading: loadingClasses,
-                      classesError: snap.hasError,
-                      isOwner: gs.isOwner,
-                      today: _today,
-                      onTap: () => _select(i),
-                      onReserve: (c) async {
-                        final ok = await reserveClassFlow(context, _repo, c);
-                        if (ok && mounted) _loadClasses();
-                      },
-                      onCancel: (c) async {
-                        final ok = await cancelClassFlow(context, _repo, c);
-                        if (ok && mounted) _loadClasses();
-                      },
-                      onRetryClasses: _loadClasses,
-                    ),
-                ],
-              ),
-            ),
-          ],
-        );
-      },
+                  // 이전 결과를 들고 있는 동안은 로딩 취급하지 않는다 (깜빡임 방지).
+                  classesLoading: _classesLoading && _classes.isEmpty,
+                  classesError: _classesError,
+                  isOwner: gs.isOwner,
+                  today: _today,
+                  onTap: () => _select(i),
+                  onReserve: (c) async {
+                    final ok = await reserveClassFlow(context, _repo, c);
+                    if (ok && mounted) _loadClasses();
+                  },
+                  onCancel: (c) async {
+                    final ok = await cancelClassFlow(context, _repo, c);
+                    if (ok && mounted) _loadClasses();
+                  },
+                  onRetryClasses: _loadClasses,
+                ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -366,7 +379,7 @@ class _DayTile extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        for (final w in wods)
+        for (final (i, w) in wods.indexed)
           if (w.locked)
             LockedWodBanner(
               dateLabel: dateLabel,
@@ -388,7 +401,9 @@ class _DayTile extends StatelessWidget {
               canDelete: isOwner,
               // 지난 날 WOD 도 이 날을 직접 골라 연 것이므로 흐리게 두지 않는다.
               isToday: !_isPast,
-              initiallyExpanded: true,
+              // 하루에 WOD 가 둘 이상이면 첫 개만 펼친다 — 실기에서 둘 다 펼쳐져
+              // 그 밑 수업이 화면 밖으로 밀렸다 (2026-08-12 에뮬 확인).
+              initiallyExpanded: i == 0,
               showDate: false,
             ),
       ],

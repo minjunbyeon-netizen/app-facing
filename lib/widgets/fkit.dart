@@ -157,9 +157,9 @@ class FkButton extends StatelessWidget {
     }
   }
 
-  double get _height => kind == FkButtonKind.tertiary
-      ? FacingTokens.touchMin
-      : FacingTokens.buttonH;
+  /// v2.5 (2026-08-12 사용자 지시): 3종 모두 같은 컴팩트 높이.
+  /// 전엔 채움 52 · 글자 48 로 미묘하게 달라 한 줄에 나란히 두면 층이 졌다.
+  double get _height => FacingTokens.buttonHCompact;
 }
 
 /// 섹션 구분 라벨 — 대문자 강제.
