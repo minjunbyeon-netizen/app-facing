@@ -33,6 +33,21 @@ enum Tier {
     return Tier.games;
   }
 
+  /// **회원 레벨 = 크로스핏 경력** (2026-08-12 사용자 지시 · BRIEF D36).
+  ///
+  /// 1년 미만 → SCALED · 1~3년 → RXD(=rx) · 3년 이상 → ELITE.
+  /// 경계 숫자는 **여기 한 곳**에만 둔다 — 화면마다 다시 쓰면 기준이 갈린다.
+  /// 입력값은 가입 직후 온보딩(`onboarding_basic.dart`)이 저장하는 대표 연차.
+  /// 사다리는 셋뿐이라 RX+·Games 는 이 함수에서 나오지 않는다.
+  static Tier fromExperienceYears(double years) {
+    if (years < 1) return Tier.scaled;
+    if (years < 3) return Tier.rx;
+    return Tier.elite;
+  }
+
+  /// 회원 레벨 표기 — RX 는 'RXD' 로 쓴다 (2026-05-30 통일 · GLOSSARY §3).
+  String get memberLevelLabel => this == Tier.rx ? 'RXD' : label;
+
   /// Tier별 고정 명언.
   String get quote {
     switch (this) {

@@ -48,6 +48,37 @@ void main() {
       );
     });
 
+    // docs/GLOSSARY.md §1 자동 게이트 (2026-08-12 사용자 지시).
+    // 박스를 운영하는 사람은 '코치' 하나로만 부른다 — 사장·오너·매니저 등은
+    // 이 제품에 없는 말이다. 번역은 core/role_labels.dart 한 곳에서만 한다.
+    test('운영자 호칭 1종 — 사장/오너/점주/매니저/관리자 0건 (GLOSSARY §1)', () {
+      final dir = Directory('lib');
+      final pattern = RegExp(r'(사장|오너|점주|짐매니저|매니저|관리자|운영자)');
+      final violations = <String>[];
+      for (final f in dir.listSync(recursive: true)) {
+        if (f is! File) continue;
+        if (!f.path.endsWith('.dart')) continue;
+        final lines = f.readAsStringSync().split('\n');
+        for (var i = 0; i < lines.length; i++) {
+          final raw = lines[i];
+          final trimmed = raw.trim();
+          // 주석 라인 스킵 — 히스토리 설명에는 옛 용어가 남을 수 있다.
+          if (trimmed.startsWith('//')) continue;
+          if (trimmed.startsWith('*') || trimmed.startsWith('/*')) continue;
+          if (trimmed.startsWith('///')) continue;
+          if (pattern.hasMatch(raw)) {
+            violations.add('${f.path}:${i + 1}: $trimmed');
+          }
+        }
+      }
+      expect(
+        violations,
+        isEmpty,
+        reason: 'docs/GLOSSARY.md §1 위반 — 운영자는 "코치" 하나:\n'
+            '${violations.join('\n')}',
+      );
+    });
+
     test('하드코드 fontSize 0건 (FacingTokens 외 인라인 TextStyle 차단)', () {
       final dir = Directory('lib');
       // 의도된 케이스 (theme 정의 자체) 제외.

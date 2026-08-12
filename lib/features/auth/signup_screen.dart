@@ -256,7 +256,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         minimumSize: const Size(0, FacingTokens.touchMin),
                       ),
                       child: Text(
-                        '코치·사장 로그인',
+                        '코치 로그인',
                         style: FacingTokens.body
                             .copyWith(fontWeight: FontWeight.w600),
                       ),

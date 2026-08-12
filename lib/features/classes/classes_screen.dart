@@ -244,7 +244,7 @@ class _ClassesSectionState extends State<ClassesSection> {
               .where((c) => !c.isCancelled || c.myReservation != null)
               .toList();
           if (classes.isEmpty) {
-            body = _inline('등록된 클래스 없음. 사장 등록 시 표시.');
+            body = _inline('등록된 수업 없음. 코치 게시 시 표시.');
           } else {
             // 날짜별 그룹.
             final groups = <String, List<ClassSessionDto>>{};

@@ -610,7 +610,7 @@ class _AutoJoinTabState extends State<_AutoJoinTab> {
           activeThumbColor: FacingTokens.primary,
           title: Text('자동 가입 승인', style: FacingTokens.body),
           subtitle: Text(
-            '회원이 박스 가입 신청 시 사장 승인 없이 즉시 활성. 무인 박스 권장.',
+            '회원이 박스 가입 신청 시 코치 승인 없이 즉시 활성. 무인 박스 권장.',
             style: FacingTokens.caption,
           ),
           value: _enabled,
@@ -620,7 +620,7 @@ class _AutoJoinTabState extends State<_AutoJoinTab> {
         Text(
           _enabled
               ? '활성: 가입 신청 즉시 approved 처리'
-              : '비활성: 사장이 회원 리스트의 대기 탭에서 직접 승인',
+              : '비활성: 코치가 회원 리스트의 대기 탭에서 직접 승인',
           style: FacingTokens.caption,
         ),
       ],

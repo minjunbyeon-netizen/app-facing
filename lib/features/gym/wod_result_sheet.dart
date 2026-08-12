@@ -136,9 +136,10 @@ class _WodResultSheetState extends State<WodResultSheet> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(
+            // v2.6: 한글 기본 (v1.29) — 영문 문장이 남아 있던 자리.
             earned
-                ? 'Recorded. Attendance +1 · +${res.pointsAwarded}P'
-                : 'Recorded. Attendance +1.',
+                ? '저장됨 · 출석 +1 · +${res.pointsAwarded}P'
+                : '저장됨 · 출석 +1',
           ),
           duration: const Duration(seconds: 2),
         ),
@@ -225,10 +226,12 @@ class _WodResultSheetState extends State<WodResultSheet> {
                 spacing: FacingTokens.sp2,
                 children: [
                   // 등급 enum: elite / rx(=RXD 표기) / scaled (2026-05-30 통일)
+                  // v2.6 (2026-08-12 사용자 지시): 낮은 난도부터 순서대로.
+                  // 뒤섞여 있으면 셋 사이의 위아래 관계가 안 읽힌다.
                   for (final s in const [
-                    ['elite', 'ELITE'],
-                    ['rx', 'RXD'],
                     ['scaled', 'SCALED'],
+                    ['rx', 'RXD'],
+                    ['elite', 'ELITE'],
                   ])
                     FkBadge(
                       s[1],
@@ -250,6 +253,11 @@ class _WodResultSheetState extends State<WodResultSheet> {
                         .copyWith(color: FacingTokens.warning)),
               ],
               const SizedBox(height: FacingTokens.sp4),
+              // v2.6 (2026-08-12 사용자 지시): 버튼이 '제출하고 출석' 이었다 —
+              // 회원이 하는 일은 "내 기록을 남기는 것" 하나인데, 그 뒤에 앱이
+              // 알아서 하는 출석 처리까지 버튼 이름에 끌고 들어와 무슨 흐름인지
+              // 읽히지 않았다. 버튼은 '저장' 하나로 두고, 출석이 같이 된다는
+              // 사실은 아래 한 줄로 알린다 (동작 이름 ≠ 부수 효과 나열).
               SizedBox(
                 height: FacingTokens.buttonH,
                 child: ElevatedButton.icon(
@@ -264,12 +272,18 @@ class _WodResultSheetState extends State<WodResultSheet> {
                           ),
                         )
                       : const Icon(Icons.check, size: 18),
-                  label: Text(_saving ? '저장 중' : '제출하고 출석'),
+                  label: Text(_saving ? '저장 중' : '저장'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: FacingTokens.accent,
                     foregroundColor: FacingTokens.fg,
                   ),
                 ),
+              ),
+              const SizedBox(height: FacingTokens.sp2),
+              const Text(
+                '저장하면 오늘 출석도 함께 기록됩니다.',
+                style: FacingTokens.caption,
+                textAlign: TextAlign.center,
               ),
             ],
           ),

@@ -175,7 +175,7 @@ class _ClaimCodeScreenState extends State<ClaimCodeScreen> {
               // v2.2: 가운데 정렬 2줄이라 둘째 줄 시작점이 들쭉날쭉해 읽기 흐름이
               // 끊겼다. 화면의 다른 안내문과 같이 좌측 정렬로 맞춘다.
               Text(
-                '코드가 없으면 박스 사장님께 발급을 요청해 주세요. 7일간 유효합니다.',
+                '코드가 없으면 박스 코치에게 발급을 요청해 주세요. 7일간 유효합니다.',
                 style: FacingTokens.micro,
               ),
             ],

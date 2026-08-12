@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
+import '../../core/tier.dart';
 import '../../widgets/fkit.dart';
 import '../profile/profile_state.dart';
 
@@ -127,6 +128,23 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
                     ),
                 ],
               ),
+              // v2.6 (2026-08-12 사용자 지시 · BRIEF D36): 레벨은 경력 하나로
+              // 정해진다. 고른 구간이 어느 레벨이 되는지 그 자리에서 보여준다 —
+              // 나중에 코치 화면에서 처음 보게 되면 "왜 내가 스케일이냐"가 된다.
+              if (_bandIndex != null) ...[
+                const SizedBox(height: FacingTokens.sp3),
+                Row(
+                  children: [
+                    const Text('내 레벨', style: FacingTokens.caption),
+                    const SizedBox(width: FacingTokens.sp2),
+                    Builder(builder: (_) {
+                      final t = Tier.fromExperienceYears(
+                          _kExpBands[_bandIndex!].years);
+                      return FkBadge(t.memberLevelLabel, color: t.color);
+                    }),
+                  ],
+                ),
+              ],
 
               const Spacer(),
               FkButton.primary(

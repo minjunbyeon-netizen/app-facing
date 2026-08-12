@@ -25,7 +25,7 @@ class PrivacyScreen extends StatelessWidget {
             const Text('저장하는 데이터', style: FacingTokens.sectionLabel),
             const SizedBox(height: FacingTokens.sp2),
             const _Bullet('device_id (UUID v4) — 로컬 생성, 서버에 해시로만 전송'),
-            const _Bullet('이름·전화번호 — 박스 가입 신청 시 입력 (서버 DB, 박스 운영자에게 제공)'),
+            const _Bullet('이름·전화번호 — 박스 가입 신청 시 입력 (서버 DB, 박스 코치에게 제공)'),
             const _Bullet('소셜 로그인: 네이버·구글 계정 식별자·표시명 (서버 DB)'),
             const _Bullet('전자계약: 계약 내용·서명 이미지·서명 일시·IP (서버 DB)'),
             const _Bullet('출석 기록: 출석 일시·박스 — 코치가 수업 명단에서 기록 (서버 DB)'),
@@ -48,7 +48,7 @@ class PrivacyScreen extends StatelessWidget {
               'profile·grade·WOD 데이터는 본인 Engine 계산·추이 표시 용도로만 사용. '
               'device_id 해시는 기록 소유자 식별용. '
               '이름·전화번호·출석·계약 데이터는 가입한 박스의 운영(회원 관리·계약 증빙) 용도로 '
-              '해당 박스 운영자에게 제공. '
+              '해당 박스 코치에게 제공. '
               '서명 이미지는 전자서명법에 따른 계약 증빙 용도로만 보관. '
               '타 유저와 공유 또는 마케팅 활용 없음.',
               style: FacingTokens.body,

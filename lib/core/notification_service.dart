@@ -17,11 +17,11 @@ class NotificationService {
   static final NotificationService instance = NotificationService._();
 
   static const String _channelStaffId = 'facing_staff';
-  static const String _channelStaffName = 'FACING 사장·코치 알림';
+  static const String _channelStaffName = 'HYPHEN 코치 알림';
   static const String _channelStaffDesc = '신규 가입 신청·결제·예약 등 운영 알림';
 
   static const String _channelMemberId = 'facing_member';
-  static const String _channelMemberName = 'FACING 회원 알림';
+  static const String _channelMemberName = 'HYPHEN 회원 알림';
   static const String _channelMemberDesc = '회원권 만료·공지·코치 메시지';
 
   final FlutterLocalNotificationsPlugin _plugin =

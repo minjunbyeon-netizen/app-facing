@@ -132,7 +132,7 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
         backgroundColor: FacingTokens.surface,
         title: const Text('가입 신청 완료'),
         content: Text(
-          '$gymName 에 가입을 신청했습니다.\n사장 승인 후 아이디로 로그인할 수 있습니다.',
+          '$gymName 에 가입을 신청했습니다.\n코치 승인 후 아이디로 로그인할 수 있습니다.',
           style: const TextStyle(height: 1.5),
         ),
         actions: [
@@ -239,7 +239,7 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                     : FkButton.primary('신청하기', onPressed: _submit),
                 const SizedBox(height: FacingTokens.sp3),
                 Text(
-                  '사장이 승인하면 이 아이디로 로그인할 수 있습니다.',
+                  '코치가 승인하면 이 아이디로 로그인할 수 있습니다.',
                   style: FacingTokens.caption,
                   textAlign: TextAlign.center,
                 ),

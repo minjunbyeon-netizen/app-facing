@@ -334,7 +334,7 @@ class _MyBoxSection extends StatelessWidget {
         title: '내 박스',
         subtitle: gym == null
             ? '박스 없음'
-            : '${gym.name} · ${gs.isOwner ? '오너' : '회원'} · $statusKo',
+            : '${gym.name} · ${gs.isOwner ? '코치' : '회원'} · $statusKo',
         children: [
           const SizedBox(height: FacingTokens.sp2),
           if (gym == null)
@@ -346,7 +346,7 @@ class _MyBoxSection extends StatelessWidget {
                     FacingTokens.body.copyWith(fontWeight: FontWeight.w800)),
             const SizedBox(height: FacingTokens.sp1),
             Text(
-              '${gs.isOwner ? '오너' : '회원'} · $statusKo · ${gym.memberCount}명',
+              '${gs.isOwner ? '코치' : '회원'} · $statusKo · ${gym.memberCount}명',
               style: FacingTokens.caption,
             ),
             // P1-5 (2026-06-10): 거절 상태 무안내 해소 — 멤버십이 조용히

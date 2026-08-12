@@ -148,8 +148,8 @@ class _StaffLinkScreenState extends State<StaffLinkScreen> {
                 Text('직원 계정 연결', style: FacingTokens.h1),
                 const SizedBox(height: FacingTokens.sp2),
                 Text(
-                  '기존 코치·사장 아이디와 비밀번호로 한 번만 연결하면,\n'
-                  '다음부터는 소셜 로그인만으로 코치·사장으로 들어와요.',
+                  '기존 코치 아이디와 비밀번호로 한 번만 연결하면,\n'
+                  '다음부터는 소셜 로그인만으로 코치로 들어와요.',
                   style: FacingTokens.caption,
                 ),
                 const SizedBox(height: FacingTokens.sp6),

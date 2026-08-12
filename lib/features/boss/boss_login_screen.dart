@@ -99,7 +99,7 @@ class _BossLoginScreenState extends State<BossLoginScreen> {
                 // ─── 헤더 (v1.29: 로그인 화면 통일 — BrandLogo 220, DESIGN-SSOT §6) ───
                 const Center(child: BrandLogo()),
                 const SizedBox(height: FacingTokens.sp5),
-                Text('코치·사장 로그인', style: FacingTokens.h1),
+                Text('코치 로그인', style: FacingTokens.h1),
                 const SizedBox(height: FacingTokens.sp1),
                 Text(
                   'PC 어드민과 동일 계정으로 로그인.',

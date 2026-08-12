@@ -21,7 +21,7 @@ class TermsScreen extends StatelessWidget {
             Text(
               'FACING 은 CrossFit 박스(체육관) 운영을 돕는 플랫폼입니다. '
               '회원에게는 수업 예약·QR 출석·전자계약·페이싱 계산 기능을, '
-              '박스 운영자에게는 회원·수업·계약 관리 도구를 제공합니다.',
+              '박스 코치에게는 회원·수업·계약 관리 도구를 제공합니다.',
               style: FacingTokens.body,
             ),
             SizedBox(height: FacingTokens.sp4),
@@ -29,7 +29,7 @@ class TermsScreen extends StatelessWidget {
             Text('2. 계정·가입·탈퇴', style: FacingTokens.sectionLabel),
             SizedBox(height: FacingTokens.sp2),
             _Bullet('가입은 소셜 로그인(네이버·구글) 또는 박스 가입 신청으로 합니다.'),
-            _Bullet('박스 가입 신청의 승인·거절 권한은 해당 박스 운영자에게 있습니다.'),
+            _Bullet('박스 가입 신청의 승인·거절 권한은 해당 박스 코치에게 있습니다.'),
             _Bullet('탈퇴는 Profile → Privacy Policy 화면에서 언제든 가능합니다.'),
             _Bullet('타인 명의 도용, 허위 정보 가입 시 이용이 제한될 수 있습니다.'),
             SizedBox(height: FacingTokens.sp4),
@@ -63,7 +63,7 @@ class TermsScreen extends StatelessWidget {
             SizedBox(height: FacingTokens.sp2),
             _Bullet('타인 계정 도용 (대리 출석 포함)'),
             _Bullet('서비스의 비정상적 이용 (자동화 도구, 취약점 악용)'),
-            _Bullet('다른 이용자·운영자에 대한 욕설·괴롭힘 (쪽지·댓글 포함)'),
+            _Bullet('다른 회원·코치에 대한 욕설·괴롭힘 (쪽지·댓글 포함)'),
             SizedBox(height: FacingTokens.sp4),
 
             Text('7. 책임의 한계', style: FacingTokens.sectionLabel),
