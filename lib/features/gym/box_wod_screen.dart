@@ -336,6 +336,16 @@ class _WodListState extends State<_WodList> {
       child: ListView(
         padding: const EdgeInsets.all(FacingTokens.sp3),
         children: [
+          // 불러오기가 실패한 날에도 요일 줄은 그려진다 — 그대로 두면 '게시된
+          // WOD 없음' 으로 읽혀 코치가 안 올린 것처럼 보인다. 실패는 실패라고
+          // 먼저 말한다 (2026-08-12).
+          if (widget.gymState.error != null) ...[
+            _LoadErrorBanner(
+              message: widget.gymState.error!,
+              onRetry: _refresh,
+            ),
+            const SizedBox(height: FacingTokens.sp2),
+          ],
           WeekBoard(
             key: ValueKey('week-$_tick'),
             gymState: widget.gymState,
@@ -352,6 +362,38 @@ class _WodListState extends State<_WodList> {
             const Divider(height: 1, color: FacingTokens.border, thickness: 1),
             const _PresetAccordion(),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+/// WOD 불러오기 실패 — 한 줄 배너 + 다시 시도.
+class _LoadErrorBanner extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+  const _LoadErrorBanner({required this.message, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.only(left: FacingTokens.sp3),
+      decoration: BoxDecoration(
+        color: FacingTokens.surface,
+        border: Border.all(color: FacingTokens.warning),
+        borderRadius: BorderRadius.circular(FacingTokens.r2),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              message,
+              style: FacingTokens.caption.copyWith(color: FacingTokens.warning),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          FkButton.tertiary('다시 시도', neutral: true, onPressed: onRetry),
         ],
       ),
     );
