@@ -34,6 +34,13 @@ class _SignupScreenState extends State<SignupScreen> {
   // false. 실 OAuth 키 확보 후 true 한 줄로 원복.
   static const bool _kShowSocialLogin = false;
 
+  // v2.3 (2026-08-12 사용자 지시): 회원 로그인 화면에서 코치·사장 진입 줄을 내린다.
+  // 3면 대전제 ③ 대로 코치·사장의 주 창구는 PC 웹이고, 회원이 보는 첫 화면에
+  // 남의 역할 로그인이 섞여 있어 뜻이 통하지 않았다. 프로젝트 룰 "숨김 = 코드
+  // 보존" — /boss/login 라우트·화면·세션 배선은 그대로 두고 이 상수만 false.
+  // 폰에서 사장 로그인이 다시 필요하면 true 한 줄로 원복.
+  static const bool _kShowBossEntry = false;
+
   // D26: stub ↔ real 자동 선택 (USE_REAL_AUTH 플래그). 실 OAuth 는 ApiClient 의존
   // 이라 const 불가 — _signIn 에서 context 로 ApiClient 받아 resolve.
   static const Color _naverGreen = FacingTokens.naverGreen;
@@ -175,7 +182,9 @@ class _SignupScreenState extends State<SignupScreen> {
                           Haptic.light();
                           Navigator.of(context).pushNamed('/signup/self');
                         },
-                  child: const Text('가입 신청'),
+                  // v2.3: 그냥 '가입 신청' 이면 무엇에 신청하는지가 없어 뜻이
+                  // 통하지 않았다. 실제 동작(박스를 골라 등록을 신청)을 라벨에 넣는다.
+                  child: const Text('박스 가입 신청'),
                 ),
                 const SizedBox(height: FacingTokens.sp3),
                 // 이음새 1 — PC 선등록 회원의 가입 코드 연결 진입점.
@@ -187,7 +196,10 @@ class _SignupScreenState extends State<SignupScreen> {
                           Haptic.light();
                           Navigator.of(context).pushNamed('/signup/claim');
                         },
-                  child: const Text('가입 코드로 연결'),
+                  // v2.3: '연결' 이 무엇과 무엇을 잇는지 불명확했다. 실제로는
+                  // 박스에서 받은 6자리 코드를 넣는 화면이라 그 화면 제목
+                  // ('가입 코드 입력') 과 표기를 맞춘다 (§0-B 이름 일원화).
+                  child: const Text('가입 코드 입력'),
                 ),
 
                 const SizedBox(height: FacingTokens.sp3),
@@ -230,25 +242,28 @@ class _SignupScreenState extends State<SignupScreen> {
                 // 약관 묶음과 떼고 본문색 + w600 으로 올린다. 내부 표기였던
                 // '(전환기)' 는 사용자에게 뜻이 없어 뺀다 (3면 대전제 ①·③ —
                 // 사장·코치는 PC 가 주지만 폰으로도 들어온다).
-                const SizedBox(height: FacingTokens.sp2),
-                const Divider(height: 1, color: FacingTokens.border),
-                Center(
-                  child: TextButton(
-                    onPressed: _busy
-                        ? null
-                        : () => Navigator.of(context).pushNamed('/boss/login'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: FacingTokens.fg,
-                      minimumSize: const Size(0, FacingTokens.touchMin),
-                    ),
-                    child: Text(
-                      '코치·사장 로그인',
-                      style: FacingTokens.body
-                          .copyWith(fontWeight: FontWeight.w600),
+                if (_kShowBossEntry) ...[
+                  const SizedBox(height: FacingTokens.sp2),
+                  const Divider(height: 1, color: FacingTokens.border),
+                  Center(
+                    child: TextButton(
+                      onPressed: _busy
+                          ? null
+                          : () =>
+                              Navigator.of(context).pushNamed('/boss/login'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: FacingTokens.fg,
+                        minimumSize: const Size(0, FacingTokens.touchMin),
+                      ),
+                      child: Text(
+                        '코치·사장 로그인',
+                        style: FacingTokens.body
+                            .copyWith(fontWeight: FontWeight.w600),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: FacingTokens.sp2),
+                  const SizedBox(height: FacingTokens.sp2),
+                ],
               ],
             ),
           ),

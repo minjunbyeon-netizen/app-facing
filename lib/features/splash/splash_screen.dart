@@ -7,11 +7,9 @@ import '../../core/appkit.gen.dart';
 import '../../core/device_id.dart';
 import '../../core/haptic.dart';
 import '../../core/notification_service.dart';
-import '../../core/quotes.dart';
 import '../../core/theme.dart';
 import '../../widgets/brand_logo.dart';
 import '../../widgets/fkit.dart';
-import '../../widgets/quote_card.dart';
 import '../auth/auth_state.dart';
 import '../boss/boss_auth_state.dart';
 import '../profile/profile_state.dart';
@@ -151,7 +149,6 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    final q = randomQuote();
     return Scaffold(
       backgroundColor: FacingTokens.bg,
       body: SafeArea(
@@ -169,8 +166,9 @@ class _SplashScreenState extends State<SplashScreen>
               ),
               const SizedBox(height: FacingTokens.sp5),
               const Spacer(),
-              _fadeSlide(1, QuoteCard(quote: q, compact: true)),
-              const SizedBox(height: FacingTokens.sp5),
+              // v2.3 (2026-08-12 사용자 지시): 하단 명언 카드 삭제.
+              // 로딩 화면에 뜻 모를 영문 문구가 붙어 있어 로고·로더만 남긴다.
+              // QuoteCard 위젯 자체는 등급 결과·계산 로딩에서 계속 쓴다.
               _fadeOnly(2, const FkLoading()),
               const SizedBox(height: FacingTokens.sp3),
             ],
