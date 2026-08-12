@@ -19,9 +19,10 @@ import '../goals/goals_screen.dart';
 import '../gym/coach_dashboard_screen.dart';
 import '../gym/gym_state.dart';
 import '../profile/profile_state.dart';
-import 'algorithm_screen.dart';
+// v2.6 (2026-08-13): '알고리즘'·'데이터 가져오기' 메뉴 삭제 — 아래 두 import 도 함께 끊는다.
+// import 'algorithm_screen.dart';
+// import 'import_screen.dart';
 import 'edit_profile_screen.dart';
-import 'import_screen.dart';
 import 'faq_screen.dart';
 import 'privacy_screen.dart';
 import 'terms_screen.dart';
@@ -284,7 +285,7 @@ class _MyBoxSection extends StatelessWidget {
         title: const Text('박스를 탈퇴할까요?'),
         content: Text(
           '$gymName 에서 탈퇴합니다.\n'
-          '탈퇴 후 다른 박스에 가입하거나 새로 만들 수 있습니다.',
+          '다시 들어오려면 코치에게 가입 코드를 받아야 합니다.',
           style: FacingTokens.caption,
         ),
         actions: [
@@ -633,20 +634,14 @@ class _ActionsSection extends StatelessWidget {
                     builder: (_) => const GoalsScreen(),
                   )),
                 ),
-                FkListRow(
-                  icon: Icons.download_outlined,
-                  title: '데이터 가져오기',
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => const ImportScreen(),
-                  )),
-                ),
-                FkListRow(
-                  icon: Icons.calculate_outlined,
-                  title: '알고리즘',
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => const AlgorithmScreen(),
-                  )),
-                ),
+                // v2.6 (2026-08-13 사용자 지시) — 없는 기능 두 줄 삭제.
+                //  · '데이터 가져오기' = 화면 스스로 "가상 UI" 라고 적어둔 껍데기.
+                //    BTWB·Wodify '지원 예정' 만 늘어놓을 뿐 붙는 데가 없다.
+                //  · '알고리즘' = Engine 점수 6 카테고리·Tier 1~6(Scaled–Games)·
+                //    SPLIT/BURST 산식 설명. 앱에서 D34 로 전부 내린 기능이고,
+                //    회원 레벨은 경력 3단(SCALED/RXD/ELITE)이라 RX+·Games 는 없는 등급이다.
+                // 화면 파일(import_screen.dart·algorithm_screen.dart)은 보존한다
+                // ("숨김 = 코드 보존"). 되살리려면 이 두 행 + 위 import 를 복구.
                 // P2-1 (2026-06-11) — FAQ (시드 10문답, 실문의 누적 시 증보).
                 FkListRow(
                   icon: Icons.help_outline,
@@ -755,7 +750,7 @@ class _ActionsSection extends StatelessWidget {
           // V9: 영문 명사 + 한글 조사 혼용("provider로") 제거.
           '로그아웃해도 프로필·기록은 이 기기에 그대로 유지됩니다.\n'
           '같은 계정으로 다시 로그인하면 모든 데이터가 복구됩니다.\n'
-          '계정 삭제는 Privacy Policy → Delete Account.',
+          '계정 삭제는 프로필 → 개인정보처리방침 → 계정 삭제.',
           style: FacingTokens.caption,
         ),
         actions: [
