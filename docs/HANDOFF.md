@@ -1,90 +1,117 @@
-# HANDOFF - 2026-08-12 16:43
+# HANDOFF - 2026-08-12 20:56
 
-> 주제: facing 3면(앱·PC 웹·백엔드) 역할 규칙 정립 + 코치 동선 실사용 가능화.
-> 이번 세션은 **로컬 커밋만** 했다. push·배포 0건.
-> 3개 repo 를 동시에 만졌다: `apps/facing-app` · `web/facing-admin` · `services/facing`
-> (+ `web/facing-web` 문서 1건).
+> 주제: **앱 UI 가시성·버튼 편의 리디자인 (v2.2)** + 데모/디버그 UI 전면 삭제.
+> 이번 세션은 **`apps/facing-app` 한 repo만** 만졌다 (백엔드·PC 웹 0건).
+> **push·배포 0건.** 로컬 커밋 6개.
+> 기준 자료: 경쟁 앱 링코(`com.linkcoach`) 화면 27장 분석 = `C:/dev/tools/linko-screens/`
+> (INDEX → SCREENS → REVIEW → DATA 순으로 읽을 것. REVIEW.md 의 F1~F10 이 우리 결함 ID 의 근거).
 
 ## 완료
 
-- [x] **D29 코치 = 사장** — 운영 권한 전부 개방. 정본은 `api/roles.py STAFF_ROLES`
-      **한 곳** (2026-08-12 이름 통일 — 옛 BOSS_LEVEL_ROLES·_STAFF_ROLES 두 상수는 삭제).
-      웹 nav·버튼의 coach 분기 전면 제거
-- [x] **D30 코치 이름 평문** — `ROLE_SCOPES` 의 coach 3종에 `members_name_full` 추가.
-      연락처·생년월일은 계속 마스킹 (PIPA §29 최소권한 유지). 실측: 코치 `김도윤`/`010-****-7782`
-- [x] **D31 명단 출석 체크** — `PATCH /api/v1/admin/reservations/<id>/status`
-      (confirmed·attended·no_show. cancelled 는 거부). 앱 시트 [출석][노쇼] 토글 +
-      웹 상세 모달 버튼. gym_attendances 동기화(중복 방지·QR 행 불가침) 포함
-- [x] **D31 대기 순번 정정** — 저장값(`promoted_position`) 대신 매 조회마다 재계산.
-      `_current_waitlist_position()` · 적용 3곳(관리자 명단·회원 클래스·회원 예약)
-- [x] **D32 고아 행 정리** — `services/facing/scripts/fix_orphans.py` 신설
-      (기본 점검만, `--apply` 시 백업 후 삭제). 로컬 DB 14건 제거 → foreign_key_check 0건
-- [x] **D33 3면 공통 대전제 3줄** — 브리프 §2-0 정본 + 4개 repo CLAUDE.md 에 동일 문구
-      ① 사장=코치 ② 회원은 폰(앱)에서만 ③ 사장·코치는 PC 에서도
-- [x] **규칙 위반 코드 4곳 수정** — contracts.py 게이트 2개 → `_require_staff` 통합 ·
-      claim.py 가입코드 코치 개방 · admin.py `require_boss_or_manager`(죽은 코드) 삭제
-- [x] **회귀 테스트 7개** — `services/facing/tests/test_rules_prem.py`. `pytest tests` 157 passed
-- [x] **실호출 검증** — 계약서 9종+가입코드 1종 × (boss·coach·manager) = 30콜 403 0건,
-      비로그인 7콜 401. 골든 16장·`flutter analyze` 0 issues·갤러리 22장
+### 1. 토큰·테마 (전 화면 동시 적용) — `2f9465c`
+- [x] **브랜드 빨강 #EE2B2B → #CC1F1F** — 흰 배경 4.01→5.32, 흰 글씨 4.19→5.55.
+      전에는 **양방향 모두 WCAG AA 미달**이었다. `tierRx` 가 이미 같은 값이라 중복도 해소.
+      경로: `appkit.config.json` 브랜드 스킨 수정 → `cd C:/dev/tools/appkit && python sync.py --app facing`
+- [x] `placeholder` 토큰 신설 `#84848D` (조상 `#A1A1AA` 2.56:1 → 3.71:1)
+- [x] `textButtonTheme` · `iconButtonTheme` 신설 — **터치 최소 48 을 앱 전역에서 강제**
+- [x] `inputDecorationTheme` 신설 — 안내 문구 대비 + 포커스 테두리 브랜드색
+
+### 2. FKit 확장
+- [x] **`FkButton` 3단 신설** = 버튼의 유일 규격.
+      primary 채움 52 / secondary 외곽선 52 / tertiary 글자 48. 화면당 primary 1개.
+      옵션은 `expand` · `neutral`(중립 글자색) · `danger`(파괴적 동작) 셋뿐
+- [x] **`FkListRow` 우측 화살표 자동** — `onTap` 있고 우측 값 없으면 부착 (앱 전역 적용)
+- [x] `TermTip.showLabel` 신설 + 터치 영역 18~22 → 48
+
+### 3. 화면 수정 (결함 ID = 이번 세션 부여, H1~H18)
+- [x] **WOD 오늘 카드** — 연분홍 면 전체 채우기 → 흰 카드 + 좌측 4px 바 (링코 F1 구조).
+      라벨 열 72→92(`A. METCON`·`VERSIONS` 두 줄 깨짐 해소). 액션 3개 → primary 1 + 글자 2
+- [x] **홈 레벨 카드** — 캐릭터 flex 4/9(가로 44%) → 고정 88×88. 진행바 전체 폭·높이 6.
+      XP 세 자리 쉼표. 캡션 색을 레벨대 색 → 본문색 고정
+- [x] **마일스톤 진행바** — `alpha 0.55` 제거 (라이트 배경에서 반투명 = 비활성으로 읽힘)
+- [x] **하단 탭** — 켜진 탭 아이콘·라벨을 브랜드색으로 (전엔 둘 다 검정)
+- [x] H1 가입 코드 `000000`(검정 굵게) → `6자리 숫자`(placeholder) — 링코 F8
+- [x] H2 사장 대시보드 수업 시각 ISO 원문 → `19:00 – 20:00 · 박준서` (`_hhmm()`)
+- [x] H3 `데이터 초기화` → `FkButton.secondary(danger)` — 링코 S17
+- [x] H4 빈 상태 규격 통일 (박스 미가입 12px 회색 → h3) — 링코 F7
+- [x] H5 `ⓘ` 2개 라벨 없이 나란 → `ⓘ Tier` `ⓘ Engine` — 링코 F6
+- [x] H6 통계 타일 2종 → 라벨 위/값 아래로 통일 · H7 `회원 관리` → FkButton.primary
+- [x] H8 프로필 메뉴 화살표 · H9 `코치·사장 로그인` 흐린 회색 → 본문색 w600 + 구분선
+- [x] H11·H14 앱바 제목과 화면 헤드라인 중복 2곳 제거 (R1)
+- [x] H12 온보딩 1단계 영문 혼용 → 한글 (`체중`·`키`·`크로스핏 경력`), 입력칸 라벨 이중 표기 제거
+- [x] H13 수업 카드 `Reserve`→`예약` · `Join Waitlist`→`대기 신청` · `60min`→`60분` · `WL 2`→`대기 2`
+- [x] H16 인트로 1p 문구 중복 제거 + 헤드라인 마침표 제거 · H18 `로그아웃` → 외곽선 버튼
+- [x] 사장 대시보드 카드 4종 모서리 r3 (이 화면만 각져 있었다)
+
+### 4. 문서 — `98ecb2a`
+- [x] **`docs/DESIGN-SSOT.md` v1.29 → v2.2, §7-D 신설** "버튼 1종 강제 · 가시성"
+      — FkButton 표 + 금지 목록 + **가시성 규칙 10개** (링코 대조로 도출)
+- [x] `CLAUDE.md` tier 5색 표를 코드 실측값으로 정정 + 구 v1.15 다크 컬러 표에 "현재 값 아님" 경고
+
+### 5. 데모·디버그 UI 전면 삭제 — `18b8b0f` (사용자 명시 지시)
+- [x] 프로필 하단 DEBUG 블록 · `_QuickPersonaBar`(229줄) · `lib/features/_debug/` **폴더 통째**
+- [x] `demo_accounts.dart` + 로그인 화면 데모 진입 UI · `_useDemo()` · `DeviceIdService.overrideForDebug()`
+- [x] `integration_test/persona_smoke_test.dart`
+- [x] 골든이 쓰던 `tierGrade('RX')`·체형 값만 `screens_golden_test.dart` 안 상수로 이관 (결과 이미지 동일)
+
+### 검증
+`flutter analyze` 0 issues · `flutter test` **134 passed** · 골든 16장 재생성 · 갤러리 22장
 
 ## 진행중
 
-없음. 모든 착수 항목이 커밋까지 끝났다.
+없음. 착수한 항목은 전부 커밋까지 끝났다.
 
 ## 대기 (사용자 결정 필요 / 다음 후보)
 
-- [ ] **로컬 dev DB 역할 제약 드리프트** — `data/facing.db` 의 `ck_gym_manager_role` 이
-      `('boss','coach')` 라 **매니저 계정 생성 자체가 불가**. 운영·신규 DB 는
-      `('boss','manager','coach')` 정상. 매니저 역전 버그가 오래 산 원인.
-      고치려면 SQLite 특성상 테이블 재생성 필요 → 사용자 판단 대기
-- [ ] **`api/gym.py:486,590` 기기 소유 게이트** — `gym.owner_hash != h` 로 코치 폰을 막는다.
-      세션 role 축이 아니라 device_hash 축이라 규칙 1 적용 여부가 별도 판단 (미착수)
-- [ ] **`classes.py` CSRF 미적용** — 파일 전체가 `require_csrf` 를 안 쓴다(수업 취소 포함).
-      신규 출석 API 도 파일 관례에 맞춰 안 붙였다. 일괄 적용할지 결정 필요
-- [ ] **운영 DB 고아 정리** — 점검 결과 **0건이라 정리 불필요**. 재점검은
-      `railway ssh "echo <b64> | base64 -d | python"` 패턴(읽기 전용 mode=ro)
-- [ ] **`pytest` 루트 실행 크래시** — 인자 없이 `pytest` 만 치면 capture 오류로 죽는다.
-      **이번 변경 이전부터 있던 문제**. `pytest tests` 로는 157 passed. 원인 미추적
-- [ ] 계약서 실데이터로 코치 열람 내용까지 확인 (이번엔 임시 DB 라 계약서 0건)
+- [ ] **`ProfileState.applyPersonaSnapshot()` 이름 잔재** — 페르소나 기능이 사라졌는데 이름만 남았다.
+      현재 호출자는 `test/golden/screens_golden_test.dart` 하나뿐. rename 시 §0-B 절차(전체 grep) 적용
+- [ ] **버튼 규격 자동 게이트 없음** — 배지는 `test/badge_lint_test.dart` 가 지키는데
+      §7-D 버튼 규칙 10개는 **사람 눈에만 의존**한다. `button_lint_test.dart` 신설 후보
+      (검사 대상: 화면 로컬 `GestureDetector`+`Container` 버튼 · `minimumSize` 48 미만 ·
+      `foregroundColor: FacingTokens.muted`)
+- [ ] **`회원 관리` 버튼이 아직 "구현 예정" 스낵바** (`boss_dashboard_screen.dart:163`).
+      하단 탭 `회원` 과 목적지도 같다. 모양만 맞춰 뒀고 **존치 여부는 제품 판단**
+- [ ] **로그인 화면 `_kShowSocialLogin = false`** — 데모가 아니라 실 OAuth 키 대기 상태라
+      이번 삭제 범위에서 제외했다. 정리할지 결정 필요
+- [ ] **`state_01_wod_error` 골든에 에러가 안 찍힌다** — 파일명과 내용 불일치 의심. 미확인
+- [ ] **에뮬레이터 실조작 검증 미실시** — 골든은 정지 화면이라 스피너·전환·터치를 못 잡는다.
+      이번 세션 오진 2건(H15 성별 토글·H17 스플래시 점)이 전부 정지 화면 판단에서 나왔다
+- [ ] 안 본 화면: 인트로 2·3p 등은 갤러리로만 훑었고 픽셀 단위로 뜯어보진 않았다
 
 ## 결정사항 / 주의
 
-1. **§2-0 3줄이 최상위 규칙.** 브리프의 다른 표·D 결정·각 repo CLAUDE.md 는 전부 각론.
-   충돌 시 3줄이 이긴다. 규칙 1 의 **유일한 예외는 PII**(D30) — 축이 다르다.
-2. **배포 금지 유지.** 사용자가 "배포해"라고 하기 전까지 push·railway up 금지
-   (프로젝트 CLAUDE.md 최상위). 이번 세션 push 0건.
-3. **`services/facing` 에 다른 Claude 세션이 동시 작업 중이었다.** auto-save 훅이 내
-   변경을 자기 커밋에 여러 번 흡수했다(`1841275`·`7759d62`). 내용은 온전하나
-   커밋 메시지가 auto-save 로 남았다. 다음 세션도 같은 상황일 수 있으니 커밋 전 `git log` 확인.
-4. **`gym_coach_profiles` FK 결함은 그 세션이 고쳤다** (`1c18d1b`). 모델·DDL 수정 +
-   기존 DB 복구 마이그레이션 포함 → **배포하면 운영이 자동으로 낫는다.**
-   내가 운영 DB 조회로 찾은 것과 같은 건이다 (운영 테이블은 아직 깨진 상태).
-5. **명단 API 의 `orphan`('탈퇴 회원') 처리는 그대로 둔다** — 운영 DB 미정리 + 값싼 방어.
-6. **검증 시 로그인 5회/5분 제한**에 자주 걸린다. 계정당 1회 로그인 후 세션 재사용하거나
-   백엔드를 재시작해 리미터를 리셋할 것.
-7. 골든 `common_05_signup.png` 갱신은 내 변경과 무관 — `c974192`(auto-save)가 버튼을
-   추가하고 골든을 안 돌려 커밋본이 낡아 있던 것을 바로잡은 것.
+1. **이 repo 에서 `dart format` 을 돌리지 말 것.** 옛 SDK 기준으로 포맷돼 있어
+   현재 포맷터를 돌리면 **118개 파일이 통째로 재포맷**된다 (이번 세션에서 사고 후 되돌림).
+   편집은 Edit 도구로만.
+2. **auto-save 훅이 작업을 남의 커밋에 흡수한다.** 이번 세션 중 다른 세션의 커밋
+   `1a9de5d`("docs: …")·`582faf8` 에 내 lib 변경이 섞여 들어갔다. 커밋 전 `git log`·`git status` 확인.
+3. **배포 금지 유지.** 사용자가 "배포해"라고 하기 전까지 push·railway up 금지 (프로젝트 CLAUDE.md 최상위).
+4. **선택 상태는 검정(`color: fg`), 브랜드색은 동작 전용.** 선택형 FkBadge 8곳이 전부 이 규칙을
+   따른다 — 성별 토글이 검정인 것은 결함이 아니라 체계다 (이번 세션 오진 H15).
+5. **백엔드 데모 시드는 건드리지 않았다.** 글로벌 §3-A `admin/1234` 시드는 `services/facing` 의무이고,
+   이번에 지운 것은 앱 화면의 디버그 UI 다.
+6. UI 를 바꾸면 **골든 재생성 + 갤러리 갱신이 완료 조건** (DESIGN-SSOT §0).
+   `flutter test --update-goldens test/golden` → `python tool/golden_gallery.py`
 
 ## 관련 파일
 
 | 경로 | 역할 |
 |---|---|
-| `apps/facing-app/docs/ARCHITECTURE_BRIEF.md` | **최상위 SSOT.** §2-0 대전제 · D29~D33 |
-| `services/facing/api/roles.py` | **운영 권한 정본** — `STAFF_ROLES`·`is_staff`·`FORBIDDEN_STAFF_MSG` |
-| `services/facing/api/admin.py` | `require_staff` 데코레이터 · `ROLE_SCOPES` · `_mask_pii` |
-| `services/facing/api/classes.py` | 명단 API · 출석 PATCH · 대기 순번 (권한은 `is_staff`) |
-| `services/facing/api/contracts.py` | 공용 `require_staff` 사용 (자체 게이트·별칭 전부 삭제) |
-| `services/facing/tests/test_rules_prem.py` | 3줄 규칙 회귀 테스트 (이름 중복·문구 분화까지 검사) |
-| `services/facing/scripts/fix_orphans.py` | 고아 행 점검·정리 (기본 점검만) |
-| `apps/facing-app/lib/features/boss/class_roster_sheet.dart` | 명단 시트 + 출석 토글 |
-| `apps/facing-app/lib/widgets/fkit.dart` | FKit — `FkListRow.trailingWidget` 추가 |
-| `web/facing-admin/templates/classes.html` | 수업 상세 명단 + 출석 버튼 |
+| `docs/DESIGN-SSOT.md` | **양식 정본.** §7-D = 이번 세션 버튼·가시성 규격 |
+| `C:/dev/tools/linko-screens/REVIEW.md` | 링코 결함 F1~F10 — 우리 규칙의 근거 |
+| `lib/widgets/fkit.dart` | FkButton(신설) · FkListRow 화살표 · FkBadge |
+| `lib/core/theme.dart` | placeholder 토큰 · textButton/iconButton/inputDecoration 테마 |
+| `appkit.config.json` | 브랜드 accent `#CC1F1F` (수정 후 `tools/appkit/sync.py --app facing`) |
+| `lib/features/gym/box_wod_screen.dart` | WOD 오늘 카드 · `_kv` · 액션 위계 |
+| `lib/features/home/home_screen.dart` | 레벨 카드 · 마일스톤 진행바 · `_comma()` |
+| `lib/features/boss/boss_dashboard_screen.dart` | 카운터·수업·만료 카드 · `_hhmm()` |
+| `test/golden/screens_golden_test.dart` | RX 캡처 입력 상수 (`_kRxGrade`·`_kRxBenchmarks`) |
 
 ## 다음 세션 권장 첫 프롬프트
 
 `/resume`
 
 이어서 하려면 대기 항목 중 하나를 골라 지시:
-1. 로컬 dev DB 역할 제약 고치기 (매니저를 로컬에서 못 만드는 문제)
-2. `gym.py` 기기 소유 게이트 2곳 결정
-3. `classes.py` 전체 CSRF 적용
+1. `button_lint_test.dart` 신설 — §7-D 규칙을 자동 게이트로
+2. 에뮬레이터 실조작 검증 (골든이 못 잡는 것)
+3. `applyPersonaSnapshot` 이름 정리 (§0-B 잔재)
