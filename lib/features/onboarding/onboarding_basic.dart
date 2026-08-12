@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/api_client.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../core/tier.dart';
 import '../../widgets/fkit.dart';
 import '../profile/profile_state.dart';
 
-/// 가입 직후 한 번 묻는 화면 — 성별과 경력 두 가지가 전부다.
+/// 가입 직후 한 번 묻는 화면 — 내 정보(이름·생년월일·전화)와 성별·경력.
 ///
 /// v2.3 (2026-08-12 사용자 지시): 체중·키·나이와 6단계 벤치마크(운동 능력)를
 /// 전부 뺐다. 이 앱은 HYPHEN 한 박스에서 예약·공지를 주고받는 것이 본업이라,
 /// 가입하자마자 7단계 측정을 시키는 것이 앞을 막고 있었다.
+///
+/// v2.6 (2026-08-13 사용자 지시): **이름·생년월일·전화**를 여기서 받는다.
+/// 코치 PC 회원 목록은 이 세 값을 보여주는데, 앱으로 들어온 회원은 넣을 곳이
+/// 없어 늘 비어 있었다. 저장하면 `PATCH /api/v1/member/me/profile` 로 올라가
+/// PC 목록에 바로 뜬다. 레벨도 서버가 경력에서 계산해 같이 넣는다 (D36).
 ///
 /// 뺀 값들은 화면에서 사라진 것이지 코드가 사라진 것은 아니다 — 프로필 편집의
 /// 신체·벤치마크 화면(`/onboarding/benchmarks`)은 그대로 살아 있고, Tier 를
@@ -38,8 +44,13 @@ const List<_ExpBand> _kExpBands = [
 ];
 
 class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
+  final _nameCtrl = TextEditingController();
+  final _birthCtrl = TextEditingController();
+  final _phoneCtrl = TextEditingController();
   String _gender = 'male';
   int? _bandIndex;
+  bool _saving = false;
+  String? _error;
 
   @override
   void initState() {
@@ -54,17 +65,66 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
               ? 1
               : 2;
     }
+    _prefill();
   }
 
-  bool get _canContinue => _bandIndex != null;
+  /// 코치가 PC 에서 이미 적어둔 값이 있으면 그것부터 보여준다 (다시 묻지 않게).
+  Future<void> _prefill() async {
+    try {
+      final api = context.read<ApiClient>();
+      final data = await api.get('/api/v1/member/me/profile');
+      if (!mounted) return;
+      setState(() {
+        _nameCtrl.text = (data['name'] ?? '').toString();
+        _birthCtrl.text = (data['birth_date'] ?? '').toString();
+        _phoneCtrl.text = (data['phone'] ?? '').toString();
+        final g = (data['gender'] ?? '').toString();
+        if (g == '여') _gender = 'female';
+        if (g == '남') _gender = 'male';
+      });
+    } catch (_) {
+      // 미가입·네트워크 실패 → 빈 칸으로 시작. 입력 자체는 막지 않는다.
+    }
+  }
 
-  void _onDone() {
-    final p = context.read<ProfileState>();
-    p.setBasic(
-      gender: _gender,
-      experienceYears: _kExpBands[_bandIndex!].years,
-    );
-    Navigator.of(context).pushNamedAndRemoveUntil('/shell', (_) => false);
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    _birthCtrl.dispose();
+    _phoneCtrl.dispose();
+    super.dispose();
+  }
+
+  bool get _canContinue =>
+      _bandIndex != null && _nameCtrl.text.trim().isNotEmpty && !_saving;
+
+  Future<void> _onDone() async {
+    final years = _kExpBands[_bandIndex!].years;
+    context.read<ProfileState>().setBasic(
+          gender: _gender,
+          experienceYears: years,
+        );
+    setState(() {
+      _saving = true;
+      _error = null;
+    });
+    final navigator = Navigator.of(context);
+    try {
+      // 서버에 올려야 코치 PC 목록에 뜬다. 실패해도 앱은 계속 쓸 수 있어야 하므로
+      // 막지 않고 안내만 남긴다 (다음에 프로필 수정에서 다시 시도 가능).
+      await context.read<ApiClient>().patch('/api/v1/member/me/profile', {
+        'name': _nameCtrl.text.trim(),
+        'birth_date': _birthCtrl.text.trim(),
+        'phone': _phoneCtrl.text.trim(),
+        'gender': _gender == 'female' ? '여' : '남',
+        'experience_years': years,
+      });
+    } catch (_) {
+      if (mounted) setState(() => _error = '저장은 됐지만 박스에 전달하지 못했습니다.');
+    }
+    if (!mounted) return;
+    setState(() => _saving = false);
+    navigator.pushNamedAndRemoveUntil('/shell', (_) => false);
   }
 
   @override
@@ -72,92 +132,124 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
     return Scaffold(
       backgroundColor: FacingTokens.bg,
       appBar: AppBar(
-        title: const Text('기본 정보'),
+        title: const Text('내 정보'),
         backgroundColor: FacingTokens.bg,
         automaticallyImplyLeading: false,
       ),
       body: SafeArea(
-        child: Padding(
+        child: ListView(
           padding: const EdgeInsets.all(FacingTokens.sp5),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: FacingTokens.sp2),
-              const FkSectionLabel('성별'),
-              const SizedBox(height: FacingTokens.sp2),
-              Row(
-                children: [
-                  FkBadge(
-                    '남',
-                    color: FacingTokens.fg,
-                    selected: _gender == 'male',
-                    onTap: () {
-                      Haptic.selection();
-                      setState(() => _gender = 'male');
-                    },
-                  ),
-                  const SizedBox(width: FacingTokens.sp2),
-                  FkBadge(
-                    '여',
-                    color: FacingTokens.fg,
-                    selected: _gender == 'female',
-                    onTap: () {
-                      Haptic.selection();
-                      setState(() => _gender = 'female');
-                    },
-                  ),
-                ],
+          children: [
+            const Text(
+              '코치가 회원 명단에서 보는 정보입니다.',
+              style: FacingTokens.caption,
+            ),
+            const SizedBox(height: FacingTokens.sp4),
+            TextField(
+              controller: _nameCtrl,
+              textInputAction: TextInputAction.next,
+              onChanged: (_) => setState(() {}),
+              decoration: const InputDecoration(labelText: '이름'),
+            ),
+            const SizedBox(height: FacingTokens.sp3),
+            TextField(
+              controller: _birthCtrl,
+              keyboardType: TextInputType.datetime,
+              decoration: const InputDecoration(
+                labelText: '생년월일 (선택)',
+                hintText: '1995-01-01',
               ),
-              const SizedBox(height: FacingTokens.sp6),
+            ),
+            const SizedBox(height: FacingTokens.sp3),
+            TextField(
+              controller: _phoneCtrl,
+              keyboardType: TextInputType.phone,
+              decoration: const InputDecoration(
+                labelText: '전화 (선택)',
+                hintText: '010-0000-0000',
+              ),
+            ),
+            const SizedBox(height: FacingTokens.sp5),
 
-              const FkSectionLabel('크로스핏 경력'),
-              const SizedBox(height: FacingTokens.sp2),
-              Wrap(
-                spacing: FacingTokens.sp2,
-                runSpacing: FacingTokens.sp2,
-                children: [
-                  for (var i = 0; i < _kExpBands.length; i++)
-                    FkBadge(
-                      _kExpBands[i].label,
-                      color: FacingTokens.fg,
-                      selected: _bandIndex == i,
-                      onTap: () {
-                        Haptic.selection();
-                        setState(() => _bandIndex = i);
-                      },
-                    ),
-                ],
-              ),
-              // v2.6 (2026-08-12 사용자 지시 · BRIEF D36): 레벨은 경력 하나로
-              // 정해진다. 고른 구간이 어느 레벨이 되는지 그 자리에서 보여준다 —
-              // 나중에 코치 화면에서 처음 보게 되면 "왜 내가 스케일이냐"가 된다.
-              if (_bandIndex != null) ...[
-                const SizedBox(height: FacingTokens.sp3),
-                Row(
-                  children: [
-                    const Text('내 레벨', style: FacingTokens.caption),
-                    const SizedBox(width: FacingTokens.sp2),
-                    Builder(builder: (_) {
-                      final t = Tier.fromExperienceYears(
-                          _kExpBands[_bandIndex!].years);
-                      return FkBadge(t.memberLevelLabel, color: t.color);
-                    }),
-                  ],
+            const FkSectionLabel('성별'),
+            const SizedBox(height: FacingTokens.sp2),
+            Row(
+              children: [
+                FkBadge(
+                  '남',
+                  color: FacingTokens.fg,
+                  selected: _gender == 'male',
+                  onTap: () {
+                    Haptic.selection();
+                    setState(() => _gender = 'male');
+                  },
+                ),
+                const SizedBox(width: FacingTokens.sp2),
+                FkBadge(
+                  '여',
+                  color: FacingTokens.fg,
+                  selected: _gender == 'female',
+                  onTap: () {
+                    Haptic.selection();
+                    setState(() => _gender = 'female');
+                  },
                 ),
               ],
+            ),
+            const SizedBox(height: FacingTokens.sp5),
 
-              const Spacer(),
-              FkButton.primary(
-                '시작하기',
-                onPressed: _canContinue
-                    ? () {
-                        Haptic.light();
-                        _onDone();
-                      }
-                    : null,
+            const FkSectionLabel('크로스핏 경력'),
+            const SizedBox(height: FacingTokens.sp2),
+            Wrap(
+              spacing: FacingTokens.sp2,
+              runSpacing: FacingTokens.sp2,
+              children: [
+                for (var i = 0; i < _kExpBands.length; i++)
+                  FkBadge(
+                    _kExpBands[i].label,
+                    color: FacingTokens.fg,
+                    selected: _bandIndex == i,
+                    onTap: () {
+                      Haptic.selection();
+                      setState(() => _bandIndex = i);
+                    },
+                  ),
+              ],
+            ),
+            // v2.6 (BRIEF D36): 레벨은 경력 하나로 정해진다. 고른 구간이 어느
+            // 레벨이 되는지 그 자리에서 보여준다 — 나중에 코치 화면에서 처음
+            // 보게 되면 "왜 내가 스케일이냐"가 된다.
+            if (_bandIndex != null) ...[
+              const SizedBox(height: FacingTokens.sp3),
+              Row(
+                children: [
+                  const Text('내 레벨', style: FacingTokens.caption),
+                  const SizedBox(width: FacingTokens.sp2),
+                  Builder(builder: (_) {
+                    final t = Tier.fromExperienceYears(
+                        _kExpBands[_bandIndex!].years);
+                    return FkBadge(t.memberLevelLabel, color: t.color);
+                  }),
+                ],
               ),
             ],
-          ),
+            if (_error != null) ...[
+              const SizedBox(height: FacingTokens.sp3),
+              Text(_error!,
+                  style:
+                      FacingTokens.caption.copyWith(color: FacingTokens.warning)),
+            ],
+            const SizedBox(height: FacingTokens.sp6),
+            FkButton.primary(
+              _saving ? '저장 중' : '시작하기',
+              onPressed: _canContinue
+                  ? () {
+                      Haptic.light();
+                      _onDone();
+                    }
+                  : null,
+            ),
+          ],
         ),
       ),
     );
