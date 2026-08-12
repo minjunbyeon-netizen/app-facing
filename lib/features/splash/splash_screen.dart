@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/api_client.dart';
 import '../../core/appkit.gen.dart';
@@ -12,7 +11,6 @@ import '../../widgets/brand_logo.dart';
 import '../../widgets/fkit.dart';
 import '../auth/auth_state.dart';
 import '../boss/boss_auth_state.dart';
-import '../profile/profile_state.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
