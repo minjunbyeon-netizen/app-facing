@@ -358,8 +358,10 @@ class _ClassCard extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
+                  // v2.3: '8/12' 가 날짜(8월 12일)로 읽혔다. 단위를 붙여
+                  // 인원임을 드러낸다 (사용자 지시 2026-08-12).
                   Text(
-                    '${session.reservedCount}/${session.capacity}',
+                    '${session.reservedCount}명 / ${session.capacity}명',
                     style: FacingTokens.body.copyWith(
                       fontFeatures: FacingTokens.tabular,
                       fontWeight: FontWeight.w700,
