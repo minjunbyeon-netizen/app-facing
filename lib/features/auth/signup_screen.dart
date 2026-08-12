@@ -213,10 +213,24 @@ class _SignupScreenState extends State<SignupScreen> {
                   const SizedBox(height: FacingTokens.sp5),
                 ],
 
-                // v1.33 주 CTA — 실제 회원가입. 박스 선택 → 실명·전화 →
+                // 2026-08-12 주 CTA — 이미 아이디를 받은 회원의 진입로.
+                // 서버가 login_id ↔ device_id 를 이어 주므로 폰이 바뀌어도
+                // 같은 회원 기록으로 들어온다 (backend api/member_auth.py).
+                ElevatedButton(
+                  onPressed: _busy
+                      ? null
+                      : () {
+                          Haptic.light();
+                          Navigator.of(context).pushNamed('/login/member');
+                        },
+                  child: const Text('아이디로 로그인'),
+                ),
+                const SizedBox(height: FacingTokens.sp3),
+
+                // v1.33 — 아직 아이디가 없는 신규 방문자. 박스 선택 → 실명·전화 →
                 // 가입 신청(pending) → 사장 승인 → 회원 활성.
                 // A-4 (2026-06-10): /signup/self 고아 라우트 해소 이력 유지.
-                ElevatedButton(
+                OutlinedButton(
                   onPressed: _busy
                       ? null
                       : () {
