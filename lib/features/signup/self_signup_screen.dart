@@ -11,12 +11,15 @@ import '../../widgets/fkit.dart';
 import '../auth/auth_state.dart';
 import '../profile/profile_state.dart';
 
-/// 회원 가입 신청 — 아이디 + 비밀번호(2회)만 받는다.
+/// 회원 가입 신청 — 이름·연락처 + 아이디 + 비밀번호(2회).
 ///
-/// v2.3 (2026-08-12 사용자 지시): 이 앱은 **HYPHEN 한 박스 전용**이다. 코치와
-/// 회원이 그 안에서 예약·공지를 주고받는 것이 전부라, 박스를 고르거나 번호를
-/// 넣는 절차 자체가 없다. 이름·전화·성별은 사장이 승인하면서 채운다.
-/// 아이디가 그대로 표시용 이름으로 들어간다.
+/// v2.3 (2026-08-12): 이 앱은 **HYPHEN 한 박스 전용**이라 박스를 고르는 절차가
+/// 없다. 그때는 아이디·비밀번호만 받고 이름은 코치가 나중에 채우기로 했었다.
+///
+/// v2.7 (2026-08-13 사용자 지시 — 실검증에서 뒤집힘): 코치 화면에 신청자가
+/// **'이름 미등록'** 으로만 떠서, 누가 신청했는지 모른 채 승인해야 했다.
+/// 그래서 이름(필수)·연락처(선택)를 가입 신청에서 받는다. 코치가 승인 버튼을
+/// 누르기 전에 사람을 식별할 수 있어야 한다.
 ///
 /// 박스 id 는 `/api/v1/member/gyms-list` 에서 이름이 HYPHEN 인 행으로 찾는다
 /// (목록이 안 오면 [_kFallbackGymId]). 나중에 박스가 늘어나면 이 화면에
@@ -37,6 +40,8 @@ class SelfSignupScreen extends StatefulWidget {
 
 class _SelfSignupScreenState extends State<SelfSignupScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _nameCtrl = TextEditingController();
+  final _phoneCtrl = TextEditingController();
   final _idCtrl = TextEditingController();
   final _pwCtrl = TextEditingController();
   final _pw2Ctrl = TextEditingController();
@@ -53,6 +58,8 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
 
   @override
   void dispose() {
+    _nameCtrl.dispose();
+    _phoneCtrl.dispose();
     _idCtrl.dispose();
     _pwCtrl.dispose();
     _pw2Ctrl.dispose();
@@ -89,9 +96,15 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
     final profile = context.read<ProfileState>();
 
     try {
+      final phone = _phoneCtrl.text.trim();
       final res = await api.post(
         '/api/v1/member/gyms/$gymId/self-signup',
-        {'login_id': loginId, 'password': _pwCtrl.text},
+        {
+          'login_id': loginId,
+          'password': _pwCtrl.text,
+          'name': _nameCtrl.text.trim(),
+          if (phone.isNotEmpty) 'phone': phone,
+        },
       );
       if (!mounted) return;
       final status = (res['status'] ?? 'pending') as String;
@@ -99,7 +112,7 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
 
       // 가입 신청 성공 = 이 기기의 신원 확정. AuthState 를 세워 두지 않으면
       // 다음 실행 때 splash 가 !isSignedIn 을 보고 로그인 화면으로 되돌린다.
-      await auth.signIn('self', displayName: loginId);
+      await auth.signIn('self', displayName: _nameCtrl.text.trim());
       await AppModeStore.set(AppMode.member);
       if (!mounted) return;
 
@@ -179,6 +192,43 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                const FkSectionLabel('이름'),
+                const SizedBox(height: FacingTokens.sp1),
+                TextFormField(
+                  controller: _nameCtrl,
+                  style: FacingTokens.body.copyWith(color: FacingTokens.fg),
+                  decoration: _deco('코치에게 보일 이름'),
+                  textInputAction: TextInputAction.next,
+                  validator: (v) =>
+                      (v ?? '').trim().isEmpty ? '이름을 입력해 주세요.' : null,
+                ),
+                const SizedBox(height: FacingTokens.sp4),
+
+                const FkSectionLabel('연락처'),
+                const SizedBox(height: FacingTokens.sp1),
+                TextFormField(
+                  controller: _phoneCtrl,
+                  style: FacingTokens.body.copyWith(color: FacingTokens.fg),
+                  decoration: _deco('010-1234-5678'),
+                  keyboardType: TextInputType.phone,
+                  textInputAction: TextInputAction.next,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9-]')),
+                  ],
+                  // 선택 입력 — 비워 두면 코치가 나중에 채운다. 넣었다면 형식은 맞춰야
+                  // 서버(normalize_phone)가 거절하지 않는다.
+                  validator: (v) {
+                    final t = (v ?? '').trim();
+                    if (t.isEmpty) return null;
+                    final digits = t.replaceAll('-', '');
+                    if (digits.length < 9 || digits.length > 11) {
+                      return '전화번호를 다시 확인해 주세요.';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: FacingTokens.sp4),
+
                 const FkSectionLabel('아이디'),
                 const SizedBox(height: FacingTokens.sp1),
                 TextFormField(
