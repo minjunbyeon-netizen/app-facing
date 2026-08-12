@@ -441,24 +441,26 @@ class _LevelCard extends StatelessWidget {
     final isMax = bd.level >= LevelSystem.maxLevel;
     final charColor = _colorForLevel(bd.level);
 
+    // v2.2 위계 정리 — 전엔 캐릭터가 카드 가로의 44% 를 먹었다. 정보량은 0 인데
+    // 화면에서 가장 큰 요소였고, 정작 읽어야 할 레벨 숫자·진행도는 남은 절반에
+    // 눌려 있었다. 캐릭터를 고정 88 아바타로 접고 숫자·진행바를 앞세운다.
+    // 요소는 하나도 빼지 않았다 (캐릭터·레벨·XP·캡션·진행바·다음레벨 전부 유지).
     return FkCard(
-      child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // 좌측 절반 — 캐릭터 (카드 높이만큼 크게).
-            Expanded(
-              flex: 4,
-              child: Container(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // 캐릭터 — 연분홍 면·반투명 컬러 보더를 걷고 중립 면 + 1px.
+              // 레벨대 색은 테두리 한 곳에만 남겨 강조를 분산시키지 않는다.
+              Container(
+                width: 88,
+                height: 88,
                 decoration: BoxDecoration(
-                  color: FacingTokens.accentSoft.withValues(
-                    alpha: bd.level >= 8 ? 0.6 : 0.3,
-                  ),
+                  color: FacingTokens.surfaceAlt,
                   borderRadius: BorderRadius.circular(FacingTokens.r2),
-                  border: Border.all(
-                    color: charColor.withValues(alpha: 0.5),
-                    width: 1.5,
-                  ),
+                  border: Border.all(color: charColor, width: 1),
                 ),
                 clipBehavior: Clip.antiAlias,
                 child: Image.asset(
@@ -470,74 +472,83 @@ class _LevelCard extends StatelessWidget {
                   ),
                 ),
               ),
-            ),
-            const SizedBox(width: FacingTokens.sp4),
-            // 우측 절반 — LEVEL/캡션/progress/XP rows.
-            Expanded(
-              flex: 5,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const FkSectionLabel('레벨'),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                    textBaseline: TextBaseline.alphabetic,
-                    children: [
-                      Text(
-                        '${bd.level}',
-                        style: FacingTokens.displayCompact.copyWith(
-                          color: FacingTokens.accent,
-                        ),
+              const SizedBox(width: FacingTokens.sp4),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const FkSectionLabel('레벨'),
+                    Text(
+                      '${bd.level}',
+                      style: FacingTokens.displayCompact.copyWith(
+                        color: FacingTokens.primary,
                       ),
-                      const SizedBox(width: FacingTokens.sp2),
-                      Text(
-                        '${bd.totalXp} XP',
-                        style: FacingTokens.caption.copyWith(
-                          fontFeatures: FacingTokens.tabular,
-                          color: FacingTokens.muted,
-                          fontWeight: FontWeight.w700,
-                        ),
+                    ),
+                    const SizedBox(height: FacingTokens.sp1),
+                    // 캡션 색을 레벨대 색에서 본문색으로 고정. 레벨이 낮으면
+                    // 회색이라 격려 문구가 가장 흐렸다.
+                    Text(
+                      _captionForLevel(bd.level),
+                      style: FacingTokens.caption.copyWith(
+                        color: FacingTokens.fg,
+                        fontWeight: FontWeight.w600,
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: FacingTokens.sp2),
-                  Text(
-                    _captionForLevel(bd.level),
-                    style: FacingTokens.caption.copyWith(
-                      color: charColor,
-                      fontWeight: FontWeight.w700,
                     ),
-                  ),
-                  const SizedBox(height: FacingTokens.sp2),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(FacingTokens.r1),
-                    child: Stack(
-                      children: [
-                        Container(height: 5, color: FacingTokens.border),
-                        FractionallySizedBox(
-                          widthFactor: bd.progress,
-                          child: Container(
-                              height: 5, color: FacingTokens.accent),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: FacingTokens.sp1),
-                  Text(
-                    isMax
-                        ? '최고 레벨'
-                        : '$pct% · 다음 Lv${bd.level + 1} · ${bd.xpToNext} XP',
-                    style: FacingTokens.micro,
-                  ),
-                  const SizedBox(height: FacingTokens.sp2),
-                ],
+                  ],
+                ),
               ),
+            ],
+          ),
+          const SizedBox(height: FacingTokens.sp3),
+          // 진행바를 카드 전체 폭으로. 반쪽 폭일 때는 14% 가 5px 밖에 안 돼
+          // 채워졌는지 눈으로 확인되지 않았다.
+          ClipRRect(
+            borderRadius: BorderRadius.circular(FacingTokens.r1),
+            child: Stack(
+              children: [
+                Container(height: 6, color: FacingTokens.border),
+                FractionallySizedBox(
+                  widthFactor: bd.progress,
+                  child: Container(height: 6, color: FacingTokens.primary),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: FacingTokens.sp2),
+          Row(
+            children: [
+              Text(
+                '${_comma(bd.totalXp)} XP',
+                style: FacingTokens.micro.copyWith(
+                  color: FacingTokens.fgSecondary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                isMax
+                    ? '최고 레벨'
+                    : '다음 Lv${bd.level + 1} · ${_comma(bd.xpToNext)} XP · $pct%',
+                style: FacingTokens.micro,
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
+}
+
+/// 세 자리마다 쉼표. 큰 XP 값이 `1570` 처럼 붙어 나오면 자릿수를 세게 된다
+/// (v2.2 — 링코가 `62,500` 으로 잘 하던 부분).
+String _comma(int n) {
+  final s = n.abs().toString();
+  final b = StringBuffer(n < 0 ? '-' : '');
+  for (var i = 0; i < s.length; i++) {
+    if (i > 0 && (s.length - i) % 3 == 0) b.write(',');
+    b.write(s[i]);
+  }
+  return b.toString();
 }
 
 /// 마일스톤 3종 요약 진행바 (출석 / 세션 / 업적).
@@ -561,20 +572,20 @@ class _ProgressStat extends StatelessWidget {
       title: title,
       subtitle: subtitle,
       trailing: trailing,
-      trailingColor: done ? FacingTokens.accent : FacingTokens.muted,
+      // 달성 여부는 우측 수치의 색으로만 가른다 (진행바는 길이가 말한다).
+      trailingColor: done ? FacingTokens.primary : FacingTokens.fgSecondary,
       below: ClipRRect(
         borderRadius: BorderRadius.circular(FacingTokens.r1),
         child: Stack(
           children: [
-            Container(height: 4, color: FacingTokens.border),
+            // v2.2: 진행 중일 때 alpha 0.55 로 흐리던 것을 걷었다. 라이트 배경에서
+            // 반투명 브랜드색은 "덜 채워짐"이 아니라 "비활성"으로 읽힌다.
+            // 채운 길이가 이미 진행도를 말하므로 색까지 흐릴 이유가 없다.
+            // 높이도 레벨 카드 진행바와 같은 6 으로 맞춘다.
+            Container(height: 6, color: FacingTokens.border),
             FractionallySizedBox(
               widthFactor: value,
-              child: Container(
-                height: 4,
-                color: done
-                    ? FacingTokens.accent
-                    : FacingTokens.accent.withValues(alpha: 0.55),
-              ),
+              child: Container(height: 6, color: FacingTokens.primary),
             ),
           ],
         ),
