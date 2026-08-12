@@ -1218,46 +1218,30 @@ class _WodRowState extends State<_WodRow> {
                     ),
                   ),
                 const SizedBox(height: FacingTokens.sp3),
-                // 액션 — TextButton으로 가볍게.
+                // v2.2 액션 위계 — 전엔 셋 다 같은 글자 버튼(높이 36)이라
+                // 무엇을 눌러야 할지 보이지 않았고 손가락 기준 48 에도 못 미쳤다.
+                // 주 동작만 채움 버튼으로 올리고 나머지는 아랫줄 글자 버튼으로 내린다.
+                FkButton.primary(
+                  '완료 표시',
+                  icon: Icons.check,
+                  onPressed: () => _openResultSheet(context),
+                ),
                 Row(
                   children: [
-                    TextButton.icon(
-                      onPressed: () => _openResultSheet(context),
-                      icon: const Icon(Icons.check, size: 16),
-                      label: const Text('완료 표시'),
-                      style: TextButton.styleFrom(
-                        foregroundColor: FacingTokens.accent,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: FacingTokens.sp2,
-                        ),
-                        minimumSize: const Size(0, 36),
-                      ),
-                    ),
                     // 회원 전용: 코치에게 메시지 (owner는 숨김)
-                    if (!context.watch<GymState>().isOwner) ...[
-                      const SizedBox(width: FacingTokens.sp2),
-                      TextButton.icon(
+                    if (!context.watch<GymState>().isOwner)
+                      FkButton.tertiary(
+                        '메시지',
+                        icon: Icons.chat_bubble_outline,
+                        neutral: true,
                         onPressed: () => _openMsgSheet(context),
-                        icon: const Icon(Icons.chat_bubble_outline,
-                            size: 15),
-                        label: const Text('메시지'),
-                        style: TextButton.styleFrom(
-                          foregroundColor: FacingTokens.muted,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: FacingTokens.sp2,
-                          ),
-                          minimumSize: const Size(0, 36),
-                        ),
                       ),
-                    ],
                     const Spacer(),
-                    TextButton(
+                    // v1.29 한글 기본 — 'Detail' 은 도메인 고정어가 아니다.
+                    FkButton.tertiary(
+                      '자세히',
+                      neutral: true,
                       onPressed: () => _openDetail(context),
-                      style: TextButton.styleFrom(
-                        foregroundColor: FacingTokens.muted,
-                        minimumSize: const Size(0, 36),
-                      ),
-                      child: const Text('Detail →'),
                     ),
                   ],
                 ),

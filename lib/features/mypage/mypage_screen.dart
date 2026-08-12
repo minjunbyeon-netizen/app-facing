@@ -794,7 +794,7 @@ class _MyBoxSection extends StatelessWidget {
               const SizedBox(height: FacingTokens.sp2),
               TextButton(
                 style: TextButton.styleFrom(
-                  foregroundColor: FacingTokens.muted,
+                  foregroundColor: FacingTokens.fgSecondary,
                   padding:
                       const EdgeInsets.symmetric(horizontal: FacingTokens.sp2),
                   textStyle: FacingTokens.micro,
@@ -991,7 +991,7 @@ class _ActionsSection extends StatelessWidget {
                     ),
                     TextButton(
                       style: TextButton.styleFrom(
-                        foregroundColor: FacingTokens.muted,
+                        foregroundColor: FacingTokens.fgSecondary,
                       ),
                       onPressed: () => _confirmSignOut(context),
                       child: const Text('로그아웃'),
@@ -1181,7 +1181,7 @@ class _ActionsSection extends StatelessWidget {
             child: const Text('취소'),
           ),
           TextButton(
-            style: TextButton.styleFrom(foregroundColor: FacingTokens.muted),
+            style: TextButton.styleFrom(foregroundColor: FacingTokens.fgSecondary),
             onPressed: () => Navigator.pop(dialogCtx, true),
             child: const Text('로그아웃'),
           ),

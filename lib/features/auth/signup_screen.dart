@@ -306,8 +306,8 @@ class _SignupScreenState extends State<SignupScreen> {
                             builder: (_) => const TermsScreen()),
                       ),
                       style: TextButton.styleFrom(
-                        foregroundColor: FacingTokens.muted,
-                        minimumSize: const Size(0, 32),
+                        foregroundColor: FacingTokens.fgSecondary,
+                        minimumSize: const Size(0, FacingTokens.touchMin),
                       ),
                       child: Text('이용약관', style: FacingTokens.caption),
                     ),
@@ -319,8 +319,8 @@ class _SignupScreenState extends State<SignupScreen> {
                             builder: (_) => const PrivacyScreen()),
                       ),
                       style: TextButton.styleFrom(
-                        foregroundColor: FacingTokens.muted,
-                        minimumSize: const Size(0, 32),
+                        foregroundColor: FacingTokens.fgSecondary,
+                        minimumSize: const Size(0, FacingTokens.touchMin),
                       ),
                       child: Text('개인정보처리방침', style: FacingTokens.caption),
                     ),
@@ -336,8 +336,8 @@ class _SignupScreenState extends State<SignupScreen> {
                         ? null
                         : () => Navigator.of(context).pushNamed('/boss/login'),
                     style: TextButton.styleFrom(
-                      foregroundColor: FacingTokens.muted,
-                      minimumSize: const Size(0, 32),
+                      foregroundColor: FacingTokens.fgSecondary,
+                      minimumSize: const Size(0, FacingTokens.touchMin),
                     ),
                     child:
                         Text('코치·사장 로그인 (전환기)', style: FacingTokens.caption),

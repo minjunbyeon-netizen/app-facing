@@ -203,12 +203,16 @@ apps/facing-app/
 
 | number | Tier | 색상 토큰 | 설명 |
 |---|---|---|---|
-| 1 | **Scaled** | `tierScaled` #5A5A5A 회색 | Novice. 스케일드 동작 위주 |
+| 1 | **Scaled** | `tierScaled` #52525B 회색 | Novice. 스케일드 동작 위주 |
 | 2 | **Scaled** | 동일 | Intermediate low |
-| 3 | **RX** | `tierRx` #EE2B2B 빨강 | RX 표준 달성 |
-| 4 | **RX+** | `tierRxPlus` #FF6B00 주황 | Advanced |
-| 5 | **Elite** | `tierElite` #C8A84B 금색 | Regionals 급 |
-| 6 | **Games** | `tierGames` #E8E8E8 실버 | Games 출전급 (최상위) |
+| 3 | **RX** | `tierRx` #CC1F1F 빨강 | RX 표준 달성 |
+| 4 | **RX+** | `tierRxPlus` #C05000 주황 | Advanced |
+| 5 | **Elite** | `tierElite` #92700A 금색 | Regionals 급 |
+| 6 | **Games** | `tierGames` #606060 실버 | Games 출전급 (최상위) |
+
+> 값 정본 = `lib/core/theme.dart`. 위 6색은 v2.0 라이트 전환 때 흰 배경 4.5:1 을
+> 맞추려 전부 어둡게 내린 값이며, 문서만 다크 시절 값에 머물러 있던 것을
+> 2026-08-12 실측 대조로 바로잡았다 (§0-B).
 
 - UI에 "RXD 4/6" 같은 백엔드 내부 코드 노출 금지. 항상 위 5티어 라벨만 사용.
 - 티어 배지: 2px solid 티어 컬러 + 대문자 라벨 + 얇은 padding. 아이콘 없음.
@@ -216,7 +220,13 @@ apps/facing-app/
 ## 디자인 시스템 (v1.15.0 — 콘트라스트 강화 + 액센트 4색 분리)
 > v1.15.0 변경 내용: 다크 콘트라스트 강화, surface 4단계 확장, 액센트 4색(primary/success/info/danger) 분리. code-level 버전은 theme.dart v1.23. 사용자 승인: 2026-05-23.
 
-### 컬러 토큰 (FacingTokens 기준 — v1.15.0)
+> ⚠ **아래 표는 v1.15 다크 시절 기록이다 — 현재 값이 아니다.**
+> v2.0(2026-05-24)에서 라이트 톤으로 전면 전환하며 bg·surface·fg·muted 가 전부 뒤집혔고,
+> v2.2(2026-08-12)에서 `primary` 가 #EE2B2B → **#CC1F1F** 로 내려갔다 (흰 배경 4.01:1 →
+> 5.32:1, 흰 글씨 4.19:1 → 5.55:1 로 양방향 AA 통과). **현재 값 정본은
+> `lib/core/appkit.gen.dart` + `lib/core/theme.dart`**. 표 전면 교체는 사용자 승인 대기.
+
+### 컬러 토큰 (구 v1.15.0 다크 — 이력 보존용)
 | 토큰 | 값 | 용도 |
 |---|---|---|
 | `bg` | `#0A0A0A` | 기본 배경 (변경 없음) |

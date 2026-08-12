@@ -238,7 +238,7 @@ class _PendingRow extends StatelessWidget {
           ),
           TextButton(onPressed: onApprove, child: const Text('승인')),
           TextButton(
-            style: TextButton.styleFrom(foregroundColor: FacingTokens.muted),
+            style: TextButton.styleFrom(foregroundColor: FacingTokens.fgSecondary),
             onPressed: onReject,
             child: const Text('거절'),
           ),

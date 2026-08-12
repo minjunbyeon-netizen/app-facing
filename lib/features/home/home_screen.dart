@@ -216,8 +216,8 @@ class _NoticeAccordion extends StatelessWidget {
                       builder: (_) => const MessagingScreen()));
                 },
                 style: TextButton.styleFrom(
-                  foregroundColor: FacingTokens.muted,
-                  minimumSize: const Size(0, 36),
+                  foregroundColor: FacingTokens.fgSecondary,
+                  minimumSize: const Size(0, FacingTokens.touchMin),
                 ),
                 child: const Text('더 보기 →'),
               ),

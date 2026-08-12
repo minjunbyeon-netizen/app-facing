@@ -99,7 +99,7 @@ class _IntroScreenState extends State<IntroScreen> {
                         style: TextButton.styleFrom(
                           minimumSize: const Size(
                               FacingTokens.touchMin, FacingTokens.touchMin),
-                          foregroundColor: FacingTokens.muted,
+                          foregroundColor: FacingTokens.fgSecondary,
                         ),
                         onPressed: () {
                           Haptic.light();

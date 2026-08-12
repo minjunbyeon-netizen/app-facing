@@ -703,7 +703,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
         ),
         const SizedBox(height: FacingTokens.sp2),
         TextButton(
-          style: TextButton.styleFrom(foregroundColor: FacingTokens.muted),
+          style: TextButton.styleFrom(foregroundColor: FacingTokens.fgSecondary),
           onPressed: _decline,
           child: const Text('거절'),
         ),

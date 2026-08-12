@@ -43,6 +43,12 @@ class FkButton extends StatelessWidget {
   /// 가로를 꽉 채울지. false 면 글자 폭 + 패딩만 차지한다 (행 안에 나란히 둘 때).
   final bool expand;
 
+  /// 글자색을 브랜드색 대신 중립(fgSecondary)으로. tertiary 에서만 의미가 있다.
+  /// 한 화면에 브랜드색이 셋을 넘으면 강조가 죽으므로(링코 F1), primary 버튼과
+  /// 같이 놓이는 부수 링크는 이쪽. 회색 muted 로 내리면 비활성처럼 보이므로
+  /// fgSecondary(7.7:1) + w600 으로 "읽히되 앞서지 않게" 둔다.
+  final bool neutral;
+
   const FkButton(
     this.label, {
     super.key,
@@ -50,18 +56,25 @@ class FkButton extends StatelessWidget {
     this.kind = FkButtonKind.primary,
     this.icon,
     this.expand = true,
+    this.neutral = false,
   });
 
   const FkButton.primary(this.label,
       {super.key, required this.onPressed, this.icon, this.expand = true})
-      : kind = FkButtonKind.primary;
+      : kind = FkButtonKind.primary,
+        neutral = false;
 
   const FkButton.secondary(this.label,
       {super.key, required this.onPressed, this.icon, this.expand = true})
-      : kind = FkButtonKind.secondary;
+      : kind = FkButtonKind.secondary,
+        neutral = false;
 
   const FkButton.tertiary(this.label,
-      {super.key, required this.onPressed, this.icon, this.expand = false})
+      {super.key,
+      required this.onPressed,
+      this.icon,
+      this.expand = false,
+      this.neutral = false})
       : kind = FkButtonKind.tertiary;
 
   @override
@@ -70,10 +83,7 @@ class FkButton extends StatelessWidget {
     final size = WidgetStatePropertyAll<Size>(
       Size(expand ? double.infinity : 0, _height),
     );
-    final shrink = expand
-        ? null
-        : const WidgetStatePropertyAll<MaterialTapTargetSize>(
-            MaterialTapTargetSize.shrinkWrap);
+    final shrink = expand ? null : MaterialTapTargetSize.shrinkWrap;
 
     final child = icon == null
         ? Text(label)
@@ -102,7 +112,14 @@ class FkButton extends StatelessWidget {
       case FkButtonKind.tertiary:
         return TextButton(
           onPressed: onPressed,
-          style: ButtonStyle(minimumSize: size, tapTargetSize: shrink),
+          style: ButtonStyle(
+            minimumSize: size,
+            tapTargetSize: shrink,
+            foregroundColor: neutral
+                ? const WidgetStatePropertyAll<Color>(
+                    FacingTokens.fgSecondary)
+                : null,
+          ),
           child: child,
         );
     }

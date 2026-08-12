@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
+import '../../core/appkit.gen.dart';
 import '../../core/exception.dart';
 import '../../core/glossary.dart';
 import '../../core/haptic.dart';
@@ -507,9 +508,12 @@ class _OnboardingBenchmarksScreenState
                         child: Text(
                           _submitting
                               ? '계산 중'
+                              // v2.2: 마지막 'Next' 잔존 영문을 공통 문자열로.
+                              // 나머지 버튼은 이미 한글인데 여기만 영문이라
+                              // 같은 자리 버튼의 말이 화면마다 바뀌어 보였다.
                               : (_isLastPage
                                   ? (_anyFilled ? 'Engine 측정' : '건너뛰기')
-                                  : 'Next'),
+                                  : AppKit.strNext),
                         ),
                       ),
                     ),
@@ -566,12 +570,11 @@ class _OnboardingBenchmarksScreenState
         ),
         const SizedBox(height: FacingTokens.sp1),
         // v1.16 Sprint 9b: Skip 경로 안내.
-        Text(
-          '모든 칸 선택 입력. 다 비워도 Next. 언제든 Profile에서 수정.',
-          style: FacingTokens.caption.copyWith(
-            color: FacingTokens.muted,
-            fontStyle: FontStyle.italic,
-          ),
+        // v2.2: 한글 이탤릭은 획이 뭉개져 읽기 나쁘다 — 정체로 되돌리고
+        // 문장 안 영문(Next·Profile)도 화면의 실제 버튼·탭 이름으로 맞췄다.
+        const Text(
+          '모두 선택 입력. 다 비워도 다음으로. 언제든 프로필에서 수정.',
+          style: FacingTokens.caption,
         ),
         const SizedBox(height: FacingTokens.sp4),
         ...cat.fields.map((k) {
@@ -661,7 +664,7 @@ class _ComputeLoadingDialog extends StatelessWidget {
                     onCancel!();
                   },
                   style: TextButton.styleFrom(
-                    foregroundColor: FacingTokens.muted,
+                    foregroundColor: FacingTokens.fgSecondary,
                     minimumSize: const Size(FacingTokens.touchMin,
                         FacingTokens.touchMin),
                   ),
@@ -740,8 +743,15 @@ class _BenchmarkRowState extends State<_BenchmarkRow> {
                   widget.onChanged('');
                   setState(() {});
                 },
-                // QA (2026-06-11): V8 — 단어 1개 라벨은 영문 "Skip".
-                child: const Text('건너뛰기', style: FacingTokens.caption),
+                // v2.2: caption(muted 회색)은 비활성처럼 보여 누를 수 있다는
+                // 신호가 없었다 — 중립 진한색 + w600 으로 "읽히되 앞서지 않게".
+                child: Text(
+                  AppKit.strSkip,
+                  style: FacingTokens.caption.copyWith(
+                    color: FacingTokens.fgSecondary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
             ],
           ),

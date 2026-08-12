@@ -199,8 +199,8 @@ class _MemberLoginScreenState extends State<MemberLoginScreen> {
                         ? null
                         : () => Navigator.of(context).pushNamed('/boss/login'),
                     style: TextButton.styleFrom(
-                      foregroundColor: FacingTokens.muted,
-                      minimumSize: const Size(0, 32),
+                      foregroundColor: FacingTokens.fgSecondary,
+                      minimumSize: const Size(0, FacingTokens.touchMin),
                     ),
                     child: Text('코치·사장이신가요?',
                         style: FacingTokens.caption),

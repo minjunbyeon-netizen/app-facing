@@ -209,8 +209,8 @@ class _ClassesSectionState extends State<ClassesSection> {
             action: TextButton(
               onPressed: _reload,
               style: TextButton.styleFrom(
-                foregroundColor: FacingTokens.muted,
-                minimumSize: const Size(0, 36),
+                foregroundColor: FacingTokens.fgSecondary,
+                minimumSize: const Size(0, FacingTokens.touchMin),
                 padding: EdgeInsets.zero,
               ),
               child: const Text('다시 시도'),
