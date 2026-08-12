@@ -172,7 +172,17 @@ class TermTip extends StatelessWidget {
   final String term;
   final double iconSize;
 
-  const TermTip({super.key, required this.term, this.iconSize = 14});
+  /// 아이콘 옆에 용어 이름을 같이 띄운다. 한 줄에 툴팁이 둘 이상 놓일 때 필수 —
+  /// 같은 ⓘ 아이콘만 나란히 있으면 눌러보기 전엔 무엇의 설명인지 알 수 없다
+  /// (v2.2 H5 · 링코 F6 '달력 아이콘 2개가 라벨 없이 나란히'와 같은 결함).
+  final bool showLabel;
+
+  const TermTip({
+    super.key,
+    required this.term,
+    this.iconSize = 14,
+    this.showLabel = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -180,13 +190,30 @@ class TermTip extends StatelessWidget {
     if (entry == null) return const SizedBox.shrink();
     return InkWell(
       onTap: () => _showSheet(context, entry),
-      customBorder: const CircleBorder(),
-      child: Padding(
-        padding: const EdgeInsets.all(2),
-        child: Icon(
-          Icons.info_outline,
-          size: iconSize,
-          color: FacingTokens.muted,
+      borderRadius: BorderRadius.circular(FacingTokens.r1),
+      // 아이콘만 두면 터치 영역이 18~22 라 손가락 기준에 한참 못 미쳤다.
+      // 보이는 크기는 그대로 두고 세로 48 만 확보한다 (v2.2).
+      child: SizedBox(
+        height: FacingTokens.touchMin,
+        child: Center(
+          widthFactor: 1,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.info_outline,
+                  size: iconSize,
+                  color: FacingTokens.muted,
+                ),
+                if (showLabel) ...[
+                  const SizedBox(width: 3),
+                  Text(term, style: FacingTokens.micro),
+                ],
+              ],
+            ),
+          ),
         ),
       ),
     );

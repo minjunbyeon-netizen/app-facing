@@ -113,11 +113,19 @@ class _NoGymEmpty extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('박스 미가입', style: FacingTokens.sectionLabel),
+          // v2.2 (H4): 빈 상태 제목이 12px 회색 sectionLabel 이라 히스토리 쪽
+          // 빈 상태(h3 굵게)와 규격이 달랐다 — 같은 앱에서 "없음" 화면이 두
+          // 종류로 보였다 (링코 F7). FkEmptyState 와 같은 h3 + caption 으로 통일.
+          const Text(
+            '박스 미가입',
+            style: FacingTokens.h3,
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: FacingTokens.sp2),
           const Text(
             '박스 가입 시 코치 WOD 공개.',
             style: FacingTokens.caption,
+            textAlign: TextAlign.center,
           ),
           const SizedBox(height: FacingTokens.sp5),
           ElevatedButton(

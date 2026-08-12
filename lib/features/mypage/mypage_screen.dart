@@ -1088,14 +1088,17 @@ class _ActionsSection extends StatelessWidget {
                   )),
                 ),
               ]),
-              const SizedBox(height: FacingTokens.sp2),
+              // v2.2 (H3): 되돌릴 수 없는 동작이 일반 메뉴와 같은 빨강 글자
+              // 링크였다 — 링코 S17('서비스 탈퇴'가 일반 항목과 같은 비중)과
+              // 같은 문제. 테두리 있는 danger 버튼으로 올려 "동작"임을 알리고,
+              // 위 메뉴 카드와의 간격도 벌려 오조작을 줄인다.
+              const SizedBox(height: FacingTokens.sp5),
               Center(
-                child: TextButton(
-                  style: TextButton.styleFrom(
-                    foregroundColor: FacingTokens.danger,
-                  ),
+                child: FkButton.secondary(
+                  '데이터 초기화',
+                  danger: true,
+                  expand: false,
                   onPressed: () => _confirmReset(context),
-                  child: const Text('데이터 초기화'),
                 ),
               ),
             ],

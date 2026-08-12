@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
+import '../../widgets/fkit.dart';
 import 'boss_api_client.dart';
 import 'boss_auth_state.dart';
 import 'boss_dashboard_model.dart';
@@ -159,9 +160,9 @@ class _Body extends StatelessWidget {
         const SizedBox(height: FacingTokens.sp5),
 
         // ─── 회원 운영 관리 CTA ───────────────────────────────────────
-        _PrimaryCtaButton(
-          label: '회원 관리',
-          onTap: () {
+        FkButton.primary(
+          '회원 관리',
+          onPressed: () {
             // TODO PHASE5 §1.3: /boss/members 진입
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -175,7 +176,8 @@ class _Body extends StatelessWidget {
         const SizedBox(height: FacingTokens.sp5),
 
         // ─── 오늘의 수업 ──────────────────────────────────────────────
-        Text('TODAY\'S CLASSES.', style: FacingTokens.sectionLabel),
+        // v2.2: 'TODAY'S CLASSES.' → 한글 (v1.29 한글 기본, 도메인 고정어 아님).
+        Text('오늘 수업', style: FacingTokens.sectionLabel),
         const SizedBox(height: FacingTokens.sp2),
         if (data.todayClasses.isEmpty)
           _EmptyCard(message: '오늘 수업 없음.')
@@ -205,6 +207,10 @@ class _CounterCard extends StatelessWidget {
   const _CounterCard({required this.label, required this.count});
 
   @override
+  // v2.2: ① 모서리 r3 — 이 화면 카드만 각져 있어 앱 안에서 혼자 다른 물건처럼
+  // 보였다. ② 라벨을 숫자 위로 — 명단 시트·FkStatTile 은 '라벨 위/값 아래'인데
+  // 여기만 뒤집혀 있어 같은 통계 타일이 두 형태였다 (H6).
+  @override
   Widget build(BuildContext context) => Expanded(
         child: Container(
           padding: const EdgeInsets.symmetric(
@@ -212,18 +218,19 @@ class _CounterCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: FacingTokens.surface,
             border: Border.all(color: FacingTokens.border),
+            borderRadius: BorderRadius.circular(FacingTokens.r3),
           ),
           child: Column(
             children: [
               Text(
-                count.toString(),
-                style: FacingTokens.h1.copyWith(color: FacingTokens.fg),
-              ),
-              const SizedBox(height: 4),
-              Text(
                 label.toUpperCase(),
                 style: FacingTokens.sectionLabel,
                 textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: FacingTokens.sp1),
+              Text(
+                count.toString(),
+                style: FacingTokens.h1.copyWith(color: FacingTokens.fg),
               ),
             ],
           ),
@@ -231,28 +238,11 @@ class _CounterCard extends StatelessWidget {
       );
 }
 
-class _PrimaryCtaButton extends StatelessWidget {
-  final String label;
-  final VoidCallback onTap;
-  const _PrimaryCtaButton({required this.label, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) => GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp4),
-          color: FacingTokens.primary,
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            style: FacingTokens.h3.copyWith(
-              color: FacingTokens.onColor,
-              letterSpacing: 0.8,
-            ),
-          ),
-        ),
-      );
-}
+// v2.2: 자체 GestureDetector + 각진 색면을 FkButton.primary 로 교체 (H7).
+// 앱의 다른 모든 주 버튼은 r4 둥근 52 인데 이 하나만 각진 면이라 화면에서
+// 혼자 튀었다. 눌림 피드백(pressed 색)도 없었다.
+// ※ 이 버튼의 동작은 아직 '구현 예정' 스낵바이며 하단 탭 '회원' 과 목적지가
+//   같다 — 존치 여부는 제품 판단이라 모양만 맞추고 남겨 둔다.
 
 class _ClassCard extends StatelessWidget {
   final TodayClass cls;
@@ -275,6 +265,7 @@ class _ClassCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: FacingTokens.surface,
             border: Border.all(color: FacingTokens.border),
+            borderRadius: BorderRadius.circular(FacingTokens.r3),
           ),
           child: Row(
             children: [
@@ -285,8 +276,11 @@ class _ClassCard extends StatelessWidget {
                     Text(cls.title, style: FacingTokens.lead.copyWith(
                         color: FacingTokens.fg, fontWeight: FontWeight.w700)),
                     const SizedBox(height: 4),
+                    // v2.2 (H2): DB 원문(2026-08-12T19:00:00)이 그대로 나와
+                    // 두 줄을 잡아먹었다. 오늘 수업 목록이라 날짜는 이미 위에
+                    // 있으므로 시:분만 남긴다 — '19:00 – 20:00 · 박준서'.
                     Text(
-                      '${cls.startAt} – ${cls.endAt}'
+                      '${_hhmm(cls.startAt)} – ${_hhmm(cls.endAt)}'
                       '${cls.coaches.isNotEmpty ? '  ·  ${cls.coaches.join(", ")}' : ''}',
                       style: FacingTokens.caption,
                     ),
@@ -294,15 +288,18 @@ class _ClassCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: FacingTokens.sp3),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+              // v2.2: '8' 과 '/ 12명' 이 위아래로 쪼개져 한 값이 두 덩이로
+              // 보였다 — 한 줄로 붙인다.
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
                 children: [
                   Text(
                     cls.reserved.toString(),
                     style: FacingTokens.h2.copyWith(color: FacingTokens.fg),
                   ),
                   Text(
-                    cls.capacity != null ? '/ ${cls.capacity}명' : '명',
+                    cls.capacity != null ? ' / ${cls.capacity}명' : '명',
                     style: FacingTokens.micro,
                   ),
                 ],
@@ -314,6 +311,15 @@ class _ClassCard extends StatelessWidget {
           ),
         ),
       );
+}
+
+/// ISO 시각에서 `HH:MM` 만. 파싱 실패하면 원문을 그대로 돌려준다
+/// (형식이 바뀌어도 화면이 비지 않게).
+String _hhmm(String iso) {
+  final t = DateTime.tryParse(iso);
+  if (t == null) return iso;
+  return '${t.hour.toString().padLeft(2, '0')}:'
+      '${t.minute.toString().padLeft(2, '0')}';
 }
 
 class _ExpiringCard extends StatelessWidget {
@@ -332,6 +338,7 @@ class _ExpiringCard extends StatelessWidget {
                 ? FacingTokens.danger.withValues(alpha: 0.5)
                 : FacingTokens.border,
           ),
+          borderRadius: BorderRadius.circular(FacingTokens.r3),
         ),
         child: Row(
           children: [
@@ -363,6 +370,7 @@ class _EmptyCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: FacingTokens.surface,
           border: Border.all(color: FacingTokens.border),
+          borderRadius: BorderRadius.circular(FacingTokens.r3),
         ),
         alignment: Alignment.center,
         child: Text(message, style: FacingTokens.caption),

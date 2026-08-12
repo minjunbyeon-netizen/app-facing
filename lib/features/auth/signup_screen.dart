@@ -330,17 +330,27 @@ class _SignupScreenState extends State<SignupScreen> {
                 // D26 전환기: 사장 ID/PW 진입 (실 OAuth 활성 시 제거).
                 // BossLoginScreen → BossAuthState.save() → main.dart listener 가
                 // staffPush.start() 트리거 (가입 신청 SSE 알림 수신).
+                // v2.2 (H9): 사장·코치가 들어오는 유일한 입구인데 화면 맨 아래
+                // 흐린 회색 한 줄이라 약관 링크와 구분되지 않았다. 구분선으로
+                // 약관 묶음과 떼고 본문색 + w600 으로 올린다. 내부 표기였던
+                // '(전환기)' 는 사용자에게 뜻이 없어 뺀다 (3면 대전제 ①·③ —
+                // 사장·코치는 PC 가 주지만 폰으로도 들어온다).
+                const SizedBox(height: FacingTokens.sp2),
+                const Divider(height: 1, color: FacingTokens.border),
                 Center(
                   child: TextButton(
                     onPressed: _busy
                         ? null
                         : () => Navigator.of(context).pushNamed('/boss/login'),
                     style: TextButton.styleFrom(
-                      foregroundColor: FacingTokens.fgSecondary,
+                      foregroundColor: FacingTokens.fg,
                       minimumSize: const Size(0, FacingTokens.touchMin),
                     ),
-                    child:
-                        Text('코치·사장 로그인 (전환기)', style: FacingTokens.caption),
+                    child: Text(
+                      '코치·사장 로그인',
+                      style: FacingTokens.body
+                          .copyWith(fontWeight: FontWeight.w600),
+                    ),
                   ),
                 ),
                 const SizedBox(height: FacingTokens.sp2),

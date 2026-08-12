@@ -43,6 +43,12 @@ class FkButton extends StatelessWidget {
   /// 가로를 꽉 채울지. false 면 글자 폭 + 패딩만 차지한다 (행 안에 나란히 둘 때).
   final bool expand;
 
+  /// 되돌릴 수 없는 동작(초기화·삭제·해지)임을 색으로 알린다.
+  /// primary 면 danger 채움, secondary 면 danger 테두리+글자.
+  /// 파괴적 동작을 그냥 글자 링크로 두면 일반 메뉴와 구분되지 않는다
+  /// (링코 S17 — '서비스 탈퇴'가 일반 항목과 같은 비중이던 문제).
+  final bool danger;
+
   /// 글자색을 브랜드색 대신 중립(fgSecondary)으로. tertiary 에서만 의미가 있다.
   /// 한 화면에 브랜드색이 셋을 넘으면 강조가 죽으므로(링코 F1), primary 버튼과
   /// 같이 놓이는 부수 링크는 이쪽. 회색 muted 로 내리면 비활성처럼 보이므로
@@ -57,15 +63,24 @@ class FkButton extends StatelessWidget {
     this.icon,
     this.expand = true,
     this.neutral = false,
+    this.danger = false,
   });
 
   const FkButton.primary(this.label,
-      {super.key, required this.onPressed, this.icon, this.expand = true})
+      {super.key,
+      required this.onPressed,
+      this.icon,
+      this.expand = true,
+      this.danger = false})
       : kind = FkButtonKind.primary,
         neutral = false;
 
   const FkButton.secondary(this.label,
-      {super.key, required this.onPressed, this.icon, this.expand = true})
+      {super.key,
+      required this.onPressed,
+      this.icon,
+      this.expand = true,
+      this.danger = false})
       : kind = FkButtonKind.secondary,
         neutral = false;
 
@@ -75,7 +90,8 @@ class FkButton extends StatelessWidget {
       this.icon,
       this.expand = false,
       this.neutral = false})
-      : kind = FkButtonKind.tertiary;
+      : kind = FkButtonKind.tertiary,
+        danger = false;
 
   @override
   Widget build(BuildContext context) {
@@ -100,13 +116,29 @@ class FkButton extends StatelessWidget {
       case FkButtonKind.primary:
         return ElevatedButton(
           onPressed: onPressed,
-          style: ButtonStyle(minimumSize: size, tapTargetSize: shrink),
+          style: ButtonStyle(
+            minimumSize: size,
+            tapTargetSize: shrink,
+            backgroundColor: danger
+                ? const WidgetStatePropertyAll<Color>(FacingTokens.danger)
+                : null,
+          ),
           child: child,
         );
       case FkButtonKind.secondary:
         return OutlinedButton(
           onPressed: onPressed,
-          style: ButtonStyle(minimumSize: size, tapTargetSize: shrink),
+          style: ButtonStyle(
+            minimumSize: size,
+            tapTargetSize: shrink,
+            foregroundColor: danger
+                ? const WidgetStatePropertyAll<Color>(FacingTokens.danger)
+                : null,
+            side: danger
+                ? const WidgetStatePropertyAll<BorderSide>(
+                    BorderSide(color: FacingTokens.danger))
+                : null,
+          ),
           child: child,
         );
       case FkButtonKind.tertiary:
@@ -350,6 +382,17 @@ class FkListRow extends StatelessWidget {
               if (trailingWidget != null) ...[
                 const SizedBox(width: FacingTokens.sp3),
                 trailingWidget!,
+              ],
+              // v2.2 (H8): 누를 수 있는 행에 오른쪽 화살표를 붙인다. 그전엔
+              // 아이콘 + 제목만 있어 프로필 메뉴 10줄이 "읽는 목록"인지
+              // "누르는 목록"인지 구분되지 않았다. 우측에 값이 이미 있는 행은
+              // 자리를 다투므로 붙이지 않는다.
+              if (onTap != null &&
+                  trailing == null &&
+                  trailingWidget == null) ...[
+                const SizedBox(width: FacingTokens.sp2),
+                const Icon(Icons.chevron_right,
+                    size: 18, color: FacingTokens.muted),
               ],
             ],
           ),

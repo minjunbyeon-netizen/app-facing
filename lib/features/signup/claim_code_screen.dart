@@ -122,10 +122,16 @@ class _ClaimCodeScreenState extends State<ClaimCodeScreen> {
                 style: FacingTokens.h2.copyWith(fontFeatures: FacingTokens.tabular),
                 textAlign: TextAlign.center,
                 decoration: InputDecoration(
-                  hintText: '000000',
+                  // v2.2 (H1): 안내값이 h2 굵게 + mutedStrong(11.5:1) 이라
+                  // 실제 입력한 코드와 화면상 구분이 안 됐다 — 링코 F8(미입력을
+                  // 0 으로 표시)과 같은 결함. 숫자 모양 대신 말로 바꾸고
+                  // placeholder 색·보통 굵기로 내려 값과 확실히 가른다.
+                  hintText: '6자리 숫자',
                   counterText: '',
-                  hintStyle: FacingTokens.h2.copyWith(
-                      color: FacingTokens.mutedStrong),
+                  hintStyle: FacingTokens.h3.copyWith(
+                    color: FacingTokens.placeholder,
+                    fontWeight: FontWeight.w400,
+                  ),
                   filled: true,
                   fillColor: FacingTokens.surface,
                   contentPadding: const EdgeInsets.symmetric(
@@ -166,10 +172,11 @@ class _ClaimCodeScreenState extends State<ClaimCodeScreen> {
                   : ElevatedButton(
                       onPressed: _submit, child: const Text('연결')),
               const SizedBox(height: FacingTokens.sp3),
+              // v2.2: 가운데 정렬 2줄이라 둘째 줄 시작점이 들쭉날쭉해 읽기 흐름이
+              // 끊겼다. 화면의 다른 안내문과 같이 좌측 정렬로 맞춘다.
               Text(
                 '코드가 없으면 박스 사장님께 발급을 요청해 주세요. 7일간 유효합니다.',
                 style: FacingTokens.micro,
-                textAlign: TextAlign.center,
               ),
             ],
           ),

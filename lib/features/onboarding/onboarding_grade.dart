@@ -79,7 +79,9 @@ class _OnboardingGradeScreenState extends State<OnboardingGradeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('내 Tier'),
+        // v2.2 (H11): 앱바 제목과 화면 헤드라인이 '내 Tier' 로 똑같아 같은 말이
+        // 두 번 보였다 (CLAUDE.md R1 — 앱바 title 이 있으면 화면 내 헤드라인
+        // 중복 금지). 히어로 h1 을 남기고 앱바 쪽을 비운다.
         automaticallyImplyLeading: false,
         // P2-3 (2026-06-10): 미구현 공유 버튼 숨김 — 누르면 "지원 예정" 토스트만
         // 나오는 죽은 버튼은 신뢰 손상. 구현(Tier 카드 이미지 + SNS 공유) 시 복원.
@@ -108,14 +110,18 @@ class _OnboardingGradeScreenState extends State<OnboardingGradeScreen> {
                   const SizedBox(height: FacingTokens.sp3),
                   // v1.15.3: 'YOUR TIER' 대문자 + 마침표 제거. serif 헤드라인 유지.
                   // v1.16 Sprint 7a: Tier·Engine 용어 툴팁.
+                  // v2.2 (H5): ⓘ 둘이 라벨 없이 붙어 있어 무엇의 설명인지
+                  // 눌러보기 전엔 알 수 없었다 — 용어 이름을 같이 띄운다.
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text('내 Tier', style: FacingTokens.h1),
                       const SizedBox(width: FacingTokens.sp3),
-                      const TermTip(term: 'Tier', iconSize: 18),
-                      const SizedBox(width: FacingTokens.sp1),
-                      const TermTip(term: 'Engine', iconSize: 18),
+                      const TermTip(
+                          term: 'Tier', iconSize: 16, showLabel: true),
+                      const SizedBox(width: FacingTokens.sp2),
+                      const TermTip(
+                          term: 'Engine', iconSize: 16, showLabel: true),
                     ],
                   ),
                   const SizedBox(height: FacingTokens.sp2),
