@@ -7,41 +7,21 @@ import '../../core/app_mode.dart';
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
+import '../../widgets/fkit.dart';
 import '../auth/auth_state.dart';
 import '../profile/profile_state.dart';
 
-/// C-1앱 (2026-06-10) — 전화번호 검증·자동 하이픈.
-final RegExp _phoneRe = RegExp(r'^01[016789]-?\d{3,4}-?\d{4}$');
-
-class _PhoneHyphenFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue, TextEditingValue newValue) {
-    final digits = newValue.text.replaceAll(RegExp(r'\D'), '');
-    if (digits.length > 11) return oldValue;
-    final buf = StringBuffer();
-    for (var i = 0; i < digits.length; i++) {
-      if (i == 3 || i == (digits.length > 10 ? 7 : 6)) buf.write('-');
-      buf.write(digits[i]);
-    }
-    final text = buf.toString();
-    return TextEditingValue(
-      text: text,
-      selection: TextSelection.collapsed(offset: text.length),
-    );
-  }
-}
-
-/// PHASE5 Sprint1 F4 — 회원 self-signup flow.
+/// 회원 가입 신청 — 박스 번호 + 아이디 + 비밀번호(2회)만 받는다.
 ///
-/// 어플 다운로드 → 로그인 (Naver/Kakao OAuth) → 박스 선택 → 자동 가입 신청.
-/// 기존 [SignupScreen] 의 OAuth 단계 이후 진입. 사장이 admin 에서 승인하면 활성화.
+/// v2.3 (2026-08-12 사용자 지시): 박스를 목록에서 고르고 이름·전화까지 받던
+/// 화면이 너무 길었다. 폰에서 받는 것은 **네 칸**뿐이다.
+///   ① 박스 번호(체육관 고유 번호) ② 아이디 ③ 비밀번호 ④ 비밀번호 확인
+/// 이름·전화·성별 같은 항목은 사장이 승인하면서 채운다. 아이디는 그대로
+/// 표시용 이름으로 들어간다 (backend api/admin.py member_self_signup).
 ///
-/// 백엔드 endpoint:
-///   - GET  /api/v1/member/gyms-list           (public, 박스 목록)
-///   - POST /api/v1/member/gyms/`<gid>`/self-signup
-///     headers: X-Device-Id
-///     body: {name, phone?, gender?, birth_date?, level?}
+/// 백엔드: POST /api/v1/member/gyms/`<gid>`/self-signup
+///   body {login_id, password} · header X-Device-Id
+///   → status='pending' 으로 신청 + MemberCredential 생성 (승인 후 바로 로그인)
 class SelfSignupScreen extends StatefulWidget {
   const SelfSignupScreen({super.key});
 
@@ -50,119 +30,99 @@ class SelfSignupScreen extends StatefulWidget {
 }
 
 class _SelfSignupScreenState extends State<SelfSignupScreen> {
-  List<_GymOption> _gyms = const [];
-  bool _loading = true;
-  String? _error;
-  _GymOption? _selected;
+  final _formKey = GlobalKey<FormState>();
+  final _gymCtrl = TextEditingController();
+  final _idCtrl = TextEditingController();
+  final _pwCtrl = TextEditingController();
+  final _pw2Ctrl = TextEditingController();
 
-  final _nameCtrl = TextEditingController();
-  final _phoneCtrl = TextEditingController();
+  /// 번호 → 박스 이름. 오타로 남의 박스에 신청하는 것을 막으려고 입력한
+  /// 번호의 이름을 바로 아래에 보여 준다 (목록 로드 실패해도 신청은 가능).
+  Map<int, String> _gymNames = const {};
   bool _submitting = false;
+  bool _pwVisible = false;
 
   @override
   void initState() {
     super.initState();
     _loadGyms();
+    _gymCtrl.addListener(() => setState(() {}));
   }
 
   @override
   void dispose() {
-    _nameCtrl.dispose();
-    _phoneCtrl.dispose();
+    _gymCtrl.dispose();
+    _idCtrl.dispose();
+    _pwCtrl.dispose();
+    _pw2Ctrl.dispose();
     super.dispose();
   }
 
   Future<void> _loadGyms() async {
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
     try {
       final api = context.read<ApiClient>();
       final raw = await api.getList('/api/v1/member/gyms-list');
-      final list = raw
-          .map((e) => _GymOption(
-                id: (e['id'] as num).toInt(),
-                name: (e['name'] ?? '?') as String,
-              ))
-          .toList();
       if (!mounted) return;
       setState(() {
-        _gyms = list;
-        _loading = false;
+        _gymNames = {
+          for (final e in raw)
+            (e['id'] as num).toInt(): (e['name'] ?? '?') as String,
+        };
       });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _error = '박스 목록 로드 실패. 잠시 후 재시도.';
-        _loading = false;
-      });
+    } catch (_) {
+      // 이름 미리보기는 부가 기능 — 실패해도 화면은 그대로 쓴다.
     }
   }
 
+  String? get _gymName {
+    final id = int.tryParse(_gymCtrl.text.trim());
+    if (id == null) return null;
+    return _gymNames[id];
+  }
+
   Future<void> _submit() async {
-    final gym = _selected;
-    final name = _nameCtrl.text.trim();
-    final phone = _phoneCtrl.text.trim();
-    if (gym == null) {
-      _toast('박스를 먼저 선택.');
-      return;
-    }
-    if (name.isEmpty) {
-      _toast('이름 입력 필수.');
-      return;
-    }
-    // C-1앱: 입력 시 invalid phone 차단 (백엔드 INVALID_PHONE 과 동일 규칙).
-    if (phone.isNotEmpty && !_phoneRe.hasMatch(phone)) {
-      _toast('전화번호 형식 확인. (예: 010-1234-5678)');
-      return;
-    }
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    final gymId = int.parse(_gymCtrl.text.trim());
+    final loginId = _idCtrl.text.trim();
+
     setState(() => _submitting = true);
     Haptic.medium();
-    // v1.33: await 전 context.read 일괄 캡처 (QA B-AS-1 패턴).
     final api = context.read<ApiClient>();
     final auth = context.read<AuthState>();
     final profile = context.read<ProfileState>();
+
     try {
       final res = await api.post(
-        '/api/v1/member/gyms/${gym.id}/self-signup',
-        {
-          'name': name,
-          if (phone.isNotEmpty) 'phone': phone,
-        },
+        '/api/v1/member/gyms/$gymId/self-signup',
+        {'login_id': loginId, 'password': _pwCtrl.text},
       );
       if (!mounted) return;
       final status = (res['status'] ?? 'pending') as String;
       final duplicate = res['duplicate'] == true;
 
-      // v1.33 (2026-08-10): 가입 신청 성공 = 이 기기의 신원 확정.
-      // AuthState 를 세워두지 않으면 다음 앱 실행 때 splash 가 !isSignedIn 을
-      // 보고 로그인 화면으로 되돌려 보낸다 (소셜 버튼을 내린 지금은 그대로 막힘).
-      // device_hash 가 실질 계정 키이므로 provider 는 'self' 로 기록.
-      await auth.signIn('self', displayName: name);
+      // 가입 신청 성공 = 이 기기의 신원 확정. AuthState 를 세워 두지 않으면
+      // 다음 실행 때 splash 가 !isSignedIn 을 보고 로그인 화면으로 되돌린다.
+      await auth.signIn('self', displayName: loginId);
       await AppModeStore.set(AppMode.member);
       if (!mounted) return;
 
-      // B-7: 재신청을 신규 신청과 구분 — "또 신청됐다" 오인 방지.
       if (duplicate) {
-        if (status == 'pending') {
-          _toast('이미 승인 대기 중. 사장 승인 후 이용 가능.');
-        } else {
-          _toast('이미 가입된 회원.');
-        }
+        _toast(status == 'pending'
+            ? '이미 승인 대기 중입니다.'
+            : '이미 가입된 회원입니다.');
         _goNext(profile);
       } else if (status == 'pending') {
-        _showApprovalDialog(gym.name, profile);
+        _showApprovalDialog(_gymName ?? '$gymId번 박스', profile);
       } else {
-        _toast('이미 가입된 회원.');
+        _toast('이미 가입된 회원입니다.');
         _goNext(profile);
       }
     } on AppException catch (e) {
       if (!mounted) return;
       _toast(e.messageKo);
-    } catch (e) {
+    } catch (_) {
       if (!mounted) return;
-      _toast('가입 신청 실패. 잠시 후 재시도.');
+      _toast('가입 신청 실패. 잠시 후 다시 시도해 주세요.');
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
@@ -175,7 +135,7 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
         backgroundColor: FacingTokens.surface,
         title: const Text('가입 신청 완료'),
         content: Text(
-          '$gymName 가입 신청 완료.\n사장 승인 후 이용 가능.',
+          '$gymName 에 가입을 신청했습니다.\n사장 승인 후 아이디로 로그인할 수 있습니다.',
           style: const TextStyle(height: 1.5),
         ),
         actions: [
@@ -191,10 +151,8 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
     );
   }
 
-  /// v1.33: 가입 직후 목적지. 등급(온보딩) 미완료면 온보딩부터 —
-  /// splash 의 분기(`hasGrade ? /shell : /onboarding/basic`)와 같은 규칙이라
-  /// 앱을 껐다 켜도 같은 자리로 돌아온다.
-  /// A-4: /home 은 하단 탭 셸 우회 진입 — 표준 진입점 /shell 로.
+  /// 가입 직후 목적지. 등급(온보딩) 미완료면 온보딩부터 — splash 분기와 같은
+  /// 규칙이라 앱을 껐다 켜도 같은 자리로 돌아온다.
   void _goNext(ProfileState profile) {
     if (!mounted) return;
     final next = profile.hasGrade ? '/shell' : '/onboarding/basic';
@@ -209,165 +167,138 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final gymName = _gymName;
     return Scaffold(
       backgroundColor: FacingTokens.bg,
       appBar: AppBar(
-        title: const Text('박스 선택 · 가입'),
+        title: const Text('가입 신청'),
         backgroundColor: FacingTokens.bg,
       ),
       body: SafeArea(
-        child: _loading
-            ? const Center(child: CircularProgressIndicator())
-            : _error != null
-                ? _ErrorView(message: _error!, onRetry: _loadGyms)
-                : _buildBody(),
-      ),
-    );
-  }
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(FacingTokens.sp5,
+              FacingTokens.sp4, FacingTokens.sp5, FacingTokens.sp5),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const FkSectionLabel('박스 번호'),
+                const SizedBox(height: FacingTokens.sp1),
+                TextFormField(
+                  controller: _gymCtrl,
+                  style: FacingTokens.body.copyWith(color: FacingTokens.fg),
+                  decoration: _deco('박스에서 받은 번호'),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  textInputAction: TextInputAction.next,
+                  validator: (v) => int.tryParse((v ?? '').trim()) == null
+                      ? '박스 번호를 입력해 주세요.'
+                      : null,
+                ),
+                if (gymName != null) ...[
+                  const SizedBox(height: FacingTokens.sp1),
+                  Text(gymName,
+                      style: FacingTokens.caption
+                          .copyWith(color: FacingTokens.fg)),
+                ],
+                const SizedBox(height: FacingTokens.sp4),
 
-  // E-3 (2026-06-10): 하드코드 fontSize·spacing·radius·Colors.white → FacingTokens.
-  Widget _buildBody() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-          FacingTokens.sp5, FacingTokens.sp3, FacingTokens.sp5, FacingTokens.sp5),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Text('가입할 박스', style: FacingTokens.sectionLabel),
-          const SizedBox(height: FacingTokens.sp2),
-          Expanded(
-            child: ListView.separated(
-              itemCount: _gyms.length,
-              separatorBuilder: (_, _) =>
-                  const SizedBox(height: FacingTokens.sp2),
-              itemBuilder: (_, i) {
-                final g = _gyms[i];
-                final selected = _selected?.id == g.id;
-                return InkWell(
-                  onTap: () => setState(() => _selected = g),
-                  borderRadius: BorderRadius.circular(FacingTokens.r2),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: FacingTokens.sp4,
-                        vertical: FacingTokens.sp3 + 2),
-                    decoration: BoxDecoration(
-                      color: selected
-                          ? FacingTokens.surfaceHigh
-                          : FacingTokens.surface,
-                      border: Border.all(
-                        color: selected
-                            ? FacingTokens.primary
-                            : FacingTokens.border,
-                        width: selected ? 2 : 1,
+                const FkSectionLabel('아이디'),
+                const SizedBox(height: FacingTokens.sp1),
+                TextFormField(
+                  controller: _idCtrl,
+                  style: FacingTokens.body.copyWith(color: FacingTokens.fg),
+                  decoration: _deco('로그인에 쓸 아이디'),
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  textInputAction: TextInputAction.next,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                        RegExp(r'[A-Za-z0-9._-]')),
+                  ],
+                  validator: (v) {
+                    final t = (v ?? '').trim();
+                    if (t.length < 4) return '아이디는 4자 이상 입력해 주세요.';
+                    return null;
+                  },
+                ),
+                const SizedBox(height: FacingTokens.sp4),
+
+                const FkSectionLabel('비밀번호'),
+                const SizedBox(height: FacingTokens.sp1),
+                TextFormField(
+                  controller: _pwCtrl,
+                  style: FacingTokens.body.copyWith(color: FacingTokens.fg),
+                  decoration: _deco('비밀번호').copyWith(
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _pwVisible ? Icons.visibility_off : Icons.visibility,
+                        color: FacingTokens.muted,
+                        size: 20,
                       ),
-                      borderRadius: BorderRadius.circular(FacingTokens.r2),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            g.name,
-                            style: FacingTokens.body.copyWith(
-                              fontWeight: selected
-                                  ? FontWeight.w700
-                                  : FontWeight.w400,
-                              color: FacingTokens.fg,
-                            ),
-                          ),
-                        ),
-                        if (selected)
-                          const Icon(Icons.check_circle,
-                              color: FacingTokens.primary, size: 22),
-                      ],
+                      onPressed: () =>
+                          setState(() => _pwVisible = !_pwVisible),
                     ),
                   ),
-                );
-              },
+                  obscureText: !_pwVisible,
+                  textInputAction: TextInputAction.next,
+                  validator: (v) =>
+                      (v ?? '').length < 4 ? '비밀번호는 4자 이상 입력해 주세요.' : null,
+                ),
+                const SizedBox(height: FacingTokens.sp3),
+                TextFormField(
+                  controller: _pw2Ctrl,
+                  style: FacingTokens.body.copyWith(color: FacingTokens.fg),
+                  decoration: _deco('비밀번호 확인'),
+                  obscureText: !_pwVisible,
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: (_) => _submit(),
+                  validator: (v) =>
+                      v != _pwCtrl.text ? '비밀번호가 서로 다릅니다.' : null,
+                ),
+
+                const SizedBox(height: FacingTokens.sp6),
+                _submitting
+                    ? const FkLoading()
+                    : FkButton.primary('신청하기', onPressed: _submit),
+                const SizedBox(height: FacingTokens.sp3),
+                Text(
+                  '사장이 승인하면 이 아이디로 로그인할 수 있습니다.',
+                  style: FacingTokens.caption,
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: FacingTokens.sp4),
-          const Text('이름 *', style: FacingTokens.sectionLabel),
-          const SizedBox(height: FacingTokens.sp1),
-          TextField(
-            controller: _nameCtrl,
-            style: const TextStyle(color: FacingTokens.fg),
-            decoration: _inputDeco('실명'),
-          ),
-          const SizedBox(height: FacingTokens.sp3),
-          const Text('전화 (선택)', style: FacingTokens.sectionLabel),
-          const SizedBox(height: FacingTokens.sp1),
-          TextField(
-            controller: _phoneCtrl,
-            keyboardType: TextInputType.phone,
-            // C-1앱: 숫자 입력 시 자동 하이픈 (010-1234-5678)
-            inputFormatters: [_PhoneHyphenFormatter()],
-            style: const TextStyle(color: FacingTokens.fg),
-            decoration: _inputDeco('010-0000-0000'),
-          ),
-          const SizedBox(height: FacingTokens.sp5),
-          // v1.33: 스타일 전부 테마(elevatedButtonTheme)에 위임. 직전까지는
-          // child 에 `FacingTokens.body`(color: fg — 어두운 색 내장) 를 씌워
-          // 버튼의 흰 글자색을 덮어써서, 빨간 배경에 어두운 글자가 찍혔다.
-          // 로그인 화면의 같은 CTA 와도 색이 어긋났다.
-          SizedBox(
-            height: FacingTokens.buttonH,
-            child: ElevatedButton(
-              onPressed: _submitting ? null : _submit,
-              child: _submitting
-                  ? const SizedBox(
-                      height: 22,
-                      width: 22,
-                      child: CircularProgressIndicator(
-                          color: FacingTokens.onColor, strokeWidth: 2.4))
-                  : const Text('가입 신청'),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  InputDecoration _inputDeco(String hint) => InputDecoration(
+  InputDecoration _deco(String hint) => InputDecoration(
         hintText: hint,
-        hintStyle: const TextStyle(color: FacingTokens.muted),
+        hintStyle: FacingTokens.body.copyWith(color: FacingTokens.placeholder),
         filled: true,
         fillColor: FacingTokens.surface,
-        border: OutlineInputBorder(
-          borderSide: const BorderSide(color: FacingTokens.border),
+        contentPadding: const EdgeInsets.symmetric(
+            horizontal: FacingTokens.sp3, vertical: FacingTokens.sp3),
+        enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(FacingTokens.r2),
+          borderSide: const BorderSide(color: FacingTokens.border),
         ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(FacingTokens.r2),
+          borderSide: const BorderSide(color: FacingTokens.primary, width: 1.5),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(FacingTokens.r2),
+          borderSide: const BorderSide(color: FacingTokens.danger),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(FacingTokens.r2),
+          borderSide: const BorderSide(color: FacingTokens.danger, width: 1.5),
+        ),
+        errorStyle: FacingTokens.micro.copyWith(color: FacingTokens.danger),
       );
-}
-
-class _GymOption {
-  final int id;
-  final String name;
-  const _GymOption({required this.id, required this.name});
-}
-
-class _ErrorView extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
-  const _ErrorView({required this.message, required this.onRetry});
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(FacingTokens.sp5),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(message,
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: FacingTokens.fg, height: 1.5)),
-            const SizedBox(height: FacingTokens.sp4),
-            TextButton(
-              onPressed: onRetry,
-              child: const Text('다시 시도'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
