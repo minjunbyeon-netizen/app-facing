@@ -39,10 +39,6 @@ class DeviceIdService {
     _inFlight = null;
   }
 
-  /// v1.19 차수 5+ (트랙 A): 디버그용 페르소나 강제 주입.
-  /// 동작은 [adopt] 와 같다 — 호출 의도 구분을 위해 이름만 유지.
-  static Future<void> overrideForDebug(String newDeviceId) => adopt(newDeviceId);
-
   /// 캐시된 device_id (없으면 null). 동기 조회 — 로딩 후 사용.
   static String? get cached => _cached;
 }

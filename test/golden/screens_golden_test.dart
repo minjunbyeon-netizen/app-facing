@@ -6,7 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:facing_app/core/quotes.dart';
 import 'package:facing_app/features/boss/boss_dashboard_screen.dart';
-import 'package:facing_app/features/_debug/persona_debug_data.dart';
 import 'package:facing_app/features/auth/auth_state.dart';
 import 'package:facing_app/features/auth/signup_screen.dart';
 import 'package:facing_app/features/boss/boss_login_screen.dart';
@@ -34,18 +33,41 @@ import 'harness.dart';
 /// - --update-goldens 없이 실행하면 회귀 게이트 (1픽셀 차이도 실패)
 /// - 기능을 넣으면 그 상태의 캡처도 같이 넣는다 (골든 없는 기능 = 골든스탠다드 미달)
 
-/// 회원가입 완료 + RX 등급 확정 상태의 로컬 프로필 (persona 디버그 데이터 재사용).
+/// 회원가입 완료 + RX 등급 확정 상태의 로컬 프로필.
+/// v2.2 (2026-08-12): 앱에서 페르소나·데모 화면을 전부 걷어내면서
+/// `_debug/persona_debug_data.dart` 가 사라졌다 — 골든이 쓰던 값만 여기로 옮긴다.
+/// (프로덕션 코드가 아니라 캡처용 고정 입력이므로 테스트 쪽에 두는 것이 맞다.)
+const Map<String, dynamic> _kRxGrade = {
+  'overall_number': 3,
+  'overall_score': 3.3,
+  'overall': 'RX',
+  'overall_label_ko': 'RX',
+  'power': {'score': 3.1},
+  'olympic': {'score': 3.0},
+  'gymnastics': {'score': 3.3},
+  'cardio': {'score': 3.5},
+  'metcon': {'score': 3.4},
+  'body_composition': {'score': 3.2},
+};
+
+const Map<String, double> _kRxBenchmarks = {
+  'back_squat_1rm_lb': 285.0,
+  'deadlift_1rm_lb': 375.0,
+  'clean_1rm_lb': 205.0,
+  'strict_pull_up_max_ub': 15.0,
+  'run_mile_sec': 420.0,
+};
+
 ProfileState rxProfile() {
   final p = ProfileState();
-  final body = kPersonaBodyMap['persona-member-kim-doyun-2026']!;
   p.applyPersonaSnapshot(
-    bodyWeightKg: body.bodyWeightKg,
-    heightCm: body.heightCm,
-    ageYears: body.ageYears,
-    gender: body.gender,
-    experienceYears: body.experienceYears,
-    benchmarks: body.benchmarks,
-    gradeResult: tierGrade('RX'),
+    bodyWeightKg: 78.0,
+    heightCm: 175.0,
+    ageYears: 26.0,
+    gender: 'male',
+    experienceYears: 3.0,
+    benchmarks: _kRxBenchmarks,
+    gradeResult: _kRxGrade,
   );
   return p;
 }

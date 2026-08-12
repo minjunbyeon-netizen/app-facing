@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -6,7 +5,6 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/api_client.dart';
 import '../../core/app_mode.dart';
-import '../../core/device_id.dart';
 import '../../core/haptic.dart';
 import '../../core/level_system.dart';
 import '../../core/pr_detector.dart';
@@ -24,8 +22,6 @@ import '../../core/worn_title_store.dart';
 import '../../widgets/fkit.dart';
 import '../../widgets/inbox_bell.dart';
 import '../../widgets/tier_badge.dart';
-import '../_debug/persona_debug_data.dart';
-import '../_debug/persona_switcher_screen.dart';
 import '../achievement/achievement_state.dart';
 import '../auth/auth_state.dart';
 import '../contracts/member_contracts_screen.dart';
@@ -1105,26 +1101,9 @@ class _ActionsSection extends StatelessWidget {
               ),
             ],
           ),
-          if (kDebugMode) ...[
-            const SizedBox(height: FacingTokens.sp5),
-            const Divider(),
-            const SizedBox(height: FacingTokens.sp3),
-            const Text('DEBUG', style: FacingTokens.sectionLabel),
-            const SizedBox(height: FacingTokens.sp1),
-            const Text(
-              'Debug 빌드 전용. Release 자동 차단.',
-              style: FacingTokens.caption,
-            ),
-            const SizedBox(height: FacingTokens.sp3),
-            const _QuickPersonaBar(),
-            const SizedBox(height: FacingTokens.sp2),
-            OutlinedButton(
-              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => const PersonaSwitcherScreen(),
-              )),
-              child: const Text('Persona Switcher (전체)'),
-            ),
-          ],
+          // v2.2 (2026-08-12 사용자 지시): DEBUG 블록 전면 삭제.
+          // 빠른 전환 아바타 바 · Persona Switcher · 데모 진입은 화면을 어지럽히기만
+          // 했다. kDebugMode 가드가 있어도 개발 중 매번 보이는 화면이라 제거한다.
         ],
       ),
     );
@@ -1286,235 +1265,6 @@ class _ModeRowState extends State<_ModeRow> {
                   onTap: _saving ? null : () => _setMode(m),
                 ),
             ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Quick Persona Bar (Debug only)
-// 5 avatars: 2 coaches + 3 members. 탭 → 즉시 페르소나 전환 (앱 재시작 불필요).
-
-class _QuickPersonaSpec {
-  final String displayName;
-  final String role; // 'coach_owner' | 'member'
-  final String deviceIdSeed;
-  final String shortLabel;
-  final String? box;
-  final String tier;
-  const _QuickPersonaSpec({
-    required this.displayName,
-    required this.role,
-    required this.deviceIdSeed,
-    required this.shortLabel,
-    required this.tier,
-    this.box,
-  });
-}
-
-const List<_QuickPersonaSpec> _kQuickPersonas = [
-  _QuickPersonaSpec(
-    displayName: '박지훈',
-    role: 'coach_owner',
-    deviceIdSeed: 'persona-coach-park-2026',
-    shortLabel: 'COACH A',
-    tier: 'Elite',
-    box: 'SEONGSU',
-  ),
-  _QuickPersonaSpec(
-    displayName: '이수민',
-    role: 'coach_owner',
-    deviceIdSeed: 'persona-coach-lee-2026',
-    shortLabel: 'COACH B',
-    tier: 'Elite',
-    box: 'GANGNAM',
-  ),
-  _QuickPersonaSpec(
-    displayName: '김도윤',
-    role: 'member',
-    deviceIdSeed: 'persona-member-kim-doyun-2026',
-    shortLabel: 'USER A',
-    tier: 'RX',
-    box: 'SEONGSU',
-  ),
-  _QuickPersonaSpec(
-    displayName: '정하은',
-    role: 'member',
-    deviceIdSeed: 'persona-member-jung-haeun-2026',
-    shortLabel: 'USER B',
-    tier: 'RX',
-    box: 'SEONGSU',
-  ),
-  _QuickPersonaSpec(
-    displayName: '강민재',
-    role: 'member',
-    deviceIdSeed: 'persona-member-kang-minjae-2026',
-    shortLabel: 'USER C',
-    tier: 'RX+',
-    box: 'GANGNAM',
-  ),
-];
-
-class _QuickPersonaBar extends StatefulWidget {
-  const _QuickPersonaBar();
-
-  @override
-  State<_QuickPersonaBar> createState() => _QuickPersonaBarState();
-}
-
-class _QuickPersonaBarState extends State<_QuickPersonaBar> {
-  String? _activeSeed;
-  bool _busy = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _activeSeed = DeviceIdService.cached;
-  }
-
-  Future<void> _switch(_QuickPersonaSpec p) async {
-    if (_busy) return;
-    setState(() => _busy = true);
-    Haptic.medium();
-    await DeviceIdService.overrideForDebug(p.deviceIdSeed);
-    final autoMode =
-        p.role == 'coach_owner' ? AppMode.coach : AppMode.member;
-    await AppModeStore.set(autoMode);
-    // AuthState.displayName 즉시 갱신 — 홈·프로필 상단 이름 반영.
-    if (mounted) {
-      await context.read<AuthState>().signIn('demo', displayName: p.displayName);
-    }
-    // GymState 재로딩 — MY BOX 소속 체육관 반영.
-    if (mounted) {
-      try {
-        await context.read<GymState>().loadMine();
-      } catch (_) {}
-    }
-    // ProfileState 즉시 교체 — tier 기반 합성 grade + 체형·벤치마크.
-    if (mounted) {
-      final body = kPersonaBodyMap[p.deviceIdSeed];
-      context.read<ProfileState>().applyPersonaSnapshot(
-        bodyWeightKg: body?.bodyWeightKg,
-        heightCm: body?.heightCm,
-        ageYears: body?.ageYears,
-        gender: body?.gender ?? 'male',
-        experienceYears: body?.experienceYears ?? 0,
-        benchmarks: body?.benchmarks ?? const {},
-        gradeResult: tierGrade(p.tier),
-      );
-    }
-    if (!mounted) return;
-    setState(() {
-      _activeSeed = p.deviceIdSeed;
-      _busy = false;
-    });
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('${p.displayName} (${p.shortLabel}) · ${p.tier} 전환 완료.'),
-          duration: const Duration(seconds: 2),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('빠른 전환', style: FacingTokens.sectionLabel),
-        const SizedBox(height: FacingTokens.sp2),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: _kQuickPersonas.map((p) {
-              final isActive = _activeSeed == p.deviceIdSeed;
-              final isCoach = p.role == 'coach_owner';
-              final accentCol =
-                  isCoach ? FacingTokens.tierElite : FacingTokens.muted;
-              return Padding(
-                padding: const EdgeInsets.only(right: FacingTokens.sp2),
-                child: GestureDetector(
-                  onTap: _busy ? null : () => _switch(p),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 150),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isActive
-                          ? accentCol.withValues(alpha: 0.18)
-                          : FacingTokens.bg,
-                      border: Border.all(
-                        color: isActive
-                            ? accentCol
-                            : FacingTokens.border,
-                        width: isActive ? 1.5 : 1,
-                      ),
-                      borderRadius:
-                          BorderRadius.circular(FacingTokens.r2),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Avatar circle
-                        Container(
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            color: accentCol.withValues(alpha: 0.20),
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: accentCol.withValues(alpha: 0.55),
-                            ),
-                          ),
-                          child: Center(
-                            child: Text(
-                              p.displayName.substring(0, 1),
-                              style: FacingTokens.body.copyWith(
-                                color: accentCol,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          p.shortLabel,
-                          style: FacingTokens.micro.copyWith(
-                            color: isActive ? FacingTokens.fg : FacingTokens.muted,
-                            fontWeight: isActive ? FontWeight.w800 : FontWeight.w400,
-                          ),
-                        ),
-                        Text(
-                          p.displayName,
-                          // R5: 하드코드 fontSize 금지 — micro 토큰 그대로.
-                          style: FacingTokens.micro.copyWith(
-                            color: FacingTokens.muted,
-                          ),
-                        ),
-                        if (isActive) ...[
-                          const SizedBox(height: 2),
-                          Container(
-                            width: 6,
-                            height: 6,
-                            decoration: BoxDecoration(
-                              color: FacingTokens.success,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
           ),
         ),
       ],

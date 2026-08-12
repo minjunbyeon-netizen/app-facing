@@ -2,18 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
-import '../../core/device_id.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../core/app_mode.dart';
 import '../../widgets/brand_logo.dart';
 import '../../widgets/fkit.dart';
-import '../gym/gym_state.dart';
 import '../mypage/privacy_screen.dart';
 import '../mypage/terms_screen.dart';
 import '../profile/profile_state.dart';
 import 'auth_state.dart';
-import 'demo_accounts.dart';
 import 'social_auth_service.dart';
 
 /// 최초 진입 로그인 화면 (D26 — 회원·코치·사장 전원 소셜 로그인 통일).
@@ -36,7 +33,6 @@ class _SignupScreenState extends State<SignupScreen> {
   // 프로젝트 룰 "숨김 = 코드 보존" — 화면·라우트·서비스는 그대로 두고 이 상수만
   // false. 실 OAuth 키 확보 후 true 한 줄로 원복.
   static const bool _kShowSocialLogin = false;
-  static const bool _kShowDemoAccounts = false;
 
   // D26: stub ↔ real 자동 선택 (USE_REAL_AUTH 플래그). 실 OAuth 는 ApiClient 의존
   // 이라 const 불가 — _signIn 에서 context 로 ApiClient 받아 resolve.
@@ -89,64 +85,6 @@ class _SignupScreenState extends State<SignupScreen> {
     // 프로필(등급) 없으면 온보딩, 있으면 바로 shell.
     final next = profile.hasGrade ? '/shell' : '/onboarding/basic';
     navigator.pushNamedAndRemoveUntil(next, (_) => false);
-  }
-
-  /// v1.16 Sprint 8 U1: 데모 계정 선택 → 프로필 프리로드 + grade 계산 + Shell 진입.
-  Future<void> _useDemo(DemoAccount demo) async {
-    if (_busy) return;
-    setState(() => _busy = true);
-    Haptic.heavy();
-    // QA B-AS-1: await 전 context.read 일괄 캡처. mounted 체크 정확화.
-    final auth = context.read<AuthState>();
-    final profile = context.read<ProfileState>();
-    final api = context.read<ApiClient>();
-    GymState? gymState;
-    try {
-      gymState = context.read<GymState>();
-    } catch (_) {}
-    // v1.22 회의 데모: deviceIdSeed 있으면 device_id 강제 교체 → 백엔드 페르소나 자동 진입.
-    if (demo.deviceIdSeed != null) {
-      await DeviceIdService.overrideForDebug(demo.deviceIdSeed!);
-    }
-    // v1.16.2 — IdentityCard 3 줄 분리: name(personName) + gym·role(GymState) + location. nameLabel 통문자열 X.
-    await auth.signIn('demo', displayName: demo.personName);
-    if (!mounted) return;
-    profile.setBasic(
-      bodyWeightKg: demo.bodyWeightKg,
-      heightCm: demo.heightCm.toDouble(),
-      ageYears: demo.ageYears.toDouble(),
-      gender: demo.gender,
-      experienceYears: demo.experienceYears,
-    );
-    for (final entry in demo.benchmarks.entries) {
-      profile.setBenchmark(entry.key, entry.value);
-    }
-    // Grade 계산 시도 (실패해도 Shell 진입).
-    try {
-      final result = await api
-          .post('/api/v1/profile/grade', profile.toGradePayload())
-          .timeout(const Duration(seconds: 5));
-      profile.setGradeResult(result);
-    } catch (_) {
-      // 백엔드 미가동 시에도 onboarding으로 유도.
-    }
-    // v1.22 회의 데모: device_id 교체 후 박스 멤버십 hydrate.
-    if (demo.deviceIdSeed != null && gymState != null) {
-      try {
-        await gymState.loadMine();
-      } catch (_) {}
-    }
-    if (!mounted) return;
-    // D26: 데모 계정은 role 을 이미 알고 있으므로 role-entry 없이 바로 분기.
-    final mode = switch (demo.role) {
-      'coach' => AppMode.coach,
-      'solo' => AppMode.solo,
-      _ => AppMode.member, // member · pending
-    };
-    await AppModeStore.set(mode);
-    if (!mounted) return;
-    final next = profile.hasGrade ? '/shell' : '/onboarding/basic';
-    Navigator.of(context).pushNamedAndRemoveUntil(next, (_) => false);
   }
 
   @override
@@ -252,49 +190,6 @@ class _SignupScreenState extends State<SignupScreen> {
                   child: const Text('가입 코드로 연결'),
                 ),
 
-                // v1.16 Sprint 8 U1: 데모 계정 5개 빠른 진입 (v1.33 숨김).
-                if (_kShowDemoAccounts) ...[
-                  const SizedBox(height: FacingTokens.sp5),
-                  const Text('데모 계정',
-                      style: FacingTokens.sectionLabel,
-                      textAlign: TextAlign.center),
-                  const SizedBox(height: FacingTokens.sp2),
-                  ...kDemoAccounts.map((d) => Padding(
-                        padding:
-                            const EdgeInsets.only(bottom: FacingTokens.sp1),
-                        child: OutlinedButton(
-                          onPressed: _busy ? null : () => _useDemo(d),
-                          style: OutlinedButton.styleFrom(
-                            alignment: Alignment.centerLeft,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: FacingTokens.sp4,
-                              vertical: FacingTokens.sp3,
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                  children: [
-                                    Text(d.nameLabel,
-                                        style: FacingTokens.body.copyWith(
-                                          fontWeight: FontWeight.w700,
-                                        )),
-                                    const SizedBox(height: 2),
-                                    Text(d.hintTier,
-                                        style: FacingTokens.caption),
-                                  ],
-                                ),
-                              ),
-                              const Icon(Icons.chevron_right,
-                                  color: FacingTokens.muted, size: 18),
-                            ],
-                          ),
-                        ),
-                      )),
-                ],
                 const SizedBox(height: FacingTokens.sp3),
                 // P0-1 (2026-06-10): placeholder 다이얼로그 → 본문 화면으로 교체.
                 Row(
