@@ -181,11 +181,29 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 **규칙 3 의 현재 배선** — PC = `web/facing-admin` (주) · 폰 = `apps/facing-app` 사장 화면 (보조).
 둘 다 같은 백엔드·같은 세션 계정(ID/PW)을 쓴다.
 
-> ⚠ **아직 코드가 규칙 1 을 어기는 곳** (2026-08-12 실사, 미수정):
-> - `services/facing/api/contracts.py` `_require_boss_or_coach` — boss·coach 만 허용해
->   **매니저가 코치보다 낮다** (5개 엔드포인트). D29 가 막으려던 역전이 여기 남아 있다.
-> - `services/facing/api/claim.py:73` — 가입코드 발급이 boss·manager 만. 코치 제외.
-> - `services/facing/api/admin.py` `require_boss_or_manager` — 정의만 있고 사용처 0 (죽은 코드).
+**규칙 1 을 어기던 코드 4곳 — 2026-08-12 전부 수정 완료.**
+
+| 위치 | 옛 게이트 | 조치 |
+|---|---|---|
+| `api/contracts.py _require_boss` | `role != "boss"` — 코치·매니저 전부 403 | `_require_staff` 로 통합 |
+| `api/contracts.py _require_boss_or_coach` | `("boss","coach")` — **매니저 < 코치 역전** | 〃 (옛 이름은 별칭 유지, 호출부 11곳 무변경) |
+| `api/claim.py:73` 가입코드 발급 | `("boss","manager")` — 코치 제외 | `BOSS_LEVEL_ROLES` |
+| `api/admin.py require_boss_or_manager` | `("boss","manager")` · 사용처 0 | 삭제 |
+
+**회귀 방지** — `services/facing/tests/test_rules_prem.py` 7개가 이 3줄을 코드로 강제한다.
+`boss` 는 통과시키면서 `coach`/`manager` 를 막는 게이트(튜플·단일비교 양쪽)를 정적 검사로
+잡고, 백엔드 HTML 렌더 0개·삭제된 회원 웹 미부활·폐기 전제 주석 재등장까지 본다.
+인가 게이트만 골라내려고 "403 을 뱉는가"로 판정한다 (신원 환산용 role 분기는 정상이라 제외).
+
+**실호출 검증 (2026-08-12, 신규 임시 DB · boss_seongsu·coach_park·mgr_test)**
+계약서 9종 + 가입코드 발급 1종 × 3역할 = **30콜 전부 게이트 통과 (403 0건)**.
+쓰기 엔드포인트는 빈 본문·없는 id 로 호출해 400/404 를 받아 **데이터는 안 바꿨다**.
+비로그인 7콜은 전부 401 — 게이트를 없앤 게 아니라 스태프에게만 연 것이 맞다.
+
+> ⚠ **로컬 dev DB 스키마 드리프트** — `data/facing.db` 의
+> `ck_gym_manager_role` 이 `('boss','coach')` 라 **매니저 계정을 아예 못 만든다**
+> (운영·신규 DB 는 `('boss','manager','coach')` 로 정상). 매니저 역전 버그가 오래 살아남은
+> 이유가 이것이다 — 로컬에서 재현이 불가능했다. 위 검증을 신규 임시 DB 로 돌린 이유.
 
 
 | 역할 | 클라이언트 | 권한 |
