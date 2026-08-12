@@ -313,7 +313,7 @@ R5. **하드코드 fontSize 금지.** 모든 텍스트 크기는 `FacingTokens` 
 | 위치 | 카피 |
 |---|---|
 | Splash / 로그인 / 전면 로딩 | **HYPHEN 로고** (BrandLogo 기본 폭 220) — 전면 로딩은 FkLoadingScreen |
-| 인트로 3p | "오늘의 WOD." / "기록이 레벨이 된다." / "내 Tier." (stage: WOD 보드 · 레벨 업적 · TIER) |
+| 인트로 2p | "오늘의 WOD" / "기록이 레벨이 된다" (stage: WOD 보드 · 레벨 · 업적). v2.6 에서 3p 'Tier' 삭제 — 앱에 Tier 를 보여주는 곳이 없어졌다 (D34·D36) |
 | 인트로 CTA | "시작" (마지막 p) / "다음" / "건너뛰기" — appkit strings |
 | 로그인 버튼 | "네이버 아이디로 로그인" (1순위) · "구글로 시작" — FkSocialButton |
 | 로그인 진행 | FkLoadingScreen(caption: '로그인 중') |
@@ -358,9 +358,12 @@ python tool/golden_gallery.py               # 단일 HTML 갤러리 (build/golde
 가짜 백엔드(`test/golden/fakes.dart` — ApiClient implements, 네트워크 0)로 실물 픽셀 렌더
 (갤S22 급 360×780·2x). 폰트는 `test/flutter_test_config.dart` 가 FontManifest 전체
 (Pretendard·MaterialIcons)를 로드. 참조 아키텍처: `apps/writeplz-app` 골든스탠다드.
-현재 **19장** — 공통 6(스플래시·인트로 3p·로그인·가입 코드) + 온보딩 3 + 회원 셸 3탭(v1.27) +
-사장 2(로그인·대시보드) + 상태 변형 5(빈·에러·오프라인·미가입). 페이싱 계산기 캡처는 v1.27 숨김과
-함께 제거 (재노출 시 git 히스토리의 calc_01~04 복원).
+현재 **19장** (v2.6 · 2026-08-13 기준) — 공통 5(스플래시·인트로 2p·로그인·가입 코드) +
+온보딩 1(기본 정보) + 회원 셸 3탭 + 프로필 메뉴 2 + 코치 3(로그인·대시보드·명단 시트) +
+이력 1 + 상태 변형 4(에러·미가입·오프라인·이력 에러).
+**진입점이 없는 화면은 골든에서 뺀다** — 페이싱 계산기(v1.27 숨김, git 의 calc_01~04) ·
+Benchmarks·Tier 결과(v2.6, git 의 onb_02·onb_03) · 인트로 TIER(v2.6, common_04).
+화면 코드는 보존돼 있으니 진입점을 되살리는 커밋에서 캡처도 같이 되살릴 것.
 기능을 넣으면 그 상태의 캡처도 같이 넣는다 (골든 없는 기능 = 골든스탠다드 미달).
 - `--update-goldens` 없이 `flutter test test/golden` 이 회귀 게이트 — 커밋된 PNG 와 1픽셀이라도 다르면 실패
 - 명언 랜덤은 `quotes.dart` 의 `quoteRandom` 시드 교체로 결정론 확보. WOD·출석·클래스 날짜는

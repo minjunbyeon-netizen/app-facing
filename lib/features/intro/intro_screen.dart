@@ -22,6 +22,12 @@ class _IntroScreenState extends State<IntroScreen> {
   // v1.27 (2026-07-28): 3기둥 동기화 — WOD 보드 · 게이미피케이션 · Tier 프로필.
   // 사진 히어로·스틱맨 폐기, HYPHEN 로고(BrandLogo) 중심의 클린 레이아웃.
   // v1.29: 카피 한글 기본 전환 (DESIGN-SSOT §7 — 도메인 용어만 영문 유지).
+  //
+  // v2.6 (2026-08-13 사용자 지시 "지금 없는 건 다 지워"): 3p 'Tier' 삭제.
+  // 프로필의 ENGINE 섹션을 내리면서(D34) 앱에 Tier 를 보여주는 곳이 없어졌고,
+  // 회원 레벨도 Benchmarks 6단계가 아니라 경력 3단이 됐다(D36) — 첫 화면이
+  // 없는 기능을 약속하고 있었다. 남은 두 장은 실물과 일치한다:
+  // WOD 탭(주간 보드 + 박스 공지) · 홈 탭(레벨 · 업적 · 마일스톤).
   static const List<_IntroPage> _pages = [
     // v2.2 (H16): 1p 가 'WOD 보드 / 오늘의 WOD. / 코치가 올린 오늘의 WOD.' 로
     // 세 줄 중 두 줄이 같은 말이었다. 본문은 제목이 말하지 않은 것만 담는다.
@@ -36,11 +42,6 @@ class _IntroScreenState extends State<IntroScreen> {
       stage: '레벨 · 업적',
       title: '기록이 레벨이 된다',
       body: '기록할수록 쌓이는\n레벨 · 업적 · 마일스톤.',
-    ),
-    _IntroPage(
-      stage: 'TIER',
-      title: '내 Tier',
-      body: 'Benchmarks 기반 6단계 Tier.\n프로필에서 언제든 수정.',
     ),
   ];
 

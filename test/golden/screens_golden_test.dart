@@ -14,9 +14,7 @@ import 'package:facing_app/features/gym/gym_state.dart';
 import 'package:facing_app/features/history/history_screen.dart';
 import 'package:facing_app/features/intro/intro_screen.dart';
 import 'package:facing_app/features/onboarding/onboarding_basic.dart';
-import 'package:facing_app/features/onboarding/onboarding_benchmarks.dart';
 import 'package:facing_app/features/mypage/mypage_screen.dart';
-import 'package:facing_app/features/onboarding/onboarding_grade.dart';
 import 'package:facing_app/features/profile/profile_state.dart';
 import 'package:facing_app/features/shell/main_shell.dart';
 import 'package:facing_app/features/signup/claim_code_screen.dart';
@@ -110,8 +108,8 @@ void main() {
     await tester.pump(const Duration(seconds: 4));
   });
 
-  // ── 공통: 인트로 3p (v1.27 3기둥 — BOARD → EARN → TIER, HYPHEN 로고) ──
-  testWidgets('common: intro 3p', (tester) async {
+  // ── 공통: 인트로 2p (v2.6 — BOARD → EARN. TIER 는 폐기) ──
+  testWidgets('common: intro 2p', (tester) async {
     phone(tester);
     SharedPreferences.setMockInitialValues({});
     final api = FakeApi(memberWorld());
@@ -124,9 +122,7 @@ void main() {
     await tester.tap(find.text('다음'));
     await tester.pump(const Duration(milliseconds: 300));
     await capture(tester, 'common_03_intro_earn');
-    await tester.tap(find.text('다음'));
-    await tester.pump(const Duration(milliseconds: 300));
-    await capture(tester, 'common_04_intro_tier');
+    // v2.6: 3p 'Tier' 는 화면에서 삭제됐다 (없는 기능 약속 제거).
   });
 
   // ── 공통: 소셜 로그인 ──
@@ -169,35 +165,11 @@ void main() {
     await capture(tester, 'onb_01_basic');
   });
 
-  testWidgets('onboarding: benchmarks', (tester) async {
-    phone(tester);
-    SharedPreferences.setMockInitialValues(signedInPrefs());
-    final api = FakeApi(memberWorld());
-    await tester.pumpWidget(harness(
-        api: api,
-        auth: await signedInAuth(),
-        profile: ProfileState(),
-        home: const OnboardingBenchmarksScreen()));
-    await capture(tester, 'onb_02_benchmarks');
-  });
+  // v2.6 (2026-08-13): Benchmarks·Tier 결과 화면은 진입점이 없어졌다
+  // (프로필 수정에서 Benchmarks 카드 삭제 — D34 의 연장). 화면 코드는 살아
+  // 있으나 회원이 도달할 수 없으므로 골든에서 뺀다. 진입점을 되살리면 이 두
+  // 캡처도 같이 되살릴 것.
 
-  testWidgets('onboarding: grade (RX)', (tester) async {
-    phone(tester);
-    SharedPreferences.setMockInitialValues(signedInPrefs());
-    final api = FakeApi(memberWorld());
-    await tester.pumpWidget(harness(
-        api: api,
-        auth: await signedInAuth(),
-        profile: rxProfile(),
-        home: const OnboardingGradeScreen()));
-    await capture(tester, 'onb_03_grade_rx');
-    // 진입 1.2s 후 achievements/check 지연 호출 — 타이머 flush.
-    await tester.pump(const Duration(seconds: 2));
-  });
-
-  // ── 회원 셸 3탭 (v1.27 3기둥 — 기본 = WOD 보드) ──
-  // 페이싱 계산기(빌더·프리셋·결과) 캡처는 v1.27 기능 숨김과 함께 제거 —
-  // 재노출 시 git 히스토리의 calc_01~04 테스트 복원.
   testWidgets('member: shell 3 tabs', (tester) async {
     phone(tester);
     SharedPreferences.setMockInitialValues(signedInPrefs());

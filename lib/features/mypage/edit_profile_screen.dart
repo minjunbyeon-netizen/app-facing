@@ -23,17 +23,17 @@ class EditProfileScreen extends StatelessWidget {
               style: FacingTokens.caption,
             ),
             SizedBox(height: FacingTokens.sp4),
+            // v2.6 (2026-08-13): 부제가 실제 화면과 달랐다 — 기본 정보는
+            // v2.3 에서 성별·경력 둘만 남았는데 체중·키·나이를 약속하고 있었다.
             _AreaCard(
               title: '기본 정보',
-              subtitle: '체중 · 키 · 나이 · 성별 · CrossFit 경력',
+              subtitle: '성별 · CrossFit 경력 (레벨 기준)',
               route: '/onboarding/basic',
             ),
-            _AreaCard(
-              title: 'Benchmarks',
-              subtitle:
-                  'Power · Olympic · Gymnastics · Cardio · Metcon · Body',
-              route: '/onboarding/benchmarks',
-            ),
+            // v2.6 (2026-08-13 사용자 지시 "지금 없는 건 다 지워"): Benchmarks
+            // 카드 삭제. ENGINE 을 프로필에서 내린 뒤(D34) 측정 입구만 남아
+            // 있었다 — 넣어도 결과를 볼 곳이 없다. 화면·라우트
+            // (`/onboarding/benchmarks`)는 보존 ("숨김 = 코드 보존").
           ],
         ),
       ),

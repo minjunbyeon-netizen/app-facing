@@ -16,14 +16,11 @@ SECTIONS = [
         ("common_01_splash", "스플래시 — HYPHEN 로고 · 자동 전환 대기"),
         ("common_02_intro_board", "인트로① WOD 보드 — 오늘의 WOD."),
         ("common_03_intro_earn", "인트로② 레벨·업적 — 기록이 레벨이 된다."),
-        ("common_04_intro_tier", "인트로③ TIER — 내 Tier."),
         ("common_05_signup", "소셜 로그인 — 네이버 아이디 · 구글"),
         ("common_06_claim", "가입 코드 입력 — PC 선등록 회원 연결 (이음새 1)"),
     ]),
-    ("온보딩", "온보딩 — 기본 정보 → Benchmarks → Tier", [
-        ("onb_01_basic", "기본 정보 — 체중 · 키 · 경력"),
-        ("onb_02_benchmarks", "Benchmarks — 1RM · 기록 입력"),
-        ("onb_03_grade_rx", "Tier 결과 — RX (persona 합성 데이터)"),
+    ("온보딩", "온보딩 — 가입 직후 한 화면 (성별 · 경력)", [
+        ("onb_01_basic", "기본 정보 — 성별 · CrossFit 경력 (레벨 기준)"),
     ]),
     ("회원 셸", "회원 셸 3탭 (v1.27 3기둥) — 승인된 회원 (HYPHEN CrossFit 서면)", [
         ("member_01_shell_wod", "WOD 탭 (기본) — 코치 오늘 WOD 보드"),
