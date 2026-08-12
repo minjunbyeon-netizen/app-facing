@@ -126,14 +126,15 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
               │ 폰 앱 (Flutter)  │   │ PC 웹 (Flask)      │
               │ apps/facing-app  │   │ web/facing-admin   │
               │                  │   │                    │
-              │ 회원 + 코치 모드 │   │ 사장 전용          │
+              │ 회원 + 스태프    │   │ 스태프 전용        │
+              │ (회원은 여기만)  │   │ (사장 = 코치)      │
               └──────────────────┘   └────────────────────┘
 ```
 
 - **백엔드 1개** (`services/facing`, Flask + SQLite) — 단일 진실 (SSOT)
-- **클라이언트 2개**
-  - **폰** (`apps/facing-app`, Flutter): 회원 + 코치 일상
-  - **PC 웹** (`web/facing-admin`, Flask + 바닐라 HTML/CSS/JS): 사장 운영
+- **클라이언트 2개** (§2-0 대전제 2·3)
+  - **폰** (`apps/facing-app`, Flutter): 회원의 **유일한** 창구 + 스태프 보조 운영
+  - **PC 웹** (`web/facing-admin`, Flask + 바닐라 HTML/CSS/JS): 스태프(사장·코치·매니저) 주 창구
 - **통신**: REST + SSE (Server-Sent Events)
 
 > **회원용 웹 화면은 만들지 않는다 (강제·차단).** 회원이 PC 로 이 서비스를 쓸

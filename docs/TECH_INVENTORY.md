@@ -266,7 +266,8 @@ flask 3.1.0 · flask-cors 5.0.0 · sqlalchemy 2.0.36 · gunicorn 23.0.0 · geven
 - **다지점 RLS 백엔드 미구현** — `gym_managers` 복합키만, gym_group/cross-gym 출석 endpoint 미구현 (PHASE4 §1.4 P1)
 - **AI 코칭** — `ai_coaching_session` 테이블 예정, Claude API 미연결 (PHASE4 §1.7 P2)
 - **WOD 월간 캘린더** — `wod_calendar_plan` 테이블 예정 (PHASE4 §1.6 P1)
-- **모바일 admin 반응형** — 현재 viewport=1280 우회. PC 사장 전용 그대로 유지가 합의
+- **모바일 admin 반응형** — 현재 viewport=1280 우회. PC 데스크톱 전용 유지가 합의
+  (스태프의 폰 동선은 반응형 웹이 아니라 앱 사장 화면이 담당 — 브리프 §2-0 대전제 3)
 - **Riverpod/go_router/fresh_dio/pigeon 미도입** — `rules/mobile.md` 권장 스택과 차이. 단기 작업 우선이라 deferred
 - **회원 폰 SSE 실제 구현** — `/api/v1/member/events` 등록만, 30초 poll fallback 우선
 - **Postgres 이행** — psycopg2-binary 설치만, H-1 시점 SQLite → Postgres 전환
