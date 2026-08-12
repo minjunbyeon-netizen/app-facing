@@ -97,8 +97,8 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 |---|---|---|---|
 | `admin` | `1234` | 슈퍼관리자 (모든 환경 시드) | 백엔드 부팅 시 자동 |
 | `${APP_TEST_ADMIN_ID}` | `${APP_TEST_ADMIN_PASSWORD}` | 슈퍼관리자 (env 있을 때만, 프로덕션 skip) | env 기반 |
-| `boss_seongsu` | `1234` | FACING SEONGSU 사장 (PC 웹) | Phase 1 마이그레이션 |
-| `coach_park` | `1234` | FACING SEONGSU 코치 (폰 페어링 가능) | Phase 1 |
+| `boss_seongsu` | `1234` | HYPHEN 사장 (PC 웹) | Phase 1 마이그레이션 |
+| `coach_park` | `1234` | HYPHEN 코치 (폰 페어링 가능) | Phase 1 |
 
 폰 페르소나 4명 (`persona-coach-park-2026` 등) 은 device_id 시드로 별도. 위 ID/PW 계정은 PC 사장 웹 로그인 전용.
 
@@ -315,7 +315,7 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
       │
       ▼
 QR 또는 카운터 안내    →    1. 박스 찾기 화면
-                            2. SEONGSU 선택
+                            2. HYPHEN 선택
                             3. 가입 신청 (pending)
                                  │
                                  │ POST /join

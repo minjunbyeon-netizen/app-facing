@@ -82,7 +82,7 @@ Phase 1 백엔드 코어  →  Phase 2 앱 인증·온보딩  →  Phase 3 웹 �
 
 ### 🔴 C-2. 데모 계정 admin/1234 부팅 시드 — 30m
 - [x] GymManager `admin/1234` 부팅 시드 (bcrypt rounds=12, `models/base.py:144-181` seed_superadmin 패턴 참조 — AdminUser 테이블은 로그인 경로와 단절 확인됨)
-- [x] **fresh DB 에 박스가 없으면 시드 불가** (`seed_gym_managers` 는 "FACING SEONGSU" 없으면 skip — base.py:106-141) → 기본 박스 생성 포함
+- [x] **fresh DB 에 박스가 없으면 시드 불가** (`seed_gym_managers` 는 대표 박스(`seeds/home_gym.py HOME_GYM_NAME`) 없으면 skip) → 기본 박스 생성 포함
 - [x] 슈퍼씨드(`APP_TEST_ADMIN_ID` env) 도 GymManager 경로로
 - [x] 검증: **본 DB 백업 후** `FACING_DB` 임시 경로 fresh DB 부팅 → admin/1234 로그인 200. 기존 DB 재부팅에도 시드 들어가는지 확인 (글로벌 룰 §3-A: 모든 환경 의무)
 

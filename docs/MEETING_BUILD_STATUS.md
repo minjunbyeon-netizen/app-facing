@@ -58,7 +58,7 @@
 
 ### 1. 폰 회원 시점 (3분)
 1. 페르소나 스위처에서 **김도윤** 선택
-2. NOTICE 탭 → FACING SEONGSU 박스 정보 카드 (위치·전화·코치·수업·모토)
+2. NOTICE 탭 → HYPHEN 박스 정보 카드 (위치·전화·코치·수업·모토)
 3. WOD 탭 → 오늘의 WOD + PAST WOD
 4. 마이페이지 → Engine 66 점수
 
@@ -88,7 +88,7 @@
 
 | 위치 | ID/seed | PW | 권한 |
 |---|---|---|---|
-| PC 사장 | `boss_seongsu` | `1234` | FACING SEONGSU 사장 |
+| PC 사장 | `boss_seongsu` | `1234` | HYPHEN 사장 |
 | 폰 (페르소나) | `persona-coach-park-2026` | — | 박지훈 코치 |
 | 폰 (페르소나) | `persona-member-kim-doyun-2026` | — | 김도윤 회원 |
 | 폰 (페르소나) | `persona-app-song-yejun-2026` | — | 송예준 무소속 |

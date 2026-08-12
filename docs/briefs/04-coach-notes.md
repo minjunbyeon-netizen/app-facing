@@ -184,7 +184,7 @@ Response: { notes: [...], unreadCount: N }
 
 **알림 카피 원칙:**
 - "Coach sent you a note." (개인)
-- "New message in FACING SEONGSU." (그룹/전체)
+- "New message in HYPHEN." (그룹/전체)
 - "Assignment due in 2 days." (마감 임박, D-2 자동 리마인드 — Phase 3)
 
 ---
