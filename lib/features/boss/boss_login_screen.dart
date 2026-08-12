@@ -9,7 +9,10 @@ import '../../widgets/fkit.dart';
 import 'boss_api_client.dart';
 import 'boss_auth_state.dart';
 
-/// PHASE5 §1.1 — 사장·매니저 폰 로그인 화면.
+/// PHASE5 §1.1 — 스태프(코치·매니저·사장) 폰 로그인 화면.
+/// 2026-08-12: 코치=사장 권한 확정 (사용자 결정). 백엔드 admin_login 은 role 무제한이고
+/// dashboard 는 @require_role(["boss","coach"]) 라 코치도 원래 들어왔으나, 화면 라벨이
+/// '사장'이라 코치가 자기 입구를 못 찾던 문제를 라벨로만 해소 (라우트 /boss/login 은 유지).
 /// ID/PW → POST /api/v1/admin/login → BossAuthState 저장 → /boss/dashboard
 class BossLoginScreen extends StatefulWidget {
   const BossLoginScreen({super.key});
@@ -96,7 +99,7 @@ class _BossLoginScreenState extends State<BossLoginScreen> {
                 // ─── 헤더 (v1.29: 로그인 화면 통일 — BrandLogo 220, DESIGN-SSOT §6) ───
                 const Center(child: BrandLogo()),
                 const SizedBox(height: FacingTokens.sp5),
-                Text('사장 로그인', style: FacingTokens.h1),
+                Text('코치·사장 로그인', style: FacingTokens.h1),
                 const SizedBox(height: FacingTokens.sp1),
                 Text(
                   'PC 어드민과 동일 계정으로 로그인.',

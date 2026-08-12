@@ -91,7 +91,7 @@ class _BossDashboardScreenState extends State<BossDashboardScreen> {
               style: FacingTokens.h3.copyWith(color: FacingTokens.fg),
             ),
             Text(
-              auth.role?.toUpperCase() ?? 'BOSS',
+              auth.role?.toUpperCase() ?? 'STAFF',
               style: FacingTokens.micro.copyWith(color: FacingTokens.primary),
             ),
           ],

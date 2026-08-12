@@ -325,7 +325,8 @@ class _SignupScreenState extends State<SignupScreen> {
                       foregroundColor: FacingTokens.muted,
                       minimumSize: const Size(0, 32),
                     ),
-                    child: Text('사장 로그인 (전환기)', style: FacingTokens.caption),
+                    child:
+                        Text('코치·사장 로그인 (전환기)', style: FacingTokens.caption),
                   ),
                 ),
                 const SizedBox(height: FacingTokens.sp2),
