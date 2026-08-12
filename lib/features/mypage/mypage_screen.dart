@@ -285,7 +285,7 @@ class _MyBoxSection extends StatelessWidget {
         title: const Text('박스를 탈퇴할까요?'),
         content: Text(
           '$gymName 에서 탈퇴합니다.\n'
-          '다시 들어오려면 코치에게 가입 코드를 받아야 합니다.',
+          '다시 들어오려면 가입 신청을 넣고 코치 승인을 받아야 합니다.',
           style: FacingTokens.caption,
         ),
         actions: [
@@ -315,7 +315,7 @@ class _MyBoxSection extends StatelessWidget {
       return;
     }
     // v2.6 (2026-08-13): 탈퇴 후 '박스 찾기'로 보내지 않는다 — 박스는 하나뿐이라
-    // 찾을 목록이 없다. WOD 탭으로만 보내면 그곳의 가입 코드 입력이 다음 길이다.
+    // 찾을 목록이 없다. WOD 탭의 미가입 안내가 다음 길(가입 신청)을 알려준다.
     context.read<ShellNavBus>().requestTab(1);
   }
 
