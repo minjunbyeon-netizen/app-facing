@@ -12,36 +12,9 @@ int engineScoreTo100(dynamic raw) {
   return pct.clamp(0, 100);
 }
 
-/// ⚠️ **가상 데이터**: Tier 기반 근사 백분위.
-///
-/// v1.15.3: Tier 구조를 공개 등급 분포(Open·Quarterfinal 통계 근사)에
-/// 매핑해 추정값 반환. **실제 유저 집계 아님**.
-/// Phase 2에서 서버 `/api/v1/stats/distribution` 엔드포인트로 대체 예정.
-///
-/// 매핑:
-///   - score 1.0 → 0%ile
-///   - score 3.0 → 50%ile (RX 진입)
-///   - score 4.0 → 80%ile (RX+ 진입)
-///   - score 5.0 → 95%ile (Elite 진입)
-///   - score 6.0 → 99.5%ile (Games)
-///
-/// 반환값은 "상위 X%" 표기에 쓰도록 `topPercent = 100 - percentile`.
-/// 예) score 4.5 → percentile 87.5 → topPercent 12.5 → UI "Top 12%".
-double engineScoreToTopPercent(dynamic raw) {
-  if (raw is! num) return 100.0;
-  final s = raw.toDouble().clamp(1.0, 6.0);
-  double pct;
-  if (s >= 5.0) {
-    pct = 95.0 + (s - 5.0) * 4.5; // 5→95, 6→99.5
-  } else if (s >= 4.0) {
-    pct = 80.0 + (s - 4.0) * 15.0; // 4→80, 5→95
-  } else if (s >= 3.0) {
-    pct = 50.0 + (s - 3.0) * 30.0; // 3→50, 4→80
-  } else {
-    pct = (s - 1.0) * 25.0; // 1→0, 3→50
-  }
-  return (100.0 - pct).clamp(0.1, 100.0);
-}
+// (구 engineScoreToTopPercent — 2026-08-13 삭제, D39. Tier 를 '상위 X%' 로
+//  바꿔 주던 함수인데 실제 유저 집계가 아니라 지어낸 분포였다. 호출부 0.
+//  진짜 백분위가 필요하면 서버 집계 엔드포인트를 먼저 만든다.)
 
 /// "Top 12%" 표기용 라벨 — 값이 너무 작으면 "Top <1%".
 /// ⚠️ 가상 근사값 (실제 유저 집계 아님).
