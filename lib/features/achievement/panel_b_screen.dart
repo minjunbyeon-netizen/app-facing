@@ -21,7 +21,6 @@ import '../../core/futures.dart';
 import '../../core/haptic.dart';
 import '../../core/pr_detector.dart';
 import '../../core/scoring.dart';
-import '../../core/season_badges.dart';
 import '../../core/share_count_store.dart';
 import '../../core/theme.dart';
 import '../../core/titles_catalog.dart';
@@ -42,7 +41,6 @@ class PanelBScreen extends StatefulWidget {
 class _PanelBScreenState extends State<PanelBScreen> {
   Future<List<WodHistoryItem>>? _historyFuture;
   Future<List<EngineSnapshotRecord>>? _engineFuture;
-  Future<List<String>>? _seasonBadgesFuture;
   /// /go Tier 3: 현재 착용 칭호 코드.
   String? _wornCode;
   /// /go 7 (B2): 누적 공유 횟수 (PB_PHOTO_FINISH 등 signal).
@@ -52,14 +50,13 @@ class _PanelBScreenState extends State<PanelBScreen> {
   void initState() {
     super.initState();
     final api = context.read<ApiClient>();
-    // retainError: _engineFuture·_seasonBadgesFuture 의 FutureBuilder 는
+    // retainError: _engineFuture 의 FutureBuilder 는
     // _historyFuture 성공 분기 안에 중첩 — history 가 에러·로딩이면 리스너가
     // 안 붙어 에러가 unhandled 로 샌다.
     _historyFuture = retainError(HistoryRepository(api).listWodHistory(limit: 500));
     // /go Tier 3: engine 80+ count signal 추출용 — engine snapshot 로드.
     _engineFuture =
         retainError(HistoryRepository(api).listEngineSnapshots(limit: 100));
-    _seasonBadgesFuture = retainError(SeasonBadgeService.unlockedCodes());
     _loadWornCode();
     _loadShareCount();
   }
@@ -279,8 +276,6 @@ class _PanelBScreenState extends State<PanelBScreen> {
                       unlocked: unlocked.length,
                       total: kPanelBTitles.length,
                     ),
-                    const SizedBox(height: FacingTokens.sp4),
-                    _SeasonBadgesPanel(future: _seasonBadgesFuture),
                     const SizedBox(height: FacingTokens.sp4),
                     // /go Tier 3: 착용 안내.
                     const Text('칭호',
@@ -506,86 +501,6 @@ class _TitleCard extends StatelessWidget {
   }
 }
 
-/// 시즌 배지 통합 패널 — Phase 2.5.
-class _SeasonBadgesPanel extends StatelessWidget {
-  final Future<List<String>>? future;
-  const _SeasonBadgesPanel({required this.future});
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<List<String>>(
-      future: future,
-      builder: (ctx, snap) {
-        final codes = snap.data ?? const [];
-        return Container(
-          padding: const EdgeInsets.all(FacingTokens.sp3),
-          decoration: BoxDecoration(
-            color: FacingTokens.surface,
-            border: Border.all(color: FacingTokens.border),
-            borderRadius: BorderRadius.circular(FacingTokens.r2),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  const Icon(Icons.wb_sunny_outlined,
-                      size: 16, color: FacingTokens.muted),
-                  const SizedBox(width: FacingTokens.sp2),
-                  Text(
-                    'SEASON BADGES',
-                    style: FacingTokens.sectionLabel.copyWith(
-                      color: FacingTokens.fg,
-                    ),
-                  ),
-                  const Spacer(),
-                  Text('${codes.length}',
-                      style: FacingTokens.body.copyWith(
-                        fontWeight: FontWeight.w800,
-                        fontFeatures: FacingTokens.tabular,
-                      )),
-                ],
-              ),
-              const SizedBox(height: FacingTokens.sp2),
-              if (codes.isEmpty)
-                const Text(
-                  'No season badge yet. 시즌 active 시 세션 1회로 자동 unlock.',
-                  style: FacingTokens.caption,
-                )
-              else
-                Wrap(
-                  spacing: FacingTokens.sp2,
-                  runSpacing: FacingTokens.sp2,
-                  children: codes.map((code) {
-                    return Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: FacingTokens.sp3,
-                        vertical: FacingTokens.sp1,
-                      ),
-                      decoration: BoxDecoration(
-                        color: FacingTokens.bg,
-                        border:
-                            Border.all(color: FacingTokens.accent, width: 1),
-                        borderRadius:
-                            BorderRadius.circular(FacingTokens.r1),
-                      ),
-                      child: Text(
-                        code.replaceFirst('SEASON_', ''),
-                        style: FacingTokens.microLabel.copyWith(
-                          color: FacingTokens.fg,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
 
 /// 외부에서 호출 가능한 navigation helper.
 void openPanelB(BuildContext context) {

@@ -14,7 +14,6 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import '../../core/api_client.dart';
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
-import '../../core/season_badges.dart';
 import '../../core/theme.dart';
 import '../../core/pr_detector.dart';
 import '../../core/wod_session_bus.dart';
@@ -422,23 +421,6 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
           ),
         );
         anyUnlockShown = true;
-      }
-
-      // v1.20 Phase 2.5: 시즌 배지 자동 unlock (active 시즌일 때만).
-      try {
-        final newBadge = await SeasonBadgeService.recordSessionToday();
-        if (newBadge != null && mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Season badge unlocked · ${newBadge.label}'),
-              duration: const Duration(seconds: 2),
-            ),
-          );
-          Haptic.achievementUnlock();
-          anyUnlockShown = true;
-        }
-      } catch (_) {
-        // 배지 실패는 사용자에게 노출 안 함.
       }
 
       // /go Phase 2.5+: AchievementState.check() 호출 — 백엔드 trigger 신규 unlock 즉시 노출.

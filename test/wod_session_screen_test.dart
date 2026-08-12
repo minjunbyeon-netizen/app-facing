@@ -1,7 +1,7 @@
 // /go 13 (B1 후속): WodSessionScreen 빌드 smoke 위젯 테스트.
 //
 // 풀 mock: ApiClient + GymState + AchievementState + WodSessionBus.
-// PrDetector / SeasonBadgeService / HistoryRepository 는 SharedPreferences·dio 호출이 있어
+// PrDetector / HistoryRepository 는 SharedPreferences·dio 호출이 있어
 // 빌드 단계에서 호출 안 되도록 widget pumpAndSettle 대신 pump() 단일 프레임만 사용.
 
 import 'package:flutter/material.dart';

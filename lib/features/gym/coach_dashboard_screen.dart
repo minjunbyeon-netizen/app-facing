@@ -1,4 +1,5 @@
-// v1.16 Sprint 12: Coach Dashboard — 승인 관리 + 멤버 로스터 + 활동 통계 + 부상 메모 mock.
+// Coach Dashboard — 승인 관리 + 멤버 로스터 + 활동 통계.
+// (부상 메모 가짜 데이터는 삭제됐다 — 지금은 '준비 중' 안내만 띄운다.)
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -347,7 +348,7 @@ String _dateShort(DateTime d) {
       '${l.hour.toString().padLeft(2, '0')}:${l.minute.toString().padLeft(2, '0')}';
 }
 
-/// v1.16 Sprint 12: 멤버 탭 시 bottom sheet — 코치 전용 mock 부상 메모.
+/// 멤버 탭 시 bottom sheet — 부상 메모·목표는 아직 저장 경로가 없어 안내만 띄운다.
 class _MemberDetailSheet extends StatelessWidget {
   final GymMember member;
   const _MemberDetailSheet({required this.member});

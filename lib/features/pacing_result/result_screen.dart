@@ -8,7 +8,6 @@ import '../../core/api_client.dart';
 import '../../core/exception.dart';
 import '../../core/formula_references.dart';
 import '../../core/haptic.dart';
-import '../../core/season_badges.dart';
 import '../../core/share_count_store.dart';
 import '../../core/theme.dart';
 import '../../models/pacing_plan.dart';
@@ -113,18 +112,6 @@ class _ResultScreenState extends State<ResultScreen> {
           'segments': planData['segments'],
         },
       });
-      // v1.20 Phase 2.5: 시즌 active 시 자동 배지 unlock (best-effort).
-      // /go 페르소나 검증: wod_session 과 동일하게 unlock 발생 시 toast+Haptic 알림 일관성.
-      final newBadge = await SeasonBadgeService.recordSessionToday();
-      if (newBadge != null && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Season badge unlocked · ${newBadge.label}'),
-            duration: const Duration(seconds: 3),
-          ),
-        );
-        Haptic.achievementUnlock();
-      }
     } catch (_) {
       // 저장 실패 무시.
     }
