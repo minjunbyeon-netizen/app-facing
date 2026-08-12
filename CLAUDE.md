@@ -358,9 +358,9 @@ python tool/golden_gallery.py               # 단일 HTML 갤러리 (build/golde
 가짜 백엔드(`test/golden/fakes.dart` — ApiClient implements, 네트워크 0)로 실물 픽셀 렌더
 (갤S22 급 360×780·2x). 폰트는 `test/flutter_test_config.dart` 가 FontManifest 전체
 (Pretendard·MaterialIcons)를 로드. 참조 아키텍처: `apps/writeplz-app` 골든스탠다드.
-현재 **19장** (v2.6 · 2026-08-13 기준) — 공통 5(스플래시·인트로 2p·로그인·가입 코드) +
-온보딩 1(기본 정보) + 회원 셸 3탭 + 프로필 메뉴 2 + 코치 3(로그인·대시보드·명단 시트) +
-이력 1 + 상태 변형 4(에러·미가입·오프라인·이력 에러).
+현재 **20장** (v2.6 · 2026-08-13 기준) — 공통 5(스플래시·인트로 2p·로그인·가입 코드) +
+온보딩 1(기본 정보) + 회원 셸 3탭 + 프로필 메뉴 2 + WOD 결과 입력 시트 1 +
+코치 3(로그인·대시보드·명단 시트) + 이력 1 + 상태 변형 4(에러·미가입·오프라인·이력 에러).
 **진입점이 없는 화면은 골든에서 뺀다** — 페이싱 계산기(v1.27 숨김, git 의 calc_01~04) ·
 Benchmarks·Tier 결과(v2.6, git 의 onb_02·onb_03) · 인트로 TIER(v2.6, common_04).
 화면 코드는 보존돼 있으니 진입점을 되살리는 커밋에서 캡처도 같이 되살릴 것.

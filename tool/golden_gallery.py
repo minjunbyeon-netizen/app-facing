@@ -28,6 +28,7 @@ SECTIONS = [
         ("member_03_shell_profile", "프로필 탭 — 회원권 · 내 박스 · 신체 · 설정 (ENGINE 폐기)"),
         ("member_04_profile_menu", "프로필 하단 — 아코디언 접힘 상태"),
         ("member_05_profile_menu_open", "프로필 메뉴 펼침 — 계약~이용약관 (직원 계정 연결 폐기)"),
+        ("member_06_result_sheet", "WOD 결과 입력 시트 — 완료 표시 탭 → 저장 (스케일 SCALED·RXD·ELITE 순)"),
     ]),
     ("코치", "코치 — 로그인 · 대시보드 · 명단", [
         ("boss_01_login", "코치 로그인 — PC 와 같은 아이디"),

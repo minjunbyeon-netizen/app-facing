@@ -217,6 +217,27 @@ void main() {
     await capture(tester, 'member_05_profile_menu_open');
   });
 
+  // ── WOD 결과 입력 시트 (v2.6 · 사용자 요청) ──
+  // 회원이 실제로 도달하는 경로 그대로 탄다: WOD 탭 → 오늘 WOD(기본 펼침)의
+  // '완료 표시' 배지 탭 → 바텀시트. 시트만 따로 pump 하면 진입점이 살아 있는지는
+  // 증명하지 못한다 (명단 시트 golden 과 같은 방식).
+  testWidgets('member: wod result sheet', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi(memberWorld());
+    final gym = GymState(GymRepository(api), sse: FakeSse());
+    await gym.loadMine();
+    await tester.pumpWidget(harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        gym: gym,
+        home: const MainShell()));
+    await tester.tap(find.text('완료 표시').first);
+    await tester.pumpAndSettle();
+    await capture(tester, 'member_06_result_sheet');
+  });
+
   // ── 사장 대시보드 ──
   testWidgets('boss: dashboard', (tester) async {
     phone(tester);
