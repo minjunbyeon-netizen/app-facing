@@ -333,8 +333,10 @@ class FkListRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final row = Padding(
       padding: const EdgeInsets.symmetric(
-        horizontal: FacingTokens.sp4,
-        vertical: FacingTokens.sp3,
+        horizontal: FacingTokens.sp3,
+        // v2.5 (2026-08-12 사용자 지시): 위아래 12 씩이면 두 줄짜리 행 하나가
+        // 70 을 넘어 업적·마일스톤 표가 화면을 다 먹었다. 8 로 내린다.
+        vertical: FacingTokens.sp2,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -397,7 +399,7 @@ class FkListRow extends StatelessWidget {
             ],
           ),
           if (below != null) ...[
-            const SizedBox(height: FacingTokens.sp2),
+            const SizedBox(height: FacingTokens.sp1),
             below!,
           ],
         ],
@@ -468,9 +470,15 @@ class FkAccordion extends StatelessWidget {
       data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
       child: ExpansionTile(
         initiallyExpanded: initiallyExpanded,
+        // v2.5 (2026-08-12 사용자 지시 "50% 수준으로"): 기본 ExpansionTile 은
+        // 제목+부제면 헤더 한 줄이 72 를 넘어 프로필 한 화면에 네 항목도 안 들어갔다.
+        // dense + compact + 최소 높이 44 로 절반 가까이 내린다.
+        dense: true,
+        visualDensity: VisualDensity.compact,
+        minTileHeight: 44,
         tilePadding: EdgeInsets.symmetric(
           horizontal: inset ? FacingTokens.sp3 : 2,
-          vertical: 2,
+          vertical: 0,
         ),
         childrenPadding: inset
             ? const EdgeInsets.fromLTRB(

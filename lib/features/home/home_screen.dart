@@ -299,8 +299,10 @@ class _GamificationBody extends StatelessWidget {
       nextMilestone = 365;
     }
 
+    // v2.5 (2026-08-12 사용자 지시): 섹션 사이 16·24 여백이 스크롤의 절반을
+    // 차지했다. 바깥 여백 12 · 섹션 간격 12 로 통일.
     return ListView(
-      padding: const EdgeInsets.all(FacingTokens.sp4),
+      padding: const EdgeInsets.all(FacingTokens.sp3),
       children: [
         // v1.23 Phase 4: 공지/쪽지 아코디언 — 화면 최상단(게이미피케이션 위).
         const _NoticeAccordion(),
@@ -310,15 +312,15 @@ class _GamificationBody extends StatelessWidget {
           currentStreakDays: currentStreak,
           prCount: PrDetector.countPrs(records),
         ),
-        const SizedBox(height: FacingTokens.sp4),
+        const SizedBox(height: FacingTokens.sp3),
 
         // 업적 — 캐릭터 바로 아래 표 (v1.30: 그리드 → 한 줄 한 항목)
         const AchievementSection(),
-        const SizedBox(height: FacingTokens.sp5),
+        const SizedBox(height: FacingTokens.sp3),
 
         // 마일스톤 — 3종 요약 진행바 (업적과 같은 표 리듬)
         const FkSectionLabel('마일스톤'),
-        const SizedBox(height: FacingTokens.sp2),
+        const SizedBox(height: FacingTokens.sp1),
         FkRowCard(
           rows: [
             // QA 2026-06-11: WOD 계산 기록이 아닌 실제 출석(Attend 탭 동일

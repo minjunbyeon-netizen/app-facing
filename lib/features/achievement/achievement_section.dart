@@ -169,27 +169,29 @@ class _EmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
+      // v2.5 (2026-08-12 사용자 지시): 아이콘 + 두 줄 세로 스택이 120 을 먹었다.
+      // 한 줄로 눕혀 절반 이하로 (내용은 그대로).
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp4),
+        padding: const EdgeInsets.symmetric(
+          vertical: FacingTokens.sp2,
+          horizontal: FacingTokens.sp3,
+        ),
         decoration: BoxDecoration(
           border: Border.all(color: FacingTokens.border, width: 0.8),
           borderRadius: BorderRadius.circular(FacingTokens.r2),
         ),
-        child: Column(
+        child: Row(
           children: [
-            Icon(Icons.military_tech_outlined,
-                size: 28, color: FacingTokens.muted),
-            const SizedBox(height: FacingTokens.sp2),
-            Text(
-              '아직 업적 없음.',
-              style: FacingTokens.caption,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 2),
-            Text(
-              'WOD를 완료하면 해금됩니다.',
-              style: FacingTokens.micro,
-              textAlign: TextAlign.center,
+            const Icon(Icons.military_tech_outlined,
+                size: 18, color: FacingTokens.muted),
+            const SizedBox(width: FacingTokens.sp2),
+            const Expanded(
+              child: Text(
+                '아직 업적 없음. WOD를 완료하면 해금됩니다.',
+                style: FacingTokens.caption,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),

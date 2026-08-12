@@ -80,8 +80,10 @@ class MyPageScreen extends StatelessWidget {
 class _SectionDivider extends StatelessWidget {
   const _SectionDivider();
   @override
+  // v2.5: 구분선 위아래 24 씩(총 48)이 섹션마다 붙어 화면의 절반이 여백이었다.
+  // 아코디언 헤더가 이미 자기 여백을 갖고 있으므로 선만 남긴다 (사용자 지시).
   Widget build(BuildContext context) => const Padding(
-        padding: EdgeInsets.symmetric(vertical: FacingTokens.sp3),
+        padding: EdgeInsets.symmetric(vertical: FacingTokens.sp1),
         child: Divider(height: 1, color: FacingTokens.border),
       );
 }
@@ -240,7 +242,7 @@ class _ScoreSectionState extends State<_ScoreSection> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('ENGINE', style: FacingTokens.sectionLabel),
-          const SizedBox(height: FacingTokens.sp3),
+          const SizedBox(height: FacingTokens.sp2),
           // Tier · Engine · LV · 칭호 — 한 줄 담백.
           // QA 2026-06-11 #1: streak·PR 누락으로 Home LEVEL 과 다른 LV 가
           // 표시되던 바인딩 버그 — Home _LevelCard 와 동일 입력으로 통일.
@@ -279,7 +281,7 @@ class _ScoreSectionState extends State<_ScoreSection> {
               );
             },
           ),
-          const SizedBox(height: FacingTokens.sp3),
+          const SizedBox(height: FacingTokens.sp2),
           // 6 카테고리 숫자 칩 (그래프 없음).
           LayoutBuilder(
             builder: (ctx, bc) {
@@ -296,8 +298,9 @@ class _ScoreSectionState extends State<_ScoreSection> {
                     },
                     child: Container(
                       width: chipW,
+                      // v2.5: 6칸이 두 줄로 134 를 먹었다 — 여백만 줄여 80 대로.
                       padding: const EdgeInsets.symmetric(
-                        vertical: 7,
+                        vertical: 4,
                         horizontal: FacingTokens.sp2,
                       ),
                       decoration: BoxDecoration(
@@ -314,7 +317,6 @@ class _ScoreSectionState extends State<_ScoreSection> {
                             style: FacingTokens.sectionLabel
                                 .copyWith(letterSpacing: 0.6),
                           ),
-                          const SizedBox(height: 2),
                           Row(
                             children: [
                               Text(
@@ -339,7 +341,7 @@ class _ScoreSectionState extends State<_ScoreSection> {
               );
             },
           ),
-          const SizedBox(height: FacingTokens.sp3),
+          const SizedBox(height: FacingTokens.sp2),
           // 트렌드 — delta 숫자만 (sparkline 그래프 제거).
           FutureBuilder<List<EngineSnapshotRecord>>(
             future: _engineFuture,
@@ -378,7 +380,7 @@ class _ScoreSectionState extends State<_ScoreSection> {
               );
             },
           ),
-          const SizedBox(height: FacingTokens.sp3),
+          const SizedBox(height: FacingTokens.sp2),
           // 약점 분석 (숫자 기반).
           _WeaknessInline(scores: {
             'POWER': cats[0].$2,
@@ -485,7 +487,6 @@ class _IdentityCard extends StatelessWidget {
         : ((auth.displayName?.trim().isNotEmpty == true)
             ? firstSegment(auth.displayName!)
             : 'Athlete');
-    final provider = (auth.provider ?? '').toUpperCase();
     final initial = name.isEmpty ? '?' : name.characters.first.toUpperCase();
 
     return Padding(
@@ -496,9 +497,10 @@ class _IdentityCard extends StatelessWidget {
           Row(
             children: [
               // 아바타 — 현재는 첫 글자. 향후 사진 설정 시 Avatar 위젯으로 교체.
+              // v2.5: 56 → 40 (사용자 지시 "50% 수준으로 컴팩트").
               Container(
-                width: 56,
-                height: 56,
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
                   color: FacingTokens.accentSoft,
                   shape: BoxShape.circle,
@@ -510,7 +512,7 @@ class _IdentityCard extends StatelessWidget {
                 alignment: Alignment.center,
                 child: Text(
                   initial,
-                  style: FacingTokens.h2.copyWith(
+                  style: FacingTokens.h3.copyWith(
                     color: FacingTokens.accent,
                   ),
                 ),
@@ -520,7 +522,7 @@ class _IdentityCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(name, style: FacingTokens.h2),
+                    Text(name, style: FacingTokens.h3),
                     // v1.16.2 — 박스명 · 역할 라벨 (GymState 데이터 소스)
                     Builder(builder: (_) {
                       final gym = gs.membership.gym;
@@ -551,18 +553,31 @@ class _IdentityCard extends StatelessWidget {
                         child: Text(loc, style: FacingTokens.caption),
                       );
                     }),
-                    if (provider.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Text(provider, style: FacingTokens.microLabel),
-                    ],
+                    // v2.5: 로그인 수단(NAVER 등) 표기 삭제 — 회원이 이 화면에서
+                    // 할 수 있는 일이 없는 정보다 (사용자 지시 "안 쓰는 건 안 보이게").
                   ],
                 ),
               ),
+              // 수정 진입은 이름 줄 오른쪽 아이콘으로 — 아래 전폭 버튼 한 줄을 없앤다.
+              IconButton(
+                tooltip: '프로필 수정',
+                icon: const Icon(Icons.edit_outlined, size: 20),
+                color: FacingTokens.fgSecondary,
+                onPressed: () {
+                  Haptic.light();
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => const EditProfileScreen(),
+                  ));
+                },
+              ),
             ],
           ),
-          // PC 사장이 등록한 신원정보 카드 (있을 때만).
-          if (mp != null && !mp.isEmpty) ...[
-            const SizedBox(height: FacingTokens.sp3),
+          // 코치가 남긴 메모가 실제로 있을 때만 카드를 낸다. (등록값만 있고
+          // 메모가 없으면 제목만 남은 빈 카드가 돼 자리만 먹는다.)
+          if (mp != null &&
+              ((mp.safetyNote ?? '').isNotEmpty ||
+                  (mp.note ?? '').isNotEmpty)) ...[
+            const SizedBox(height: FacingTokens.sp2),
             Container(
               padding: const EdgeInsets.all(FacingTokens.sp3),
               decoration: BoxDecoration(
@@ -586,17 +601,9 @@ class _IdentityCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: FacingTokens.sp2),
-                  if ((mp.level ?? '').isNotEmpty)
-                    _ProfileRow(label: 'Tier', value: mp.level!),
-                  if ((mp.phone ?? '').isNotEmpty)
-                    _ProfileRow(label: '전화', value: mp.phone!),
-                  if ((mp.birthDate ?? '').isNotEmpty)
-                    _ProfileRow(label: '생년월일', value: mp.birthDate!),
-                  if ((mp.gender ?? '').isNotEmpty)
-                    _ProfileRow(label: '성별', value: mp.gender!),
-                  if ((mp.preferredTimeSlot ?? '').isNotEmpty)
-                    _ProfileRow(
-                        label: '선호 시간', value: mp.preferredTimeSlot!),
+                  // v2.5 (사용자 지시): Tier·전화·생년월일·성별·선호 시간은
+                  // 회원이 이미 아는 등록값을 되비추기만 할 뿐 앱이 쓰지 않는다.
+                  // 코치가 회원에게 남긴 것(주의 사항·메모)만 남긴다.
                   if ((mp.safetyNote ?? '').isNotEmpty)
                     _ProfileRow(label: '주의 사항', value: mp.safetyNote!),
                   if ((mp.note ?? '').isNotEmpty)
@@ -605,17 +612,6 @@ class _IdentityCard extends StatelessWidget {
               ),
             ),
           ],
-          const SizedBox(height: FacingTokens.sp4),
-          OutlinedButton.icon(
-            onPressed: () {
-              Haptic.light();
-              Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => const EditProfileScreen(),
-              ));
-            },
-            icon: const Icon(Icons.edit_outlined, size: 18),
-            label: const Text('프로필 수정'),
-          ),
         ],
       ),
     );
@@ -875,13 +871,14 @@ class _SettingsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
+      // v2.5 (사용자 지시): 부제 삭제 — 헤더가 두 줄이면 '설정' 한 줄 버튼이
+      // 아니게 된다. 안에 뭐가 있는지는 눌러서 확인한다.
       child: FkAccordion(
         title: '설정',
-        subtitle: '모드 · 단위 · 글자 크기',
         children: [
-          const SizedBox(height: FacingTokens.sp2),
+          const SizedBox(height: FacingTokens.sp1),
           const _ModeRow(),
-          const SizedBox(height: FacingTokens.sp3),
+          const SizedBox(height: FacingTokens.sp2),
           Row(
             children: [
               const Expanded(child: Text('단위', style: FacingTokens.body)),
@@ -890,7 +887,7 @@ class _SettingsSection extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: FacingTokens.sp3),
+          const SizedBox(height: FacingTokens.sp2),
           Consumer<UiPrefsState>(
             builder: (ctx, ui, _) => Row(
               children: [
@@ -1004,10 +1001,9 @@ class _ActionsSection extends StatelessWidget {
           // v1.31 (2026-08-07) — 메뉴 10종이 세로로 주렁주렁 길다는 사용자 지시로
           // 단일 아코디언(기본 접힘) + 표(FkRowCard) 로 통합. 항목·진입 경로는
           // 그대로, 접힘 상태에서 헤더 한 줄만 차지한다.
-          const SizedBox(height: FacingTokens.sp3),
+          const SizedBox(height: FacingTokens.sp2),
           FkAccordion(
             title: '메뉴',
-            subtitle: '계약 · 히스토리 · 목표 · 약관 · 고객지원',
             children: [
               const SizedBox(height: FacingTokens.sp2),
               FkRowCard(rows: [

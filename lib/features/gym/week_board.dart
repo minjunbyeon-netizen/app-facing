@@ -541,6 +541,10 @@ class _ClassLine extends StatelessWidget {
     );
   }
 
+  /// 우측 조작 슬롯 — 전부 **배지 한 규격**.
+  /// v2.5 (2026-08-12 사용자 지시): 예약 버튼이 '예약됨' 배지보다 훨씬 커서
+  /// 같은 줄 안에서 층이 졌다. FkBadge 는 onTap 을 주면 그대로 조작 컨트롤이
+  /// 되고(터치 48 은 안쪽에서 확보), 표시·조작이 시각적으로 같은 크기가 된다.
   Widget _action(bool isCancelled, bool isReserved, bool isWaitlisted,
       bool isFull, bool isOver, bool waitlistFull) {
     if (isCancelled) {
@@ -552,37 +556,24 @@ class _ClassLine extends StatelessWidget {
         children: [
           FkBadge(
             isWaitlisted ? '대기 ${session.myWaitlistPosition}' : '예약됨',
-            color:
-                isWaitlisted ? FacingTokens.warning : FacingTokens.success,
+            color: isWaitlisted ? FacingTokens.warning : FacingTokens.success,
           ),
-          if (!isOver)
-            FkButton.tertiary('취소', neutral: true, onPressed: onCancel),
+          if (!isOver) ...[
+            const SizedBox(width: FacingTokens.sp2),
+            FkBadge('취소', color: FacingTokens.muted, onTap: onCancel),
+          ],
         ],
       );
     }
     if (isPastDay || isOver) {
-      return const Text('종료', style: FacingTokens.caption);
+      return const FkBadge('종료', color: FacingTokens.muted);
     }
     final blocked = isFull && waitlistFull;
-    // 전역 버튼 테마의 minimumSize(double.infinity) 는 Row 안에서 무한 폭
-    // layout 예외 → 화면 전체 백지. 줄 안 버튼은 고유 폭으로 눌러 둔다.
-    //
-    // 채움(빨강)이 아니라 외곽선인 이유: 한 날에 수업이 서너 개면 채움 버튼이
-    // 그만큼 늘어서 WOD 의 '완료 표시' 와 강조가 갈린다. 채움은 하루에 하나만
-    // 두고, 예약은 테두리로도 충분히 버튼으로 읽힌다 (링코 F1).
-    return OutlinedButton(
-      onPressed: blocked ? null : onReserve,
-      style: OutlinedButton.styleFrom(
-        minimumSize: const Size(72, 44),
-        padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp3),
-        foregroundColor: FacingTokens.accent,
-        side: const BorderSide(color: FacingTokens.accent),
-      ),
-      child: Text(blocked
-          ? '마감'
-          : isFull
-              ? '대기'
-              : '예약'),
+    if (blocked) return const FkBadge('마감', color: FacingTokens.muted);
+    return FkBadge(
+      isFull ? '대기' : '예약',
+      color: isFull ? FacingTokens.warning : FacingTokens.accent,
+      onTap: onReserve,
     );
   }
 }

@@ -359,13 +359,15 @@ class _WodRowState extends State<WodRow> {
                 // 밖으로 밀렸다. 한 줄로 합쳐 주 동작은 그대로 채움으로 남긴다.
                 Row(
                   children: [
-                    Expanded(
-                      child: FkButton.primary(
-                        '완료 표시',
-                        icon: Icons.check,
-                        onPressed: () => _openResultSheet(context),
-                      ),
+                    // v2.5: 가로 꽉 채운 채움 버튼이 한 줄을 통째로 먹었다.
+                    // 글자 폭만 차지하는 컴팩트 버튼으로 (사용자 지시).
+                    FkButton.primary(
+                      '완료 표시',
+                      icon: Icons.check,
+                      expand: false,
+                      onPressed: () => _openResultSheet(context),
                     ),
+                    const Spacer(),
                     // 회원 전용: 코치에게 메시지 (owner는 숨김)
                     if (!context.watch<GymState>().isOwner)
                       FkButton.tertiary(
