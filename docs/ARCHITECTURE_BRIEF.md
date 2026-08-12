@@ -168,7 +168,7 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 
 | # | 규칙 | 뒤따르는 금지 |
 |---|---|---|
-| **1** | **사장 = 코치 — 같은 급.** 운영 권한을 역할로 가르지 않는다 | 코치라서 막는 분기 신설 금지 (nav·버튼·API 전부). 새 스태프 엔드포인트는 기본이 "스태프 전원 허용" |
+| **1** | **사장 = 매니저 = 코치 = 운영 권한.** 셋을 권한으로 가르지 않는다 | 코치라서 막는 분기 신설 금지 (nav·버튼·API 전부). 새 스태프 엔드포인트는 `@require_staff` 하나 |
 | **2** | **회원은 폰(앱)에서만 쓴다** | 회원용 웹 화면·템플릿·로그인 페이지 신설 금지. 백엔드가 회원에게 주는 것은 **JSON API 뿐** |
 | **3** | **사장·코치는 PC 에서도 쓴다** (PC 가 주, 폰이 보조) | "사장은 폰 안 씀"·"코치는 PC 안 씀" 같은 전제 금지. 스태프 기능은 양면 모두에서 도달 가능해야 한다 |
 
@@ -181,18 +181,34 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 **규칙 3 의 현재 배선** — PC = `web/facing-admin` (주) · 폰 = `apps/facing-app` 사장 화면 (보조).
 둘 다 같은 백엔드·같은 세션 계정(ID/PW)을 쓴다.
 
-**규칙 1 을 어기던 코드 4곳 — 2026-08-12 전부 수정 완료.**
+**규칙 1 의 이름은 넷뿐 — 정본 = `services/facing/api/roles.py` (강제·차단).**
 
-| 위치 | 옛 게이트 | 조치 |
+| 쓸 것 | 뜻 |
+|---|---|
+| `STAFF_ROLES` | 운영 권한 역할 목록 `("boss","manager","coach")`. **다른 파일에서 재정의 금지** |
+| `@require_staff` | 스태프 엔드포인트의 **유일한** 게이트 데코레이터 |
+| `is_staff(role)` | 함수 중간 분기용 판정 |
+| `FORBIDDEN_STAFF_MSG` | 거절 문구 — "운영 권한이 필요합니다." 하나 |
+
+한국어 용어도 **"운영 권한"** 하나로 쓴다 ("사장 권한"·"권한 부족" 금지).
+역할 목록을 인자로 받는 게이트(`require_role([...])` 류)는 만들지 않는다 — 호출부마다
+목록이 갈려 매니저가 코치보다 낮아지는 역전을 낳은 장본인이다.
+
+**2026-08-12 통일 — 여섯 이름이 흩어져 있던 것을 위 넷으로 합쳤다 (옛 이름·별칭 전부 삭제).**
+
+| 없어진 이름 | 있던 곳 | 문제였던 점 |
 |---|---|---|
-| `api/contracts.py _require_boss` | `role != "boss"` — 코치·매니저 전부 403 | `_require_staff` 로 통합 |
-| `api/contracts.py _require_boss_or_coach` | `("boss","coach")` — **매니저 < 코치 역전** | 〃 (옛 이름은 별칭 유지, 호출부 11곳 무변경) |
-| `api/claim.py:73` 가입코드 발급 | `("boss","manager")` — 코치 제외 | `BOSS_LEVEL_ROLES` |
-| `api/admin.py require_boss_or_manager` | `("boss","manager")` · 사용처 0 | 삭제 |
+| `BOSS_LEVEL_ROLES` | `api/admin.py` | 같은 튜플이 두 파일에 |
+| `_STAFF_ROLES` | `api/classes.py` | 〃 — 한쪽만 열려 사고 |
+| `require_boss` | `api/admin.py` (71곳) | 이름이 "boss" 라 스태프 게이트인 줄 모름 |
+| `require_role([...])` | `api/admin.py` (10곳) | 호출부마다 목록이 달라 매니저 역전 |
+| `_require_boss` · `_require_boss_or_coach` | `api/contracts.py` | 파일 자체 게이트 — 공용 상수를 안 봄 |
+| `_require_admin_role` | `api/classes.py` | 사용처 0, 권한 재분할의 씨앗 |
 
-**회귀 방지** — `services/facing/tests/test_rules_prem.py` 7개가 이 3줄을 코드로 강제한다.
+**회귀 방지** — `services/facing/tests/test_rules_prem.py` 9개가 이 3줄을 코드로 강제한다.
 `boss` 는 통과시키면서 `coach`/`manager` 를 막는 게이트(튜플·단일비교 양쪽)를 정적 검사로
-잡고, 백엔드 HTML 렌더 0개·삭제된 회원 웹 미부활·폐기 전제 주석 재등장까지 본다.
+잡고, **역할 목록이 `roles.py` 밖에 또 정의되는 것**과 **거절 문구가 갈리는 것**까지 막는다.
+백엔드 HTML 렌더 0개·삭제된 회원 웹 미부활·폐기 전제 주석 재등장도 함께 본다.
 인가 게이트만 골라내려고 "403 을 뱉는가"로 판정한다 (신원 환산용 role 분기는 정상이라 제외).
 
 **실호출 검증 (2026-08-12, 신규 임시 DB · boss_seongsu·coach_park·mgr_test)**
@@ -216,14 +232,15 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > **D29 (2026-08-12 사용자 결정) — 코치 = 사장.** 코치에게 수업 삭제를 포함한 운영 권한 전부 부여.
 > 구 정의(회원 권한 + WOD 게시·회원 목록·쪽지·피드백·가입 승인)는 폐기.
 >
-> - 구현 지점 1곳: `services/facing/api/admin.py` `BOSS_LEVEL_ROLES = ("boss", "coach")`
->   — `require_boss` 를 쓰는 91곳(9파일)의 접근 주체를 이 상수가 정한다. 되돌리려면 `("boss",)`.
+> - 구현 지점 1곳: `services/facing/api/roles.py` `STAFF_ROLES`
+>   — `@require_staff` 를 쓰는 모든 엔드포인트의 접근 주체를 이 상수가 정한다.
+>   되돌리려면 이 한 줄을 `("boss",)` 로 좁히면 끝 (2026-08-12 이름 통일 후).
 > - `web/facing-admin` 은 nav·버튼의 coach 분기를 전면 제거 (`_layout.html`·`members.html`).
 > - **⚠ 미포함(의도적)**: `ROLE_SCOPES` 의 PII 마스킹은 그대로다 → **D30 에서 이름만 개방.**
 > - **manager 포함** (2026-08-12 후속). 코치만 올리면 manager < coach 역전이 생겨
->   `BOSS_LEVEL_ROLES = ("boss", "manager", "coach")` 로 함께 정리했다.
-> - 클래스 CRUD 의 인라인 role 체크(`api/classes.py` `_STAFF_ROLES`)도 같이 열었다 —
->   `require_boss` 데코레이터가 아니라 함수 안 `if` 라 상수 변경만으로는 안 열렸다.
+>   `STAFF_ROLES = ("boss", "manager", "coach")` 로 함께 정리했다.
+> - 클래스 CRUD 의 인라인 role 체크도 같이 열었다 — 데코레이터가 아니라 함수 안
+>   `if` 라 상수 변경만으로는 안 열렸다. 지금은 그 자리도 `is_staff()` 를 본다.
 >
 > **실기 검증 (2026-08-12, 로컬 5060 · coach_park/1234)**
 > 락커·계약서·요금제·코치목록·회원목록·대시보드·알림설정·클래스목록 8종 전부 200,
@@ -251,7 +268,7 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > - **출석 체크**: `PATCH /api/v1/admin/reservations/<id>/status`
 >   `{status: confirmed|attended|no_show}`. `cancelled` 는 의도적으로 거부 —
 >   예약 취소는 회원 DELETE / 클래스 전체 취소 경로에만 있어야 이력이 남는다.
->   스태프(`_STAFF_ROLES`) 전용 · 박스 일치 검사 · `AuditLog(class.reservation_status)` 기록.
+>   스태프(`is_staff()`) 전용 · 박스 일치 검사 · `AuditLog(class.reservation_status)` 기록.
 > - **gym_attendances 동기화**: '출석' 시 그날 출석행이 없으면 `source='manual'` 1건 생성
 >   (통계가 `distinct(member_id)` 라 QR 과 겹쳐도 중복 집계 없음). 되돌릴 때는
 >   **같은 날 다른 수업에 출석 표시가 하나도 안 남았을 때만** manual 행을 지우고,
