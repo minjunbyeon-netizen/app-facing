@@ -67,6 +67,8 @@ class _MainShellState extends State<MainShell> {
   }
 
   // v1.27: 3탭 — Home(게이미피케이션) · WOD(보드) · Profile.
+  // v3.0 (2026-08-14 사용자 지시): 크로스핏장이 아니므로 표기를 일반 용어로 —
+  // 홈 · 수업 · 내 정보. 내부 심볼·라우트는 유지 (표기만 교체).
   static const List<_TabDef> _tabs = [
     _TabDef(
       icon: Icons.home_outlined,
@@ -76,12 +78,12 @@ class _MainShellState extends State<MainShell> {
     _TabDef(
       icon: Icons.list_alt_outlined,
       selectedIcon: Icons.list_alt,
-      label: 'WOD',
+      label: '수업',
     ),
     _TabDef(
       icon: Icons.person_outline,
       selectedIcon: Icons.person,
-      label: '프로필',
+      label: '내 정보',
     ),
   ];
 

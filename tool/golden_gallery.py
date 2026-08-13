@@ -24,7 +24,7 @@ SECTIONS = [
     ("온보딩", "온보딩 — 프로필 수정 경로 (가입 신청서가 같은 값을 받는다)", [
         ("onb_01_basic", "기본 정보 — 성별 · CrossFit 경력 (레벨 기준)"),
     ]),
-    ("회원 셸", "회원 셸 3탭 — 홈 · WOD · 프로필 (승인된 회원 · HYPHEN CrossFit 서면)", [
+    ("회원 셸", "회원 셸 3탭 — 홈 · 수업 · 내 정보 (승인된 회원 · HYPHEN CrossFit 서면)", [
         ("member_01_shell_wod", "WOD 탭 (기본) — 그 주 월~일 아코디언 + 그날 수업 예약"),
         ("member_02_shell_home", "홈 탭 — 레벨 · 업적 · 마일스톤"),
         ("member_03_shell_profile", "프로필 탭 — 회원권 · 내 박스 · 신체 · 설정 (ENGINE 폐기)"),

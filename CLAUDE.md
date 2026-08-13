@@ -77,7 +77,7 @@
 ## 제품 스코프 — 3기둥 집중 (v1.27 · 2026-07-28 사용자 지시)
 회원 앱에 **게이미피케이션(레벨·업적·Milestones) · WOD 보드(코치 게시 → 회원 열람) · 내 프로필**
 3개만 노출하고 여기에 집중한다.
-- 셸 = 3탭 (Home · WOD · Profile, 기본 landing = WOD). Attend·Rehab 탭 숨김,
+- 셸 = 3탭 (홈 · 수업 · 내 정보 — v3.0 2026-08-14 표기, 기본 landing = 수업(구 WOD) 탭). Attend·Rehab 탭 숨김,
   페이싱 계산기(빌더·프리셋·결과) 진입점 숨김 (`box_wod _kShowPresetAccordion=false`)
 - **숨김 = 코드 보존** — 화면·라우트·백엔드 배선은 그대로 두고 셸·진입점에서만 제외. 재노출 = 진입점 복원
 - UI 컴포넌트 SSOT = `lib/widgets/hkit.dart` (HKit) — 아래 디자인 원칙 참조
@@ -324,7 +324,7 @@ R5. **하드코드 fontSize 금지.** 모든 텍스트 크기는 `HyphenTokens` 
 | 인트로 CTA | "시작" (마지막 p) / "다음" / "건너뛰기" — appkit strings |
 | 로그인 버튼 | "네이버 아이디로 로그인" (1순위) · "구글로 시작" — FkSocialButton |
 | 로그인 진행 | FkLoadingScreen(caption: '로그인 중') |
-| 셸 3탭 | 홈 · WOD · 프로필 |
+| 셸 3탭 | 홈 · 수업 · 내 정보 (v3.0 — 크로스핏 표기 철수) |
 | 온보딩 | "1RM 입력" → "Benchmarks" → "내 Tier" · 제출 "Engine 측정" · 진행 "계산 중" |
 | 오프라인 배너 | "오프라인" + "연결 시 동기화." |
 | 에러 공통 | FkErrorState — 메시지 + "다시 시도" |

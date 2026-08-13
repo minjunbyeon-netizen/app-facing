@@ -190,7 +190,7 @@ void main() {
     await capture(tester, 'member_01_shell_wod');
     await tapTab(tester, '홈');
     await capture(tester, 'member_02_shell_home');
-    await tapTab(tester, '프로필');
+    await tapTab(tester, '내 정보');
     await capture(tester, 'member_03_shell_profile');
     // v1.31 — 프로필 하단 메뉴. 접힘이 기본(헤더 한 줄) → 펼치면 표 1개.
     // 상단 캡처(member_03)는 프레임 밖이라 이 구역을 못 덮는다.

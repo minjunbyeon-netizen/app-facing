@@ -53,7 +53,8 @@ class _BoxWodScreenState extends State<BoxWodScreen> {
     final canViewDashboard = gs.isOwner;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('WOD'),
+        // v3.0: 탭 표기 '수업' 과 화면 제목을 일치시킨다 (구 'WOD').
+        title: const Text('수업'),
         // v1.22: AppBar 정리 — Messages/Announcements/Leaderboard 제거.
         //   Messages/Announcements → Inbox(NOTICE) 탭으로 통합 (Bell 단축).
         //   Leaderboard → Home Hero 영역(추후) 또는 Profile에서 진입.

@@ -41,7 +41,7 @@ class MyPageScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('프로필'),
+        title: const Text('내 정보'),
         actions: const [InboxBellAction()],
       ),
       body: SafeArea(
