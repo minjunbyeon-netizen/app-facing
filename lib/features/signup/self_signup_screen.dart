@@ -6,7 +6,9 @@ import '../../core/api_client.dart';
 import '../../core/app_mode.dart';
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
+import '../../core/input_formatters.dart';
 import '../../core/theme.dart';
+import '../../core/tier.dart';
 import '../../widgets/fkit.dart';
 import '../auth/auth_state.dart';
 import '../profile/profile_state.dart';
@@ -41,12 +43,17 @@ class SelfSignupScreen extends StatefulWidget {
 class _SelfSignupScreenState extends State<SelfSignupScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameCtrl = TextEditingController();
+  final _birthCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
+  final _sportsCtrl = TextEditingController();
+  final _injuryCtrl = TextEditingController();
   final _idCtrl = TextEditingController();
   final _pwCtrl = TextEditingController();
   final _pw2Ctrl = TextEditingController();
 
   int _gymId = _kFallbackGymId;
+  String? _gender;
+  int? _bandIndex;
   bool _submitting = false;
   bool _pwVisible = false;
 
@@ -59,7 +66,10 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
   @override
   void dispose() {
     _nameCtrl.dispose();
+    _birthCtrl.dispose();
     _phoneCtrl.dispose();
+    _sportsCtrl.dispose();
+    _injuryCtrl.dispose();
     _idCtrl.dispose();
     _pwCtrl.dispose();
     _pw2Ctrl.dispose();
@@ -97,6 +107,9 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
 
     try {
       final phone = _phoneCtrl.text.trim();
+      final birth = _birthCtrl.text.trim();
+      final sports = _sportsCtrl.text.trim();
+      final injury = _injuryCtrl.text.trim();
       final res = await api.post(
         '/api/v1/member/gyms/$gymId/self-signup',
         {
@@ -104,6 +117,12 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
           'password': _pwCtrl.text,
           'name': _nameCtrl.text.trim(),
           if (phone.isNotEmpty) 'phone': phone,
+          if (birth.isNotEmpty) 'birth_date': birth,
+          if (_gender != null) 'gender': _gender,
+          if (_bandIndex != null)
+            'experience_years': Tier.bands[_bandIndex!].years,
+          if (sports.isNotEmpty) 'sports_history': sports,
+          if (injury.isNotEmpty) 'injury_note': injury,
         },
       );
       if (!mounted) return;
@@ -161,12 +180,15 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
     );
   }
 
-  /// 가입 직후 목적지. v2.3: 성별·경력 두 가지만 묻는 짧은 화면 하나로 보낸다.
-  /// (등급 산정용 신체·벤치마크 단계는 이 흐름에서 뺐다.)
+  /// 가입 직후 목적지.
+  ///
+  /// v2.8 (2026-08-13 사용자 지시): 신청서가 성별·생년월일·경력까지 받으므로
+  /// 곧바로 뒤이어 같은 것을 묻던 '내 정보' 단계를 거치지 않는다. 셸로 보내면
+  /// 승인 전에는 대기 화면이 뜨고, 승인되면 그대로 쓰던 화면이 열린다.
+  /// (`/onboarding/basic` 화면은 프로필 수정 경로로 그대로 살아 있다.)
   void _goNext(ProfileState profile) {
     if (!mounted) return;
-    Navigator.of(context)
-        .pushNamedAndRemoveUntil('/onboarding/basic', (_) => false);
+    Navigator.of(context).pushNamedAndRemoveUntil('/shell', (_) => false);
   }
 
   void _toast(String msg) {
@@ -204,6 +226,47 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                 ),
                 const SizedBox(height: FacingTokens.sp4),
 
+                const FkSectionLabel('생년월일'),
+                const SizedBox(height: FacingTokens.sp1),
+                TextFormField(
+                  controller: _birthCtrl,
+                  style: FacingTokens.body.copyWith(color: FacingTokens.fg),
+                  decoration: _deco('1995-01-01'),
+                  keyboardType: TextInputType.number,
+                  textInputAction: TextInputAction.next,
+                  // 숫자만 치면 하이픈이 알아서 들어간다 (input_formatters SSOT).
+                  inputFormatters: [BirthDateInputFormatter()],
+                  validator: (v) => birthDateError(v ?? ''),
+                ),
+                const SizedBox(height: FacingTokens.sp4),
+
+                const FkSectionLabel('성별'),
+                const SizedBox(height: FacingTokens.sp2),
+                Row(
+                  children: [
+                    FkBadge(
+                      '남',
+                      color: FacingTokens.fg,
+                      selected: _gender == 'male',
+                      onTap: () {
+                        Haptic.selection();
+                        setState(() => _gender = 'male');
+                      },
+                    ),
+                    const SizedBox(width: FacingTokens.sp2),
+                    FkBadge(
+                      '여',
+                      color: FacingTokens.fg,
+                      selected: _gender == 'female',
+                      onTap: () {
+                        Haptic.selection();
+                        setState(() => _gender = 'female');
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: FacingTokens.sp4),
+
                 const FkSectionLabel('연락처'),
                 const SizedBox(height: FacingTokens.sp1),
                 TextFormField(
@@ -212,9 +275,7 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                   decoration: _deco('010-1234-5678'),
                   keyboardType: TextInputType.phone,
                   textInputAction: TextInputAction.next,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[0-9-]')),
-                  ],
+                  inputFormatters: [PhoneInputFormatter()],
                   // 선택 입력 — 비워 두면 코치가 나중에 채운다. 넣었다면 형식은 맞춰야
                   // 서버(normalize_phone)가 거절하지 않는다.
                   validator: (v) {
@@ -226,6 +287,68 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                     }
                     return null;
                   },
+                ),
+                const SizedBox(height: FacingTokens.sp4),
+
+                const FkSectionLabel('크로스핏 경력'),
+                const SizedBox(height: FacingTokens.sp2),
+                Wrap(
+                  spacing: FacingTokens.sp2,
+                  runSpacing: FacingTokens.sp2,
+                  children: [
+                    for (var i = 0; i < Tier.bands.length; i++)
+                      FkBadge(
+                        Tier.bands[i].label,
+                        color: FacingTokens.fg,
+                        selected: _bandIndex == i,
+                        onTap: () {
+                          Haptic.selection();
+                          setState(() => _bandIndex = i);
+                        },
+                      ),
+                  ],
+                ),
+                // 고른 구간이 어느 레벨이 되는지 그 자리에서 보여준다 —
+                // 코치 화면에서 처음 보게 되면 "왜 내가 스케일이냐"가 된다 (D36).
+                if (_bandIndex != null) ...[
+                  const SizedBox(height: FacingTokens.sp3),
+                  Row(
+                    children: [
+                      const Text('내 레벨', style: FacingTokens.caption),
+                      const SizedBox(width: FacingTokens.sp2),
+                      Builder(builder: (_) {
+                        final t = Tier.fromExperienceYears(
+                            Tier.bands[_bandIndex!].years);
+                        return FkBadge(t.memberLevelLabel, color: t.color);
+                      }),
+                    ],
+                  ),
+                ],
+                const SizedBox(height: FacingTokens.sp4),
+
+                // '운동' 은 copy lint 금지 용어(CrossFit 정체성 보존)라 '종목' 으로 쓴다.
+                const FkSectionLabel('해온 종목'),
+                const SizedBox(height: FacingTokens.sp1),
+                TextFormField(
+                  controller: _sportsCtrl,
+                  style: FacingTokens.body.copyWith(color: FacingTokens.fg),
+                  decoration: _deco('예: 축구 5년, 웨이트 2년 · 없으면 비워 두세요'),
+                  textInputAction: TextInputAction.next,
+                  maxLength: 200,
+                ),
+                const SizedBox(height: FacingTokens.sp3),
+
+                const FkSectionLabel('부상 이력 · 주의사항'),
+                const SizedBox(height: FacingTokens.sp1),
+                TextFormField(
+                  controller: _injuryCtrl,
+                  style: FacingTokens.body.copyWith(color: FacingTokens.fg),
+                  decoration: _deco(
+                      '예: 오른쪽 어깨 회전근 부상(2024) · 오버헤드 동작 주의\n'
+                      '코치가 수업 전에 확인합니다. 없으면 비워 두세요.'),
+                  textInputAction: TextInputAction.next,
+                  maxLines: 3,
+                  maxLength: 200,
                 ),
                 const SizedBox(height: FacingTokens.sp4),
 

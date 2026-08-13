@@ -2,6 +2,14 @@ import 'package:flutter/material.dart';
 
 import 'theme.dart';
 
+/// 경력 구간 하나. 사용자가 말한 경계(1년·3년)를 그대로 쓰되 서로 겹치지 않게 나눴다.
+/// [years] 는 서버·등급 로직이 쓰는 대표값이다. 목록은 [Tier.bands].
+class ExperienceBand {
+  final String label;
+  final double years;
+  const ExperienceBand(this.label, this.years);
+}
+
 /// CrossFit Tier 시스템. 백엔드 `overall_number` (1~6) → 5 티어 매핑.
 /// v1.15부터: 명도 재배치(어둠→빛) + motivation/discipline/obsession 서브타이틀.
 enum Tier {
@@ -47,6 +55,17 @@ enum Tier {
 
   /// 회원 레벨 표기 — RX 는 'RXD' 로 쓴다 (2026-05-30 통일 · GLOSSARY §3).
   String get memberLevelLabel => this == Tier.rx ? 'RXD' : label;
+
+  /// 경력을 고르는 화면이 쓰는 구간 목록. 라벨과 대표 연차를 짝지어 둔다.
+  ///
+  /// v2.8 (2026-08-13): 가입 신청서와 프로필 수정 두 화면이 같은 구간을 물어서
+  /// 각자 상수를 들고 있었다. 한쪽만 고치면 같은 질문에 답이 갈리므로
+  /// [fromExperienceYears] 바로 옆으로 옮긴다 (글로벌 §0-B 이름 일원화).
+  static const List<ExperienceBand> bands = [
+    ExperienceBand('1년 미만', 0.5),
+    ExperienceBand('1~3년', 2),
+    ExperienceBand('3년 이상', 5),
+  ];
 
   /// Tier별 고정 명언.
   String get quote {

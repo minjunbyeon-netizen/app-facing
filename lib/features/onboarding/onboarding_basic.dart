@@ -30,19 +30,9 @@ class OnboardingBasicScreen extends StatefulWidget {
   State<OnboardingBasicScreen> createState() => _OnboardingBasicScreenState();
 }
 
-/// 경력 구간. 사용자가 말한 경계(1년·3년)를 그대로 쓰되 서로 겹치지 않게 나눴다.
-/// `years` 는 서버·등급 로직이 쓰는 대표값이다.
-class _ExpBand {
-  final String label;
-  final double years;
-  const _ExpBand(this.label, this.years);
-}
-
-const List<_ExpBand> _kExpBands = [
-  _ExpBand('1년 미만', 0.5),
-  _ExpBand('1~3년', 2),
-  _ExpBand('3년 이상', 5),
-];
+// v2.8 (2026-08-13): 경력 구간 목록은 `Tier.bands` 하나로 모았다 — 가입 신청서와
+// 이 화면이 같은 질문을 하는데 상수를 각자 들고 있었다 (글로벌 §0-B).
+const List<ExperienceBand> _kExpBands = Tier.bands;
 
 class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
   final _nameCtrl = TextEditingController();

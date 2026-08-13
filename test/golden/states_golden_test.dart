@@ -55,6 +55,23 @@ void main() {
     await capture(tester, 'state_02_wod_nogym');
   });
 
+  // ── 승인 대기 — 신청은 냈고 코치 승인 전 (v2.8: 셸 전체가 이 화면으로 대체) ──
+  testWidgets('state: pending approval', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final world = memberWorld()..['/api/v1/gyms/mine'] = gymsMinePending;
+    final api = FakeApi(world);
+    final gym = GymState(GymRepository(api), sse: FakeSse());
+    await gym.loadMine();
+    await tester.pumpWidget(harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        gym: gym,
+        home: const MainShell()));
+    await capture(tester, 'state_05_pending');
+  });
+
   // ── 오프라인 배너 — Home 화면 상단 OFFLINE 밴드 ──
   testWidgets('state: home offline', (tester) async {
     phone(tester);

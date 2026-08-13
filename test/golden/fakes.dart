@@ -783,6 +783,12 @@ const gymsMineEmpty = {
   'status': null,
 };
 
+/// /api/v1/gyms/mine — 가입 신청은 냈고 코치 승인 대기 중 (v2.8 승인 대기 게이트).
+final Map<String, dynamic> gymsMinePending = {
+  ...gymsMine,
+  'status': 'pending',
+};
+
 /// 회원 셸 공용 기본 응답 맵 — 구체 경로 먼저 (prefix 매칭).
 Map<String, dynamic> memberWorld() => {
       '/health': const <String, dynamic>{},

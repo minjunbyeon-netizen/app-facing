@@ -7,6 +7,8 @@ import '../../core/appkit.gen.dart';
 import '../../core/haptic.dart';
 import '../../core/shell_nav_bus.dart';
 import '../../core/theme.dart';
+import '../../widgets/fkit.dart';
+import '../auth/auth_state.dart';
 import '../gym/box_wod_screen.dart';
 import '../gym/gym_repository.dart';
 import '../gym/gym_state.dart';
@@ -121,6 +123,9 @@ class _MainShellState extends State<MainShell> {
     // v1.21 (BLOCKER fix): GymState 로드 완료 후 InboxState bind 재시도.
     // initState 시점 gym=null 이라 bind 누락되는 케이스 보완.
     final gs = context.watch<GymState>();
+    // v2.8 (2026-08-13 사용자 지시): 코치가 승인하기 전에는 아무 기능도 열지 않는다.
+    // 탭마다 따로 막으면 한 곳을 빠뜨리므로 셸 입구에서 한 번에 막는다.
+    if (gs.membership.isPending) return const _PendingGate();
     final inboxState = context.read<InboxState>();
     final annState = context.read<AnnouncementsState>();
     final currentGymId = gs.membership.gym?.id;
@@ -223,6 +228,86 @@ class _MainShellState extends State<MainShell> {
                     ),
                 ],
               ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 승인 대기 화면 — 코치가 가입 신청을 승인하기 전까지 앱 전체를 대신한다.
+///
+/// v2.8 (2026-08-13 사용자 지시). 신청은 끝났지만 아직 회원이 아니므로 WOD·수업·
+/// 기록 어느 것도 열지 않는다. 대신 지금 무슨 상태인지와 다음에 무엇이 일어나는지
+/// 한 화면에 적어 둔다. 로그아웃은 남겨 둔다 — 안 그러면 승인 전까지 앱에 갇힌다.
+class _PendingGate extends StatefulWidget {
+  const _PendingGate();
+
+  @override
+  State<_PendingGate> createState() => _PendingGateState();
+}
+
+class _PendingGateState extends State<_PendingGate> {
+  bool _checking = false;
+
+  Future<void> _recheck() async {
+    if (_checking) return;
+    setState(() => _checking = true);
+    Haptic.light();
+    await context.read<GymState>().loadMine();
+    if (!mounted) return;
+    setState(() => _checking = false);
+    // 아직 pending 이면 이 화면이 그대로 다시 그려진다 — 헛걸음이 아님을 알려준다.
+    if (context.read<GymState>().membership.isPending) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('아직 승인 전입니다.'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  Future<void> _signOut() async {
+    await context.read<AuthState>().signOut();
+    if (!mounted) return;
+    Navigator.of(context).pushNamedAndRemoveUntil('/splash', (_) => false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: FacingTokens.bg,
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(FacingTokens.sp6),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  '승인 대기중입니다',
+                  style: FacingTokens.h3,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: FacingTokens.sp3),
+                const Text(
+                  '가입 신청이 코치에게 전달됐습니다.\n'
+                  '코치가 승인하면 오늘의 WOD·수업 예약이 열립니다.',
+                  style: FacingTokens.caption,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: FacingTokens.sp6),
+                _checking
+                    ? const FkLoading()
+                    : FkButton.primary('승인됐는지 확인', onPressed: _recheck),
+                const SizedBox(height: FacingTokens.sp3),
+                TextButton(
+                  onPressed: _signOut,
+                  child: const Text('로그아웃'),
+                ),
+              ],
             ),
           ),
         ),
