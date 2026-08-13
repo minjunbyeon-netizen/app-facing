@@ -52,19 +52,24 @@ class GymState extends ChangeNotifier {
       final hit = _reloadTriggers.contains(ev.type);
       debugPrint('[GymState] sse event=${ev.type} reload=${hit ? "YES" : "skip"}');
       if (hit) {
+        // ⚠ 승인 전 상태는 **이벤트를 받은 즉시** 찍어야 한다. 1초 디바운스 뒤에
+        // 읽으면 그 사이 화면 진입 등 다른 경로의 loadMine 이 이미 approved 로
+        // 바꿔 놓아서, "대기→승인" 전이를 놓친다 (실측에서 알림이 안 뜬 원인).
+        final wasApproved = _membership.isApprovedMember;
         _debounceReload?.cancel();
         _debounceReload = Timer(const Duration(seconds: 1), () {
           debugPrint('[GymState] reload trigger → loadMine()');
-          // 승인 전/후를 비교해야 하므로 다시 읽기 전 상태를 기억해 둔다.
-          final wasApproved = _membership.isApprovedMember;
           loadMine().then((_) {
             debugPrint('[GymState] reload done');
             // 2026-08-13 — 대기 → 승인 으로 바뀐 순간 회원에게 알림.
             // 이벤트를 그대로 믿지 않고 **내 상태가 실제로 바뀐 것**만 알린다
             // (같은 박스의 다른 사람 승인 이벤트도 같은 채널로 오기 때문).
+            debugPrint('[GymState] decided? type=${ev.type} '
+                'was=$wasApproved now=${_membership.isApprovedMember}');
             if (ev.type == 'member.decided' &&
                 !wasApproved &&
                 _membership.isApprovedMember) {
+              debugPrint('[GymState] 가입 승인 감지 → 알림');
               NotificationService.instance.showFromSseEvent(
                 eventType: 'member.decided',
                 payload: {
