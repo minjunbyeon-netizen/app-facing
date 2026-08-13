@@ -16,10 +16,12 @@ SECTIONS = [
         ("common_01_splash", "스플래시 — HYPHEN 로고 · 자동 전환 대기"),
         ("common_02_intro_board", "인트로① WOD 보드 — 코치가 올린 그날 훈련 + 박스 공지"),
         ("common_03_intro_earn", "인트로② 레벨 · 업적 — 마지막 장, CTA '시작'"),
-        ("common_05_signup", "로그인 — 아이디 · 박스 가입 신청 · 가입 코드 (소셜은 키 대기로 숨김)"),
-        ("common_06_claim", "가입 코드 입력 — PC 선등록 회원 연결 (이음새 1)"),
+        ("common_05_signup", "로그인 — 아이디 · 박스 가입 신청 (소셜은 키 대기로 숨김)"),
+        ("common_06_self_signup", "가입 신청① — 이름 · 생년월일 · 성별 · 연락처"),
+        ("common_07_self_signup_scrolled",
+         "가입 신청② — 경력 3단 · 해온 종목 · 부상 이력 · 아이디 · 비밀번호"),
     ]),
-    ("온보딩", "온보딩 — 가입 직후 한 화면 (성별 · 경력)", [
+    ("온보딩", "온보딩 — 프로필 수정 경로 (가입 신청서가 같은 값을 받는다)", [
         ("onb_01_basic", "기본 정보 — 성별 · CrossFit 경력 (레벨 기준)"),
     ]),
     ("회원 셸", "회원 셸 3탭 — 홈 · WOD · 프로필 (승인된 회원 · HYPHEN CrossFit 서면)", [
@@ -41,6 +43,7 @@ SECTIONS = [
         ("state_02_wod_nogym", "박스 미가입 — 가입 직후 WOD 탭"),
         ("state_03_home_offline", "Home — OFFLINE 배너"),
         ("state_04_history_error", "History 로드 실패 — Retry"),
+        ("state_05_pending", "승인 대기 — 신청 후 코치 승인 전 (셸 전체 차단)"),
     ]),
 ]
 

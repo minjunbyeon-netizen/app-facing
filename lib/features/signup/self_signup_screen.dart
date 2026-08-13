@@ -343,9 +343,9 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                 TextFormField(
                   controller: _injuryCtrl,
                   style: FacingTokens.body.copyWith(color: FacingTokens.fg),
-                  decoration: _deco(
-                      '예: 오른쪽 어깨 회전근 부상(2024) · 오버헤드 동작 주의\n'
-                      '코치가 수업 전에 확인합니다. 없으면 비워 두세요.'),
+                  // 코치가 수업 전에 보는 값이라 무엇을 적어야 하는지 예를 준다.
+                  decoration: _deco('예: 오른쪽 어깨 부상 · 오버헤드 동작 주의\n'
+                      '없으면 비워 두세요'),
                   textInputAction: TextInputAction.next,
                   maxLines: 3,
                   maxLength: 200,

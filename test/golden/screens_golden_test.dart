@@ -17,6 +17,7 @@ import 'package:facing_app/features/onboarding/onboarding_basic.dart';
 import 'package:facing_app/features/mypage/mypage_screen.dart';
 import 'package:facing_app/features/profile/profile_state.dart';
 import 'package:facing_app/features/shell/main_shell.dart';
+import 'package:facing_app/features/signup/self_signup_screen.dart';
 import 'package:facing_app/features/splash/splash_screen.dart';
 
 import 'fakes.dart';
@@ -138,7 +139,24 @@ void main() {
     await capture(tester, 'common_05_signup');
   });
 
-  // ── 공통: 가입 코드 입력 (이음새 1 — PC 선등록 연결) ──
+  // ── 공통: 가입 신청서 (v2.8 — 이름·생년월일·성별·연락처·경력·종목·부상) ──
+  // 한 화면에 다 안 들어가 위·아래 두 장으로 나눠 찍는다.
+  testWidgets('common: self signup', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues({});
+    final api = FakeApi(memberWorld());
+    await tester.pumpWidget(harness(
+        api: api,
+        auth: AuthState(),
+        profile: ProfileState(),
+        home: const SelfSignupScreen()));
+    await capture(tester, 'common_06_self_signup');
+    await tester.drag(
+        find.byType(SingleChildScrollView), const Offset(0, -420));
+    await tester.pump(const Duration(milliseconds: 200));
+    await capture(tester, 'common_07_self_signup_scrolled');
+  });
+
 
   // ── 온보딩: 기본 정보 → Benchmarks → Tier 결과 ──
   testWidgets('onboarding: basic', (tester) async {
