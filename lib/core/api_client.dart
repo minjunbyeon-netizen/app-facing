@@ -60,8 +60,12 @@ class ApiClient {
   static ApiClient create() {
     final dio = Dio(BaseOptions(
       baseUrl: baseUrl,
-      connectTimeout: const Duration(seconds: 3),
-      receiveTimeout: const Duration(seconds: 10),
+      // 2026-08-13 — 3초는 실기기에 너무 짧다. 실사용에서 폰이 가입 신청 중
+      // "백엔드 OFF" 를 맞았는데 같은 시각 서버는 정상(200, 0.25초)이었다.
+      // PC 유선은 0.08초지만 폰 LTE 는 DNS+TCP+TLS 만으로 3초를 넘길 수 있다.
+      // 서버가 죽은 것과 손이 느린 것을 3초로 가르면 후자가 전자로 오진된다.
+      connectTimeout: const Duration(seconds: 12),
+      receiveTimeout: const Duration(seconds: 20),
       contentType: 'application/json',
       responseType: ResponseType.json,
     ));
@@ -157,7 +161,10 @@ class ApiClient {
     // 기존 connectionTimeout이 TIMEOUT 메시지로 떨어져 "백엔드 OFF" 상황을 가렸음.
     if (e.type == DioExceptionType.connectionTimeout ||
         e.type == DioExceptionType.connectionError) {
-      return AppException('백엔드 OFF · 잠시 후 재시도', code: 'NETWORK');
+      // 문구도 정정 — 사용자는 서버 상태를 모른다. 실제로는 '연결 못 함' 이고,
+      // 서버가 멀쩡한데도 이 메시지가 떠서 장애로 오해하게 만들었다.
+      return AppException('연결하지 못했습니다 · 네트워크 확인 후 다시 시도',
+          code: 'NETWORK');
     }
     if (e.type == DioExceptionType.receiveTimeout ||
         e.type == DioExceptionType.sendTimeout) {
