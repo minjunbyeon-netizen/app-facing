@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../../core/exception.dart';
+import '../../core/notification_service.dart';
 import '../../core/sse_client.dart';
 import '../../models/coach_profile.dart';
 import '../../models/gym.dart';
@@ -54,8 +55,24 @@ class GymState extends ChangeNotifier {
         _debounceReload?.cancel();
         _debounceReload = Timer(const Duration(seconds: 1), () {
           debugPrint('[GymState] reload trigger → loadMine()');
+          // 승인 전/후를 비교해야 하므로 다시 읽기 전 상태를 기억해 둔다.
+          final wasApproved = _membership.isApprovedMember;
           loadMine().then((_) {
             debugPrint('[GymState] reload done');
+            // 2026-08-13 — 대기 → 승인 으로 바뀐 순간 회원에게 알림.
+            // 이벤트를 그대로 믿지 않고 **내 상태가 실제로 바뀐 것**만 알린다
+            // (같은 박스의 다른 사람 승인 이벤트도 같은 채널로 오기 때문).
+            if (ev.type == 'member.decided' &&
+                !wasApproved &&
+                _membership.isApprovedMember) {
+              NotificationService.instance.showFromSseEvent(
+                eventType: 'member.decided',
+                payload: {
+                  'member_id': _membership.gym?.id,
+                  'status': 'approved',
+                },
+              );
+            }
           }).catchError((e) {
             debugPrint('[GymState] reload failed: $e');
           });

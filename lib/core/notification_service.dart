@@ -148,6 +148,20 @@ class NotificationService {
       case 'attendance_checked':
         return null; // 너무 잦아서 silent.
       // ─ 회원 채널 ────────────────────────────────────
+      // 2026-08-13 — 가입 승인 알림. 회원이 가장 기다리는 소식인데 그동안
+      // 앱을 열어 새로고침해야만 알 수 있었다 (승인 대기 화면 그대로).
+      case 'member.decided':
+        final approved = (inner['status'] ?? '') == 'approved';
+        return _NotifSpec(
+          id: _idFor('decided', inner['member_id']),
+          channelId: _channelMemberId,
+          title: approved ? '[FACING] 가입 승인 완료' : '[FACING] 가입 신청 결과',
+          body: approved
+              ? '이제 수업 예약과 오늘의 WOD 를 볼 수 있습니다.'
+              : '가입 신청이 승인되지 않았습니다. 박스에 문의해 주세요.',
+          importance: Importance.high,
+          priority: Priority.high,
+        );
       case 'announcement.posted':
         return _NotifSpec(
           id: _idFor('announce', inner['announcement_id']),
