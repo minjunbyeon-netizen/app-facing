@@ -122,7 +122,7 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
           if (_bandIndex != null)
             'experience_years': Tier.bands[_bandIndex!].years,
           if (sports.isNotEmpty) 'sports_history': sports,
-          if (injury.isNotEmpty) 'injury_note': injury,
+          if (injury.isNotEmpty) 'safety_note': injury,
         },
       );
       if (!mounted) return;
