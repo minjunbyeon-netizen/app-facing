@@ -5,7 +5,7 @@
 import 'package:flutter/material.dart';
 
 /// 앱 셸 공통 조상 토큰. 앱 코드는 이 값을 직접 쓰거나
-/// 앱 테마(FacingTokens 등)가 이 값을 재수출한다.
+/// 앱 테마(HyphenTokens 등)가 이 값을 재수출한다.
 class AppKit {
   AppKit._();
 
