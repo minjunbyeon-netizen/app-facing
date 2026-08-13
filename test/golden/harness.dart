@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:facing_app/core/api_client.dart';
 import 'package:facing_app/core/connectivity_state.dart';
 import 'package:facing_app/core/goals_state.dart';
-import 'package:facing_app/core/movements_repository.dart';
 import 'package:facing_app/core/shell_nav_bus.dart';
 import 'package:facing_app/core/sse_client.dart';
 import 'package:facing_app/core/theme.dart';
@@ -23,7 +22,6 @@ import 'package:facing_app/features/gym/gym_state.dart';
 import 'package:facing_app/features/inbox/inbox_repository.dart';
 import 'package:facing_app/features/inbox/inbox_state.dart';
 import 'package:facing_app/features/profile/profile_state.dart';
-import 'package:facing_app/features/wod_builder/wod_draft_state.dart';
 
 import 'fakes.dart';
 
@@ -47,7 +45,6 @@ Widget harness({
   ConnectivityState? connectivity,
   BossAuthState? bossAuth,
   BossApiClient? bossApi,
-  WodDraftState? draft,
   required Widget home,
 }) {
   final gymState = gym ?? GymState(GymRepository(api), sse: FakeSse());
@@ -55,15 +52,12 @@ Widget harness({
     providers: [
       Provider<ApiClient>.value(value: api),
       Provider<SseClient>.value(value: FakeSse()),
-      Provider<MovementsRepository>(create: (_) => MovementsRepository(api)),
       Provider<GymRepository>(create: (_) => GymRepository(api)),
       Provider<InboxRepository>(create: (_) => InboxRepository(api)),
       ChangeNotifierProvider<ProfileState>.value(value: profile),
       ChangeNotifierProvider<UnitState>(create: (_) => UnitState()),
       ChangeNotifierProvider<ConnectivityState>.value(
           value: connectivity ?? ConnectivityState()),
-      ChangeNotifierProvider<WodDraftState>.value(
-          value: draft ?? WodDraftState()),
       ChangeNotifierProvider<GymState>.value(value: gymState),
       ChangeNotifierProvider<InboxState>(
           create: (_) => InboxState(InboxRepository(api))),

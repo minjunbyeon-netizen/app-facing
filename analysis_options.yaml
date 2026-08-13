@@ -9,6 +9,13 @@
 # packages, and plugins designed to encourage good coding practices.
 include: package:flutter_lints/flutter.yaml
 
+analyzer:
+  exclude:
+    # 폐기 코드 보관 (git mv 로 이동, 원 폴더 구조 유지 — 상대 import 는 lib/
+    # 안 잔존 의존성을 가리켜 의도적으로 컴파일 안 됨. C:\dev\CLAUDE.md 의
+    # "_archive/ = 폐기 코드, 참고용" 컨벤션.
+    - "_archive/**"
+
 linter:
   # The lint rules applied to this project can be customized in the
   # section below to disable rules from the `package:flutter_lints/flutter.yaml`

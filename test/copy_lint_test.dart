@@ -16,10 +16,8 @@ void main() {
         r'(운동|헬스|다이어트|웰니스|체중관리|쉬운|편리한|누구나|당신|귀하)',
       );
       // 정당한 사용 예외:
-      // - core/glossary.dart: 용어 정의문 (예: WOD = Workout of the Day)
       // - test/copy_lint_test.dart: 본 테스트 자체 (패턴 정의)
       final excludePaths = <String>{
-        'lib/core/glossary.dart',
         'lib/core/quotes.dart',
       };
       final violations = <String>[];

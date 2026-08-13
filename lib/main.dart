@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 import 'core/api_client.dart';
 import 'core/fcm_register.dart';
 import 'core/connectivity_state.dart';
-import 'core/movements_repository.dart';
 import 'core/notification_service.dart';
 import 'core/sse_client.dart';
 import 'core/staff_push_service.dart';
@@ -22,11 +21,6 @@ import 'features/intro/intro_screen.dart';
 // 결정2 (2026-06-10): create-gym 비활성 — 라우트 주석과 함께 복구.
 // import 'features/onboarding/create_gym_screen.dart';
 import 'features/onboarding/onboarding_basic.dart';
-import 'features/onboarding/onboarding_benchmarks.dart';
-import 'features/onboarding/onboarding_grade.dart';
-import 'features/pacing_result/result_screen.dart';
-import 'features/presets/presets_screen.dart';
-import 'features/profile/profile_screen.dart';
 import 'features/profile/profile_state.dart';
 import 'features/splash/splash_screen.dart';
 import 'features/history/history_detail_screen.dart';
@@ -45,8 +39,6 @@ import 'features/inbox/inbox_repository.dart';
 import 'features/inbox/inbox_state.dart';
 import 'features/mypage/mypage_screen.dart';
 import 'features/shell/main_shell.dart';
-import 'features/wod_builder/wod_builder_screen.dart';
-import 'features/wod_builder/wod_draft_state.dart';
 import 'features/boss/boss_auth_state.dart';
 import 'features/boss/boss_api_client.dart';
 import 'features/boss/boss_login_screen.dart';
@@ -146,13 +138,11 @@ class FacingApp extends StatelessWidget {
       providers: [
         Provider<ApiClient>.value(value: api),
         Provider<SseClient>.value(value: sse),
-        Provider<MovementsRepository>(create: (_) => MovementsRepository(api)),
         Provider<GymRepository>(create: (_) => GymRepository(api)),
         Provider<InboxRepository>(create: (_) => InboxRepository(api)),
         ChangeNotifierProvider<ProfileState>.value(value: profile),
         ChangeNotifierProvider<UnitState>.value(value: unit),
         ChangeNotifierProvider<ConnectivityState>.value(value: connectivity),
-        ChangeNotifierProvider<WodDraftState>(create: (_) => WodDraftState()),
         ChangeNotifierProvider<GymState>(
           create: (ctx) => GymState(GymRepository(api), sse: sse)..loadMine(),
         ),
@@ -198,8 +188,6 @@ class FacingApp extends StatelessWidget {
           '/signup': (_) => const SignupScreen(),
           '/intro': (_) => const IntroScreen(),
           '/onboarding/basic': (_) => const OnboardingBasicScreen(),
-          '/onboarding/benchmarks': (_) => const OnboardingBenchmarksScreen(),
-          '/onboarding/grade': (_) => const OnboardingGradeScreen(),
           // 결정2 (2026-06-10 LAUNCH-CHECKLIST): create-gym 명시적 비활성.
           // 박스 개설은 웹 admin 경로로만 운영 (무분별 박스 생성 방지).
           // 재활성 시 이 라우트 + CreateGymScreen import 복구.
@@ -215,12 +203,8 @@ class FacingApp extends StatelessWidget {
           '/login/member': (_) => const MemberLoginScreen(),
           '/home': (_) => const HomeScreen(),
           '/shell': (_) => const MainShell(),
-          '/profile': (_) => const ProfileScreen(),
           '/mypage': (_) => const MyPageScreen(),
           '/history': (_) => const HistoryScreen(),
-          '/builder': (_) => const WodBuilderScreen(),
-          '/presets': (_) => const PresetsScreen(),
-          '/result': (_) => const ResultScreen(),
           // PHASE5 §1.1·§1.2: 사장 폰 로그인·대시보드
           '/boss/login': (_) => const BossLoginScreen(),
           '/auth/link-staff': (_) => const StaffLinkScreen(),

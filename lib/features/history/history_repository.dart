@@ -8,19 +8,6 @@ class HistoryRepository {
   final ApiClient api;
   HistoryRepository(this.api);
 
-  Future<List<EngineSnapshotRecord>> listEngineSnapshots({int limit = 50}) async {
-    final list = await api.getList('/api/v1/history/engine?limit=$limit');
-    return list
-        .whereType<Map<String, dynamic>>()
-        .map(EngineSnapshotRecord.fromJson)
-        .toList();
-  }
-
-  Future<int> saveEngineSnapshot(Map<String, dynamic> body) async {
-    final data = await api.post('/api/v1/history/engine', body);
-    return (data['record_id'] as num?)?.toInt() ?? 0;
-  }
-
   Future<List<WodHistoryItem>> listWodHistory({int limit = 20}) async {
     final list = await api.getList('/api/v1/history/wod?limit=$limit');
     return list

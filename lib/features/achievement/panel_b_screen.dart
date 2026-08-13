@@ -20,7 +20,6 @@ import '../../core/api_client.dart';
 import '../../core/futures.dart';
 import '../../core/haptic.dart';
 import '../../core/pr_detector.dart';
-import '../../core/scoring.dart';
 import '../../core/share_count_store.dart';
 import '../../core/theme.dart';
 import '../../core/titles_catalog.dart';
@@ -40,7 +39,6 @@ class PanelBScreen extends StatefulWidget {
 
 class _PanelBScreenState extends State<PanelBScreen> {
   Future<List<WodHistoryItem>>? _historyFuture;
-  Future<List<EngineSnapshotRecord>>? _engineFuture;
   /// /go Tier 3: 현재 착용 칭호 코드.
   String? _wornCode;
   /// /go 7 (B2): 누적 공유 횟수 (PB_PHOTO_FINISH 등 signal).
@@ -50,13 +48,7 @@ class _PanelBScreenState extends State<PanelBScreen> {
   void initState() {
     super.initState();
     final api = context.read<ApiClient>();
-    // retainError: _engineFuture 의 FutureBuilder 는
-    // _historyFuture 성공 분기 안에 중첩 — history 가 에러·로딩이면 리스너가
-    // 안 붙어 에러가 unhandled 로 샌다.
     _historyFuture = retainError(HistoryRepository(api).listWodHistory(limit: 500));
-    // /go Tier 3: engine 80+ count signal 추출용 — engine snapshot 로드.
-    _engineFuture =
-        retainError(HistoryRepository(api).listEngineSnapshots(limit: 100));
     _loadWornCode();
     _loadShareCount();
   }
@@ -88,7 +80,6 @@ class _PanelBScreenState extends State<PanelBScreen> {
 
   TitleUnlockSignals _buildSignals(
     List<WodHistoryItem> history,
-    List<EngineSnapshotRecord> engine,
     ProfileState profile,
     GymState gym,
     InboxState inbox,
@@ -111,11 +102,9 @@ class _PanelBScreenState extends State<PanelBScreen> {
     }
     final doubleSessionDays = dayMap.values.where((c) => c >= 2).length;
 
-    // /go Tier 3: engine 80+ 측정 횟수 (PB_IRON_LUNG signal).
-    int engine80Plus = 0;
-    for (final r in engine) {
-      if (engineScoreTo100(r.overallScore) >= 80) engine80Plus++;
-    }
+    // v2.7 (엔진 폐기, 2026-08-13): /api/v1/history/engine 제거로 engine snapshot
+    // 신호 소스 소멸 — PB_IRON_LUNG 은 영구 잠금 (Panel B 수용된 결과, plan §4).
+    const engine80Plus = 0;
 
     // v1.21 Streak 일수 계산 (오늘 또는 어제까지 연속).
     final streakDays = _computeStreakDays(history);
@@ -246,8 +235,6 @@ class _PanelBScreenState extends State<PanelBScreen> {
                             final api = context.read<ApiClient>();
                             _historyFuture = retainError(HistoryRepository(api)
                                 .listWodHistory(limit: 500));
-                            _engineFuture = retainError(HistoryRepository(api)
-                                .listEngineSnapshots(limit: 100));
                           });
                         },
                         child: const Text('다시 시도'),
@@ -258,45 +245,35 @@ class _PanelBScreenState extends State<PanelBScreen> {
               );
             }
             final history = snap.data ?? const <WodHistoryItem>[];
-            // /go Tier 3: engine snapshots — 별도 FutureBuilder 또는 nested fetch.
-            return FutureBuilder<List<EngineSnapshotRecord>>(
-              future: _engineFuture,
-              builder: (ctx2, eSnap) {
-                final engine =
-                    eSnap.data ?? const <EngineSnapshotRecord>[];
-                final signals =
-                    _buildSignals(history, engine, profile, gym, inbox);
-                final unlocked = PanelBUnlocker.unlockedCodes(signals);
-                final sorted = [...kPanelBTitles]
-                  ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
-                return ListView(
-                  padding: const EdgeInsets.all(FacingTokens.sp4),
-                  children: [
-                    _Header(
-                      unlocked: unlocked.length,
-                      total: kPanelBTitles.length,
-                    ),
-                    const SizedBox(height: FacingTokens.sp4),
-                    // /go Tier 3: 착용 안내.
-                    const Text('칭호',
-                        style: FacingTokens.sectionLabel),
-                    const SizedBox(height: 2),
-                    const Text(
-                      '해금된 칭호를 탭하면 Profile 상단에 표시. 다시 탭하면 해제.',
-                      style: FacingTokens.caption,
-                    ),
-                    const SizedBox(height: FacingTokens.sp2),
-                    ...sorted.map((t) => _TitleCard(
-                          title: t,
-                          unlocked: unlocked.contains(t.code),
-                          worn: _wornCode == t.code,
-                          onTap: unlocked.contains(t.code)
-                              ? () => _toggleWorn(t.code)
-                              : null,
-                        )),
-                  ],
-                );
-              },
+            final signals = _buildSignals(history, profile, gym, inbox);
+            final unlocked = PanelBUnlocker.unlockedCodes(signals);
+            final sorted = [...kPanelBTitles]
+              ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+            return ListView(
+              padding: const EdgeInsets.all(FacingTokens.sp4),
+              children: [
+                _Header(
+                  unlocked: unlocked.length,
+                  total: kPanelBTitles.length,
+                ),
+                const SizedBox(height: FacingTokens.sp4),
+                // /go Tier 3: 착용 안내.
+                const Text('칭호', style: FacingTokens.sectionLabel),
+                const SizedBox(height: 2),
+                const Text(
+                  '해금된 칭호를 탭하면 Profile 상단에 표시. 다시 탭하면 해제.',
+                  style: FacingTokens.caption,
+                ),
+                const SizedBox(height: FacingTokens.sp2),
+                ...sorted.map((t) => _TitleCard(
+                      title: t,
+                      unlocked: unlocked.contains(t.code),
+                      worn: _wornCode == t.code,
+                      onTap: unlocked.contains(t.code)
+                          ? () => _toggleWorn(t.code)
+                          : null,
+                    )),
+              ],
             );
           },
         ),
