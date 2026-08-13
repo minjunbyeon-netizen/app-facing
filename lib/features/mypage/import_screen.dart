@@ -15,10 +15,10 @@ class ImportScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('데이터 가져오기')),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(FacingTokens.sp4),
+          padding: const EdgeInsets.all(HyphenTokens.sp4),
           children: [
-            const Text('지원 형식', style: FacingTokens.sectionLabel),
-            const SizedBox(height: FacingTokens.sp2),
+            const Text('지원 형식', style: HyphenTokens.sectionLabel),
+            const SizedBox(height: HyphenTokens.sp2),
             _SourceRow(
               name: 'BTWB (Beyond the Whiteboard)',
               hint: 'CSV export / API · 지원 예정',
@@ -39,10 +39,10 @@ class ImportScreen extends StatelessWidget {
               name: 'Whoop · Oura',
               hint: 'HRV · 회복 데이터 · 지원 예정',
             ),
-            const SizedBox(height: FacingTokens.sp5),
+            const SizedBox(height: HyphenTokens.sp5),
 
-            const Text('로드맵', style: FacingTokens.sectionLabel),
-            const SizedBox(height: FacingTokens.sp2),
+            const Text('로드맵', style: HyphenTokens.sectionLabel),
+            const SizedBox(height: HyphenTokens.sp2),
             const _Note(
               '1. BTWB 계정 OAuth 연동 → 동작별 PR 자동 임포트',
             ),
@@ -55,7 +55,7 @@ class ImportScreen extends StatelessWidget {
             const _Note(
               '4. Whoop / Oura → HRV 기반 회복 상태 Pacing 보정',
             ),
-            const SizedBox(height: FacingTokens.sp5),
+            const SizedBox(height: HyphenTokens.sp5),
 
             OutlinedButton(
               onPressed: () {
@@ -70,7 +70,7 @@ class ImportScreen extends StatelessWidget {
               },
               child: const Text('Connect BTWB (Coming soon)'),
             ),
-            const SizedBox(height: FacingTokens.sp3),
+            const SizedBox(height: HyphenTokens.sp3),
             OutlinedButton(
               onPressed: () {
                 Haptic.light();
@@ -84,12 +84,12 @@ class ImportScreen extends StatelessWidget {
               },
               child: const Text('Upload CSV (Coming soon)'),
             ),
-            const SizedBox(height: FacingTokens.sp5),
+            const SizedBox(height: HyphenTokens.sp5),
 
             Text(
               '* 외부 서비스 연동 없음.\n'
               '모든 데이터는 수동 입력 or 데모 계정 프리로드.',
-              style: FacingTokens.caption,
+              style: HyphenTokens.caption,
             ),
           ],
         ),
@@ -106,16 +106,16 @@ class _SourceRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp2),
+      padding: const EdgeInsets.symmetric(vertical: HyphenTokens.sp2),
       child: Row(
         children: [
           Expanded(
             child: Text(name,
-                style: FacingTokens.body.copyWith(
+                style: HyphenTokens.body.copyWith(
                   fontWeight: FontWeight.w700,
                 )),
           ),
-          Text(hint, style: FacingTokens.caption),
+          Text(hint, style: HyphenTokens.caption),
         ],
       ),
     );
@@ -129,13 +129,13 @@ class _Note extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp1),
+      padding: const EdgeInsets.symmetric(vertical: HyphenTokens.sp1),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('·  ',
-              style: TextStyle(color: FacingTokens.accent)),
-          Expanded(child: Text(text, style: FacingTokens.body)),
+              style: TextStyle(color: HyphenTokens.accent)),
+          Expanded(child: Text(text, style: HyphenTokens.body)),
         ],
       ),
     );

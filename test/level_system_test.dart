@@ -2,7 +2,7 @@
 // 두 구간 곡선(linear 1~20 / quadratic 21~50) 연결점 정합 검증.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:facing_app/core/level_system.dart';
+import 'package:hyphen_app/core/level_system.dart';
 
 void main() {
   group('LevelSystem cumulative XP curve', () {

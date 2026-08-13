@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/futures.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
-import '../../widgets/fkit.dart';
+import '../../widgets/hkit.dart';
 import 'boss_api_client.dart';
 import 'class_roster_model.dart';
 
@@ -27,7 +27,7 @@ Future<void> showClassRosterSheet(BuildContext context, int classId,
   var dirty = false;
   await showModalBottomSheet<void>(
     context: context,
-    backgroundColor: FacingTokens.bg,
+    backgroundColor: HyphenTokens.bg,
     isScrollControlled: true,
     builder: (_) => _ClassRosterSheet(
       classId: classId,
@@ -77,14 +77,14 @@ class _ClassRosterSheetState extends State<_ClassRosterSheet> {
           builder: (context, snap) {
             if (snap.connectionState != ConnectionState.done) {
               return const Padding(
-                padding: EdgeInsets.all(FacingTokens.sp6),
-                child: FkLoading(),
+                padding: EdgeInsets.all(HyphenTokens.sp6),
+                child: HkLoading(),
               );
             }
             if (snap.hasError) {
               return Padding(
-                padding: const EdgeInsets.all(FacingTokens.sp5),
-                child: FkErrorState.fromError(
+                padding: const EdgeInsets.all(HyphenTokens.sp5),
+                child: HkErrorState.fromError(
                   snap.error,
                   onRetry: () => setState(_load),
                 ),
@@ -155,11 +155,11 @@ class _LoadedState extends State<_Loaded> {
     final attended = reservations.where((e) => e.status == 'attended').length;
 
     return ListView(
-      padding: const EdgeInsets.all(FacingTokens.sp4),
+      padding: const EdgeInsets.all(HyphenTokens.sp4),
       shrinkWrap: true,
       children: [
         Text(roster.title,
-            style: FacingTokens.h3.copyWith(color: FacingTokens.fg)),
+            style: HyphenTokens.h3.copyWith(color: HyphenTokens.fg)),
         const SizedBox(height: 4),
         Text(
           [
@@ -168,49 +168,49 @@ class _LoadedState extends State<_Loaded> {
             if (roster.coachUserId != null && roster.coachUserId!.isNotEmpty)
               roster.coachUserId!,
           ].join('  ·  '),
-          style: FacingTokens.caption,
+          style: HyphenTokens.caption,
         ),
-        const SizedBox(height: FacingTokens.sp4),
+        const SizedBox(height: HyphenTokens.sp4),
 
         Row(
           children: [
             Expanded(
-              child: FkStatTile(
+              child: HkStatTile(
                 label: '예약',
                 value: cap != null
                     ? '${roster.confirmedCount} / $cap'
                     : '${roster.confirmedCount}',
               ),
             ),
-            const SizedBox(width: FacingTokens.sp2),
+            const SizedBox(width: HyphenTokens.sp2),
             Expanded(
-              child: FkStatTile(label: '출석', value: '$attended'),
+              child: HkStatTile(label: '출석', value: '$attended'),
             ),
-            const SizedBox(width: FacingTokens.sp2),
+            const SizedBox(width: HyphenTokens.sp2),
             Expanded(
-              child: FkStatTile(
+              child: HkStatTile(
                 label: '대기',
                 value: '${roster.waitlistCount}',
               ),
             ),
           ],
         ),
-        const SizedBox(height: FacingTokens.sp5),
+        const SizedBox(height: HyphenTokens.sp5),
 
-        const FkSectionLabel('예약자'),
-        const SizedBox(height: FacingTokens.sp2),
+        const HkSectionLabel('예약자'),
+        const SizedBox(height: HyphenTokens.sp2),
         if (reservations.isEmpty)
-          const FkEmptyState(title: '예약자 없음')
+          const HkEmptyState(title: '예약자 없음')
         else
           ...reservations.map((e) => _EntryRow(entry: e, onMark: _mark)),
 
         if (waitlist.isNotEmpty) ...[
-          const SizedBox(height: FacingTokens.sp5),
-          const FkSectionLabel('대기자'),
-          const SizedBox(height: FacingTokens.sp2),
+          const SizedBox(height: HyphenTokens.sp5),
+          const HkSectionLabel('대기자'),
+          const SizedBox(height: HyphenTokens.sp2),
           ...waitlist.map((e) => _EntryRow(entry: e, onMark: _mark)),
         ],
-        const SizedBox(height: FacingTokens.sp4),
+        const SizedBox(height: HyphenTokens.sp4),
       ],
     );
   }
@@ -235,7 +235,7 @@ class _EntryRow extends StatelessWidget {
   Widget build(BuildContext context) {
     // 찍을 수 없는 행(대기자·탈퇴 회원)은 종전대로 상태 글자만 보여준다.
     if (!entry.markable) {
-      return FkListRow(
+      return HkListRow(
         title: entry.name,
         subtitle: entry.phone,
         trailing: _statusLabel(entry),
@@ -245,22 +245,22 @@ class _EntryRow extends StatelessWidget {
     // 같은 배지를 다시 누르면 확정으로 되돌린다 — 잘못 찍었을 때의 유일한 탈출구.
     final isAttended = entry.status == 'attended';
     final isNoShow = entry.status == 'no_show';
-    return FkListRow(
+    return HkListRow(
       title: entry.name,
       subtitle: entry.phone,
       trailingWidget: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          FkBadge(
+          HkBadge(
             '출석',
-            color: FacingTokens.success,
+            color: HyphenTokens.success,
             selected: isAttended,
             onTap: () => onMark(entry, isAttended ? 'confirmed' : 'attended'),
           ),
-          const SizedBox(width: FacingTokens.sp2),
-          FkBadge(
+          const SizedBox(width: HyphenTokens.sp2),
+          HkBadge(
             '노쇼',
-            color: FacingTokens.danger,
+            color: HyphenTokens.danger,
             selected: isNoShow,
             onTap: () => onMark(entry, isNoShow ? 'confirmed' : 'no_show'),
           ),
@@ -279,12 +279,12 @@ class _EntryRow extends StatelessWidget {
   }
 
   static Color _statusColor(RosterEntry e) {
-    if (e.orphan) return FacingTokens.mutedStrong;
-    if (e.isWaitlist) return FacingTokens.warning;
+    if (e.orphan) return HyphenTokens.mutedStrong;
+    if (e.isWaitlist) return HyphenTokens.warning;
     return switch (e.status) {
-      'attended' => FacingTokens.success,
-      'no_show' => FacingTokens.danger,
-      _ => FacingTokens.muted,
+      'attended' => HyphenTokens.success,
+      'no_show' => HyphenTokens.danger,
+      _ => HyphenTokens.muted,
     };
   }
 }

@@ -18,35 +18,35 @@ class AchievementCard extends StatelessWidget {
   Color _rarityColor() {
     switch (catalog.rarity) {
       case 'Rare':
-        return FacingTokens.accent;
+        return HyphenTokens.accent;
       case 'Epic':
-        return FacingTokens.tierElite;
+        return HyphenTokens.tierElite;
       case 'Legendary':
-        return FacingTokens.tierGames;
+        return HyphenTokens.tierGames;
       case 'Common':
       default:
-        return FacingTokens.muted;
+        return HyphenTokens.muted;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final unlocked = unlock != null;
-    final color = unlocked ? _rarityColor() : FacingTokens.border;
+    final color = unlocked ? _rarityColor() : HyphenTokens.border;
     return Container(
-      margin: const EdgeInsets.only(bottom: FacingTokens.sp3),
+      margin: const EdgeInsets.only(bottom: HyphenTokens.sp3),
       padding: const EdgeInsets.fromLTRB(
-        FacingTokens.sp4, FacingTokens.sp3, FacingTokens.sp4, FacingTokens.sp3,
+        HyphenTokens.sp4, HyphenTokens.sp3, HyphenTokens.sp4, HyphenTokens.sp3,
       ),
       decoration: BoxDecoration(
-        color: FacingTokens.surface,
+        color: HyphenTokens.surface,
         border: Border(
           left: BorderSide(color: color, width: 3),
-          top: BorderSide(color: FacingTokens.border, width: 1),
-          right: BorderSide(color: FacingTokens.border, width: 1),
-          bottom: BorderSide(color: FacingTokens.border, width: 1),
+          top: BorderSide(color: HyphenTokens.border, width: 1),
+          right: BorderSide(color: HyphenTokens.border, width: 1),
+          bottom: BorderSide(color: HyphenTokens.border, width: 1),
         ),
-        borderRadius: BorderRadius.circular(FacingTokens.r2),
+        borderRadius: BorderRadius.circular(HyphenTokens.r2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,17 +61,17 @@ class AchievementCard extends StatelessWidget {
                       koreanTitle(catalog.code).isEmpty
                           ? catalog.name
                           : koreanTitle(catalog.code),
-                      style: FacingTokens.h3.copyWith(
+                      style: HyphenTokens.h3.copyWith(
                         color:
-                            unlocked ? FacingTokens.fg : FacingTokens.muted,
+                            unlocked ? HyphenTokens.fg : HyphenTokens.muted,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
                     Text(
                       catalog.name,
-                      style: FacingTokens.caption.copyWith(
+                      style: HyphenTokens.caption.copyWith(
                         color:
-                            unlocked ? FacingTokens.muted : FacingTokens.muted,
+                            unlocked ? HyphenTokens.muted : HyphenTokens.muted,
                       ),
                     ),
                   ],
@@ -79,24 +79,24 @@ class AchievementCard extends StatelessWidget {
               ),
               Text(
                 catalog.rarity.toUpperCase(),
-                style: FacingTokens.micro.copyWith(
+                style: HyphenTokens.micro.copyWith(
                   color: color,
                   fontWeight: FontWeight.w800,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: FacingTokens.sp1),
+          const SizedBox(height: HyphenTokens.sp1),
           // v1.16 Sprint 9a: 해금 시 description · 미해금 시 조건 문구.
           Text(
             unlocked ? catalog.description : lockedHint(catalog),
-            style: FacingTokens.caption,
+            style: HyphenTokens.caption,
           ),
           if (unlocked) ...[
-            const SizedBox(height: FacingTokens.sp1),
+            const SizedBox(height: HyphenTokens.sp1),
             Text(
               _formatDate(unlock!.unlockedAt),
-              style: FacingTokens.micro.copyWith(color: FacingTokens.muted),
+              style: HyphenTokens.micro.copyWith(color: HyphenTokens.muted),
             ),
           ],
         ],

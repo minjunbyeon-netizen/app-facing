@@ -18,7 +18,7 @@ class GymInfoCard extends StatelessWidget {
     super.key,
     required this.gym,
     this.margin = const EdgeInsets.fromLTRB(
-        FacingTokens.sp4, FacingTokens.sp4, FacingTokens.sp4, 0),
+        HyphenTokens.sp4, HyphenTokens.sp4, HyphenTokens.sp4, 0),
   });
 
   @override
@@ -39,9 +39,9 @@ class GymInfoCard extends StatelessWidget {
     return Container(
       margin: margin,
       decoration: BoxDecoration(
-        color: FacingTokens.surface,
-        borderRadius: BorderRadius.circular(FacingTokens.r2),
-        border: Border.all(color: FacingTokens.border),
+        color: HyphenTokens.surface,
+        borderRadius: BorderRadius.circular(HyphenTokens.r2),
+        border: Border.all(color: HyphenTokens.border),
       ),
       child: IntrinsicHeight(
         child: Row(
@@ -50,25 +50,25 @@ class GymInfoCard extends StatelessWidget {
             Container(
               width: 3,
               decoration: const BoxDecoration(
-                color: FacingTokens.accent,
+                color: HyphenTokens.accent,
                 borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(FacingTokens.r2),
-                  bottomLeft: Radius.circular(FacingTokens.r2),
+                  topLeft: Radius.circular(HyphenTokens.r2),
+                  bottomLeft: Radius.circular(HyphenTokens.r2),
                 ),
               ),
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(FacingTokens.sp4),
+                padding: const EdgeInsets.all(HyphenTokens.sp4),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       name,
-                      style: FacingTokens.h3
+                      style: HyphenTokens.h3
                           .copyWith(fontWeight: FontWeight.w800),
                     ),
-                    const SizedBox(height: FacingTokens.sp1),
+                    const SizedBox(height: HyphenTokens.sp1),
                     _IconRow(icon: Icons.location_on_outlined, text: location),
                     if (phone.isNotEmpty) ...[
                       const SizedBox(height: 2),
@@ -79,28 +79,28 @@ class GymInfoCard extends StatelessWidget {
                       _IconRow(icon: Icons.chat_bubble_outline, text: kakao),
                     ],
 
-                    const SizedBox(height: FacingTokens.sp3),
-                    const Divider(color: FacingTokens.border, height: 1),
-                    const SizedBox(height: FacingTokens.sp3),
+                    const SizedBox(height: HyphenTokens.sp3),
+                    const Divider(color: HyphenTokens.border, height: 1),
+                    const SizedBox(height: HyphenTokens.sp3),
 
                     // 코치 카드 — v1.16.2 신규
                     _CoachesSection(coaches: coaches, fallbackProfile: profile),
 
                     if (times.isNotEmpty) ...[
-                      const SizedBox(height: FacingTokens.sp3),
+                      const SizedBox(height: HyphenTokens.sp3),
                       _InfoBlock(label: '수업', value: times),
                     ],
 
                     if (price.isNotEmpty) ...[
-                      const SizedBox(height: FacingTokens.sp3),
+                      const SizedBox(height: HyphenTokens.sp3),
                       _InfoBlock(label: '가격', value: price),
                     ],
 
                     if (motto.isNotEmpty) ...[
-                      const SizedBox(height: FacingTokens.sp3),
-                      Text('모토', style: FacingTokens.sectionLabel),
-                      const SizedBox(height: FacingTokens.sp1),
-                      Text(motto, style: FacingTokens.quote),
+                      const SizedBox(height: HyphenTokens.sp3),
+                      Text('모토', style: HyphenTokens.sectionLabel),
+                      const SizedBox(height: HyphenTokens.sp1),
+                      Text(motto, style: HyphenTokens.quote),
                     ],
                   ],
                 ),
@@ -125,21 +125,21 @@ class _CoachesSection extends StatelessWidget {
       final name = (fallbackProfile?.coachName ?? '').trim();
       final bio = (fallbackProfile?.coachBio ?? '').trim();
       if (name.isEmpty && bio.isEmpty) {
-        return Text('COACH 정보 미등록', style: FacingTokens.caption);
+        return Text('COACH 정보 미등록', style: HyphenTokens.caption);
       }
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('코치', style: FacingTokens.sectionLabel),
-          const SizedBox(height: FacingTokens.sp1),
+          Text('코치', style: HyphenTokens.sectionLabel),
+          const SizedBox(height: HyphenTokens.sp1),
           Text(
             name.isNotEmpty ? '$name 코치' : bio,
-            style: FacingTokens.body.copyWith(height: 1.5),
+            style: HyphenTokens.body.copyWith(height: 1.5),
           ),
           if (name.isNotEmpty && bio.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 2),
-              child: Text(bio, style: FacingTokens.caption),
+              child: Text(bio, style: HyphenTokens.caption),
             ),
         ],
       );
@@ -147,8 +147,8 @@ class _CoachesSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('COACH (${coaches.length})', style: FacingTokens.sectionLabel),
-        const SizedBox(height: FacingTokens.sp2),
+        Text('COACH (${coaches.length})', style: HyphenTokens.sectionLabel),
+        const SizedBox(height: HyphenTokens.sp2),
         ...coaches.map((c) => _CoachRow(coach: c)),
       ],
     );
@@ -176,24 +176,24 @@ class _CoachRow extends StatelessWidget {
       if (first.isNotEmpty) lines.add(first);
     }
     return Padding(
-      padding: const EdgeInsets.only(bottom: FacingTokens.sp2),
+      padding: const EdgeInsets.only(bottom: HyphenTokens.sp2),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('· ',
-              style: FacingTokens.body.copyWith(color: FacingTokens.muted)),
+              style: HyphenTokens.body.copyWith(color: HyphenTokens.muted)),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(coach.name,
-                    style: FacingTokens.body
+                    style: HyphenTokens.body
                         .copyWith(fontWeight: FontWeight.w700)),
                 if (lines.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 2),
                     child: Text(lines.join(' · '),
-                        style: FacingTokens.caption),
+                        style: HyphenTokens.caption),
                   ),
               ],
             ),
@@ -213,9 +213,9 @@ class _IconRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 13, color: FacingTokens.muted),
-        const SizedBox(width: FacingTokens.sp1),
-        Expanded(child: Text(text, style: FacingTokens.caption)),
+        Icon(icon, size: 13, color: HyphenTokens.muted),
+        const SizedBox(width: HyphenTokens.sp1),
+        Expanded(child: Text(text, style: HyphenTokens.caption)),
       ],
     );
   }
@@ -231,9 +231,9 @@ class _InfoBlock extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: FacingTokens.sectionLabel),
-        const SizedBox(height: FacingTokens.sp1),
-        Text(value, style: FacingTokens.body.copyWith(height: 1.6)),
+        Text(label, style: HyphenTokens.sectionLabel),
+        const SizedBox(height: HyphenTokens.sp1),
+        Text(value, style: HyphenTokens.body.copyWith(height: 1.6)),
       ],
     );
   }

@@ -6,7 +6,7 @@ import '../../core/haptic.dart';
 import '../../core/input_formatters.dart';
 import '../../core/theme.dart';
 import '../../core/tier.dart';
-import '../../widgets/fkit.dart';
+import '../../widgets/hkit.dart';
 import '../profile/profile_state.dart';
 
 /// 가입 직후 한 번 묻는 화면 — 내 정보(이름·생년월일·전화)와 성별·경력.
@@ -125,28 +125,28 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: FacingTokens.bg,
+      backgroundColor: HyphenTokens.bg,
       appBar: AppBar(
         title: const Text('내 정보'),
-        backgroundColor: FacingTokens.bg,
+        backgroundColor: HyphenTokens.bg,
         automaticallyImplyLeading: false,
       ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(FacingTokens.sp5),
+          padding: const EdgeInsets.all(HyphenTokens.sp5),
           children: [
             const Text(
               '코치가 회원 명단에서 보는 정보입니다.',
-              style: FacingTokens.caption,
+              style: HyphenTokens.caption,
             ),
-            const SizedBox(height: FacingTokens.sp4),
+            const SizedBox(height: HyphenTokens.sp4),
             TextField(
               controller: _nameCtrl,
               textInputAction: TextInputAction.next,
               onChanged: (_) => setState(() {}),
               decoration: const InputDecoration(labelText: '이름'),
             ),
-            const SizedBox(height: FacingTokens.sp3),
+            const SizedBox(height: HyphenTokens.sp3),
             // v2.6: 숫자만 치면 하이픈이 알아서 들어간다. 8자리를 다 채우기
             // 전에는 오류를 띄우지 않는다 (타이핑 도중 빨간 글씨는 방해다).
             TextField(
@@ -160,7 +160,7 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
                 errorText: birthDateError(_birthCtrl.text),
               ),
             ),
-            const SizedBox(height: FacingTokens.sp3),
+            const SizedBox(height: HyphenTokens.sp3),
             // v2.6: 생년월일과 같은 이유로 하이픈을 자동으로 넣는다 —
             // 코치 명단의 번호 표기를 한 가지로 고정한다.
             TextField(
@@ -172,25 +172,25 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
                 hintText: '010-0000-0000',
               ),
             ),
-            const SizedBox(height: FacingTokens.sp5),
+            const SizedBox(height: HyphenTokens.sp5),
 
-            const FkSectionLabel('성별'),
-            const SizedBox(height: FacingTokens.sp2),
+            const HkSectionLabel('성별'),
+            const SizedBox(height: HyphenTokens.sp2),
             Row(
               children: [
-                FkBadge(
+                HkBadge(
                   '남',
-                  color: FacingTokens.fg,
+                  color: HyphenTokens.fg,
                   selected: _gender == 'male',
                   onTap: () {
                     Haptic.selection();
                     setState(() => _gender = 'male');
                   },
                 ),
-                const SizedBox(width: FacingTokens.sp2),
-                FkBadge(
+                const SizedBox(width: HyphenTokens.sp2),
+                HkBadge(
                   '여',
-                  color: FacingTokens.fg,
+                  color: HyphenTokens.fg,
                   selected: _gender == 'female',
                   onTap: () {
                     Haptic.selection();
@@ -199,18 +199,18 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: FacingTokens.sp5),
+            const SizedBox(height: HyphenTokens.sp5),
 
-            const FkSectionLabel('크로스핏 경력'),
-            const SizedBox(height: FacingTokens.sp2),
+            const HkSectionLabel('크로스핏 경력'),
+            const SizedBox(height: HyphenTokens.sp2),
             Wrap(
-              spacing: FacingTokens.sp2,
-              runSpacing: FacingTokens.sp2,
+              spacing: HyphenTokens.sp2,
+              runSpacing: HyphenTokens.sp2,
               children: [
                 for (var i = 0; i < _kExpBands.length; i++)
-                  FkBadge(
+                  HkBadge(
                     _kExpBands[i].label,
-                    color: FacingTokens.fg,
+                    color: HyphenTokens.fg,
                     selected: _bandIndex == i,
                     onTap: () {
                       Haptic.selection();
@@ -223,27 +223,27 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
             // 레벨이 되는지 그 자리에서 보여준다 — 나중에 코치 화면에서 처음
             // 보게 되면 "왜 내가 스케일이냐"가 된다.
             if (_bandIndex != null) ...[
-              const SizedBox(height: FacingTokens.sp3),
+              const SizedBox(height: HyphenTokens.sp3),
               Row(
                 children: [
-                  const Text('내 레벨', style: FacingTokens.caption),
-                  const SizedBox(width: FacingTokens.sp2),
+                  const Text('내 레벨', style: HyphenTokens.caption),
+                  const SizedBox(width: HyphenTokens.sp2),
                   Builder(builder: (_) {
                     final t = Tier.fromExperienceYears(
                         _kExpBands[_bandIndex!].years);
-                    return FkBadge(t.memberLevelLabel, color: t.color);
+                    return HkBadge(t.memberLevelLabel, color: t.color);
                   }),
                 ],
               ),
             ],
             if (_error != null) ...[
-              const SizedBox(height: FacingTokens.sp3),
+              const SizedBox(height: HyphenTokens.sp3),
               Text(_error!,
                   style:
-                      FacingTokens.caption.copyWith(color: FacingTokens.warning)),
+                      HyphenTokens.caption.copyWith(color: HyphenTokens.warning)),
             ],
-            const SizedBox(height: FacingTokens.sp6),
-            FkButton.primary(
+            const SizedBox(height: HyphenTokens.sp6),
+            HkButton.primary(
               _saving ? '저장 중' : '시작하기',
               onPressed: _canContinue
                   ? () {

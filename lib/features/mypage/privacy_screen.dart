@@ -20,10 +20,10 @@ class PrivacyScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('개인정보')),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(FacingTokens.sp4),
+          padding: const EdgeInsets.all(HyphenTokens.sp4),
           children: [
-            const Text('저장하는 데이터', style: FacingTokens.sectionLabel),
-            const SizedBox(height: FacingTokens.sp2),
+            const Text('저장하는 데이터', style: HyphenTokens.sectionLabel),
+            const SizedBox(height: HyphenTokens.sp2),
             const _Bullet('device_id (UUID v4) — 로컬 생성, 서버에 해시로만 전송'),
             const _Bullet('이름·전화번호 — 박스 가입 신청 시 입력 (서버 DB, 박스 코치에게 제공)'),
             const _Bullet('소셜 로그인: 네이버·구글 계정 식별자·표시명 (서버 DB)'),
@@ -33,17 +33,17 @@ class PrivacyScreen extends StatelessWidget {
             const _Bullet('gradeResult: Tier·6 카테고리 점수 (로컬·서버 DB)'),
             const _Bullet('WOD history: 계산 기록·일시 (서버 DB)'),
             const _Bullet('Gym membership: 박스 가입·role·포인트 (서버 DB)'),
-            const SizedBox(height: FacingTokens.sp4),
+            const SizedBox(height: HyphenTokens.sp4),
 
-            const Text('수집하지 않는 것', style: FacingTokens.sectionLabel),
-            const SizedBox(height: FacingTokens.sp2),
+            const Text('수집하지 않는 것', style: HyphenTokens.sectionLabel),
+            const SizedBox(height: HyphenTokens.sp2),
             const _Bullet('위치 정보 · 연락처 · 마이크'),
             const _Bullet('카메라 — 앱 권한 없음. 수집하지 않습니다'),
             const _Bullet('소셜 계정의 친구목록·메시지 (프로필 식별자만 수신)'),
-            const SizedBox(height: FacingTokens.sp4),
+            const SizedBox(height: HyphenTokens.sp4),
 
-            const Text('사용 목적', style: FacingTokens.sectionLabel),
-            const SizedBox(height: FacingTokens.sp2),
+            const Text('사용 목적', style: HyphenTokens.sectionLabel),
+            const SizedBox(height: HyphenTokens.sp2),
             const Text(
               'profile·grade·WOD 데이터는 본인 Engine 계산·추이 표시 용도로만 사용. '
               'device_id 해시는 기록 소유자 식별용. '
@@ -51,46 +51,46 @@ class PrivacyScreen extends StatelessWidget {
               '해당 박스 코치에게 제공. '
               '서명 이미지는 전자서명법에 따른 계약 증빙 용도로만 보관. '
               '타 유저와 공유 또는 마케팅 활용 없음.',
-              style: FacingTokens.body,
+              style: HyphenTokens.body,
             ),
-            const SizedBox(height: FacingTokens.sp4),
+            const SizedBox(height: HyphenTokens.sp4),
 
-            const Text('보관 기간', style: FacingTokens.sectionLabel),
-            const SizedBox(height: FacingTokens.sp2),
+            const Text('보관 기간', style: HyphenTokens.sectionLabel),
+            const SizedBox(height: HyphenTokens.sp2),
             const Text(
               '탈퇴 시 본인 기록은 일괄 삭제. 단, 서명 완료된 전자계약서는 '
               '계약 당사자(박스) 보호를 위해 관계 법령상 보존 기간 동안 '
               '분리 보관될 수 있음.',
-              style: FacingTokens.body,
+              style: HyphenTokens.body,
             ),
-            const SizedBox(height: FacingTokens.sp4),
+            const SizedBox(height: HyphenTokens.sp4),
 
-            const Text('이용자 권리', style: FacingTokens.sectionLabel),
-            const SizedBox(height: FacingTokens.sp2),
+            const Text('이용자 권리', style: HyphenTokens.sectionLabel),
+            const SizedBox(height: HyphenTokens.sp2),
             const _Bullet('언제든 Sign out (계정 기록만 해제, 프로필 유지)'),
             const _Bullet('언제든 Reset data (로컬 전체 삭제)'),
             const _Bullet('계정 탈퇴 = 서버·로컬 모든 데이터 영구 삭제 (아래 버튼)'),
-            const SizedBox(height: FacingTokens.sp5),
+            const SizedBox(height: HyphenTokens.sp5),
 
             OutlinedButton(
               style: OutlinedButton.styleFrom(
-                foregroundColor: FacingTokens.error,
-                side: const BorderSide(color: FacingTokens.error),
+                foregroundColor: HyphenTokens.error,
+                side: const BorderSide(color: HyphenTokens.error),
               ),
               onPressed: () => _confirmDelete(context),
               child: const Text('계정 삭제'),
             ),
-            const SizedBox(height: FacingTokens.sp3),
+            const SizedBox(height: HyphenTokens.sp3),
             const Text(
               '탈퇴 시 서버에 저장된 내 기록(Engine·WOD·Gym) 일괄 삭제. 복구 불가.',
-              style: FacingTokens.caption,
+              style: HyphenTokens.caption,
             ),
-            const SizedBox(height: FacingTokens.sp5),
+            const SizedBox(height: HyphenTokens.sp5),
 
-            const Text('최종 갱신', style: FacingTokens.sectionLabel),
-            const SizedBox(height: FacingTokens.sp2),
+            const Text('최종 갱신', style: HyphenTokens.sectionLabel),
+            const SizedBox(height: HyphenTokens.sp2),
             const Text('2026-06-10 · 전화번호 수집·전자계약·소셜 로그인 반영. 정식 출시 시 법무 검토.',
-                style: FacingTokens.caption),
+                style: HyphenTokens.caption),
           ],
         ),
       ),
@@ -101,15 +101,15 @@ class PrivacyScreen extends StatelessWidget {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: FacingTokens.surfaceOverlay,
+        backgroundColor: HyphenTokens.surfaceOverlay,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(FacingTokens.r5),
+          borderRadius: BorderRadius.circular(HyphenTokens.r5),
         ),
         title: const Text('계정 삭제'),
         content: const Text(
           '서버·로컬 모든 데이터가 영구 삭제됩니다.\n'
           '복구 불가. 계속하시겠습니까?',
-          style: FacingTokens.caption,
+          style: HyphenTokens.caption,
         ),
         actions: [
           TextButton(
@@ -117,7 +117,7 @@ class PrivacyScreen extends StatelessWidget {
             child: const Text('취소'),
           ),
           TextButton(
-            style: TextButton.styleFrom(foregroundColor: FacingTokens.error),
+            style: TextButton.styleFrom(foregroundColor: HyphenTokens.error),
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text('삭제'),
           ),
@@ -158,13 +158,13 @@ class _Bullet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp1),
+      padding: const EdgeInsets.symmetric(vertical: HyphenTokens.sp1),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('·  ',
-              style: TextStyle(color: FacingTokens.accent)),
-          Expanded(child: Text(text, style: FacingTokens.body)),
+              style: TextStyle(color: HyphenTokens.accent)),
+          Expanded(child: Text(text, style: HyphenTokens.body)),
         ],
       ),
     );

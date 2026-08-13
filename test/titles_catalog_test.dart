@@ -1,7 +1,7 @@
 // v1.20 Phase 2: Panel B 칭호 카탈로그 단위 테스트.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:facing_app/core/titles_catalog.dart';
+import 'package:hyphen_app/core/titles_catalog.dart';
 
 void main() {
   group('Panel B catalog', () {

@@ -8,7 +8,7 @@ import '../core/theme.dart';
 class BrandLogo extends StatelessWidget {
   final double width;
   final Color color;
-  const BrandLogo({super.key, this.width = 220, this.color = FacingTokens.fg});
+  const BrandLogo({super.key, this.width = 220, this.color = HyphenTokens.fg});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +24,7 @@ class BrandLogo extends StatelessWidget {
           'HYPHEN',
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontFamily: FacingTokens.fontFamily,
+            fontFamily: HyphenTokens.fontFamily,
             fontWeight: FontWeight.w800,
             fontSize: width * 0.155,
             letterSpacing: width * 0.040,

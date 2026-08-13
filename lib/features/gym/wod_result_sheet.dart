@@ -11,7 +11,7 @@ import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../core/wod_session_bus.dart';
 import '../../models/gym.dart';
-import '../../widgets/fkit.dart';
+import '../../widgets/hkit.dart';
 import '../history/history_repository.dart';
 import 'gym_repository.dart';
 import 'gym_state.dart';
@@ -166,15 +166,15 @@ class _WodResultSheetState extends State<WodResultSheet> {
       padding: EdgeInsets.only(bottom: viewInsets.bottom),
       child: Container(
         decoration: const BoxDecoration(
-          color: FacingTokens.surface,
+          color: HyphenTokens.surface,
           borderRadius:
-              BorderRadius.vertical(top: Radius.circular(FacingTokens.r3)),
+              BorderRadius.vertical(top: Radius.circular(HyphenTokens.r3)),
         ),
         padding: const EdgeInsets.fromLTRB(
-          FacingTokens.sp4,
-          FacingTokens.sp4,
-          FacingTokens.sp4,
-          FacingTokens.sp3,
+          HyphenTokens.sp4,
+          HyphenTokens.sp4,
+          HyphenTokens.sp4,
+          HyphenTokens.sp3,
         ),
         child: SingleChildScrollView(
           child: Column(
@@ -184,28 +184,28 @@ class _WodResultSheetState extends State<WodResultSheet> {
               Row(
                 children: [
                   Text(wodTypeLabel(widget.wod.wodType),
-                      style: FacingTokens.sectionLabel.copyWith(
-                        color: FacingTokens.accent,
+                      style: HyphenTokens.sectionLabel.copyWith(
+                        color: HyphenTokens.accent,
                       )),
-                  const SizedBox(width: FacingTokens.sp2),
-                  const Text('· 완료 기록', style: FacingTokens.sectionLabel),
+                  const SizedBox(width: HyphenTokens.sp2),
+                  const Text('· 완료 기록', style: HyphenTokens.sectionLabel),
                   const Spacer(),
                   IconButton(
                     icon: const Icon(Icons.close, size: 20),
-                    color: FacingTokens.muted,
+                    color: HyphenTokens.muted,
                     onPressed:
                         _saving ? null : () => Navigator.of(context).pop(),
                   ),
                 ],
               ),
-              const SizedBox(height: FacingTokens.sp1),
+              const SizedBox(height: HyphenTokens.sp1),
               Text(
                 widget.wod.content,
-                style: FacingTokens.caption,
+                style: HyphenTokens.caption,
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: FacingTokens.sp4),
+              const SizedBox(height: HyphenTokens.sp4),
               if (_isForTime) ...[
                 _TimeField(controller: _timeCtrl),
               ] else ...[
@@ -213,17 +213,17 @@ class _WodResultSheetState extends State<WodResultSheet> {
                   children: [
                     Expanded(child: _RoundField(controller: _roundsCtrl)),
                     if (_isAmrap) ...[
-                      const SizedBox(width: FacingTokens.sp2),
+                      const SizedBox(width: HyphenTokens.sp2),
                       Expanded(child: _ExtraField(controller: _extraCtrl)),
                     ],
                   ],
                 ),
               ],
-              const SizedBox(height: FacingTokens.sp3),
-              const Text('스케일', style: FacingTokens.sectionLabel),
-              const SizedBox(height: FacingTokens.sp1),
+              const SizedBox(height: HyphenTokens.sp3),
+              const Text('스케일', style: HyphenTokens.sectionLabel),
+              const SizedBox(height: HyphenTokens.sp1),
               Wrap(
-                spacing: FacingTokens.sp2,
+                spacing: HyphenTokens.sp2,
                 children: [
                   // 등급 enum: elite / rx(=RXD 표기) / scaled (2026-05-30 통일)
                   // v2.6 (2026-08-12 사용자 지시): 낮은 난도부터 순서대로.
@@ -233,33 +233,33 @@ class _WodResultSheetState extends State<WodResultSheet> {
                     ['rx', 'RXD'],
                     ['elite', 'ELITE'],
                   ])
-                    FkBadge(
+                    HkBadge(
                       s[1],
-                      color: FacingTokens.fg,
+                      color: HyphenTokens.fg,
                       selected: _scale == s[0],
                       onTap:
                           _saving ? null : () => setState(() => _scale = s[0]),
                     ),
                 ],
               ),
-              const SizedBox(height: FacingTokens.sp3),
+              const SizedBox(height: HyphenTokens.sp3),
               _WeightField(controller: _weightCtrl),
-              const SizedBox(height: FacingTokens.sp3),
+              const SizedBox(height: HyphenTokens.sp3),
               _NotesField(controller: _notesCtrl),
               if (_error != null) ...[
-                const SizedBox(height: FacingTokens.sp2),
+                const SizedBox(height: HyphenTokens.sp2),
                 Text(_error!,
-                    style: FacingTokens.caption
-                        .copyWith(color: FacingTokens.warning)),
+                    style: HyphenTokens.caption
+                        .copyWith(color: HyphenTokens.warning)),
               ],
-              const SizedBox(height: FacingTokens.sp4),
+              const SizedBox(height: HyphenTokens.sp4),
               // v2.6 (2026-08-12 사용자 지시): 버튼이 '제출하고 출석' 이었다 —
               // 회원이 하는 일은 "내 기록을 남기는 것" 하나인데, 그 뒤에 앱이
               // 알아서 하는 출석 처리까지 버튼 이름에 끌고 들어와 무슨 흐름인지
               // 읽히지 않았다. 버튼은 '저장' 하나로 두고, 출석이 같이 된다는
               // 사실은 아래 한 줄로 알린다 (동작 이름 ≠ 부수 효과 나열).
               SizedBox(
-                height: FacingTokens.buttonH,
+                height: HyphenTokens.buttonH,
                 child: ElevatedButton.icon(
                   onPressed: _saving ? null : _submit,
                   icon: _saving
@@ -268,21 +268,21 @@ class _WodResultSheetState extends State<WodResultSheet> {
                           height: 16,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: FacingTokens.fg,
+                            color: HyphenTokens.fg,
                           ),
                         )
                       : const Icon(Icons.check, size: 18),
                   label: Text(_saving ? '저장 중' : '저장'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: FacingTokens.accent,
-                    foregroundColor: FacingTokens.fg,
+                    backgroundColor: HyphenTokens.accent,
+                    foregroundColor: HyphenTokens.fg,
                   ),
                 ),
               ),
-              const SizedBox(height: FacingTokens.sp2),
+              const SizedBox(height: HyphenTokens.sp2),
               const Text(
                 '저장하면 오늘 출석도 함께 기록됩니다.',
-                style: FacingTokens.caption,
+                style: HyphenTokens.caption,
                 textAlign: TextAlign.center,
               ),
             ],

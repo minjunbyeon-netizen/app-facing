@@ -51,9 +51,9 @@ class _UnreadDot extends StatelessWidget {
       width: 8,
       height: 8,
       decoration: BoxDecoration(
-        color: FacingTokens.accent,
+        color: HyphenTokens.accent,
         shape: BoxShape.circle,
-        border: Border.all(color: FacingTokens.bg, width: 1),
+        border: Border.all(color: HyphenTokens.bg, width: 1),
       ),
     );
   }

@@ -167,53 +167,53 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
     try {
       await showModalBottomSheet<void>(
       context: context,
-      backgroundColor: FacingTokens.surface,
+      backgroundColor: HyphenTokens.surface,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius:
-            BorderRadius.vertical(top: Radius.circular(FacingTokens.r4)),
+            BorderRadius.vertical(top: Radius.circular(HyphenTokens.r4)),
       ),
       builder: (sheetCtx) {
         return StatefulBuilder(builder: (innerCtx, setSheet) {
         return Padding(
           padding: EdgeInsets.only(
-            left: FacingTokens.sp4,
-            right: FacingTokens.sp4,
-            top: FacingTokens.sp4,
+            left: HyphenTokens.sp4,
+            right: HyphenTokens.sp4,
+            top: HyphenTokens.sp4,
             bottom:
-                MediaQuery.of(sheetCtx).viewInsets.bottom + FacingTokens.sp4,
+                MediaQuery.of(sheetCtx).viewInsets.bottom + HyphenTokens.sp4,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('기록 저장', style: FacingTokens.sectionLabel),
-              const SizedBox(height: FacingTokens.sp1),
+              const Text('기록 저장', style: HyphenTokens.sectionLabel),
+              const SizedBox(height: HyphenTokens.sp1),
               Text(wodTypeLabel(widget.wod.wodType),
-                  style: FacingTokens.h3.copyWith(
-                    color: FacingTokens.accent,
+                  style: HyphenTokens.h3.copyWith(
+                    color: HyphenTokens.accent,
                     fontWeight: FontWeight.w800,
                   )),
-              const SizedBox(height: FacingTokens.sp4),
+              const SizedBox(height: HyphenTokens.sp4),
               if (_mode == _TimerMode.forTime) ...[
-                const Text('완료 시간 (MM:SS)', style: FacingTokens.caption),
-                const SizedBox(height: FacingTokens.sp1),
+                const Text('완료 시간 (MM:SS)', style: HyphenTokens.caption),
+                const SizedBox(height: HyphenTokens.sp1),
                 TextField(
                   controller: timeCtrl,
                   decoration: const InputDecoration(hintText: '7:43'),
                   keyboardType: TextInputType.datetime,
                 ),
               ] else if (_mode == _TimerMode.amrap) ...[
-                const Text('완료한 라운드', style: FacingTokens.caption),
-                const SizedBox(height: FacingTokens.sp1),
+                const Text('완료한 라운드', style: HyphenTokens.caption),
+                const SizedBox(height: HyphenTokens.sp1),
                 TextField(
                   controller: roundsCtrl,
                   decoration: const InputDecoration(hintText: '5'),
                   keyboardType: TextInputType.number,
                 ),
-                const SizedBox(height: FacingTokens.sp3),
-                const Text('추가 반복 (optional)', style: FacingTokens.caption),
-                const SizedBox(height: FacingTokens.sp1),
+                const SizedBox(height: HyphenTokens.sp3),
+                const Text('추가 반복 (optional)', style: HyphenTokens.caption),
+                const SizedBox(height: HyphenTokens.sp1),
                 TextField(
                   controller: repsCtrl,
                   decoration: const InputDecoration(hintText: '12'),
@@ -221,19 +221,19 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
                 ),
               ] else ...[
                 Text('${_capSec ~/ 60}분 EMOM 완료.',
-                    style: FacingTokens.body),
+                    style: HyphenTokens.body),
               ],
-              const SizedBox(height: FacingTokens.sp3),
+              const SizedBox(height: HyphenTokens.sp3),
               // v1.16 Sprint 11: Scaled 토글 (P2 Q8/Q18).
               Row(
                 children: [
                   const Expanded(
                     child: Text('Scaled 기록',
-                        style: FacingTokens.body),
+                        style: HyphenTokens.body),
                   ),
                   Switch(
                     value: _scaled,
-                    activeTrackColor: FacingTokens.accent,
+                    activeTrackColor: HyphenTokens.accent,
                     onChanged: (v) {
                       setSheet(() {});
                       setState(() => _scaled = v);
@@ -245,9 +245,9 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
                 _scaled
                     ? 'Scaled — Tier 반영 시 감산 가중치 적용.'
                     : 'RX — 등급 기본 반영.',
-                style: FacingTokens.caption,
+                style: HyphenTokens.caption,
               ),
-              const SizedBox(height: FacingTokens.sp4),
+              const SizedBox(height: HyphenTokens.sp4),
               Row(
                 children: [
                   Expanded(
@@ -258,7 +258,7 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
                       child: const Text('취소'),
                     ),
                   ),
-                  const SizedBox(width: FacingTokens.sp3),
+                  const SizedBox(width: HyphenTokens.sp3),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: _saving
@@ -277,7 +277,7 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: FacingTokens.sp2),
+              const SizedBox(height: HyphenTokens.sp2),
               Center(
                 child: TextButton(
                   onPressed: () {
@@ -480,11 +480,11 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: FacingTokens.surfaceOverlay,
+        backgroundColor: HyphenTokens.surfaceOverlay,
         title: const Text('세션 진행 중'),
         content: const Text(
           '타이머 기록을 저장하지 않고 종료하면 소실됩니다.\n계속 종료하시겠습니까?',
-          style: FacingTokens.caption,
+          style: HyphenTokens.caption,
         ),
         actions: [
           TextButton(
@@ -492,7 +492,7 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
             child: const Text('계속'),
           ),
           TextButton(
-            style: TextButton.styleFrom(foregroundColor: FacingTokens.accent),
+            style: TextButton.styleFrom(foregroundColor: HyphenTokens.accent),
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text('종료'),
           ),
@@ -522,35 +522,35 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
         ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(FacingTokens.sp4),
+          padding: const EdgeInsets.all(HyphenTokens.sp4),
           child: Column(
             children: [
               // WOD 내용
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(FacingTokens.sp4),
+                padding: const EdgeInsets.all(HyphenTokens.sp4),
                 decoration: BoxDecoration(
-                  color: FacingTokens.surface,
-                  borderRadius: BorderRadius.circular(FacingTokens.r3),
-                  border: Border.all(color: FacingTokens.border),
+                  color: HyphenTokens.surface,
+                  borderRadius: BorderRadius.circular(HyphenTokens.r3),
+                  border: Border.all(color: HyphenTokens.border),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(_modeLabel(_mode),
-                        style: FacingTokens.sectionLabel.copyWith(
-                          color: FacingTokens.accent,
+                        style: HyphenTokens.sectionLabel.copyWith(
+                          color: HyphenTokens.accent,
                         )),
-                    const SizedBox(height: FacingTokens.sp2),
-                    Text(widget.wod.content, style: FacingTokens.body),
+                    const SizedBox(height: HyphenTokens.sp2),
+                    Text(widget.wod.content, style: HyphenTokens.body),
                     if (widget.wod.roundsData.isNotEmpty) ...[
-                      const SizedBox(height: FacingTokens.sp2),
+                      const SizedBox(height: HyphenTokens.sp2),
                       ...widget.wod.roundsData.asMap().entries.map((e) {
                         final i = e.key;
                         final r = e.value;
                         return Padding(
                           padding:
-                              const EdgeInsets.only(top: FacingTokens.sp1),
+                              const EdgeInsets.only(top: HyphenTokens.sp1),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -558,19 +558,19 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
                                 r.label.isEmpty
                                     ? 'ROUND ${i + 1}'
                                     : r.label.toUpperCase(),
-                                style: FacingTokens.micro.copyWith(
-                                  color: FacingTokens.accent,
+                                style: HyphenTokens.micro.copyWith(
+                                  color: HyphenTokens.accent,
                                   fontWeight: FontWeight.w800,
                                   letterSpacing: 1.2,
                                 ),
                               ),
                               Text(r.content,
-                                  style: FacingTokens.caption),
+                                  style: HyphenTokens.caption),
                               if (r.timeCapSec != null)
                                 Text(
                                   'cap ${r.timeCapSec! ~/ 60}:${(r.timeCapSec! % 60).toString().padLeft(2, '0')}',
-                                  style: FacingTokens.micro.copyWith(
-                                      color: FacingTokens.muted),
+                                  style: HyphenTokens.micro.copyWith(
+                                      color: HyphenTokens.muted),
                                 ),
                             ],
                           ),
@@ -579,16 +579,16 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
                     ],
                     if (widget.wod.scaleGuide != null &&
                         widget.wod.scaleGuide!.isNotEmpty) ...[
-                      const SizedBox(height: FacingTokens.sp3),
+                      const SizedBox(height: HyphenTokens.sp3),
                       Text('스케일',
-                          style: FacingTokens.micro.copyWith(
-                            color: FacingTokens.muted,
+                          style: HyphenTokens.micro.copyWith(
+                            color: HyphenTokens.muted,
                             fontWeight: FontWeight.w700,
                             letterSpacing: 1.2,
                           )),
                       const SizedBox(height: 2),
                       Text(widget.wod.scaleGuide!,
-                          style: FacingTokens.caption),
+                          style: HyphenTokens.caption),
                     ],
                   ],
                 ),
@@ -597,14 +597,14 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
               // 타이머 표시
               Text(
                 _formatMMSS(_displaySec),
-                style: FacingTokens.display.copyWith(
-                  fontFeatures: FacingTokens.tabular,
+                style: HyphenTokens.display.copyWith(
+                  fontFeatures: HyphenTokens.tabular,
                 ),
               ),
-              const SizedBox(height: FacingTokens.sp1),
+              const SizedBox(height: HyphenTokens.sp1),
               Text(_subLabel(),
-                  style: FacingTokens.caption.copyWith(
-                    color: FacingTokens.muted,
+                  style: HyphenTokens.caption.copyWith(
+                    color: HyphenTokens.muted,
                   )),
               const Spacer(),
               // 컨트롤 버튼
@@ -616,7 +616,7 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
                       child: const Text('초기화'),
                     ),
                   ),
-                  const SizedBox(width: FacingTokens.sp3),
+                  const SizedBox(width: HyphenTokens.sp3),
                   Expanded(
                     flex: 2,
                     child: _running
@@ -632,12 +632,12 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
                                 Text(_elapsedSec == 0 ? 'Start' : 'Resume'),
                           ),
                   ),
-                  const SizedBox(width: FacingTokens.sp3),
+                  const SizedBox(width: HyphenTokens.sp3),
                   Expanded(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: FacingTokens.accent,
-                        foregroundColor: FacingTokens.fg,
+                        backgroundColor: HyphenTokens.accent,
+                        foregroundColor: HyphenTokens.fg,
                       ),
                       onPressed: _elapsedSec == 0 ? null : _complete,
                       child: const Text('완료'),
@@ -645,14 +645,14 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: FacingTokens.sp2),
+              const SizedBox(height: HyphenTokens.sp2),
               Text(
                 _mode == _TimerMode.amrap
                     ? 'AMRAP · 카운트다운 종료 시 자동 기록 전환'
                     : _mode == _TimerMode.emom
                         ? 'EMOM · 매 분 Haptic 알림'
                         : 'For Time · 스톱워치 · Done 누르면 기록 저장',
-                style: FacingTokens.caption,
+                style: HyphenTokens.caption,
                 textAlign: TextAlign.center,
               ),
             ],

@@ -2,7 +2,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:facing_app/core/streak_freeze.dart';
+import 'package:hyphen_app/core/streak_freeze.dart';
 
 void main() {
   setUp(() async {

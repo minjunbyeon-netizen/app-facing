@@ -16,7 +16,7 @@ class TierBadge extends StatelessWidget {
       label: 'Tier ${tier.label}',
       child: Text(
         tier.label,
-        style: FacingTokens.tierLabel.copyWith(
+        style: HyphenTokens.tierLabel.copyWith(
           color: tier.color,
           fontSize: fontSize,
         ),

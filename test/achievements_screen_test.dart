@@ -9,13 +9,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
-import 'package:facing_app/core/api_client.dart';
-import 'package:facing_app/core/exception.dart';
-import 'package:facing_app/core/theme.dart';
-import 'package:facing_app/features/achievement/achievement_repository.dart';
-import 'package:facing_app/features/achievement/achievement_state.dart';
-import 'package:facing_app/features/achievement/achievements_screen.dart';
-import 'package:facing_app/models/achievement.dart';
+import 'package:hyphen_app/core/api_client.dart';
+import 'package:hyphen_app/core/exception.dart';
+import 'package:hyphen_app/core/theme.dart';
+import 'package:hyphen_app/features/achievement/achievement_repository.dart';
+import 'package:hyphen_app/features/achievement/achievement_state.dart';
+import 'package:hyphen_app/features/achievement/achievements_screen.dart';
+import 'package:hyphen_app/models/achievement.dart';
 
 /// list() 응답을 미리 주입하는 테스트용 repo.
 /// snap 또는 listError 둘 중 하나만 동작.
@@ -35,7 +35,7 @@ class _FakeAchievementRepo extends AchievementRepository {
 }
 
 Widget _wrap(AchievementState state) => MaterialApp(
-      theme: FacingTheme.dark,
+      theme: HyphenTheme.dark,
       home: ChangeNotifierProvider<AchievementState>.value(
         value: state,
         child: const AchievementsScreen(),

@@ -9,7 +9,7 @@ import '../../core/haptic.dart';
 import '../../core/input_formatters.dart';
 import '../../core/theme.dart';
 import '../../core/tier.dart';
-import '../../widgets/fkit.dart';
+import '../../widgets/hkit.dart';
 import '../auth/auth_state.dart';
 import '../profile/profile_state.dart';
 
@@ -161,7 +161,7 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: FacingTokens.surface,
+        backgroundColor: HyphenTokens.surface,
         title: const Text('가입 신청 완료'),
         content: Text(
           '$gymName 에 가입을 신청했습니다.\n코치 승인 후 아이디로 로그인할 수 있습니다.',
@@ -200,37 +200,37 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: FacingTokens.bg,
+      backgroundColor: HyphenTokens.bg,
       appBar: AppBar(
         title: const Text('가입 신청'),
-        backgroundColor: FacingTokens.bg,
+        backgroundColor: HyphenTokens.bg,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(FacingTokens.sp5,
-              FacingTokens.sp4, FacingTokens.sp5, FacingTokens.sp5),
+          padding: const EdgeInsets.fromLTRB(HyphenTokens.sp5,
+              HyphenTokens.sp4, HyphenTokens.sp5, HyphenTokens.sp5),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const FkSectionLabel('이름'),
-                const SizedBox(height: FacingTokens.sp1),
+                const HkSectionLabel('이름'),
+                const SizedBox(height: HyphenTokens.sp1),
                 TextFormField(
                   controller: _nameCtrl,
-                  style: FacingTokens.body.copyWith(color: FacingTokens.fg),
+                  style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
                   decoration: _deco('코치에게 보일 이름'),
                   textInputAction: TextInputAction.next,
                   validator: (v) =>
                       (v ?? '').trim().isEmpty ? '이름을 입력해 주세요.' : null,
                 ),
-                const SizedBox(height: FacingTokens.sp4),
+                const SizedBox(height: HyphenTokens.sp4),
 
-                const FkSectionLabel('생년월일'),
-                const SizedBox(height: FacingTokens.sp1),
+                const HkSectionLabel('생년월일'),
+                const SizedBox(height: HyphenTokens.sp1),
                 TextFormField(
                   controller: _birthCtrl,
-                  style: FacingTokens.body.copyWith(color: FacingTokens.fg),
+                  style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
                   decoration: _deco('1995-01-01'),
                   keyboardType: TextInputType.number,
                   textInputAction: TextInputAction.next,
@@ -238,25 +238,25 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                   inputFormatters: [BirthDateInputFormatter()],
                   validator: (v) => birthDateError(v ?? ''),
                 ),
-                const SizedBox(height: FacingTokens.sp4),
+                const SizedBox(height: HyphenTokens.sp4),
 
-                const FkSectionLabel('성별'),
-                const SizedBox(height: FacingTokens.sp2),
+                const HkSectionLabel('성별'),
+                const SizedBox(height: HyphenTokens.sp2),
                 Row(
                   children: [
-                    FkBadge(
+                    HkBadge(
                       '남',
-                      color: FacingTokens.fg,
+                      color: HyphenTokens.fg,
                       selected: _gender == 'male',
                       onTap: () {
                         Haptic.selection();
                         setState(() => _gender = 'male');
                       },
                     ),
-                    const SizedBox(width: FacingTokens.sp2),
-                    FkBadge(
+                    const SizedBox(width: HyphenTokens.sp2),
+                    HkBadge(
                       '여',
-                      color: FacingTokens.fg,
+                      color: HyphenTokens.fg,
                       selected: _gender == 'female',
                       onTap: () {
                         Haptic.selection();
@@ -265,13 +265,13 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: FacingTokens.sp4),
+                const SizedBox(height: HyphenTokens.sp4),
 
-                const FkSectionLabel('연락처'),
-                const SizedBox(height: FacingTokens.sp1),
+                const HkSectionLabel('연락처'),
+                const SizedBox(height: HyphenTokens.sp1),
                 TextFormField(
                   controller: _phoneCtrl,
-                  style: FacingTokens.body.copyWith(color: FacingTokens.fg),
+                  style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
                   decoration: _deco('010-1234-5678'),
                   keyboardType: TextInputType.phone,
                   textInputAction: TextInputAction.next,
@@ -288,18 +288,18 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: FacingTokens.sp4),
+                const SizedBox(height: HyphenTokens.sp4),
 
-                const FkSectionLabel('크로스핏 경력'),
-                const SizedBox(height: FacingTokens.sp2),
+                const HkSectionLabel('크로스핏 경력'),
+                const SizedBox(height: HyphenTokens.sp2),
                 Wrap(
-                  spacing: FacingTokens.sp2,
-                  runSpacing: FacingTokens.sp2,
+                  spacing: HyphenTokens.sp2,
+                  runSpacing: HyphenTokens.sp2,
                   children: [
                     for (var i = 0; i < Tier.bands.length; i++)
-                      FkBadge(
+                      HkBadge(
                         Tier.bands[i].label,
-                        color: FacingTokens.fg,
+                        color: HyphenTokens.fg,
                         selected: _bandIndex == i,
                         onTap: () {
                           Haptic.selection();
@@ -311,38 +311,38 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                 // 고른 구간이 어느 레벨이 되는지 그 자리에서 보여준다 —
                 // 코치 화면에서 처음 보게 되면 "왜 내가 스케일이냐"가 된다 (D36).
                 if (_bandIndex != null) ...[
-                  const SizedBox(height: FacingTokens.sp3),
+                  const SizedBox(height: HyphenTokens.sp3),
                   Row(
                     children: [
-                      const Text('내 레벨', style: FacingTokens.caption),
-                      const SizedBox(width: FacingTokens.sp2),
+                      const Text('내 레벨', style: HyphenTokens.caption),
+                      const SizedBox(width: HyphenTokens.sp2),
                       Builder(builder: (_) {
                         final t = Tier.fromExperienceYears(
                             Tier.bands[_bandIndex!].years);
-                        return FkBadge(t.memberLevelLabel, color: t.color);
+                        return HkBadge(t.memberLevelLabel, color: t.color);
                       }),
                     ],
                   ),
                 ],
-                const SizedBox(height: FacingTokens.sp4),
+                const SizedBox(height: HyphenTokens.sp4),
 
                 // '운동' 은 copy lint 금지 용어(CrossFit 정체성 보존)라 '종목' 으로 쓴다.
-                const FkSectionLabel('해온 종목'),
-                const SizedBox(height: FacingTokens.sp1),
+                const HkSectionLabel('해온 종목'),
+                const SizedBox(height: HyphenTokens.sp1),
                 TextFormField(
                   controller: _sportsCtrl,
-                  style: FacingTokens.body.copyWith(color: FacingTokens.fg),
+                  style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
                   decoration: _deco('예: 축구 5년, 웨이트 2년 · 없으면 비워 두세요'),
                   textInputAction: TextInputAction.next,
                   maxLength: 200,
                 ),
-                const SizedBox(height: FacingTokens.sp3),
+                const SizedBox(height: HyphenTokens.sp3),
 
-                const FkSectionLabel('부상 이력 · 주의사항'),
-                const SizedBox(height: FacingTokens.sp1),
+                const HkSectionLabel('부상 이력 · 주의사항'),
+                const SizedBox(height: HyphenTokens.sp1),
                 TextFormField(
                   controller: _injuryCtrl,
-                  style: FacingTokens.body.copyWith(color: FacingTokens.fg),
+                  style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
                   // 코치가 수업 전에 보는 값이라 무엇을 적어야 하는지 예를 준다.
                   decoration: _deco('예: 오른쪽 어깨 부상 · 오버헤드 동작 주의\n'
                       '없으면 비워 두세요'),
@@ -350,13 +350,13 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                   maxLines: 3,
                   maxLength: 200,
                 ),
-                const SizedBox(height: FacingTokens.sp4),
+                const SizedBox(height: HyphenTokens.sp4),
 
-                const FkSectionLabel('아이디'),
-                const SizedBox(height: FacingTokens.sp1),
+                const HkSectionLabel('아이디'),
+                const SizedBox(height: HyphenTokens.sp1),
                 TextFormField(
                   controller: _idCtrl,
-                  style: FacingTokens.body.copyWith(color: FacingTokens.fg),
+                  style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
                   decoration: _deco('로그인에 쓸 아이디'),
                   autocorrect: false,
                   enableSuggestions: false,
@@ -371,18 +371,18 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: FacingTokens.sp4),
+                const SizedBox(height: HyphenTokens.sp4),
 
-                const FkSectionLabel('비밀번호'),
-                const SizedBox(height: FacingTokens.sp1),
+                const HkSectionLabel('비밀번호'),
+                const SizedBox(height: HyphenTokens.sp1),
                 TextFormField(
                   controller: _pwCtrl,
-                  style: FacingTokens.body.copyWith(color: FacingTokens.fg),
+                  style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
                   decoration: _deco('비밀번호').copyWith(
                     suffixIcon: IconButton(
                       icon: Icon(
                         _pwVisible ? Icons.visibility_off : Icons.visibility,
-                        color: FacingTokens.muted,
+                        color: HyphenTokens.muted,
                         size: 20,
                       ),
                       onPressed: () =>
@@ -394,10 +394,10 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                   validator: (v) =>
                       (v ?? '').length < 4 ? '비밀번호는 4자 이상 입력해 주세요.' : null,
                 ),
-                const SizedBox(height: FacingTokens.sp3),
+                const SizedBox(height: HyphenTokens.sp3),
                 TextFormField(
                   controller: _pw2Ctrl,
-                  style: FacingTokens.body.copyWith(color: FacingTokens.fg),
+                  style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
                   decoration: _deco('비밀번호 확인'),
                   obscureText: !_pwVisible,
                   textInputAction: TextInputAction.done,
@@ -406,14 +406,14 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                       v != _pwCtrl.text ? '비밀번호가 서로 다릅니다.' : null,
                 ),
 
-                const SizedBox(height: FacingTokens.sp6),
+                const SizedBox(height: HyphenTokens.sp6),
                 _submitting
-                    ? const FkLoading()
-                    : FkButton.primary('신청하기', onPressed: _submit),
-                const SizedBox(height: FacingTokens.sp3),
+                    ? const HkLoading()
+                    : HkButton.primary('신청하기', onPressed: _submit),
+                const SizedBox(height: HyphenTokens.sp3),
                 Text(
                   '코치가 승인하면 이 아이디로 로그인할 수 있습니다.',
-                  style: FacingTokens.caption,
+                  style: HyphenTokens.caption,
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -426,27 +426,27 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
 
   InputDecoration _deco(String hint) => InputDecoration(
         hintText: hint,
-        hintStyle: FacingTokens.body.copyWith(color: FacingTokens.placeholder),
+        hintStyle: HyphenTokens.body.copyWith(color: HyphenTokens.placeholder),
         filled: true,
-        fillColor: FacingTokens.surface,
+        fillColor: HyphenTokens.surface,
         contentPadding: const EdgeInsets.symmetric(
-            horizontal: FacingTokens.sp3, vertical: FacingTokens.sp3),
+            horizontal: HyphenTokens.sp3, vertical: HyphenTokens.sp3),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(FacingTokens.r2),
-          borderSide: const BorderSide(color: FacingTokens.border),
+          borderRadius: BorderRadius.circular(HyphenTokens.r2),
+          borderSide: const BorderSide(color: HyphenTokens.border),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(FacingTokens.r2),
-          borderSide: const BorderSide(color: FacingTokens.primary, width: 1.5),
+          borderRadius: BorderRadius.circular(HyphenTokens.r2),
+          borderSide: const BorderSide(color: HyphenTokens.primary, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(FacingTokens.r2),
-          borderSide: const BorderSide(color: FacingTokens.danger),
+          borderRadius: BorderRadius.circular(HyphenTokens.r2),
+          borderSide: const BorderSide(color: HyphenTokens.danger),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(FacingTokens.r2),
-          borderSide: const BorderSide(color: FacingTokens.danger, width: 1.5),
+          borderRadius: BorderRadius.circular(HyphenTokens.r2),
+          borderSide: const BorderSide(color: HyphenTokens.danger, width: 1.5),
         ),
-        errorStyle: FacingTokens.micro.copyWith(color: FacingTokens.danger),
+        errorStyle: HyphenTokens.micro.copyWith(color: HyphenTokens.danger),
       );
 }

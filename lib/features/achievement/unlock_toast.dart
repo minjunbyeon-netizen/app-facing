@@ -13,14 +13,14 @@ class UnlockToast {
   static Color _rarityColor(String rarity) {
     switch (rarity) {
       case 'Rare':
-        return FacingTokens.accent;
+        return HyphenTokens.accent;
       case 'Epic':
-        return FacingTokens.tierElite;
+        return HyphenTokens.tierElite;
       case 'Legendary':
-        return FacingTokens.tierGames;
+        return HyphenTokens.tierGames;
       case 'Common':
       default:
-        return FacingTokens.muted;
+        return HyphenTokens.muted;
     }
   }
 
@@ -48,28 +48,28 @@ class UnlockToast {
       messenger.showSnackBar(SnackBar(
         // v1.19+ duration 3s → 2s (reference §6-3: 짧게)
         duration: const Duration(seconds: 2),
-        backgroundColor: FacingTokens.surface,
+        backgroundColor: HyphenTokens.surface,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(FacingTokens.r2),
+          borderRadius: BorderRadius.circular(HyphenTokens.r2),
           side: BorderSide(color: color, width: 2),
         ),
         content: Row(
           children: [
             Container(width: 4, height: 20, color: color),
-            const SizedBox(width: FacingTokens.sp3),
+            const SizedBox(width: HyphenTokens.sp3),
             Expanded(
               child: Text(
                 // v1.19+ "Earned." 간결화. 영문 마침표 1개.
                 '${u.name} Earned.',
-                style: FacingTokens.body.copyWith(
+                style: HyphenTokens.body.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
               ),
             ),
             Text(
               u.rarity.toUpperCase(),
-              style: FacingTokens.micro.copyWith(
+              style: HyphenTokens.micro.copyWith(
                 color: color,
                 fontWeight: FontWeight.w800,
               ),

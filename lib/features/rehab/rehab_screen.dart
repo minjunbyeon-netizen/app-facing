@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
-import '../../widgets/fkit.dart';
+import '../../widgets/hkit.dart';
 import 'rehab_flow_screen.dart';
 import 'rehab_models.dart';
 
@@ -44,11 +44,11 @@ class _RehabScreenState extends State<RehabScreen> {
     if (!mounted) return;
     showModalBottomSheet<void>(
       context: context,
-      backgroundColor: FacingTokens.surfaceHigh,
+      backgroundColor: HyphenTokens.surfaceHigh,
       isScrollControlled: true,
       shape: RoundedRectangleBorder(
         borderRadius:
-            BorderRadius.vertical(top: Radius.circular(FacingTokens.r3)),
+            BorderRadius.vertical(top: Radius.circular(HyphenTokens.r3)),
       ),
       builder: (_) => _PreviewSheet(
         preview: preview,
@@ -68,7 +68,7 @@ class _RehabScreenState extends State<RehabScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: FacingTokens.bg,
+      backgroundColor: HyphenTokens.bg,
       // v1.26: Rehab 탭 루트로 승격 — 타 탭 루트(HOME/WOD/PROFILE)와 표기 통일.
       appBar: AppBar(title: const Text('재활')),
       body: SafeArea(
@@ -78,25 +78,25 @@ class _RehabScreenState extends State<RehabScreen> {
             if (snap.connectionState != ConnectionState.done) {
               return const Center(
                 child: CircularProgressIndicator(
-                    color: FacingTokens.muted, strokeWidth: 2),
+                    color: HyphenTokens.muted, strokeWidth: 2),
               );
             }
             if (snap.hasError || (snap.data?.isEmpty ?? true)) {
               return const Center(
                 child: Text('가이드 로딩 실패.',
-                    style: FacingTokens.caption),
+                    style: HyphenTokens.caption),
               );
             }
             final movements = snap.data!;
             return ListView(
-              padding: const EdgeInsets.all(FacingTokens.sp4),
+              padding: const EdgeInsets.all(HyphenTokens.sp4),
               children: [
                 const Text('통증 부위로 원인을 찾고 단계별 재활 진행.',
-                    style: FacingTokens.body),
-                const SizedBox(height: FacingTokens.sp2),
+                    style: HyphenTokens.body),
+                const SizedBox(height: HyphenTokens.sp2),
                 const Text('동작 선택 후 아픈 부위 탭.',
-                    style: FacingTokens.caption),
-                const SizedBox(height: FacingTokens.sp5),
+                    style: HyphenTokens.caption),
+                const SizedBox(height: HyphenTokens.sp5),
                 for (final mv in movements)
                   _MovementCard(movement: mv, onTapSite: _openPreview),
               ],
@@ -117,44 +117,44 @@ class _MovementCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: FacingTokens.sp3),
-      padding: const EdgeInsets.all(FacingTokens.sp4),
+      margin: const EdgeInsets.only(bottom: HyphenTokens.sp3),
+      padding: const EdgeInsets.all(HyphenTokens.sp4),
       decoration: BoxDecoration(
-        color: FacingTokens.surface,
-        border: Border.all(color: FacingTokens.border),
-        borderRadius: BorderRadius.circular(FacingTokens.r2),
+        color: HyphenTokens.surface,
+        border: Border.all(color: HyphenTokens.border),
+        borderRadius: BorderRadius.circular(HyphenTokens.r2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Text(movement.name, style: FacingTokens.h3),
+              Text(movement.name, style: HyphenTokens.h3),
               if (movement.comingSoon) ...[
-                const SizedBox(width: FacingTokens.sp2),
+                const SizedBox(width: HyphenTokens.sp2),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: FacingTokens.sp2, vertical: 2),
+                      horizontal: HyphenTokens.sp2, vertical: 2),
                   decoration: BoxDecoration(
-                    color: FacingTokens.surfaceMax,
-                    borderRadius: BorderRadius.circular(FacingTokens.r1),
+                    color: HyphenTokens.surfaceMax,
+                    borderRadius: BorderRadius.circular(HyphenTokens.r1),
                   ),
                   child: Text('준비 중',
-                      style: FacingTokens.micro
-                          .copyWith(color: FacingTokens.muted)),
+                      style: HyphenTokens.micro
+                          .copyWith(color: HyphenTokens.muted)),
                 ),
               ],
             ],
           ),
-          const SizedBox(height: FacingTokens.sp3),
+          const SizedBox(height: HyphenTokens.sp3),
           Wrap(
-            spacing: FacingTokens.sp2,
-            runSpacing: FacingTokens.sp2,
+            spacing: HyphenTokens.sp2,
+            runSpacing: HyphenTokens.sp2,
             children: [
               for (final site in movement.painSites)
-                FkBadge(
+                HkBadge(
                   site.name,
-                  color: FacingTokens.fg,
+                  color: HyphenTokens.fg,
                   onTap: () => onTapSite(movement, site),
                 ),
             ],
@@ -177,66 +177,66 @@ class _PreviewSheet extends StatelessWidget {
     final ready = preview.questionCount > 0 && !preview.comingSoon;
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.all(FacingTokens.sp5),
+        padding: const EdgeInsets.all(HyphenTokens.sp5),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text('${preview.movementName} · ${preview.painSiteName}',
-                style: FacingTokens.h3),
-            const SizedBox(height: FacingTokens.sp2),
+                style: HyphenTokens.h3),
+            const SizedBox(height: HyphenTokens.sp2),
             Text('감별 질문 ${preview.questionCount}개 · 원인 ${preview.causeCount}개',
-                style: FacingTokens.caption),
+                style: HyphenTokens.caption),
             if (hasDanger) ...[
-              const SizedBox(height: FacingTokens.sp4),
+              const SizedBox(height: HyphenTokens.sp4),
               Container(
-                padding: const EdgeInsets.all(FacingTokens.sp3),
+                padding: const EdgeInsets.all(HyphenTokens.sp3),
                 decoration: BoxDecoration(
-                  color: FacingTokens.danger.withValues(alpha: 0.12),
+                  color: HyphenTokens.danger.withValues(alpha: 0.12),
                   border: Border.all(
-                      color: FacingTokens.danger.withValues(alpha: 0.4)),
-                  borderRadius: BorderRadius.circular(FacingTokens.r2),
+                      color: HyphenTokens.danger.withValues(alpha: 0.4)),
+                  borderRadius: BorderRadius.circular(HyphenTokens.r2),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(preview.dangerTitle!,
-                        style: FacingTokens.body.copyWith(
-                            color: FacingTokens.danger,
+                        style: HyphenTokens.body.copyWith(
+                            color: HyphenTokens.danger,
                             fontWeight: FontWeight.w700)),
                     if (preview.dangerReason != null) ...[
-                      const SizedBox(height: FacingTokens.sp1),
+                      const SizedBox(height: HyphenTokens.sp1),
                       Text(preview.dangerReason!,
-                          style: FacingTokens.caption),
+                          style: HyphenTokens.caption),
                     ],
                   ],
                 ),
               ),
             ],
-            const SizedBox(height: FacingTokens.sp5),
+            const SizedBox(height: HyphenTokens.sp5),
             if (ready) ...[
               FilledButton(
                 onPressed: onStart,
                 child: const Text('감별 시작'),
               ),
-              const SizedBox(height: FacingTokens.sp2),
+              const SizedBox(height: HyphenTokens.sp2),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
                 child: const Text('닫기'),
               ),
             ] else ...[
               Container(
-                padding: const EdgeInsets.all(FacingTokens.sp3),
+                padding: const EdgeInsets.all(HyphenTokens.sp3),
                 decoration: BoxDecoration(
-                  color: FacingTokens.surface,
-                  borderRadius: BorderRadius.circular(FacingTokens.r2),
+                  color: HyphenTokens.surface,
+                  borderRadius: BorderRadius.circular(HyphenTokens.r2),
                 ),
                 child: const Text(
                   '이 부위 감별은 준비 중이에요.',
-                  style: FacingTokens.caption,
+                  style: HyphenTokens.caption,
                 ),
               ),
-              const SizedBox(height: FacingTokens.sp4),
+              const SizedBox(height: HyphenTokens.sp4),
               FilledButton(
                 onPressed: () => Navigator.of(context).pop(),
                 child: const Text('닫기'),

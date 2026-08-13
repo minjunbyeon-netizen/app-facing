@@ -79,7 +79,7 @@ class _IntroScreenState extends State<IntroScreen> {
       // v1.19 차수 5 (B-LW-10): 뒤로가기로 Splash 복귀 차단. Intro 종료는 Skip/Next.
       canPop: false,
       child: Scaffold(
-        backgroundColor: FacingTokens.bg,
+        backgroundColor: HyphenTokens.bg,
         body: Stack(
           children: [
             PageView.builder(
@@ -96,15 +96,15 @@ class _IntroScreenState extends State<IntroScreen> {
                     alignment: Alignment.topRight,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: FacingTokens.sp3,
-                        vertical: FacingTokens.sp2,
+                        horizontal: HyphenTokens.sp3,
+                        vertical: HyphenTokens.sp2,
                       ),
                       // v1.15 P1-15: Skip 48dp 터치 타겟 + P2-4 토큰 사용.
                       child: TextButton(
                         style: TextButton.styleFrom(
                           minimumSize: const Size(
-                              FacingTokens.touchMin, FacingTokens.touchMin),
-                          foregroundColor: FacingTokens.fgSecondary,
+                              HyphenTokens.touchMin, HyphenTokens.touchMin),
+                          foregroundColor: HyphenTokens.fgSecondary,
                         ),
                         onPressed: () {
                           Haptic.light();
@@ -122,23 +122,23 @@ class _IntroScreenState extends State<IntroScreen> {
                       return AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
                         margin: const EdgeInsets.symmetric(
-                            horizontal: FacingTokens.sp1),
-                        height: FacingTokens.sp2 - 2,
+                            horizontal: HyphenTokens.sp1),
+                        height: HyphenTokens.sp2 - 2,
                         width: active
-                            ? FacingTokens.sp5 - 2
-                            : FacingTokens.sp2 - 2,
+                            ? HyphenTokens.sp5 - 2
+                            : HyphenTokens.sp2 - 2,
                         decoration: BoxDecoration(
                           color: active
-                              ? FacingTokens.accent
-                              : FacingTokens.border,
+                              ? HyphenTokens.accent
+                              : HyphenTokens.border,
                           borderRadius:
-                              BorderRadius.circular(FacingTokens.r1),
+                              BorderRadius.circular(HyphenTokens.r1),
                         ),
                       );
                     }),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(FacingTokens.sp4),
+                    padding: const EdgeInsets.all(HyphenTokens.sp4),
                     child: ElevatedButton(
                       onPressed: () {
                         Haptic.light();
@@ -178,8 +178,8 @@ class _IntroPageView extends StatelessWidget {
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.symmetric(
-          horizontal: FacingTokens.sp5,
-          vertical: FacingTokens.sp5,
+          horizontal: HyphenTokens.sp5,
+          vertical: HyphenTokens.sp5,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -189,15 +189,15 @@ class _IntroPageView extends StatelessWidget {
             const BrandLogo(),
             const Spacer(flex: 3),
             Text(page.stage,
-                style: FacingTokens.sectionLabel,
+                style: HyphenTokens.sectionLabel,
                 textAlign: TextAlign.center),
-            const SizedBox(height: FacingTokens.sp2),
+            const SizedBox(height: HyphenTokens.sp2),
             Text(page.title,
-                style: FacingTokens.h1, textAlign: TextAlign.center),
-            const SizedBox(height: FacingTokens.sp4),
+                style: HyphenTokens.h1, textAlign: TextAlign.center),
+            const SizedBox(height: HyphenTokens.sp4),
             Text(page.body,
-                style: FacingTokens.lead, textAlign: TextAlign.center),
-            const SizedBox(height: FacingTokens.sp8 + FacingTokens.sp7),
+                style: HyphenTokens.lead, textAlign: TextAlign.center),
+            const SizedBox(height: HyphenTokens.sp8 + HyphenTokens.sp7),
           ],
         ),
       ),

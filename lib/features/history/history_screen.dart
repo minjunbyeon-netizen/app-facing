@@ -5,7 +5,7 @@ import '../../core/api_client.dart';
 import '../../core/futures.dart';
 import '../../core/theme.dart';
 import '../../core/wod_session_bus.dart';
-import '../../widgets/fkit.dart';
+import '../../widgets/hkit.dart';
 import '../gym/wod_type_label.dart';
 import 'history_models.dart';
 import 'history_repository.dart';
@@ -72,21 +72,21 @@ class _WodTab extends StatelessWidget {
       future: future,
       builder: (ctx, snap) {
         if (snap.connectionState != ConnectionState.done) {
-          return const FkLoading();
+          return const HkLoading();
         }
         if (snap.hasError) {
-          return FkErrorState.fromError(snap.error, onRetry: onRetry);
+          return HkErrorState.fromError(snap.error, onRetry: onRetry);
         }
         final rows = snap.data ?? const [];
         if (rows.isEmpty) {
-          return const FkEmptyState(
+          return const HkEmptyState(
             title: 'WOD 기록 없음',
             caption: 'WOD 계산 후 자동 저장.\n'
                 'Split · Burst · 예상 완주 시간 전부 보존.',
           );
         }
         return ListView.separated(
-          padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp2),
+          padding: const EdgeInsets.symmetric(vertical: HyphenTokens.sp2),
           itemCount: rows.length,
           separatorBuilder: (_, _) => const Divider(height: 1),
           itemBuilder: (_, i) {
@@ -96,8 +96,8 @@ class _WodTab extends StatelessWidget {
                   .pushNamed('/history/detail', arguments: r.id),
               child: Padding(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: FacingTokens.sp4,
-                    vertical: FacingTokens.sp3),
+                    horizontal: HyphenTokens.sp4,
+                    vertical: HyphenTokens.sp3),
                 child: Row(
                   children: [
                     Expanded(
@@ -105,21 +105,21 @@ class _WodTab extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(wodTypeLabel(r.wodType),
-                              style: FacingTokens.body.copyWith(
+                              style: HyphenTokens.body.copyWith(
                                 fontWeight: FontWeight.w800,
                               )),
                           const SizedBox(height: 2),
                           Text(_formatDate(r.createdAt),
-                              style: FacingTokens.caption),
+                              style: HyphenTokens.caption),
                         ],
                       ),
                     ),
                     Text(r.estimatedTotalDisplay,
-                        style: FacingTokens.h3.copyWith(
-                          fontFeatures: FacingTokens.tabular,
+                        style: HyphenTokens.h3.copyWith(
+                          fontFeatures: HyphenTokens.tabular,
                         )),
                     const Icon(Icons.chevron_right,
-                        color: FacingTokens.muted, size: 20),
+                        color: HyphenTokens.muted, size: 20),
                   ],
                 ),
               ),
@@ -131,7 +131,7 @@ class _WodTab extends StatelessWidget {
   }
 }
 
-// _EmptyView·_ErrorView 삭제 — FkEmptyState·FkErrorState(widgets/fkit.dart)로 대체 (v1.27 UI SSOT).
+// _EmptyView·_ErrorView 삭제 — HkEmptyState·HkErrorState(widgets/hkit.dart)로 대체 (v1.27 UI SSOT).
 
 String _formatDate(DateTime dt) {
   final local = dt.toLocal();

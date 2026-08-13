@@ -1,8 +1,8 @@
 // v1.20 Phase 2.5: PrDetector 단위 테스트.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:facing_app/core/pr_detector.dart';
-import 'package:facing_app/features/history/history_models.dart';
+import 'package:hyphen_app/core/pr_detector.dart';
+import 'package:hyphen_app/features/history/history_models.dart';
 
 WodHistoryItem _h(String type, int sec, int dayOffset) {
   return WodHistoryItem(

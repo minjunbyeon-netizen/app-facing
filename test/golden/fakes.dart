@@ -1,11 +1,11 @@
 ﻿import 'dart:async';
 
-import 'package:facing_app/core/api_client.dart';
-import 'package:facing_app/core/connectivity_state.dart';
-import 'package:facing_app/core/exception.dart';
-import 'package:facing_app/core/sse_client.dart';
-import 'package:facing_app/features/boss/boss_api_client.dart';
-import 'package:facing_app/features/boss/boss_auth_state.dart';
+import 'package:hyphen_app/core/api_client.dart';
+import 'package:hyphen_app/core/connectivity_state.dart';
+import 'package:hyphen_app/core/exception.dart';
+import 'package:hyphen_app/core/sse_client.dart';
+import 'package:hyphen_app/features/boss/boss_api_client.dart';
+import 'package:hyphen_app/features/boss/boss_auth_state.dart';
 
 /// 골든 테스트용 가짜 백엔드 — 경로 prefix → 응답 데이터 맵. 네트워크 0.
 /// ApiClient 를 implements + noSuchMethod 로 대체 (생성자가 private 이라 상속 불가).
@@ -173,7 +173,7 @@ class FakeBossApi implements BossApiClient {
 
 // ── 샘플 데이터 ─────────────────────────────────────────────
 
-/// /api/v1/gyms/mine — 승인된 일반 회원 (박스: FACING CrossFit 서면).
+/// /api/v1/gyms/mine — 승인된 일반 회원 (박스: HYPHEN CrossFit 서면).
 const gymsMine = {
   'gym': {
     'id': 1,
@@ -188,7 +188,7 @@ const gymsMine = {
       'coach_bio': 'CF-L2 · 리저널 3회 출전',
       'class_schedule': '평일 06:00-22:00 · 토 10:00-14:00',
       'motto': 'Earn it.',
-      'instagram': 'facing_seomyeon',
+      'instagram': 'hyphen_seomyeon',
     },
   },
   'role': 'member',

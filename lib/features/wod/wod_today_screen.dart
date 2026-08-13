@@ -52,20 +52,20 @@ class _WodTodayScreenState extends State<WodTodayScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: FacingTokens.bg,
+      backgroundColor: HyphenTokens.bg,
       appBar: AppBar(
-        backgroundColor: FacingTokens.bg,
+        backgroundColor: HyphenTokens.bg,
         elevation: 0,
-        title: Text("Today's WOD.", style: FacingTokens.h3),
+        title: Text("Today's WOD.", style: HyphenTokens.h3),
       ),
       body: RefreshIndicator(
         onRefresh: _load,
-        color: FacingTokens.primary,
+        color: HyphenTokens.primary,
         child: _loading
             ? const Center(
-                child: CircularProgressIndicator(color: FacingTokens.primary))
+                child: CircularProgressIndicator(color: HyphenTokens.primary))
             : _error != null
-                ? Center(child: Text(_error!, style: FacingTokens.body))
+                ? Center(child: Text(_error!, style: HyphenTokens.body))
                 : _plans.isEmpty
                     ? ListView(
                         physics: const AlwaysScrollableScrollPhysics(),
@@ -75,20 +75,20 @@ class _WodTodayScreenState extends State<WodTodayScreen> {
                             child: Column(
                               children: [
                                 Text('오늘 WOD 없음.',
-                                    style: FacingTokens.h3),
-                                const SizedBox(height: FacingTokens.sp2),
+                                    style: HyphenTokens.h3),
+                                const SizedBox(height: HyphenTokens.sp2),
                                 Text('박스에서 오늘 일정 배치 전이에요.',
-                                    style: FacingTokens.caption),
+                                    style: HyphenTokens.caption),
                               ],
                             ),
                           ),
                         ],
                       )
                     : ListView.separated(
-                        padding: const EdgeInsets.all(FacingTokens.sp4),
+                        padding: const EdgeInsets.all(HyphenTokens.sp4),
                         itemCount: _plans.length,
                         separatorBuilder: (ctx, idx) =>
-                            const SizedBox(height: FacingTokens.sp3),
+                            const SizedBox(height: HyphenTokens.sp3),
                         itemBuilder: (_, i) {
                           final p = _plans[i];
                           final hour = p['plan_hour'] as int? ?? 0;
@@ -97,11 +97,11 @@ class _WodTodayScreenState extends State<WodTodayScreen> {
                           final tdesc = (p['template_description'] ?? '').toString();
                           final wdesc = (p['wod_description'] ?? '').toString();
                           return Container(
-                            padding: const EdgeInsets.all(FacingTokens.sp4),
+                            padding: const EdgeInsets.all(HyphenTokens.sp4),
                             decoration: BoxDecoration(
-                              color: FacingTokens.surface,
+                              color: HyphenTokens.surface,
                               border:
-                                  Border.all(color: FacingTokens.border),
+                                  Border.all(color: HyphenTokens.border),
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -110,59 +110,59 @@ class _WodTodayScreenState extends State<WodTodayScreen> {
                                   children: [
                                     Text(
                                       '${hour.toString().padLeft(2, "0")}:00',
-                                      style: FacingTokens.h2.copyWith(
-                                          color: FacingTokens.primary),
+                                      style: HyphenTokens.h2.copyWith(
+                                          color: HyphenTokens.primary),
                                     ),
-                                    const SizedBox(width: FacingTokens.sp3),
+                                    const SizedBox(width: HyphenTokens.sp3),
                                     if (tname.isNotEmpty)
                                       Container(
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 6, vertical: 2),
                                         decoration: BoxDecoration(
                                           color: tkind == 'event'
-                                              ? FacingTokens.primary
-                                              : FacingTokens.surfaceMax,
+                                              ? HyphenTokens.primary
+                                              : HyphenTokens.surfaceMax,
                                           border: Border.all(
-                                              color: FacingTokens.border),
+                                              color: HyphenTokens.border),
                                         ),
                                         child: Text(
                                           tkind == 'event' ? 'EVENT' : tname,
-                                          style: FacingTokens.micro.copyWith(
+                                          style: HyphenTokens.micro.copyWith(
                                               color: tkind == 'event'
                                                   ? Colors.white
-                                                  : FacingTokens.fg,
+                                                  : HyphenTokens.fg,
                                               fontWeight: FontWeight.w700),
                                         ),
                                       ),
                                   ],
                                 ),
                                 if (tname.isNotEmpty && tkind == 'event') ...[
-                                  const SizedBox(height: FacingTokens.sp1),
+                                  const SizedBox(height: HyphenTokens.sp1),
                                   Text(tname,
-                                      style: FacingTokens.body.copyWith(
+                                      style: HyphenTokens.body.copyWith(
                                           fontWeight: FontWeight.w700)),
                                 ],
-                                const SizedBox(height: FacingTokens.sp2),
+                                const SizedBox(height: HyphenTokens.sp2),
                                 Text((p['wod_title'] ?? '').toString(),
-                                    style: FacingTokens.body.copyWith(
+                                    style: HyphenTokens.body.copyWith(
                                         fontWeight: FontWeight.w700)),
                                 if (wdesc.isNotEmpty) ...[
-                                  const SizedBox(height: FacingTokens.sp1),
+                                  const SizedBox(height: HyphenTokens.sp1),
                                   Text(wdesc,
-                                      style: FacingTokens.caption),
+                                      style: HyphenTokens.caption),
                                 ],
                                 if (tdesc.isNotEmpty) ...[
-                                  const SizedBox(height: FacingTokens.sp2),
+                                  const SizedBox(height: HyphenTokens.sp2),
                                   Container(
                                     padding: const EdgeInsets.all(
-                                        FacingTokens.sp2),
+                                        HyphenTokens.sp2),
                                     decoration: BoxDecoration(
-                                      color: FacingTokens.surfaceHigh,
+                                      color: HyphenTokens.surfaceHigh,
                                       border: Border.all(
-                                          color: FacingTokens.border),
+                                          color: HyphenTokens.border),
                                     ),
                                     child: Text('이 수업이 어떤가요?  $tdesc',
-                                        style: FacingTokens.micro),
+                                        style: HyphenTokens.micro),
                                   ),
                                 ],
                               ],

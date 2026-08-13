@@ -14,15 +14,15 @@ class EditProfileScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('프로필 수정')),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(FacingTokens.sp4),
+          padding: const EdgeInsets.all(HyphenTokens.sp4),
           children: const [
-            Text('수정 영역', style: FacingTokens.sectionLabel),
-            SizedBox(height: FacingTokens.sp1),
+            Text('수정 영역', style: HyphenTokens.sectionLabel),
+            SizedBox(height: HyphenTokens.sp1),
             Text(
               '편집할 영역 선택. 입력값은 저장 시 즉시 반영.',
-              style: FacingTokens.caption,
+              style: HyphenTokens.caption,
             ),
-            SizedBox(height: FacingTokens.sp4),
+            SizedBox(height: HyphenTokens.sp4),
             // v2.6 (2026-08-13): 부제가 실제 화면과 달랐다 — 기본 정보는
             // v2.3 에서 성별·경력 둘만 남았는데 체중·키·나이를 약속하고 있었다.
             _AreaCard(
@@ -54,11 +54,11 @@ class _AreaCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: FacingTokens.sp3),
+      margin: const EdgeInsets.only(bottom: HyphenTokens.sp3),
       decoration: BoxDecoration(
-        color: FacingTokens.surface,
-        border: Border.all(color: FacingTokens.border),
-        borderRadius: BorderRadius.circular(FacingTokens.r3),
+        color: HyphenTokens.surface,
+        border: Border.all(color: HyphenTokens.border),
+        borderRadius: BorderRadius.circular(HyphenTokens.r3),
       ),
       child: Material(
         color: Colors.transparent,
@@ -67,23 +67,23 @@ class _AreaCard extends StatelessWidget {
             Haptic.light();
             Navigator.of(context).pushNamed(route);
           },
-          borderRadius: BorderRadius.circular(FacingTokens.r3),
+          borderRadius: BorderRadius.circular(HyphenTokens.r3),
           child: Padding(
-            padding: const EdgeInsets.all(FacingTokens.sp4),
+            padding: const EdgeInsets.all(HyphenTokens.sp4),
             child: Row(
               children: [
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(title, style: FacingTokens.h3),
+                      Text(title, style: HyphenTokens.h3),
                       const SizedBox(height: 2),
-                      Text(subtitle, style: FacingTokens.caption),
+                      Text(subtitle, style: HyphenTokens.caption),
                     ],
                   ),
                 ),
                 const Icon(Icons.chevron_right,
-                    color: FacingTokens.muted, size: 20),
+                    color: HyphenTokens.muted, size: 20),
               ],
             ),
           ),

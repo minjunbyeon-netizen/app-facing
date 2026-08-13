@@ -26,9 +26,9 @@ class BoxProfileScreen extends StatelessWidget {
     final coaches = overrideCoaches ?? gs.coaches;
 
     return Scaffold(
-      backgroundColor: FacingTokens.bg,
+      backgroundColor: HyphenTokens.bg,
       appBar: AppBar(
-        backgroundColor: FacingTokens.bg,
+        backgroundColor: HyphenTokens.bg,
         title: const Text('박스'),
         centerTitle: false,
       ),
@@ -95,12 +95,12 @@ class _Header extends StatelessWidget {
         children: [
           Text(
             gym?.name ?? 'BOX',
-            style: FacingTokens.h1.copyWith(color: FacingTokens.fg),
+            style: HyphenTokens.h1.copyWith(color: HyphenTokens.fg),
           ),
           const SizedBox(height: 4),
           Text(
             gym?.location ?? '',
-            style: FacingTokens.body.copyWith(color: FacingTokens.muted),
+            style: HyphenTokens.body.copyWith(color: HyphenTokens.muted),
           ),
         ],
       ),
@@ -119,17 +119,17 @@ class _Card extends StatelessWidget {
       margin: const EdgeInsets.only(top: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: FacingTokens.surface,
+        color: HyphenTokens.surface,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: FacingTokens.border),
+        border: Border.all(color: HyphenTokens.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: FacingTokens.sectionLabel),
+          Text(title, style: HyphenTokens.sectionLabel),
           const SizedBox(height: 8),
           Text(body,
-              style: FacingTokens.body.copyWith(color: FacingTokens.fg)),
+              style: HyphenTokens.body.copyWith(color: HyphenTokens.fg)),
         ],
       ),
     );
@@ -147,27 +147,27 @@ class _ContactCard extends StatelessWidget {
       margin: const EdgeInsets.only(top: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: FacingTokens.surface,
+        color: HyphenTokens.surface,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: FacingTokens.border),
+        border: Border.all(color: HyphenTokens.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('연락처', style: FacingTokens.sectionLabel),
+          const Text('연락처', style: HyphenTokens.sectionLabel),
           const SizedBox(height: 8),
           ...rows.map((r) => Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(r.$1, size: 16, color: FacingTokens.muted),
+                    Icon(r.$1, size: 16, color: HyphenTokens.muted),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         r.$2,
-                        style: FacingTokens.body
-                            .copyWith(color: FacingTokens.fg),
+                        style: HyphenTokens.body
+                            .copyWith(color: HyphenTokens.fg),
                       ),
                     ),
                   ],
@@ -196,21 +196,21 @@ class _CoachesCard extends StatelessWidget {
       margin: const EdgeInsets.only(top: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: FacingTokens.surface,
+        color: HyphenTokens.surface,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: FacingTokens.border),
+        border: Border.all(color: HyphenTokens.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('COACHES (${hasCoaches ? coaches.length : 1})',
-              style: FacingTokens.sectionLabel),
+              style: HyphenTokens.sectionLabel),
           const SizedBox(height: 8),
           if (hasCoaches)
             ...coaches.map((c) => _CoachRow(coach: c))
           else
             Text(fallbackCoach!,
-                style: FacingTokens.body.copyWith(color: FacingTokens.fg)),
+                style: HyphenTokens.body.copyWith(color: HyphenTokens.fg)),
         ],
       ),
     );
@@ -238,21 +238,21 @@ class _CoachRow extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(coach.name,
-                      style: FacingTokens.body
-                          .copyWith(color: FacingTokens.fg)),
+                      style: HyphenTokens.body
+                          .copyWith(color: HyphenTokens.fg)),
                   if (coach.specialty != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 2),
                       child: Text(
                         coach.specialty!,
-                        style: FacingTokens.caption,
+                        style: HyphenTokens.caption,
                       ),
                     ),
                 ],
               ),
             ),
             Icon(Icons.chevron_right,
-                size: 18, color: FacingTokens.muted),
+                size: 18, color: HyphenTokens.muted),
           ],
         ),
       ),

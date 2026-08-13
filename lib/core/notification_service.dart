@@ -16,11 +16,11 @@ class NotificationService {
   NotificationService._();
   static final NotificationService instance = NotificationService._();
 
-  static const String _channelStaffId = 'facing_staff';
+  static const String _channelStaffId = 'hyphen_staff';
   static const String _channelStaffName = 'HYPHEN 코치 알림';
   static const String _channelStaffDesc = '신규 가입 신청·결제·예약 등 운영 알림';
 
-  static const String _channelMemberId = 'facing_member';
+  static const String _channelMemberId = 'hyphen_member';
   static const String _channelMemberName = 'HYPHEN 회원 알림';
   static const String _channelMemberDesc = '회원권 만료·공지·코치 메시지';
 
@@ -122,7 +122,7 @@ class NotificationService {
         return _NotifSpec(
           id: _idFor('join', inner['member_id']),
           channelId: _channelStaffId,
-          title: '[FACING] 새 가입 신청',
+          title: '[HYPHEN] 새 가입 신청',
           body: '박스 가입 신청 도착. 앱에서 승인 필요.',
           importance: Importance.high,
           priority: Priority.high,
@@ -131,7 +131,7 @@ class NotificationService {
         return _NotifSpec(
           id: _idFor('created', inner['member_id']),
           channelId: _channelStaffId,
-          title: '[FACING] 신규 회원 등록',
+          title: '[HYPHEN] 신규 회원 등록',
           body: '${inner['name'] ?? '새 회원'} 등록 완료.',
           importance: Importance.defaultImportance,
           priority: Priority.defaultPriority,
@@ -140,7 +140,7 @@ class NotificationService {
         return _NotifSpec(
           id: _idFor('issued', inner['member_id']),
           channelId: _channelStaffId,
-          title: '[FACING] 회원권 발급',
+          title: '[HYPHEN] 회원권 발급',
           body: '${inner['plan_name'] ?? '회원권'} 발급 완료.',
           importance: Importance.defaultImportance,
           priority: Priority.defaultPriority,
@@ -155,7 +155,7 @@ class NotificationService {
         return _NotifSpec(
           id: _idFor('decided', inner['member_id']),
           channelId: _channelMemberId,
-          title: approved ? '[FACING] 가입 승인 완료' : '[FACING] 가입 신청 결과',
+          title: approved ? '[HYPHEN] 가입 승인 완료' : '[HYPHEN] 가입 신청 결과',
           body: approved
               ? '이제 수업 예약과 오늘의 WOD 를 볼 수 있습니다.'
               : '가입 신청이 승인되지 않았습니다. 박스에 문의해 주세요.',
@@ -166,7 +166,7 @@ class NotificationService {
         return _NotifSpec(
           id: _idFor('announce', inner['announcement_id']),
           channelId: _channelMemberId,
-          title: '[FACING] 새 공지',
+          title: '[HYPHEN] 새 공지',
           body: (inner['title'] ?? '새 공지 등록.') as String,
           importance: Importance.defaultImportance,
           priority: Priority.defaultPriority,
@@ -175,7 +175,7 @@ class NotificationService {
         return _NotifSpec(
           id: _idFor('wod', inner['wod_id']),
           channelId: _channelMemberId,
-          title: '[FACING] 오늘의 WOD',
+          title: '[HYPHEN] 오늘의 WOD',
           body: (inner['title'] ?? '새 WOD 등록.') as String,
           importance: Importance.defaultImportance,
           priority: Priority.defaultPriority,

@@ -112,42 +112,42 @@ class _GymSearchScreenState extends State<GymSearchScreen> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.all(FacingTokens.sp4),
+              padding: const EdgeInsets.all(HyphenTokens.sp4),
               child: TextField(
                 controller: _ctrl,
                 onChanged: _onChanged,
                 decoration: const InputDecoration(
                   labelText: '박스 이름 검색',
-                  prefixIcon: Icon(Icons.search, color: FacingTokens.muted),
+                  prefixIcon: Icon(Icons.search, color: HyphenTokens.muted),
                 ),
                 autofocus: true,
               ),
             ),
             if (_loading)
               const Padding(
-                padding: EdgeInsets.all(FacingTokens.sp4),
+                padding: EdgeInsets.all(HyphenTokens.sp4),
                 child: CircularProgressIndicator(
-                    color: FacingTokens.muted, strokeWidth: 2),
+                    color: HyphenTokens.muted, strokeWidth: 2),
               )
             else if (_error != null)
               Padding(
-                padding: const EdgeInsets.all(FacingTokens.sp4),
-                child: Text(_error!, style: FacingTokens.caption),
+                padding: const EdgeInsets.all(HyphenTokens.sp4),
+                child: Text(_error!, style: HyphenTokens.caption),
               )
             else
               Expanded(
                 child: _results.isEmpty
                     ? const Center(
                         child: Text('검색 결과 없음.\n박스명 일부로 검색 가능.',
-                            style: FacingTokens.caption,
+                            style: HyphenTokens.caption,
                             textAlign: TextAlign.center),
                       )
                     : ListView.separated(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: FacingTokens.sp4),
+                            horizontal: HyphenTokens.sp4),
                         itemCount: _results.length,
                         separatorBuilder: (_, _) => const Divider(
-                            height: 1, color: FacingTokens.border),
+                            height: 1, color: HyphenTokens.border),
                         itemBuilder: (_, i) {
                           final g = _results[i];
                           return ListTile(
@@ -157,29 +157,29 @@ class _GymSearchScreenState extends State<GymSearchScreen> {
                                 Flexible(
                                   child: Text(
                                     g.name,
-                                    style: FacingTokens.body.copyWith(
+                                    style: HyphenTokens.body.copyWith(
                                       fontWeight: FontWeight.w700,
                                     ),
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                                 if (g.isOfficial) ...[
-                                  const SizedBox(width: FacingTokens.sp2),
+                                  const SizedBox(width: HyphenTokens.sp2),
                                   Container(
                                     padding: const EdgeInsets.symmetric(
-                                      horizontal: FacingTokens.sp1,
+                                      horizontal: HyphenTokens.sp1,
                                       vertical: 2,
                                     ),
                                     decoration: BoxDecoration(
                                       border: Border.all(
-                                          color: FacingTokens.accent, width: 1),
+                                          color: HyphenTokens.accent, width: 1),
                                       borderRadius: BorderRadius.circular(
-                                          FacingTokens.r1),
+                                          HyphenTokens.r1),
                                     ),
                                     child: Text(
                                       'OFFICIAL',
-                                      style: FacingTokens.micro.copyWith(
-                                        color: FacingTokens.accent,
+                                      style: HyphenTokens.micro.copyWith(
+                                        color: HyphenTokens.accent,
                                         fontWeight: FontWeight.w800,
                                         letterSpacing: 1.2,
                                       ),
@@ -194,7 +194,7 @@ class _GymSearchScreenState extends State<GymSearchScreen> {
                                   : (g.location.isEmpty
                                       ? '${g.memberCount} members'
                                       : '${g.location} · ${g.memberCount} members'),
-                              style: FacingTokens.caption,
+                              style: HyphenTokens.caption,
                             ),
                             trailing: TextButton(
                               onPressed: () => _join(g),

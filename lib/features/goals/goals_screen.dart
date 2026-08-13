@@ -7,7 +7,7 @@ import '../../core/api_client.dart';
 import '../../core/goals_state.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
-import '../../widgets/fkit.dart';
+import '../../widgets/hkit.dart';
 import '../history/history_models.dart';
 import '../history/history_repository.dart';
 
@@ -61,18 +61,18 @@ class _GoalsScreenState extends State<GoalsScreen> {
             final weekCount = _sessionsThisWeek(list);
             final monthCount = _sessionsThisMonth(list);
             return ListView(
-              padding: const EdgeInsets.all(FacingTokens.sp4),
+              padding: const EdgeInsets.all(HyphenTokens.sp4),
               children: [
                 // Weekly
-                const Text('이번 주', style: FacingTokens.sectionLabel),
-                const SizedBox(height: FacingTokens.sp2),
+                const Text('이번 주', style: HyphenTokens.sectionLabel),
+                const SizedBox(height: HyphenTokens.sp2),
                 _ProgressRow(
                   label: '세션',
                   current: weekCount,
                   target: goals.weeklyTargetSessions,
                   unit: '회',
                 ),
-                const SizedBox(height: FacingTokens.sp3),
+                const SizedBox(height: HyphenTokens.sp3),
                 _TargetSlider(
                   label: '주간 타겟 · ${goals.weeklyTargetSessions}회',
                   value: goals.weeklyTargetSessions.toDouble(),
@@ -80,18 +80,18 @@ class _GoalsScreenState extends State<GoalsScreen> {
                   max: 10,
                   onChanged: (v) => goals.setWeeklyTarget(v.round()),
                 ),
-                const SizedBox(height: FacingTokens.sp5),
+                const SizedBox(height: HyphenTokens.sp5),
 
                 // Monthly
-                const Text('이번 달', style: FacingTokens.sectionLabel),
-                const SizedBox(height: FacingTokens.sp2),
+                const Text('이번 달', style: HyphenTokens.sectionLabel),
+                const SizedBox(height: HyphenTokens.sp2),
                 _ProgressRow(
                   label: '세션',
                   current: monthCount,
                   target: goals.monthlyTargetSessions,
                   unit: '회',
                 ),
-                const SizedBox(height: FacingTokens.sp3),
+                const SizedBox(height: HyphenTokens.sp3),
                 _TargetSlider(
                   label: '월간 타겟 · ${goals.monthlyTargetSessions}회',
                   value: goals.monthlyTargetSessions.toDouble(),
@@ -99,11 +99,11 @@ class _GoalsScreenState extends State<GoalsScreen> {
                   max: 30,
                   onChanged: (v) => goals.setMonthlyTarget(v.round()),
                 ),
-                const SizedBox(height: FacingTokens.sp5),
+                const SizedBox(height: HyphenTokens.sp5),
 
                 // PR Goals
-                const Text('PR 목표', style: FacingTokens.sectionLabel),
-                const SizedBox(height: FacingTokens.sp2),
+                const Text('PR 목표', style: HyphenTokens.sectionLabel),
+                const SizedBox(height: HyphenTokens.sp2),
                 _PrGoalRow(
                   label: 'Fran',
                   valueLabel: goals.franPrDisplay,
@@ -116,17 +116,17 @@ class _GoalsScreenState extends State<GoalsScreen> {
                       : '${goals.backSquatKg.toStringAsFixed(0)} kg',
                   onTap: () => _editBackSquat(context, goals),
                 ),
-                const SizedBox(height: FacingTokens.sp5),
+                const SizedBox(height: HyphenTokens.sp5),
 
                 // Target Tier
-                const Text('목표 Tier', style: FacingTokens.sectionLabel),
-                const SizedBox(height: FacingTokens.sp2),
+                const Text('목표 Tier', style: HyphenTokens.sectionLabel),
+                const SizedBox(height: HyphenTokens.sp2),
                 Wrap(
-                  spacing: FacingTokens.sp2,
+                  spacing: HyphenTokens.sp2,
                   children: const ['RX', 'RX+', 'Elite', 'Games']
-                      .map((t) => FkBadge(
+                      .map((t) => HkBadge(
                             t,
-                            color: FacingTokens.fg,
+                            color: HyphenTokens.fg,
                             selected: goals.targetTier == t,
                             onTap: () {
                               Haptic.selection();
@@ -135,19 +135,19 @@ class _GoalsScreenState extends State<GoalsScreen> {
                           ))
                       .toList(),
                 ),
-                const SizedBox(height: FacingTokens.sp5),
+                const SizedBox(height: HyphenTokens.sp5),
 
                 // Season goal
-                const Text('시즌 목표', style: FacingTokens.sectionLabel),
-                const SizedBox(height: FacingTokens.sp2),
+                const Text('시즌 목표', style: HyphenTokens.sectionLabel),
+                const SizedBox(height: HyphenTokens.sp2),
                 _SeasonGoalField(
                   initial: goals.seasonGoal,
                   onSave: (v) => goals.setSeasonGoal(v),
                 ),
-                const SizedBox(height: FacingTokens.sp4),
+                const SizedBox(height: HyphenTokens.sp4),
                 const Text(
                   '목표·진행률은 이 기기에 저장됩니다.',
-                  style: FacingTokens.caption,
+                  style: HyphenTokens.caption,
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -164,7 +164,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: FacingTokens.surfaceOverlay,
+        backgroundColor: HyphenTokens.surfaceOverlay,
         title: const Text('Fran PR 목표'),
         content: TextField(
           controller: ctrl,
@@ -203,7 +203,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: FacingTokens.surfaceOverlay,
+        backgroundColor: HyphenTokens.surfaceOverlay,
         title: const Text('Back Squat Target (kg)'),
         content: TextField(
           controller: ctrl,
@@ -251,30 +251,30 @@ class _ProgressRow extends StatelessWidget {
       children: [
         Row(
           children: [
-            Expanded(child: Text(label, style: FacingTokens.body)),
+            Expanded(child: Text(label, style: HyphenTokens.body)),
             Text(
               done ? 'ACHIEVED' : '$current / $target $unit',
-              style: FacingTokens.micro.copyWith(
-                color: done ? FacingTokens.accent : FacingTokens.muted,
+              style: HyphenTokens.micro.copyWith(
+                color: done ? HyphenTokens.accent : HyphenTokens.muted,
                 fontWeight: FontWeight.w800,
-                fontFeatures: FacingTokens.tabular,
+                fontFeatures: HyphenTokens.tabular,
               ),
             ),
           ],
         ),
-        const SizedBox(height: FacingTokens.sp1),
+        const SizedBox(height: HyphenTokens.sp1),
         ClipRRect(
-          borderRadius: BorderRadius.circular(FacingTokens.r1),
+          borderRadius: BorderRadius.circular(HyphenTokens.r1),
           child: Stack(
             children: [
-              Container(height: 6, color: FacingTokens.border),
+              Container(height: 6, color: HyphenTokens.border),
               FractionallySizedBox(
                 widthFactor: pct,
                 child: Container(
                   height: 6,
                   color: done
-                      ? FacingTokens.accent
-                      : FacingTokens.accent.withValues(alpha: 0.55),
+                      ? HyphenTokens.accent
+                      : HyphenTokens.accent.withValues(alpha: 0.55),
                 ),
               ),
             ],
@@ -304,13 +304,13 @@ class _TargetSlider extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: FacingTokens.caption),
+        Text(label, style: HyphenTokens.caption),
         Slider(
           value: value,
           min: min,
           max: max,
           divisions: (max - min).toInt(),
-          activeColor: FacingTokens.accent,
+          activeColor: HyphenTokens.accent,
           onChanged: onChanged,
         ),
       ],
@@ -333,18 +333,18 @@ class _PrGoalRow extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp3),
+        padding: const EdgeInsets.symmetric(vertical: HyphenTokens.sp3),
         child: Row(
           children: [
-            Expanded(child: Text(label, style: FacingTokens.body)),
+            Expanded(child: Text(label, style: HyphenTokens.body)),
             Text(valueLabel,
-                style: FacingTokens.body.copyWith(
+                style: HyphenTokens.body.copyWith(
                   fontWeight: FontWeight.w700,
-                  fontFeatures: FacingTokens.tabular,
+                  fontFeatures: HyphenTokens.tabular,
                 )),
-            const SizedBox(width: FacingTokens.sp2),
+            const SizedBox(width: HyphenTokens.sp2),
             const Icon(Icons.chevron_right,
-                color: FacingTokens.muted, size: 18),
+                color: HyphenTokens.muted, size: 18),
           ],
         ),
       ),

@@ -77,10 +77,10 @@ class FaqScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('FAQ')),
       body: SafeArea(
         child: ListView.separated(
-          padding: const EdgeInsets.all(FacingTokens.sp4),
+          padding: const EdgeInsets.all(HyphenTokens.sp4),
           itemCount: _kFaqs.length,
           separatorBuilder: (_, _) =>
-              const Divider(height: 1, color: FacingTokens.border),
+              const Divider(height: 1, color: HyphenTokens.border),
           itemBuilder: (_, i) {
             final item = _kFaqs[i];
             return Theme(
@@ -88,15 +88,15 @@ class FaqScreen extends StatelessWidget {
                   .copyWith(dividerColor: Colors.transparent),
               child: ExpansionTile(
                 tilePadding:
-                    const EdgeInsets.symmetric(vertical: FacingTokens.sp1),
+                    const EdgeInsets.symmetric(vertical: HyphenTokens.sp1),
                 childrenPadding: const EdgeInsets.only(
-                    bottom: FacingTokens.sp3, right: FacingTokens.sp2),
+                    bottom: HyphenTokens.sp3, right: HyphenTokens.sp2),
                 title: Text(item.q,
-                    style: FacingTokens.body
+                    style: HyphenTokens.body
                         .copyWith(fontWeight: FontWeight.w700)),
                 expandedCrossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(item.a, style: FacingTokens.caption),
+                  Text(item.a, style: HyphenTokens.caption),
                 ],
               ),
             );

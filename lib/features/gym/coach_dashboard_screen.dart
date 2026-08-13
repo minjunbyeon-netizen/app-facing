@@ -9,7 +9,7 @@ import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/gym.dart';
 import '../../widgets/coach_badge.dart';
-import '../../widgets/fkit.dart';
+import '../../widgets/hkit.dart';
 import '../inbox/inbox_screen.dart';
 import 'gym_profile_edit_screen.dart';
 import 'gym_repository.dart';
@@ -65,10 +65,10 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
     Haptic.light();
     showModalBottomSheet<void>(
       context: context,
-      backgroundColor: FacingTokens.surface,
+      backgroundColor: HyphenTokens.surface,
       shape: const RoundedRectangleBorder(
         borderRadius:
-            BorderRadius.vertical(top: Radius.circular(FacingTokens.r4)),
+            BorderRadius.vertical(top: Radius.circular(HyphenTokens.r4)),
       ),
       builder: (ctx) => _MemberDetailSheet(member: m),
     );
@@ -89,14 +89,14 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
       body: SafeArea(
         child: gym == null
             ? const Center(
-                child: Text('박스 정보 없음.', style: FacingTokens.caption))
+                child: Text('박스 정보 없음.', style: HyphenTokens.caption))
             : FutureBuilder<List<GymMember>>(
                 future: _future,
                 builder: (ctx, snap) {
                   if (snap.connectionState != ConnectionState.done) {
                     return const Center(
                       child: CircularProgressIndicator(
-                          color: FacingTokens.muted, strokeWidth: 2),
+                          color: HyphenTokens.muted, strokeWidth: 2),
                     );
                   }
                   if (snap.hasError) {
@@ -104,8 +104,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                     final msg =
                         e is AppException ? e.messageKo : '로딩 실패';
                     return Padding(
-                      padding: const EdgeInsets.all(FacingTokens.sp4),
-                      child: Text(msg, style: FacingTokens.body),
+                      padding: const EdgeInsets.all(HyphenTokens.sp4),
+                      child: Text(msg, style: HyphenTokens.body),
                     );
                   }
                   final members = snap.data ?? const [];
@@ -124,19 +124,19 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                       .fold<int>(0, (a, b) => a + b);
 
                   return ListView(
-                    padding: const EdgeInsets.all(FacingTokens.sp4),
+                    padding: const EdgeInsets.all(HyphenTokens.sp4),
                     children: [
                       // Overview stats
                       Text(gym.name,
-                          style: FacingTokens.h3.copyWith(
+                          style: HyphenTokens.h3.copyWith(
                             fontWeight: FontWeight.w800,
                           )),
-                      const SizedBox(height: FacingTokens.sp1),
+                      const SizedBox(height: HyphenTokens.sp1),
                       Text(
                         '${approved.length} approved · $activeCount active · $dormantCount dormant · $totalSessions sessions',
-                        style: FacingTokens.caption,
+                        style: HyphenTokens.caption,
                       ),
-                      const SizedBox(height: FacingTokens.sp3),
+                      const SizedBox(height: HyphenTokens.sp3),
                       // v1.16 Sprint 17: Member Requests 진입점.
                       OutlinedButton.icon(
                         onPressed: () {
@@ -148,7 +148,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                         icon: const Icon(Icons.inbox_outlined, size: 18),
                         label: const Text('회원 요청'),
                       ),
-                      const SizedBox(height: FacingTokens.sp2),
+                      const SizedBox(height: HyphenTokens.sp2),
                       // v1.22: 체육관 정보 (전화·코치·수업·모토) 편집 진입점.
                       OutlinedButton.icon(
                         onPressed: () async {
@@ -162,34 +162,34 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                         icon: const Icon(Icons.edit_note_outlined, size: 18),
                         label: const Text('박스 프로필 수정'),
                       ),
-                      const SizedBox(height: FacingTokens.sp5),
+                      const SizedBox(height: HyphenTokens.sp5),
                       if (pending.isNotEmpty) ...[
                         Text('PENDING (${pending.length})',
-                            style: FacingTokens.sectionLabel),
-                        const SizedBox(height: FacingTokens.sp2),
+                            style: HyphenTokens.sectionLabel),
+                        const SizedBox(height: HyphenTokens.sp2),
                         ...pending.map((m) => _PendingRow(
                               member: m,
                               onApprove: () => _decide(m, 'approve'),
                               onReject: () => _decide(m, 'reject'),
                             )),
-                        const SizedBox(height: FacingTokens.sp5),
+                        const SizedBox(height: HyphenTokens.sp5),
                       ],
                       Text('ROSTER (${approved.length})',
-                          style: FacingTokens.sectionLabel),
-                      const SizedBox(height: FacingTokens.sp2),
+                          style: HyphenTokens.sectionLabel),
+                      const SizedBox(height: HyphenTokens.sp2),
                       if (approved.isEmpty)
                         const Text('승인된 멤버 없음.',
-                            style: FacingTokens.caption)
+                            style: HyphenTokens.caption)
                       else
                         ...approved.map((m) => _RosterRow(
                               member: m,
                               onTap: () => _openMemberSheet(m),
                             )),
                       if (rejected.isNotEmpty) ...[
-                        const SizedBox(height: FacingTokens.sp5),
+                        const SizedBox(height: HyphenTokens.sp5),
                         Text('REJECTED (${rejected.length})',
-                            style: FacingTokens.sectionLabel),
-                        const SizedBox(height: FacingTokens.sp2),
+                            style: HyphenTokens.sectionLabel),
+                        const SizedBox(height: HyphenTokens.sp2),
                         ...rejected.map((m) => _RosterRow(
                               member: m,
                               onTap: () => _openMemberSheet(m),
@@ -219,7 +219,7 @@ class _PendingRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp2),
+      padding: const EdgeInsets.symmetric(vertical: HyphenTokens.sp2),
       child: Row(
         children: [
           Expanded(
@@ -227,19 +227,19 @@ class _PendingRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(member.displayName,
-                    style: FacingTokens.body.copyWith(
+                    style: HyphenTokens.body.copyWith(
                       fontWeight: FontWeight.w700,
                     )),
                 Text(_dateShort(member.requestedAt),
-                    style: FacingTokens.caption),
+                    style: HyphenTokens.caption),
                 if ((member.phone ?? '').isNotEmpty)
-                  Text(member.phone!, style: FacingTokens.caption),
+                  Text(member.phone!, style: HyphenTokens.caption),
               ],
             ),
           ),
           TextButton(onPressed: onApprove, child: const Text('승인')),
           TextButton(
-            style: TextButton.styleFrom(foregroundColor: FacingTokens.fgSecondary),
+            style: TextButton.styleFrom(foregroundColor: HyphenTokens.fgSecondary),
             onPressed: onReject,
             child: const Text('거절'),
           ),
@@ -262,12 +262,12 @@ class _RosterRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fg = muted ? FacingTokens.muted : FacingTokens.fg;
+    final fg = muted ? HyphenTokens.muted : HyphenTokens.fg;
     final lastLabel = _lastLabel(member);
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp2),
+        padding: const EdgeInsets.symmetric(vertical: HyphenTokens.sp2),
         child: Row(
           children: [
             Expanded(
@@ -279,35 +279,35 @@ class _RosterRow extends StatelessWidget {
                       Flexible(
                         child: Text(
                           member.displayName,
-                          style: FacingTokens.body.copyWith(
+                          style: HyphenTokens.body.copyWith(
                             fontWeight: FontWeight.w700,
                             color: fg,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      const SizedBox(width: FacingTokens.sp2),
+                      const SizedBox(width: HyphenTokens.sp2),
                       if ((member.level ?? '').isNotEmpty)
-                        FkBadge(member.level!, color: FacingTokens.accent),
+                        HkBadge(member.level!, color: HyphenTokens.accent),
                       if (member.isDormant)
-                        const FkBadge('DORMANT', color: FacingTokens.warning)
+                        const HkBadge('DORMANT', color: HyphenTokens.warning)
                       else if (member.lastWodAt == null && member.isApproved)
-                        const FkBadge('NEW', color: FacingTokens.muted),
+                        const HkBadge('NEW', color: HyphenTokens.muted),
                     ],
                   ),
                   const SizedBox(height: 2),
                   Text(
                     lastLabel,
-                    style: FacingTokens.caption,
+                    style: HyphenTokens.caption,
                   ),
                 ],
               ),
             ),
             _numBlock(label: '세션', value: '${member.totalSessions}'),
-            const SizedBox(width: FacingTokens.sp3),
+            const SizedBox(width: HyphenTokens.sp3),
             _numBlock(label: '스트릭', value: '${member.streakDays}'),
-            const SizedBox(width: FacingTokens.sp2),
-            const Icon(Icons.chevron_right, color: FacingTokens.muted, size: 18),
+            const SizedBox(width: HyphenTokens.sp2),
+            const Icon(Icons.chevron_right, color: HyphenTokens.muted, size: 18),
           ],
         ),
       ),
@@ -318,10 +318,10 @@ class _RosterRow extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Text(label, style: FacingTokens.microLabel),
+        Text(label, style: HyphenTokens.microLabel),
         Text(value,
-            style: FacingTokens.body.copyWith(
-              fontFeatures: FacingTokens.tabular,
+            style: HyphenTokens.body.copyWith(
+              fontFeatures: HyphenTokens.tabular,
               fontWeight: FontWeight.w700,
             )),
       ],
@@ -357,7 +357,7 @@ class _MemberDetailSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.all(FacingTokens.sp5),
+        padding: const EdgeInsets.all(HyphenTokens.sp5),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -366,18 +366,18 @@ class _MemberDetailSheet extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text('user:${member.deviceHashPrefix}',
-                      style: FacingTokens.h3),
+                      style: HyphenTokens.h3),
                 ),
                 Text(
                   member.status.toUpperCase(),
-                  style: FacingTokens.microLabel.copyWith(
-                    color: FacingTokens.accent,
+                  style: HyphenTokens.microLabel.copyWith(
+                    color: HyphenTokens.accent,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: FacingTokens.sp4),
+            const SizedBox(height: HyphenTokens.sp4),
             _kv('가입 요청', _dateShort(member.requestedAt)),
             if (member.decidedAt != null)
               _kv('승인·거절', _dateShort(member.decidedAt!)),
@@ -385,28 +385,28 @@ class _MemberDetailSheet extends StatelessWidget {
             _kv('현재 Streak', '${member.streakDays} days'),
             _kv('마지막 WOD',
                 member.lastWodAt == null ? '-' : _dateShort(member.lastWodAt!)),
-            const SizedBox(height: FacingTokens.sp4),
-            const Text('코치 노트', style: FacingTokens.sectionLabel),
-            const SizedBox(height: FacingTokens.sp2),
+            const SizedBox(height: HyphenTokens.sp4),
+            const Text('코치 노트', style: HyphenTokens.sectionLabel),
+            const SizedBox(height: HyphenTokens.sp2),
             // v2.6 (2026-08-13 사용자 지시): 할 말이 있을 때만 띄운다.
             // 종전엔 평범한 회원에게 '부상 메모·목표 기록은 준비 중' 이라는
             // 없는 기능 예고가 기본값으로 깔렸다.
             if (member.isDormant || member.totalSessions == 0) ...[
               Container(
-                padding: const EdgeInsets.all(FacingTokens.sp3),
+                padding: const EdgeInsets.all(HyphenTokens.sp3),
                 decoration: BoxDecoration(
-                  color: FacingTokens.surfaceOverlay,
-                  borderRadius: BorderRadius.circular(FacingTokens.r2),
-                  border: Border.all(color: FacingTokens.border),
+                  color: HyphenTokens.surfaceOverlay,
+                  borderRadius: BorderRadius.circular(HyphenTokens.r2),
+                  border: Border.all(color: HyphenTokens.border),
                 ),
                 child: Text(
                   member.isDormant
                       ? '2주 이상 미참석. 재참여 캠페인 추천.'
                       : '신규 회원. 첫 WOD 유도 필요.',
-                  style: FacingTokens.caption,
+                  style: HyphenTokens.caption,
                 ),
               ),
-              const SizedBox(height: FacingTokens.sp4),
+              const SizedBox(height: HyphenTokens.sp4),
             ],
             if (member.deviceHashFull != null) ...[
               ElevatedButton.icon(
@@ -428,11 +428,11 @@ class _MemberDetailSheet extends StatelessWidget {
                 icon: const Icon(Icons.chat_bubble_outline, size: 18),
                 label: const Text('메시지 보내기'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: FacingTokens.accent,
-                  foregroundColor: FacingTokens.fg,
+                  backgroundColor: HyphenTokens.accent,
+                  foregroundColor: HyphenTokens.fg,
                 ),
               ),
-              const SizedBox(height: FacingTokens.sp2),
+              const SizedBox(height: HyphenTokens.sp2),
               // v1.16 Sprint 17: 오늘 WOD 중 선택해 코치 노트 작성.
               OutlinedButton.icon(
                 onPressed: () async {
@@ -443,7 +443,7 @@ class _MemberDetailSheet extends StatelessWidget {
                 label: const Text('코치 노트 남기기'),
               ),
             ],
-            const SizedBox(height: FacingTokens.sp2),
+            const SizedBox(height: HyphenTokens.sp2),
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
@@ -473,14 +473,14 @@ class _MemberDetailSheet extends StatelessWidget {
     GymWodPost? pickedWod = wods.length == 1 ? wods.first : null;
     pickedWod ??= await showModalBottomSheet<GymWodPost>(
         context: context,
-        backgroundColor: FacingTokens.surface,
+        backgroundColor: HyphenTokens.surface,
         builder: (ctx) => SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               const Padding(
-                padding: EdgeInsets.all(FacingTokens.sp4),
-                child: Text('WOD 선택', style: FacingTokens.sectionLabel),
+                padding: EdgeInsets.all(HyphenTokens.sp4),
+                child: Text('WOD 선택', style: HyphenTokens.sectionLabel),
               ),
               ...wods.map((w) => ListTile(
                     title: Text(wodTypeLabel(w.wodType)),
@@ -488,7 +488,7 @@ class _MemberDetailSheet extends StatelessWidget {
                       w.content.length > 40
                           ? '${w.content.substring(0, 40)}…'
                           : w.content,
-                      style: FacingTokens.caption,
+                      style: HyphenTokens.caption,
                     ),
                     onTap: () => Navigator.of(ctx).pop(w),
                   )),
@@ -504,31 +504,31 @@ class _MemberDetailSheet extends StatelessWidget {
     try {
       await showModalBottomSheet<void>(
       context: context,
-      backgroundColor: FacingTokens.surface,
+      backgroundColor: HyphenTokens.surface,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius:
-            BorderRadius.vertical(top: Radius.circular(FacingTokens.r4)),
+            BorderRadius.vertical(top: Radius.circular(HyphenTokens.r4)),
       ),
       builder: (ctx) => Padding(
         padding: EdgeInsets.only(
-          left: FacingTokens.sp4,
-          right: FacingTokens.sp4,
-          top: FacingTokens.sp4,
-          bottom: MediaQuery.of(ctx).viewInsets.bottom + FacingTokens.sp4,
+          left: HyphenTokens.sp4,
+          right: HyphenTokens.sp4,
+          top: HyphenTokens.sp4,
+          bottom: MediaQuery.of(ctx).viewInsets.bottom + HyphenTokens.sp4,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text('COACH NOTE → ${m.deviceHashPrefix}',
-                style: FacingTokens.sectionLabel),
-            const SizedBox(height: FacingTokens.sp1),
+                style: HyphenTokens.sectionLabel),
+            const SizedBox(height: HyphenTokens.sp1),
             Text(
               'WOD: ${wodTypeLabel(pickedWod!.wodType)} · ${pickedWod.postDate}',
-              style: FacingTokens.caption,
+              style: HyphenTokens.caption,
             ),
-            const SizedBox(height: FacingTokens.sp3),
+            const SizedBox(height: HyphenTokens.sp3),
             TextField(
               controller: bodyCtrl,
               decoration: const InputDecoration(
@@ -539,7 +539,7 @@ class _MemberDetailSheet extends StatelessWidget {
               maxLines: 6,
               maxLength: 2000,
             ),
-            const SizedBox(height: FacingTokens.sp3),
+            const SizedBox(height: HyphenTokens.sp3),
             ElevatedButton(
               onPressed: () async {
                 final body = bodyCtrl.text.trim();
@@ -589,17 +589,17 @@ class _MemberDetailSheet extends StatelessWidget {
 
   Widget _kv(String k, String v) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp1),
+      padding: const EdgeInsets.symmetric(vertical: HyphenTokens.sp1),
       child: Row(
         children: [
           SizedBox(
             width: 110,
-            child: Text(k, style: FacingTokens.microLabel),
+            child: Text(k, style: HyphenTokens.microLabel),
           ),
           Expanded(
             child: Text(v,
-                style: FacingTokens.body.copyWith(
-                  fontFeatures: FacingTokens.tabular,
+                style: HyphenTokens.body.copyWith(
+                  fontFeatures: HyphenTokens.tabular,
                 )),
           ),
         ],

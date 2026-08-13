@@ -10,7 +10,7 @@ import '../../core/streak_freeze.dart';
 import '../../core/theme.dart';
 import '../../core/wod_session_bus.dart';
 import '../../models/achievement.dart';
-import '../../widgets/fkit.dart';
+import '../../widgets/hkit.dart';
 import '../../widgets/inbox_bell.dart';
 import '../../widgets/offline_banner.dart';
 import '../achievement/achievement_section.dart';
@@ -116,13 +116,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 future: _future,
                 builder: (ctx, snap) {
                   if (snap.connectionState != ConnectionState.done) {
-                    return const FkLoading();
+                    return const HkLoading();
                   }
                   if (snap.hasError) {
                     final e = snap.error;
                     final msg =
                         e is AppException ? e.messageKo : 'Load failed.';
-                    return FkErrorState(message: msg, onRetry: _reload);
+                    return HkErrorState(message: msg, onRetry: _reload);
                   }
                   final records = snap.data ?? const [];
                   return _GamificationBody(
@@ -159,11 +159,11 @@ class _NoticeAccordion extends StatelessWidget {
         latest.title.isNotEmpty ? latest.title : latest.body;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: FacingTokens.sp4),
+      margin: const EdgeInsets.only(bottom: HyphenTokens.sp4),
       decoration: BoxDecoration(
-        color: FacingTokens.surface,
-        border: Border.all(color: FacingTokens.border),
-        borderRadius: BorderRadius.circular(FacingTokens.r3),
+        color: HyphenTokens.surface,
+        border: Border.all(color: HyphenTokens.border),
+        borderRadius: BorderRadius.circular(HyphenTokens.r3),
       ),
       clipBehavior: Clip.antiAlias,
       child: Theme(
@@ -171,21 +171,21 @@ class _NoticeAccordion extends StatelessWidget {
         child: ExpansionTile(
           initiallyExpanded: false,
           tilePadding: const EdgeInsets.symmetric(
-              horizontal: FacingTokens.sp3, vertical: 2),
+              horizontal: HyphenTokens.sp3, vertical: 2),
           childrenPadding: const EdgeInsets.fromLTRB(
-              FacingTokens.sp3, 0, FacingTokens.sp3, FacingTokens.sp3),
-          collapsedIconColor: FacingTokens.muted,
-          iconColor: FacingTokens.muted,
+              HyphenTokens.sp3, 0, HyphenTokens.sp3, HyphenTokens.sp3),
+          collapsedIconColor: HyphenTokens.muted,
+          iconColor: HyphenTokens.muted,
           title: Row(
             children: [
-              const Text('공지', style: FacingTokens.sectionLabel),
+              const Text('공지', style: HyphenTokens.sectionLabel),
               if (hasUnread) ...[
-                const SizedBox(width: FacingTokens.sp2),
+                const SizedBox(width: HyphenTokens.sp2),
                 Container(
                   width: 7,
                   height: 7,
                   decoration: const BoxDecoration(
-                    color: FacingTokens.accent,
+                    color: HyphenTokens.accent,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -196,14 +196,14 @@ class _NoticeAccordion extends StatelessWidget {
             padding: const EdgeInsets.only(top: 2),
             child: Text(
               latestPreview,
-              style: FacingTokens.caption,
+              style: HyphenTokens.caption,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
           ),
           children: [
             ...top.map((n) => Padding(
-                  padding: const EdgeInsets.only(bottom: FacingTokens.sp2),
+                  padding: const EdgeInsets.only(bottom: HyphenTokens.sp2),
                   child: CoachDossierTile(note: n),
                 )),
             Align(
@@ -216,8 +216,8 @@ class _NoticeAccordion extends StatelessWidget {
                       builder: (_) => const MessagingScreen()));
                 },
                 style: TextButton.styleFrom(
-                  foregroundColor: FacingTokens.fgSecondary,
-                  minimumSize: const Size(0, FacingTokens.touchMin),
+                  foregroundColor: HyphenTokens.fgSecondary,
+                  minimumSize: const Size(0, HyphenTokens.touchMin),
                 ),
                 child: const Text('더 보기 →'),
               ),
@@ -302,7 +302,7 @@ class _GamificationBody extends StatelessWidget {
     // v2.5 (2026-08-12 사용자 지시): 섹션 사이 16·24 여백이 스크롤의 절반을
     // 차지했다. 바깥 여백 12 · 섹션 간격 12 로 통일.
     return ListView(
-      padding: const EdgeInsets.all(FacingTokens.sp3),
+      padding: const EdgeInsets.all(HyphenTokens.sp3),
       children: [
         // v1.23 Phase 4: 공지/쪽지 아코디언 — 화면 최상단(게이미피케이션 위).
         const _NoticeAccordion(),
@@ -312,16 +312,16 @@ class _GamificationBody extends StatelessWidget {
           currentStreakDays: currentStreak,
           prCount: PrDetector.countPrs(records),
         ),
-        const SizedBox(height: FacingTokens.sp3),
+        const SizedBox(height: HyphenTokens.sp3),
 
         // 업적 — 캐릭터 바로 아래 표 (v1.30: 그리드 → 한 줄 한 항목)
         const AchievementSection(),
-        const SizedBox(height: FacingTokens.sp3),
+        const SizedBox(height: HyphenTokens.sp3),
 
         // 마일스톤 — 3종 요약 진행바 (업적과 같은 표 리듬)
-        const FkSectionLabel('마일스톤'),
-        const SizedBox(height: FacingTokens.sp1),
-        FkRowCard(
+        const HkSectionLabel('마일스톤'),
+        const SizedBox(height: HyphenTokens.sp1),
+        HkRowCard(
           rows: [
             // QA 2026-06-11: WOD 계산 기록이 아닌 실제 출석(Attend 탭 동일
             // 소스)으로 표기 — 두 화면 수치 불일치 해소. 미가입·로드 실패 시 숨김.
@@ -390,11 +390,11 @@ class _LevelCard extends StatelessWidget {
 
   /// 레벨대별 캐릭터 강조 색 — 회색 → 흰 → 탠 (5 단계).
   Color _colorForLevel(int level) {
-    if (level >= 41) return FacingTokens.accent;
-    if (level >= 31) return FacingTokens.accent;
-    if (level >= 21) return FacingTokens.fg;
-    if (level >= 11) return FacingTokens.fg;
-    return FacingTokens.muted;
+    if (level >= 41) return HyphenTokens.accent;
+    if (level >= 31) return HyphenTokens.accent;
+    if (level >= 21) return HyphenTokens.fg;
+    if (level >= 11) return HyphenTokens.fg;
+    return HyphenTokens.muted;
   }
 
   /// 레벨대별 격려 한 줄. 친근한 톤.
@@ -447,7 +447,7 @@ class _LevelCard extends StatelessWidget {
     // 화면에서 가장 큰 요소였고, 정작 읽어야 할 레벨 숫자·진행도는 남은 절반에
     // 눌려 있었다. 캐릭터를 고정 88 아바타로 접고 숫자·진행바를 앞세운다.
     // 요소는 하나도 빼지 않았다 (캐릭터·레벨·XP·캡션·진행바·다음레벨 전부 유지).
-    return FkCard(
+    return HkCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -460,8 +460,8 @@ class _LevelCard extends StatelessWidget {
                 width: 88,
                 height: 88,
                 decoration: BoxDecoration(
-                  color: FacingTokens.surfaceAlt,
-                  borderRadius: BorderRadius.circular(FacingTokens.r2),
+                  color: HyphenTokens.surfaceAlt,
+                  borderRadius: BorderRadius.circular(HyphenTokens.r2),
                   border: Border.all(color: charColor, width: 1),
                 ),
                 clipBehavior: Clip.antiAlias,
@@ -474,25 +474,25 @@ class _LevelCard extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: FacingTokens.sp4),
+              const SizedBox(width: HyphenTokens.sp4),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const FkSectionLabel('레벨'),
+                    const HkSectionLabel('레벨'),
                     Text(
                       '${bd.level}',
-                      style: FacingTokens.displayCompact.copyWith(
-                        color: FacingTokens.primary,
+                      style: HyphenTokens.displayCompact.copyWith(
+                        color: HyphenTokens.primary,
                       ),
                     ),
-                    const SizedBox(height: FacingTokens.sp1),
+                    const SizedBox(height: HyphenTokens.sp1),
                     // 캡션 색을 레벨대 색에서 본문색으로 고정. 레벨이 낮으면
                     // 회색이라 격려 문구가 가장 흐렸다.
                     Text(
                       _captionForLevel(bd.level),
-                      style: FacingTokens.caption.copyWith(
-                        color: FacingTokens.fg,
+                      style: HyphenTokens.caption.copyWith(
+                        color: HyphenTokens.fg,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -501,28 +501,28 @@ class _LevelCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: FacingTokens.sp3),
+          const SizedBox(height: HyphenTokens.sp3),
           // 진행바를 카드 전체 폭으로. 반쪽 폭일 때는 14% 가 5px 밖에 안 돼
           // 채워졌는지 눈으로 확인되지 않았다.
           ClipRRect(
-            borderRadius: BorderRadius.circular(FacingTokens.r1),
+            borderRadius: BorderRadius.circular(HyphenTokens.r1),
             child: Stack(
               children: [
-                Container(height: 6, color: FacingTokens.border),
+                Container(height: 6, color: HyphenTokens.border),
                 FractionallySizedBox(
                   widthFactor: bd.progress,
-                  child: Container(height: 6, color: FacingTokens.primary),
+                  child: Container(height: 6, color: HyphenTokens.primary),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: FacingTokens.sp2),
+          const SizedBox(height: HyphenTokens.sp2),
           Row(
             children: [
               Text(
                 '${_comma(bd.totalXp)} XP',
-                style: FacingTokens.micro.copyWith(
-                  color: FacingTokens.fgSecondary,
+                style: HyphenTokens.micro.copyWith(
+                  color: HyphenTokens.fgSecondary,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -531,7 +531,7 @@ class _LevelCard extends StatelessWidget {
                 isMax
                     ? '최고 레벨'
                     : '다음 Lv${bd.level + 1} · ${_comma(bd.xpToNext)} XP · $pct%',
-                style: FacingTokens.micro,
+                style: HyphenTokens.micro,
               ),
             ],
           ),
@@ -554,7 +554,7 @@ String _comma(int n) {
 }
 
 /// 마일스톤 3종 요약 진행바 (출석 / 세션 / 업적).
-/// v1.30: 자체 레이아웃 폐기 — FkListRow(제목·부제·우측 값) + below 슬롯 진행바.
+/// v1.30: 자체 레이아웃 폐기 — HkListRow(제목·부제·우측 값) + below 슬롯 진행바.
 class _ProgressStat extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -570,24 +570,24 @@ class _ProgressStat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final done = value >= 1.0;
-    return FkListRow(
+    return HkListRow(
       title: title,
       subtitle: subtitle,
       trailing: trailing,
       // 달성 여부는 우측 수치의 색으로만 가른다 (진행바는 길이가 말한다).
-      trailingColor: done ? FacingTokens.primary : FacingTokens.fgSecondary,
+      trailingColor: done ? HyphenTokens.primary : HyphenTokens.fgSecondary,
       below: ClipRRect(
-        borderRadius: BorderRadius.circular(FacingTokens.r1),
+        borderRadius: BorderRadius.circular(HyphenTokens.r1),
         child: Stack(
           children: [
             // v2.2: 진행 중일 때 alpha 0.55 로 흐리던 것을 걷었다. 라이트 배경에서
             // 반투명 브랜드색은 "덜 채워짐"이 아니라 "비활성"으로 읽힌다.
             // 채운 길이가 이미 진행도를 말하므로 색까지 흐릴 이유가 없다.
             // 높이도 레벨 카드 진행바와 같은 6 으로 맞춘다.
-            Container(height: 6, color: FacingTokens.border),
+            Container(height: 6, color: HyphenTokens.border),
             FractionallySizedBox(
               widthFactor: value,
-              child: Container(height: 6, color: FacingTokens.primary),
+              child: Container(height: 6, color: HyphenTokens.primary),
             ),
           ],
         ),
@@ -596,4 +596,4 @@ class _ProgressStat extends StatelessWidget {
   }
 }
 
-// _ErrorState 삭제 — FkErrorState(widgets/fkit.dart)로 대체 (v1.27 UI SSOT).
+// _ErrorState 삭제 — HkErrorState(widgets/hkit.dart)로 대체 (v1.27 UI SSOT).

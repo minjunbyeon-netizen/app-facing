@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/achievement.dart';
-import '../../widgets/fkit.dart';
+import '../../widgets/hkit.dart';
 import 'achievement_card.dart';
 import 'achievement_state.dart';
 import 'achievements_screen.dart';
@@ -36,13 +36,13 @@ class AchievementSection extends StatelessWidget {
   static Color _rarityColor(String rarity) {
     switch (rarity) {
       case 'Rare':
-        return FacingTokens.accent;
+        return HyphenTokens.accent;
       case 'Epic':
-        return FacingTokens.tierElite;
+        return HyphenTokens.tierElite;
       case 'Legendary':
-        return FacingTokens.tierGames;
+        return HyphenTokens.tierGames;
       default:
-        return FacingTokens.muted;
+        return HyphenTokens.muted;
     }
   }
 
@@ -54,9 +54,9 @@ class AchievementSection extends StatelessWidget {
     Haptic.light();
     showModalBottomSheet(
       context: context,
-      backgroundColor: FacingTokens.surface,
+      backgroundColor: HyphenTokens.surface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(FacingTokens.r3)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(HyphenTokens.r3)),
       ),
       builder: (_) => _DetailSheet(
         catalog: catalog,
@@ -107,29 +107,29 @@ class AchievementSection extends StatelessWidget {
         // 헤더
         Row(
           children: [
-            const Expanded(child: FkSectionLabel('업적')),
-            Text('$unlockedCount / $totalVisible', style: FacingTokens.caption),
-            const SizedBox(width: FacingTokens.sp2),
+            const Expanded(child: HkSectionLabel('업적')),
+            Text('$unlockedCount / $totalVisible', style: HyphenTokens.caption),
+            const SizedBox(width: HyphenTokens.sp2),
             TextButton(
               style: TextButton.styleFrom(
-                foregroundColor: FacingTokens.accent,
-                padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp2),
+                foregroundColor: HyphenTokens.accent,
+                padding: const EdgeInsets.symmetric(horizontal: HyphenTokens.sp2),
               ),
               onPressed: () => _goAll(context),
               child: const Text('전체 보기'),
             ),
           ],
         ),
-        const SizedBox(height: FacingTokens.sp2),
+        const SizedBox(height: HyphenTokens.sp2),
 
         if (unlockedList.isEmpty)
           // 빈 상태 — 아직 해금 없음
           _EmptyState(onTap: () => _goAll(context))
         else
-          FkRowCard(
+          HkRowCard(
             rows: [
               for (final c in displayItems)
-                FkListRow(
+                HkListRow(
                   icon: _iconFor(c.code),
                   iconColor: _rarityColor(c.rarity),
                   title: _rowTitle(c),
@@ -139,11 +139,11 @@ class AchievementSection extends StatelessWidget {
                   onTap: () => _showDetail(context, c, snap.unlocked[c.code]),
                 ),
               if (hasOverflow)
-                FkListRow(
+                HkListRow(
                   icon: Icons.more_horiz,
                   title: '그 외 $overflowCount개',
                   trailing: '전체 보기',
-                  trailingColor: FacingTokens.accent,
+                  trailingColor: HyphenTokens.accent,
                   onTap: () => _goAll(context),
                 ),
             ],
@@ -173,22 +173,22 @@ class _EmptyState extends StatelessWidget {
       // 한 줄로 눕혀 절반 이하로 (내용은 그대로).
       child: Container(
         padding: const EdgeInsets.symmetric(
-          vertical: FacingTokens.sp2,
-          horizontal: FacingTokens.sp3,
+          vertical: HyphenTokens.sp2,
+          horizontal: HyphenTokens.sp3,
         ),
         decoration: BoxDecoration(
-          border: Border.all(color: FacingTokens.border, width: 0.8),
-          borderRadius: BorderRadius.circular(FacingTokens.r2),
+          border: Border.all(color: HyphenTokens.border, width: 0.8),
+          borderRadius: BorderRadius.circular(HyphenTokens.r2),
         ),
         child: Row(
           children: [
             const Icon(Icons.military_tech_outlined,
-                size: 18, color: FacingTokens.muted),
-            const SizedBox(width: FacingTokens.sp2),
+                size: 18, color: HyphenTokens.muted),
+            const SizedBox(width: HyphenTokens.sp2),
             const Expanded(
               child: Text(
                 '아직 업적 없음. WOD를 완료하면 해금됩니다.',
-                style: FacingTokens.caption,
+                style: HyphenTokens.caption,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -221,10 +221,10 @@ class _DetailSheet extends StatelessWidget {
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(
-          FacingTokens.sp5,
-          FacingTokens.sp4,
-          FacingTokens.sp5,
-          FacingTokens.sp5,
+          HyphenTokens.sp5,
+          HyphenTokens.sp4,
+          HyphenTokens.sp5,
+          HyphenTokens.sp5,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -235,12 +235,12 @@ class _DetailSheet extends StatelessWidget {
                 width: 36,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: FacingTokens.border,
+                  color: HyphenTokens.border,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
             ),
-            const SizedBox(height: FacingTokens.sp4),
+            const SizedBox(height: HyphenTokens.sp4),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -249,12 +249,12 @@ class _DetailSheet extends StatelessWidget {
                   height: 52,
                   decoration: BoxDecoration(
                     color: rarityColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(FacingTokens.r2),
+                    borderRadius: BorderRadius.circular(HyphenTokens.r2),
                     border: Border.all(color: rarityColor, width: 1.5),
                   ),
                   child: Icon(icon, size: 28, color: rarityColor),
                 ),
-                const SizedBox(width: FacingTokens.sp3),
+                const SizedBox(width: HyphenTokens.sp3),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -262,8 +262,8 @@ class _DetailSheet extends StatelessWidget {
                       // 상세 시트 타이틀 = 선언형 고유명("First Ten.") 유지.
                       Text(
                         catalog.name,
-                        style: FacingTokens.h3.copyWith(
-                          color: FacingTokens.fg,
+                        style: HyphenTokens.h3.copyWith(
+                          color: HyphenTokens.fg,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
@@ -271,21 +271,21 @@ class _DetailSheet extends StatelessWidget {
                           .isNotEmpty) ...[
                         const SizedBox(height: 2),
                         Text(AchievementCard.koreanTitle(catalog.code),
-                            style: FacingTokens.caption),
+                            style: HyphenTokens.caption),
                       ],
                     ],
                   ),
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: FacingTokens.sp2, vertical: 4),
+                      horizontal: HyphenTokens.sp2, vertical: 4),
                   decoration: BoxDecoration(
                     color: rarityColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(FacingTokens.r1),
+                    borderRadius: BorderRadius.circular(HyphenTokens.r1),
                   ),
                   child: Text(
                     catalog.rarity.toUpperCase(),
-                    style: FacingTokens.micro.copyWith(
+                    style: HyphenTokens.micro.copyWith(
                       color: rarityColor,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 0.6,
@@ -294,21 +294,21 @@ class _DetailSheet extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: FacingTokens.sp4),
-            Container(height: 1, color: FacingTokens.border),
-            const SizedBox(height: FacingTokens.sp4),
+            const SizedBox(height: HyphenTokens.sp4),
+            Container(height: 1, color: HyphenTokens.border),
+            const SizedBox(height: HyphenTokens.sp4),
             Text(
               isUnlocked ? catalog.description : _hint(),
-              style: FacingTokens.body,
+              style: HyphenTokens.body,
             ),
             if (isUnlocked) ...[
-              const SizedBox(height: FacingTokens.sp3),
+              const SizedBox(height: HyphenTokens.sp3),
               Text(
                 '${_fmt(unlock!.unlockedAt)} 해금',
-                style: FacingTokens.caption.copyWith(color: FacingTokens.accent),
+                style: HyphenTokens.caption.copyWith(color: HyphenTokens.accent),
               ),
             ],
-            const SizedBox(height: FacingTokens.sp2),
+            const SizedBox(height: HyphenTokens.sp2),
           ],
         ),
       ),

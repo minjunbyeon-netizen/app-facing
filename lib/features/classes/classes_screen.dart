@@ -6,7 +6,7 @@ import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/class_session.dart';
-import '../../widgets/fkit.dart';
+import '../../widgets/hkit.dart';
 import '../gym/gym_state.dart';
 import 'classes_repository.dart';
 
@@ -53,19 +53,19 @@ Future<bool> cancelClassFlow(
   final ok = await showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(
-      backgroundColor: FacingTokens.surfaceOverlay,
+      backgroundColor: HyphenTokens.surfaceOverlay,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(FacingTokens.r4),
+        borderRadius: BorderRadius.circular(HyphenTokens.r4),
       ),
       title: const Text('예약을 취소할까요?'),
-      content: Text('${c.title} · $when', style: FacingTokens.caption),
+      content: Text('${c.title} · $when', style: HyphenTokens.caption),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(ctx, false),
           child: const Text('유지'),
         ),
         TextButton(
-          style: TextButton.styleFrom(foregroundColor: FacingTokens.accent),
+          style: TextButton.styleFrom(foregroundColor: HyphenTokens.accent),
           onPressed: () => Navigator.pop(ctx, true),
           child: const Text('취소'),
         ),
@@ -122,11 +122,11 @@ class _ClassesScreenState extends State<ClassesScreen> {
       ),
       body: SafeArea(
         child: RefreshIndicator(
-          color: FacingTokens.accent,
+          color: HyphenTokens.accent,
           onRefresh: () async => _reload(),
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(FacingTokens.sp4),
+            padding: const EdgeInsets.all(HyphenTokens.sp4),
             children: [
               ClassesSection(
                 key: ValueKey('cls-$_tick'),
@@ -178,18 +178,18 @@ class _ClassesSectionState extends State<ClassesSection> {
   }
 
   Widget _header() => const Padding(
-        padding: EdgeInsets.only(bottom: FacingTokens.sp2),
-        child: Text('수업', style: FacingTokens.sectionLabel),
+        padding: EdgeInsets.only(bottom: HyphenTokens.sp2),
+        child: Text('수업', style: HyphenTokens.sectionLabel),
       );
 
   Widget _inline(String text, {Widget? action}) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp3),
+        padding: const EdgeInsets.symmetric(vertical: HyphenTokens.sp3),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(text, style: FacingTokens.caption),
+            Text(text, style: HyphenTokens.caption),
             if (action != null) ...[
-              const SizedBox(height: FacingTokens.sp2),
+              const SizedBox(height: HyphenTokens.sp2),
               action,
             ],
           ],
@@ -216,10 +216,10 @@ class _ClassesSectionState extends State<ClassesSection> {
         Widget body;
         if (snap.connectionState != ConnectionState.done) {
           body = const Padding(
-            padding: EdgeInsets.symmetric(vertical: FacingTokens.sp4),
+            padding: EdgeInsets.symmetric(vertical: HyphenTokens.sp4),
             child: Center(
               child: CircularProgressIndicator(
-                  color: FacingTokens.muted, strokeWidth: 2),
+                  color: HyphenTokens.muted, strokeWidth: 2),
             ),
           );
         } else if (snap.hasError) {
@@ -230,8 +230,8 @@ class _ClassesSectionState extends State<ClassesSection> {
             action: TextButton(
               onPressed: _reload,
               style: TextButton.styleFrom(
-                foregroundColor: FacingTokens.fgSecondary,
-                minimumSize: const Size(0, FacingTokens.touchMin),
+                foregroundColor: HyphenTokens.fgSecondary,
+                minimumSize: const Size(0, HyphenTokens.touchMin),
                 padding: EdgeInsets.zero,
               ),
               child: const Text('다시 시도'),
@@ -258,12 +258,12 @@ class _ClassesSectionState extends State<ClassesSection> {
                 for (final entry in groups.entries) ...[
                   Padding(
                     padding: const EdgeInsets.only(
-                      top: FacingTokens.sp3,
-                      bottom: FacingTokens.sp2,
+                      top: HyphenTokens.sp3,
+                      bottom: HyphenTokens.sp2,
                     ),
                     child: Text(
                       entry.key.toUpperCase(),
-                      style: FacingTokens.sectionLabel,
+                      style: HyphenTokens.sectionLabel,
                     ),
                   ),
                   for (final c in entry.value)
@@ -319,19 +319,19 @@ class _ClassCard extends StatelessWidget {
 
     return Container(
       // v2.3 (2026-08-12 사용자 지시): 카드가 헐거워 한 화면에 두 개도 안 들어왔다.
-      margin: const EdgeInsets.only(bottom: FacingTokens.sp2),
-      padding: const EdgeInsets.all(FacingTokens.sp3),
+      margin: const EdgeInsets.only(bottom: HyphenTokens.sp2),
+      padding: const EdgeInsets.all(HyphenTokens.sp3),
       decoration: BoxDecoration(
-        color: FacingTokens.surface,
+        color: HyphenTokens.surface,
         border: Border.all(
           color: isReserved
-              ? FacingTokens.success
+              ? HyphenTokens.success
               : isWaitlisted
-                  ? FacingTokens.warning
-                  : FacingTokens.border,
+                  ? HyphenTokens.warning
+                  : HyphenTokens.border,
           width: (isReserved || isWaitlisted) ? 1.5 : 1,
         ),
-        borderRadius: BorderRadius.circular(FacingTokens.r3),
+        borderRadius: BorderRadius.circular(HyphenTokens.r3),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -342,28 +342,28 @@ class _ClassCard extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text('$hh:$mm', style: FacingTokens.h3),
+                  Text('$hh:$mm', style: HyphenTokens.h3),
                   const SizedBox(height: 2),
                   Text('${session.durationMinutes}분',
-                      style: FacingTokens.micro),
+                      style: HyphenTokens.micro),
                 ],
               ),
-              const SizedBox(width: FacingTokens.sp4),
+              const SizedBox(width: HyphenTokens.sp4),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(session.title,
-                        style: FacingTokens.body
+                        style: HyphenTokens.body
                             .copyWith(fontWeight: FontWeight.w800)),
                     if ((session.room ?? '').isNotEmpty) ...[
                       const SizedBox(height: 2),
-                      Text(session.room!, style: FacingTokens.caption),
+                      Text(session.room!, style: HyphenTokens.caption),
                     ],
                     if ((session.description ?? '').isNotEmpty) ...[
-                      const SizedBox(height: FacingTokens.sp1),
+                      const SizedBox(height: HyphenTokens.sp1),
                       Text(session.description!,
-                          style: FacingTokens.caption,
+                          style: HyphenTokens.caption,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis),
                     ],
@@ -377,29 +377,29 @@ class _ClassCard extends StatelessWidget {
                   // 인원임을 드러낸다 (사용자 지시 2026-08-12).
                   Text(
                     '${session.reservedCount}명 / ${session.capacity}명',
-                    style: FacingTokens.body.copyWith(
-                      fontFeatures: FacingTokens.tabular,
+                    style: HyphenTokens.body.copyWith(
+                      fontFeatures: HyphenTokens.tabular,
                       fontWeight: FontWeight.w700,
-                      color: isFull ? FacingTokens.warning : FacingTokens.fg,
+                      color: isFull ? HyphenTokens.warning : HyphenTokens.fg,
                     ),
                   ),
                   if (session.waitlistCount > 0)
                     Text('대기 ${session.waitlistCount}',
-                        style: FacingTokens.micro),
+                        style: HyphenTokens.micro),
                 ],
               ),
             ],
           ),
-          const SizedBox(height: FacingTokens.sp2),
+          const SizedBox(height: HyphenTokens.sp2),
           Row(
             children: [
               if (isCancelled)
-                const FkBadge('취소됨', color: FacingTokens.muted)
+                const HkBadge('취소됨', color: HyphenTokens.muted)
               else if (isReserved)
-                const FkBadge('예약됨', color: FacingTokens.success)
+                const HkBadge('예약됨', color: HyphenTokens.success)
               else if (isWaitlisted)
-                FkBadge('대기 #${session.myWaitlistPosition}',
-                    color: FacingTokens.warning),
+                HkBadge('대기 #${session.myWaitlistPosition}',
+                    color: HyphenTokens.warning),
               const Spacer(),
               if (!isCancelled) ...[
                 // 전역 버튼 테마의 minimumSize(double.infinity) 는 Row 안에서
@@ -409,9 +409,9 @@ class _ClassCard extends StatelessWidget {
                     onPressed: onCancel,
                     style: OutlinedButton.styleFrom(
                       minimumSize: const Size(96, 44),
-                      foregroundColor: FacingTokens.accent,
+                      foregroundColor: HyphenTokens.accent,
                       side:
-                          BorderSide(color: FacingTokens.accent.withAlpha(120)),
+                          BorderSide(color: HyphenTokens.accent.withAlpha(120)),
                     ),
                     child: const Text('취소'),
                   )
@@ -423,8 +423,8 @@ class _ClassCard extends StatelessWidget {
                         : onReserve,
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(96, 44),
-                      backgroundColor: FacingTokens.accent,
-                      foregroundColor: FacingTokens.onColor,
+                      backgroundColor: HyphenTokens.accent,
+                      foregroundColor: HyphenTokens.onColor,
                     ),
                     child: Text(isFull ? '대기 신청' : '예약'),
                   ),

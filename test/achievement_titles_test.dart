@@ -6,7 +6,7 @@
 // 서버가 코드를 추가하면 이 테스트가 먼저 실패해 칭호 누락을 잡는다.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:facing_app/features/achievement/achievement_card.dart';
+import 'package:hyphen_app/features/achievement/achievement_card.dart';
 
 /// 서버 카탈로그 계약 (service-facing seeds/seed_achievements.py 기준, 56종).
 const kServerAchievementCodes = <String>[

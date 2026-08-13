@@ -5,7 +5,7 @@ import '../../core/api_client.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/gym.dart';
-import '../../widgets/fkit.dart';
+import '../../widgets/hkit.dart';
 import 'gym_repository.dart';
 import 'gym_state.dart';
 import 'wod_detail_screen.dart';
@@ -40,11 +40,11 @@ class LockedWodBanner extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 4),
       padding: const EdgeInsets.symmetric(
-          vertical: FacingTokens.sp3, horizontal: FacingTokens.sp3),
+          vertical: HyphenTokens.sp3, horizontal: HyphenTokens.sp3),
       decoration: BoxDecoration(
-        color: FacingTokens.surface,
-        border: Border.all(color: FacingTokens.border),
-        borderRadius: BorderRadius.circular(FacingTokens.r2),
+        color: HyphenTokens.surface,
+        border: Border.all(color: HyphenTokens.border),
+        borderRadius: BorderRadius.circular(HyphenTokens.r2),
       ),
       child: Row(
         children: [
@@ -52,9 +52,9 @@ class LockedWodBanner extends StatelessWidget {
             width: 3,
             height: 36,
             color:
-                isMembershipExpired ? FacingTokens.warning : FacingTokens.border,
+                isMembershipExpired ? HyphenTokens.warning : HyphenTokens.border,
           ),
-          const SizedBox(width: FacingTokens.sp3),
+          const SizedBox(width: HyphenTokens.sp3),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,15 +62,15 @@ class LockedWodBanner extends StatelessWidget {
                 if (showDate) ...[
                   Text(
                     dateLabel,
-                    style: FacingTokens.microLabel
-                        .copyWith(color: FacingTokens.muted),
+                    style: HyphenTokens.microLabel
+                        .copyWith(color: HyphenTokens.muted),
                   ),
                   const SizedBox(height: 2),
                 ],
                 Text(
                   wodTypeLabel(wodType),
-                  style: FacingTokens.body.copyWith(
-                    color: FacingTokens.muted,
+                  style: HyphenTokens.body.copyWith(
+                    color: HyphenTokens.muted,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -80,10 +80,10 @@ class LockedWodBanner extends StatelessWidget {
                     isMembershipExpired
                         ? '회원권 만료. 갱신 후 열람.'
                         : '당일 공개.',
-                    style: FacingTokens.caption.copyWith(
+                    style: HyphenTokens.caption.copyWith(
                       color: isMembershipExpired
-                          ? FacingTokens.warning
-                          : FacingTokens.muted,
+                          ? HyphenTokens.warning
+                          : HyphenTokens.muted,
                     ),
                   ),
                 ),
@@ -94,7 +94,7 @@ class LockedWodBanner extends StatelessWidget {
             isMembershipExpired ? Icons.lock : Icons.lock_outline,
             size: 16,
             color:
-                isMembershipExpired ? FacingTokens.warning : FacingTokens.muted,
+                isMembershipExpired ? HyphenTokens.warning : HyphenTokens.muted,
           ),
         ],
       ),
@@ -148,7 +148,7 @@ class _WodRowState extends State<WodRow> {
   Widget _dot() => Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6),
         child: Text('·',
-            style: FacingTokens.caption.copyWith(color: FacingTokens.muted)),
+            style: HyphenTokens.caption.copyWith(color: HyphenTokens.muted)),
       );
 
   /// 라벨(좌) + 값(우) 한 줄. 라벨 폭 72 는 'A. METCON'·'VERSIONS' 를 못 담아
@@ -165,12 +165,12 @@ class _WodRowState extends State<WodRow> {
             width: 92,
             child: Text(
               label,
-              style: FacingTokens.microLabel,
+              style: HyphenTokens.microLabel,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          const SizedBox(width: FacingTokens.sp2),
+          const SizedBox(width: HyphenTokens.sp2),
           Expanded(child: value),
         ],
       ),
@@ -192,10 +192,10 @@ class _WodRowState extends State<WodRow> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: FacingTokens.surface,
+      backgroundColor: HyphenTokens.surface,
       shape: const RoundedRectangleBorder(
         borderRadius:
-            BorderRadius.vertical(top: Radius.circular(FacingTokens.r3)),
+            BorderRadius.vertical(top: Radius.circular(HyphenTokens.r3)),
       ),
       builder: (_) => _MsgCoachSheet(
         gymId: gymId,
@@ -219,7 +219,7 @@ class _WodRowState extends State<WodRow> {
   Widget build(BuildContext context) {
     final wod = widget.wod;
     final isMinimal = !widget.isToday;
-    final fgColor = isMinimal ? FacingTokens.muted : FacingTokens.fg;
+    final fgColor = isMinimal ? HyphenTokens.muted : HyphenTokens.fg;
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -228,11 +228,11 @@ class _WodRowState extends State<WodRow> {
         child: Container(
           decoration: const BoxDecoration(
             border: Border(
-              bottom: BorderSide(color: FacingTokens.border, width: 1),
+              bottom: BorderSide(color: HyphenTokens.border, width: 1),
             ),
           ),
           padding: EdgeInsets.symmetric(
-            vertical: isMinimal ? FacingTokens.sp2 : FacingTokens.sp3,
+            vertical: isMinimal ? HyphenTokens.sp2 : HyphenTokens.sp3,
             horizontal: 2,
           ),
           child: Column(
@@ -244,32 +244,32 @@ class _WodRowState extends State<WodRow> {
                   if (isMinimal && widget.showDate) ...[
                     Text(
                       widget.dateLabel,
-                      style: FacingTokens.microLabel.copyWith(
-                        color: FacingTokens.muted,
+                      style: HyphenTokens.microLabel.copyWith(
+                        color: HyphenTokens.muted,
                       ),
                     ),
                     _dot(),
                   ],
                   Text(
                     wodTypeLabel(wod.wodType),
-                    style: FacingTokens.sectionLabel.copyWith(
+                    style: HyphenTokens.sectionLabel.copyWith(
                       color:
-                          isMinimal ? FacingTokens.muted : FacingTokens.accent,
+                          isMinimal ? HyphenTokens.muted : HyphenTokens.accent,
                     ),
                   ),
                   if (wod.timeCapSec != null) ...[
                     _dot(),
-                    Text(wod.timeCapDisplay, style: FacingTokens.caption),
+                    Text(wod.timeCapDisplay, style: HyphenTokens.caption),
                   ],
                   if (wod.rounds != null) ...[
                     _dot(),
-                    Text('${wod.rounds} rounds', style: FacingTokens.caption),
+                    Text('${wod.rounds} rounds', style: HyphenTokens.caption),
                   ],
                   const Spacer(),
                   if (widget.canDelete && _expanded)
                     IconButton(
                       icon: const Icon(Icons.delete_outline, size: 18),
-                      color: FacingTokens.muted,
+                      color: HyphenTokens.muted,
                       padding: EdgeInsets.zero,
                       constraints:
                           const BoxConstraints(minWidth: 28, minHeight: 28),
@@ -284,7 +284,7 @@ class _WodRowState extends State<WodRow> {
                   Icon(
                     _expanded ? Icons.expand_less : Icons.expand_more,
                     size: 20,
-                    color: FacingTokens.muted,
+                    color: HyphenTokens.muted,
                   ),
                 ],
               ),
@@ -293,16 +293,16 @@ class _WodRowState extends State<WodRow> {
                 const SizedBox(height: 4),
                 Text(
                   wod.content,
-                  style: FacingTokens.caption,
+                  style: HyphenTokens.caption,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
               if (_expanded) ...[
-                const SizedBox(height: FacingTokens.sp2),
+                const SizedBox(height: HyphenTokens.sp2),
                 Text(
                   wod.content,
-                  style: FacingTokens.body.copyWith(color: fgColor),
+                  style: HyphenTokens.body.copyWith(color: fgColor),
                 ),
                 // v2.3: 라운드가 하나뿐이면 그 내용은 바로 위 본문과 같은 말이다
                 // ('21-15-9 Thruster + Pull-up' 이 두 번). 카드 길이만 늘리고
@@ -318,11 +318,11 @@ class _WodRowState extends State<WodRow> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(r.content, style: FacingTokens.caption),
+                          Text(r.content, style: HyphenTokens.caption),
                           if (r.timeCapSec != null)
                             Text(
                               'cap ${r.timeCapSec! ~/ 60}:${(r.timeCapSec! % 60).toString().padLeft(2, '0')}',
-                              style: FacingTokens.micro,
+                              style: HyphenTokens.micro,
                             ),
                         ],
                       ),
@@ -332,7 +332,7 @@ class _WodRowState extends State<WodRow> {
                 if (wod.scaleGuide != null && wod.scaleGuide!.isNotEmpty)
                   _kv(
                     'SCALE',
-                    Text(wod.scaleGuide!, style: FacingTokens.caption),
+                    Text(wod.scaleGuide!, style: HyphenTokens.caption),
                   ),
                 if (wod.hasVersions)
                   _kv(
@@ -347,8 +347,8 @@ class _WodRowState extends State<WodRow> {
                             wod.beginnerVersion!.isNotEmpty)
                           'BEGINNER',
                       ].join(' · '),
-                      style: FacingTokens.caption.copyWith(
-                        color: FacingTokens.fg,
+                      style: HyphenTokens.caption.copyWith(
+                        color: HyphenTokens.fg,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -357,32 +357,32 @@ class _WodRowState extends State<WodRow> {
                 // v2.4: 두 줄(채움 + 글자줄)이 100px 를 먹어 그 밑 수업이 화면
                 // 밖으로 밀렸다. 한 줄로 합쳐 주 동작은 그대로 채움으로 남긴다.
                 // v2.6 (2026-08-12 사용자 지시 "지금도 좀 커서 거북하다"):
-                // 세 동작을 전부 FkBadge 한 규격으로 내렸다 — 바로 아래 수업 줄의
+                // 세 동작을 전부 HkBadge 한 규격으로 내렸다 — 바로 아래 수업 줄의
                 // 예약·대기 배지와 같은 크기다. 주 동작(완료 표시)만 면 채움으로
-                // 남겨 위계는 유지하고, 손가락 영역 48 은 FkBadge 가 내부에서
+                // 남겨 위계는 유지하고, 손가락 영역 48 은 HkBadge 가 내부에서
                 // 확보하므로 터치 기준은 그대로다 (DESIGN-SSOT §3).
                 Row(
                   children: [
-                    FkBadge(
+                    HkBadge(
                       '완료 표시',
-                      color: FacingTokens.primary,
+                      color: HyphenTokens.primary,
                       selected: true,
                       onTap: () => _openResultSheet(context),
                     ),
                     const Spacer(),
                     // 회원 전용: 코치에게 메시지 (owner는 숨김)
                     if (!context.watch<GymState>().isOwner) ...[
-                      FkBadge(
+                      HkBadge(
                         '메시지',
-                        color: FacingTokens.fgSecondary,
+                        color: HyphenTokens.fgSecondary,
                         onTap: () => _openMsgSheet(context),
                       ),
-                      const SizedBox(width: FacingTokens.sp2),
+                      const SizedBox(width: HyphenTokens.sp2),
                     ],
                     // v1.29 한글 기본 — 'Detail' 은 도메인 고정어가 아니다.
-                    FkBadge(
+                    HkBadge(
                       '자세히',
-                      color: FacingTokens.fgSecondary,
+                      color: HyphenTokens.fgSecondary,
                       onTap: () => _openDetail(context),
                     ),
                   ],
@@ -399,16 +399,16 @@ class _WodRowState extends State<WodRow> {
     return showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: FacingTokens.surfaceOverlay,
+        backgroundColor: HyphenTokens.surfaceOverlay,
         title: const Text('WOD를 삭제할까요?'),
         content:
-            const Text('멤버에게 더 이상 보이지 않음.', style: FacingTokens.caption),
+            const Text('멤버에게 더 이상 보이지 않음.', style: HyphenTokens.caption),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
               child: const Text('취소')),
           TextButton(
-            style: TextButton.styleFrom(foregroundColor: FacingTokens.accent),
+            style: TextButton.styleFrom(foregroundColor: HyphenTokens.accent),
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text('삭제'),
           ),
@@ -469,8 +469,8 @@ class _MsgCoachSheetState extends State<_MsgCoachSheet> {
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     return Padding(
-      padding: EdgeInsets.fromLTRB(FacingTokens.sp4, FacingTokens.sp4,
-          FacingTokens.sp4, FacingTokens.sp4 + bottomInset),
+      padding: EdgeInsets.fromLTRB(HyphenTokens.sp4, HyphenTokens.sp4,
+          HyphenTokens.sp4, HyphenTokens.sp4 + bottomInset),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -480,55 +480,55 @@ class _MsgCoachSheetState extends State<_MsgCoachSheet> {
               width: 36,
               height: 4,
               decoration: BoxDecoration(
-                color: FacingTokens.border,
+                color: HyphenTokens.border,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
           ),
-          const SizedBox(height: FacingTokens.sp4),
-          const Text('코치에게 메시지', style: FacingTokens.sectionLabel),
+          const SizedBox(height: HyphenTokens.sp4),
+          const Text('코치에게 메시지', style: HyphenTokens.sectionLabel),
           const SizedBox(height: 4),
           Text(
             '${wodTypeLabel(widget.wod.wodType)} · ${widget.wod.postDate}',
-            style: FacingTokens.caption,
+            style: HyphenTokens.caption,
           ),
-          const SizedBox(height: FacingTokens.sp3),
+          const SizedBox(height: HyphenTokens.sp3),
           TextField(
             controller: _ctrl,
             autofocus: true,
             maxLines: 4,
             maxLength: 500,
-            style: FacingTokens.body,
+            style: HyphenTokens.body,
             decoration: InputDecoration(
               hintText: '오늘 무릎 통증 있어서 스케일드로 할게요.',
-              hintStyle: FacingTokens.caption,
+              hintStyle: HyphenTokens.caption,
               filled: true,
-              fillColor: FacingTokens.bg,
+              fillColor: HyphenTokens.bg,
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(FacingTokens.r2),
-                borderSide: const BorderSide(color: FacingTokens.border),
+                borderRadius: BorderRadius.circular(HyphenTokens.r2),
+                borderSide: const BorderSide(color: HyphenTokens.border),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(FacingTokens.r2),
-                borderSide: const BorderSide(color: FacingTokens.border),
+                borderRadius: BorderRadius.circular(HyphenTokens.r2),
+                borderSide: const BorderSide(color: HyphenTokens.border),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(FacingTokens.r2),
+                borderRadius: BorderRadius.circular(HyphenTokens.r2),
                 borderSide:
-                    const BorderSide(color: FacingTokens.accent, width: 1.5),
+                    const BorderSide(color: HyphenTokens.accent, width: 1.5),
               ),
-              counterStyle: FacingTokens.micro,
+              counterStyle: HyphenTokens.micro,
             ),
           ),
-          const SizedBox(height: FacingTokens.sp3),
+          const SizedBox(height: HyphenTokens.sp3),
           ElevatedButton(
             onPressed: _sending ? null : _send,
             style: ElevatedButton.styleFrom(
-              backgroundColor: FacingTokens.accent,
-              foregroundColor: FacingTokens.fg,
+              backgroundColor: HyphenTokens.accent,
+              foregroundColor: HyphenTokens.fg,
               minimumSize: const Size.fromHeight(48),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(FacingTokens.r2),
+                borderRadius: BorderRadius.circular(HyphenTokens.r2),
               ),
             ),
             child: _sending
@@ -536,7 +536,7 @@ class _MsgCoachSheetState extends State<_MsgCoachSheet> {
                     width: 20,
                     height: 20,
                     child: CircularProgressIndicator(
-                        color: FacingTokens.fg, strokeWidth: 2),
+                        color: HyphenTokens.fg, strokeWidth: 2),
                   )
                 : const Text('보내기'),
           ),

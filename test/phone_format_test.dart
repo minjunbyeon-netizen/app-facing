@@ -2,7 +2,7 @@
 // 코치 명단의 번호 표기를 한 가지로 고정한다. 나중에 번호를 기계로 쓰는
 // 기능(문자 발송 등)을 붙일 때 다시 씻지 않아도 되게.
 import 'package:flutter_test/flutter_test.dart';
-import 'package:facing_app/core/input_formatters.dart';
+import 'package:hyphen_app/core/input_formatters.dart';
 
 String _format(String typed) {
   final f = PhoneInputFormatter();

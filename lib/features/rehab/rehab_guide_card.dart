@@ -14,12 +14,12 @@ class RehabGuideCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-          FacingTokens.sp4, FacingTokens.sp4, FacingTokens.sp4, FacingTokens.sp2),
+          HyphenTokens.sp4, HyphenTokens.sp4, HyphenTokens.sp4, HyphenTokens.sp2),
       child: Material(
-        color: FacingTokens.surfaceHigh,
-        borderRadius: BorderRadius.circular(FacingTokens.r2),
+        color: HyphenTokens.surfaceHigh,
+        borderRadius: BorderRadius.circular(HyphenTokens.r2),
         child: InkWell(
-          borderRadius: BorderRadius.circular(FacingTokens.r2),
+          borderRadius: BorderRadius.circular(HyphenTokens.r2),
           onTap: () {
             Haptic.light();
             Navigator.of(context).push(
@@ -27,35 +27,35 @@ class RehabGuideCard extends StatelessWidget {
             );
           },
           child: Padding(
-            padding: const EdgeInsets.all(FacingTokens.sp4),
+            padding: const EdgeInsets.all(HyphenTokens.sp4),
             child: Row(
               children: [
                 Container(
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: FacingTokens.accentSoft,
-                    borderRadius: BorderRadius.circular(FacingTokens.r1),
+                    color: HyphenTokens.accentSoft,
+                    borderRadius: BorderRadius.circular(HyphenTokens.r1),
                   ),
                   child: const Icon(Icons.healing_outlined,
-                      size: 20, color: FacingTokens.accent),
+                      size: 20, color: HyphenTokens.accent),
                 ),
-                const SizedBox(width: FacingTokens.sp3),
+                const SizedBox(width: HyphenTokens.sp3),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text('재활 가이드',
-                          style: FacingTokens.sectionLabel),
+                          style: HyphenTokens.sectionLabel),
                       const SizedBox(height: 2),
                       Text('통증 부위로 원인 감별 → 단계별 재활',
-                          style: FacingTokens.caption
-                              .copyWith(color: FacingTokens.fgSecondary)),
+                          style: HyphenTokens.caption
+                              .copyWith(color: HyphenTokens.fgSecondary)),
                     ],
                   ),
                 ),
                 const Icon(Icons.chevron_right,
-                    size: 20, color: FacingTokens.muted),
+                    size: 20, color: HyphenTokens.muted),
               ],
             ),
           ),

@@ -6,7 +6,7 @@ import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../core/app_mode.dart';
 import '../../widgets/brand_logo.dart';
-import '../../widgets/fkit.dart';
+import '../../widgets/hkit.dart';
 import '../mypage/privacy_screen.dart';
 import '../mypage/terms_screen.dart';
 import '../profile/profile_state.dart';
@@ -43,9 +43,9 @@ class _SignupScreenState extends State<SignupScreen> {
 
   // D26: stub ↔ real 자동 선택 (USE_REAL_AUTH 플래그). 실 OAuth 는 ApiClient 의존
   // 이라 const 불가 — _signIn 에서 context 로 ApiClient 받아 resolve.
-  static const Color _naverGreen = FacingTokens.naverGreen;
-  static const Color _googleSurface = FacingTokens.googleSurface;
-  static const Color _googleBlue = FacingTokens.googleBlue;
+  static const Color _naverGreen = HyphenTokens.naverGreen;
+  static const Color _googleSurface = HyphenTokens.googleSurface;
+  static const Color _googleBlue = HyphenTokens.googleBlue;
 
   /// D26: provider 탭 → SocialAuthService → 서버 role 로 자동 분기.
   /// (현재 stub: role=solo 반환. 실 OAuth 시 박스 연결로 boss/coach/member 결정.)
@@ -99,22 +99,22 @@ class _SignupScreenState extends State<SignupScreen> {
     // v1.29: 로그인 진행 중 = 전면 로딩 규격 (DESIGN-SSOT §6 — 스플래시와 동일 골격).
     if (_busy) {
       return const Scaffold(
-        backgroundColor: FacingTokens.bg,
-        body: SafeArea(child: FkLoadingScreen(caption: '로그인 중')),
+        backgroundColor: HyphenTokens.bg,
+        body: SafeArea(child: HkLoadingScreen(caption: '로그인 중')),
       );
     }
     // v1.20: HeroBackground 제거 → Splash 와 동일한 단색 배경 (일관성).
     return Scaffold(
-      backgroundColor: FacingTokens.bg,
+      backgroundColor: HyphenTokens.bg,
       body: SafeArea(
         // 베타 피드백 (2026-06-11): 콘텐츠를 화면 상하좌우 정중앙에 배치.
         // 작은 화면에서는 minHeight 가 콘텐츠보다 작아져 기존 스크롤 동작 유지.
         child: LayoutBuilder(
           builder: (context, constraints) => SingleChildScrollView(
-          padding: const EdgeInsets.all(FacingTokens.sp5),
+          padding: const EdgeInsets.all(HyphenTokens.sp5),
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              minHeight: (constraints.maxHeight - FacingTokens.sp5 * 2)
+              minHeight: (constraints.maxHeight - HyphenTokens.sp5 * 2)
                   .clamp(0.0, double.infinity),
             ),
             child: Column(
@@ -127,15 +127,15 @@ class _SignupScreenState extends State<SignupScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     BrandLogo(),
-                    SizedBox(height: FacingTokens.sp2),
+                    SizedBox(height: HyphenTokens.sp2),
                   ],
                 ),
-                const SizedBox(height: FacingTokens.sp5),
+                const SizedBox(height: HyphenTokens.sp5),
 
                 // v1.33: 소셜 로그인 블록 — 실 OAuth 키 확보 전까지 숨김.
                 if (_kShowSocialLogin) ...[
                   // 네이버 (실서비스 1순위 — 실 로그인 배선: RealSocialAuthService)
-                  FkSocialButton(
+                  HkSocialButton(
                     label: '네이버 아이디로 로그인',
                     background: _naverGreen,
                     foreground: Colors.white,
@@ -143,10 +143,10 @@ class _SignupScreenState extends State<SignupScreen> {
                     onPressed:
                         _busy ? null : () => _signIn(SocialProvider.naver),
                   ),
-                  const SizedBox(height: FacingTokens.sp3),
+                  const SizedBox(height: HyphenTokens.sp3),
 
                   // 구글
-                  FkSocialButton(
+                  HkSocialButton(
                     label: '구글로 시작',
                     background: _googleSurface,
                     foreground: Colors.black,
@@ -155,7 +155,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     onPressed:
                         _busy ? null : () => _signIn(SocialProvider.google),
                   ),
-                  const SizedBox(height: FacingTokens.sp5),
+                  const SizedBox(height: HyphenTokens.sp5),
                 ],
 
                 // 2026-08-12 주 CTA — 이미 아이디를 받은 회원의 진입로.
@@ -170,7 +170,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         },
                   child: const Text('아이디로 로그인'),
                 ),
-                const SizedBox(height: FacingTokens.sp3),
+                const SizedBox(height: HyphenTokens.sp3),
 
                 // v1.33 — 아직 아이디가 없는 신규 방문자. 박스 선택 → 실명·전화 →
                 // 가입 신청(pending) → 사장 승인 → 회원 활성.
@@ -191,7 +191,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 // 코드로 들어온 회원은 아이디·비밀번호를 만들 자리가 없었다.
                 // 가입은 위 '박스 가입 신청' 하나로만 한다.
 
-                const SizedBox(height: FacingTokens.sp3),
+                const SizedBox(height: HyphenTokens.sp3),
                 // P0-1 (2026-06-10): placeholder 다이얼로그 → 본문 화면으로 교체.
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -202,27 +202,27 @@ class _SignupScreenState extends State<SignupScreen> {
                             builder: (_) => const TermsScreen()),
                       ),
                       style: TextButton.styleFrom(
-                        foregroundColor: FacingTokens.fgSecondary,
-                        minimumSize: const Size(0, FacingTokens.touchMin),
+                        foregroundColor: HyphenTokens.fgSecondary,
+                        minimumSize: const Size(0, HyphenTokens.touchMin),
                       ),
-                      child: Text('이용약관', style: FacingTokens.caption),
+                      child: Text('이용약관', style: HyphenTokens.caption),
                     ),
                     const Text(' · ',
-                        style: TextStyle(color: FacingTokens.muted)),
+                        style: TextStyle(color: HyphenTokens.muted)),
                     TextButton(
                       onPressed: () => Navigator.of(context).push(
                         MaterialPageRoute(
                             builder: (_) => const PrivacyScreen()),
                       ),
                       style: TextButton.styleFrom(
-                        foregroundColor: FacingTokens.fgSecondary,
-                        minimumSize: const Size(0, FacingTokens.touchMin),
+                        foregroundColor: HyphenTokens.fgSecondary,
+                        minimumSize: const Size(0, HyphenTokens.touchMin),
                       ),
-                      child: Text('개인정보처리방침', style: FacingTokens.caption),
+                      child: Text('개인정보처리방침', style: HyphenTokens.caption),
                     ),
                   ],
                 ),
-                const SizedBox(height: FacingTokens.sp1),
+                const SizedBox(height: HyphenTokens.sp1),
                 // D26 전환기: 사장 ID/PW 진입 (실 OAuth 활성 시 제거).
                 // BossLoginScreen → BossAuthState.save() → main.dart listener 가
                 // staffPush.start() 트리거 (가입 신청 SSE 알림 수신).
@@ -232,8 +232,8 @@ class _SignupScreenState extends State<SignupScreen> {
                 // '(전환기)' 는 사용자에게 뜻이 없어 뺀다 (3면 대전제 ①·③ —
                 // 사장·코치는 PC 가 주지만 폰으로도 들어온다).
                 if (_kShowBossEntry) ...[
-                  const SizedBox(height: FacingTokens.sp2),
-                  const Divider(height: 1, color: FacingTokens.border),
+                  const SizedBox(height: HyphenTokens.sp2),
+                  const Divider(height: 1, color: HyphenTokens.border),
                   Center(
                     child: TextButton(
                       onPressed: _busy
@@ -241,17 +241,17 @@ class _SignupScreenState extends State<SignupScreen> {
                           : () =>
                               Navigator.of(context).pushNamed('/boss/login'),
                       style: TextButton.styleFrom(
-                        foregroundColor: FacingTokens.fg,
-                        minimumSize: const Size(0, FacingTokens.touchMin),
+                        foregroundColor: HyphenTokens.fg,
+                        minimumSize: const Size(0, HyphenTokens.touchMin),
                       ),
                       child: Text(
                         '코치 로그인',
-                        style: FacingTokens.body
+                        style: HyphenTokens.body
                             .copyWith(fontWeight: FontWeight.w600),
                       ),
                     ),
                   ),
-                  const SizedBox(height: FacingTokens.sp2),
+                  const SizedBox(height: HyphenTokens.sp2),
                 ],
               ],
             ),
@@ -263,4 +263,4 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 }
 
-// v1.29: _SocialButton → FkSocialButton (FKit SSOT 이동, DESIGN-SSOT §5).
+// v1.29: _SocialButton → HkSocialButton (FKit SSOT 이동, DESIGN-SSOT §5).

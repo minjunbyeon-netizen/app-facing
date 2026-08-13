@@ -14,9 +14,9 @@ class CoachDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: FacingTokens.bg,
+      backgroundColor: HyphenTokens.bg,
       appBar: AppBar(
-        backgroundColor: FacingTokens.bg,
+        backgroundColor: HyphenTokens.bg,
         title: const Text('코치'),
         centerTitle: false,
       ),
@@ -62,8 +62,8 @@ class _PhotoHeader extends StatelessWidget {
             height: 120,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: FacingTokens.surface,
-              border: Border.all(color: FacingTokens.border),
+              color: HyphenTokens.surface,
+              border: Border.all(color: HyphenTokens.border),
               image: coach.photoUrl != null
                   ? DecorationImage(
                       image: NetworkImage(coach.photoUrl!),
@@ -72,17 +72,17 @@ class _PhotoHeader extends StatelessWidget {
                   : null,
             ),
             child: coach.photoUrl == null
-                ? Icon(Icons.person, size: 48, color: FacingTokens.muted)
+                ? Icon(Icons.person, size: 48, color: HyphenTokens.muted)
                 : null,
           ),
           const SizedBox(height: 12),
           Text(coach.name,
-              style: FacingTokens.h2.copyWith(color: FacingTokens.fg)),
+              style: HyphenTokens.h2.copyWith(color: HyphenTokens.fg)),
           if (coach.specialty != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
               child: Text(coach.specialty!,
-                  style: FacingTokens.caption),
+                  style: HyphenTokens.caption),
             ),
         ],
       ),
@@ -101,17 +101,17 @@ class _Card extends StatelessWidget {
       margin: const EdgeInsets.only(top: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: FacingTokens.surface,
+        color: HyphenTokens.surface,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: FacingTokens.border),
+        border: Border.all(color: HyphenTokens.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: FacingTokens.sectionLabel),
+          Text(title, style: HyphenTokens.sectionLabel),
           const SizedBox(height: 8),
           Text(body,
-              style: FacingTokens.body.copyWith(color: FacingTokens.fg)),
+              style: HyphenTokens.body.copyWith(color: HyphenTokens.fg)),
         ],
       ),
     );
@@ -129,9 +129,9 @@ class _LinkCard extends StatelessWidget {
       margin: const EdgeInsets.only(top: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: FacingTokens.surface,
+        color: HyphenTokens.surface,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: FacingTokens.border),
+        border: Border.all(color: HyphenTokens.border),
       ),
       child: Row(
         children: [
@@ -139,15 +139,15 @@ class _LinkCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: FacingTokens.sectionLabel),
+                Text(title, style: HyphenTokens.sectionLabel),
                 const SizedBox(height: 8),
                 Text(url,
-                    style: FacingTokens.body
-                        .copyWith(color: FacingTokens.fg)),
+                    style: HyphenTokens.body
+                        .copyWith(color: HyphenTokens.fg)),
               ],
             ),
           ),
-          Icon(Icons.open_in_new, size: 18, color: FacingTokens.muted),
+          Icon(Icons.open_in_new, size: 18, color: HyphenTokens.muted),
         ],
       ),
     );
@@ -165,21 +165,21 @@ class _PtBookCard extends StatelessWidget {
       margin: const EdgeInsets.only(top: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: FacingTokens.surface,
+        color: HyphenTokens.surface,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: FacingTokens.border),
+        border: Border.all(color: HyphenTokens.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('PT (1:1)', style: FacingTokens.sectionLabel),
+          Text('PT (1:1)', style: HyphenTokens.sectionLabel),
           const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: FacingTokens.primary,
-                foregroundColor: FacingTokens.fg,
+                backgroundColor: HyphenTokens.primary,
+                foregroundColor: HyphenTokens.fg,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(6),
                 ),

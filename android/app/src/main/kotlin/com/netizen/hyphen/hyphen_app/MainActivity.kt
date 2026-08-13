@@ -1,4 +1,4 @@
-package com.netizen.facing.facing_app
+package com.netizen.hyphen.hyphen_app
 
 import io.flutter.embedding.android.FlutterActivity
 

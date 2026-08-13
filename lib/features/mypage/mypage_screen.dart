@@ -11,7 +11,7 @@ import '../../core/shell_nav_bus.dart';
 import '../../core/theme.dart';
 import '../../core/ui_prefs_state.dart';
 import '../../core/unit_state.dart';
-import '../../widgets/fkit.dart';
+import '../../widgets/hkit.dart';
 import '../../widgets/inbox_bell.dart';
 import '../auth/auth_state.dart';
 import '../contracts/member_contracts_screen.dart';
@@ -46,7 +46,7 @@ class MyPageScreen extends StatelessWidget {
       ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp3),
+          padding: const EdgeInsets.symmetric(vertical: HyphenTokens.sp3),
           children: const [
             _IdentityCard(),
             _SectionDivider(),
@@ -72,8 +72,8 @@ class _SectionDivider extends StatelessWidget {
   // v2.5: 구분선 위아래 24 씩(총 48)이 섹션마다 붙어 화면의 절반이 여백이었다.
   // 아코디언 헤더가 이미 자기 여백을 갖고 있으므로 선만 남긴다 (사용자 지시).
   Widget build(BuildContext context) => const Padding(
-        padding: EdgeInsets.symmetric(vertical: FacingTokens.sp1),
-        child: Divider(height: 1, color: FacingTokens.border),
+        padding: EdgeInsets.symmetric(vertical: HyphenTokens.sp1),
+        child: Divider(height: 1, color: HyphenTokens.border),
       );
 }
 
@@ -107,7 +107,7 @@ class _IdentityCard extends StatelessWidget {
     final initial = name.isEmpty ? '?' : name.characters.first.toUpperCase();
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
+      padding: const EdgeInsets.symmetric(horizontal: HyphenTokens.sp4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -119,27 +119,27 @@ class _IdentityCard extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: FacingTokens.accentSoft,
+                  color: HyphenTokens.accentSoft,
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: FacingTokens.accent.withValues(alpha: 0.5),
+                    color: HyphenTokens.accent.withValues(alpha: 0.5),
                     width: 1.5,
                   ),
                 ),
                 alignment: Alignment.center,
                 child: Text(
                   initial,
-                  style: FacingTokens.h3.copyWith(
-                    color: FacingTokens.accent,
+                  style: HyphenTokens.h3.copyWith(
+                    color: HyphenTokens.accent,
                   ),
                 ),
               ),
-              const SizedBox(width: FacingTokens.sp3),
+              const SizedBox(width: HyphenTokens.sp3),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(name, style: FacingTokens.h3),
+                    Text(name, style: HyphenTokens.h3),
                     // v1.16.2 — 박스명 · 역할 라벨 (GymState 데이터 소스)
                     Builder(builder: (_) {
                       final gym = gs.membership.gym;
@@ -157,7 +157,7 @@ class _IdentityCard extends StatelessWidget {
                         padding: const EdgeInsets.only(top: 2),
                         child: Text(
                           gymLine,
-                          style: FacingTokens.caption,
+                          style: HyphenTokens.caption,
                         ),
                       );
                     }),
@@ -167,7 +167,7 @@ class _IdentityCard extends StatelessWidget {
                       if (loc.isEmpty) return const SizedBox.shrink();
                       return Padding(
                         padding: const EdgeInsets.only(top: 2),
-                        child: Text(loc, style: FacingTokens.caption),
+                        child: Text(loc, style: HyphenTokens.caption),
                       );
                     }),
                     // v2.5: 로그인 수단(NAVER 등) 표기 삭제 — 회원이 이 화면에서
@@ -179,7 +179,7 @@ class _IdentityCard extends StatelessWidget {
               IconButton(
                 tooltip: '프로필 수정',
                 icon: const Icon(Icons.edit_outlined, size: 20),
-                color: FacingTokens.fgSecondary,
+                color: HyphenTokens.fgSecondary,
                 onPressed: () {
                   Haptic.light();
                   Navigator.of(context).push(MaterialPageRoute(
@@ -194,13 +194,13 @@ class _IdentityCard extends StatelessWidget {
           if (mp != null &&
               ((mp.safetyNote ?? '').isNotEmpty ||
                   (mp.note ?? '').isNotEmpty)) ...[
-            const SizedBox(height: FacingTokens.sp2),
+            const SizedBox(height: HyphenTokens.sp2),
             Container(
-              padding: const EdgeInsets.all(FacingTokens.sp3),
+              padding: const EdgeInsets.all(HyphenTokens.sp3),
               decoration: BoxDecoration(
-                color: FacingTokens.surface,
-                border: Border.all(color: FacingTokens.border),
-                borderRadius: BorderRadius.circular(FacingTokens.r2),
+                color: HyphenTokens.surface,
+                border: Border.all(color: HyphenTokens.border),
+                borderRadius: BorderRadius.circular(HyphenTokens.r2),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -208,16 +208,16 @@ class _IdentityCard extends StatelessWidget {
                   Row(
                     children: [
                       const Text('박스 기록',
-                          style: FacingTokens.sectionLabel),
+                          style: HyphenTokens.sectionLabel),
                       const Spacer(),
                       if (mp.updatedAt != null)
                         Text(
                           _fmtUpdated(mp.updatedAt!),
-                          style: FacingTokens.micro,
+                          style: HyphenTokens.micro,
                         ),
                     ],
                   ),
-                  const SizedBox(height: FacingTokens.sp2),
+                  const SizedBox(height: HyphenTokens.sp2),
                   // v2.5 (사용자 지시): Tier·전화·생년월일·성별·선호 시간은
                   // 회원이 이미 아는 등록값을 되비추기만 할 뿐 앱이 쓰지 않는다.
                   // 코치가 회원에게 남긴 것(주의 사항·메모)만 남긴다.
@@ -255,11 +255,11 @@ class _ProfileRow extends StatelessWidget {
           SizedBox(
             width: 70,
             child: Text(label,
-                style: FacingTokens.micro
-                    .copyWith(color: FacingTokens.muted)),
+                style: HyphenTokens.micro
+                    .copyWith(color: HyphenTokens.muted)),
           ),
           Expanded(
-            child: Text(value, style: FacingTokens.caption),
+            child: Text(value, style: HyphenTokens.caption),
           ),
         ],
       ),
@@ -278,15 +278,15 @@ class _MyBoxSection extends StatelessWidget {
     final ok = await showDialog<bool>(
       context: context,
       builder: (dialogCtx) => AlertDialog(
-        backgroundColor: FacingTokens.surfaceOverlay,
+        backgroundColor: HyphenTokens.surfaceOverlay,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(FacingTokens.r5),
+          borderRadius: BorderRadius.circular(HyphenTokens.r5),
         ),
         title: const Text('박스를 탈퇴할까요?'),
         content: Text(
           '$gymName 에서 탈퇴합니다.\n'
           '다시 들어오려면 가입 신청을 넣고 코치 승인을 받아야 합니다.',
-          style: FacingTokens.caption,
+          style: HyphenTokens.caption,
         ),
         actions: [
           TextButton(
@@ -294,7 +294,7 @@ class _MyBoxSection extends StatelessWidget {
             child: const Text('취소'),
           ),
           TextButton(
-            style: TextButton.styleFrom(foregroundColor: FacingTokens.accent),
+            style: TextButton.styleFrom(foregroundColor: HyphenTokens.accent),
             onPressed: () => Navigator.pop(dialogCtx, true),
             child: const Text('탈퇴'),
           ),
@@ -330,52 +330,52 @@ class _MyBoxSection extends StatelessWidget {
       _ => '-',
     };
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
-      child: FkAccordion(
+      padding: const EdgeInsets.symmetric(horizontal: HyphenTokens.sp4),
+      child: HkAccordion(
         title: '내 박스',
         subtitle: gym == null
             ? '박스 없음'
             : '${gym.name} · ${gs.isOwner ? '코치' : '회원'} · $statusKo',
         children: [
-          const SizedBox(height: FacingTokens.sp2),
+          const SizedBox(height: HyphenTokens.sp2),
           if (gym == null)
             const Text('박스 없음. WOD 탭에서 찾기.',
-                style: FacingTokens.caption)
+                style: HyphenTokens.caption)
           else ...[
             Text(gym.name,
                 style:
-                    FacingTokens.body.copyWith(fontWeight: FontWeight.w800)),
-            const SizedBox(height: FacingTokens.sp1),
+                    HyphenTokens.body.copyWith(fontWeight: FontWeight.w800)),
+            const SizedBox(height: HyphenTokens.sp1),
             Text(
               '${gs.isOwner ? '코치' : '회원'} · $statusKo · ${gym.memberCount}명',
-              style: FacingTokens.caption,
+              style: HyphenTokens.caption,
             ),
             // P1-5 (2026-06-10): 거절 상태 무안내 해소 — 멤버십이 조용히
             // 사라지는 대신 사유 고지 + 다음 행동(다른 박스 검색) 제시.
             if (gs.membership.status == 'rejected') ...[
-              const SizedBox(height: FacingTokens.sp3),
+              const SizedBox(height: HyphenTokens.sp3),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(FacingTokens.sp3),
+                padding: const EdgeInsets.all(HyphenTokens.sp3),
                 decoration: BoxDecoration(
-                  color: FacingTokens.accentSoft,
-                  borderRadius: BorderRadius.circular(FacingTokens.r2),
+                  color: HyphenTokens.accentSoft,
+                  borderRadius: BorderRadius.circular(HyphenTokens.r2),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('가입이 승인되지 않았습니다.',
-                        style: FacingTokens.body
+                        style: HyphenTokens.body
                             .copyWith(fontWeight: FontWeight.w700)),
-                    const SizedBox(height: FacingTokens.sp1),
+                    const SizedBox(height: HyphenTokens.sp1),
                     const Text('박스에 직접 문의 또는 다른 박스 검색.',
-                        style: FacingTokens.caption),
+                        style: HyphenTokens.caption),
                   ],
                 ),
               ),
             ],
             if (gs.isOwner) ...[
-              const SizedBox(height: FacingTokens.sp3),
+              const SizedBox(height: HyphenTokens.sp3),
               OutlinedButton(
                 onPressed: () {
                   Haptic.light();
@@ -388,7 +388,7 @@ class _MyBoxSection extends StatelessWidget {
             ],
             // 클래스 일정 진입 (회원·owner 모두). PC 사장이 등록한 클래스를 본다.
             if (gs.membership.isApprovedMember || gs.isOwner) ...[
-              const SizedBox(height: FacingTokens.sp2),
+              const SizedBox(height: HyphenTokens.sp2),
               OutlinedButton.icon(
                 onPressed: () {
                   Haptic.light();
@@ -402,7 +402,7 @@ class _MyBoxSection extends StatelessWidget {
             // 옮겨 갈 다른 박스가 없다. 탈퇴가 필요하면 코치에게 말하는 쪽이 맞다.
             // (leaveGym·_confirmLeave 코드는 보존 — 진입점만 끊었다)
           ],
-          const SizedBox(height: FacingTokens.sp2),
+          const SizedBox(height: HyphenTokens.sp2),
         ],
       ),
     );
@@ -423,17 +423,17 @@ class _BodyStats extends StatelessWidget {
     final age = p.ageYears == null ? '-' : '${_fmt(p.ageYears!)} yr';
     final sex = p.gender == 'female' ? 'Female' : 'Male';
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
-      child: FkAccordion(
+      padding: const EdgeInsets.symmetric(horizontal: HyphenTokens.sp4),
+      child: HkAccordion(
         title: '신체',
         subtitle: '체중 $weightDisplay · 키 $height · $age',
         children: [
-          const SizedBox(height: FacingTokens.sp2),
+          const SizedBox(height: HyphenTokens.sp2),
           _Kv(label: '체중', value: weightDisplay),
           _Kv(label: '키', value: height),
           _Kv(label: '나이', value: age),
           _Kv(label: '성별', value: sex),
-          const SizedBox(height: FacingTokens.sp2),
+          const SizedBox(height: HyphenTokens.sp2),
         ],
       ),
     );
@@ -451,15 +451,15 @@ class _Kv extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp1),
+      padding: const EdgeInsets.symmetric(vertical: HyphenTokens.sp1),
       child: Row(
         children: [
-          Expanded(flex: 4, child: Text(label, style: FacingTokens.caption)),
+          Expanded(flex: 4, child: Text(label, style: HyphenTokens.caption)),
           Expanded(
             flex: 5,
             child: Text(value,
                 style:
-                    FacingTokens.body.copyWith(fontWeight: FontWeight.w700)),
+                    HyphenTokens.body.copyWith(fontWeight: FontWeight.w700)),
           ),
         ],
       ),
@@ -473,34 +473,34 @@ class _SettingsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
+      padding: const EdgeInsets.symmetric(horizontal: HyphenTokens.sp4),
       // v2.5 (사용자 지시): 부제 삭제 — 헤더가 두 줄이면 '설정' 한 줄 버튼이
       // 아니게 된다. 안에 뭐가 있는지는 눌러서 확인한다.
-      child: FkAccordion(
+      child: HkAccordion(
         title: '설정',
         children: [
-          const SizedBox(height: FacingTokens.sp1),
+          const SizedBox(height: HyphenTokens.sp1),
           const _ModeRow(),
-          const SizedBox(height: FacingTokens.sp2),
+          const SizedBox(height: HyphenTokens.sp2),
           Row(
             children: [
-              const Expanded(child: Text('단위', style: FacingTokens.body)),
+              const Expanded(child: Text('단위', style: HyphenTokens.body)),
               Consumer<UnitState>(
                 builder: (ctx, u, _) => _UnitToggle(u: u),
               ),
             ],
           ),
-          const SizedBox(height: FacingTokens.sp2),
+          const SizedBox(height: HyphenTokens.sp2),
           Consumer<UiPrefsState>(
             builder: (ctx, ui, _) => Row(
               children: [
                 const Expanded(
-                    child: Text('글자 크기', style: FacingTokens.body)),
+                    child: Text('글자 크기', style: HyphenTokens.body)),
                 _TextScaleToggle(current: ui.textScale, state: ui),
               ],
             ),
           ),
-          const SizedBox(height: FacingTokens.sp2),
+          const SizedBox(height: HyphenTokens.sp2),
         ],
       ),
     );
@@ -520,10 +520,10 @@ class _TextScaleToggle extends StatelessWidget {
       children: options.map((o) {
         final selected = (current - o.$1).abs() < 0.01;
         return Padding(
-          padding: const EdgeInsets.only(left: FacingTokens.sp1),
-          child: FkBadge(
+          padding: const EdgeInsets.only(left: HyphenTokens.sp1),
+          child: HkBadge(
             o.$2,
-            color: FacingTokens.fg,
+            color: HyphenTokens.fg,
             selected: selected,
             onTap: () {
               Haptic.light();
@@ -544,15 +544,15 @@ class _UnitToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        FkBadge('kg',
-            color: FacingTokens.fg,
+        HkBadge('kg',
+            color: HyphenTokens.fg,
             selected: u.isKg,
             onTap: () {
               if (!u.isKg) u.toggle();
             }),
-        const SizedBox(width: FacingTokens.sp2),
-        FkBadge('lb',
-            color: FacingTokens.fg,
+        const SizedBox(width: HyphenTokens.sp2),
+        HkBadge('lb',
+            color: HyphenTokens.fg,
             selected: !u.isKg,
             onTap: () {
               if (u.isKg) u.toggle();
@@ -568,7 +568,7 @@ class _ActionsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
+      padding: const EdgeInsets.symmetric(horizontal: HyphenTokens.sp4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -576,7 +576,7 @@ class _ActionsSection extends StatelessWidget {
             builder: (ctx, auth, _) {
               if (!auth.isSignedIn) return const SizedBox.shrink();
               return Padding(
-                padding: const EdgeInsets.only(bottom: FacingTokens.sp3),
+                padding: const EdgeInsets.only(bottom: HyphenTokens.sp3),
                 child: Row(
                   children: [
                     // v2.6: 앞에 붙던 로그인 수단이 실기에서 'MEMBER_ID' 라는
@@ -586,14 +586,14 @@ class _ActionsSection extends StatelessWidget {
                     Expanded(
                       child: Text(
                         auth.displayName ?? '',
-                        style: FacingTokens.caption,
+                        style: HyphenTokens.caption,
                       ),
                     ),
                     // v2.2 (H18): 계정을 끊는 동작인데 옆 계정 표시와 같은
                     // 글자 덩어리라 눌리는지 보이지 않았다. 테두리를 줘서
                     // "동작"임을 알린다 (파괴적이진 않으므로 danger 는 아니다 —
                     // 확인 다이얼로그가 이미 붙어 있다).
-                    FkButton.secondary(
+                    HkButton.secondary(
                       '로그아웃',
                       expand: false,
                       onPressed: () => _confirmSignOut(context),
@@ -606,28 +606,28 @@ class _ActionsSection extends StatelessWidget {
           // B-5 (2026-06-10) — 회원 포인트 잔액 (적립 토스트 "+NP" 와 신뢰 일치)
           const _PointsBalanceRow(),
           // v1.31 (2026-08-07) — 메뉴 10종이 세로로 주렁주렁 길다는 사용자 지시로
-          // 단일 아코디언(기본 접힘) + 표(FkRowCard) 로 통합. 항목·진입 경로는
+          // 단일 아코디언(기본 접힘) + 표(HkRowCard) 로 통합. 항목·진입 경로는
           // 그대로, 접힘 상태에서 헤더 한 줄만 차지한다.
-          const SizedBox(height: FacingTokens.sp2),
-          FkAccordion(
+          const SizedBox(height: HyphenTokens.sp2),
+          HkAccordion(
             title: '메뉴',
             children: [
-              const SizedBox(height: FacingTokens.sp2),
-              FkRowCard(rows: [
+              const SizedBox(height: HyphenTokens.sp2),
+              HkRowCard(rows: [
                 // B-6 (2026-06-10) — 회원 전자계약 목록·상세·서명 진입
-                FkListRow(
+                HkListRow(
                   icon: Icons.assignment_outlined,
                   title: '계약',
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
                     builder: (_) => const MemberContractsScreen(),
                   )),
                 ),
-                FkListRow(
+                HkListRow(
                   icon: Icons.history,
                   title: '히스토리',
                   onTap: () => Navigator.of(context).pushNamed('/history'),
                 ),
-                FkListRow(
+                HkListRow(
                   icon: Icons.flag_outlined,
                   title: '목표',
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
@@ -643,7 +643,7 @@ class _ActionsSection extends StatelessWidget {
                 // 화면 파일(import_screen.dart·algorithm_screen.dart)은 보존한다
                 // ("숨김 = 코드 보존"). 되살리려면 이 두 행 + 위 import 를 복구.
                 // P2-1 (2026-06-11) — FAQ (시드 10문답, 실문의 누적 시 증보).
-                FkListRow(
+                HkListRow(
                   icon: Icons.help_outline,
                   title: 'FAQ',
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
@@ -651,7 +651,7 @@ class _ActionsSection extends StatelessWidget {
                   )),
                 ),
                 // P0-3 (2026-06-10) — 고객센터 단일 채널 (카카오톡 채널 1:1 채팅).
-                FkListRow(
+                HkListRow(
                   icon: Icons.chat_bubble_outline,
                   title: '고객지원',
                   subtitle: '카카오톡 · 평일 10–18시 답변',
@@ -664,7 +664,7 @@ class _ActionsSection extends StatelessWidget {
                 // 코치가 곧 사장 본인 한 명이라 연결할 직원이 없다. 직원 고용은
                 // 나중 일 — 화면·라우트(`/auth/link-staff`)는 그대로 살아 있어
                 // 이 6줄만 되살리면 복귀한다 ("숨김 = 코드 보존", BRIEF D37).
-                FkListRow(
+                HkListRow(
                   icon: Icons.lock_outline,
                   title: '개인정보처리방침',
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
@@ -672,7 +672,7 @@ class _ActionsSection extends StatelessWidget {
                   )),
                 ),
                 // P0-1 (2026-06-10): 이용약관 진입 — 가입 화면 외 상시 접근 경로.
-                FkListRow(
+                HkListRow(
                   icon: Icons.article_outlined,
                   title: '이용약관',
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
@@ -684,9 +684,9 @@ class _ActionsSection extends StatelessWidget {
               // 링크였다 — 링코 S17('서비스 탈퇴'가 일반 항목과 같은 비중)과
               // 같은 문제. 테두리 있는 danger 버튼으로 올려 "동작"임을 알리고,
               // 위 메뉴 카드와의 간격도 벌려 오조작을 줄인다.
-              const SizedBox(height: FacingTokens.sp5),
+              const SizedBox(height: HyphenTokens.sp5),
               Center(
-                child: FkButton.secondary(
+                child: HkButton.secondary(
                   '데이터 초기화',
                   danger: true,
                   expand: false,
@@ -707,15 +707,15 @@ class _ActionsSection extends StatelessWidget {
     final ok = await showDialog<bool>(
       context: context,
       builder: (dialogCtx) => AlertDialog(
-        backgroundColor: FacingTokens.surfaceOverlay,
+        backgroundColor: HyphenTokens.surfaceOverlay,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(FacingTokens.r5),
+          borderRadius: BorderRadius.circular(HyphenTokens.r5),
         ),
         title: const Text('데이터를 초기화할까요?'),
         content: const Text(
           '프로필·등급·벤치마크를 전부 삭제합니다.\n'
           '되돌릴 수 없습니다.',
-          style: FacingTokens.caption,
+          style: HyphenTokens.caption,
         ),
         actions: [
           TextButton(
@@ -723,7 +723,7 @@ class _ActionsSection extends StatelessWidget {
             child: const Text('취소'),
           ),
           TextButton(
-            style: TextButton.styleFrom(foregroundColor: FacingTokens.accent),
+            style: TextButton.styleFrom(foregroundColor: HyphenTokens.accent),
             onPressed: () => Navigator.pop(dialogCtx, true),
             child: const Text('초기화'),
           ),
@@ -741,9 +741,9 @@ class _ActionsSection extends StatelessWidget {
     final ok = await showDialog<bool>(
       context: context,
       builder: (dialogCtx) => AlertDialog(
-        backgroundColor: FacingTokens.surfaceOverlay,
+        backgroundColor: HyphenTokens.surfaceOverlay,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(FacingTokens.r5),
+          borderRadius: BorderRadius.circular(HyphenTokens.r5),
         ),
         title: const Text('로그아웃'),
         content: const Text(
@@ -751,7 +751,7 @@ class _ActionsSection extends StatelessWidget {
           '로그아웃해도 프로필·기록은 이 기기에 그대로 유지됩니다.\n'
           '같은 계정으로 다시 로그인하면 모든 데이터가 복구됩니다.\n'
           '계정 삭제는 프로필 → 개인정보처리방침 → 계정 삭제.',
-          style: FacingTokens.caption,
+          style: HyphenTokens.caption,
         ),
         actions: [
           TextButton(
@@ -759,7 +759,7 @@ class _ActionsSection extends StatelessWidget {
             child: const Text('취소'),
           ),
           TextButton(
-            style: TextButton.styleFrom(foregroundColor: FacingTokens.fgSecondary),
+            style: TextButton.styleFrom(foregroundColor: HyphenTokens.fgSecondary),
             onPressed: () => Navigator.pop(dialogCtx, true),
             child: const Text('로그아웃'),
           ),
@@ -830,31 +830,31 @@ class _ModeRowState extends State<_ModeRow> {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('모드', style: FacingTokens.body),
-            const SizedBox(width: FacingTokens.sp2),
+            const Text('모드', style: HyphenTokens.body),
+            const SizedBox(width: HyphenTokens.sp2),
             if (_saving)
               const SizedBox(
                 width: 12,
                 height: 12,
                 child: CircularProgressIndicator(
                   strokeWidth: 1.5,
-                  color: FacingTokens.muted,
+                  color: HyphenTokens.muted,
                 ),
               ),
           ],
         ),
-        const SizedBox(height: FacingTokens.sp2),
+        const SizedBox(height: HyphenTokens.sp2),
         Semantics(
           explicitChildNodes: true,
           container: true,
           child: Wrap(
             alignment: WrapAlignment.center,
-            spacing: FacingTokens.sp2,
+            spacing: HyphenTokens.sp2,
             children: [
               for (final m in AppMode.values)
-                FkBadge(
+                HkBadge(
                   _label(m),
-                  color: FacingTokens.fg,
+                  color: HyphenTokens.fg,
                   selected: _mode == m,
                   onTap: _saving ? null : () => _setMode(m),
                 ),
@@ -895,15 +895,15 @@ class _MembershipSection extends StatelessWidget {
     if (lk != null) parts.add('락커 ${lk.lockerNo}');
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
-      child: FkAccordion(
+      padding: const EdgeInsets.symmetric(horizontal: HyphenTokens.sp4),
+      child: HkAccordion(
         title: '회원권',
         subtitle: parts.join(' · '),
         children: const [
-          SizedBox(height: FacingTokens.sp2),
+          SizedBox(height: HyphenTokens.sp2),
           _MembershipCard(),
           _LockerCard(),
-          SizedBox(height: FacingTokens.sp2),
+          SizedBox(height: HyphenTokens.sp2),
         ],
       ),
     );
@@ -923,11 +923,11 @@ class _MembershipCard extends StatelessWidget {
     final isExpired = days != null && days < 0;
     Color accentColor;
     if (isExpired) {
-      accentColor = FacingTokens.danger;
+      accentColor = HyphenTokens.danger;
     } else if (isExpiringSoon) {
-      accentColor = FacingTokens.warning;
+      accentColor = HyphenTokens.warning;
     } else {
-      accentColor = FacingTokens.primary;
+      accentColor = HyphenTokens.primary;
     }
 
     DateTime? start;
@@ -941,11 +941,11 @@ class _MembershipCard extends StatelessWidget {
       // 가로 여백은 감싸는 _MembershipSection 아코디언이 준다.
       padding: EdgeInsets.zero,
       child: Container(
-        padding: const EdgeInsets.all(FacingTokens.sp4),
+        padding: const EdgeInsets.all(HyphenTokens.sp4),
         decoration: BoxDecoration(
-          color: FacingTokens.surface,
+          color: HyphenTokens.surface,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: FacingTokens.border),
+          border: Border.all(color: HyphenTokens.border),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -955,14 +955,14 @@ class _MembershipCard extends StatelessWidget {
               children: [
                 Text(
                   ms.planName ?? 'Active',
-                  style: FacingTokens.h3.copyWith(color: FacingTokens.fg),
+                  style: HyphenTokens.h3.copyWith(color: HyphenTokens.fg),
                 ),
                 const Spacer(),
                 if (days != null)
                   Text(
                     isExpired ? 'EXPIRED' : 'D-${days.abs()}',
                     style:
-                        FacingTokens.h3.copyWith(color: accentColor),
+                        HyphenTokens.h3.copyWith(color: accentColor),
                   ),
               ],
             ),
@@ -977,13 +977,13 @@ class _MembershipCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                   child: Stack(
                     children: [
-                      Container(height: 8, color: FacingTokens.surfaceMax),
+                      Container(height: 8, color: HyphenTokens.surfaceMax),
                       FractionallySizedBox(
                         widthFactor: value,
                         child: Container(
                           height: 8,
                           decoration: BoxDecoration(
-                            color: FacingTokens.mutedStrong,
+                            color: HyphenTokens.mutedStrong,
                           ),
                         ),
                       ),
@@ -997,12 +997,12 @@ class _MembershipCard extends StatelessWidget {
               children: [
                 Text(
                   '${(progress * 100).toStringAsFixed(0)}% 사용',
-                  style: FacingTokens.caption,
+                  style: HyphenTokens.caption,
                 ),
                 const Spacer(),
                 Text(
                   '${((1 - progress) * 100).toStringAsFixed(0)}% 남음',
-                  style: FacingTokens.caption
+                  style: HyphenTokens.caption
                       .copyWith(color: accentColor),
                 ),
               ],
@@ -1018,9 +1018,9 @@ class _MembershipCard extends StatelessWidget {
             const SizedBox(height: 6),
             Row(
               children: [
-                Text(ms.startDate ?? '', style: FacingTokens.caption),
+                Text(ms.startDate ?? '', style: HyphenTokens.caption),
                 const Spacer(),
-                Text(ms.endDate ?? '', style: FacingTokens.caption),
+                Text(ms.endDate ?? '', style: HyphenTokens.caption),
               ],
             ),
           ],
@@ -1084,10 +1084,10 @@ class _MembershipTimeline extends StatelessWidget {
                   top: 0,
                   child: Text(
                     '${m.month}월',
-                    style: FacingTokens.caption.copyWith(
+                    style: HyphenTokens.caption.copyWith(
                       color: m.month == now.month && m.year == now.year
                           ? accent
-                          : FacingTokens.muted,
+                          : HyphenTokens.muted,
                       fontWeight: m.month == now.month && m.year == now.year
                           ? FontWeight.w700
                           : FontWeight.w400,
@@ -1108,7 +1108,7 @@ class _MembershipTimeline extends StatelessWidget {
                 Positioned.fill(
                   child: Container(
                     decoration: BoxDecoration(
-                      color: FacingTokens.surfaceMax,
+                      color: HyphenTokens.surfaceMax,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -1121,7 +1121,7 @@ class _MembershipTimeline extends StatelessWidget {
                   width: todayX,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: FacingTokens.mutedStrong,
+                      color: HyphenTokens.mutedStrong,
                       borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(4),
                         bottomLeft: Radius.circular(4),
@@ -1151,7 +1151,7 @@ class _MembershipTimeline extends StatelessWidget {
                   top: -2,
                   bottom: -2,
                   width: 2,
-                  child: Container(color: FacingTokens.fg),
+                  child: Container(color: HyphenTokens.fg),
                 ),
               ],
             ),
@@ -1171,8 +1171,8 @@ class _MembershipTimeline extends StatelessWidget {
                   top: 0,
                   child: Text(
                     '오늘',
-                    style: FacingTokens.caption.copyWith(
-                      color: FacingTokens.fg,
+                    style: HyphenTokens.caption.copyWith(
+                      color: HyphenTokens.fg,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 0.8,
                     ),
@@ -1199,13 +1199,13 @@ class _LockerCard extends StatelessWidget {
     final days = lk.daysUntilExpiry;
     return Padding(
       // 가로 여백은 감싸는 _MembershipSection 아코디언이 준다.
-      padding: const EdgeInsets.only(top: FacingTokens.sp3),
+      padding: const EdgeInsets.only(top: HyphenTokens.sp3),
       child: Container(
-        padding: const EdgeInsets.all(FacingTokens.sp4),
+        padding: const EdgeInsets.all(HyphenTokens.sp4),
         decoration: BoxDecoration(
-          color: FacingTokens.surface,
+          color: HyphenTokens.surface,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: FacingTokens.border),
+          border: Border.all(color: HyphenTokens.border),
         ),
         child: Row(
           children: [
@@ -1214,40 +1214,40 @@ class _LockerCard extends StatelessWidget {
               height: 56,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: FacingTokens.surfaceMax,
+                color: HyphenTokens.surfaceMax,
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(lk.lockerNo,
                   style:
-                      FacingTokens.h3.copyWith(color: FacingTokens.fg)),
+                      HyphenTokens.h3.copyWith(color: HyphenTokens.fg)),
             ),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('내 락커', style: FacingTokens.sectionLabel),
+                  Text('내 락커', style: HyphenTokens.sectionLabel),
                   const SizedBox(height: 4),
                   Text(
                     lk.endDate != null && lk.endDate!.isNotEmpty
                         ? '${lk.endDate} 까지'
                         : '회원권 만료일 자동',
-                    style: FacingTokens.body
-                        .copyWith(color: FacingTokens.fg),
+                    style: HyphenTokens.body
+                        .copyWith(color: HyphenTokens.fg),
                   ),
                   if (lk.memo != null && lk.memo!.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(top: 2),
                       child: Text(lk.memo!,
-                          style: FacingTokens.caption),
+                          style: HyphenTokens.caption),
                     ),
                 ],
               ),
             ),
             if (days != null && days >= 0 && days <= 14)
               Text('D-$days',
-                  style: FacingTokens.h3
-                      .copyWith(color: FacingTokens.warning)),
+                  style: HyphenTokens.h3
+                      .copyWith(color: HyphenTokens.warning)),
           ],
         ),
       ),
@@ -1290,22 +1290,22 @@ class _PointsBalanceRowState extends State<_PointsBalanceRow> {
     final balance = _balance;
     if (balance == null) return const SizedBox.shrink();
     return Padding(
-      padding: const EdgeInsets.only(bottom: FacingTokens.sp3),
+      padding: const EdgeInsets.only(bottom: HyphenTokens.sp3),
       child: Container(
         padding: const EdgeInsets.symmetric(
-            horizontal: FacingTokens.sp4, vertical: FacingTokens.sp3),
+            horizontal: HyphenTokens.sp4, vertical: HyphenTokens.sp3),
         decoration: BoxDecoration(
-          color: FacingTokens.surface,
-          border: Border.all(color: FacingTokens.border),
-          borderRadius: BorderRadius.circular(FacingTokens.r2),
+          color: HyphenTokens.surface,
+          border: Border.all(color: HyphenTokens.border),
+          borderRadius: BorderRadius.circular(HyphenTokens.r2),
         ),
         child: Row(
           children: [
             const Expanded(
-              child: Text('포인트', style: FacingTokens.sectionLabel),
+              child: Text('포인트', style: HyphenTokens.sectionLabel),
             ),
             Text('$balance P',
-                style: FacingTokens.h3.copyWith(color: FacingTokens.primary)),
+                style: HyphenTokens.h3.copyWith(color: HyphenTokens.primary)),
           ],
         ),
       ),

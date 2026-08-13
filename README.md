@@ -1,4 +1,4 @@
-# facing_app
+# hyphen_app
 
 WOD pacing strategy app
 

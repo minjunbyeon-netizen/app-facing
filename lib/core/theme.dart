@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'appkit.gen.dart';
 
-/// facing 디자인 토큰 (v2.1.0 — appkit 공통 조상 배선, 2026-07-03).
+/// hyphen 디자인 토큰 (v2.1.0 — appkit 공통 조상 배선, 2026-07-03).
 /// 공유 토큰(뉴트럴·상태색·타이포 스케일·간격·모서리·크기·모션)은 AppKit 재수출,
-/// facing 고유(HWPO 임팩트·tier 색·quote)만 이 파일에 남는다.
+/// hyphen 고유(HWPO 임팩트·tier 색·quote)만 이 파일에 남는다.
 /// 마스터: C:/dev/tools/appkit/master/appkit.json → python sync.py
 ///
 /// (구 v2.0.0 — 라이트 톤 전면 개편, PC facing-admin 팔레트 통합.)
@@ -17,8 +17,8 @@ import 'appkit.gen.dart';
 ///   - fg #FFFFFF → #18181B (검정 텍스트)
 ///   - HWPO/NOBULL 강한 톤은 weight + uppercase + letterSpacing으로 유지
 ///   - 다크 대비 잃지 않도록 tierRx #EE2B2B → #CC1F1F (라이트 배경 4.5:1)
-class FacingTokens {
-  FacingTokens._();
+class HyphenTokens {
+  HyphenTokens._();
 
   // ==== 컬러 팔레트 (v2.1.0 — appkit 공통 조상 재수출) ====
   /// 기본 배경 (라이트).
@@ -41,14 +41,14 @@ class FacingTokens {
   static const Color fgSecondary = AppKit.textSub;
   /// 흐린 텍스트 (zinc-500).
   static const Color muted = AppKit.muted;
-  /// 더 강한 muted (zinc-700) — facing 고유 (조상에 없음).
+  /// 더 강한 muted (zinc-700) — hyphen 고유 (조상에 없음).
   static const Color mutedStrong = Color(0xFF3F3F46);
   /// 구분선 (zinc-200).
   static const Color border = AppKit.border;
   /// 강조 구분선 (zinc-300).
   static const Color borderStrong = AppKit.borderStrong;
 
-  /// 입력 안내 문구(placeholder) — facing 고유.
+  /// 입력 안내 문구(placeholder) — hyphen 고유.
   /// 조상 `AppKit.placeholder`(#A1A1AA)는 흰 배경 2.56:1 로 읽기 어려워 한 단 내렸다
   /// (3.71:1). 입력값이 아니라 안내라 본문 4.5 기준 대상은 아니지만, 노안·야외
   /// 가독성 확보용. v2.2 가시성 개편.
@@ -132,7 +132,7 @@ class FacingTokens {
     color: fg,
   );
 
-  /// HWPO #3 — Splash "FACING" 브랜드 로고 전용.
+  /// HWPO #3 — Splash "HYPHEN" 브랜드 로고 전용.
   static const TextStyle brandLogo = TextStyle(
     fontFamily: fontFamily,
     fontSize: 80,
@@ -310,14 +310,14 @@ class FacingTokens {
 
   /// v2.5 (2026-08-12 사용자 지시): 앱 전체 버튼 높이 — appkit 상속값 52 는
   /// 폰 화면에서 한 줄이 너무 두꺼워 카드 하나가 화면 절반을 먹었다.
-  /// "모든 버튼을 컴팩트하게 통일" 지시로 facing 앱만 36 으로 내린다.
+  /// "모든 버튼을 컴팩트하게 통일" 지시로 hyphen 앱만 36 으로 내린다.
   /// (appkit 마스터 값은 건드리지 않는다 — 다른 앱까지 따라 내려가면 안 된다.)
   static const double buttonHCompact = 36;
   static const double appBarH = AppKit.appBarH;
 }
 
-class FacingTheme {
-  FacingTheme._();
+class HyphenTheme {
+  HyphenTheme._();
 
   /// v2.0: dark 는 light alias (라이트 톤 전면 전환).
   static ThemeData get dark => light;
@@ -325,65 +325,65 @@ class FacingTheme {
   static ThemeData get light => ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
-    scaffoldBackgroundColor: FacingTokens.bg,
+    scaffoldBackgroundColor: HyphenTokens.bg,
     colorScheme: const ColorScheme.light(
-      surface: FacingTokens.surface,
-      onSurface: FacingTokens.fg,
-      surfaceContainer: FacingTokens.surface,
-      surfaceContainerHigh: FacingTokens.surfaceAlt,
-      surfaceContainerHighest: FacingTokens.surfaceHover,
-      primary: FacingTokens.primary,
+      surface: HyphenTokens.surface,
+      onSurface: HyphenTokens.fg,
+      surfaceContainer: HyphenTokens.surface,
+      surfaceContainerHigh: HyphenTokens.surfaceAlt,
+      surfaceContainerHighest: HyphenTokens.surfaceHover,
+      primary: HyphenTokens.primary,
       onPrimary: Color(0xFFFFFFFF),
-      secondary: FacingTokens.primary,
+      secondary: HyphenTokens.primary,
       onSecondary: Color(0xFFFFFFFF),
-      tertiary: FacingTokens.info,
+      tertiary: HyphenTokens.info,
       onTertiary: Color(0xFFFFFFFF),
-      outline: FacingTokens.border,
-      outlineVariant: FacingTokens.borderStrong,
-      onSurfaceVariant: FacingTokens.muted,
-      error: FacingTokens.danger,
+      outline: HyphenTokens.border,
+      outlineVariant: HyphenTokens.borderStrong,
+      onSurfaceVariant: HyphenTokens.muted,
+      error: HyphenTokens.danger,
       onError: Color(0xFFFFFFFF),
     ),
-    fontFamily: FacingTokens.fontFamily,
+    fontFamily: HyphenTokens.fontFamily,
     textTheme: const TextTheme(
-      displayLarge: FacingTokens.display,
-      headlineLarge: FacingTokens.h1,
-      headlineMedium: FacingTokens.h2,
-      headlineSmall: FacingTokens.h3,
-      titleLarge: FacingTokens.lead,
-      bodyMedium: FacingTokens.body,
-      labelMedium: FacingTokens.caption,
-      labelSmall: FacingTokens.micro,
+      displayLarge: HyphenTokens.display,
+      headlineLarge: HyphenTokens.h1,
+      headlineMedium: HyphenTokens.h2,
+      headlineSmall: HyphenTokens.h3,
+      titleLarge: HyphenTokens.lead,
+      bodyMedium: HyphenTokens.body,
+      labelMedium: HyphenTokens.caption,
+      labelSmall: HyphenTokens.micro,
     ),
     appBarTheme: const AppBarTheme(
-      backgroundColor: FacingTokens.bg,
-      foregroundColor: FacingTokens.fg,
+      backgroundColor: HyphenTokens.bg,
+      foregroundColor: HyphenTokens.fg,
       elevation: 0,
       scrolledUnderElevation: 0,
       centerTitle: true,
-      toolbarHeight: FacingTokens.appBarH,
-      titleTextStyle: FacingTokens.h3,
+      toolbarHeight: HyphenTokens.appBarH,
+      titleTextStyle: HyphenTokens.h3,
       shape: Border(
-        bottom: BorderSide(color: FacingTokens.border, width: 1),
+        bottom: BorderSide(color: HyphenTokens.border, width: 1),
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ButtonStyle(
         minimumSize: WidgetStateProperty.all(
-          const Size(double.infinity, FacingTokens.buttonHCompact),
+          const Size(double.infinity, HyphenTokens.buttonHCompact),
         ),
         backgroundColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.disabled)) return FacingTokens.surfaceHover;
-          if (states.contains(WidgetState.pressed)) return FacingTokens.primaryPressed;
-          return FacingTokens.primary;
+          if (states.contains(WidgetState.disabled)) return HyphenTokens.surfaceHover;
+          if (states.contains(WidgetState.pressed)) return HyphenTokens.primaryPressed;
+          return HyphenTokens.primary;
         }),
         foregroundColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.disabled)) return FacingTokens.muted;
+          if (states.contains(WidgetState.disabled)) return HyphenTokens.muted;
           return const Color(0xFFFFFFFF);
         }),
         textStyle: WidgetStateProperty.all(
           const TextStyle(
-            fontFamily: FacingTokens.fontFamily,
+            fontFamily: HyphenTokens.fontFamily,
             fontSize: AppKit.bodySize,
             fontWeight: FontWeight.w600,
             letterSpacing: AppKit.bodyLs,
@@ -396,13 +396,13 @@ class FacingTheme {
         // (글로벌 design-block 차단 대상). r3 으로 낮춰 모서리만 둥근 사각 유지.
         shape: WidgetStateProperty.all(
           RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(FacingTokens.r3),
+            borderRadius: BorderRadius.circular(HyphenTokens.r3),
           ),
         ),
         padding: WidgetStateProperty.all(
           const EdgeInsets.symmetric(
-            horizontal: FacingTokens.sp4,
-            vertical: FacingTokens.sp1,
+            horizontal: HyphenTokens.sp4,
+            vertical: HyphenTokens.sp1,
           ),
         ),
         elevation: WidgetStateProperty.all(0),
@@ -412,24 +412,24 @@ class FacingTheme {
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: ButtonStyle(
         minimumSize: WidgetStateProperty.all(
-          const Size(double.infinity, FacingTokens.buttonHCompact),
+          const Size(double.infinity, HyphenTokens.buttonHCompact),
         ),
-        foregroundColor: WidgetStateProperty.all(FacingTokens.fg),
+        foregroundColor: WidgetStateProperty.all(HyphenTokens.fg),
         side: WidgetStateProperty.all(
-          const BorderSide(color: FacingTokens.borderStrong, width: 1),
+          const BorderSide(color: HyphenTokens.borderStrong, width: 1),
         ),
         textStyle: WidgetStateProperty.all(
-          FacingTokens.body.copyWith(fontWeight: FontWeight.w600),
+          HyphenTokens.body.copyWith(fontWeight: FontWeight.w600),
         ),
         padding: WidgetStateProperty.all(
           const EdgeInsets.symmetric(
-            horizontal: FacingTokens.sp4,
-            vertical: FacingTokens.sp1,
+            horizontal: HyphenTokens.sp4,
+            vertical: HyphenTokens.sp1,
           ),
         ),
         shape: WidgetStateProperty.all(
           RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(FacingTokens.r3),
+            borderRadius: BorderRadius.circular(HyphenTokens.r3),
           ),
         ),
       ),
@@ -440,21 +440,21 @@ class FacingTheme {
     textButtonTheme: TextButtonThemeData(
       style: ButtonStyle(
         minimumSize: WidgetStateProperty.all(
-          const Size(0, FacingTokens.buttonHCompact),
+          const Size(0, HyphenTokens.buttonHCompact),
         ),
         foregroundColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.disabled)) return FacingTokens.muted;
-          return FacingTokens.primary;
+          if (states.contains(WidgetState.disabled)) return HyphenTokens.muted;
+          return HyphenTokens.primary;
         }),
         textStyle: WidgetStateProperty.all(
-          FacingTokens.body.copyWith(fontWeight: FontWeight.w600),
+          HyphenTokens.body.copyWith(fontWeight: FontWeight.w600),
         ),
         padding: WidgetStateProperty.all(
-          const EdgeInsets.symmetric(horizontal: FacingTokens.sp3),
+          const EdgeInsets.symmetric(horizontal: HyphenTokens.sp3),
         ),
         shape: WidgetStateProperty.all(
           RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(FacingTokens.r2),
+            borderRadius: BorderRadius.circular(HyphenTokens.r2),
           ),
         ),
         overlayColor: WidgetStateProperty.all(Colors.transparent),
@@ -464,46 +464,46 @@ class FacingTheme {
     iconButtonTheme: IconButtonThemeData(
       style: ButtonStyle(
         minimumSize: WidgetStateProperty.all(
-          const Size(FacingTokens.touchMin, FacingTokens.touchMin),
+          const Size(HyphenTokens.touchMin, HyphenTokens.touchMin),
         ),
-        foregroundColor: WidgetStateProperty.all(FacingTokens.fg),
+        foregroundColor: WidgetStateProperty.all(HyphenTokens.fg),
         overlayColor: WidgetStateProperty.all(Colors.transparent),
       ),
     ),
     // 입력칸 — 안내 문구 대비 상향 + 포커스 테두리를 브랜드색으로 명확히.
     inputDecorationTheme: InputDecorationTheme(
-      hintStyle: FacingTokens.body.copyWith(color: FacingTokens.placeholder),
-      labelStyle: FacingTokens.caption,
+      hintStyle: HyphenTokens.body.copyWith(color: HyphenTokens.placeholder),
+      labelStyle: HyphenTokens.caption,
       contentPadding: const EdgeInsets.symmetric(
-        horizontal: FacingTokens.sp4,
-        vertical: FacingTokens.sp3,
+        horizontal: HyphenTokens.sp4,
+        vertical: HyphenTokens.sp3,
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(FacingTokens.r3),
-        borderSide: const BorderSide(color: FacingTokens.borderStrong),
+        borderRadius: BorderRadius.circular(HyphenTokens.r3),
+        borderSide: const BorderSide(color: HyphenTokens.borderStrong),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(FacingTokens.r3),
-        borderSide: const BorderSide(color: FacingTokens.primary, width: 2),
+        borderRadius: BorderRadius.circular(HyphenTokens.r3),
+        borderSide: const BorderSide(color: HyphenTokens.primary, width: 2),
       ),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(FacingTokens.r3),
-        borderSide: const BorderSide(color: FacingTokens.borderStrong),
+        borderRadius: BorderRadius.circular(HyphenTokens.r3),
+        borderSide: const BorderSide(color: HyphenTokens.borderStrong),
       ),
     ),
     cardTheme: CardThemeData(
-      color: FacingTokens.surface,
+      color: HyphenTokens.surface,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       // 라이트 단일 box-shadow (design-block.md 다중 금지).
       shadowColor: const Color(0x14000000),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(FacingTokens.r3),
-        side: const BorderSide(color: FacingTokens.border, width: 1),
+        borderRadius: BorderRadius.circular(HyphenTokens.r3),
+        side: const BorderSide(color: HyphenTokens.border, width: 1),
       ),
     ),
     dividerTheme: const DividerThemeData(
-      color: FacingTokens.border,
+      color: HyphenTokens.border,
       thickness: 1,
       space: 0,
     ),

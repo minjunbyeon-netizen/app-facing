@@ -12,7 +12,7 @@ import '../../core/theme.dart';
 import '../../models/coach_group.dart';
 import '../../widgets/coach_badge.dart';
 import '../../widgets/avatar.dart';
-import '../../widgets/fkit.dart';
+import '../../widgets/hkit.dart';
 import '../gym/gym_state.dart';
 import 'inbox_repository.dart';
 
@@ -66,26 +66,26 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
       final ok = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: FacingTokens.surface,
+      backgroundColor: HyphenTokens.surface,
       shape: const RoundedRectangleBorder(
         borderRadius:
-            BorderRadius.vertical(top: Radius.circular(FacingTokens.r4)),
+            BorderRadius.vertical(top: Radius.circular(HyphenTokens.r4)),
       ),
       builder: (ctx) => StatefulBuilder(builder: (innerCtx, setSheet) {
         return Padding(
           padding: EdgeInsets.only(
-            left: FacingTokens.sp4,
-            right: FacingTokens.sp4,
-            top: FacingTokens.sp4,
-            bottom: MediaQuery.of(ctx).viewInsets.bottom + FacingTokens.sp4,
+            left: HyphenTokens.sp4,
+            right: HyphenTokens.sp4,
+            top: HyphenTokens.sp4,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + HyphenTokens.sp4,
           ),
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text('새 그룹', style: FacingTokens.sectionLabel),
-                const SizedBox(height: FacingTokens.sp2),
+                const Text('새 그룹', style: HyphenTokens.sectionLabel),
+                const SizedBox(height: HyphenTokens.sp2),
                 TextField(
                   controller: nameCtrl,
                   decoration: const InputDecoration(
@@ -94,7 +94,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
                   ),
                   maxLength: 80,
                 ),
-                const SizedBox(height: FacingTokens.sp2),
+                const SizedBox(height: HyphenTokens.sp2),
                 TextField(
                   controller: descCtrl,
                   decoration: const InputDecoration(
@@ -102,17 +102,17 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
                   ),
                   maxLength: 200,
                 ),
-                const SizedBox(height: FacingTokens.sp3),
+                const SizedBox(height: HyphenTokens.sp3),
                 // v1.19 페르소나 P1-10 (C4): 요일·시간·정원·색상.
-                Text('스케줄', style: FacingTokens.sectionLabel),
-                const SizedBox(height: FacingTokens.sp1),
+                Text('스케줄', style: HyphenTokens.sectionLabel),
+                const SizedBox(height: HyphenTokens.sp1),
                 Wrap(
-                  spacing: FacingTokens.sp1,
+                  spacing: HyphenTokens.sp1,
                   children: [
                     for (int d = 0; d < 7; d++)
-                      FkBadge(
+                      HkBadge(
                         const ['월', '화', '수', '목', '금', '토', '일'][d],
-                        color: FacingTokens.fg,
+                        color: HyphenTokens.fg,
                         selected: selectedDays.contains(d),
                         onTap: () => setSheet(() {
                           if (selectedDays.contains(d)) {
@@ -124,7 +124,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
                       ),
                   ],
                 ),
-                const SizedBox(height: FacingTokens.sp2),
+                const SizedBox(height: HyphenTokens.sp2),
                 Row(children: [
                   Expanded(
                     child: TextField(
@@ -135,7 +135,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: FacingTokens.sp2),
+                  const SizedBox(width: HyphenTokens.sp2),
                   Expanded(
                     child: TextField(
                       controller: capCtrl,
@@ -146,7 +146,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
                     ),
                   ),
                 ]),
-                const SizedBox(height: FacingTokens.sp2),
+                const SizedBox(height: HyphenTokens.sp2),
                 TextField(
                   controller: colorCtrl,
                   decoration: const InputDecoration(
@@ -154,7 +154,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
                     hintText: '#EE2B2B',
                   ),
                 ),
-                const SizedBox(height: FacingTokens.sp2),
+                const SizedBox(height: HyphenTokens.sp2),
                 TextField(
                   controller: notesCtrl,
                   decoration: const InputDecoration(
@@ -162,7 +162,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
                   ),
                   maxLength: 500,
                 ),
-                const SizedBox(height: FacingTokens.sp3),
+                const SizedBox(height: HyphenTokens.sp3),
                 ElevatedButton(
                   onPressed: () => Navigator.of(ctx).pop(true),
                   child: const Text('만들기'),
@@ -252,25 +252,25 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
       final ok = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: FacingTokens.surface,
+      backgroundColor: HyphenTokens.surface,
       shape: const RoundedRectangleBorder(
         borderRadius:
-            BorderRadius.vertical(top: Radius.circular(FacingTokens.r4)),
+            BorderRadius.vertical(top: Radius.circular(HyphenTokens.r4)),
       ),
       builder: (ctx) => Padding(
         padding: EdgeInsets.only(
-          left: FacingTokens.sp4,
-          right: FacingTokens.sp4,
-          top: FacingTokens.sp4,
-          bottom: MediaQuery.of(ctx).viewInsets.bottom + FacingTokens.sp4,
+          left: HyphenTokens.sp4,
+          right: HyphenTokens.sp4,
+          top: HyphenTokens.sp4,
+          bottom: MediaQuery.of(ctx).viewInsets.bottom + HyphenTokens.sp4,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text('회원 추가 · ${g.name.toUpperCase()}',
-                style: FacingTokens.sectionLabel),
-            const SizedBox(height: FacingTokens.sp2),
+                style: HyphenTokens.sectionLabel),
+            const SizedBox(height: HyphenTokens.sp2),
             TextField(
               controller: hashCtrl,
               decoration: const InputDecoration(
@@ -278,12 +278,12 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
                 hintText: '64자 SHA-256',
               ),
             ),
-            const SizedBox(height: FacingTokens.sp1),
+            const SizedBox(height: HyphenTokens.sp1),
             const Text(
               '※ 멤버 선택 UI 는 추후 지원. 현재는 코드 직접 입력.',
-              style: FacingTokens.micro,
+              style: HyphenTokens.micro,
             ),
-            const SizedBox(height: FacingTokens.sp3),
+            const SizedBox(height: HyphenTokens.sp3),
             ElevatedButton(
               onPressed: () => Navigator.of(ctx).pop(true),
               child: const Text('추가'),
@@ -340,18 +340,18 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
             if (snap.connectionState != ConnectionState.done) {
               return const Center(
                 child: CircularProgressIndicator(
-                    color: FacingTokens.muted, strokeWidth: 2),
+                    color: HyphenTokens.muted, strokeWidth: 2),
               );
             }
             // QA B-FB-1: hasError 분기.
             if (snap.hasError) {
               return Center(
                 child: Padding(
-                  padding: const EdgeInsets.all(FacingTokens.sp4),
+                  padding: const EdgeInsets.all(HyphenTokens.sp4),
                   child: Text(
                     '그룹 목록 로딩 실패. 새로고침 필요.',
-                    style: FacingTokens.caption
-                        .copyWith(color: FacingTokens.warning),
+                    style: HyphenTokens.caption
+                        .copyWith(color: HyphenTokens.warning),
                   ),
                 ),
               );
@@ -362,30 +362,30 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('그룹 없음', style: FacingTokens.sectionLabel),
-                    SizedBox(height: FacingTokens.sp1),
-                    Text('우상단 + 버튼으로 추가.', style: FacingTokens.caption),
+                    Text('그룹 없음', style: HyphenTokens.sectionLabel),
+                    SizedBox(height: HyphenTokens.sp1),
+                    Text('우상단 + 버튼으로 추가.', style: HyphenTokens.caption),
                   ],
                 ),
               );
             }
             return ListView.separated(
-              padding: const EdgeInsets.all(FacingTokens.sp4),
+              padding: const EdgeInsets.all(HyphenTokens.sp4),
               itemCount: items.length,
               separatorBuilder: (_, _) =>
-                  const SizedBox(height: FacingTokens.sp3),
+                  const SizedBox(height: HyphenTokens.sp3),
               itemBuilder: (_, i) {
                 final g = items[i];
-                final color = Avatar.parseHex(g.colorHex, FacingTokens.muted);
+                final color = Avatar.parseHex(g.colorHex, HyphenTokens.muted);
                 final slotLabel = g.slotLabel();
                 final cap = g.capacity != null
                     ? '${g.memberCount}/${g.capacity}'
                     : '${g.memberCount}';
                 return Container(
                   decoration: BoxDecoration(
-                    color: FacingTokens.surface,
-                    border: Border.all(color: FacingTokens.border, width: 1),
-                    borderRadius: BorderRadius.circular(FacingTokens.r2),
+                    color: HyphenTokens.surface,
+                    border: Border.all(color: HyphenTokens.border, width: 1),
+                    borderRadius: BorderRadius.circular(HyphenTokens.r2),
                   ),
                   clipBehavior: Clip.antiAlias,
                   child: IntrinsicHeight(
@@ -394,7 +394,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
                       children: [
                         Container(width: 4, color: color),
                         Expanded(child: Padding(
-                          padding: const EdgeInsets.all(FacingTokens.sp3),
+                          padding: const EdgeInsets.all(HyphenTokens.sp3),
                           child: _buildGroupCardBody(g, color, slotLabel, cap),
                         )),
                       ],
@@ -407,8 +407,8 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: FacingTokens.accent,
-        foregroundColor: FacingTokens.fg,
+        backgroundColor: HyphenTokens.accent,
+        foregroundColor: HyphenTokens.fg,
         onPressed: _openCreate,
         icon: const Icon(Icons.add),
         label: const Text('새 그룹'),
@@ -426,17 +426,17 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
                         children: [
                           Expanded(
                             child: Text(g.name,
-                                style: FacingTokens.h3.copyWith(
+                                style: HyphenTokens.h3.copyWith(
                                     fontWeight: FontWeight.w800)),
                           ),
                           Text('$cap명',
-                              style: FacingTokens.micro),
+                              style: HyphenTokens.micro),
                         ],
                       ),
                       if (slotLabel.isNotEmpty) ...[
                         const SizedBox(height: 2),
                         Text(slotLabel,
-                            style: FacingTokens.micro.copyWith(
+                            style: HyphenTokens.micro.copyWith(
                               color: color,
                               fontWeight: FontWeight.w800,
                               letterSpacing: 0.6,
@@ -445,9 +445,9 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
                       if (g.description.isNotEmpty) ...[
                         const SizedBox(height: 2),
                         Text(g.description,
-                            style: FacingTokens.caption),
+                            style: HyphenTokens.caption),
                       ],
-                      const SizedBox(height: FacingTokens.sp2),
+                      const SizedBox(height: HyphenTokens.sp2),
                       OutlinedButton(
                         onPressed: () => _openAddMember(g),
                         child: const Text('회원 추가'),

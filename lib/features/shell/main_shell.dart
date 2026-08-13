@@ -7,7 +7,7 @@ import '../../core/appkit.gen.dart';
 import '../../core/haptic.dart';
 import '../../core/shell_nav_bus.dart';
 import '../../core/theme.dart';
-import '../../widgets/fkit.dart';
+import '../../widgets/hkit.dart';
 import '../auth/auth_state.dart';
 import '../gym/box_wod_screen.dart';
 import '../gym/gym_repository.dart';
@@ -174,18 +174,18 @@ class _MainShellState extends State<MainShell> {
         ),
         bottomNavigationBar: NavigationBarTheme(
           data: NavigationBarThemeData(
-            backgroundColor: FacingTokens.bg,
+            backgroundColor: HyphenTokens.bg,
             surfaceTintColor: Colors.transparent,
-            indicatorColor: FacingTokens.accent.withValues(alpha: 0.18),
+            indicatorColor: HyphenTokens.accent.withValues(alpha: 0.18),
             indicatorShape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(FacingTokens.r2),
+              borderRadius: BorderRadius.circular(HyphenTokens.r2),
             ),
             // v2.2: 켜진 탭을 브랜드색으로. 그전엔 아이콘·라벨이 둘 다 검정이라
             // 연분홍 인디케이터 면 하나로만 구분돼 어느 탭인지 흐렸다.
             labelTextStyle: WidgetStateProperty.resolveWith((states) {
               final selected = states.contains(WidgetState.selected);
-              return FacingTokens.micro.copyWith(
-                color: selected ? FacingTokens.primary : FacingTokens.muted,
+              return HyphenTokens.micro.copyWith(
+                color: selected ? HyphenTokens.primary : HyphenTokens.muted,
                 fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                 letterSpacing: 0.1,
               );
@@ -196,7 +196,7 @@ class _MainShellState extends State<MainShell> {
             child: DecoratedBox(
               decoration: const BoxDecoration(
                 border: Border(
-                  top: BorderSide(color: FacingTokens.border, width: 1),
+                  top: BorderSide(color: HyphenTokens.border, width: 1),
                 ),
               ),
               child: NavigationBar(
@@ -215,14 +215,14 @@ class _MainShellState extends State<MainShell> {
                         showDot: i == 1 &&
                             context.watch<AnnouncementsState>().unreadCount >
                                 0,
-                        color: FacingTokens.muted,
+                        color: HyphenTokens.muted,
                       ),
                       selectedIcon: _IconWithDot(
                         icon: _tabs[i].selectedIcon,
                         showDot: i == 1 &&
                             context.watch<AnnouncementsState>().unreadCount >
                                 0,
-                        color: FacingTokens.primary,
+                        color: HyphenTokens.primary,
                       ),
                       label: _tabs[i].label,
                     ),
@@ -278,31 +278,31 @@ class _PendingGateState extends State<_PendingGate> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: FacingTokens.bg,
+      backgroundColor: HyphenTokens.bg,
       body: SafeArea(
         child: Center(
           child: Padding(
-            padding: const EdgeInsets.all(FacingTokens.sp6),
+            padding: const EdgeInsets.all(HyphenTokens.sp6),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Text(
                   '승인 대기중입니다',
-                  style: FacingTokens.h3,
+                  style: HyphenTokens.h3,
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: FacingTokens.sp3),
+                const SizedBox(height: HyphenTokens.sp3),
                 const Text(
                   '가입 신청이 코치에게 전달됐습니다.\n'
                   '코치가 승인하면 오늘의 WOD·수업 예약이 열립니다.',
-                  style: FacingTokens.caption,
+                  style: HyphenTokens.caption,
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: FacingTokens.sp6),
+                const SizedBox(height: HyphenTokens.sp6),
                 _checking
-                    ? const FkLoading()
-                    : FkButton.primary('승인됐는지 확인', onPressed: _recheck),
-                const SizedBox(height: FacingTokens.sp3),
+                    ? const HkLoading()
+                    : HkButton.primary('승인됐는지 확인', onPressed: _recheck),
+                const SizedBox(height: HyphenTokens.sp3),
                 TextButton(
                   onPressed: _signOut,
                   child: const Text('로그아웃'),
@@ -354,9 +354,9 @@ class _IconWithDot extends StatelessWidget {
               width: dotSize,
               height: dotSize,
               decoration: BoxDecoration(
-                color: FacingTokens.accent,
+                color: HyphenTokens.accent,
                 shape: BoxShape.circle,
-                border: Border.all(color: FacingTokens.bg, width: 1.5),
+                border: Border.all(color: HyphenTokens.bg, width: 1.5),
               ),
             ),
           ),
@@ -381,37 +381,37 @@ class _TabHintOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     return Positioned.fill(
       child: Material(
-        color: FacingTokens.bg.withValues(alpha: 0.88),
+        color: HyphenTokens.bg.withValues(alpha: 0.88),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(FacingTokens.sp5),
+            padding: const EdgeInsets.all(HyphenTokens.sp5),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: FacingTokens.sp5),
-                const Text('3탭', style: FacingTokens.sectionLabel),
-                const SizedBox(height: FacingTokens.sp2),
+                const SizedBox(height: HyphenTokens.sp5),
+                const Text('3탭', style: HyphenTokens.sectionLabel),
+                const SizedBox(height: HyphenTokens.sp2),
                 const Text('하단 내비게이션 구성',
-                    style: FacingTokens.caption),
-                const SizedBox(height: FacingTokens.sp5),
+                    style: HyphenTokens.caption),
+                const SizedBox(height: HyphenTokens.sp5),
                 ..._hints.map((h) => Padding(
                       padding: const EdgeInsets.symmetric(
-                          vertical: FacingTokens.sp3),
+                          vertical: HyphenTokens.sp3),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           SizedBox(
                             width: 72,
                             child: Text(h.$1,
-                                style: FacingTokens.body.copyWith(
+                                style: HyphenTokens.body.copyWith(
                                   fontWeight: FontWeight.w700,
-                                  color: FacingTokens.accent,
+                                  color: HyphenTokens.accent,
                                 )),
                           ),
                           Expanded(
                             child: Text(h.$2,
-                                style: FacingTokens.body.copyWith(
-                                  color: FacingTokens.fg,
+                                style: HyphenTokens.body.copyWith(
+                                  color: HyphenTokens.fg,
                                 )),
                           ),
                         ],
@@ -422,7 +422,7 @@ class _TabHintOverlay extends StatelessWidget {
                   onPressed: onDismiss,
                   child: const Text('확인'),
                 ),
-                const SizedBox(height: FacingTokens.sp3),
+                const SizedBox(height: HyphenTokens.sp3),
               ],
             ),
           ),

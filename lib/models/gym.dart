@@ -28,7 +28,7 @@ class GymSummary {
         location: (j['location'] ?? '').toString(),
         memberCount: ((j['member_count'] ?? 0) as num).toInt(),
         isOfficial: (j['is_official'] == true) ||
-            ((j['name'] ?? '').toString() == 'FACING'),
+            ((j['name'] ?? '').toString() == 'HYPHEN HQ'),
         ownerHash: j['owner_hash']?.toString(),
         profile: j['profile'] is Map<String, dynamic>
             ? GymProfile.fromJson(j['profile'] as Map<String, dynamic>)

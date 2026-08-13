@@ -9,7 +9,7 @@ import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/announcement.dart';
-import '../../widgets/fkit.dart';
+import '../../widgets/hkit.dart';
 import '../../widgets/coach_badge.dart';
 import '../../widgets/gym_info_card.dart';
 import '../gym/gym_repository.dart';
@@ -95,32 +95,32 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
     try {
       await showModalBottomSheet<void>(
         context: context,
-        backgroundColor: FacingTokens.surface,
+        backgroundColor: HyphenTokens.surface,
         isScrollControlled: true,
         shape: const RoundedRectangleBorder(
           borderRadius:
-              BorderRadius.vertical(top: Radius.circular(FacingTokens.r4)),
+              BorderRadius.vertical(top: Radius.circular(HyphenTokens.r4)),
         ),
         builder: (ctx) => StatefulBuilder(builder: (innerCtx, setSheet) {
           return SingleChildScrollView(
             padding: EdgeInsets.only(
-              left: FacingTokens.sp4,
-              right: FacingTokens.sp4,
-              top: FacingTokens.sp4,
-              bottom: MediaQuery.of(ctx).viewInsets.bottom + FacingTokens.sp4,
+              left: HyphenTokens.sp4,
+              right: HyphenTokens.sp4,
+              top: HyphenTokens.sp4,
+              bottom: MediaQuery.of(ctx).viewInsets.bottom + HyphenTokens.sp4,
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text('새 공지', style: FacingTokens.sectionLabel),
-                const SizedBox(height: FacingTokens.sp3),
+                const Text('새 공지', style: HyphenTokens.sectionLabel),
+                const SizedBox(height: HyphenTokens.sp3),
                 // 카테고리
                 Wrap(
-                  spacing: FacingTokens.sp2,
+                  spacing: HyphenTokens.sp2,
                   children: [
                     for (final c in ['notice', 'event', 'promotion'])
-                      FkBadge(
+                      HkBadge(
                         AnnouncementCategory.fromString(c).label,
                         color: _categoryColor(c),
                         selected: category == c,
@@ -128,17 +128,17 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
                       ),
                   ],
                 ),
-                const SizedBox(height: FacingTokens.sp2),
+                const SizedBox(height: HyphenTokens.sp2),
                 TextField(
                   controller: titleCtrl,
-                  style: FacingTokens.body.copyWith(color: FacingTokens.fg),
+                  style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
                   decoration: const InputDecoration(labelText: 'Title'),
                   maxLength: 120,
                 ),
-                const SizedBox(height: FacingTokens.sp2),
+                const SizedBox(height: HyphenTokens.sp2),
                 TextField(
                   controller: bodyCtrl,
-                  style: FacingTokens.body.copyWith(color: FacingTokens.fg),
+                  style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
                   decoration: const InputDecoration(
                     labelText: 'Body',
                     hintText: '멤버에게 전달할 내용',
@@ -146,53 +146,53 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
                   maxLines: 5,
                   maxLength: 2000,
                 ),
-                const SizedBox(height: FacingTokens.sp2),
+                const SizedBox(height: HyphenTokens.sp2),
                 TextField(
                   controller: ctaLabelCtrl,
-                  style: FacingTokens.body.copyWith(color: FacingTokens.fg),
+                  style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
                   decoration: const InputDecoration(
                     labelText: 'CTA 버튼 텍스트 (선택)',
                     hintText: '예: 자세히 보기',
                   ),
                   maxLength: 60,
                 ),
-                const SizedBox(height: FacingTokens.sp2),
+                const SizedBox(height: HyphenTokens.sp2),
                 TextField(
                   controller: ctaUrlCtrl,
-                  style: FacingTokens.body.copyWith(color: FacingTokens.fg),
+                  style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
                   decoration: const InputDecoration(
                     labelText: 'CTA URL (선택)',
                     hintText: 'https://',
                   ),
                   keyboardType: TextInputType.url,
                 ),
-                const SizedBox(height: FacingTokens.sp3),
+                const SizedBox(height: HyphenTokens.sp3),
                 Row(
                   children: [
-                    Text('핀고정', style: FacingTokens.caption),
-                    const SizedBox(width: FacingTokens.sp2),
+                    Text('핀고정', style: HyphenTokens.caption),
+                    const SizedBox(width: HyphenTokens.sp2),
                     Switch(
                       value: pinned,
-                      activeThumbColor: FacingTokens.accent,
+                      activeThumbColor: HyphenTokens.accent,
                       onChanged: (v) => setSheet(() => pinned = v),
                     ),
                   ],
                 ),
-                const SizedBox(height: FacingTokens.sp3),
+                const SizedBox(height: HyphenTokens.sp3),
                 Wrap(
-                  spacing: FacingTokens.sp2,
+                  spacing: HyphenTokens.sp2,
                   children: ['normal', 'urgent']
-                      .map((p) => FkBadge(
+                      .map((p) => HkBadge(
                             p,
                             color: p == 'urgent'
-                                ? FacingTokens.accent
-                                : FacingTokens.muted,
+                                ? HyphenTokens.accent
+                                : HyphenTokens.muted,
                             selected: priority == p,
                             onTap: () => setSheet(() => priority = p),
                           ))
                       .toList(),
                 ),
-                const SizedBox(height: FacingTokens.sp4),
+                const SizedBox(height: HyphenTokens.sp4),
                 ElevatedButton(
                   onPressed: () async {
                     final body = bodyCtrl.text.trim();
@@ -267,8 +267,8 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
       ),
       floatingActionButton: gs.isOwner
           ? FloatingActionButton.extended(
-              backgroundColor: FacingTokens.accent,
-              foregroundColor: FacingTokens.fg,
+              backgroundColor: HyphenTokens.accent,
+              foregroundColor: HyphenTokens.fg,
               onPressed: _openCompose,
               icon: const Icon(Icons.campaign_outlined),
               label: const Text('새 공지'),
@@ -280,35 +280,35 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
   Widget _buildBody(dynamic gym) {
     if (gym == null) {
       return const Center(
-        child: Text('박스 소속 없음.', style: FacingTokens.caption),
+        child: Text('박스 소속 없음.', style: HyphenTokens.caption),
       );
     }
     if (_loading) {
       return const Center(
         child: CircularProgressIndicator(
-            color: FacingTokens.muted, strokeWidth: 2),
+            color: HyphenTokens.muted, strokeWidth: 2),
       );
     }
     if (_error != null) {
       return Padding(
-        padding: const EdgeInsets.all(FacingTokens.sp4),
-        child: Text(_error!, style: FacingTokens.body),
+        padding: const EdgeInsets.all(HyphenTokens.sp4),
+        child: Text(_error!, style: HyphenTokens.body),
       );
     }
     if (_items.isEmpty) {
       return const Center(
-        child: Text('Engine 기록 없음', style: FacingTokens.caption),
+        child: Text('Engine 기록 없음', style: HyphenTokens.caption),
       );
     }
     return RefreshIndicator(
-      color: FacingTokens.accent,
-      backgroundColor: FacingTokens.surface,
+      color: HyphenTokens.accent,
+      backgroundColor: HyphenTokens.surface,
       onRefresh: _load,
       child: ListView.separated(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(FacingTokens.sp4),
+        padding: const EdgeInsets.all(HyphenTokens.sp4),
         itemCount: _items.length,
-        separatorBuilder: (context, index) => const SizedBox(height: FacingTokens.sp3),
+        separatorBuilder: (context, index) => const SizedBox(height: HyphenTokens.sp3),
         itemBuilder: (_, i) => _AnnouncementCard(item: _items[i]),
       ),
     );
@@ -319,11 +319,11 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
 Color _categoryColor(String cat) {
   switch (cat) {
     case 'event':
-      return FacingTokens.info; // v1.23: 파랑 — FacingTokens 참조로 교체.
+      return HyphenTokens.info; // v1.23: 파랑 — HyphenTokens 참조로 교체.
     case 'promotion':
-      return FacingTokens.warning; // 주황
+      return HyphenTokens.warning; // 주황
     default:
-      return FacingTokens.muted; // 회색
+      return HyphenTokens.muted; // 회색
   }
 }
 
@@ -347,12 +347,12 @@ class _AnnouncementCardState extends State<_AnnouncementCard> {
   Widget build(BuildContext context) {
     final isUrgent = item.isUrgent;
     final catColor = _categoryColor(item.category.name);
-    final borderColor = isUrgent ? FacingTokens.accent : FacingTokens.border;
+    final borderColor = isUrgent ? HyphenTokens.accent : HyphenTokens.border;
 
     return Container(
       decoration: BoxDecoration(
-        color: FacingTokens.surface,
-        borderRadius: BorderRadius.circular(FacingTokens.r2),
+        color: HyphenTokens.surface,
+        borderRadius: BorderRadius.circular(HyphenTokens.r2),
         border: Border.all(color: borderColor, width: isUrgent ? 2 : 1),
       ),
       clipBehavior: Clip.hardEdge,
@@ -363,7 +363,7 @@ class _AnnouncementCardState extends State<_AnnouncementCard> {
           if (item.hasImage) _ImageBanner(imageUrl: item.imageUrl!),
 
           Padding(
-            padding: const EdgeInsets.all(FacingTokens.sp3),
+            padding: const EdgeInsets.all(HyphenTokens.sp3),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -377,12 +377,12 @@ class _AnnouncementCardState extends State<_AnnouncementCard> {
                       decoration: BoxDecoration(
                         color: catColor.withValues(alpha: 0.15),
                         borderRadius:
-                            BorderRadius.circular(FacingTokens.r1),
+                            BorderRadius.circular(HyphenTokens.r1),
                         border: Border.all(color: catColor, width: 1),
                       ),
                       child: Text(
                         item.category.label,
-                        style: FacingTokens.micro.copyWith(
+                        style: HyphenTokens.micro.copyWith(
                           color: catColor,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 0.8,
@@ -391,31 +391,31 @@ class _AnnouncementCardState extends State<_AnnouncementCard> {
                     ),
                     // 핀고정 — 이모지 금지 규칙: SVG 없으므로 Icons 핀 아이콘 사용
                     if (item.pinned) ...[
-                      const SizedBox(width: FacingTokens.sp1),
+                      const SizedBox(width: HyphenTokens.sp1),
                       Icon(Icons.push_pin,
-                          size: 14, color: FacingTokens.muted),
+                          size: 14, color: HyphenTokens.muted),
                     ],
                     const Spacer(),
                     Text(
                       _formatDate(item.createdAt),
                       style:
-                          FacingTokens.micro.copyWith(color: FacingTokens.muted),
+                          HyphenTokens.micro.copyWith(color: HyphenTokens.muted),
                     ),
                   ],
                 ),
 
                 // 제목
                 if (item.title.isNotEmpty) ...[
-                  const SizedBox(height: FacingTokens.sp2),
+                  const SizedBox(height: HyphenTokens.sp2),
                   Text(
                     item.title,
-                    style: FacingTokens.h3
+                    style: HyphenTokens.h3
                         .copyWith(fontWeight: FontWeight.w800),
                   ),
                 ],
 
                 // 본문 (truncate + 더보기)
-                const SizedBox(height: FacingTokens.sp1),
+                const SizedBox(height: HyphenTokens.sp1),
                 GestureDetector(
                   onTap: () => setState(() => _expanded = !_expanded),
                   child: Column(
@@ -423,7 +423,7 @@ class _AnnouncementCardState extends State<_AnnouncementCard> {
                     children: [
                       Text(
                         item.body,
-                        style: FacingTokens.body,
+                        style: HyphenTokens.body,
                         maxLines: _expanded ? null : _bodyTruncate,
                         overflow:
                             _expanded ? TextOverflow.visible : TextOverflow.ellipsis,
@@ -432,8 +432,8 @@ class _AnnouncementCardState extends State<_AnnouncementCard> {
                           item.body.split('\n').length > _bodyTruncate) ...[
                         const SizedBox(height: 2),
                         Text('더보기',
-                            style: FacingTokens.caption
-                                .copyWith(color: FacingTokens.muted)),
+                            style: HyphenTokens.caption
+                                .copyWith(color: HyphenTokens.muted)),
                       ],
                     ],
                   ),
@@ -441,16 +441,16 @@ class _AnnouncementCardState extends State<_AnnouncementCard> {
 
                 // 기간 표시
                 if (item.hasDateRange) ...[
-                  const SizedBox(height: FacingTokens.sp2),
+                  const SizedBox(height: HyphenTokens.sp2),
                   Row(
                     children: [
                       Icon(Icons.calendar_today_outlined,
-                          size: 12, color: FacingTokens.muted),
+                          size: 12, color: HyphenTokens.muted),
                       const SizedBox(width: 4),
                       Text(
                         item.dateRangeLabel ?? '',
-                        style: FacingTokens.caption
-                            .copyWith(color: FacingTokens.muted),
+                        style: HyphenTokens.caption
+                            .copyWith(color: HyphenTokens.muted),
                       ),
                     ],
                   ),
@@ -458,24 +458,24 @@ class _AnnouncementCardState extends State<_AnnouncementCard> {
 
                 // CTA 버튼
                 if (item.hasCta) ...[
-                  const SizedBox(height: FacingTokens.sp3),
+                  const SizedBox(height: HyphenTokens.sp3),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: FacingTokens.accent,
-                        foregroundColor: FacingTokens.fg,
+                        backgroundColor: HyphenTokens.accent,
+                        foregroundColor: HyphenTokens.fg,
                         padding: const EdgeInsets.symmetric(
-                            vertical: FacingTokens.sp2),
+                            vertical: HyphenTokens.sp2),
                         shape: RoundedRectangleBorder(
                           borderRadius:
-                              BorderRadius.circular(FacingTokens.r2),
+                              BorderRadius.circular(HyphenTokens.r2),
                         ),
                       ),
                       onPressed: () => _handleCta(context),
                       child: Text(
                         item.ctaLabel!,
-                        style: FacingTokens.body
+                        style: HyphenTokens.body
                             .copyWith(fontWeight: FontWeight.w700),
                       ),
                     ),
@@ -532,19 +532,19 @@ class _ImageBanner extends StatelessWidget {
         fullUrl,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) => Container(
-          color: FacingTokens.border,
+          color: HyphenTokens.border,
           child: const Center(
             child: Icon(Icons.broken_image_outlined,
-                color: FacingTokens.muted, size: 32),
+                color: HyphenTokens.muted, size: 32),
           ),
         ),
         loadingBuilder: (context, child, progress) {
           if (progress == null) return child;
           return Container(
-            color: FacingTokens.border,
+            color: HyphenTokens.border,
             child: const Center(
               child: CircularProgressIndicator(
-                  color: FacingTokens.muted, strokeWidth: 2),
+                  color: HyphenTokens.muted, strokeWidth: 2),
             ),
           );
         },

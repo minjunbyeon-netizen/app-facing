@@ -210,7 +210,7 @@ class _PanelBScreenState extends State<PanelBScreen> {
                   height: 22,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: FacingTokens.muted,
+                    color: HyphenTokens.muted,
                   ),
                 ),
               );
@@ -219,16 +219,16 @@ class _PanelBScreenState extends State<PanelBScreen> {
             if (snap.hasError) {
               return Center(
                 child: Padding(
-                  padding: const EdgeInsets.all(FacingTokens.sp5),
+                  padding: const EdgeInsets.all(HyphenTokens.sp5),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const Text('칭호 로딩 실패',
-                          style: FacingTokens.sectionLabel),
-                      const SizedBox(height: FacingTokens.sp2),
+                          style: HyphenTokens.sectionLabel),
+                      const SizedBox(height: HyphenTokens.sp2),
                       const Text('네트워크 확인 후 다시 시도.',
-                          style: FacingTokens.caption),
-                      const SizedBox(height: FacingTokens.sp3),
+                          style: HyphenTokens.caption),
+                      const SizedBox(height: HyphenTokens.sp3),
                       OutlinedButton(
                         onPressed: () {
                           setState(() {
@@ -250,21 +250,21 @@ class _PanelBScreenState extends State<PanelBScreen> {
             final sorted = [...kPanelBTitles]
               ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
             return ListView(
-              padding: const EdgeInsets.all(FacingTokens.sp4),
+              padding: const EdgeInsets.all(HyphenTokens.sp4),
               children: [
                 _Header(
                   unlocked: unlocked.length,
                   total: kPanelBTitles.length,
                 ),
-                const SizedBox(height: FacingTokens.sp4),
+                const SizedBox(height: HyphenTokens.sp4),
                 // /go Tier 3: 착용 안내.
-                const Text('칭호', style: FacingTokens.sectionLabel),
+                const Text('칭호', style: HyphenTokens.sectionLabel),
                 const SizedBox(height: 2),
                 const Text(
                   '해금된 칭호를 탭하면 Profile 상단에 표시. 다시 탭하면 해제.',
-                  style: FacingTokens.caption,
+                  style: HyphenTokens.caption,
                 ),
-                const SizedBox(height: FacingTokens.sp2),
+                const SizedBox(height: HyphenTokens.sp2),
                 ...sorted.map((t) => _TitleCard(
                       title: t,
                       unlocked: unlocked.contains(t.code),
@@ -297,30 +297,30 @@ class _Header extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.baseline,
           textBaseline: TextBaseline.alphabetic,
           children: [
-            Text('$unlocked', style: FacingTokens.display),
-            const SizedBox(width: FacingTokens.sp1),
+            Text('$unlocked', style: HyphenTokens.display),
+            const SizedBox(width: HyphenTokens.sp1),
             Text('/ $total',
-                style: FacingTokens.h3.copyWith(color: FacingTokens.muted)),
+                style: HyphenTokens.h3.copyWith(color: HyphenTokens.muted)),
             const Spacer(),
             Text(
               '${(pct * 100).toInt()}%',
-              style: FacingTokens.h3.copyWith(
-                color: FacingTokens.accent,
-                fontFeatures: FacingTokens.tabular,
+              style: HyphenTokens.h3.copyWith(
+                color: HyphenTokens.accent,
+                fontFeatures: HyphenTokens.tabular,
               ),
             ),
           ],
         ),
-        const SizedBox(height: FacingTokens.sp1),
-        Text('달성', style: FacingTokens.sectionLabel),
-        const SizedBox(height: FacingTokens.sp2),
+        const SizedBox(height: HyphenTokens.sp1),
+        Text('달성', style: HyphenTokens.sectionLabel),
+        const SizedBox(height: HyphenTokens.sp2),
         ClipRRect(
-          borderRadius: BorderRadius.circular(FacingTokens.r1),
+          borderRadius: BorderRadius.circular(HyphenTokens.r1),
           child: Stack(children: [
-            Container(height: 4, color: FacingTokens.border),
+            Container(height: 4, color: HyphenTokens.border),
             FractionallySizedBox(
               widthFactor: pct,
-              child: Container(height: 4, color: FacingTokens.accent),
+              child: Container(height: 4, color: HyphenTokens.accent),
             ),
           ]),
         ),
@@ -346,57 +346,57 @@ class _TitleCard extends StatelessWidget {
   Color _rarityColor() {
     switch (title.rarity) {
       case 'Rare':
-        return FacingTokens.accent;
+        return HyphenTokens.accent;
       case 'Epic':
-        return FacingTokens.tierElite;
+        return HyphenTokens.tierElite;
       case 'Legendary':
-        return FacingTokens.tierGames;
+        return HyphenTokens.tierGames;
       case 'Common':
       default:
-        return FacingTokens.muted;
+        return HyphenTokens.muted;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final color = unlocked ? _rarityColor() : FacingTokens.border;
+    final color = unlocked ? _rarityColor() : HyphenTokens.border;
     return Padding(
-      padding: const EdgeInsets.only(bottom: FacingTokens.sp2),
+      padding: const EdgeInsets.only(bottom: HyphenTokens.sp2),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(FacingTokens.r2),
+          borderRadius: BorderRadius.circular(HyphenTokens.r2),
           child: Container(
             padding: const EdgeInsets.fromLTRB(
-              FacingTokens.sp4,
-              FacingTokens.sp3,
-              FacingTokens.sp4,
-              FacingTokens.sp3,
+              HyphenTokens.sp4,
+              HyphenTokens.sp3,
+              HyphenTokens.sp4,
+              HyphenTokens.sp3,
             ),
             decoration: BoxDecoration(
               color: worn
-                  ? FacingTokens.accent.withValues(alpha: 0.08)
-                  : FacingTokens.surface,
+                  ? HyphenTokens.accent.withValues(alpha: 0.08)
+                  : HyphenTokens.surface,
               border: Border(
                 left: BorderSide(color: color, width: worn ? 4 : 3),
                 top: BorderSide(
                     color: worn
-                        ? FacingTokens.accent
-                        : FacingTokens.border,
+                        ? HyphenTokens.accent
+                        : HyphenTokens.border,
                     width: 1),
                 right: BorderSide(
                     color: worn
-                        ? FacingTokens.accent
-                        : FacingTokens.border,
+                        ? HyphenTokens.accent
+                        : HyphenTokens.border,
                     width: 1),
                 bottom: BorderSide(
                     color: worn
-                        ? FacingTokens.accent
-                        : FacingTokens.border,
+                        ? HyphenTokens.accent
+                        : HyphenTokens.border,
                     width: 1),
               ),
-              borderRadius: BorderRadius.circular(FacingTokens.r2),
+              borderRadius: BorderRadius.circular(HyphenTokens.r2),
             ),
             child: Row(
               children: [
@@ -409,10 +409,10 @@ class _TitleCard extends StatelessWidget {
                           Expanded(
                             child: Text(
                               title.label,
-                              style: FacingTokens.h3.copyWith(
+                              style: HyphenTokens.h3.copyWith(
                                 color: unlocked
-                                    ? FacingTokens.fg
-                                    : FacingTokens.muted,
+                                    ? HyphenTokens.fg
+                                    : HyphenTokens.muted,
                                 fontWeight: FontWeight.w800,
                               ),
                             ),
@@ -422,23 +422,23 @@ class _TitleCard extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: FacingTokens.accent,
+                                color: HyphenTokens.accent,
                                 borderRadius: BorderRadius.circular(
-                                    FacingTokens.r1),
+                                    HyphenTokens.r1),
                               ),
                               child: Text(
                                 'WORN',
-                                style: FacingTokens.sectionLabel.copyWith(
-                                  color: FacingTokens.fg,
+                                style: HyphenTokens.sectionLabel.copyWith(
+                                  color: HyphenTokens.fg,
                                   fontWeight: FontWeight.w800,
                                 ),
                               ),
                             ),
-                            const SizedBox(width: FacingTokens.sp2),
+                            const SizedBox(width: HyphenTokens.sp2),
                           ],
                           Text(
                             title.rarity.toUpperCase(),
-                            style: FacingTokens.microLabel.copyWith(
+                            style: HyphenTokens.microLabel.copyWith(
                               color: _rarityColor(),
                               fontWeight: FontWeight.w800,
                             ),
@@ -450,12 +450,12 @@ class _TitleCard extends StatelessWidget {
                         unlocked
                             ? title.captionKo
                             : '잠금 — ${title.requirement}',
-                        style: FacingTokens.caption,
+                        style: HyphenTokens.caption,
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(width: FacingTokens.sp3),
+                const SizedBox(width: HyphenTokens.sp3),
                 Icon(
                   worn
                       ? Icons.star
@@ -464,10 +464,10 @@ class _TitleCard extends StatelessWidget {
                           : Icons.lock_outline),
                   size: 18,
                   color: worn
-                      ? FacingTokens.accent
+                      ? HyphenTokens.accent
                       : (unlocked
-                          ? FacingTokens.success
-                          : FacingTokens.muted),
+                          ? HyphenTokens.success
+                          : HyphenTokens.muted),
                 ),
               ],
             ),

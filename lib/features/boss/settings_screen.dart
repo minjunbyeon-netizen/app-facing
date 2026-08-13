@@ -31,21 +31,21 @@ class _BossSettingsScreenState extends State<BossSettingsScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: FacingTokens.bg,
+      backgroundColor: HyphenTokens.bg,
       appBar: AppBar(
-        backgroundColor: FacingTokens.bg,
+        backgroundColor: HyphenTokens.bg,
         elevation: 0,
-        title: Text('설정', style: FacingTokens.h3),
+        title: Text('설정', style: HyphenTokens.h3),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: FacingTokens.fg),
+          icon: const Icon(Icons.arrow_back, color: HyphenTokens.fg),
           onPressed: () => Navigator.of(context).pop(),
         ),
         bottom: TabBar(
           controller: _tab,
-          indicatorColor: FacingTokens.primary,
-          labelColor: FacingTokens.fg,
-          unselectedLabelColor: FacingTokens.muted,
-          labelStyle: FacingTokens.body.copyWith(fontWeight: FontWeight.w700),
+          indicatorColor: HyphenTokens.primary,
+          labelColor: HyphenTokens.fg,
+          unselectedLabelColor: HyphenTokens.muted,
+          labelStyle: HyphenTokens.body.copyWith(fontWeight: FontWeight.w700),
           tabs: const [
             Tab(text: '요금제'),
             Tab(text: '포인트'),
@@ -113,13 +113,13 @@ class _PlansTabState extends State<_PlansTab> {
   Widget build(BuildContext context) {
     if (_loading) {
       return const Center(
-        child: CircularProgressIndicator(color: FacingTokens.primary),
+        child: CircularProgressIndicator(color: HyphenTokens.primary),
       );
     }
     if (_error != null) {
       return Center(
         child: Text(_error!,
-            style: FacingTokens.body.copyWith(color: FacingTokens.danger)),
+            style: HyphenTokens.body.copyWith(color: HyphenTokens.danger)),
       );
     }
     return Column(
@@ -130,27 +130,27 @@ class _PlansTabState extends State<_PlansTab> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('요금제 없음', style: FacingTokens.h3),
-                      const SizedBox(height: FacingTokens.sp2),
+                      Text('요금제 없음', style: HyphenTokens.h3),
+                      const SizedBox(height: HyphenTokens.sp2),
                       Text('회원권을 추가하면\n회원 등록 시 자동 금액이 떠요.',
                           textAlign: TextAlign.center,
-                          style: FacingTokens.caption),
+                          style: HyphenTokens.caption),
                     ],
                   ),
                 )
               : ListView.separated(
-                  padding: const EdgeInsets.all(FacingTokens.sp4),
+                  padding: const EdgeInsets.all(HyphenTokens.sp4),
                   itemCount: _plans.length,
                   separatorBuilder: (ctx, idx) =>
-                      const SizedBox(height: FacingTokens.sp2),
+                      const SizedBox(height: HyphenTokens.sp2),
                   itemBuilder: (_, i) {
                     final p = _plans[i];
                     final active = p['is_active'] == true;
                     return Container(
-                      padding: const EdgeInsets.all(FacingTokens.sp3),
+                      padding: const EdgeInsets.all(HyphenTokens.sp3),
                       decoration: BoxDecoration(
-                        color: FacingTokens.surface,
-                        border: Border.all(color: FacingTokens.border),
+                        color: HyphenTokens.surface,
+                        border: Border.all(color: HyphenTokens.border),
                       ),
                       child: Row(
                         children: [
@@ -159,31 +159,31 @@ class _PlansTabState extends State<_PlansTab> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(p['name']?.toString() ?? '?',
-                                    style: FacingTokens.body.copyWith(
+                                    style: HyphenTokens.body.copyWith(
                                         fontWeight: FontWeight.w700,
                                         color: active
-                                            ? FacingTokens.fg
-                                            : FacingTokens.muted)),
+                                            ? HyphenTokens.fg
+                                            : HyphenTokens.muted)),
                                 const SizedBox(height: 2),
                                 Text(
                                   '${p['price_krw'] ?? 0}₩ · '
                                   '${p['duration_days'] ?? '-'}d · '
                                   '${p['plan_type']}',
-                                  style: FacingTokens.caption,
+                                  style: HyphenTokens.caption,
                                 ),
                               ],
                             ),
                           ),
                           if (!active)
                             const Padding(
-                              padding: EdgeInsets.only(right: FacingTokens.sp2),
-                              child: Text('비활성', style: FacingTokens.micro),
+                              padding: EdgeInsets.only(right: HyphenTokens.sp2),
+                              child: Text('비활성', style: HyphenTokens.micro),
                             ),
                           // PHASE5 §1-1 plan soft delete (is_active=false). 활성만 노출.
                           if (active)
                             IconButton(
                               icon: const Icon(Icons.delete_outline,
-                                  size: 18, color: FacingTokens.muted),
+                                  size: 18, color: HyphenTokens.muted),
                               tooltip: 'Disable plan',
                               onPressed: () async {
                                 final id = (p['id'] as num?)?.toInt() ?? 0;
@@ -202,24 +202,24 @@ class _PlansTabState extends State<_PlansTab> {
                 ),
         ),
         Padding(
-          padding: const EdgeInsets.all(FacingTokens.sp3),
+          padding: const EdgeInsets.all(HyphenTokens.sp3),
           child: SizedBox(
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () => _showCreateSheet(context, onDone: _load),
               style: ElevatedButton.styleFrom(
-                backgroundColor: FacingTokens.primary,
-                foregroundColor: FacingTokens.onColor,
+                backgroundColor: HyphenTokens.primary,
+                foregroundColor: HyphenTokens.onColor,
                 padding: const EdgeInsets.symmetric(
-                    vertical: FacingTokens.sp3),
+                    vertical: HyphenTokens.sp3),
                 shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.zero),
               ),
-              // v1.33: color 명시 — FacingTokens.body 가 어두운 fg 를 품고 있어
+              // v1.33: color 명시 — HyphenTokens.body 가 어두운 fg 를 품고 있어
               // 위 foregroundColor(흰색) 를 덮어쓰고 빨간 배경에 어두운 글자가 됐다.
               child: Text('요금제 추가',
-                  style: FacingTokens.body.copyWith(
-                      color: FacingTokens.onColor,
+                  style: HyphenTokens.body.copyWith(
+                      color: HyphenTokens.onColor,
                       fontWeight: FontWeight.w700, letterSpacing: 0.6)),
             ),
           ),
@@ -237,41 +237,41 @@ Future<void> _showCreateSheet(BuildContext ctx,
   String planType = 'time_based';
   await showModalBottomSheet<void>(
     context: ctx,
-    backgroundColor: FacingTokens.surface,
+    backgroundColor: HyphenTokens.surface,
     isScrollControlled: true,
     builder: (sheetCtx) => Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(sheetCtx).viewInsets.bottom,
-        left: FacingTokens.sp4,
-        right: FacingTokens.sp4,
-        top: FacingTokens.sp4,
+        left: HyphenTokens.sp4,
+        right: HyphenTokens.sp4,
+        top: HyphenTokens.sp4,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('새 요금제', style: FacingTokens.h2),
-          const SizedBox(height: FacingTokens.sp4),
+          Text('새 요금제', style: HyphenTokens.h2),
+          const SizedBox(height: HyphenTokens.sp4),
           TextField(
             controller: nameCtrl,
-            style: FacingTokens.body.copyWith(color: FacingTokens.fg),
+            style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
             decoration: const InputDecoration(hintText: '이름 (예: 3개월권)'),
           ),
-          const SizedBox(height: FacingTokens.sp2),
+          const SizedBox(height: HyphenTokens.sp2),
           TextField(
             controller: priceCtrl,
-            style: FacingTokens.body.copyWith(color: FacingTokens.fg),
+            style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
             keyboardType: TextInputType.number,
             decoration: const InputDecoration(hintText: '금액 (KRW)'),
           ),
-          const SizedBox(height: FacingTokens.sp2),
+          const SizedBox(height: HyphenTokens.sp2),
           TextField(
             controller: daysCtrl,
-            style: FacingTokens.body.copyWith(color: FacingTokens.fg),
+            style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
             keyboardType: TextInputType.number,
             decoration: const InputDecoration(hintText: '기간 일수 (예: 90)'),
           ),
-          const SizedBox(height: FacingTokens.sp4),
+          const SizedBox(height: HyphenTokens.sp4),
           ElevatedButton(
             onPressed: () async {
               final api = sheetCtx.read<BossApiClient>();
@@ -291,15 +291,15 @@ Future<void> _showCreateSheet(BuildContext ctx,
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: FacingTokens.primary,
-              foregroundColor: FacingTokens.onColor,
+              backgroundColor: HyphenTokens.primary,
+              foregroundColor: HyphenTokens.onColor,
               shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.zero),
-              padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp3),
+              padding: const EdgeInsets.symmetric(vertical: HyphenTokens.sp3),
             ),
-            child: Text('저장', style: FacingTokens.body),
+            child: Text('저장', style: HyphenTokens.body),
           ),
-          const SizedBox(height: FacingTokens.sp4),
+          const SizedBox(height: HyphenTokens.sp4),
         ],
       ),
     ),
@@ -358,27 +358,27 @@ class _PointsTabState extends State<_PointsTab> {
   Widget build(BuildContext context) {
     if (_loading) {
       return const Center(
-          child: CircularProgressIndicator(color: FacingTokens.primary));
+          child: CircularProgressIndicator(color: HyphenTokens.primary));
     }
     if (_error != null) {
       return Center(
           child: Text(_error!,
-              style: FacingTokens.body.copyWith(color: FacingTokens.danger)));
+              style: HyphenTokens.body.copyWith(color: HyphenTokens.danger)));
     }
     final d = _data ?? const {};
     return ListView(
-      padding: const EdgeInsets.all(FacingTokens.sp4),
+      padding: const EdgeInsets.all(HyphenTokens.sp4),
       children: [
         SwitchListTile(
-          tileColor: FacingTokens.surface,
-          activeThumbColor: FacingTokens.primary,
-          title: Text('포인트 활성', style: FacingTokens.body),
+          tileColor: HyphenTokens.surface,
+          activeThumbColor: HyphenTokens.primary,
+          title: Text('포인트 활성', style: HyphenTokens.body),
           subtitle: Text('박스 전체 포인트 적립·사용 on/off',
-              style: FacingTokens.caption),
+              style: HyphenTokens.caption),
           value: d['is_active'] == true,
           onChanged: (v) => _patch({'is_active': v}),
         ),
-        const SizedBox(height: FacingTokens.sp3),
+        const SizedBox(height: HyphenTokens.sp3),
         // PHASE5 §1-2 후속 — 값 inline 편집. tap 시 prompt-style dialog.
         _EditRow(
           label: '적립률 (%)',
@@ -409,13 +409,13 @@ class _PointsTabState extends State<_PointsTab> {
     final v = await showDialog<int>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: FacingTokens.surface,
-        title: Text(label, style: FacingTokens.h3),
+        backgroundColor: HyphenTokens.surface,
+        title: Text(label, style: HyphenTokens.h3),
         content: TextField(
           controller: ctrl,
           keyboardType: TextInputType.number,
           autofocus: true,
-          style: FacingTokens.body.copyWith(color: FacingTokens.fg),
+          style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
         ),
         actions: [
           TextButton(
@@ -486,12 +486,12 @@ class _NotificationsTabState extends State<_NotificationsTab> {
   Widget build(BuildContext context) {
     if (_loading) {
       return const Center(
-          child: CircularProgressIndicator(color: FacingTokens.primary));
+          child: CircularProgressIndicator(color: HyphenTokens.primary));
     }
     if (_error != null) {
       return Center(
           child: Text(_error!,
-              style: FacingTokens.body.copyWith(color: FacingTokens.danger)));
+              style: HyphenTokens.body.copyWith(color: HyphenTokens.danger)));
     }
     final d = _data ?? const {};
     final items = <(String, String, String)>[
@@ -502,13 +502,13 @@ class _NotificationsTabState extends State<_NotificationsTab> {
       ('cancel', '해지 알림', '해지 처리'),
     ];
     return ListView(
-      padding: const EdgeInsets.all(FacingTokens.sp4),
+      padding: const EdgeInsets.all(HyphenTokens.sp4),
       children: items
           .map((t) => SwitchListTile(
-                tileColor: FacingTokens.surface,
-                activeThumbColor: FacingTokens.primary,
-                title: Text(t.$2, style: FacingTokens.body),
-                subtitle: Text(t.$3, style: FacingTokens.caption),
+                tileColor: HyphenTokens.surface,
+                activeThumbColor: HyphenTokens.primary,
+                title: Text(t.$2, style: HyphenTokens.body),
+                subtitle: Text(t.$3, style: HyphenTokens.caption),
                 value: d[t.$1] == true,
                 onChanged: (v) => _patchKey(t.$1, v),
               ))
@@ -527,13 +527,13 @@ class _EditRow extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp2),
+        padding: const EdgeInsets.symmetric(vertical: HyphenTokens.sp2),
         child: Row(
           children: [
-            Expanded(child: Text(label, style: FacingTokens.body)),
-            Text(value, style: FacingTokens.body.copyWith(color: FacingTokens.fg)),
+            Expanded(child: Text(label, style: HyphenTokens.body)),
+            Text(value, style: HyphenTokens.body.copyWith(color: HyphenTokens.fg)),
             const SizedBox(width: 6),
-            const Icon(Icons.edit_outlined, size: 14, color: FacingTokens.muted),
+            const Icon(Icons.edit_outlined, size: 14, color: HyphenTokens.muted),
           ],
         ),
       ),
@@ -595,33 +595,33 @@ class _AutoJoinTabState extends State<_AutoJoinTab> {
   Widget build(BuildContext context) {
     if (_loading) {
       return const Center(
-          child: CircularProgressIndicator(color: FacingTokens.primary));
+          child: CircularProgressIndicator(color: HyphenTokens.primary));
     }
     if (_error != null) {
       return Center(
           child: Text(_error!,
-              style: FacingTokens.body.copyWith(color: FacingTokens.danger)));
+              style: HyphenTokens.body.copyWith(color: HyphenTokens.danger)));
     }
     return ListView(
-      padding: const EdgeInsets.all(FacingTokens.sp4),
+      padding: const EdgeInsets.all(HyphenTokens.sp4),
       children: [
         SwitchListTile(
-          tileColor: FacingTokens.surface,
-          activeThumbColor: FacingTokens.primary,
-          title: Text('자동 가입 승인', style: FacingTokens.body),
+          tileColor: HyphenTokens.surface,
+          activeThumbColor: HyphenTokens.primary,
+          title: Text('자동 가입 승인', style: HyphenTokens.body),
           subtitle: Text(
             '회원이 박스 가입 신청 시 코치 승인 없이 즉시 활성. 무인 박스 권장.',
-            style: FacingTokens.caption,
+            style: HyphenTokens.caption,
           ),
           value: _enabled,
           onChanged: _toggle,
         ),
-        const SizedBox(height: FacingTokens.sp3),
+        const SizedBox(height: HyphenTokens.sp3),
         Text(
           _enabled
               ? '활성: 가입 신청 즉시 approved 처리'
               : '비활성: 코치가 회원 리스트의 대기 탭에서 직접 승인',
-          style: FacingTokens.caption,
+          style: HyphenTokens.caption,
         ),
       ],
     );

@@ -2,30 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
-import 'package:facing_app/core/api_client.dart';
-import 'package:facing_app/core/connectivity_state.dart';
-import 'package:facing_app/core/goals_state.dart';
-import 'package:facing_app/core/shell_nav_bus.dart';
-import 'package:facing_app/core/sse_client.dart';
-import 'package:facing_app/core/theme.dart';
-import 'package:facing_app/core/ui_prefs_state.dart';
-import 'package:facing_app/core/unit_state.dart';
-import 'package:facing_app/core/wod_session_bus.dart';
-import 'package:facing_app/features/achievement/achievement_repository.dart';
-import 'package:facing_app/features/achievement/achievement_state.dart';
-import 'package:facing_app/features/announcements/announcements_state.dart';
-import 'package:facing_app/features/auth/auth_state.dart';
-import 'package:facing_app/features/boss/boss_api_client.dart';
-import 'package:facing_app/features/boss/boss_auth_state.dart';
-import 'package:facing_app/features/gym/gym_repository.dart';
-import 'package:facing_app/features/gym/gym_state.dart';
-import 'package:facing_app/features/inbox/inbox_repository.dart';
-import 'package:facing_app/features/inbox/inbox_state.dart';
-import 'package:facing_app/features/profile/profile_state.dart';
+import 'package:hyphen_app/core/api_client.dart';
+import 'package:hyphen_app/core/connectivity_state.dart';
+import 'package:hyphen_app/core/goals_state.dart';
+import 'package:hyphen_app/core/shell_nav_bus.dart';
+import 'package:hyphen_app/core/sse_client.dart';
+import 'package:hyphen_app/core/theme.dart';
+import 'package:hyphen_app/core/ui_prefs_state.dart';
+import 'package:hyphen_app/core/unit_state.dart';
+import 'package:hyphen_app/core/wod_session_bus.dart';
+import 'package:hyphen_app/features/achievement/achievement_repository.dart';
+import 'package:hyphen_app/features/achievement/achievement_state.dart';
+import 'package:hyphen_app/features/announcements/announcements_state.dart';
+import 'package:hyphen_app/features/auth/auth_state.dart';
+import 'package:hyphen_app/features/boss/boss_api_client.dart';
+import 'package:hyphen_app/features/boss/boss_auth_state.dart';
+import 'package:hyphen_app/features/gym/gym_repository.dart';
+import 'package:hyphen_app/features/gym/gym_state.dart';
+import 'package:hyphen_app/features/inbox/inbox_repository.dart';
+import 'package:hyphen_app/features/inbox/inbox_state.dart';
+import 'package:hyphen_app/features/profile/profile_state.dart';
 
 import 'fakes.dart';
 
-/// 골든 공용 하네스 — 골든스탠다드(writeplz-app) 패턴의 facing 판.
+/// 골든 공용 하네스 — 골든스탠다드(writeplz-app) 패턴의 hyphen 판.
 /// main.dart provider 트리의 축소판. SSE·플러그인(FCM·로컬푸시)은 무동작 대체.
 
 /// 갤S22 급 화면 (논리 360×780, dpr 2 → PNG 720×1560).
@@ -78,7 +78,7 @@ Widget harness({
       ChangeNotifierProvider<GoalsState>(create: (_) => GoalsState()),
     ],
     child: MaterialApp(
-      theme: FacingTheme.light,
+      theme: HyphenTheme.light,
       debugShowCheckedModeBanner: false,
       home: home,
       // 캡처 후 화면이 다른 라우트로 넘어가도 죽지 않게 전 라우트 스텁.

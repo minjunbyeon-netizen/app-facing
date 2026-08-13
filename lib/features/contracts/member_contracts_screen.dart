@@ -8,7 +8,7 @@ import '../../core/api_client.dart';
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
-import '../../widgets/fkit.dart';
+import '../../widgets/hkit.dart';
 
 /// B-6 (2026-06-10) — 회원 전자계약: 목록 → 상세 → 서명패드 (결정4 풀스펙).
 ///
@@ -101,7 +101,7 @@ class _MemberContractsScreenState extends State<MemberContractsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: FacingTokens.bg,
+      backgroundColor: HyphenTokens.bg,
       appBar: AppBar(title: const Text('계약')),
       body: SafeArea(
         child: FutureBuilder<List<ContractSummary>>(
@@ -119,19 +119,19 @@ class _MemberContractsScreenState extends State<MemberContractsScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('계약 없음', style: FacingTokens.h3),
-                    const SizedBox(height: FacingTokens.sp2),
+                    Text('계약 없음', style: HyphenTokens.h3),
+                    const SizedBox(height: HyphenTokens.sp2),
                     Text('박스가 계약서를 발급하면 여기에 표시.',
-                        style: FacingTokens.caption),
+                        style: HyphenTokens.caption),
                   ],
                 ),
               );
             }
             return ListView.separated(
-              padding: const EdgeInsets.all(FacingTokens.sp4),
+              padding: const EdgeInsets.all(HyphenTokens.sp4),
               itemCount: rows.length,
               separatorBuilder: (_, _) =>
-                  const SizedBox(height: FacingTokens.sp2),
+                  const SizedBox(height: HyphenTokens.sp2),
               itemBuilder: (context, i) {
                 final c = rows[i];
                 return InkWell(
@@ -142,11 +142,11 @@ class _MemberContractsScreenState extends State<MemberContractsScreen> {
                     _reload(); // 서명 후 상태 갱신
                   },
                   child: Container(
-                    padding: const EdgeInsets.all(FacingTokens.sp4),
+                    padding: const EdgeInsets.all(HyphenTokens.sp4),
                     decoration: BoxDecoration(
-                      color: FacingTokens.surface,
-                      border: Border.all(color: FacingTokens.border),
-                      borderRadius: BorderRadius.circular(FacingTokens.r2),
+                      color: HyphenTokens.surface,
+                      border: Border.all(color: HyphenTokens.border),
+                      borderRadius: BorderRadius.circular(HyphenTokens.r2),
                     ),
                     child: Row(
                       children: [
@@ -158,21 +158,21 @@ class _MemberContractsScreenState extends State<MemberContractsScreen> {
                                 c.templateName.isEmpty
                                     ? '계약서 #${c.id}'
                                     : c.templateName,
-                                style: FacingTokens.body
+                                style: HyphenTokens.body
                                     .copyWith(fontWeight: FontWeight.w700),
                               ),
                               const SizedBox(height: 2),
                               Text(
                                 (c.createdAt ?? '').split('T').first,
-                                style: FacingTokens.caption,
+                                style: HyphenTokens.caption,
                               ),
                             ],
                           ),
                         ),
-                        FkBadge(c.statusLabel,
+                        HkBadge(c.statusLabel,
                             color: c.signable
-                                ? FacingTokens.primary
-                                : FacingTokens.muted),
+                                ? HyphenTokens.primary
+                                : HyphenTokens.muted),
                       ],
                     ),
                   ),
@@ -196,8 +196,8 @@ class _ErrorRetry extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('불러오기 실패', style: FacingTokens.h3),
-          const SizedBox(height: FacingTokens.sp3),
+          Text('불러오기 실패', style: HyphenTokens.h3),
+          const SizedBox(height: HyphenTokens.sp3),
           TextButton(onPressed: onRetry, child: const Text('다시 시도')),
         ],
       ),
@@ -243,7 +243,7 @@ class _ContractDetailScreenState extends State<ContractDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: FacingTokens.bg,
+      backgroundColor: HyphenTokens.bg,
       appBar: AppBar(title: const Text('계약')),
       body: SafeArea(
         child: FutureBuilder<Map<String, dynamic>>(
@@ -266,12 +266,12 @@ class _ContractDetailScreenState extends State<ContractDetailScreen> {
               children: [
                 Expanded(
                   child: ListView(
-                    padding: const EdgeInsets.all(FacingTokens.sp4),
+                    padding: const EdgeInsets.all(HyphenTokens.sp4),
                     children: [
                       Text((d['template_name'] ?? '') as String,
-                          style: FacingTokens.h2),
-                      const SizedBox(height: FacingTokens.sp2),
-                      FkBadge(
+                          style: HyphenTokens.h2),
+                      const SizedBox(height: HyphenTokens.sp2),
+                      HkBadge(
                         switch (status) {
                           'signed' => 'SIGNED',
                           'sent' || 'viewed' => 'WAITING',
@@ -279,15 +279,15 @@ class _ContractDetailScreenState extends State<ContractDetailScreen> {
                           _ => status.toUpperCase(),
                         },
                         color: signable
-                            ? FacingTokens.primary
-                            : FacingTokens.muted,
+                            ? HyphenTokens.primary
+                            : HyphenTokens.muted,
                       ),
-                      const SizedBox(height: FacingTokens.sp4),
-                      const Text('내용', style: FacingTokens.sectionLabel),
-                      const SizedBox(height: FacingTokens.sp2),
+                      const SizedBox(height: HyphenTokens.sp4),
+                      const Text('내용', style: HyphenTokens.sectionLabel),
+                      const SizedBox(height: HyphenTokens.sp2),
                       ...entries.map((e) => Padding(
                             padding: const EdgeInsets.only(
-                                bottom: FacingTokens.sp2),
+                                bottom: HyphenTokens.sp2),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -295,21 +295,21 @@ class _ContractDetailScreenState extends State<ContractDetailScreen> {
                                   width: 120,
                                   child: Text(
                                     e.key.toString().replaceAll('_', ' '),
-                                    style: FacingTokens.caption,
+                                    style: HyphenTokens.caption,
                                   ),
                                 ),
                                 Expanded(
                                   child: Text('${e.value ?? ''}',
-                                      style: FacingTokens.body),
+                                      style: HyphenTokens.body),
                                 ),
                               ],
                             ),
                           )),
                       if (d['signed_at'] != null) ...[
-                        const SizedBox(height: FacingTokens.sp3),
+                        const SizedBox(height: HyphenTokens.sp3),
                         Text(
                           '서명 완료: ${(d['signed_at'] as String).split('T').first}',
-                          style: FacingTokens.caption,
+                          style: HyphenTokens.caption,
                         ),
                       ],
                     ],
@@ -317,15 +317,15 @@ class _ContractDetailScreenState extends State<ContractDetailScreen> {
                 ),
                 if (signable)
                   Padding(
-                    padding: const EdgeInsets.all(FacingTokens.sp4),
+                    padding: const EdgeInsets.all(HyphenTokens.sp4),
                     child: SizedBox(
                       width: double.infinity,
-                      height: FacingTokens.buttonH,
+                      height: HyphenTokens.buttonH,
                       child: ElevatedButton(
                         onPressed: _openSignPad,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: FacingTokens.primary,
-                          foregroundColor: FacingTokens.onColor,
+                          backgroundColor: HyphenTokens.primary,
+                          foregroundColor: HyphenTokens.onColor,
                         ),
                         child: const Text('서명'),
                       ),
@@ -416,7 +416,7 @@ class _SignaturePadScreenState extends State<SignaturePadScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: FacingTokens.bg,
+      backgroundColor: HyphenTokens.bg,
       appBar: AppBar(
         title: const Text('서명'),
         actions: [
@@ -432,23 +432,23 @@ class _SignaturePadScreenState extends State<SignaturePadScreen> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.all(FacingTokens.sp4),
+              padding: const EdgeInsets.all(HyphenTokens.sp4),
               child: Text('아래 영역에 서명. 전자서명법 제3조에 따라 효력 발생.',
-                  style: FacingTokens.caption),
+                  style: HyphenTokens.caption),
             ),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: FacingTokens.sp4),
+                    horizontal: HyphenTokens.sp4),
                 child: Container(
                   key: _padKey,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    border: Border.all(color: FacingTokens.border),
-                    borderRadius: BorderRadius.circular(FacingTokens.r2),
+                    border: Border.all(color: HyphenTokens.border),
+                    borderRadius: BorderRadius.circular(HyphenTokens.r2),
                   ),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(FacingTokens.r2),
+                    borderRadius: BorderRadius.circular(HyphenTokens.r2),
                     child: GestureDetector(
                       onPanStart: (d) => _start(d.localPosition),
                       onPanUpdate: (d) => _extend(d.localPosition),
@@ -462,23 +462,23 @@ class _SignaturePadScreenState extends State<SignaturePadScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(FacingTokens.sp4),
+              padding: const EdgeInsets.all(HyphenTokens.sp4),
               child: SizedBox(
                 width: double.infinity,
-                height: FacingTokens.buttonH,
+                height: HyphenTokens.buttonH,
                 child: ElevatedButton(
                   onPressed:
                       (_hasSignature && !_submitting) ? _submit : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: FacingTokens.primary,
-                    foregroundColor: FacingTokens.onColor,
+                    backgroundColor: HyphenTokens.primary,
+                    foregroundColor: HyphenTokens.onColor,
                   ),
                   child: _submitting
                       ? const SizedBox(
                           width: 22,
                           height: 22,
                           child: CircularProgressIndicator(
-                              color: FacingTokens.onColor, strokeWidth: 2.4),
+                              color: HyphenTokens.onColor, strokeWidth: 2.4),
                         )
                       : const Text('제출'),
                 ),

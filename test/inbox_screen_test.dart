@@ -14,11 +14,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:facing_app/features/auth/auth_state.dart';
-import 'package:facing_app/features/gym/gym_repository.dart';
-import 'package:facing_app/features/gym/gym_state.dart';
-import 'package:facing_app/features/inbox/inbox_screen.dart';
-import 'package:facing_app/features/profile/profile_state.dart';
+import 'package:hyphen_app/features/auth/auth_state.dart';
+import 'package:hyphen_app/features/gym/gym_repository.dart';
+import 'package:hyphen_app/features/gym/gym_state.dart';
+import 'package:hyphen_app/features/inbox/inbox_screen.dart';
+import 'package:hyphen_app/features/profile/profile_state.dart';
 
 import 'golden/fakes.dart';
 import 'golden/harness.dart';

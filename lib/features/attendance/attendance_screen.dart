@@ -35,20 +35,20 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _refresh,
-          color: FacingTokens.accent,
+          color: HyphenTokens.accent,
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp4),
+            padding: const EdgeInsets.symmetric(vertical: HyphenTokens.sp4),
             children: [
               // v1.26: 클래스 예약을 최상단으로 — 회원 최빈 행동(예약→출석) 순서.
               Padding(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: FacingTokens.sp4),
+                    horizontal: HyphenTokens.sp4),
                 child: ClassesSection(key: ValueKey('att-cls-$_tick')),
               ),
-              const SizedBox(height: FacingTokens.sp5),
-              const Divider(height: 1, color: FacingTokens.border),
-              const SizedBox(height: FacingTokens.sp4),
+              const SizedBox(height: HyphenTokens.sp5),
+              const Divider(height: 1, color: HyphenTokens.border),
+              const SizedBox(height: HyphenTokens.sp4),
               _AttendanceCalendar(key: ValueKey('att-cal-$_tick')),
             ],
           ),
@@ -102,7 +102,7 @@ class _AttendanceCalendarState extends State<_AttendanceCalendar> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: FacingTokens.sp4),
+      padding: const EdgeInsets.symmetric(horizontal: HyphenTokens.sp4),
       child: FutureBuilder<Map<DateTime, int>>(
         future: _future,
         builder: (ctx, snap) {
@@ -112,11 +112,11 @@ class _AttendanceCalendarState extends State<_AttendanceCalendar> {
           // E-2 (2026-06-10) — 네트워크 실패를 빈 출석으로 오인하지 않도록 분기
           if (snap.hasError) {
             return Padding(
-              padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp4),
+              padding: const EdgeInsets.symmetric(vertical: HyphenTokens.sp4),
               child: Column(
                 children: [
-                  Text('불러오기 실패', style: FacingTokens.caption),
-                  const SizedBox(height: FacingTokens.sp2),
+                  Text('불러오기 실패', style: HyphenTokens.caption),
+                  const SizedBox(height: HyphenTokens.sp2),
                   TextButton(
                     onPressed: () => setState(_reload),
                     child: const Text('다시 시도'),
@@ -155,26 +155,26 @@ class _AttendanceCalendarState extends State<_AttendanceCalendar> {
             children: [
               Row(
                 children: [
-                  const Text('출석', style: FacingTokens.sectionLabel),
+                  const Text('출석', style: HyphenTokens.sectionLabel),
                   const Spacer(),
                   Text(
                     '$monthYear.${monthNum.toString().padLeft(2, '0')}',
-                    style: FacingTokens.caption,
+                    style: HyphenTokens.caption,
                   ),
                 ],
               ),
-              const SizedBox(height: FacingTokens.sp3),
+              const SizedBox(height: HyphenTokens.sp3),
               // 요일 헤더
               Row(
                 children: const ['일', '월', '화', '수', '목', '금', '토']
                     .map((w) => Expanded(
                           child: Center(
-                            child: Text(w, style: FacingTokens.micro),
+                            child: Text(w, style: HyphenTokens.micro),
                           ),
                         ))
                     .toList(),
               ),
-              const SizedBox(height: FacingTokens.sp2),
+              const SizedBox(height: HyphenTokens.sp2),
               // 미니 캘린더 — 일자 숫자 + 강도색.
               GridView.builder(
                 shrinkWrap: true,
@@ -199,13 +199,13 @@ class _AttendanceCalendarState extends State<_AttendanceCalendar> {
                   return Container(
                     decoration: BoxDecoration(
                       color: count > 0
-                          ? FacingTokens.accent.withValues(alpha: intensity)
-                          : FacingTokens.surface,
+                          ? HyphenTokens.accent.withValues(alpha: intensity)
+                          : HyphenTokens.surface,
                       borderRadius: BorderRadius.circular(4),
                       border: Border.all(
                         color: isToday
-                            ? FacingTokens.accent
-                            : FacingTokens.border,
+                            ? HyphenTokens.accent
+                            : HyphenTokens.border,
                         width: isToday ? 1.5 : 0.8,
                       ),
                     ),
@@ -213,26 +213,26 @@ class _AttendanceCalendarState extends State<_AttendanceCalendar> {
                     child: Text(
                       '$dayNum',
                       // R5: 하드코드 fontSize 제거 — micro(13) 토큰 기반.
-                      style: FacingTokens.micro.copyWith(
+                      style: HyphenTokens.micro.copyWith(
                         height: 1,
                         fontWeight:
                             isToday ? FontWeight.w800 : FontWeight.w400,
                         color: count > 0
-                            ? FacingTokens.fg
-                            : FacingTokens.muted.withValues(alpha: 0.6),
+                            ? HyphenTokens.fg
+                            : HyphenTokens.muted.withValues(alpha: 0.6),
                       ),
                     ),
                   );
                 },
               ),
-              const SizedBox(height: FacingTokens.sp4),
+              const SizedBox(height: HyphenTokens.sp4),
               // 1줄 통계 — streak · total · 이달 출석.
               Row(
                 children: [
                   _StatBlock(label: '스트릭', value: '${streak}d'),
-                  const SizedBox(width: FacingTokens.sp4),
+                  const SizedBox(width: HyphenTokens.sp4),
                   _StatBlock(label: '누적', value: '$totalCheckins'),
-                  const SizedBox(width: FacingTokens.sp4),
+                  const SizedBox(width: HyphenTokens.sp4),
                   _StatBlock(label: '이번 달', value: '${attended}d'),
                 ],
               ),
@@ -254,13 +254,13 @@ class _StatBlock extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: FacingTokens.microLabel),
+        Text(label, style: HyphenTokens.microLabel),
         const SizedBox(height: 2),
         Text(value,
-            style: FacingTokens.h3.copyWith(
+            style: HyphenTokens.h3.copyWith(
               fontWeight: FontWeight.w800,
-              fontFeatures: FacingTokens.tabular,
-              color: FacingTokens.fg,
+              fontFeatures: HyphenTokens.tabular,
+              color: HyphenTokens.fg,
             )),
       ],
     );

@@ -18,17 +18,17 @@ class QuoteCard extends StatelessWidget {
         Text(
           '"${quote.text}"',
           style: compact
-              ? FacingTokens.caption.copyWith(
+              ? HyphenTokens.caption.copyWith(
                   fontStyle: FontStyle.italic,
                   letterSpacing: 0.1,
                 )
-              : FacingTokens.quote,
+              : HyphenTokens.quote,
           textAlign: TextAlign.center,
         ),
-        SizedBox(height: compact ? FacingTokens.sp1 : FacingTokens.sp2),
+        SizedBox(height: compact ? HyphenTokens.sp1 : HyphenTokens.sp2),
         Text(
           '— ${quote.author}',
-          style: FacingTokens.micro,
+          style: HyphenTokens.micro,
           textAlign: TextAlign.center,
         ),
       ],

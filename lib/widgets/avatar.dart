@@ -40,7 +40,7 @@ class Avatar extends StatelessWidget {
 
   static Color _colorFromHash(String hash) {
     // 간이 hash → muted 변형 색 (회색 톤 5종).
-    if (hash.isEmpty) return FacingTokens.muted;
+    if (hash.isEmpty) return HyphenTokens.muted;
     final n = hash.codeUnitAt(0) % 5;
     switch (n) {
       case 0:
@@ -78,7 +78,7 @@ class Avatar extends StatelessWidget {
       height: size,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: FacingTokens.bg,
+        color: HyphenTokens.bg,
         border: Border.all(
           color: base,
           width: selected ? 2 : 1,
@@ -87,7 +87,7 @@ class Avatar extends StatelessWidget {
       ),
       child: Text(
         letter,
-        style: FacingTokens.body.copyWith(
+        style: HyphenTokens.body.copyWith(
           fontSize: size * 0.42,
           fontWeight: FontWeight.w800,
           color: base,

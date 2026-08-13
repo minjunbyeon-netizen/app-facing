@@ -5,7 +5,7 @@ import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../widgets/brand_logo.dart';
-import '../../widgets/fkit.dart';
+import '../../widgets/hkit.dart';
 import 'boss_api_client.dart';
 import 'boss_auth_state.dart';
 
@@ -77,61 +77,61 @@ class _BossLoginScreenState extends State<BossLoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: FacingTokens.bg,
+      backgroundColor: HyphenTokens.bg,
       appBar: AppBar(
-        backgroundColor: FacingTokens.bg,
+        backgroundColor: HyphenTokens.bg,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: FacingTokens.fg),
+          icon: const Icon(Icons.arrow_back, color: HyphenTokens.fg),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(
-              horizontal: FacingTokens.sp5, vertical: FacingTokens.sp4),
+              horizontal: HyphenTokens.sp5, vertical: HyphenTokens.sp4),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: FacingTokens.sp3),
+                const SizedBox(height: HyphenTokens.sp3),
                 // ─── 헤더 (v1.29: 로그인 화면 통일 — BrandLogo 220, DESIGN-SSOT §6) ───
                 const Center(child: BrandLogo()),
-                const SizedBox(height: FacingTokens.sp5),
-                Text('코치 로그인', style: FacingTokens.h1),
-                const SizedBox(height: FacingTokens.sp1),
+                const SizedBox(height: HyphenTokens.sp5),
+                Text('코치 로그인', style: HyphenTokens.h1),
+                const SizedBox(height: HyphenTokens.sp1),
                 Text(
                   'PC 어드민과 동일 계정으로 로그인.',
-                  style: FacingTokens.caption,
+                  style: HyphenTokens.caption,
                 ),
-                const SizedBox(height: FacingTokens.sp6),
+                const SizedBox(height: HyphenTokens.sp6),
 
                 // ─── ID 필드 ─────────────────────────────────────────
                 _FieldLabel('아이디'),
-                const SizedBox(height: FacingTokens.sp1),
+                const SizedBox(height: HyphenTokens.sp1),
                 TextFormField(
                   controller: _idCtrl,
-                  style: FacingTokens.body.copyWith(color: FacingTokens.fg),
+                  style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
                   decoration: _inputDeco('boss_seongsu'),
                   textInputAction: TextInputAction.next,
                   autocorrect: false,
                   validator: (v) =>
                       (v == null || v.trim().isEmpty) ? '아이디를 입력해 주세요.' : null,
                 ),
-                const SizedBox(height: FacingTokens.sp3),
+                const SizedBox(height: HyphenTokens.sp3),
 
                 // ─── PW 필드 ─────────────────────────────────────────
                 _FieldLabel('비밀번호'),
-                const SizedBox(height: FacingTokens.sp1),
+                const SizedBox(height: HyphenTokens.sp1),
                 TextFormField(
                   controller: _pwCtrl,
-                  style: FacingTokens.body.copyWith(color: FacingTokens.fg),
+                  style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
                   decoration: _inputDeco('••••').copyWith(
                     suffixIcon: IconButton(
                       icon: Icon(
                         _pwVisible ? Icons.visibility_off : Icons.visibility,
-                        color: FacingTokens.muted,
+                        color: HyphenTokens.muted,
                         size: 20,
                       ),
                       onPressed: () =>
@@ -147,29 +147,29 @@ class _BossLoginScreenState extends State<BossLoginScreen> {
 
                 // ─── 에러 메시지 ──────────────────────────────────────
                 if (_error != null) ...[
-                  const SizedBox(height: FacingTokens.sp3),
+                  const SizedBox(height: HyphenTokens.sp3),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: FacingTokens.sp3,
-                        vertical: FacingTokens.sp2),
+                        horizontal: HyphenTokens.sp3,
+                        vertical: HyphenTokens.sp2),
                     decoration: BoxDecoration(
-                      color: FacingTokens.danger.withValues(alpha:0.12),
+                      color: HyphenTokens.danger.withValues(alpha:0.12),
                       border: Border.all(
-                          color: FacingTokens.danger.withValues(alpha:0.4)),
+                          color: HyphenTokens.danger.withValues(alpha:0.4)),
                     ),
                     child: Text(
                       _error!,
-                      style: FacingTokens.caption
-                          .copyWith(color: FacingTokens.danger),
+                      style: HyphenTokens.caption
+                          .copyWith(color: HyphenTokens.danger),
                     ),
                   ),
                 ],
 
-                const SizedBox(height: FacingTokens.sp6),
+                const SizedBox(height: HyphenTokens.sp6),
 
                 // ─── 로그인 버튼 (v1.29: 테마 ElevatedButton = CTA 유일 규격) ───
                 _busy
-                    ? const FkLoading()
+                    ? const HkLoading()
                     : ElevatedButton(
                         onPressed: _login, child: const Text('로그인')),
               ],
@@ -182,30 +182,30 @@ class _BossLoginScreenState extends State<BossLoginScreen> {
 
   InputDecoration _inputDeco(String hint) => InputDecoration(
         hintText: hint,
-        hintStyle: FacingTokens.body.copyWith(color: FacingTokens.mutedStrong),
+        hintStyle: HyphenTokens.body.copyWith(color: HyphenTokens.mutedStrong),
         filled: true,
-        fillColor: FacingTokens.surface,
+        fillColor: HyphenTokens.surface,
         contentPadding: const EdgeInsets.symmetric(
-            horizontal: FacingTokens.sp3, vertical: FacingTokens.sp3),
+            horizontal: HyphenTokens.sp3, vertical: HyphenTokens.sp3),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(FacingTokens.r2),
-          borderSide: const BorderSide(color: FacingTokens.border),
+          borderRadius: BorderRadius.circular(HyphenTokens.r2),
+          borderSide: const BorderSide(color: HyphenTokens.border),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(FacingTokens.r2),
+          borderRadius: BorderRadius.circular(HyphenTokens.r2),
           borderSide:
-              const BorderSide(color: FacingTokens.primary, width: 1.5),
+              const BorderSide(color: HyphenTokens.primary, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(FacingTokens.r2),
-          borderSide: const BorderSide(color: FacingTokens.danger),
+          borderRadius: BorderRadius.circular(HyphenTokens.r2),
+          borderSide: const BorderSide(color: HyphenTokens.danger),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(FacingTokens.r2),
+          borderRadius: BorderRadius.circular(HyphenTokens.r2),
           borderSide:
-              const BorderSide(color: FacingTokens.danger, width: 1.5),
+              const BorderSide(color: HyphenTokens.danger, width: 1.5),
         ),
-        errorStyle: FacingTokens.micro.copyWith(color: FacingTokens.danger),
+        errorStyle: HyphenTokens.micro.copyWith(color: HyphenTokens.danger),
       );
 }
 
@@ -213,7 +213,7 @@ class _FieldLabel extends StatelessWidget {
   final String text;
   const _FieldLabel(this.text);
   @override
-  Widget build(BuildContext context) => FkSectionLabel(text);
+  Widget build(BuildContext context) => HkSectionLabel(text);
 }
 
 // v1.29: _PrimaryButton 폐기 — CTA 는 테마 ElevatedButton 유일 규격 (DESIGN-SSOT §5).

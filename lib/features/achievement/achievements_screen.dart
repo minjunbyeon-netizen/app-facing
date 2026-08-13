@@ -5,7 +5,7 @@
 //  - 우측 3열 grid 카드 (체크 / 진행 / 잠금)
 //  - 카테고리 필터 chip row
 //
-// 비주얼 톤 (facing 흑백·Obsession):
+// 비주얼 톤 (hyphen 흑백·Obsession):
 //  - surface #141414 카드 + border 1px
 //  - 단색 outline 아이콘 (Material Icons.outlined)
 //  - 완료 체크 = success #22C55E, locked 카드 opacity 0.35
@@ -17,7 +17,7 @@ import 'package:provider/provider.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/achievement.dart';
-import '../../widgets/fkit.dart';
+import '../../widgets/hkit.dart';
 import 'achievement_card.dart';
 import 'achievement_state.dart';
 import 'panel_b_screen.dart';
@@ -141,21 +141,21 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                   width: 22,
                   height: 22,
                   child: CircularProgressIndicator(
-                      strokeWidth: 2, color: FacingTokens.muted),
+                      strokeWidth: 2, color: HyphenTokens.muted),
                 ),
               )
             : hasError
                 ? Center(
                     child: Padding(
-                      padding: const EdgeInsets.all(FacingTokens.sp5),
+                      padding: const EdgeInsets.all(HyphenTokens.sp5),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           const Text('업적 로딩 실패',
-                              style: FacingTokens.sectionLabel),
-                          const SizedBox(height: FacingTokens.sp2),
-                          Text(state.error!, style: FacingTokens.caption),
-                          const SizedBox(height: FacingTokens.sp3),
+                              style: HyphenTokens.sectionLabel),
+                          const SizedBox(height: HyphenTokens.sp2),
+                          Text(state.error!, style: HyphenTokens.caption),
+                          const SizedBox(height: HyphenTokens.sp3),
                           OutlinedButton(
                             onPressed: () => state.load(),
                             child: const Text('다시 시도'),
@@ -175,12 +175,12 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                 setState(() => _filter = v);
               },
             ),
-            const Divider(height: 1, color: FacingTokens.border),
+            const Divider(height: 1, color: HyphenTokens.border),
             Expanded(
               child: filtered.isEmpty
                   ? const Center(
                       child: Text('아직 업적 없음.',
-                          style: FacingTokens.caption),
+                          style: HyphenTokens.caption),
                     )
                   : Row(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -197,7 +197,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                                 ),
                         ),
                         const VerticalDivider(
-                            width: 1, color: FacingTokens.border),
+                            width: 1, color: HyphenTokens.border),
                         Expanded(
                           flex: 7,
                           child: _Grid(
@@ -230,10 +230,10 @@ class _StatsHeader extends StatelessWidget {
     final pct = total == 0 ? 0.0 : (unlocked / total).clamp(0, 1).toDouble();
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-        FacingTokens.sp4,
-        FacingTokens.sp3,
-        FacingTokens.sp4,
-        FacingTokens.sp2,
+        HyphenTokens.sp4,
+        HyphenTokens.sp3,
+        HyphenTokens.sp4,
+        HyphenTokens.sp2,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -242,31 +242,31 @@ class _StatsHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Text('$unlocked', style: FacingTokens.display),
-              const SizedBox(width: FacingTokens.sp1),
+              Text('$unlocked', style: HyphenTokens.display),
+              const SizedBox(width: HyphenTokens.sp1),
               Text('/ $total',
-                  style: FacingTokens.h3.copyWith(color: FacingTokens.muted)),
+                  style: HyphenTokens.h3.copyWith(color: HyphenTokens.muted)),
               const Spacer(),
               // 진척률은 성과·경고 강조 대상 아님 → muted (실기기 QA).
               Text(
                 '${(pct * 100).toInt()}%',
-                style: FacingTokens.h3.copyWith(
-                  fontFeatures: FacingTokens.tabular,
-                  color: FacingTokens.muted,
+                style: HyphenTokens.h3.copyWith(
+                  fontFeatures: HyphenTokens.tabular,
+                  color: HyphenTokens.muted,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: FacingTokens.sp1),
-          Text('달성', style: FacingTokens.sectionLabel),
-          const SizedBox(height: FacingTokens.sp2),
+          const SizedBox(height: HyphenTokens.sp1),
+          Text('달성', style: HyphenTokens.sectionLabel),
+          const SizedBox(height: HyphenTokens.sp2),
           ClipRRect(
-            borderRadius: BorderRadius.circular(FacingTokens.r1),
+            borderRadius: BorderRadius.circular(HyphenTokens.r1),
             child: Stack(children: [
-              Container(height: 4, color: FacingTokens.border),
+              Container(height: 4, color: HyphenTokens.border),
               FractionallySizedBox(
                 widthFactor: pct,
-                child: Container(height: 4, color: FacingTokens.accent),
+                child: Container(height: 4, color: HyphenTokens.accent),
               ),
             ]),
           ),
@@ -293,17 +293,17 @@ class _FilterRow extends StatelessWidget {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(
-          horizontal: FacingTokens.sp4,
-          vertical: FacingTokens.sp2,
+          horizontal: HyphenTokens.sp4,
+          vertical: HyphenTokens.sp2,
         ),
         itemCount: filters.length,
-        separatorBuilder: (_, _) => const SizedBox(width: FacingTokens.sp2),
+        separatorBuilder: (_, _) => const SizedBox(width: HyphenTokens.sp2),
         itemBuilder: (ctx, i) {
           final (code, label) = filters[i];
           final selected = current == code;
-          return FkBadge(
+          return HkBadge(
             label,
-            color: FacingTokens.fg,
+            color: HyphenTokens.fg,
             selected: selected,
             onTap: () => onTap(code),
           );
@@ -329,76 +329,76 @@ class _FeaturedPanel extends StatelessWidget {
     final isHidden = catalog.isHidden && !unlockedInUi;
     final iconData = _AchievementIcon.iconFor(catalog.code, isHidden);
     return Padding(
-      padding: const EdgeInsets.all(FacingTokens.sp4),
+      padding: const EdgeInsets.all(HyphenTokens.sp4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             decoration: BoxDecoration(
-              color: FacingTokens.surface,
+              color: HyphenTokens.surface,
               border: Border.all(color: color, width: 2),
-              borderRadius: BorderRadius.circular(FacingTokens.r3),
+              borderRadius: BorderRadius.circular(HyphenTokens.r3),
             ),
-            padding: const EdgeInsets.all(FacingTokens.sp5),
+            padding: const EdgeInsets.all(HyphenTokens.sp5),
             child: Center(
               child: Opacity(
                 opacity: unlockedInUi ? 1.0 : 0.45,
                 child: Icon(
                   iconData,
                   size: 96,
-                  color: unlockedInUi ? FacingTokens.fg : FacingTokens.muted,
+                  color: unlockedInUi ? HyphenTokens.fg : HyphenTokens.muted,
                 ),
               ),
             ),
           ),
-          const SizedBox(height: FacingTokens.sp3),
+          const SizedBox(height: HyphenTokens.sp3),
           Text(
             catalog.rarity.toUpperCase(),
-            style: FacingTokens.microLabel.copyWith(
+            style: HyphenTokens.microLabel.copyWith(
               color: color,
               fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: FacingTokens.sp1),
+          const SizedBox(height: HyphenTokens.sp1),
           // v1.30: 한글 칭호가 제목, 영문 고유명이 부제 (홈 표와 표기 통일).
           Text(
             isHidden ? '???' : AchievementCard.displayTitle(catalog),
-            style: FacingTokens.h3.copyWith(
-              color: unlockedInUi ? FacingTokens.fg : FacingTokens.muted,
+            style: HyphenTokens.h3.copyWith(
+              color: unlockedInUi ? HyphenTokens.fg : HyphenTokens.muted,
             ),
           ),
           if (!isHidden &&
               AchievementCard.koreanTitle(catalog.code).isNotEmpty) ...[
-            const SizedBox(height: FacingTokens.sp1),
+            const SizedBox(height: HyphenTokens.sp1),
             Text(
               AchievementCard.gridLabel(catalog.name),
-              style: FacingTokens.caption,
+              style: HyphenTokens.caption,
             ),
           ],
-          const SizedBox(height: FacingTokens.sp3),
+          const SizedBox(height: HyphenTokens.sp3),
           Text(
             isHidden
                 ? '· · · 조건 비공개. 해금 후 공개.'
                 : (unlockedInUi
                     ? catalog.description
                     : AchievementCard.lockedHint(catalog)),
-            style: FacingTokens.caption,
+            style: HyphenTokens.caption,
           ),
           const Spacer(),
           if (unlockedInUi && unlock != null) ...[
-            const Divider(height: 1, color: FacingTokens.border),
-            const SizedBox(height: FacingTokens.sp2),
+            const Divider(height: 1, color: HyphenTokens.border),
+            const SizedBox(height: HyphenTokens.sp2),
             Row(
               children: [
                 const Icon(Icons.check_circle,
-                    size: 14, color: FacingTokens.success),
-                const SizedBox(width: FacingTokens.sp1),
+                    size: 14, color: HyphenTokens.success),
+                const SizedBox(width: HyphenTokens.sp1),
                 // 좁은 좌측 패널에서 가로 오버플로우 나던 자리 — Expanded 로 고정.
                 Expanded(
                   child: Text(
                     '달성 · ${_formatDate(unlock!.unlockedAt)}',
-                    style: FacingTokens.micro.copyWith(
-                      color: FacingTokens.success,
+                    style: HyphenTokens.micro.copyWith(
+                      color: HyphenTokens.success,
                       fontWeight: FontWeight.w700,
                     ),
                     maxLines: 1,
@@ -409,14 +409,14 @@ class _FeaturedPanel extends StatelessWidget {
             ),
           ] else if (unlockedInUi) ...[
             // demoUnlocked (백엔드 trigger 미연동) — 'Demo' 표시.
-            const Divider(height: 1, color: FacingTokens.border),
-            const SizedBox(height: FacingTokens.sp2),
-            Text('데모 달성.', style: FacingTokens.micro),
+            const Divider(height: 1, color: HyphenTokens.border),
+            const SizedBox(height: HyphenTokens.sp2),
+            Text('데모 달성.', style: HyphenTokens.micro),
           ] else ...[
-            const Divider(height: 1, color: FacingTokens.border),
-            const SizedBox(height: FacingTokens.sp2),
+            const Divider(height: 1, color: HyphenTokens.border),
+            const SizedBox(height: HyphenTokens.sp2),
             Text('미달성',
-                style: FacingTokens.microLabel.copyWith(
+                style: HyphenTokens.microLabel.copyWith(
                   fontWeight: FontWeight.w800,
                 )),
           ],
@@ -446,13 +446,13 @@ class _Grid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
-      padding: const EdgeInsets.all(FacingTokens.sp3),
+      padding: const EdgeInsets.all(HyphenTokens.sp3),
       // 실기기 QA: 3열은 셀 폭 부족으로 라벨이 단어 중간에서 개행
       // ("RX STA NDARD") → 2열로 가독 확보.
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        mainAxisSpacing: FacingTokens.sp2,
-        crossAxisSpacing: FacingTokens.sp2,
+        mainAxisSpacing: HyphenTokens.sp2,
+        crossAxisSpacing: HyphenTokens.sp2,
         childAspectRatio: 0.9,
       ),
       itemCount: items.length,
@@ -492,13 +492,13 @@ class _GridCell extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: FacingTokens.surface,
+          color: HyphenTokens.surface,
           border: Border.all(
             // badge-lint: ignore — 배지가 아니라 선택 상태를 갖는 카드(그리드 칸).
-            color: selected ? FacingTokens.fg : FacingTokens.border,
+            color: selected ? HyphenTokens.fg : HyphenTokens.border,
             width: selected ? 1.5 : 1,
           ),
-          borderRadius: BorderRadius.circular(FacingTokens.r2),
+          borderRadius: BorderRadius.circular(HyphenTokens.r2),
         ),
         child: Column(
           children: [
@@ -512,7 +512,7 @@ class _GridCell extends StatelessWidget {
                         iconData,
                         size: 36,
                         color:
-                            unlocked ? FacingTokens.fg : FacingTokens.muted,
+                            unlocked ? HyphenTokens.fg : HyphenTokens.muted,
                       ),
                     ),
                   ),
@@ -521,7 +521,7 @@ class _GridCell extends StatelessWidget {
                       right: 4,
                       top: 4,
                       child: Icon(Icons.check_circle,
-                          size: 14, color: FacingTokens.success),
+                          size: 14, color: HyphenTokens.success),
                     ),
                 ],
               ),
@@ -529,8 +529,8 @@ class _GridCell extends StatelessWidget {
             Container(height: 2, color: color),
             Padding(
               padding: const EdgeInsets.symmetric(
-                horizontal: FacingTokens.sp1,
-                vertical: FacingTokens.sp1,
+                horizontal: HyphenTokens.sp1,
+                vertical: HyphenTokens.sp1,
               ),
               // 마침표 3분류: 그리드 타일 = 단어 라벨 → 마침표 없음.
               // toUpperCase 제거 — 좁은 셀에서 대문자 폭 증가로 단어 중간 개행 유발.
@@ -540,8 +540,8 @@ class _GridCell extends StatelessWidget {
                 textAlign: TextAlign.center,
                 overflow: TextOverflow.ellipsis,
                 softWrap: true,
-                style: FacingTokens.micro.copyWith(
-                  color: unlocked ? FacingTokens.fg : FacingTokens.muted,
+                style: HyphenTokens.micro.copyWith(
+                  color: unlocked ? HyphenTokens.fg : HyphenTokens.muted,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -556,14 +556,14 @@ class _GridCell extends StatelessWidget {
 Color _rarityColor(String rarity) {
   switch (rarity) {
     case 'Rare':
-      return FacingTokens.accent;
+      return HyphenTokens.accent;
     case 'Epic':
-      return FacingTokens.tierElite;
+      return HyphenTokens.tierElite;
     case 'Legendary':
-      return FacingTokens.tierGames;
+      return HyphenTokens.tierGames;
     case 'Common':
     default:
-      return FacingTokens.muted;
+      return HyphenTokens.muted;
   }
 }
 

@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/gym.dart';
-import '../../widgets/fkit.dart';
+import '../../widgets/hkit.dart';
 import 'gym_state.dart';
 import 'wod_type_label.dart';
 
@@ -173,38 +173,38 @@ class _WodPostScreenState extends State<WodPostScreen> {
       ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(FacingTokens.sp4),
+          padding: const EdgeInsets.all(HyphenTokens.sp4),
           children: [
-            const Text('날짜', style: FacingTokens.sectionLabel),
-            const SizedBox(height: FacingTokens.sp2),
+            const Text('날짜', style: HyphenTokens.sectionLabel),
+            const SizedBox(height: HyphenTokens.sp2),
             InkWell(
               onTap: _pickDate,
               child: Container(
-                padding: const EdgeInsets.all(FacingTokens.sp3),
+                padding: const EdgeInsets.all(HyphenTokens.sp3),
                 decoration: BoxDecoration(
-                  border: Border.all(color: FacingTokens.border),
-                  borderRadius: BorderRadius.circular(FacingTokens.r2),
+                  border: Border.all(color: HyphenTokens.border),
+                  borderRadius: BorderRadius.circular(HyphenTokens.r2),
                 ),
                 child: Row(
                   children: [
                     const Icon(Icons.calendar_today,
-                        size: 18, color: FacingTokens.muted),
-                    const SizedBox(width: FacingTokens.sp2),
-                    Text(_dateIso, style: FacingTokens.body),
+                        size: 18, color: HyphenTokens.muted),
+                    const SizedBox(width: HyphenTokens.sp2),
+                    Text(_dateIso, style: HyphenTokens.body),
                   ],
                 ),
               ),
             ),
-            const SizedBox(height: FacingTokens.sp4),
-            const Text('타입', style: FacingTokens.sectionLabel),
-            const SizedBox(height: FacingTokens.sp2),
+            const SizedBox(height: HyphenTokens.sp4),
+            const Text('타입', style: HyphenTokens.sectionLabel),
+            const SizedBox(height: HyphenTokens.sp2),
             Wrap(
-              spacing: FacingTokens.sp2,
+              spacing: HyphenTokens.sp2,
               children: const ['for_time', 'amrap', 'emom'].map((t) {
                 final selected = t == _wodType;
-                return FkBadge(
+                return HkBadge(
                   wodTypeLabel(t),
-                  color: FacingTokens.fg,
+                  color: HyphenTokens.fg,
                   selected: selected,
                   onTap: () {
                     Haptic.selection();
@@ -213,9 +213,9 @@ class _WodPostScreenState extends State<WodPostScreen> {
                 );
               }).toList(),
             ),
-            const SizedBox(height: FacingTokens.sp4),
-            const Text('RX', style: FacingTokens.sectionLabel),
-            const SizedBox(height: FacingTokens.sp2),
+            const SizedBox(height: HyphenTokens.sp4),
+            const Text('RX', style: HyphenTokens.sectionLabel),
+            const SizedBox(height: HyphenTokens.sp2),
             TextField(
               controller: _contentCtrl,
               decoration: const InputDecoration(
@@ -225,9 +225,9 @@ class _WodPostScreenState extends State<WodPostScreen> {
               maxLines: 5,
               maxLength: 2000,
             ),
-            const SizedBox(height: FacingTokens.sp3),
-            const Text('SCALED', style: FacingTokens.sectionLabel),
-            const SizedBox(height: FacingTokens.sp2),
+            const SizedBox(height: HyphenTokens.sp3),
+            const Text('SCALED', style: HyphenTokens.sectionLabel),
+            const SizedBox(height: HyphenTokens.sp2),
             TextField(
               controller: _scaledCtrl,
               decoration: const InputDecoration(
@@ -237,9 +237,9 @@ class _WodPostScreenState extends State<WodPostScreen> {
               maxLines: 4,
               maxLength: 2000,
             ),
-            const SizedBox(height: FacingTokens.sp3),
-            const Text('BEGINNER', style: FacingTokens.sectionLabel),
-            const SizedBox(height: FacingTokens.sp2),
+            const SizedBox(height: HyphenTokens.sp3),
+            const Text('BEGINNER', style: HyphenTokens.sectionLabel),
+            const SizedBox(height: HyphenTokens.sp2),
             TextField(
               controller: _beginnerCtrl,
               decoration: const InputDecoration(
@@ -249,9 +249,9 @@ class _WodPostScreenState extends State<WodPostScreen> {
               maxLines: 4,
               maxLength: 2000,
             ),
-            const SizedBox(height: FacingTokens.sp3),
-            const Text('SCALE GUIDE (선택)', style: FacingTokens.sectionLabel),
-            const SizedBox(height: FacingTokens.sp2),
+            const SizedBox(height: HyphenTokens.sp3),
+            const Text('SCALE GUIDE (선택)', style: HyphenTokens.sectionLabel),
+            const SizedBox(height: HyphenTokens.sp2),
             TextField(
               controller: _scaleGuideCtrl,
               decoration: const InputDecoration(
@@ -261,7 +261,7 @@ class _WodPostScreenState extends State<WodPostScreen> {
               maxLines: 3,
               maxLength: 500,
             ),
-            const SizedBox(height: FacingTokens.sp3),
+            const SizedBox(height: HyphenTokens.sp3),
             Row(
               children: [
                 Expanded(
@@ -271,7 +271,7 @@ class _WodPostScreenState extends State<WodPostScreen> {
                     keyboardType: TextInputType.number,
                   ),
                 ),
-                const SizedBox(width: FacingTokens.sp3),
+                const SizedBox(width: HyphenTokens.sp3),
                 Expanded(
                   child: TextField(
                     controller: _timeCapCtrl,
@@ -282,13 +282,13 @@ class _WodPostScreenState extends State<WodPostScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: FacingTokens.sp5),
+            const SizedBox(height: HyphenTokens.sp5),
             // v1.16 Sprint 15: 여러 라운드/블록 편집.
             Row(
               children: [
                 const Expanded(
                   child: Text('ROUNDS (선택)',
-                      style: FacingTokens.sectionLabel),
+                      style: HyphenTokens.sectionLabel),
                 ),
                 TextButton.icon(
                   onPressed: _addRound,
@@ -297,22 +297,22 @@ class _WodPostScreenState extends State<WodPostScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: FacingTokens.sp1),
+            const SizedBox(height: HyphenTokens.sp1),
             const Text(
               '구조화 라운드: Chipper · 3 Rounds · Block 1/2/3 등. 위 CONTENT 필드는 전체 요약.',
-              style: FacingTokens.caption,
+              style: HyphenTokens.caption,
             ),
-            const SizedBox(height: FacingTokens.sp2),
+            const SizedBox(height: HyphenTokens.sp2),
             ..._rounds.asMap().entries.map((e) {
               final i = e.key;
               final r = e.value;
               return Container(
-                margin: const EdgeInsets.only(bottom: FacingTokens.sp3),
-                padding: const EdgeInsets.all(FacingTokens.sp3),
+                margin: const EdgeInsets.only(bottom: HyphenTokens.sp3),
+                padding: const EdgeInsets.all(HyphenTokens.sp3),
                 decoration: BoxDecoration(
-                  color: FacingTokens.surface,
-                  borderRadius: BorderRadius.circular(FacingTokens.r2),
-                  border: Border.all(color: FacingTokens.border),
+                  color: HyphenTokens.surface,
+                  borderRadius: BorderRadius.circular(HyphenTokens.r2),
+                  border: Border.all(color: HyphenTokens.border),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -330,7 +330,7 @@ class _WodPostScreenState extends State<WodPostScreen> {
                         ),
                         IconButton(
                           icon: const Icon(Icons.delete_outline, size: 18),
-                          color: FacingTokens.muted,
+                          color: HyphenTokens.muted,
                           onPressed: () => _removeRound(i),
                         ),
                       ],
@@ -343,7 +343,7 @@ class _WodPostScreenState extends State<WodPostScreen> {
                       ),
                       maxLines: 3,
                     ),
-                    const SizedBox(height: FacingTokens.sp2),
+                    const SizedBox(height: HyphenTokens.sp2),
                     TextField(
                       controller: r.timeCap,
                       decoration: const InputDecoration(
@@ -356,7 +356,7 @@ class _WodPostScreenState extends State<WodPostScreen> {
                 ),
               );
             }),
-            const SizedBox(height: FacingTokens.sp4),
+            const SizedBox(height: HyphenTokens.sp4),
             ElevatedButton(
               onPressed: _submitting ? null : _submit,
               child: Text(_submitting ? 'Posting.' : 'Post WOD'),

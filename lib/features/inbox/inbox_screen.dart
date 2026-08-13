@@ -62,7 +62,7 @@ class _InboxScreenState extends State<InboxScreen> {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.only(
-              top: FacingTokens.sp2, bottom: FacingTokens.sp6),
+              top: HyphenTokens.sp2, bottom: HyphenTokens.sp6),
           children: const [
             RehabGuideCard(),
           ],
@@ -80,7 +80,7 @@ class CoachDossierTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isUnread = note.my?.isUnread ?? false;
-    final stripeColor = isUnread ? FacingTokens.accent : FacingTokens.muted;
+    final stripeColor = isUnread ? HyphenTokens.accent : HyphenTokens.muted;
     final dueLabel = _dueLabel(note.dueDate);
     final senderLabel = note.displayLabel();
 
@@ -96,9 +96,9 @@ class CoachDossierTile extends StatelessWidget {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: FacingTokens.surface,
-          border: Border.all(color: FacingTokens.border, width: 1),
-          borderRadius: BorderRadius.circular(FacingTokens.r2),
+          color: HyphenTokens.surface,
+          border: Border.all(color: HyphenTokens.border, width: 1),
+          borderRadius: BorderRadius.circular(HyphenTokens.r2),
         ),
         clipBehavior: Clip.antiAlias,
         padding: EdgeInsets.zero,
@@ -109,7 +109,7 @@ class CoachDossierTile extends StatelessWidget {
               Container(width: 4, color: stripeColor),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.all(FacingTokens.sp3),
+                  padding: const EdgeInsets.all(HyphenTokens.sp3),
                   child: _buildBody(
                       stripeColor, dueLabel, senderLabel, isUnread),
                 ),
@@ -135,7 +135,7 @@ class CoachDossierTile extends StatelessWidget {
           displayName: note.senderName,
           colorHex: note.senderColor,
         ),
-        const SizedBox(width: FacingTokens.sp3),
+        const SizedBox(width: HyphenTokens.sp3),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -148,36 +148,36 @@ class CoachDossierTile extends StatelessWidget {
                         : (note.kind == 'assignment'
                             ? 'ASSIGNMENT'
                             : 'NOTE'),
-                    style: FacingTokens.microLabel.copyWith(
+                    style: HyphenTokens.microLabel.copyWith(
                       color: note.isAuto
-                          ? FacingTokens.success
+                          ? HyphenTokens.success
                           : stripeColor,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  const SizedBox(width: FacingTokens.sp2),
+                  const SizedBox(width: HyphenTokens.sp2),
                   Flexible(
                     child: Text(
                       'COACH · ${senderLabel.toUpperCase()}',
-                      style: FacingTokens.microLabel,
+                      style: HyphenTokens.microLabel,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   const Spacer(),
                   Text(
                     _agoLabel(note.createdAt),
-                    style: FacingTokens.micro,
+                    style: HyphenTokens.micro,
                   ),
                 ],
               ),
               if (note.title.isNotEmpty) ...[
-                const SizedBox(height: FacingTokens.sp1),
+                const SizedBox(height: HyphenTokens.sp1),
                 Text(
                   note.title,
-                  style: FacingTokens.body.copyWith(
+                  style: HyphenTokens.body.copyWith(
                     fontWeight:
                         isUnread ? FontWeight.w800 : FontWeight.w700,
-                    color: FacingTokens.fg,
+                    color: HyphenTokens.fg,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -187,23 +187,23 @@ class CoachDossierTile extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   note.body,
-                  style: FacingTokens.caption.copyWith(
+                  style: HyphenTokens.caption.copyWith(
                     color: isUnread
-                        ? FacingTokens.fg
-                        : FacingTokens.muted,
+                        ? HyphenTokens.fg
+                        : HyphenTokens.muted,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
               if (note.kind == 'assignment') ...[
-                const SizedBox(height: FacingTokens.sp2),
+                const SizedBox(height: HyphenTokens.sp2),
                 Row(
                   children: [
                     if (dueLabel != null)
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: FacingTokens.sp2,
+                          horizontal: HyphenTokens.sp2,
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
@@ -211,22 +211,22 @@ class CoachDossierTile extends StatelessWidget {
                             color: dueLabel.color,
                           ),
                           borderRadius:
-                              BorderRadius.circular(FacingTokens.r1),
+                              BorderRadius.circular(HyphenTokens.r1),
                         ),
                         child: Text(
                           dueLabel.text,
-                          style: FacingTokens.micro.copyWith(
+                          style: HyphenTokens.micro.copyWith(
                             color: dueLabel.color,
                             fontWeight: FontWeight.w800,
                             letterSpacing: 0.6,
                           ),
                         ),
                       ),
-                    const SizedBox(width: FacingTokens.sp2),
+                    const SizedBox(width: HyphenTokens.sp2),
                     if (note.my != null)
                       Text(
                         note.my!.status.toUpperCase(),
-                        style: FacingTokens.micro.copyWith(
+                        style: HyphenTokens.micro.copyWith(
                           color: _statusColor(note.my!.status),
                           fontWeight: FontWeight.w800,
                           letterSpacing: 0.6,
@@ -245,16 +245,16 @@ class CoachDossierTile extends StatelessWidget {
   static Color _statusColor(String s) {
     switch (s) {
       case 'completed':
-        return FacingTokens.success;
+        return HyphenTokens.success;
       case 'accepted':
-        return FacingTokens.fg;
+        return HyphenTokens.fg;
       case 'declined':
-        return FacingTokens.muted;
+        return HyphenTokens.muted;
       case 'read':
-        return FacingTokens.muted;
+        return HyphenTokens.muted;
       case 'sent':
       default:
-        return FacingTokens.accent;
+        return HyphenTokens.accent;
     }
   }
 
@@ -265,10 +265,10 @@ class CoachDossierTile extends StatelessWidget {
     final now = DateTime.now().toLocal();
     final today = DateTime(now.year, now.month, now.day);
     final diff = due.difference(today).inDays;
-    if (diff < 0) return _DueBadge('OVERDUE', color: FacingTokens.overdue);
-    if (diff == 0) return _DueBadge('TODAY', color: FacingTokens.accent);
-    if (diff <= 3) return _DueBadge('D-$diff', color: FacingTokens.accent);
-    return _DueBadge('D-$diff', color: FacingTokens.muted);
+    if (diff < 0) return _DueBadge('OVERDUE', color: HyphenTokens.overdue);
+    if (diff == 0) return _DueBadge('TODAY', color: HyphenTokens.accent);
+    if (diff <= 3) return _DueBadge('D-$diff', color: HyphenTokens.accent);
+    return _DueBadge('D-$diff', color: HyphenTokens.muted);
   }
 
   static String _agoLabel(DateTime created) {
@@ -305,7 +305,7 @@ class _ChatBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final mine = msg.mine;
     return Padding(
-      padding: const EdgeInsets.only(bottom: FacingTokens.sp3),
+      padding: const EdgeInsets.only(bottom: HyphenTokens.sp3),
       child: Column(
         crossAxisAlignment:
             mine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
@@ -317,9 +317,9 @@ class _ChatBubble extends StatelessWidget {
                 msg.isAuto
                     ? 'AUTO'
                     : (msg.senderName ?? 'COACH').toUpperCase(),
-                style: FacingTokens.microLabel.copyWith(
+                style: HyphenTokens.microLabel.copyWith(
                   color:
-                      msg.isAuto ? FacingTokens.success : FacingTokens.muted,
+                      msg.isAuto ? HyphenTokens.success : HyphenTokens.muted,
                 ),
               ),
             ),
@@ -329,21 +329,21 @@ class _ChatBubble extends StatelessWidget {
             ),
             child: Container(
               padding: const EdgeInsets.symmetric(
-                horizontal: FacingTokens.sp3,
-                vertical: FacingTokens.sp2 + 2,
+                horizontal: HyphenTokens.sp3,
+                vertical: HyphenTokens.sp2 + 2,
               ),
               decoration: BoxDecoration(
-                color: mine ? FacingTokens.accent : FacingTokens.surface,
+                color: mine ? HyphenTokens.accent : HyphenTokens.surface,
                 borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(FacingTokens.r3),
-                  topRight: const Radius.circular(FacingTokens.r3),
+                  topLeft: const Radius.circular(HyphenTokens.r3),
+                  topRight: const Radius.circular(HyphenTokens.r3),
                   bottomLeft: Radius.circular(
-                      mine ? FacingTokens.r3 : FacingTokens.r1),
+                      mine ? HyphenTokens.r3 : HyphenTokens.r1),
                   bottomRight: Radius.circular(
-                      mine ? FacingTokens.r1 : FacingTokens.r3),
+                      mine ? HyphenTokens.r1 : HyphenTokens.r3),
                 ),
                 border:
-                    mine ? null : Border.all(color: FacingTokens.border),
+                    mine ? null : Border.all(color: HyphenTokens.border),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -351,16 +351,16 @@ class _ChatBubble extends StatelessWidget {
                   if (msg.title.isNotEmpty) ...[
                     Text(
                       msg.title,
-                      style: FacingTokens.body.copyWith(
+                      style: HyphenTokens.body.copyWith(
                         fontWeight: FontWeight.w800,
-                        color: FacingTokens.fg,
+                        color: HyphenTokens.fg,
                       ),
                     ),
                     const SizedBox(height: 2),
                   ],
                   Text(
                     msg.body,
-                    style: FacingTokens.body.copyWith(color: FacingTokens.fg),
+                    style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
                   ),
                 ],
               ),
@@ -368,7 +368,7 @@ class _ChatBubble extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.only(top: 3, left: 4, right: 4),
-            child: Text(_timeLabel(msg.createdAt), style: FacingTokens.micro),
+            child: Text(_timeLabel(msg.createdAt), style: HyphenTokens.micro),
           ),
         ],
       ),
@@ -400,14 +400,14 @@ class _PinnedAnnouncement extends StatelessWidget {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.fromLTRB(
-          FacingTokens.sp4, FacingTokens.sp3, FacingTokens.sp4, 0),
-      padding: const EdgeInsets.all(FacingTokens.sp3),
+          HyphenTokens.sp4, HyphenTokens.sp3, HyphenTokens.sp4, 0),
+      padding: const EdgeInsets.all(HyphenTokens.sp3),
       decoration: BoxDecoration(
-        color: FacingTokens.surface,
-        borderRadius: BorderRadius.circular(FacingTokens.r2),
+        color: HyphenTokens.surface,
+        borderRadius: BorderRadius.circular(HyphenTokens.r2),
         border: Border.all(
           color:
-              latest.isUrgent ? FacingTokens.accent : FacingTokens.border,
+              latest.isUrgent ? HyphenTokens.accent : HyphenTokens.border,
         ),
       ),
       child: Column(
@@ -417,15 +417,15 @@ class _PinnedAnnouncement extends StatelessWidget {
             children: [
               Text(
                 'NOTICE',
-                style: FacingTokens.microLabel.copyWith(
+                style: HyphenTokens.microLabel.copyWith(
                   color: latest.isUrgent
-                      ? FacingTokens.accent
-                      : FacingTokens.muted,
+                      ? HyphenTokens.accent
+                      : HyphenTokens.muted,
                 ),
               ),
               if (more > 0) ...[
                 const Spacer(),
-                Text('+$more', style: FacingTokens.micro),
+                Text('+$more', style: HyphenTokens.micro),
               ],
             ],
           ),
@@ -433,7 +433,7 @@ class _PinnedAnnouncement extends StatelessWidget {
           if (latest.title.isNotEmpty)
             Text(
               latest.title,
-              style: FacingTokens.body.copyWith(fontWeight: FontWeight.w700),
+              style: HyphenTokens.body.copyWith(fontWeight: FontWeight.w700),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -442,7 +442,7 @@ class _PinnedAnnouncement extends StatelessWidget {
               padding: const EdgeInsets.only(top: 2),
               child: Text(
                 latest.body,
-                style: FacingTokens.caption,
+                style: HyphenTokens.caption,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -470,48 +470,48 @@ class _ChatInputBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(
-        FacingTokens.sp3,
-        FacingTokens.sp2,
-        FacingTokens.sp3,
-        FacingTokens.sp2,
+        HyphenTokens.sp3,
+        HyphenTokens.sp2,
+        HyphenTokens.sp3,
+        HyphenTokens.sp2,
       ),
       decoration: const BoxDecoration(
-        color: FacingTokens.bg,
-        border: Border(top: BorderSide(color: FacingTokens.border, width: 1)),
+        color: HyphenTokens.bg,
+        border: Border(top: BorderSide(color: HyphenTokens.border, width: 1)),
       ),
       child: TextField(
         controller: controller,
         minLines: 1,
         maxLines: 4,
         maxLength: 500,
-        style: FacingTokens.body,
+        style: HyphenTokens.body,
         textInputAction: TextInputAction.send,
         onSubmitted: (_) => onSend(),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: FacingTokens.caption,
+          hintStyle: HyphenTokens.caption,
           counterText: '',
           isDense: true,
           filled: true,
-          fillColor: FacingTokens.surface,
+          fillColor: HyphenTokens.surface,
           contentPadding: const EdgeInsets.fromLTRB(
-            FacingTokens.sp3,
-            FacingTokens.sp2 + 2,
-            FacingTokens.sp1,
-            FacingTokens.sp2 + 2,
+            HyphenTokens.sp3,
+            HyphenTokens.sp2 + 2,
+            HyphenTokens.sp1,
+            HyphenTokens.sp2 + 2,
           ),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(FacingTokens.r3),
-            borderSide: const BorderSide(color: FacingTokens.border),
+            borderRadius: BorderRadius.circular(HyphenTokens.r3),
+            borderSide: const BorderSide(color: HyphenTokens.border),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(FacingTokens.r3),
-            borderSide: const BorderSide(color: FacingTokens.border),
+            borderRadius: BorderRadius.circular(HyphenTokens.r3),
+            borderSide: const BorderSide(color: HyphenTokens.border),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(FacingTokens.r3),
+            borderRadius: BorderRadius.circular(HyphenTokens.r3),
             borderSide:
-                const BorderSide(color: FacingTokens.accent, width: 1.5),
+                const BorderSide(color: HyphenTokens.accent, width: 1.5),
           ),
           suffixIcon: sending
               ? const Padding(
@@ -520,12 +520,12 @@ class _ChatInputBar extends StatelessWidget {
                     width: 18,
                     height: 18,
                     child: CircularProgressIndicator(
-                        color: FacingTokens.accent, strokeWidth: 2),
+                        color: HyphenTokens.accent, strokeWidth: 2),
                   ),
                 )
               : IconButton(
                   icon: const Icon(Icons.arrow_upward,
-                      color: FacingTokens.accent),
+                      color: HyphenTokens.accent),
                   onPressed: onSend,
                 ),
         ),
@@ -573,7 +573,7 @@ class MessagingScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('알림함')),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp4),
+          padding: const EdgeInsets.symmetric(vertical: HyphenTokens.sp4),
           children: const [MessagingFeed()],
         ),
       ),
@@ -597,10 +597,10 @@ class MessagingFeed extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(
-              FacingTokens.sp4, 0, FacingTokens.sp4, FacingTokens.sp2),
+              HyphenTokens.sp4, 0, HyphenTokens.sp4, HyphenTokens.sp2),
           child: Row(
             children: [
-              const Text('메시지', style: FacingTokens.sectionLabel),
+              const Text('메시지', style: HyphenTokens.sectionLabel),
               const Spacer(),
               if (gymId != null) ..._actions(context, gs, isCoach, gymId),
             ],
@@ -608,10 +608,10 @@ class MessagingFeed extends StatelessWidget {
         ),
         if (gymId == null)
           const Padding(
-            padding: EdgeInsets.fromLTRB(FacingTokens.sp4, FacingTokens.sp2,
-                FacingTokens.sp4, FacingTokens.sp4),
+            padding: EdgeInsets.fromLTRB(HyphenTokens.sp4, HyphenTokens.sp2,
+                HyphenTokens.sp4, HyphenTokens.sp4),
             child: Text('박스 가입 후 코치 쪽지·공지 사용 가능.',
-                style: FacingTokens.caption),
+                style: HyphenTokens.caption),
           )
         else ...[
           Consumer<AnnouncementsState>(
@@ -643,7 +643,7 @@ class MessagingFeed extends StatelessWidget {
             ));
           },
         ),
-        const SizedBox(width: FacingTokens.sp2),
+        const SizedBox(width: HyphenTokens.sp2),
         _FeedAction(
           icon: Icons.edit_outlined,
           label: '새 쪽지',
@@ -696,19 +696,19 @@ class _FeedAction extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      borderRadius: BorderRadius.circular(FacingTokens.r1),
+      borderRadius: BorderRadius.circular(HyphenTokens.r1),
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(
-            horizontal: FacingTokens.sp2, vertical: FacingTokens.sp1),
+            horizontal: HyphenTokens.sp2, vertical: HyphenTokens.sp1),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 16, color: FacingTokens.accent),
+            Icon(icon, size: 16, color: HyphenTokens.accent),
             const SizedBox(width: 4),
             Text(label,
                 style:
-                    FacingTokens.micro.copyWith(color: FacingTokens.accent)),
+                    HyphenTokens.micro.copyWith(color: HyphenTokens.accent)),
           ],
         ),
       ),
@@ -760,13 +760,13 @@ class _EmbeddedThreadListState extends State<_EmbeddedThreadList> {
       builder: (ctx, snap) {
         if (snap.connectionState != ConnectionState.done) {
           return const Padding(
-            padding: EdgeInsets.all(FacingTokens.sp5),
+            padding: EdgeInsets.all(HyphenTokens.sp5),
             child: Center(
               child: SizedBox(
                 width: 20,
                 height: 20,
                 child: CircularProgressIndicator(
-                    color: FacingTokens.muted, strokeWidth: 2),
+                    color: HyphenTokens.muted, strokeWidth: 2),
               ),
             ),
           );
@@ -774,9 +774,9 @@ class _EmbeddedThreadListState extends State<_EmbeddedThreadList> {
         final threads = snap.data ?? const <CoachThread>[];
         if (threads.isEmpty) {
           return Padding(
-            padding: const EdgeInsets.fromLTRB(FacingTokens.sp4,
-                FacingTokens.sp2, FacingTokens.sp4, FacingTokens.sp4),
-            child: Text(widget.emptyHint, style: FacingTokens.caption),
+            padding: const EdgeInsets.fromLTRB(HyphenTokens.sp4,
+                HyphenTokens.sp2, HyphenTokens.sp4, HyphenTokens.sp4),
+            child: Text(widget.emptyHint, style: HyphenTokens.caption),
           );
         }
         return Column(
@@ -785,9 +785,9 @@ class _EmbeddedThreadListState extends State<_EmbeddedThreadList> {
               if (i > 0)
                 const Divider(
                   height: 1,
-                  color: FacingTokens.border,
-                  indent: FacingTokens.sp4,
-                  endIndent: FacingTokens.sp4,
+                  color: HyphenTokens.border,
+                  indent: HyphenTokens.sp4,
+                  endIndent: HyphenTokens.sp4,
                 ),
               _ThreadRow(
                 thread: threads[i],
@@ -837,8 +837,8 @@ class _ThreadRow extends StatelessWidget {
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(
-          horizontal: FacingTokens.sp4,
-          vertical: FacingTokens.sp3,
+          horizontal: HyphenTokens.sp4,
+          vertical: HyphenTokens.sp3,
         ),
         child: Row(
           children: [
@@ -847,7 +847,7 @@ class _ThreadRow extends StatelessWidget {
               displayName: name,
               colorHex: thread.peerColor,
             ),
-            const SizedBox(width: FacingTokens.sp3),
+            const SizedBox(width: HyphenTokens.sp3),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -857,23 +857,23 @@ class _ThreadRow extends StatelessWidget {
                       Expanded(
                         child: Text(
                           name,
-                          style: FacingTokens.body.copyWith(
+                          style: HyphenTokens.body.copyWith(
                             fontWeight: FontWeight.w700,
-                            color: FacingTokens.fg,
+                            color: HyphenTokens.fg,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       Text(_shortTime(thread.lastAt),
-                          style: FacingTokens.micro),
+                          style: HyphenTokens.micro),
                     ],
                   ),
                   const SizedBox(height: 2),
                   Text(
                     thread.lastBody,
-                    style: FacingTokens.caption.copyWith(
-                      color: unread ? FacingTokens.fg : FacingTokens.muted,
+                    style: HyphenTokens.caption.copyWith(
+                      color: unread ? HyphenTokens.fg : HyphenTokens.muted,
                       fontWeight: unread ? FontWeight.w600 : FontWeight.w400,
                     ),
                     maxLines: 1,
@@ -883,17 +883,17 @@ class _ThreadRow extends StatelessWidget {
               ),
             ),
             if (unread) ...[
-              const SizedBox(width: FacingTokens.sp2),
+              const SizedBox(width: HyphenTokens.sp2),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: FacingTokens.accent,
+                  color: HyphenTokens.accent,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
                   '${thread.unread}',
-                  style: FacingTokens.micro.copyWith(
-                    color: FacingTokens.fg,
+                  style: HyphenTokens.micro.copyWith(
+                    color: HyphenTokens.fg,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -1009,7 +1009,7 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
                   if (snap.connectionState != ConnectionState.done) {
                     return const Center(
                       child: CircularProgressIndicator(
-                          color: FacingTokens.muted, strokeWidth: 2),
+                          color: HyphenTokens.muted, strokeWidth: 2),
                     );
                   }
                   final msgs = snap.data ?? const <ChatMessage>[];
@@ -1020,7 +1020,7 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
                         SizedBox(height: 100),
                         Center(
                           child: Text('첫 쪽지 작성.',
-                              style: FacingTokens.caption),
+                              style: HyphenTokens.caption),
                         ),
                       ],
                     );
@@ -1030,8 +1030,8 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
                     child: ListView.builder(
                       reverse: true,
                       padding: const EdgeInsets.symmetric(
-                        horizontal: FacingTokens.sp4,
-                        vertical: FacingTokens.sp3,
+                        horizontal: HyphenTokens.sp4,
+                        vertical: HyphenTokens.sp3,
                       ),
                       itemCount: msgs.length,
                       itemBuilder: (_, i) => _ChatBubble(msg: msgs[i]),

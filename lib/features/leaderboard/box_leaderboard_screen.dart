@@ -45,7 +45,7 @@ class _BoxLeaderboardScreenState extends State<BoxLeaderboardScreen> {
         child: gym == null
             ? const Center(
                 child: Text('박스 소속 없음. Find Box에서 가입.',
-                    style: FacingTokens.caption),
+                    style: HyphenTokens.caption),
               )
             : FutureBuilder<List<GymMember>>(
                 future: _future,
@@ -53,15 +53,15 @@ class _BoxLeaderboardScreenState extends State<BoxLeaderboardScreen> {
                   if (snap.connectionState != ConnectionState.done) {
                     return const Center(
                       child: CircularProgressIndicator(
-                          color: FacingTokens.muted, strokeWidth: 2),
+                          color: HyphenTokens.muted, strokeWidth: 2),
                     );
                   }
                   if (snap.hasError) {
                     final e = snap.error;
                     final msg = e is AppException ? e.messageKo : '로딩 실패';
                     return Padding(
-                      padding: const EdgeInsets.all(FacingTokens.sp4),
-                      child: Text(msg, style: FacingTokens.body),
+                      padding: const EdgeInsets.all(HyphenTokens.sp4),
+                      child: Text(msg, style: HyphenTokens.body),
                     );
                   }
                   final members = (snap.data ?? const [])
@@ -75,16 +75,16 @@ class _BoxLeaderboardScreenState extends State<BoxLeaderboardScreen> {
                         (a, b) => b.streakDays.compareTo(a.streakDays));
                   }
                   return ListView(
-                    padding: const EdgeInsets.all(FacingTokens.sp4),
+                    padding: const EdgeInsets.all(HyphenTokens.sp4),
                     children: [
                       Text(gym.name,
-                          style: FacingTokens.h3.copyWith(
+                          style: HyphenTokens.h3.copyWith(
                             fontWeight: FontWeight.w800,
                           )),
-                      const SizedBox(height: FacingTokens.sp1),
+                      const SizedBox(height: HyphenTokens.sp1),
                       Text('승인 회원 ${members.length}명 · 익명 랭킹',
-                          style: FacingTokens.caption),
-                      const SizedBox(height: FacingTokens.sp3),
+                          style: HyphenTokens.caption),
+                      const SizedBox(height: HyphenTokens.sp3),
                       SegmentedButton<_SortMode>(
                         segments: const [
                           ButtonSegment(
@@ -101,16 +101,16 @@ class _BoxLeaderboardScreenState extends State<BoxLeaderboardScreen> {
                           setState(() => _sort = s.first);
                         },
                       ),
-                      const SizedBox(height: FacingTokens.sp4),
+                      const SizedBox(height: HyphenTokens.sp4),
                       // /go 전수조사: 빈 멤버 상태 명시 — 이전엔 빈 ListView 로 로딩과 구분 불가.
                       if (members.isEmpty)
                         const Padding(
                           padding: EdgeInsets.symmetric(
-                              vertical: FacingTokens.sp5),
+                              vertical: HyphenTokens.sp5),
                           child: Center(
                             child: Text(
                               '승인된 멤버 없음. 코치 승인 후 랭킹 표시.',
-                              style: FacingTokens.caption,
+                              style: HyphenTokens.caption,
                               textAlign: TextAlign.center,
                             ),
                           ),
@@ -130,10 +130,10 @@ class _BoxLeaderboardScreenState extends State<BoxLeaderboardScreen> {
                                 : 'DAYS',
                           );
                         }),
-                      const SizedBox(height: FacingTokens.sp3),
+                      const SizedBox(height: HyphenTokens.sp3),
                       const Text(
                         '익명 해시 기반 랭킹. 닉네임 표시는 추후 지원.',
-                        style: FacingTokens.caption,
+                        style: HyphenTokens.caption,
                         textAlign: TextAlign.center,
                       ),
                     ],
@@ -163,17 +163,17 @@ class _LeaderRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final isTop = rank <= 3;
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: FacingTokens.sp1),
-      padding: const EdgeInsets.all(FacingTokens.sp3),
+      margin: const EdgeInsets.symmetric(vertical: HyphenTokens.sp1),
+      padding: const EdgeInsets.all(HyphenTokens.sp3),
       decoration: BoxDecoration(
         color: highlight
-            ? FacingTokens.accent.withValues(alpha: 0.12)
-            : FacingTokens.surface,
+            ? HyphenTokens.accent.withValues(alpha: 0.12)
+            : HyphenTokens.surface,
         border: Border.all(
-          color: highlight ? FacingTokens.accent : FacingTokens.border,
+          color: highlight ? HyphenTokens.accent : HyphenTokens.border,
           width: highlight ? 2 : 1,
         ),
-        borderRadius: BorderRadius.circular(FacingTokens.r2),
+        borderRadius: BorderRadius.circular(HyphenTokens.r2),
       ),
       child: Row(
         children: [
@@ -181,17 +181,17 @@ class _LeaderRow extends StatelessWidget {
             width: 32,
             child: Text(
               '$rank',
-              style: FacingTokens.h3.copyWith(
-                color: isTop ? FacingTokens.accent : FacingTokens.fg,
+              style: HyphenTokens.h3.copyWith(
+                color: isTop ? HyphenTokens.accent : HyphenTokens.fg,
                 fontWeight: FontWeight.w800,
-                fontFeatures: FacingTokens.tabular,
+                fontFeatures: HyphenTokens.tabular,
               ),
             ),
           ),
           Expanded(
             child: Text(
               'user:${member.deviceHashPrefix}',
-              style: FacingTokens.body.copyWith(
+              style: HyphenTokens.body.copyWith(
                 fontWeight: FontWeight.w700,
               ),
               overflow: TextOverflow.ellipsis,
@@ -200,10 +200,10 @@ class _LeaderRow extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(metricLabel, style: FacingTokens.microLabel),
+              Text(metricLabel, style: HyphenTokens.microLabel),
               Text(metric,
-                  style: FacingTokens.h3.copyWith(
-                    fontFeatures: FacingTokens.tabular,
+                  style: HyphenTokens.h3.copyWith(
+                    fontFeatures: HyphenTokens.tabular,
                     fontWeight: FontWeight.w800,
                   )),
             ],

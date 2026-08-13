@@ -10,9 +10,9 @@
 // 본 파일은 프론트 클라이언트 사이드 추론 회귀 전용.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:facing_app/core/level_system.dart';
-import 'package:facing_app/core/tier.dart';
-import 'package:facing_app/models/gym.dart';
+import 'package:hyphen_app/core/level_system.dart';
+import 'package:hyphen_app/core/tier.dart';
+import 'package:hyphen_app/models/gym.dart';
 
 class _Persona {
   final String id;
@@ -135,8 +135,8 @@ GymMembership _toMembership(_Persona p) {
     gym = GymSummary(
       id: p.joinedBoxId == 'box_seongsu' ? 1 : 2,
       name: p.joinedBoxId == 'box_seongsu'
-          ? 'FACING SEONGSU'
-          : 'FACING GANGNAM',
+          ? 'HYPHEN SEONGSU'
+          : 'HYPHEN GANGNAM',
       location: '',
       memberCount: 0,
     );

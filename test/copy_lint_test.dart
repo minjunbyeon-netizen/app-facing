@@ -77,7 +77,7 @@ void main() {
       );
     });
 
-    test('하드코드 fontSize 0건 (FacingTokens 외 인라인 TextStyle 차단)', () {
+    test('하드코드 fontSize 0건 (HyphenTokens 외 인라인 TextStyle 차단)', () {
       final dir = Directory('lib');
       // 의도된 케이스 (theme 정의 자체) 제외.
       final excludePaths = <String>{

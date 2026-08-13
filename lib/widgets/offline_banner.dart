@@ -15,10 +15,10 @@ class OfflineBanner extends StatelessWidget {
         if (state.isOnline) return const SizedBox.shrink();
         return Container(
           width: double.infinity,
-          color: FacingTokens.surface,
+          color: HyphenTokens.surface,
           padding: const EdgeInsets.symmetric(
-            horizontal: FacingTokens.sp4,
-            vertical: FacingTokens.sp2,
+            horizontal: HyphenTokens.sp4,
+            vertical: HyphenTokens.sp2,
           ),
           child: SafeArea(
             top: false,
@@ -28,15 +28,15 @@ class OfflineBanner extends StatelessWidget {
               children: [
                 Text(
                   '오프라인',
-                  style: FacingTokens.bannerLabel.copyWith(
-                    color: FacingTokens.accent,
+                  style: HyphenTokens.bannerLabel.copyWith(
+                    color: HyphenTokens.accent,
                     fontWeight: FontWeight.w600,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 Text(
                   '연결 시 동기화.',
-                  style: FacingTokens.caption,
+                  style: HyphenTokens.caption,
                   textAlign: TextAlign.center,
                 ),
               ],

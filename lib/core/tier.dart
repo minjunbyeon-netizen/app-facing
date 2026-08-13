@@ -13,11 +13,11 @@ class ExperienceBand {
 /// CrossFit Tier 시스템. 백엔드 `overall_number` (1~6) → 5 티어 매핑.
 /// v1.15부터: 명도 재배치(어둠→빛) + motivation/discipline/obsession 서브타이틀.
 enum Tier {
-  scaled('SCALED', 'Motivation.', FacingTokens.tierScaled, FacingTokens.fg),
-  rx('RX', 'Discipline.', FacingTokens.tierRx, FacingTokens.fg),
-  rxPlus('RX+', 'Discipline+.', FacingTokens.tierRxPlus, FacingTokens.bg),
-  elite('ELITE', 'Obsession.', FacingTokens.tierElite, FacingTokens.bg),
-  games('GAMES', 'Obsession.', FacingTokens.tierGames, FacingTokens.bg);
+  scaled('SCALED', 'Motivation.', HyphenTokens.tierScaled, HyphenTokens.fg),
+  rx('RX', 'Discipline.', HyphenTokens.tierRx, HyphenTokens.fg),
+  rxPlus('RX+', 'Discipline+.', HyphenTokens.tierRxPlus, HyphenTokens.bg),
+  elite('ELITE', 'Obsession.', HyphenTokens.tierElite, HyphenTokens.bg),
+  games('GAMES', 'Obsession.', HyphenTokens.tierGames, HyphenTokens.bg);
 
   final String label;
 

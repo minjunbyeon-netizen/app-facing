@@ -15,7 +15,7 @@ import '../../core/theme.dart';
 import '../../core/unit_state.dart';
 import '../../models/coach_note.dart';
 import '../../widgets/avatar.dart';
-import '../../widgets/fkit.dart';
+import '../../widgets/hkit.dart';
 import '../profile/profile_state.dart';
 import 'inbox_repository.dart';
 import 'inbox_state.dart';
@@ -126,8 +126,8 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
 
   void _toast(String msg) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      backgroundColor: FacingTokens.surface,
-      content: Text(msg, style: FacingTokens.body),
+      backgroundColor: HyphenTokens.surface,
+      content: Text(msg, style: HyphenTokens.body),
     ));
   }
 
@@ -143,27 +143,27 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
     final result = await showModalBottomSheet<List<ActualSet>?>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: FacingTokens.surface,
+      backgroundColor: HyphenTokens.surface,
       shape: const RoundedRectangleBorder(
         borderRadius:
-            BorderRadius.vertical(top: Radius.circular(FacingTokens.r4)),
+            BorderRadius.vertical(top: Radius.circular(HyphenTokens.r4)),
       ),
       builder: (ctx) => Padding(
         padding: EdgeInsets.only(
-          left: FacingTokens.sp4,
-          right: FacingTokens.sp4,
-          top: FacingTokens.sp4,
-          bottom: MediaQuery.of(ctx).viewInsets.bottom + FacingTokens.sp4,
+          left: HyphenTokens.sp4,
+          right: HyphenTokens.sp4,
+          top: HyphenTokens.sp4,
+          bottom: MediaQuery.of(ctx).viewInsets.bottom + HyphenTokens.sp4,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text('실제 기록', style: FacingTokens.sectionLabel),
-            const SizedBox(height: FacingTokens.sp1),
+            const Text('실제 기록', style: HyphenTokens.sectionLabel),
+            const SizedBox(height: HyphenTokens.sp1),
             Text('세트별 실제 무게·횟수·RPE 기록 (선택).',
-                style: FacingTokens.caption),
-            const SizedBox(height: FacingTokens.sp3),
+                style: HyphenTokens.caption),
+            const SizedBox(height: HyphenTokens.sp3),
             for (int i = 0; i < totalSets; i++)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 2),
@@ -172,7 +172,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                     SizedBox(
                       width: 36,
                       child: Text('SET ${i + 1}',
-                          style: FacingTokens.micro.copyWith(
+                          style: HyphenTokens.micro.copyWith(
                             fontWeight: FontWeight.w800,
                           )),
                     ),
@@ -188,7 +188,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: FacingTokens.sp2),
+                    const SizedBox(width: HyphenTokens.sp2),
                     Expanded(
                       child: TextField(
                         controller: controllers[i]!.reps,
@@ -199,7 +199,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                         keyboardType: TextInputType.number,
                       ),
                     ),
-                    const SizedBox(width: FacingTokens.sp2),
+                    const SizedBox(width: HyphenTokens.sp2),
                     Expanded(
                       child: TextField(
                         controller: controllers[i]!.rpe,
@@ -215,7 +215,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                   ],
                 ),
               ),
-            const SizedBox(height: FacingTokens.sp3),
+            const SizedBox(height: HyphenTokens.sp3),
             ElevatedButton(
               onPressed: () {
                 final list = <ActualSet>[];
@@ -236,7 +236,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
               },
               child: const Text('완료'),
             ),
-            const SizedBox(height: FacingTokens.sp1),
+            const SizedBox(height: HyphenTokens.sp1),
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(<ActualSet>[]),
               child: const Text('기록 생략'),
@@ -259,31 +259,31 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
     final result = await showModalBottomSheet<String?>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: FacingTokens.surface,
+      backgroundColor: HyphenTokens.surface,
       shape: const RoundedRectangleBorder(
         borderRadius:
-            BorderRadius.vertical(top: Radius.circular(FacingTokens.r4)),
+            BorderRadius.vertical(top: Radius.circular(HyphenTokens.r4)),
       ),
       builder: (ctx) => StatefulBuilder(builder: (innerCtx, setSheet) {
         return Padding(
           padding: EdgeInsets.only(
-            left: FacingTokens.sp4,
-            right: FacingTokens.sp4,
-            top: FacingTokens.sp4,
-            bottom: MediaQuery.of(ctx).viewInsets.bottom + FacingTokens.sp4,
+            left: HyphenTokens.sp4,
+            right: HyphenTokens.sp4,
+            top: HyphenTokens.sp4,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + HyphenTokens.sp4,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('거절 사유', style: FacingTokens.sectionLabel),
-              const SizedBox(height: FacingTokens.sp1),
+              const Text('거절 사유', style: HyphenTokens.sectionLabel),
+              const SizedBox(height: HyphenTokens.sp1),
               Text('이유를 알려주면 코치가 다음 처방 조정.',
-                  style: FacingTokens.caption),
-              const SizedBox(height: FacingTokens.sp3),
+                  style: HyphenTokens.caption),
+              const SizedBox(height: HyphenTokens.sp3),
               Wrap(
-                spacing: FacingTokens.sp2,
-                runSpacing: FacingTokens.sp2,
+                spacing: HyphenTokens.sp2,
+                runSpacing: HyphenTokens.sp2,
                 children: [
                   // QA B-IN-13: V8 위반 — chip 라벨 영문 단독.
                   for (final r in const [
@@ -292,9 +292,9 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                     'TIME',
                     'SUBSTITUTE',
                   ])
-                    FkBadge(
+                    HkBadge(
                       r,
-                      color: FacingTokens.fg,
+                      color: HyphenTokens.fg,
                       selected: selectedReason == r,
                       onTap: () {
                         setSheet(() {
@@ -310,7 +310,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                     ),
                 ],
               ),
-              const SizedBox(height: FacingTokens.sp3),
+              const SizedBox(height: HyphenTokens.sp3),
               TextField(
                 controller: freeCtrl,
                 decoration: const InputDecoration(
@@ -319,7 +319,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                 maxLines: 3,
                 maxLength: 300,
               ),
-              const SizedBox(height: FacingTokens.sp3),
+              const SizedBox(height: HyphenTokens.sp3),
               ElevatedButton(
                 onPressed: () {
                   final parts = <String>[];
@@ -348,39 +348,39 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
     final result = await showModalBottomSheet<String?>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: FacingTokens.surface,
+      backgroundColor: HyphenTokens.surface,
       shape: const RoundedRectangleBorder(
         borderRadius:
-            BorderRadius.vertical(top: Radius.circular(FacingTokens.r4)),
+            BorderRadius.vertical(top: Radius.circular(HyphenTokens.r4)),
       ),
       builder: (ctx) => Padding(
         padding: EdgeInsets.only(
-          left: FacingTokens.sp4,
-          right: FacingTokens.sp4,
-          top: FacingTokens.sp4,
-          bottom: MediaQuery.of(ctx).viewInsets.bottom + FacingTokens.sp4,
+          left: HyphenTokens.sp4,
+          right: HyphenTokens.sp4,
+          top: HyphenTokens.sp4,
+          bottom: MediaQuery.of(ctx).viewInsets.bottom + HyphenTokens.sp4,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text('코치에게 질문', style: FacingTokens.sectionLabel),
-            const SizedBox(height: FacingTokens.sp1),
+            const Text('코치에게 질문', style: HyphenTokens.sectionLabel),
+            const SizedBox(height: HyphenTokens.sp1),
             Text('거절 대신 질문 1줄. 코치 인박스로 발송.',
-                style: FacingTokens.caption),
-            const SizedBox(height: FacingTokens.sp2),
+                style: HyphenTokens.caption),
+            const SizedBox(height: HyphenTokens.sp2),
             // 빠른 템플릿 chip.
             Wrap(
-              spacing: FacingTokens.sp1,
+              spacing: HyphenTokens.sp1,
               children: [
                 for (final t in const [
                   '무게 낮춰도 되나요?',
                   '동작 대체 가능?',
                   '날짜 조정 부탁',
                 ])
-                  FkBadge(
+                  HkBadge(
                     t,
-                    color: FacingTokens.fg,
+                    color: HyphenTokens.fg,
                     onTap: () {
                       // QA B-ST-12: 같은 템플릿 중복 append 방지.
                       if (ctrl.text.contains(t)) return;
@@ -389,7 +389,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                   ),
               ],
             ),
-            const SizedBox(height: FacingTokens.sp2),
+            const SizedBox(height: HyphenTokens.sp2),
             TextField(
               controller: ctrl,
               decoration: const InputDecoration(
@@ -398,7 +398,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
               maxLines: 4,
               maxLength: 500,
             ),
-            const SizedBox(height: FacingTokens.sp3),
+            const SizedBox(height: HyphenTokens.sp3),
             ElevatedButton(
               onPressed: () => Navigator.of(ctx).pop(ctrl.text),
               child: const Text('보내기'),
@@ -423,16 +423,16 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
         child: _loading
             ? const Center(
                 child: CircularProgressIndicator(
-                  color: FacingTokens.muted, strokeWidth: 2),
+                  color: HyphenTokens.muted, strokeWidth: 2),
               )
             : _error != null
                 ? Padding(
-                    padding: const EdgeInsets.all(FacingTokens.sp4),
+                    padding: const EdgeInsets.all(HyphenTokens.sp4),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Text(_error!, style: FacingTokens.body),
-                        const SizedBox(height: FacingTokens.sp3),
+                        Text(_error!, style: HyphenTokens.body),
+                        const SizedBox(height: HyphenTokens.sp3),
                         OutlinedButton(
                           onPressed: () {
                             setState(() {
@@ -450,9 +450,9 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                     // QA B-INB-5: _note null 시 강제 unwrap 크래시 방지.
                     ? _buildBody(_note!)
                     : const Padding(
-                        padding: EdgeInsets.all(FacingTokens.sp4),
+                        padding: EdgeInsets.all(HyphenTokens.sp4),
                         child: Text('노트를 열 수 없음.',
-                            style: FacingTokens.caption),
+                            style: HyphenTokens.caption),
                       ),
       ),
     );
@@ -460,10 +460,10 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
 
   Widget _buildBody(CoachNote n) {
     final color = n.my?.isUnread == true
-        ? FacingTokens.accent
-        : FacingTokens.muted;
+        ? HyphenTokens.accent
+        : HyphenTokens.muted;
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(FacingTokens.sp4),
+      padding: const EdgeInsets.all(HyphenTokens.sp4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -476,73 +476,73 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                 colorHex: n.senderColor,
                 size: 44,
               ),
-              const SizedBox(width: FacingTokens.sp3),
+              const SizedBox(width: HyphenTokens.sp3),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'COACH',
-                      style: FacingTokens.microLabel.copyWith(
+                      style: HyphenTokens.microLabel.copyWith(
                         fontWeight: FontWeight.w800,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(n.displayLabel(),
-                        style: FacingTokens.h3
+                        style: HyphenTokens.h3
                             .copyWith(fontWeight: FontWeight.w800)),
                   ],
                 ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: FacingTokens.sp2,
+                  horizontal: HyphenTokens.sp2,
                   vertical: 2,
                 ),
                 decoration: BoxDecoration(
                   border: Border.all(color: color),
-                  borderRadius: BorderRadius.circular(FacingTokens.r1),
+                  borderRadius: BorderRadius.circular(HyphenTokens.r1),
                 ),
                 child: Text(
                   n.isAuto
                       ? 'AUTO'
                       : (n.kind == 'assignment' ? 'ASSIGNMENT' : 'NOTE'),
-                  style: FacingTokens.microLabel.copyWith(
-                    color: n.isAuto ? FacingTokens.success : color,
+                  style: HyphenTokens.microLabel.copyWith(
+                    color: n.isAuto ? HyphenTokens.success : color,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: FacingTokens.sp4),
+          const SizedBox(height: HyphenTokens.sp4),
           if (n.title.isNotEmpty)
             Text(n.title,
-                style: FacingTokens.h3.copyWith(fontWeight: FontWeight.w800)),
-          const SizedBox(height: FacingTokens.sp2),
+                style: HyphenTokens.h3.copyWith(fontWeight: FontWeight.w800)),
+          const SizedBox(height: HyphenTokens.sp2),
           // v1.19 페르소나 P0-4 (M1 송): WHY 섹션 — 본문 위 고정.
           if (n.rationale != null && n.rationale!.isNotEmpty) ...[
-            const SizedBox(height: FacingTokens.sp1),
+            const SizedBox(height: HyphenTokens.sp1),
             Container(
               decoration: BoxDecoration(
-                color: FacingTokens.surface,
-                border: Border.all(color: FacingTokens.border, width: 1),
-                borderRadius: BorderRadius.circular(FacingTokens.r2),
+                color: HyphenTokens.surface,
+                border: Border.all(color: HyphenTokens.border, width: 1),
+                borderRadius: BorderRadius.circular(HyphenTokens.r2),
               ),
               clipBehavior: Clip.antiAlias,
               child: IntrinsicHeight(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Container(width: 3, color: FacingTokens.accent),
+                    Container(width: 3, color: HyphenTokens.accent),
                     Expanded(child: Padding(
-                      padding: const EdgeInsets.all(FacingTokens.sp3),
+                      padding: const EdgeInsets.all(HyphenTokens.sp3),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('이유', style: FacingTokens.sectionLabel),
+                          Text('이유', style: HyphenTokens.sectionLabel),
                           const SizedBox(height: 4),
-                          Text(n.rationale!, style: FacingTokens.body),
+                          Text(n.rationale!, style: HyphenTokens.body),
                         ],
                       ),
                     )),
@@ -550,43 +550,43 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: FacingTokens.sp3),
+            const SizedBox(height: HyphenTokens.sp3),
           ],
           if (n.body.isNotEmpty)
-            Text(n.body, style: FacingTokens.lead),
+            Text(n.body, style: HyphenTokens.lead),
           if (n.dueDate != null && n.dueDate!.isNotEmpty) ...[
-            const SizedBox(height: FacingTokens.sp4),
-            Text('기한', style: FacingTokens.sectionLabel),
+            const SizedBox(height: HyphenTokens.sp4),
+            Text('기한', style: HyphenTokens.sectionLabel),
             const SizedBox(height: 2),
-            Text(n.dueDate!, style: FacingTokens.body),
+            Text(n.dueDate!, style: HyphenTokens.body),
           ],
           if (n.dueStart != null && n.dueEnd != null) ...[
-            const SizedBox(height: FacingTokens.sp1),
+            const SizedBox(height: HyphenTokens.sp1),
             Text(
               '${n.dueStart} ~ ${n.dueEnd}',
-              style: FacingTokens.caption,
+              style: HyphenTokens.caption,
             ),
           ],
           if (n.structured.isNotEmpty) ...[
-            const SizedBox(height: FacingTokens.sp4),
-            Text('처방', style: FacingTokens.sectionLabel),
-            const SizedBox(height: FacingTokens.sp2),
+            const SizedBox(height: HyphenTokens.sp4),
+            Text('처방', style: HyphenTokens.sectionLabel),
+            const SizedBox(height: HyphenTokens.sp2),
             for (final it in n.structured)
               Padding(
                 padding:
-                    const EdgeInsets.symmetric(vertical: FacingTokens.sp1),
+                    const EdgeInsets.symmetric(vertical: HyphenTokens.sp1),
                 child: Container(
-                  padding: const EdgeInsets.all(FacingTokens.sp3),
+                  padding: const EdgeInsets.all(HyphenTokens.sp3),
                   decoration: BoxDecoration(
-                    color: FacingTokens.surface,
-                    border: Border.all(color: FacingTokens.border),
-                    borderRadius: BorderRadius.circular(FacingTokens.r2),
+                    color: HyphenTokens.surface,
+                    border: Border.all(color: HyphenTokens.border),
+                    borderRadius: BorderRadius.circular(HyphenTokens.r2),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(it.displayLine(),
-                          style: FacingTokens.body.copyWith(
+                          style: HyphenTokens.body.copyWith(
                               fontWeight: FontWeight.w700)),
                       if (it.alternateMovement != null &&
                           it.alternateMovement!.isNotEmpty)
@@ -594,15 +594,15 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                           padding: const EdgeInsets.only(top: 2),
                           child: Text(
                             'Substitute: ${it.alternateMovement!}',
-                            style: FacingTokens.caption.copyWith(
-                              color: FacingTokens.success,
+                            style: HyphenTokens.caption.copyWith(
+                              color: HyphenTokens.success,
                             ),
                           ),
                         ),
                       if (it.note != null && it.note!.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: 2),
-                          child: Text(it.note!, style: FacingTokens.caption),
+                          child: Text(it.note!, style: HyphenTokens.caption),
                         ),
                     ],
                   ),
@@ -611,9 +611,9 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
           ],
           // 액션 결과(actual / decline_reason) 표시.
           if (n.my?.actual.isNotEmpty == true) ...[
-            const SizedBox(height: FacingTokens.sp4),
-            Text('기록됨', style: FacingTokens.sectionLabel),
-            const SizedBox(height: FacingTokens.sp1),
+            const SizedBox(height: HyphenTokens.sp4),
+            Text('기록됨', style: HyphenTokens.sectionLabel),
+            const SizedBox(height: HyphenTokens.sp1),
             for (final a in n.my!.actual)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 2),
@@ -622,18 +622,18 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                   '${a.actualLoad != null ? '${a.actualLoad}${context.read<UnitState>().weightSuffix}' : '-'} · '
                   '${a.actualReps ?? '-'} reps · '
                   'RPE ${a.rpe ?? '-'}',
-                  style: FacingTokens.body,
+                  style: HyphenTokens.body,
                 ),
               ),
           ],
           if (n.my?.declineReason != null &&
               n.my!.declineReason!.isNotEmpty) ...[
-            const SizedBox(height: FacingTokens.sp4),
-            Text('거절 사유', style: FacingTokens.sectionLabel),
+            const SizedBox(height: HyphenTokens.sp4),
+            Text('거절 사유', style: HyphenTokens.sectionLabel),
             const SizedBox(height: 2),
-            Text(n.my!.declineReason!, style: FacingTokens.body),
+            Text(n.my!.declineReason!, style: HyphenTokens.body),
           ],
-          const SizedBox(height: FacingTokens.sp5),
+          const SizedBox(height: HyphenTokens.sp5),
           if (n.my != null) _buildActions(n),
           if (n.recipients.isNotEmpty) _RecipientsList(items: n.recipients),
         ],
@@ -646,22 +646,22 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
     if (status == 'completed' || status == 'declined') {
       return Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(FacingTokens.sp3),
+        padding: const EdgeInsets.all(HyphenTokens.sp3),
         decoration: BoxDecoration(
           border: Border.all(
             color: status == 'completed'
-                ? FacingTokens.success
-                : FacingTokens.muted,
+                ? HyphenTokens.success
+                : HyphenTokens.muted,
           ),
-          borderRadius: BorderRadius.circular(FacingTokens.r2),
+          borderRadius: BorderRadius.circular(HyphenTokens.r2),
         ),
         child: Text(
           status == 'completed' ? 'Completed.' : 'Declined.',
           textAlign: TextAlign.center,
-          style: FacingTokens.body.copyWith(
+          style: HyphenTokens.body.copyWith(
             color: status == 'completed'
-                ? FacingTokens.success
-                : FacingTokens.muted,
+                ? HyphenTokens.success
+                : HyphenTokens.muted,
             fontWeight: FontWeight.w800,
           ),
         ),
@@ -695,15 +695,15 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
             onPressed: _accept,
             child: const Text('수락'),
           ),
-        const SizedBox(height: FacingTokens.sp2),
+        const SizedBox(height: HyphenTokens.sp2),
         // v1.19 페르소나 P1-15: Accept/Decline 사이 Ask Coach.
         OutlinedButton(
           onPressed: _ask,
           child: Text(isAsked ? 'Asked · Ask again' : 'Ask Coach'),
         ),
-        const SizedBox(height: FacingTokens.sp2),
+        const SizedBox(height: HyphenTokens.sp2),
         TextButton(
-          style: TextButton.styleFrom(foregroundColor: FacingTokens.fgSecondary),
+          style: TextButton.styleFrom(foregroundColor: HyphenTokens.fgSecondary),
           onPressed: _decline,
           child: const Text('거절'),
         ),
@@ -730,13 +730,13 @@ class _RecipientsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: FacingTokens.sp4),
+      padding: const EdgeInsets.only(top: HyphenTokens.sp4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('RECIPIENTS · ${items.length}',
-              style: FacingTokens.sectionLabel),
-          const SizedBox(height: FacingTokens.sp2),
+              style: HyphenTokens.sectionLabel),
+          const SizedBox(height: HyphenTokens.sp2),
           for (final r in items)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 2),
@@ -748,15 +748,15 @@ class _RecipientsList extends StatelessWidget {
                     colorHex: r.color,
                     size: 28,
                   ),
-                  const SizedBox(width: FacingTokens.sp2),
+                  const SizedBox(width: HyphenTokens.sp2),
                   Expanded(
                     child: Text(r.displayLabel(),
-                        style: FacingTokens.body.copyWith(
+                        style: HyphenTokens.body.copyWith(
                             fontWeight: FontWeight.w700)),
                   ),
                   Text(
                     r.status.toUpperCase(),
-                    style: FacingTokens.micro.copyWith(
+                    style: HyphenTokens.micro.copyWith(
                       color: _statusColor(r.status),
                       fontWeight: FontWeight.w800,
                     ),
@@ -772,18 +772,18 @@ class _RecipientsList extends StatelessWidget {
   Color _statusColor(String s) {
     switch (s) {
       case 'completed':
-        return FacingTokens.success;
+        return HyphenTokens.success;
       case 'accepted':
-        return FacingTokens.fg;
+        return HyphenTokens.fg;
       case 'asked':
-        return FacingTokens.warning;
+        return HyphenTokens.warning;
       case 'read':
-        return FacingTokens.muted;
+        return HyphenTokens.muted;
       case 'declined':
-        return FacingTokens.muted;
+        return HyphenTokens.muted;
       case 'sent':
       default:
-        return FacingTokens.accent;
+        return HyphenTokens.accent;
     }
   }
 }

@@ -5,7 +5,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:facing_app/core/worn_title_store.dart';
+import 'package:hyphen_app/core/worn_title_store.dart';
 
 void main() {
   setUp(() async {

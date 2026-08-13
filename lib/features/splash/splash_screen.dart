@@ -8,7 +8,7 @@ import '../../core/haptic.dart';
 import '../../core/notification_service.dart';
 import '../../core/theme.dart';
 import '../../widgets/brand_logo.dart';
-import '../../widgets/fkit.dart';
+import '../../widgets/hkit.dart';
 import '../auth/auth_state.dart';
 import '../boss/boss_auth_state.dart';
 
@@ -23,7 +23,7 @@ class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _ctrl;
 
-  // 6 슬롯: 0=FACING / 1=tagline / 2=body / 3=caption / 4=quote / 5=loader
+  // 6 슬롯: 0=HYPHEN / 1=tagline / 2=body / 3=caption / 4=quote / 5=loader
   late final List<Animation<double>> _opacities;
   // 슬라이드는 앞 5개만 (loader는 fade만)
   late final List<Animation<Offset>> _slides;
@@ -130,10 +130,10 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: FacingTokens.bg,
+      backgroundColor: HyphenTokens.bg,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(FacingTokens.sp5),
+          padding: const EdgeInsets.all(HyphenTokens.sp5),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -144,13 +144,13 @@ class _SplashScreenState extends State<SplashScreen>
                 0,
                 const Center(child: BrandLogo()),
               ),
-              const SizedBox(height: FacingTokens.sp5),
+              const SizedBox(height: HyphenTokens.sp5),
               const Spacer(),
               // v2.3 (2026-08-12 사용자 지시): 하단 명언 카드 삭제.
               // 로딩 화면에 뜻 모를 영문 문구가 붙어 있어 로고·로더만 남긴다.
               // QuoteCard 위젯 자체는 등급 결과·계산 로딩에서 계속 쓴다.
-              _fadeOnly(2, const FkLoading()),
-              const SizedBox(height: FacingTokens.sp3),
+              _fadeOnly(2, const HkLoading()),
+              const SizedBox(height: HyphenTokens.sp3),
             ],
           ),
         ),

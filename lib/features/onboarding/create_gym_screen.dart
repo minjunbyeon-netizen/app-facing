@@ -67,28 +67,28 @@ class _CreateGymScreenState extends State<CreateGymScreen> {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(FacingTokens.sp5),
+          padding: const EdgeInsets.all(HyphenTokens.sp5),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: FacingTokens.sp2),
-              const Text('박스 등록', style: FacingTokens.h2),
-              const SizedBox(height: FacingTokens.sp2),
+              const SizedBox(height: HyphenTokens.sp2),
+              const Text('박스 등록', style: HyphenTokens.h2),
+              const SizedBox(height: HyphenTokens.sp2),
               const Text(
                 '코치가 직접 박스 등록, WOD 게시 가능.',
-                style: FacingTokens.caption,
+                style: HyphenTokens.caption,
               ),
-              const SizedBox(height: FacingTokens.sp5),
+              const SizedBox(height: HyphenTokens.sp5),
               TextField(
                 controller: _nameCtrl,
                 enabled: !_creating,
                 decoration: const InputDecoration(
                   labelText: '박스 이름',
-                  hintText: '예: FACING SEONGSU',
+                  hintText: '예: HYPHEN SEONGSU',
                 ),
                 maxLength: 80,
               ),
-              const SizedBox(height: FacingTokens.sp3),
+              const SizedBox(height: HyphenTokens.sp3),
               TextField(
                 controller: _locCtrl,
                 enabled: !_creating,
@@ -103,7 +103,7 @@ class _CreateGymScreenState extends State<CreateGymScreen> {
                 onPressed: _creating ? null : _create,
                 child: Text(_creating ? '만드는 중' : '박스 만들기'),
               ),
-              const SizedBox(height: FacingTokens.sp2),
+              const SizedBox(height: HyphenTokens.sp2),
               TextButton(
                 onPressed: _creating
                     ? null
@@ -113,7 +113,7 @@ class _CreateGymScreenState extends State<CreateGymScreen> {
                       },
                 child: const Text(
                   'Skip — 나중에 만들기',
-                  style: FacingTokens.caption,
+                  style: HyphenTokens.caption,
                 ),
               ),
             ],

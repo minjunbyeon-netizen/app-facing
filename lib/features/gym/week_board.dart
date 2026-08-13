@@ -6,7 +6,7 @@ import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/class_session.dart';
 import '../../models/gym.dart';
-import '../../widgets/fkit.dart';
+import '../../widgets/hkit.dart';
 import '../classes/classes_repository.dart';
 import '../classes/classes_screen.dart'
     show cancelClassFlow, reserveClassFlow;
@@ -126,12 +126,12 @@ class _WeekBoardState extends State<WeekBoard> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _weekHeader(),
-        const SizedBox(height: FacingTokens.sp2),
+        const SizedBox(height: HyphenTokens.sp2),
         Container(
           decoration: BoxDecoration(
-            color: FacingTokens.surface,
-            border: Border.all(color: FacingTokens.border),
-            borderRadius: BorderRadius.circular(FacingTokens.r3),
+            color: HyphenTokens.surface,
+            border: Border.all(color: HyphenTokens.border),
+            borderRadius: BorderRadius.circular(HyphenTokens.r3),
           ),
           clipBehavior: Clip.antiAlias,
           child: Column(
@@ -181,10 +181,10 @@ class _WeekBoardState extends State<WeekBoard> {
         IconButton(
           onPressed: () => _shiftWeek(-1),
           icon: const Icon(Icons.chevron_left, size: 22),
-          color: FacingTokens.fgSecondary,
+          color: HyphenTokens.fgSecondary,
           tooltip: '이전 주',
           constraints: const BoxConstraints(
-              minWidth: FacingTokens.touchMin, minHeight: FacingTokens.touchMin),
+              minWidth: HyphenTokens.touchMin, minHeight: HyphenTokens.touchMin),
         ),
         Expanded(
           child: Row(
@@ -192,16 +192,16 @@ class _WeekBoardState extends State<WeekBoard> {
             children: [
               Text(
                 '${md(_weekStart)} – ${md(end)}',
-                style: FacingTokens.body.copyWith(
+                style: HyphenTokens.body.copyWith(
                   fontWeight: FontWeight.w700,
-                  fontFeatures: FacingTokens.tabular,
+                  fontFeatures: HyphenTokens.tabular,
                 ),
               ),
               if (isThisWeek) ...[
-                const SizedBox(width: FacingTokens.sp2),
+                const SizedBox(width: HyphenTokens.sp2),
                 // 브랜드색은 '오늘' 표식 하나로 충분하다 — 여기까지 빨강이면
                 // 강조가 둘로 갈린다 (링코 F1).
-                const FkBadge('이번 주', color: FacingTokens.muted),
+                const HkBadge('이번 주', color: HyphenTokens.muted),
               ],
             ],
           ),
@@ -209,10 +209,10 @@ class _WeekBoardState extends State<WeekBoard> {
         IconButton(
           onPressed: () => _shiftWeek(1),
           icon: const Icon(Icons.chevron_right, size: 22),
-          color: FacingTokens.fgSecondary,
+          color: HyphenTokens.fgSecondary,
           tooltip: '다음 주',
           constraints: const BoxConstraints(
-              minWidth: FacingTokens.touchMin, minHeight: FacingTokens.touchMin),
+              minWidth: HyphenTokens.touchMin, minHeight: HyphenTokens.touchMin),
         ),
       ],
     );
@@ -272,16 +272,16 @@ class _DayTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dayColor = isToday
-        ? FacingTokens.primary
-        : (_isPast ? FacingTokens.muted : FacingTokens.fg);
+        ? HyphenTokens.primary
+        : (_isPast ? HyphenTokens.muted : HyphenTokens.fg);
 
     return Container(
       decoration: BoxDecoration(
-        color: isSelected ? FacingTokens.surfaceAlt : FacingTokens.surface,
+        color: isSelected ? HyphenTokens.surfaceAlt : HyphenTokens.surface,
         border: isLast
             ? null
             : const Border(
-                bottom: BorderSide(color: FacingTokens.border, width: 1)),
+                bottom: BorderSide(color: HyphenTokens.border, width: 1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -290,8 +290,8 @@ class _DayTile extends StatelessWidget {
             onTap: onTap,
             child: Padding(
               padding: const EdgeInsets.symmetric(
-                horizontal: FacingTokens.sp3,
-                vertical: FacingTokens.sp2,
+                horizontal: HyphenTokens.sp3,
+                vertical: HyphenTokens.sp2,
               ),
               child: Row(
                 children: [
@@ -303,7 +303,7 @@ class _DayTile extends StatelessWidget {
                       children: [
                         Text(
                           weekdayLabel,
-                          style: FacingTokens.caption.copyWith(
+                          style: HyphenTokens.caption.copyWith(
                             color: dayColor,
                             fontWeight: FontWeight.w700,
                           ),
@@ -311,23 +311,23 @@ class _DayTile extends StatelessWidget {
                         const SizedBox(width: 5),
                         Text(
                           '${date.day}',
-                          style: FacingTokens.body.copyWith(
+                          style: HyphenTokens.body.copyWith(
                             color: dayColor,
                             fontWeight: FontWeight.w700,
-                            fontFeatures: FacingTokens.tabular,
+                            fontFeatures: HyphenTokens.tabular,
                           ),
                         ),
                       ],
                     ),
                   ),
                   if (isToday) ...[
-                    const FkBadge('오늘', color: FacingTokens.primary),
-                    const SizedBox(width: FacingTokens.sp2),
+                    const HkBadge('오늘', color: HyphenTokens.primary),
+                    const SizedBox(width: HyphenTokens.sp2),
                   ],
                   Expanded(
                     child: Text(
                       _summary,
-                      style: FacingTokens.caption,
+                      style: HyphenTokens.caption,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -335,7 +335,7 @@ class _DayTile extends StatelessWidget {
                   Icon(
                     isSelected ? Icons.expand_less : Icons.expand_more,
                     size: 20,
-                    color: FacingTokens.muted,
+                    color: HyphenTokens.muted,
                   ),
                 ],
               ),
@@ -344,17 +344,17 @@ class _DayTile extends StatelessWidget {
           if (isSelected)
             Padding(
               padding: const EdgeInsets.fromLTRB(
-                FacingTokens.sp3,
+                HyphenTokens.sp3,
                 0,
-                FacingTokens.sp3,
-                FacingTokens.sp3,
+                HyphenTokens.sp3,
+                HyphenTokens.sp3,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _wodBlock(),
-                  const SizedBox(height: FacingTokens.sp3),
-                  const Text('수업', style: FacingTokens.sectionLabel),
+                  const SizedBox(height: HyphenTokens.sp3),
+                  const Text('수업', style: HyphenTokens.sectionLabel),
                   _classBlock(),
                 ],
               ),
@@ -367,10 +367,10 @@ class _DayTile extends StatelessWidget {
   Widget _wodBlock() {
     if (wods.isEmpty) {
       return Padding(
-        padding: const EdgeInsets.only(top: FacingTokens.sp1),
+        padding: const EdgeInsets.only(top: HyphenTokens.sp1),
         child: Text(
           _isFuture ? '아직 게시 전.' : '게시된 WOD 없음.',
-          style: FacingTokens.caption,
+          style: HyphenTokens.caption,
         ),
       );
     }
@@ -413,13 +413,13 @@ class _DayTile extends StatelessWidget {
   Widget _classBlock() {
     if (classesError) {
       return Padding(
-        padding: const EdgeInsets.only(top: FacingTokens.sp2),
+        padding: const EdgeInsets.only(top: HyphenTokens.sp2),
         child: Row(
           children: [
             const Expanded(
-              child: Text('수업 불러오기 실패.', style: FacingTokens.caption),
+              child: Text('수업 불러오기 실패.', style: HyphenTokens.caption),
             ),
-            FkButton.tertiary('다시 시도',
+            HkButton.tertiary('다시 시도',
                 neutral: true, onPressed: onRetryClasses),
           ],
         ),
@@ -427,14 +427,14 @@ class _DayTile extends StatelessWidget {
     }
     if (classesLoading) {
       return const Padding(
-        padding: EdgeInsets.symmetric(vertical: FacingTokens.sp3),
-        child: FkLoading(),
+        padding: EdgeInsets.symmetric(vertical: HyphenTokens.sp3),
+        child: HkLoading(),
       );
     }
     if (classes.isEmpty) {
       return const Padding(
-        padding: EdgeInsets.only(top: FacingTokens.sp1),
-        child: Text('등록된 수업 없음.', style: FacingTokens.caption),
+        padding: EdgeInsets.only(top: HyphenTokens.sp1),
+        child: Text('등록된 수업 없음.', style: HyphenTokens.caption),
       );
     }
     return Column(
@@ -483,10 +483,10 @@ class _ClassLine extends StatelessWidget {
     final capText = '정원 ${session.reservedCount}/${session.capacity}';
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp2),
+      padding: const EdgeInsets.symmetric(vertical: HyphenTokens.sp2),
       decoration: const BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: FacingTokens.border, width: 1),
+          bottom: BorderSide(color: HyphenTokens.border, width: 1),
         ),
       ),
       child: Row(
@@ -495,23 +495,23 @@ class _ClassLine extends StatelessWidget {
             width: 46,
             child: Text(
               '$hh:$mm',
-              style: FacingTokens.body.copyWith(
+              style: HyphenTokens.body.copyWith(
                 fontWeight: FontWeight.w700,
-                fontFeatures: FacingTokens.tabular,
-                color: isCancelled ? FacingTokens.muted : FacingTokens.fg,
+                fontFeatures: HyphenTokens.tabular,
+                color: isCancelled ? HyphenTokens.muted : HyphenTokens.fg,
               ),
             ),
           ),
-          const SizedBox(width: FacingTokens.sp2),
+          const SizedBox(width: HyphenTokens.sp2),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   session.title,
-                  style: FacingTokens.body.copyWith(
+                  style: HyphenTokens.body.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: isCancelled ? FacingTokens.muted : FacingTokens.fg,
+                    color: isCancelled ? HyphenTokens.muted : HyphenTokens.fg,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -524,8 +524,8 @@ class _ClassLine extends StatelessWidget {
                       '대기 ${session.waitlistCount}',
                     if ((session.room ?? '').isNotEmpty) session.room!,
                   ].join(' · '),
-                  style: FacingTokens.caption.copyWith(
-                    color: isFull ? FacingTokens.warning : FacingTokens.muted,
+                  style: HyphenTokens.caption.copyWith(
+                    color: isFull ? HyphenTokens.warning : HyphenTokens.muted,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -533,7 +533,7 @@ class _ClassLine extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: FacingTokens.sp2),
+          const SizedBox(width: HyphenTokens.sp2),
           _action(isCancelled, isReserved, isWaitlisted, isFull, isOver,
               waitlistFull),
         ],
@@ -543,36 +543,36 @@ class _ClassLine extends StatelessWidget {
 
   /// 우측 조작 슬롯 — 전부 **배지 한 규격**.
   /// v2.5 (2026-08-12 사용자 지시): 예약 버튼이 '예약됨' 배지보다 훨씬 커서
-  /// 같은 줄 안에서 층이 졌다. FkBadge 는 onTap 을 주면 그대로 조작 컨트롤이
+  /// 같은 줄 안에서 층이 졌다. HkBadge 는 onTap 을 주면 그대로 조작 컨트롤이
   /// 되고(터치 48 은 안쪽에서 확보), 표시·조작이 시각적으로 같은 크기가 된다.
   Widget _action(bool isCancelled, bool isReserved, bool isWaitlisted,
       bool isFull, bool isOver, bool waitlistFull) {
     if (isCancelled) {
-      return const FkBadge('취소됨', color: FacingTokens.muted);
+      return const HkBadge('취소됨', color: HyphenTokens.muted);
     }
     if (isReserved || isWaitlisted) {
       return Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          FkBadge(
+          HkBadge(
             isWaitlisted ? '대기 ${session.myWaitlistPosition}' : '예약됨',
-            color: isWaitlisted ? FacingTokens.warning : FacingTokens.success,
+            color: isWaitlisted ? HyphenTokens.warning : HyphenTokens.success,
           ),
           if (!isOver) ...[
-            const SizedBox(width: FacingTokens.sp2),
-            FkBadge('취소', color: FacingTokens.muted, onTap: onCancel),
+            const SizedBox(width: HyphenTokens.sp2),
+            HkBadge('취소', color: HyphenTokens.muted, onTap: onCancel),
           ],
         ],
       );
     }
     if (isPastDay || isOver) {
-      return const FkBadge('종료', color: FacingTokens.muted);
+      return const HkBadge('종료', color: HyphenTokens.muted);
     }
     final blocked = isFull && waitlistFull;
-    if (blocked) return const FkBadge('마감', color: FacingTokens.muted);
-    return FkBadge(
+    if (blocked) return const HkBadge('마감', color: HyphenTokens.muted);
+    return HkBadge(
       isFull ? '대기' : '예약',
-      color: isFull ? FacingTokens.warning : FacingTokens.accent,
+      color: isFull ? HyphenTokens.warning : HyphenTokens.accent,
       onTap: onReserve,
     );
   }

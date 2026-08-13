@@ -57,32 +57,32 @@ class _MemberRequestsScreenState extends State<MemberRequestsScreen> {
     try {
       await showModalBottomSheet<void>(
       context: context,
-      backgroundColor: FacingTokens.surface,
+      backgroundColor: HyphenTokens.surface,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius:
-            BorderRadius.vertical(top: Radius.circular(FacingTokens.r4)),
+            BorderRadius.vertical(top: Radius.circular(HyphenTokens.r4)),
       ),
       builder: (ctx) => Padding(
         padding: EdgeInsets.only(
-          left: FacingTokens.sp4,
-          right: FacingTokens.sp4,
-          top: FacingTokens.sp4,
-          bottom: MediaQuery.of(ctx).viewInsets.bottom + FacingTokens.sp4,
+          left: HyphenTokens.sp4,
+          right: HyphenTokens.sp4,
+          top: HyphenTokens.sp4,
+          bottom: MediaQuery.of(ctx).viewInsets.bottom + HyphenTokens.sp4,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text('답변', style: FacingTokens.sectionLabel),
-            const SizedBox(height: FacingTokens.sp1),
+            const Text('답변', style: HyphenTokens.sectionLabel),
+            const SizedBox(height: HyphenTokens.sp1),
             Text(
               '${r.fromHashPrefix} · ${r.subject.isNotEmpty ? r.subject : "(no subject)"}',
-              style: FacingTokens.caption,
+              style: HyphenTokens.caption,
             ),
-            const SizedBox(height: FacingTokens.sp2),
-            Text(r.body, style: FacingTokens.body),
-            const SizedBox(height: FacingTokens.sp3),
+            const SizedBox(height: HyphenTokens.sp2),
+            Text(r.body, style: HyphenTokens.body),
+            const SizedBox(height: HyphenTokens.sp3),
             TextField(
               controller: bodyCtrl,
               decoration: const InputDecoration(
@@ -92,7 +92,7 @@ class _MemberRequestsScreenState extends State<MemberRequestsScreen> {
               maxLines: 5,
               maxLength: 2000,
             ),
-            const SizedBox(height: FacingTokens.sp3),
+            const SizedBox(height: HyphenTokens.sp3),
             Row(
               children: [
                 Expanded(
@@ -105,7 +105,7 @@ class _MemberRequestsScreenState extends State<MemberRequestsScreen> {
                     child: const Text('닫기'),
                   ),
                 ),
-                const SizedBox(width: FacingTokens.sp2),
+                const SizedBox(width: HyphenTokens.sp2),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () async {
@@ -169,7 +169,7 @@ class _MemberRequestsScreenState extends State<MemberRequestsScreen> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.all(FacingTokens.sp3),
+              padding: const EdgeInsets.all(HyphenTokens.sp3),
               child: SegmentedButton<String>(
                 segments: const [
                   ButtonSegment(value: 'open', label: Text('진행 중')),
@@ -191,21 +191,21 @@ class _MemberRequestsScreenState extends State<MemberRequestsScreen> {
                   if (snap.connectionState != ConnectionState.done) {
                     return const Center(
                       child: CircularProgressIndicator(
-                          color: FacingTokens.muted, strokeWidth: 2),
+                          color: HyphenTokens.muted, strokeWidth: 2),
                     );
                   }
                   final list = snap.data ?? const <MemberRequest>[];
                   if (list.isEmpty) {
                     return const Center(
                       child:
-                          Text('요청 없음.', style: FacingTokens.caption),
+                          Text('요청 없음.', style: HyphenTokens.caption),
                     );
                   }
                   return ListView.separated(
-                    padding: const EdgeInsets.all(FacingTokens.sp4),
+                    padding: const EdgeInsets.all(HyphenTokens.sp4),
                     itemCount: list.length,
                     separatorBuilder: (_, _) =>
-                        const SizedBox(height: FacingTokens.sp2),
+                        const SizedBox(height: HyphenTokens.sp2),
                     itemBuilder: (_, i) => _RequestRow(
                       req: list[i],
                       onTap: () => _respond(list[i]),
@@ -232,12 +232,12 @@ class _RequestRow extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(FacingTokens.sp3),
+        padding: const EdgeInsets.all(HyphenTokens.sp3),
         decoration: BoxDecoration(
-          color: FacingTokens.surface,
-          borderRadius: BorderRadius.circular(FacingTokens.r2),
+          color: HyphenTokens.surface,
+          borderRadius: BorderRadius.circular(HyphenTokens.r2),
           border: Border.all(
-            color: isOpen ? FacingTokens.accent : FacingTokens.border,
+            color: isOpen ? HyphenTokens.accent : HyphenTokens.border,
             width: isOpen ? 2 : 1,
           ),
         ),
@@ -248,51 +248,51 @@ class _RequestRow extends StatelessWidget {
               children: [
                 Text(
                   req.status.toUpperCase(),
-                  style: FacingTokens.microLabel.copyWith(
+                  style: HyphenTokens.microLabel.copyWith(
                     color: isOpen
-                        ? FacingTokens.accent
-                        : FacingTokens.muted,
+                        ? HyphenTokens.accent
+                        : HyphenTokens.muted,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                const SizedBox(width: FacingTokens.sp2),
+                const SizedBox(width: HyphenTokens.sp2),
                 Text('from ${req.fromHashPrefix}',
-                    style: FacingTokens.caption),
+                    style: HyphenTokens.caption),
                 const Spacer(),
                 if (req.wodPostId != null)
                   Text('WOD #${req.wodPostId}',
-                      style: FacingTokens.micro.copyWith(
-                          color: FacingTokens.muted)),
+                      style: HyphenTokens.micro.copyWith(
+                          color: HyphenTokens.muted)),
               ],
             ),
             if (req.subject.isNotEmpty) ...[
               const SizedBox(height: 2),
               Text(req.subject,
-                  style: FacingTokens.body
+                  style: HyphenTokens.body
                       .copyWith(fontWeight: FontWeight.w800)),
             ],
             const SizedBox(height: 2),
             Text(req.body,
-                style: FacingTokens.caption,
+                style: HyphenTokens.caption,
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis),
             if (req.coachResponse != null &&
                 req.coachResponse!.isNotEmpty) ...[
-              const SizedBox(height: FacingTokens.sp2),
+              const SizedBox(height: HyphenTokens.sp2),
               Container(
-                padding: const EdgeInsets.all(FacingTokens.sp2),
+                padding: const EdgeInsets.all(HyphenTokens.sp2),
                 decoration: BoxDecoration(
-                  color: FacingTokens.surfaceOverlay,
+                  color: HyphenTokens.surfaceOverlay,
                   borderRadius:
-                      BorderRadius.circular(FacingTokens.r1),
+                      BorderRadius.circular(HyphenTokens.r1),
                   border: const Border(
                     left: BorderSide(
-                        color: FacingTokens.accent, width: 2),
+                        color: HyphenTokens.accent, width: 2),
                   ),
                 ),
                 child: Text(
                   '[Coach] ${req.coachResponse}',
-                  style: FacingTokens.caption,
+                  style: HyphenTokens.caption,
                 ),
               ),
             ],

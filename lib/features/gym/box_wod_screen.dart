@@ -6,7 +6,7 @@ import '../../core/theme.dart';
 import '../../models/announcement.dart';
 import '../../models/gym.dart';
 import '../../widgets/coach_badge.dart';
-import '../../widgets/fkit.dart';
+import '../../widgets/hkit.dart';
 import '../announcements/announcements_state.dart';
 import '../../widgets/gym_info_card.dart';
 import '../../widgets/inbox_bell.dart';
@@ -25,7 +25,7 @@ class BoxWodScreen extends StatelessWidget {
 
     Widget body;
     if (gs.isLoading && !gs.hasGym) {
-      body = const FkLoading();
+      body = const HkLoading();
     } else if (!gs.hasGym) {
       body = const _NoGymEmpty();
     } else if (gs.membership.isPending) {
@@ -37,7 +37,7 @@ class BoxWodScreen extends StatelessWidget {
       body = _WodList(gymState: gs);
     }
 
-    // QA B-SEC-1: 박스명 'FACING' 스푸핑 가능. isOwner 단독 조건으로 강화.
+    // QA B-SEC-1: 박스명 'HYPHEN HQ' 스푸핑 가능. isOwner 단독 조건으로 강화.
     final canViewDashboard = gs.isOwner;
     return Scaffold(
       appBar: AppBar(
@@ -73,8 +73,8 @@ class BoxWodScreen extends StatelessWidget {
       body: SafeArea(child: body),
       floatingActionButton: gs.isOwner
           ? FloatingActionButton.extended(
-              backgroundColor: FacingTokens.accent,
-              foregroundColor: FacingTokens.fg,
+              backgroundColor: HyphenTokens.accent,
+              foregroundColor: HyphenTokens.fg,
               onPressed: () {
                 Haptic.medium();
                 Navigator.of(context).push(MaterialPageRoute(
@@ -89,7 +89,7 @@ class BoxWodScreen extends StatelessWidget {
   }
 }
 
-// _Centered 삭제 — FkLoading(widgets/fkit.dart)으로 대체 (v1.27 UI SSOT).
+// _Centered 삭제 — HkLoading(widgets/hkit.dart)으로 대체 (v1.27 UI SSOT).
 
 class _NoGymEmpty extends StatelessWidget {
   const _NoGymEmpty();
@@ -97,26 +97,26 @@ class _NoGymEmpty extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(FacingTokens.sp5),
+      padding: const EdgeInsets.all(HyphenTokens.sp5),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // v2.2 (H4): 빈 상태 제목이 12px 회색 sectionLabel 이라 히스토리 쪽
           // 빈 상태(h3 굵게)와 규격이 달랐다 — 같은 앱에서 "없음" 화면이 두
-          // 종류로 보였다 (링코 F7). FkEmptyState 와 같은 h3 + caption 으로 통일.
+          // 종류로 보였다 (링코 F7). HkEmptyState 와 같은 h3 + caption 으로 통일.
           const Text(
             '박스 미가입',
-            style: FacingTokens.h3,
+            style: HyphenTokens.h3,
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: FacingTokens.sp2),
+          const SizedBox(height: HyphenTokens.sp2),
           const Text(
             '박스 가입 시 코치 WOD 공개.',
-            style: FacingTokens.caption,
+            style: HyphenTokens.caption,
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: FacingTokens.sp5),
+          const SizedBox(height: HyphenTokens.sp5),
           // v2.6 (2026-08-13): '박스 찾기'·'박스 만들기(코치)' 삭제 — 1인 샵 전용이라
           // 찾을 목록도, 만들 두 번째 박스도 없다.
           // v2.7 (같은 날 사용자 지시): '가입 코드 입력' 도 삭제. 코드로 연결하면
@@ -125,7 +125,7 @@ class _NoGymEmpty extends StatelessWidget {
           const Text(
             '로그인 화면의 [박스 가입 신청] 으로 신청하면 '
             '코치가 승인한 뒤 이용할 수 있습니다.',
-            style: FacingTokens.caption,
+            style: HyphenTokens.caption,
             textAlign: TextAlign.center,
           ),
         ],
@@ -144,10 +144,10 @@ void _showCreateGymSheet(BuildContext context) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    backgroundColor: FacingTokens.surface,
+    backgroundColor: HyphenTokens.surface,
     shape: const RoundedRectangleBorder(
       borderRadius:
-          BorderRadius.vertical(top: Radius.circular(FacingTokens.r4)),
+          BorderRadius.vertical(top: Radius.circular(HyphenTokens.r4)),
     ),
     builder: (sheetCtx) {
       // /go 전수조사: 더블 탭 시 createGym API 중복 호출 방지 — _creating 플래그.
@@ -155,28 +155,28 @@ void _showCreateGymSheet(BuildContext context) {
       return StatefulBuilder(builder: (innerCtx, setSheet) {
         return Padding(
           padding: EdgeInsets.only(
-            left: FacingTokens.sp4,
-            right: FacingTokens.sp4,
-            top: FacingTokens.sp4,
+            left: HyphenTokens.sp4,
+            right: HyphenTokens.sp4,
+            top: HyphenTokens.sp4,
             bottom:
-                MediaQuery.of(sheetCtx).viewInsets.bottom + FacingTokens.sp4,
+                MediaQuery.of(sheetCtx).viewInsets.bottom + HyphenTokens.sp4,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('박스 만들기', style: FacingTokens.sectionLabel),
-              const SizedBox(height: FacingTokens.sp1),
+              const Text('박스 만들기', style: HyphenTokens.sectionLabel),
+              const SizedBox(height: HyphenTokens.sp1),
               const Text('코치가 자기 박스를 생성합니다.',
-                  style: FacingTokens.caption),
-              const SizedBox(height: FacingTokens.sp4),
+                  style: HyphenTokens.caption),
+              const SizedBox(height: HyphenTokens.sp4),
               TextField(
                 controller: nameCtrl,
                 enabled: !creating,
                 decoration: const InputDecoration(labelText: 'Box Name'),
                 maxLength: 80,
               ),
-              const SizedBox(height: FacingTokens.sp2),
+              const SizedBox(height: HyphenTokens.sp2),
               TextField(
                 controller: locCtrl,
                 enabled: !creating,
@@ -184,7 +184,7 @@ void _showCreateGymSheet(BuildContext context) {
                     labelText: 'Location (optional)'),
                 maxLength: 200,
               ),
-              const SizedBox(height: FacingTokens.sp4),
+              const SizedBox(height: HyphenTokens.sp4),
               ElevatedButton(
                 onPressed: creating
                     ? null
@@ -227,21 +227,21 @@ class _PendingState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(FacingTokens.sp5),
+      padding: const EdgeInsets.all(HyphenTokens.sp5),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('승인 대기', style: FacingTokens.sectionLabel),
-          const SizedBox(height: FacingTokens.sp2),
+          const Text('승인 대기', style: HyphenTokens.sectionLabel),
+          const SizedBox(height: HyphenTokens.sp2),
           Text(gym.name,
-              style: FacingTokens.h3.copyWith(fontWeight: FontWeight.w800)),
-          const SizedBox(height: FacingTokens.sp2),
+              style: HyphenTokens.h3.copyWith(fontWeight: FontWeight.w800)),
+          const SizedBox(height: HyphenTokens.sp2),
           const Text(
             '코치 승인 대기 중. 승인되면 오늘의 WOD 표시.',
-            style: FacingTokens.caption,
+            style: HyphenTokens.caption,
           ),
-          const SizedBox(height: FacingTokens.sp5),
+          const SizedBox(height: HyphenTokens.sp5),
           OutlinedButton(
             onPressed: () {
               Haptic.light();
@@ -262,19 +262,19 @@ class _RejectedState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(FacingTokens.sp5),
+      padding: const EdgeInsets.all(HyphenTokens.sp5),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('거절됨', style: FacingTokens.sectionLabel),
-          const SizedBox(height: FacingTokens.sp2),
-          Text(gym.name, style: FacingTokens.h3),
-          const SizedBox(height: FacingTokens.sp2),
+          const Text('거절됨', style: HyphenTokens.sectionLabel),
+          const SizedBox(height: HyphenTokens.sp2),
+          Text(gym.name, style: HyphenTokens.h3),
+          const SizedBox(height: HyphenTokens.sp2),
           // v2.6: 박스가 하나뿐이라 "다른 박스" 는 존재하지 않는다.
           // 거절 사유는 코치에게 직접 묻는 것이 유일한 다음 행동이다.
           const Text('가입이 승인되지 않았습니다. 코치에게 문의해 주세요.',
-              style: FacingTokens.caption),
+              style: HyphenTokens.caption),
         ],
       ),
     );
@@ -308,7 +308,7 @@ class _WodListState extends State<_WodList> {
     return RefreshIndicator(
       onRefresh: _refresh,
       child: ListView(
-        padding: const EdgeInsets.all(FacingTokens.sp3),
+        padding: const EdgeInsets.all(HyphenTokens.sp3),
         children: [
           // 불러오기가 실패한 날에도 요일 줄은 그려진다 — 그대로 두면 '게시된
           // WOD 없음' 으로 읽혀 코치가 안 올린 것처럼 보인다. 실패는 실패라고
@@ -318,15 +318,15 @@ class _WodListState extends State<_WodList> {
               message: widget.gymState.error!,
               onRetry: _refresh,
             ),
-            const SizedBox(height: FacingTokens.sp2),
+            const SizedBox(height: HyphenTokens.sp2),
           ],
           WeekBoard(
             key: ValueKey('week-$_tick'),
             gymState: widget.gymState,
           ),
           // 박스 정보·공지는 맨 아래 (자주 보는 것이 아니다 — 접힌 줄로 유지).
-          const SizedBox(height: FacingTokens.sp3),
-          const Divider(height: 1, color: FacingTokens.border, thickness: 1),
+          const SizedBox(height: HyphenTokens.sp3),
+          const Divider(height: 1, color: HyphenTokens.border, thickness: 1),
           _GymInfoAccordion(gym: gym),
           const _AnnouncementsAccordion(),
         ],
@@ -344,23 +344,23 @@ class _LoadErrorBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(left: FacingTokens.sp3),
+      padding: const EdgeInsets.only(left: HyphenTokens.sp3),
       decoration: BoxDecoration(
-        color: FacingTokens.surface,
-        border: Border.all(color: FacingTokens.warning),
-        borderRadius: BorderRadius.circular(FacingTokens.r2),
+        color: HyphenTokens.surface,
+        border: Border.all(color: HyphenTokens.warning),
+        borderRadius: BorderRadius.circular(HyphenTokens.r2),
       ),
       child: Row(
         children: [
           Expanded(
             child: Text(
               message,
-              style: FacingTokens.caption.copyWith(color: FacingTokens.warning),
+              style: HyphenTokens.caption.copyWith(color: HyphenTokens.warning),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          FkButton.tertiary('다시 시도', neutral: true, onPressed: onRetry),
+          HkButton.tertiary('다시 시도', neutral: true, onPressed: onRetry),
         ],
       ),
     );
@@ -386,11 +386,11 @@ class _AnnouncementsAccordion extends StatelessWidget {
     final preview = latest.title.isNotEmpty ? latest.title : latest.body;
 
     return Container(
-      margin: const EdgeInsets.only(top: FacingTokens.sp2),
+      margin: const EdgeInsets.only(top: HyphenTokens.sp2),
       decoration: BoxDecoration(
-        color: FacingTokens.surface,
-        border: Border.all(color: FacingTokens.border),
-        borderRadius: BorderRadius.circular(FacingTokens.r3),
+        color: HyphenTokens.surface,
+        border: Border.all(color: HyphenTokens.border),
+        borderRadius: BorderRadius.circular(HyphenTokens.r3),
       ),
       clipBehavior: Clip.antiAlias,
       child: Theme(
@@ -398,17 +398,17 @@ class _AnnouncementsAccordion extends StatelessWidget {
         child: ExpansionTile(
           initiallyExpanded: false,
           tilePadding: const EdgeInsets.symmetric(
-              horizontal: FacingTokens.sp3, vertical: 2),
+              horizontal: HyphenTokens.sp3, vertical: 2),
           childrenPadding: const EdgeInsets.fromLTRB(
-              FacingTokens.sp3, 0, FacingTokens.sp3, FacingTokens.sp3),
-          collapsedIconColor: FacingTokens.muted,
-          iconColor: FacingTokens.muted,
-          title: const Text('공지', style: FacingTokens.sectionLabel),
+              HyphenTokens.sp3, 0, HyphenTokens.sp3, HyphenTokens.sp3),
+          collapsedIconColor: HyphenTokens.muted,
+          iconColor: HyphenTokens.muted,
+          title: const Text('공지', style: HyphenTokens.sectionLabel),
           subtitle: Padding(
             padding: const EdgeInsets.only(top: 2),
             child: Text(
               preview,
-              style: FacingTokens.caption,
+              style: HyphenTokens.caption,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -432,7 +432,7 @@ class _AnnouncementRow extends StatelessWidget {
     final dateLabel =
         '${d.month.toString().padLeft(2, '0')}.${d.day.toString().padLeft(2, '0')}';
     return Padding(
-      padding: const EdgeInsets.only(bottom: FacingTokens.sp3),
+      padding: const EdgeInsets.only(bottom: HyphenTokens.sp3),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -440,27 +440,27 @@ class _AnnouncementRow extends StatelessWidget {
             children: [
               if (item.pinned) ...[
                 const Icon(Icons.push_pin_outlined,
-                    size: 14, color: FacingTokens.muted),
+                    size: 14, color: HyphenTokens.muted),
                 const SizedBox(width: 4),
               ],
               Expanded(
                 child: Text(
                   item.title.isNotEmpty ? item.title : '공지',
-                  style: FacingTokens.body
+                  style: HyphenTokens.body
                       .copyWith(fontWeight: FontWeight.w700),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const SizedBox(width: FacingTokens.sp2),
-              Text(dateLabel, style: FacingTokens.micro),
+              const SizedBox(width: HyphenTokens.sp2),
+              Text(dateLabel, style: HyphenTokens.micro),
             ],
           ),
           if (item.body.isNotEmpty) ...[
             const SizedBox(height: 2),
             Text(
               item.body,
-              style: FacingTokens.caption,
+              style: HyphenTokens.caption,
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
             ),
@@ -487,20 +487,20 @@ class _GymInfoAccordion extends StatelessWidget {
         initiallyExpanded: false,
         tilePadding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
         childrenPadding: EdgeInsets.zero,
-        collapsedIconColor: FacingTokens.muted,
-        iconColor: FacingTokens.muted,
-        title: const Text('박스 정보', style: FacingTokens.sectionLabel),
+        collapsedIconColor: HyphenTokens.muted,
+        iconColor: HyphenTokens.muted,
+        title: const Text('박스 정보', style: HyphenTokens.sectionLabel),
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 2),
           child: Text(
             sub,
-            style: FacingTokens.caption,
+            style: HyphenTokens.caption,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
         ),
         children: [
-          const SizedBox(height: FacingTokens.sp2),
+          const SizedBox(height: HyphenTokens.sp2),
           GymInfoCard(gym: gym, margin: EdgeInsets.zero),
         ],
       ),

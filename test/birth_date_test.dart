@@ -1,7 +1,7 @@
 // 생년월일 입력 서식·검증 (v2.6 · 2026-08-13 사용자 지시).
 // 코치 PC 명단의 '생년' 칸이 제각각이 되지 않도록 앱 입구에서 형식을 고정한다.
 import 'package:flutter_test/flutter_test.dart';
-import 'package:facing_app/core/input_formatters.dart';
+import 'package:hyphen_app/core/input_formatters.dart';
 
 String _format(String typed) {
   final f = BirthDateInputFormatter();

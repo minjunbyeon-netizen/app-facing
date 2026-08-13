@@ -79,7 +79,7 @@ class _RehabFlowScreenState extends State<RehabFlowScreen> {
         if (!didPop) _stepBack();
       },
       child: Scaffold(
-        backgroundColor: FacingTokens.bg,
+        backgroundColor: HyphenTokens.bg,
         appBar: AppBar(
           title: const Text('재활 감별'),
           leading: IconButton(
@@ -96,16 +96,16 @@ class _RehabFlowScreenState extends State<RehabFlowScreen> {
               if (snap.connectionState != ConnectionState.done) {
                 return const Center(
                   child: CircularProgressIndicator(
-                      color: FacingTokens.muted, strokeWidth: 2),
+                      color: HyphenTokens.muted, strokeWidth: 2),
                 );
               }
               final d = snap.data;
               if (snap.hasError || d == null || !d.isReady) {
                 return const Center(
                   child: Padding(
-                    padding: EdgeInsets.all(FacingTokens.sp5),
+                    padding: EdgeInsets.all(HyphenTokens.sp5),
                     child: Text('이 부위 감별은 준비 중이에요.',
-                        style: FacingTokens.caption),
+                        style: HyphenTokens.caption),
                   ),
                 );
               }
@@ -180,7 +180,7 @@ class _NodeView extends StatelessWidget {
     }
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(
-          FacingTokens.sp4, FacingTokens.sp4, FacingTokens.sp4, FacingTokens.sp7),
+          HyphenTokens.sp4, HyphenTokens.sp4, HyphenTokens.sp4, HyphenTokens.sp7),
       child: child,
     );
   }
@@ -192,9 +192,9 @@ class _NodeView extends StatelessWidget {
   }
 
   Widget _fallback() => const Padding(
-        padding: EdgeInsets.symmetric(vertical: FacingTokens.sp6),
+        padding: EdgeInsets.symmetric(vertical: HyphenTokens.sp6),
         child: Text('다음 단계 데이터 없음.',
-            style: FacingTokens.caption),
+            style: HyphenTokens.caption),
       );
 }
 
@@ -206,7 +206,7 @@ class _ContextLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text('${detail.movementName} · ${detail.painSiteName}',
-        style: FacingTokens.sectionLabel);
+        style: HyphenTokens.sectionLabel);
   }
 }
 
@@ -233,13 +233,13 @@ class _QuestionView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _ContextLine(detail: detail),
-        const SizedBox(height: FacingTokens.sp4),
-        Text(question.text, style: FacingTokens.h3),
+        const SizedBox(height: HyphenTokens.sp4),
+        Text(question.text, style: HyphenTokens.h3),
         if (question.sub != null && question.sub!.isNotEmpty) ...[
-          const SizedBox(height: FacingTokens.sp2),
-          Text(question.sub!, style: FacingTokens.caption),
+          const SizedBox(height: HyphenTokens.sp2),
+          Text(question.sub!, style: HyphenTokens.caption),
         ],
-        const SizedBox(height: FacingTokens.sp5),
+        const SizedBox(height: HyphenTokens.sp5),
         for (final c in question.choices)
           _ChoiceButton(label: c.text, onTap: () => onGo(c.next)),
       ],
@@ -256,25 +256,25 @@ class _ChoiceButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: FacingTokens.sp3),
+      padding: const EdgeInsets.only(bottom: HyphenTokens.sp3),
       child: Material(
-        color: FacingTokens.surface,
-        borderRadius: BorderRadius.circular(FacingTokens.r2),
+        color: HyphenTokens.surface,
+        borderRadius: BorderRadius.circular(HyphenTokens.r2),
         child: InkWell(
-          borderRadius: BorderRadius.circular(FacingTokens.r2),
+          borderRadius: BorderRadius.circular(HyphenTokens.r2),
           onTap: onTap,
           child: Container(
             decoration: BoxDecoration(
-              border: Border.all(color: FacingTokens.border),
-              borderRadius: BorderRadius.circular(FacingTokens.r2),
+              border: Border.all(color: HyphenTokens.border),
+              borderRadius: BorderRadius.circular(HyphenTokens.r2),
             ),
-            padding: const EdgeInsets.all(FacingTokens.sp4),
+            padding: const EdgeInsets.all(HyphenTokens.sp4),
             child: Row(
               children: [
-                Expanded(child: Text(label, style: FacingTokens.body)),
-                const SizedBox(width: FacingTokens.sp2),
+                Expanded(child: Text(label, style: HyphenTokens.body)),
+                const SizedBox(width: HyphenTokens.sp2),
                 const Icon(Icons.chevron_right,
-                    size: 20, color: FacingTokens.muted),
+                    size: 20, color: HyphenTokens.muted),
               ],
             ),
           ),
@@ -305,32 +305,32 @@ class _TestView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _ContextLine(detail: detail),
-        const SizedBox(height: FacingTokens.sp4),
-        Text('자가 테스트', style: FacingTokens.sectionLabel),
-        const SizedBox(height: FacingTokens.sp2),
-        Text(test.name, style: FacingTokens.h3),
+        const SizedBox(height: HyphenTokens.sp4),
+        Text('자가 테스트', style: HyphenTokens.sectionLabel),
+        const SizedBox(height: HyphenTokens.sp2),
+        Text(test.name, style: HyphenTokens.h3),
         if (test.purpose.isNotEmpty) ...[
-          const SizedBox(height: FacingTokens.sp3),
-          Text(test.purpose, style: FacingTokens.body),
+          const SizedBox(height: HyphenTokens.sp3),
+          Text(test.purpose, style: HyphenTokens.body),
         ],
-        const SizedBox(height: FacingTokens.sp4),
+        const SizedBox(height: HyphenTokens.sp4),
         _NumberedSteps(steps: test.steps),
         if (test.note != null && test.note!.isNotEmpty) ...[
-          const SizedBox(height: FacingTokens.sp4),
+          const SizedBox(height: HyphenTokens.sp4),
           _NoteBox(text: test.note!),
         ],
-        const SizedBox(height: FacingTokens.sp5),
-        Text('결과 선택', style: FacingTokens.sectionLabel),
-        const SizedBox(height: FacingTokens.sp3),
+        const SizedBox(height: HyphenTokens.sp5),
+        Text('결과 선택', style: HyphenTokens.sectionLabel),
+        const SizedBox(height: HyphenTokens.sp3),
         _OutcomeButton(
           label: test.passText,
-          color: FacingTokens.success,
+          color: HyphenTokens.success,
           onTap: () => onGo(test.passNext),
         ),
-        const SizedBox(height: FacingTokens.sp3),
+        const SizedBox(height: HyphenTokens.sp3),
         _OutcomeButton(
           label: test.failText,
-          color: FacingTokens.warning,
+          color: HyphenTokens.warning,
           onTap: () => onGo(test.failNext),
         ),
       ],
@@ -349,17 +349,17 @@ class _OutcomeButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: FacingTokens.surface,
-      borderRadius: BorderRadius.circular(FacingTokens.r2),
+      color: HyphenTokens.surface,
+      borderRadius: BorderRadius.circular(HyphenTokens.r2),
       child: InkWell(
-        borderRadius: BorderRadius.circular(FacingTokens.r2),
+        borderRadius: BorderRadius.circular(HyphenTokens.r2),
         onTap: onTap,
         child: Container(
           decoration: BoxDecoration(
             border: Border.all(color: color.withValues(alpha: 0.5)),
-            borderRadius: BorderRadius.circular(FacingTokens.r2),
+            borderRadius: BorderRadius.circular(HyphenTokens.r2),
           ),
-          padding: const EdgeInsets.all(FacingTokens.sp4),
+          padding: const EdgeInsets.all(HyphenTokens.sp4),
           child: Row(
             children: [
               Container(
@@ -367,10 +367,10 @@ class _OutcomeButton extends StatelessWidget {
                 height: 8,
                 decoration: BoxDecoration(color: color, shape: BoxShape.circle),
               ),
-              const SizedBox(width: FacingTokens.sp3),
-              Expanded(child: Text(label, style: FacingTokens.body)),
+              const SizedBox(width: HyphenTokens.sp3),
+              Expanded(child: Text(label, style: HyphenTokens.body)),
               const Icon(Icons.chevron_right,
-                  size: 20, color: FacingTokens.muted),
+                  size: 20, color: HyphenTokens.muted),
             ],
           ),
         ),
@@ -404,11 +404,11 @@ class _DangerView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Container(
-          padding: const EdgeInsets.all(FacingTokens.sp4),
+          padding: const EdgeInsets.all(HyphenTokens.sp4),
           decoration: BoxDecoration(
-            color: FacingTokens.danger.withValues(alpha: 0.12),
-            border: Border.all(color: FacingTokens.danger.withValues(alpha: 0.5)),
-            borderRadius: BorderRadius.circular(FacingTokens.r2),
+            color: HyphenTokens.danger.withValues(alpha: 0.12),
+            border: Border.all(color: HyphenTokens.danger.withValues(alpha: 0.5)),
+            borderRadius: BorderRadius.circular(HyphenTokens.r2),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -416,42 +416,42 @@ class _DangerView extends StatelessWidget {
               Row(
                 children: [
                   const Icon(Icons.warning_amber_rounded,
-                      size: 22, color: FacingTokens.danger),
-                  const SizedBox(width: FacingTokens.sp2),
+                      size: 22, color: HyphenTokens.danger),
+                  const SizedBox(width: HyphenTokens.sp2),
                   Expanded(
                     child: Text(title,
-                        style: FacingTokens.h3
-                            .copyWith(color: FacingTokens.danger)),
+                        style: HyphenTokens.h3
+                            .copyWith(color: HyphenTokens.danger)),
                   ),
                 ],
               ),
               if (reason.isNotEmpty) ...[
-                const SizedBox(height: FacingTokens.sp3),
-                Text(reason, style: FacingTokens.body),
+                const SizedBox(height: HyphenTokens.sp3),
+                Text(reason, style: HyphenTokens.body),
               ],
             ],
           ),
         ),
         if (action.isNotEmpty) ...[
-          const SizedBox(height: FacingTokens.sp4),
-          Text('권장 조치', style: FacingTokens.sectionLabel),
-          const SizedBox(height: FacingTokens.sp2),
+          const SizedBox(height: HyphenTokens.sp4),
+          Text('권장 조치', style: HyphenTokens.sectionLabel),
+          const SizedBox(height: HyphenTokens.sp2),
           Container(
-            padding: const EdgeInsets.all(FacingTokens.sp4),
+            padding: const EdgeInsets.all(HyphenTokens.sp4),
             decoration: BoxDecoration(
-              color: FacingTokens.surface,
-              border: Border.all(color: FacingTokens.border),
-              borderRadius: BorderRadius.circular(FacingTokens.r2),
+              color: HyphenTokens.surface,
+              border: Border.all(color: HyphenTokens.border),
+              borderRadius: BorderRadius.circular(HyphenTokens.r2),
             ),
-            child: Text(action, style: FacingTokens.body),
+            child: Text(action, style: HyphenTokens.body),
           ),
         ],
-        const SizedBox(height: FacingTokens.sp6),
+        const SizedBox(height: HyphenTokens.sp6),
         OutlinedButton(
           onPressed: onRestart,
           child: const Text('처음부터 다시'),
         ),
-        const SizedBox(height: FacingTokens.sp2),
+        const SizedBox(height: HyphenTokens.sp2),
         TextButton(
           onPressed: onClose,
           child: const Text('닫기'),
@@ -482,65 +482,65 @@ class _CauseView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _ContextLine(detail: detail),
-        const SizedBox(height: FacingTokens.sp4),
+        const SizedBox(height: HyphenTokens.sp4),
         Row(
           children: [
             Container(
               padding: const EdgeInsets.symmetric(
-                  horizontal: FacingTokens.sp2, vertical: 3),
+                  horizontal: HyphenTokens.sp2, vertical: 3),
               decoration: BoxDecoration(
-                color: FacingTokens.primary.withValues(alpha: 0.14),
-                borderRadius: BorderRadius.circular(FacingTokens.r1),
+                color: HyphenTokens.primary.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(HyphenTokens.r1),
               ),
               child: Text(
                 cause.label.isEmpty ? '원인' : cause.label,
-                style: FacingTokens.micro.copyWith(
-                    color: FacingTokens.primary, fontWeight: FontWeight.w700),
+                style: HyphenTokens.micro.copyWith(
+                    color: HyphenTokens.primary, fontWeight: FontWeight.w700),
               ),
             ),
             if (cause.tag.isNotEmpty) ...[
-              const SizedBox(width: FacingTokens.sp2),
+              const SizedBox(width: HyphenTokens.sp2),
               Flexible(
                 child: Text(cause.tag,
-                    style: FacingTokens.micro, overflow: TextOverflow.ellipsis),
+                    style: HyphenTokens.micro, overflow: TextOverflow.ellipsis),
               ),
             ],
           ],
         ),
-        const SizedBox(height: FacingTokens.sp3),
-        Text(cause.name, style: FacingTokens.h3),
+        const SizedBox(height: HyphenTokens.sp3),
+        Text(cause.name, style: HyphenTokens.h3),
         if (cause.description.isNotEmpty) ...[
-          const SizedBox(height: FacingTokens.sp3),
-          Text(cause.description, style: FacingTokens.body),
+          const SizedBox(height: HyphenTokens.sp3),
+          Text(cause.description, style: HyphenTokens.body),
         ],
         if (cause.priorityNote != null && cause.priorityNote!.isNotEmpty) ...[
-          const SizedBox(height: FacingTokens.sp4),
+          const SizedBox(height: HyphenTokens.sp4),
           Container(
-            padding: const EdgeInsets.all(FacingTokens.sp3),
+            padding: const EdgeInsets.all(HyphenTokens.sp3),
             decoration: BoxDecoration(
-              color: FacingTokens.info.withValues(alpha: 0.1),
-              border: Border.all(color: FacingTokens.info.withValues(alpha: 0.35)),
-              borderRadius: BorderRadius.circular(FacingTokens.r2),
+              color: HyphenTokens.info.withValues(alpha: 0.1),
+              border: Border.all(color: HyphenTokens.info.withValues(alpha: 0.35)),
+              borderRadius: BorderRadius.circular(HyphenTokens.r2),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Icon(Icons.priority_high_rounded,
-                    size: 18, color: FacingTokens.info),
-                const SizedBox(width: FacingTokens.sp2),
+                    size: 18, color: HyphenTokens.info),
+                const SizedBox(width: HyphenTokens.sp2),
                 Expanded(
-                  child: Text(cause.priorityNote!, style: FacingTokens.caption),
+                  child: Text(cause.priorityNote!, style: HyphenTokens.caption),
                 ),
               ],
             ),
           ),
         ],
-        const SizedBox(height: FacingTokens.sp5),
-        Text('재활 루트', style: FacingTokens.sectionLabel),
-        const SizedBox(height: FacingTokens.sp3),
+        const SizedBox(height: HyphenTokens.sp5),
+        Text('재활 루트', style: HyphenTokens.sectionLabel),
+        const SizedBox(height: HyphenTokens.sp3),
         for (var i = 0; i < cause.stages.length; i++)
           _StageCard(index: i + 1, stage: cause.stages[i]),
-        const SizedBox(height: FacingTokens.sp5),
+        const SizedBox(height: HyphenTokens.sp5),
         OutlinedButton(
           onPressed: onRestart,
           child: const Text('처음부터 다시'),
@@ -559,12 +559,12 @@ class _StageCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: FacingTokens.sp3),
-      padding: const EdgeInsets.all(FacingTokens.sp4),
+      margin: const EdgeInsets.only(bottom: HyphenTokens.sp3),
+      padding: const EdgeInsets.all(HyphenTokens.sp4),
       decoration: BoxDecoration(
-        color: FacingTokens.surface,
-        border: Border.all(color: FacingTokens.border),
-        borderRadius: BorderRadius.circular(FacingTokens.r2),
+        color: HyphenTokens.surface,
+        border: Border.all(color: HyphenTokens.border),
+        borderRadius: BorderRadius.circular(HyphenTokens.r2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -576,20 +576,20 @@ class _StageCard extends StatelessWidget {
                 height: 24,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: FacingTokens.surfaceMax,
-                  borderRadius: BorderRadius.circular(FacingTokens.r1),
+                  color: HyphenTokens.surfaceMax,
+                  borderRadius: BorderRadius.circular(HyphenTokens.r1),
                 ),
                 child: Text('$index',
-                    style: FacingTokens.micro
-                        .copyWith(color: FacingTokens.fg)),
+                    style: HyphenTokens.micro
+                        .copyWith(color: HyphenTokens.fg)),
               ),
-              const SizedBox(width: FacingTokens.sp3),
-              Expanded(child: Text(stage.name, style: FacingTokens.h3)),
+              const SizedBox(width: HyphenTokens.sp3),
+              Expanded(child: Text(stage.name, style: HyphenTokens.h3)),
               if (stage.duration != null && stage.duration!.isNotEmpty)
-                Text(stage.duration!, style: FacingTokens.micro),
+                Text(stage.duration!, style: HyphenTokens.micro),
             ],
           ),
-          const SizedBox(height: FacingTokens.sp3),
+          const SizedBox(height: HyphenTokens.sp3),
           ..._body(),
         ],
       ),
@@ -606,43 +606,43 @@ class _StageCard extends StatelessWidget {
         return [
           for (final item in stage.checklist)
             Padding(
-              padding: const EdgeInsets.only(bottom: FacingTokens.sp2),
+              padding: const EdgeInsets.only(bottom: HyphenTokens.sp2),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Icon(Icons.check_circle_outline,
-                      size: 18, color: FacingTokens.success),
-                  const SizedBox(width: FacingTokens.sp2),
-                  Expanded(child: Text(item, style: FacingTokens.body)),
+                      size: 18, color: HyphenTokens.success),
+                  const SizedBox(width: HyphenTokens.sp2),
+                  Expanded(child: Text(item, style: HyphenTokens.body)),
                 ],
               ),
             ),
           if (stage.passNote != null && stage.passNote!.isNotEmpty) ...[
-            const SizedBox(height: FacingTokens.sp2),
+            const SizedBox(height: HyphenTokens.sp2),
             Text(stage.passNote!,
-                style: FacingTokens.caption
-                    .copyWith(color: FacingTokens.success)),
+                style: HyphenTokens.caption
+                    .copyWith(color: HyphenTokens.success)),
           ],
           if (stage.failNote != null && stage.failNote!.isNotEmpty) ...[
-            const SizedBox(height: FacingTokens.sp1),
+            const SizedBox(height: HyphenTokens.sp1),
             Text(stage.failNote!,
-                style: FacingTokens.caption
-                    .copyWith(color: FacingTokens.warning)),
+                style: HyphenTokens.caption
+                    .copyWith(color: HyphenTokens.warning)),
           ],
         ];
       case RehabStageKind.tips:
         return [
           for (final t in stage.tips)
             Padding(
-              padding: const EdgeInsets.only(bottom: FacingTokens.sp3),
+              padding: const EdgeInsets.only(bottom: HyphenTokens.sp3),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(t.title,
-                      style: FacingTokens.body
+                      style: HyphenTokens.body
                           .copyWith(fontWeight: FontWeight.w700)),
                   const SizedBox(height: 2),
-                  Text(t.body, style: FacingTokens.caption),
+                  Text(t.body, style: HyphenTokens.caption),
                 ],
               ),
             ),
@@ -667,22 +667,22 @@ class _ExerciseTileState extends State<_ExerciseTile> {
   Widget build(BuildContext context) {
     final e = widget.exercise;
     return Container(
-      margin: const EdgeInsets.only(bottom: FacingTokens.sp2),
+      margin: const EdgeInsets.only(bottom: HyphenTokens.sp2),
       decoration: BoxDecoration(
-        color: FacingTokens.surfaceHigh,
-        borderRadius: BorderRadius.circular(FacingTokens.r2),
+        color: HyphenTokens.surfaceHigh,
+        borderRadius: BorderRadius.circular(HyphenTokens.r2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           InkWell(
-            borderRadius: BorderRadius.circular(FacingTokens.r2),
+            borderRadius: BorderRadius.circular(HyphenTokens.r2),
             onTap: () {
               Haptic.light();
               setState(() => _open = !_open);
             },
             child: Padding(
-              padding: const EdgeInsets.all(FacingTokens.sp3),
+              padding: const EdgeInsets.all(HyphenTokens.sp3),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -691,34 +691,34 @@ class _ExerciseTileState extends State<_ExerciseTile> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(e.name,
-                            style: FacingTokens.body
+                            style: HyphenTokens.body
                                 .copyWith(fontWeight: FontWeight.w700)),
                         if (e.sets.isNotEmpty) ...[
                           const SizedBox(height: 2),
-                          Text(e.sets, style: FacingTokens.micro),
+                          Text(e.sets, style: HyphenTokens.micro),
                         ],
                       ],
                     ),
                   ),
                   Icon(_open ? Icons.expand_less : Icons.expand_more,
-                      size: 20, color: FacingTokens.muted),
+                      size: 20, color: HyphenTokens.muted),
                 ],
               ),
             ),
           ),
           if (_open)
             Padding(
-              padding: const EdgeInsets.fromLTRB(FacingTokens.sp3, 0,
-                  FacingTokens.sp3, FacingTokens.sp3),
+              padding: const EdgeInsets.fromLTRB(HyphenTokens.sp3, 0,
+                  HyphenTokens.sp3, HyphenTokens.sp3),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (e.why.isNotEmpty) _Labeled(label: '왜', body: e.why),
                   if (e.cue.isNotEmpty) _Labeled(label: '큐', body: e.cue),
                   if (e.how.isNotEmpty) ...[
-                    const SizedBox(height: FacingTokens.sp2),
-                    Text('방법', style: FacingTokens.sectionLabel),
-                    const SizedBox(height: FacingTokens.sp2),
+                    const SizedBox(height: HyphenTokens.sp2),
+                    Text('방법', style: HyphenTokens.sectionLabel),
+                    const SizedBox(height: HyphenTokens.sp2),
                     _NumberedSteps(steps: e.how),
                   ],
                 ],
@@ -738,16 +738,16 @@ class _Labeled extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: FacingTokens.sp2),
+      padding: const EdgeInsets.only(bottom: HyphenTokens.sp2),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
             width: 28,
-            child: Text(label, style: FacingTokens.sectionLabel),
+            child: Text(label, style: HyphenTokens.sectionLabel),
           ),
-          const SizedBox(width: FacingTokens.sp2),
-          Expanded(child: Text(body, style: FacingTokens.caption)),
+          const SizedBox(width: HyphenTokens.sp2),
+          Expanded(child: Text(body, style: HyphenTokens.caption)),
         ],
       ),
     );
@@ -769,15 +769,15 @@ class _NumberedSteps extends StatelessWidget {
       children: [
         for (var i = 0; i < steps.length; i++)
           Padding(
-            padding: const EdgeInsets.only(bottom: FacingTokens.sp2),
+            padding: const EdgeInsets.only(bottom: HyphenTokens.sp2),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('${i + 1}',
-                    style: FacingTokens.micro
-                        .copyWith(color: FacingTokens.muted)),
-                const SizedBox(width: FacingTokens.sp3),
-                Expanded(child: Text(steps[i], style: FacingTokens.caption)),
+                    style: HyphenTokens.micro
+                        .copyWith(color: HyphenTokens.muted)),
+                const SizedBox(width: HyphenTokens.sp3),
+                Expanded(child: Text(steps[i], style: HyphenTokens.caption)),
               ],
             ),
           ),
@@ -793,17 +793,17 @@ class _NoteBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(FacingTokens.sp3),
+      padding: const EdgeInsets.all(HyphenTokens.sp3),
       decoration: BoxDecoration(
-        color: FacingTokens.surfaceHigh,
-        borderRadius: BorderRadius.circular(FacingTokens.r2),
+        color: HyphenTokens.surfaceHigh,
+        borderRadius: BorderRadius.circular(HyphenTokens.r2),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.info_outline, size: 18, color: FacingTokens.muted),
-          const SizedBox(width: FacingTokens.sp2),
-          Expanded(child: Text(text, style: FacingTokens.caption)),
+          const Icon(Icons.info_outline, size: 18, color: HyphenTokens.muted),
+          const SizedBox(width: HyphenTokens.sp2),
+          Expanded(child: Text(text, style: HyphenTokens.caption)),
         ],
       ),
     );

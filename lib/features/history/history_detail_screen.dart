@@ -33,30 +33,30 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
         future: _future,
         builder: (ctx, snap) {
           if (snap.connectionState != ConnectionState.done) {
-            return const Center(child: Text('불러오는 중', style: FacingTokens.body));
+            return const Center(child: Text('불러오는 중', style: HyphenTokens.body));
           }
           if (snap.hasError) {
             // /go 전수조사: 원본 exception toString 노출 차단.
             final e = snap.error;
             final msg = e is AppException ? e.messageKo : '기록 로딩 실패.';
             return Padding(
-              padding: const EdgeInsets.all(FacingTokens.sp4),
-              child: Text(msg, style: FacingTokens.body),
+              padding: const EdgeInsets.all(HyphenTokens.sp4),
+              child: Text(msg, style: HyphenTokens.body),
             );
           }
           // QA B-FB-4: snap.data null 방어.
           final d = snap.data;
           if (d == null) {
             return const Padding(
-              padding: EdgeInsets.all(FacingTokens.sp4),
-              child: Text('History 데이터 없음.', style: FacingTokens.body),
+              padding: EdgeInsets.all(HyphenTokens.sp4),
+              child: Text('History 데이터 없음.', style: HyphenTokens.body),
             );
           }
           final wodRaw = d['wod'];
           if (wodRaw is! Map<String, dynamic>) {
             return const Padding(
-              padding: EdgeInsets.all(FacingTokens.sp4),
-              child: Text('History 형식 오류.', style: FacingTokens.body),
+              padding: EdgeInsets.all(HyphenTokens.sp4),
+              child: Text('History 형식 오류.', style: HyphenTokens.body),
             );
           }
           final wod = wodRaw;
@@ -64,38 +64,38 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
               ? d['plan'] as Map<String, dynamic>
               : null;
           return ListView(
-            padding: const EdgeInsets.all(FacingTokens.sp4),
+            padding: const EdgeInsets.all(HyphenTokens.sp4),
             children: [
               Text(wodTypeLabel((wod['wod_type'] ?? '').toString()),
-                  style: FacingTokens.h3),
-              const SizedBox(height: FacingTokens.sp1),
+                  style: HyphenTokens.h3),
+              const SizedBox(height: HyphenTokens.sp1),
               Text(_formatDate(wod['created_at']?.toString()),
-                  style: FacingTokens.caption),
-              const SizedBox(height: FacingTokens.sp4),
+                  style: HyphenTokens.caption),
+              const SizedBox(height: HyphenTokens.sp4),
               if (plan != null) ...[
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.baseline,
                   textBaseline: TextBaseline.alphabetic,
                   children: [
                     Text(_fmtTime(plan['estimated_total_sec']),
-                        style: FacingTokens.display),
-                    const SizedBox(width: FacingTokens.sp2),
-                    const Text('예상', style: FacingTokens.caption),
+                        style: HyphenTokens.display),
+                    const SizedBox(width: HyphenTokens.sp2),
+                    const Text('예상', style: HyphenTokens.caption),
                   ],
                 ),
                 if (plan['grade'] != null)
                   Text('Grade ${plan['grade']}',
-                      style: FacingTokens.caption),
-                const SizedBox(height: FacingTokens.sp5),
+                      style: HyphenTokens.caption),
+                const SizedBox(height: HyphenTokens.sp5),
                 ...((plan['segments'] as List? ?? const []))
                     .whereType<Map<String, dynamic>>()
                     .map((s) => _SegmentCard(seg: s)),
               ] else
                 const Text('페이싱 플랜 없음.',
-                    style: FacingTokens.caption),
-              const SizedBox(height: FacingTokens.sp5),
-              const Text('항목', style: FacingTokens.sectionLabel),
-              const SizedBox(height: FacingTokens.sp2),
+                    style: HyphenTokens.caption),
+              const SizedBox(height: HyphenTokens.sp5),
+              const Text('항목', style: HyphenTokens.sectionLabel),
+              const SizedBox(height: HyphenTokens.sp2),
               ...((wod['items'] as List? ?? const []))
                   .whereType<Map<String, dynamic>>()
                   .map((it) => _ItemLine(it: it)),
@@ -119,14 +119,14 @@ class _SegmentCard extends StatelessWidget {
         .map((n) => n.toInt())
         .toList();
     return Container(
-      margin: const EdgeInsets.only(bottom: FacingTokens.sp3),
-      padding: const EdgeInsets.all(FacingTokens.sp4),
+      margin: const EdgeInsets.only(bottom: HyphenTokens.sp3),
+      padding: const EdgeInsets.all(HyphenTokens.sp4),
       decoration: BoxDecoration(
         border: Border.all(
-          color: isExplosion ? FacingTokens.accent : FacingTokens.border,
+          color: isExplosion ? HyphenTokens.accent : HyphenTokens.border,
           width: isExplosion ? 2 : 1,
         ),
-        borderRadius: BorderRadius.circular(FacingTokens.r3),
+        borderRadius: BorderRadius.circular(HyphenTokens.r3),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -135,19 +135,19 @@ class _SegmentCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text((seg['movement_slug'] ?? '').toString(),
-                  style: FacingTokens.h3),
-              Text(_fmtTime(seg['estimated_sec']), style: FacingTokens.lead),
+                  style: HyphenTokens.h3),
+              Text(_fmtTime(seg['estimated_sec']), style: HyphenTokens.lead),
             ],
           ),
-          const SizedBox(height: FacingTokens.sp3),
+          const SizedBox(height: HyphenTokens.sp3),
           if (splits.isNotEmpty)
-            Text(splits.join('-'), style: FacingTokens.h1),
+            Text(splits.join('-'), style: HyphenTokens.h1),
           if (seg['target_pace_sec_per_500m'] != null)
             Text('${seg['target_pace_sec_per_500m']}s / 500m',
-                style: FacingTokens.h3),
-          const SizedBox(height: FacingTokens.sp2),
+                style: HyphenTokens.h3),
+          const SizedBox(height: HyphenTokens.sp2),
           Text((seg['rationale_ko'] ?? '').toString(),
-              style: FacingTokens.caption),
+              style: HyphenTokens.caption),
         ],
       ),
     );
@@ -170,14 +170,14 @@ class _ItemLine extends StatelessWidget {
     if (dist != null) parts.add('${dist}m');
     if (load != null) parts.add('$load $unit');
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp1),
+      padding: const EdgeInsets.symmetric(vertical: HyphenTokens.sp1),
       child: Row(
         children: [
           Expanded(
               child: Text(name,
-                  style: FacingTokens.body
+                  style: HyphenTokens.body
                       .copyWith(fontWeight: FontWeight.w700))),
-          Text(parts.join(' · '), style: FacingTokens.caption),
+          Text(parts.join(' · '), style: HyphenTokens.caption),
         ],
       ),
     );

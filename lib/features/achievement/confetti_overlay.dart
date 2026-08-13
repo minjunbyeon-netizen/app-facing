@@ -78,14 +78,14 @@ class _ConfettiAnimState extends State<_ConfettiAnim>
   Color _rarityColor() {
     switch (widget.rarity) {
       case 'Rare':
-        return FacingTokens.accent;
+        return HyphenTokens.accent;
       case 'Epic':
-        return FacingTokens.tierElite;
+        return HyphenTokens.tierElite;
       case 'Legendary':
-        return FacingTokens.tierGames;
+        return HyphenTokens.tierGames;
       case 'Common':
       default:
-        return FacingTokens.fg;
+        return HyphenTokens.fg;
     }
   }
 
@@ -153,7 +153,7 @@ class _ConfettiPainter extends CustomPainter {
       final y = cy + p.startY + p.vy * dt + 0.5 * gravity * dt * dt;
       final fade = (1.0 - t).clamp(0.0, 1.0);
       final paint = Paint()
-        ..color = (p.kind == 1 ? FacingTokens.success : tint)
+        ..color = (p.kind == 1 ? HyphenTokens.success : tint)
             .withValues(alpha: fade);
       canvas.save();
       canvas.translate(x, y);

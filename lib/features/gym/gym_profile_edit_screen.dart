@@ -88,7 +88,7 @@ class _GymProfileEditScreenState extends State<GymProfileEditScreen> {
                     width: 16,
                     height: 16,
                     child: CircularProgressIndicator(
-                        color: FacingTokens.fg, strokeWidth: 2),
+                        color: HyphenTokens.fg, strokeWidth: 2),
                   )
                 : const Text('저장'),
           ),
@@ -97,17 +97,17 @@ class _GymProfileEditScreenState extends State<GymProfileEditScreen> {
       body: SafeArea(
         child: gym == null
             ? const Center(
-                child: Text('박스 정보 없음.', style: FacingTokens.caption),
+                child: Text('박스 정보 없음.', style: HyphenTokens.caption),
               )
             : ListView(
-                padding: const EdgeInsets.all(FacingTokens.sp4),
+                padding: const EdgeInsets.all(HyphenTokens.sp4),
                 children: [
                   Text(gym.name,
-                      style: FacingTokens.h3
+                      style: HyphenTokens.h3
                           .copyWith(fontWeight: FontWeight.w800)),
-                  const SizedBox(height: FacingTokens.sp1),
-                  Text(gym.location, style: FacingTokens.caption),
-                  const SizedBox(height: FacingTokens.sp5),
+                  const SizedBox(height: HyphenTokens.sp1),
+                  Text(gym.location, style: HyphenTokens.caption),
+                  const SizedBox(height: HyphenTokens.sp5),
                   _Field(
                     label: '전화',
                     controller: _phone,
@@ -140,12 +140,12 @@ class _GymProfileEditScreenState extends State<GymProfileEditScreen> {
                   _Field(
                     label: '인스타그램',
                     controller: _instagram,
-                    hint: '@facing.seongsu',
+                    hint: '@hyphen.seongsu',
                   ),
-                  const SizedBox(height: FacingTokens.sp5),
+                  const SizedBox(height: HyphenTokens.sp5),
                   Text(
                     '저장하면 NOTICE 탭과 공지 화면 상단 카드에 바로 반영돼요.',
-                    style: FacingTokens.caption,
+                    style: HyphenTokens.caption,
                   ),
                 ],
               ),
@@ -172,34 +172,34 @@ class _Field extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: FacingTokens.sp4),
+      padding: const EdgeInsets.only(bottom: HyphenTokens.sp4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: FacingTokens.sectionLabel),
-          const SizedBox(height: FacingTokens.sp1),
+          Text(label, style: HyphenTokens.sectionLabel),
+          const SizedBox(height: HyphenTokens.sp1),
           TextField(
             controller: controller,
             maxLines: maxLines,
             keyboardType: keyboardType,
-            style: FacingTokens.body,
+            style: HyphenTokens.body,
             decoration: InputDecoration(
               hintText: hint,
               hintStyle:
-                  FacingTokens.body.copyWith(color: FacingTokens.muted),
+                  HyphenTokens.body.copyWith(color: HyphenTokens.muted),
               filled: true,
-              fillColor: FacingTokens.bg,
+              fillColor: HyphenTokens.bg,
               contentPadding: const EdgeInsets.symmetric(
-                horizontal: FacingTokens.sp3,
-                vertical: FacingTokens.sp3,
+                horizontal: HyphenTokens.sp3,
+                vertical: HyphenTokens.sp3,
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(FacingTokens.r2),
-                borderSide: const BorderSide(color: FacingTokens.border),
+                borderRadius: BorderRadius.circular(HyphenTokens.r2),
+                borderSide: const BorderSide(color: HyphenTokens.border),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(FacingTokens.r2),
-                borderSide: const BorderSide(color: FacingTokens.accent),
+                borderRadius: BorderRadius.circular(HyphenTokens.r2),
+                borderSide: const BorderSide(color: HyphenTokens.accent),
               ),
             ),
           ),

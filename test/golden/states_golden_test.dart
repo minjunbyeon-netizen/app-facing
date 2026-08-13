@@ -3,12 +3,12 @@ import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:facing_app/core/quotes.dart';
-import 'package:facing_app/features/gym/gym_repository.dart';
-import 'package:facing_app/features/gym/gym_state.dart';
-import 'package:facing_app/features/history/history_screen.dart';
-import 'package:facing_app/features/home/home_screen.dart';
-import 'package:facing_app/features/shell/main_shell.dart';
+import 'package:hyphen_app/core/quotes.dart';
+import 'package:hyphen_app/features/gym/gym_repository.dart';
+import 'package:hyphen_app/features/gym/gym_state.dart';
+import 'package:hyphen_app/features/history/history_screen.dart';
+import 'package:hyphen_app/features/home/home_screen.dart';
+import 'package:hyphen_app/features/shell/main_shell.dart';
 
 import 'fakes.dart';
 import 'harness.dart';

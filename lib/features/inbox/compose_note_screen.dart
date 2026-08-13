@@ -11,7 +11,7 @@ import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/coach_group.dart';
 import '../../widgets/coach_badge.dart';
-import '../../widgets/fkit.dart';
+import '../../widgets/hkit.dart';
 import '../../models/coach_note.dart';
 import '../gym/gym_state.dart';
 import 'group_management_screen.dart';
@@ -81,27 +81,27 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
       ok = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: FacingTokens.surface,
+      backgroundColor: HyphenTokens.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
-          top: Radius.circular(FacingTokens.r4),
+          top: Radius.circular(HyphenTokens.r4),
         ),
       ),
       builder: (ctx) => StatefulBuilder(builder: (innerCtx, setSheet) {
         return Padding(
           padding: EdgeInsets.only(
-            left: FacingTokens.sp4,
-            right: FacingTokens.sp4,
-            top: FacingTokens.sp4,
-            bottom: MediaQuery.of(ctx).viewInsets.bottom + FacingTokens.sp4,
+            left: HyphenTokens.sp4,
+            right: HyphenTokens.sp4,
+            top: HyphenTokens.sp4,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + HyphenTokens.sp4,
           ),
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text('동작 추가', style: FacingTokens.sectionLabel),
-                const SizedBox(height: FacingTokens.sp2),
+                const Text('동작 추가', style: HyphenTokens.sectionLabel),
+                const SizedBox(height: HyphenTokens.sp2),
                 TextField(
                   controller: movementCtrl,
                   decoration: const InputDecoration(
@@ -109,7 +109,7 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                     hintText: 'back-squat / clean / run',
                   ),
                 ),
-                const SizedBox(height: FacingTokens.sp2),
+                const SizedBox(height: HyphenTokens.sp2),
                 // v1.19 페르소나 P1-17: Substitute 옵션.
                 TextField(
                   controller: altCtrl,
@@ -118,7 +118,7 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                     hintText: '예: dumbbell-thruster',
                   ),
                 ),
-                const SizedBox(height: FacingTokens.sp2),
+                const SizedBox(height: HyphenTokens.sp2),
                 Row(children: [
                   Expanded(
                     child: TextField(
@@ -127,7 +127,7 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                       keyboardType: TextInputType.number,
                     ),
                   ),
-                  const SizedBox(width: FacingTokens.sp2),
+                  const SizedBox(width: HyphenTokens.sp2),
                   Expanded(
                     child: TextField(
                       controller: repsCtrl,
@@ -136,13 +136,13 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                     ),
                   ),
                 ]),
-                const SizedBox(height: FacingTokens.sp3),
+                const SizedBox(height: HyphenTokens.sp3),
                 // v1.19 페르소나 P0-3: Load 단위 picker.
-                Text('중량 단위', style: FacingTokens.sectionLabel),
-                const SizedBox(height: FacingTokens.sp1),
+                Text('중량 단위', style: HyphenTokens.sectionLabel),
+                const SizedBox(height: HyphenTokens.sp1),
                 Wrap(
-                  spacing: FacingTokens.sp1,
-                  runSpacing: FacingTokens.sp1,
+                  spacing: HyphenTokens.sp1,
+                  runSpacing: HyphenTokens.sp1,
                   children: [
                     for (final u in const [
                       ('pct_1rm', '%1RM'),
@@ -152,15 +152,15 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                       ('sec_per_500m', 'sec/500m'),
                       ('feel', 'feel'),
                     ])
-                      FkBadge(
+                      HkBadge(
                         u.$2,
-                        color: FacingTokens.fg,
+                        color: HyphenTokens.fg,
                         selected: unit == u.$1,
                         onTap: () => setSheet(() => unit = u.$1),
                       ),
                   ],
                 ),
-                const SizedBox(height: FacingTokens.sp2),
+                const SizedBox(height: HyphenTokens.sp2),
                 TextField(
                   controller: loadCtrl,
                   decoration: InputDecoration(
@@ -170,7 +170,7 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                   keyboardType: const TextInputType.numberWithOptions(
                       decimal: true),
                 ),
-                const SizedBox(height: FacingTokens.sp2),
+                const SizedBox(height: HyphenTokens.sp2),
                 Row(children: [
                   Expanded(
                     child: TextField(
@@ -180,7 +180,7 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                       keyboardType: TextInputType.number,
                     ),
                   ),
-                  const SizedBox(width: FacingTokens.sp2),
+                  const SizedBox(width: HyphenTokens.sp2),
                   Expanded(
                     child: TextField(
                       controller: tempoCtrl,
@@ -190,7 +190,7 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: FacingTokens.sp2),
+                  const SizedBox(width: HyphenTokens.sp2),
                   Expanded(
                     child: TextField(
                       controller: timecapCtrl,
@@ -200,13 +200,13 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                     ),
                   ),
                 ]),
-                const SizedBox(height: FacingTokens.sp2),
+                const SizedBox(height: HyphenTokens.sp2),
                 TextField(
                   controller: noteCtrl,
                   decoration: const InputDecoration(labelText: 'Note (선택)'),
                   maxLength: 100,
                 ),
-                const SizedBox(height: FacingTokens.sp3),
+                const SizedBox(height: HyphenTokens.sp3),
                 ElevatedButton(
                   onPressed: () => Navigator.of(ctx).pop(true),
                   child: const Text('추가'),
@@ -378,25 +378,25 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(FacingTokens.sp4),
+          padding: const EdgeInsets.all(HyphenTokens.sp4),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('대상', style: FacingTokens.sectionLabel),
-              const SizedBox(height: FacingTokens.sp2),
+              const Text('대상', style: HyphenTokens.sectionLabel),
+              const SizedBox(height: HyphenTokens.sp2),
               Wrap(
-                spacing: FacingTokens.sp2,
+                spacing: HyphenTokens.sp2,
                 children: [
                   for (final t in const ['individual', 'group', 'all'])
-                    FkBadge(
+                    HkBadge(
                       t,
-                      color: FacingTokens.fg,
+                      color: HyphenTokens.fg,
                       selected: _targetType == t,
                       onTap: () => setState(() => _targetType = t),
                     ),
                 ],
               ),
-              const SizedBox(height: FacingTokens.sp3),
+              const SizedBox(height: HyphenTokens.sp3),
               if (_targetType == 'individual')
                 TextField(
                   controller: _individualHashCtrl,
@@ -406,22 +406,22 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                   ),
                 ),
               if (_targetType == 'group') _buildGroupPicker(),
-              const SizedBox(height: FacingTokens.sp4),
-              const Text('종류', style: FacingTokens.sectionLabel),
-              const SizedBox(height: FacingTokens.sp2),
+              const SizedBox(height: HyphenTokens.sp4),
+              const Text('종류', style: HyphenTokens.sectionLabel),
+              const SizedBox(height: HyphenTokens.sp2),
               Wrap(
-                spacing: FacingTokens.sp2,
+                spacing: HyphenTokens.sp2,
                 children: [
                   for (final k in const ['note', 'assignment'])
-                    FkBadge(
+                    HkBadge(
                       k,
-                      color: FacingTokens.fg,
+                      color: HyphenTokens.fg,
                       selected: _kind == k,
                       onTap: () => setState(() => _kind = k),
                     ),
                 ],
               ),
-              const SizedBox(height: FacingTokens.sp4),
+              const SizedBox(height: HyphenTokens.sp4),
               TextField(
                 controller: _titleCtrl,
                 decoration: const InputDecoration(
@@ -430,7 +430,7 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                 ),
                 maxLength: 120,
               ),
-              const SizedBox(height: FacingTokens.sp2),
+              const SizedBox(height: HyphenTokens.sp2),
               TextField(
                 controller: _bodyCtrl,
                 decoration: const InputDecoration(
@@ -440,7 +440,7 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                 maxLines: 5,
                 maxLength: 2000,
               ),
-              const SizedBox(height: FacingTokens.sp3),
+              const SizedBox(height: HyphenTokens.sp3),
               // v1.19 페르소나 P0-4 (M1 송): WHY rationale.
               TextField(
                 controller: _rationaleCtrl,
@@ -452,12 +452,12 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                 maxLength: 500,
               ),
               if (_kind == 'assignment') ...[
-                const SizedBox(height: FacingTokens.sp4),
+                const SizedBox(height: HyphenTokens.sp4),
                 Row(
                   children: [
                     const Expanded(
                       child: Text('처방',
-                          style: FacingTokens.sectionLabel),
+                          style: HyphenTokens.sectionLabel),
                     ),
                     TextButton.icon(
                       onPressed: _addItem,
@@ -469,28 +469,28 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                 if (_items.isEmpty)
                   const Padding(
                     padding: EdgeInsets.symmetric(
-                        vertical: FacingTokens.sp2),
+                        vertical: HyphenTokens.sp2),
                     child: Text('동작 없음. 자유 텍스트 쪽지로도 발송 가능.',
-                        style: FacingTokens.caption),
+                        style: HyphenTokens.caption),
                   )
                 else
                   for (int i = 0; i < _items.length; i++)
                     Padding(
                       padding: const EdgeInsets.symmetric(
-                          vertical: FacingTokens.sp1),
+                          vertical: HyphenTokens.sp1),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: FacingTokens.surface,
-                          border: Border.all(color: FacingTokens.border),
+                          color: HyphenTokens.surface,
+                          border: Border.all(color: HyphenTokens.border),
                           borderRadius:
-                              BorderRadius.circular(FacingTokens.r2),
+                              BorderRadius.circular(HyphenTokens.r2),
                         ),
-                        padding: const EdgeInsets.all(FacingTokens.sp3),
+                        padding: const EdgeInsets.all(HyphenTokens.sp3),
                         child: Row(
                           children: [
                             Expanded(
                               child: Text(_items[i].displayLine(),
-                                  style: FacingTokens.body),
+                                  style: HyphenTokens.body),
                             ),
                             IconButton(
                               icon: const Icon(Icons.close, size: 16),
@@ -501,14 +501,14 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                         ),
                       ),
                     ),
-                const SizedBox(height: FacingTokens.sp3),
+                const SizedBox(height: HyphenTokens.sp3),
                 TextField(
                   controller: _dueCtrl,
                   decoration: const InputDecoration(
                     labelText: 'Due date (YYYY-MM-DD, 선택)',
                   ),
                 ),
-                const SizedBox(height: FacingTokens.sp2),
+                const SizedBox(height: HyphenTokens.sp2),
                 // v1.19 페르소나 P2-26 (M6 이): 윈도우형 due (이번 주 내 1회).
                 Row(children: [
                   Expanded(
@@ -519,7 +519,7 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: FacingTokens.sp2),
+                  const SizedBox(width: HyphenTokens.sp2),
                   Expanded(
                     child: TextField(
                       controller: _dueEndCtrl,
@@ -530,7 +530,7 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                   ),
                 ]),
               ],
-              const SizedBox(height: FacingTokens.sp5),
+              const SizedBox(height: HyphenTokens.sp5),
               ElevatedButton(
                 onPressed: _sending ? null : _send,
                 child: Text(_sending ? 'Sending.' : 'Send'),
@@ -548,17 +548,17 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
       builder: (ctx, snap) {
         if (snap.connectionState != ConnectionState.done) {
           return const Padding(
-            padding: EdgeInsets.symmetric(vertical: FacingTokens.sp2),
-            child: Text('그룹 불러오는 중', style: FacingTokens.caption),
+            padding: EdgeInsets.symmetric(vertical: HyphenTokens.sp2),
+            child: Text('그룹 불러오는 중', style: HyphenTokens.caption),
           );
         }
         // QA B-FB-2: hasError 분기 추가.
         if (snap.hasError) {
           return Padding(
-            padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp2),
+            padding: const EdgeInsets.symmetric(vertical: HyphenTokens.sp2),
             child: Text(
               '그룹 목록 로딩 실패. 새로고침 필요.',
-              style: FacingTokens.caption.copyWith(color: FacingTokens.warning),
+              style: HyphenTokens.caption.copyWith(color: HyphenTokens.warning),
             ),
           );
         }
@@ -566,13 +566,13 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
         if (groups.isEmpty) {
           return Padding(
             padding:
-                const EdgeInsets.symmetric(vertical: FacingTokens.sp2),
+                const EdgeInsets.symmetric(vertical: HyphenTokens.sp2),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text('그룹 없음. 먼저 그룹 생성 필요.',
-                    style: FacingTokens.caption),
-                const SizedBox(height: FacingTokens.sp2),
+                    style: HyphenTokens.caption),
+                const SizedBox(height: HyphenTokens.sp2),
                 OutlinedButton(
                   // QA B-NAV-1: 작성 화면을 닫는 대신 GroupManagement 화면 push.
                   onPressed: () => Navigator.of(ctx).push(
@@ -587,13 +587,13 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
           );
         }
         return Wrap(
-          spacing: FacingTokens.sp2,
-          runSpacing: FacingTokens.sp2,
+          spacing: HyphenTokens.sp2,
+          runSpacing: HyphenTokens.sp2,
           children: [
             for (final g in groups)
-              FkBadge(
+              HkBadge(
                 '${g.name} · ${g.memberCount}',
-                color: FacingTokens.fg,
+                color: HyphenTokens.fg,
                 selected: _selectedGroup?.id == g.id,
                 onTap: () => setState(() => _selectedGroup = g),
               ),

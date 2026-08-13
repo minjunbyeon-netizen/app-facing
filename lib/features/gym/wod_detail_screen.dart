@@ -68,31 +68,31 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
     try {
       await showModalBottomSheet<void>(
       context: context,
-      backgroundColor: FacingTokens.surface,
+      backgroundColor: HyphenTokens.surface,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius:
-            BorderRadius.vertical(top: Radius.circular(FacingTokens.r4)),
+            BorderRadius.vertical(top: Radius.circular(HyphenTokens.r4)),
       ),
       builder: (ctx) => Padding(
         padding: EdgeInsets.only(
-          left: FacingTokens.sp4,
-          right: FacingTokens.sp4,
-          top: FacingTokens.sp4,
-          bottom: MediaQuery.of(ctx).viewInsets.bottom + FacingTokens.sp4,
+          left: HyphenTokens.sp4,
+          right: HyphenTokens.sp4,
+          top: HyphenTokens.sp4,
+          bottom: MediaQuery.of(ctx).viewInsets.bottom + HyphenTokens.sp4,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Text('코치에게 요청',
-                style: FacingTokens.sectionLabel),
-            const SizedBox(height: FacingTokens.sp1),
+                style: HyphenTokens.sectionLabel),
+            const SizedBox(height: HyphenTokens.sp1),
             const Text(
               '이 WOD 관련 조정·대체 요청. 예: "어깨 수술 이력 있어 Thruster 대체 부탁".',
-              style: FacingTokens.caption,
+              style: HyphenTokens.caption,
             ),
-            const SizedBox(height: FacingTokens.sp3),
+            const SizedBox(height: HyphenTokens.sp3),
             TextField(
               controller: subjectCtrl,
               decoration: const InputDecoration(labelText: '제목'),
@@ -107,7 +107,7 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
               maxLines: 5,
               maxLength: 2000,
             ),
-            const SizedBox(height: FacingTokens.sp3),
+            const SizedBox(height: HyphenTokens.sp3),
             ElevatedButton(
               onPressed: () async {
                 final body = bodyCtrl.text.trim();
@@ -223,24 +223,24 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
   List<Widget> _buildMovementRounds(GymWodPost wod) {
     final rounds = wod.roundsData.where((r) => r.hasMovements).toList();
     if (rounds.isEmpty) return const [];
-    final widgets = <Widget>[const SizedBox(height: FacingTokens.sp3)];
+    final widgets = <Widget>[const SizedBox(height: HyphenTokens.sp3)];
     for (final r in rounds) {
       widgets.add(Container(
-        margin: const EdgeInsets.only(bottom: FacingTokens.sp2),
-        padding: const EdgeInsets.all(FacingTokens.sp3),
+        margin: const EdgeInsets.only(bottom: HyphenTokens.sp2),
+        padding: const EdgeInsets.all(HyphenTokens.sp3),
         decoration: BoxDecoration(
-          color: FacingTokens.surface,
-          borderRadius: BorderRadius.circular(FacingTokens.r3),
-          border: Border.all(color: FacingTokens.border),
+          color: HyphenTokens.surface,
+          borderRadius: BorderRadius.circular(HyphenTokens.r3),
+          border: Border.all(color: HyphenTokens.border),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (r.label.isNotEmpty)
               Padding(
-                padding: const EdgeInsets.only(bottom: FacingTokens.sp2),
+                padding: const EdgeInsets.only(bottom: HyphenTokens.sp2),
                 child: Text(r.label.toUpperCase(),
-                    style: FacingTokens.sectionLabel),
+                    style: HyphenTokens.sectionLabel),
               ),
             ...r.movements.map((m) => _MovementRow(
                   movement: m,
@@ -270,7 +270,7 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
       ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(FacingTokens.sp4),
+          padding: const EdgeInsets.all(HyphenTokens.sp4),
           children: [
             // 버전 선택 토글
             if (hasScaled || hasBeginner)
@@ -292,41 +292,41 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
                 },
               ),
             if (hasScaled || hasBeginner)
-              const SizedBox(height: FacingTokens.sp3),
+              const SizedBox(height: HyphenTokens.sp3),
             // 본문
             Container(
-              padding: const EdgeInsets.all(FacingTokens.sp4),
+              padding: const EdgeInsets.all(HyphenTokens.sp4),
               decoration: BoxDecoration(
-                color: FacingTokens.surface,
-                borderRadius: BorderRadius.circular(FacingTokens.r3),
-                border: Border.all(color: FacingTokens.border),
+                color: HyphenTokens.surface,
+                borderRadius: BorderRadius.circular(HyphenTokens.r3),
+                border: Border.all(color: HyphenTokens.border),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(_levelLabel(),
-                      style: FacingTokens.sectionLabel.copyWith(
-                        color: FacingTokens.accent,
+                      style: HyphenTokens.sectionLabel.copyWith(
+                        color: HyphenTokens.accent,
                       )),
-                  const SizedBox(height: FacingTokens.sp2),
-                  Text(_displayContent(), style: FacingTokens.body),
+                  const SizedBox(height: HyphenTokens.sp2),
+                  Text(_displayContent(), style: HyphenTokens.body),
                 ],
               ),
             ),
             // #3 (v1.25): 동작 레벨 구조화 — 라운드별 동작 행(sets·reps·load·rest·영상).
             // rounds_data 에 movements 가 있을 때만 노출. RX 본문 아래 보강 표시.
             ..._buildMovementRounds(wod),
-            const SizedBox(height: FacingTokens.sp3),
+            const SizedBox(height: HyphenTokens.sp3),
             ElevatedButton.icon(
               onPressed: _startSession,
               icon: const Icon(Icons.play_arrow, size: 18),
               label: const Text('타이머 시작'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: FacingTokens.accent,
-                foregroundColor: FacingTokens.fg,
+                backgroundColor: HyphenTokens.accent,
+                foregroundColor: HyphenTokens.fg,
               ),
             ),
-            const SizedBox(height: FacingTokens.sp3),
+            const SizedBox(height: HyphenTokens.sp3),
             // v1.16 Sprint 17: 멤버 건의 버튼.
             Builder(builder: (ctx) {
               final gs = ctx.watch<GymState>();
@@ -338,11 +338,11 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
                 label: const Text('코치에게 요청'),
               );
             }),
-            const SizedBox(height: FacingTokens.sp5),
+            const SizedBox(height: HyphenTokens.sp5),
 
             // v1.16 Sprint 17: 코치 피드백.
-            const Text('코치 피드백', style: FacingTokens.sectionLabel),
-            const SizedBox(height: FacingTokens.sp2),
+            const Text('코치 피드백', style: HyphenTokens.sectionLabel),
+            const SizedBox(height: HyphenTokens.sp2),
             FutureBuilder<List<CoachFeedback>>(
               future: _feedbackFuture,
               builder: (ctx, snap) {
@@ -351,7 +351,7 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
                 if (list.isEmpty) {
                   return const Text(
                     'No coach feedback yet.',
-                    style: FacingTokens.caption,
+                    style: HyphenTokens.caption,
                   );
                 }
                 return Column(
@@ -361,21 +361,21 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
                 );
               },
             ),
-            const SizedBox(height: FacingTokens.sp5),
+            const SizedBox(height: HyphenTokens.sp5),
 
             // Leaderboard
-            const Text('리더보드', style: FacingTokens.sectionLabel),
-            const SizedBox(height: FacingTokens.sp2),
+            const Text('리더보드', style: HyphenTokens.sectionLabel),
+            const SizedBox(height: HyphenTokens.sp2),
             FutureBuilder<List<GymWodResult>>(
               future: _resultsFuture,
               builder: (ctx, snap) {
                 final list = snap.data ?? const <GymWodResult>[];
                 if (snap.connectionState != ConnectionState.done) {
                   return const Padding(
-                    padding: EdgeInsets.all(FacingTokens.sp3),
+                    padding: EdgeInsets.all(HyphenTokens.sp3),
                     child: Center(
                       child: CircularProgressIndicator(
-                          color: FacingTokens.muted, strokeWidth: 2),
+                          color: HyphenTokens.muted, strokeWidth: 2),
                     ),
                   );
                 }
@@ -384,11 +384,11 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
                   return const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('아직 기록 없음.', style: FacingTokens.body),
+                      Text('아직 기록 없음.', style: HyphenTokens.body),
                       SizedBox(height: 2),
                       Text(
                         '타이머 완료 시 첫 기록 자동 제출.',
-                        style: FacingTokens.caption,
+                        style: HyphenTokens.caption,
                       ),
                     ],
                   );
@@ -399,34 +399,34 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
                 );
               },
             ),
-            const SizedBox(height: FacingTokens.sp5),
+            const SizedBox(height: HyphenTokens.sp5),
 
             // Comments
-            const Text('댓글', style: FacingTokens.sectionLabel),
-            const SizedBox(height: FacingTokens.sp2),
+            const Text('댓글', style: HyphenTokens.sectionLabel),
+            const SizedBox(height: HyphenTokens.sp2),
             FutureBuilder<List<GymWodComment>>(
               future: _commentsFuture,
               builder: (ctx, snap) {
                 final list = snap.data ?? const <GymWodComment>[];
                 if (snap.connectionState != ConnectionState.done) {
                   return const Padding(
-                    padding: EdgeInsets.all(FacingTokens.sp3),
+                    padding: EdgeInsets.all(HyphenTokens.sp3),
                     child: Center(
                       child: CircularProgressIndicator(
-                          color: FacingTokens.muted, strokeWidth: 2),
+                          color: HyphenTokens.muted, strokeWidth: 2),
                     ),
                   );
                 }
                 if (list.isEmpty) {
                   return const Text('첫 댓글 작성.',
-                      style: FacingTokens.caption);
+                      style: HyphenTokens.caption);
                 }
                 return Column(
                   children: list.map((c) => _CommentRow(comment: c)).toList(),
                 );
               },
             ),
-            const SizedBox(height: FacingTokens.sp3),
+            const SizedBox(height: HyphenTokens.sp3),
             Row(
               children: [
                 Expanded(
@@ -441,10 +441,10 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
                     maxLength: 500,
                   ),
                 ),
-                const SizedBox(width: FacingTokens.sp2),
+                const SizedBox(width: HyphenTokens.sp2),
                 IconButton(
                   icon: const Icon(Icons.send),
-                  color: FacingTokens.accent,
+                  color: HyphenTokens.accent,
                   onPressed: _sendingComment ? null : _sendComment,
                 ),
               ],
@@ -476,17 +476,17 @@ class _ResultRow extends StatelessWidget {
     final mine = result.isMine;
     final isTop = result.rank <= 3;
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: FacingTokens.sp1),
-      padding: const EdgeInsets.all(FacingTokens.sp3),
+      margin: const EdgeInsets.symmetric(vertical: HyphenTokens.sp1),
+      padding: const EdgeInsets.all(HyphenTokens.sp3),
       decoration: BoxDecoration(
         color: mine
-            ? FacingTokens.accent.withValues(alpha: 0.12)
-            : FacingTokens.surface,
+            ? HyphenTokens.accent.withValues(alpha: 0.12)
+            : HyphenTokens.surface,
         border: Border.all(
-          color: mine ? FacingTokens.accent : FacingTokens.border,
+          color: mine ? HyphenTokens.accent : HyphenTokens.border,
           width: mine ? 2 : 1,
         ),
-        borderRadius: BorderRadius.circular(FacingTokens.r2),
+        borderRadius: BorderRadius.circular(HyphenTokens.r2),
       ),
       child: Row(
         children: [
@@ -494,10 +494,10 @@ class _ResultRow extends StatelessWidget {
             width: 36,
             child: Text(
               '${result.rank}${_suffix(result.rank)}',
-              style: FacingTokens.h3.copyWith(
-                color: isTop ? FacingTokens.accent : FacingTokens.fg,
+              style: HyphenTokens.h3.copyWith(
+                color: isTop ? HyphenTokens.accent : HyphenTokens.fg,
                 fontWeight: FontWeight.w800,
-                fontFeatures: FacingTokens.tabular,
+                fontFeatures: HyphenTokens.tabular,
               ),
             ),
           ),
@@ -507,21 +507,21 @@ class _ResultRow extends StatelessWidget {
               children: [
                 Text(
                   mine ? 'You' : 'user:${result.deviceHashPrefix}',
-                  style: FacingTokens.body.copyWith(
+                  style: HyphenTokens.body.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 if (result.scaleLevel != 'rx')
                   Text(
                     result.scaleLevel.toUpperCase(),
-                    style: FacingTokens.microLabel,
+                    style: HyphenTokens.microLabel,
                   ),
               ],
             ),
           ),
           Text(result.display,
-              style: FacingTokens.h3.copyWith(
-                fontFeatures: FacingTokens.tabular,
+              style: HyphenTokens.h3.copyWith(
+                fontFeatures: HyphenTokens.tabular,
                 fontWeight: FontWeight.w800,
               )),
         ],
@@ -544,13 +544,13 @@ class _FeedbackCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: FacingTokens.sp2),
-      padding: const EdgeInsets.all(FacingTokens.sp3),
+      margin: const EdgeInsets.only(bottom: HyphenTokens.sp2),
+      padding: const EdgeInsets.all(HyphenTokens.sp3),
       decoration: BoxDecoration(
-        color: FacingTokens.surfaceOverlay,
-        borderRadius: BorderRadius.circular(FacingTokens.r2),
+        color: HyphenTokens.surfaceOverlay,
+        borderRadius: BorderRadius.circular(HyphenTokens.r2),
         border: const Border(
-          left: BorderSide(color: FacingTokens.accent, width: 3),
+          left: BorderSide(color: HyphenTokens.accent, width: 3),
         ),
       ),
       child: Column(
@@ -560,20 +560,20 @@ class _FeedbackCard extends StatelessWidget {
             children: [
               Text(
                 fb.isMine ? 'COACH → YOU' : 'COACH → ${fb.memberHashPrefix}',
-                style: FacingTokens.microLabel.copyWith(
-                  color: FacingTokens.accent,
+                style: HyphenTokens.microLabel.copyWith(
+                  color: HyphenTokens.accent,
                   fontWeight: FontWeight.w800,
                 ),
               ),
               const Spacer(),
               Text(
                 _fmt(fb.updatedAt),
-                style: FacingTokens.micro.copyWith(color: FacingTokens.muted),
+                style: HyphenTokens.micro.copyWith(color: HyphenTokens.muted),
               ),
             ],
           ),
           const SizedBox(height: 2),
-          Text(fb.body, style: FacingTokens.body),
+          Text(fb.body, style: HyphenTokens.body),
         ],
       ),
     );
@@ -593,14 +593,14 @@ class _CommentRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: FacingTokens.sp1),
-      padding: const EdgeInsets.all(FacingTokens.sp2),
+      margin: const EdgeInsets.symmetric(vertical: HyphenTokens.sp1),
+      padding: const EdgeInsets.all(HyphenTokens.sp2),
       decoration: BoxDecoration(
         color: comment.isMine
-            ? FacingTokens.accent.withValues(alpha: 0.10)
-            : FacingTokens.surface,
-        borderRadius: BorderRadius.circular(FacingTokens.r2),
-        border: Border.all(color: FacingTokens.border),
+            ? HyphenTokens.accent.withValues(alpha: 0.10)
+            : HyphenTokens.surface,
+        borderRadius: BorderRadius.circular(HyphenTokens.r2),
+        border: Border.all(color: HyphenTokens.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -609,22 +609,22 @@ class _CommentRow extends StatelessWidget {
             children: [
               Text(
                 comment.isMine ? 'You' : 'user:${comment.authorPrefix}',
-                style: FacingTokens.microLabel.copyWith(
+                style: HyphenTokens.microLabel.copyWith(
                   color: comment.isMine
-                      ? FacingTokens.accent
-                      : FacingTokens.muted,
+                      ? HyphenTokens.accent
+                      : HyphenTokens.muted,
                   fontWeight: FontWeight.w800,
                 ),
               ),
               const Spacer(),
               Text(
                 _fmt(comment.createdAt),
-                style: FacingTokens.micro.copyWith(color: FacingTokens.muted),
+                style: HyphenTokens.micro.copyWith(color: HyphenTokens.muted),
               ),
             ],
           ),
           const SizedBox(height: 2),
-          Text(comment.body, style: FacingTokens.body),
+          Text(comment.body, style: HyphenTokens.body),
         ],
       ),
     );
@@ -638,7 +638,7 @@ class _CommentRow extends StatelessWidget {
 }
 
 /// #3 (v1.25): WOD 동작 1줄 — 동작명·sets×reps·load·rest + 영상 링크.
-/// 매그넘 레퍼런스의 동작 행을 facing 톤(영문 라벨·무채색 ▶)으로 재해석.
+/// 매그넘 레퍼런스의 동작 행을 hyphen 톤(영문 라벨·무채색 ▶)으로 재해석.
 class _MovementRow extends StatelessWidget {
   final WodMovementItem movement;
   final VoidCallback? onVideo;
@@ -650,7 +650,7 @@ class _MovementRow extends StatelessWidget {
         .replaceFirst(movement.name, '')
         .replaceFirst(' · ', '');
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: FacingTokens.sp1),
+      padding: const EdgeInsets.symmetric(vertical: HyphenTokens.sp1),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -658,11 +658,11 @@ class _MovementRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(movement.name, style: FacingTokens.body),
+                Text(movement.name, style: HyphenTokens.body),
                 if (detail.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 1),
-                    child: Text(detail, style: FacingTokens.micro),
+                    child: Text(detail, style: HyphenTokens.micro),
                   ),
               ],
             ),
@@ -671,16 +671,16 @@ class _MovementRow extends StatelessWidget {
             InkWell(
               onTap: onVideo,
               child: Padding(
-                padding: const EdgeInsets.only(left: FacingTokens.sp2),
+                padding: const EdgeInsets.only(left: HyphenTokens.sp2),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Icon(Icons.play_circle_outline,
-                        size: 18, color: FacingTokens.muted),
+                        size: 18, color: HyphenTokens.muted),
                     const SizedBox(width: 2),
                     Text('데모',
-                        style: FacingTokens.micro
-                            .copyWith(color: FacingTokens.muted)),
+                        style: HyphenTokens.micro
+                            .copyWith(color: HyphenTokens.muted)),
                   ],
                 ),
               ),

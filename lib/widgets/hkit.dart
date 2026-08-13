@@ -1,19 +1,19 @@
-/// FKit — facing UI 컴포넌트 SSOT (2026-07-28 사용자 지시).
+/// HKit — hyphen UI 컴포넌트 SSOT (2026-07-28 사용자 지시).
 ///
 /// 새 화면·기능에서 카드·배지·섹션 라벨·통계 타일·빈/에러/로딩 상태를
 /// 그때그때 새로 만들지 않는다 — 여기 있는 것만 쓰고, 없으면 여기에 추가한다
 /// (글로벌 §3 코드·클래스 SSOT 의 프로젝트 배선). 참조 관례: workcheck gs_* ·
-/// writeplz wp_* — 공통 조상 토큰은 appkit.gen.dart / FacingTokens.
+/// writeplz wp_* — 공통 조상 토큰은 appkit.gen.dart / HyphenTokens.
 ///
 /// 고정 규격 (전 화면 동일 — 전체 양식 = docs/DESIGN-SSOT.md):
-/// - 버튼: FkButton 3단(primary 채움 52 / secondary 외곽선 52 / tertiary 글자 48).
+/// - 버튼: HkButton 3단(primary 채움 52 / secondary 외곽선 52 / tertiary 글자 48).
 ///   화면당 primary 는 1개. 새 버튼 모양 신설 금지
 /// - 카드: surface 면 + 1px border + r3, 내부 패딩 sp4
 /// - 배지: 1px 컬러 보더 + 대문자 + r1 사각 — 완전 원형 pill 금지 (글로벌 design-block)
 /// - 섹션 라벨: sectionLabel 토큰 + 대문자 강제 (코드에서 toUpperCase)
-/// - 로딩 스피너: 22×22 stroke 2 muted 단일 규격 / 전면 로딩 = FkLoadingScreen
+/// - 로딩 스피너: 22×22 stroke 2 muted 단일 규격 / 전면 로딩 = HkLoadingScreen
 /// - 에러: 본문 메시지 + OutlinedButton "다시 시도" (문구 고정)
-/// - 소셜 로그인 버튼: FkSocialButton (높이 52 · r3 · 마크+라벨 중앙)
+/// - 소셜 로그인 버튼: HkSocialButton (높이 52 · r3 · 마크+라벨 중앙)
 library;
 
 import 'package:flutter/material.dart';
@@ -28,17 +28,17 @@ import 'brand_logo.dart';
 /// 골라 쓰고 `minimumSize` 도 제각각(36·40·52)이라, 같은 무게의 동작이 화면마다
 /// 다르게 보였다. 이제 셋 중 하나를 고르는 것으로 끝낸다.
 ///
-/// - [FkButtonKind.primary] — 이 화면에서 지금 해야 할 **단 하나**. 채움 + 흰 글씨.
+/// - [HkButtonKind.primary] — 이 화면에서 지금 해야 할 **단 하나**. 채움 + 흰 글씨.
 ///   화면당 1개 원칙 (링코 F1 의 교훈 — 강조가 여섯 번이면 강조가 아니다).
-/// - [FkButtonKind.secondary] — 같이 놓이는 대등한 선택지. 외곽선.
-/// - [FkButtonKind.tertiary] — 부수 동작·이동. 글자만, 그래도 터치는 48 보장.
-enum FkButtonKind { primary, secondary, tertiary }
+/// - [HkButtonKind.secondary] — 같이 놓이는 대등한 선택지. 외곽선.
+/// - [HkButtonKind.tertiary] — 부수 동작·이동. 글자만, 그래도 터치는 48 보장.
+enum HkButtonKind { primary, secondary, tertiary }
 
-class FkButton extends StatelessWidget {
+class HkButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
   final IconData? icon;
-  final FkButtonKind kind;
+  final HkButtonKind kind;
 
   /// 가로를 꽉 채울지. false 면 글자 폭 + 패딩만 차지한다 (행 안에 나란히 둘 때).
   final bool expand;
@@ -55,42 +55,42 @@ class FkButton extends StatelessWidget {
   /// fgSecondary(7.7:1) + w600 으로 "읽히되 앞서지 않게" 둔다.
   final bool neutral;
 
-  const FkButton(
+  const HkButton(
     this.label, {
     super.key,
     required this.onPressed,
-    this.kind = FkButtonKind.primary,
+    this.kind = HkButtonKind.primary,
     this.icon,
     this.expand = true,
     this.neutral = false,
     this.danger = false,
   });
 
-  const FkButton.primary(this.label,
+  const HkButton.primary(this.label,
       {super.key,
       required this.onPressed,
       this.icon,
       this.expand = true,
       this.danger = false})
-      : kind = FkButtonKind.primary,
+      : kind = HkButtonKind.primary,
         neutral = false;
 
-  const FkButton.secondary(this.label,
+  const HkButton.secondary(this.label,
       {super.key,
       required this.onPressed,
       this.icon,
       this.expand = true,
       this.danger = false})
-      : kind = FkButtonKind.secondary,
+      : kind = HkButtonKind.secondary,
         neutral = false;
 
-  const FkButton.tertiary(this.label,
+  const HkButton.tertiary(this.label,
       {super.key,
       required this.onPressed,
       this.icon,
       this.expand = false,
       this.neutral = false})
-      : kind = FkButtonKind.tertiary,
+      : kind = HkButtonKind.tertiary,
         danger = false;
 
   @override
@@ -107,41 +107,41 @@ class FkButton extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(icon, size: 18),
-              const SizedBox(width: FacingTokens.sp2),
+              const SizedBox(width: HyphenTokens.sp2),
               Flexible(child: Text(label, overflow: TextOverflow.ellipsis)),
             ],
           );
 
     switch (kind) {
-      case FkButtonKind.primary:
+      case HkButtonKind.primary:
         return ElevatedButton(
           onPressed: onPressed,
           style: ButtonStyle(
             minimumSize: size,
             tapTargetSize: shrink,
             backgroundColor: danger
-                ? const WidgetStatePropertyAll<Color>(FacingTokens.danger)
+                ? const WidgetStatePropertyAll<Color>(HyphenTokens.danger)
                 : null,
           ),
           child: child,
         );
-      case FkButtonKind.secondary:
+      case HkButtonKind.secondary:
         return OutlinedButton(
           onPressed: onPressed,
           style: ButtonStyle(
             minimumSize: size,
             tapTargetSize: shrink,
             foregroundColor: danger
-                ? const WidgetStatePropertyAll<Color>(FacingTokens.danger)
+                ? const WidgetStatePropertyAll<Color>(HyphenTokens.danger)
                 : null,
             side: danger
                 ? const WidgetStatePropertyAll<BorderSide>(
-                    BorderSide(color: FacingTokens.danger))
+                    BorderSide(color: HyphenTokens.danger))
                 : null,
           ),
           child: child,
         );
-      case FkButtonKind.tertiary:
+      case HkButtonKind.tertiary:
         return TextButton(
           onPressed: onPressed,
           style: ButtonStyle(
@@ -149,7 +149,7 @@ class FkButton extends StatelessWidget {
             tapTargetSize: shrink,
             foregroundColor: neutral
                 ? const WidgetStatePropertyAll<Color>(
-                    FacingTokens.fgSecondary)
+                    HyphenTokens.fgSecondary)
                 : null,
           ),
           child: child,
@@ -159,29 +159,29 @@ class FkButton extends StatelessWidget {
 
   /// v2.5 (2026-08-12 사용자 지시): 3종 모두 같은 컴팩트 높이.
   /// 전엔 채움 52 · 글자 48 로 미묘하게 달라 한 줄에 나란히 두면 층이 졌다.
-  double get _height => FacingTokens.buttonHCompact;
+  double get _height => HyphenTokens.buttonHCompact;
 }
 
 /// 섹션 구분 라벨 — 대문자 강제.
-class FkSectionLabel extends StatelessWidget {
+class HkSectionLabel extends StatelessWidget {
   final String text;
-  const FkSectionLabel(this.text, {super.key});
+  const HkSectionLabel(this.text, {super.key});
 
   @override
   Widget build(BuildContext context) =>
-      Text(text.toUpperCase(), style: FacingTokens.sectionLabel);
+      Text(text.toUpperCase(), style: HyphenTokens.sectionLabel);
 }
 
 /// 표준 카드 — surface + 1px border + r3.
-class FkCard extends StatelessWidget {
+class HkCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
   final EdgeInsetsGeometry? margin;
   final VoidCallback? onTap;
-  const FkCard({
+  const HkCard({
     super.key,
     required this.child,
-    this.padding = const EdgeInsets.all(FacingTokens.sp4),
+    this.padding = const EdgeInsets.all(HyphenTokens.sp4),
     this.margin,
     this.onTap,
   });
@@ -192,16 +192,16 @@ class FkCard extends StatelessWidget {
       margin: margin,
       padding: padding,
       decoration: BoxDecoration(
-        color: FacingTokens.surface,
-        border: Border.all(color: FacingTokens.border),
-        borderRadius: BorderRadius.circular(FacingTokens.r3),
+        color: HyphenTokens.surface,
+        border: Border.all(color: HyphenTokens.border),
+        borderRadius: BorderRadius.circular(HyphenTokens.r3),
       ),
       child: child,
     );
     if (onTap == null) return card;
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(FacingTokens.r3),
+      borderRadius: BorderRadius.circular(HyphenTokens.r3),
       child: card,
     );
   }
@@ -214,7 +214,7 @@ class FkCard extends StatelessWidget {
 /// 화면마다 따로 만들던 `_Pill`·`_MiniPill`·`_StatusChip`·`_CategoryChip`·`_PainChip`·
 /// `_chip` 등 11종은 v1.32 에서 전부 이 하나로 흡수했다. 새 variant 신설 금지 —
 /// 모양이 다른 배지가 필요하면 여기부터 고친다. (TierBadge 만 티어 전용 별도 정본)
-class FkBadge extends StatelessWidget {
+class HkBadge extends StatelessWidget {
   final String text;
   final Color color;
 
@@ -224,10 +224,10 @@ class FkBadge extends StatelessWidget {
   /// null 이면 표시 전용 배지, 주면 탭 가능한 선택 컨트롤.
   final VoidCallback? onTap;
 
-  const FkBadge(
+  const HkBadge(
     this.text, {
     super.key,
-    this.color = FacingTokens.muted,
+    this.color = HyphenTokens.muted,
     this.selected = false,
     this.onTap,
   });
@@ -238,18 +238,18 @@ class FkBadge extends StatelessWidget {
     // 시각 크기는 표시·선택이 완전히 같다 (1종 강제). 다른 건 터치 영역뿐.
     final box = Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: FacingTokens.sp2,
+        horizontal: HyphenTokens.sp2,
         vertical: 3,
       ),
       decoration: BoxDecoration(
         color: selected ? color : Colors.transparent,
         border: Border.all(color: color),
-        borderRadius: BorderRadius.circular(FacingTokens.r1),
+        borderRadius: BorderRadius.circular(HyphenTokens.r1),
       ),
       child: Text(
         text.toUpperCase(),
-        style: FacingTokens.micro.copyWith(
-          color: selected ? FacingTokens.bg : color,
+        style: HyphenTokens.micro.copyWith(
+          color: selected ? HyphenTokens.bg : color,
           fontWeight: FontWeight.w700,
           letterSpacing: 0.8,
         ),
@@ -262,11 +262,11 @@ class FkBadge extends StatelessWidget {
       label: text,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(FacingTokens.r1),
+        borderRadius: BorderRadius.circular(HyphenTokens.r1),
         // 배지 자체는 작게 두고 손가락이 닿을 48 만 세로로 확보한다.
         // widthFactor: 1 — 가로는 글자 폭에 딱 맞춘다 (Row 안에서 늘어나지 않게).
         child: SizedBox(
-          height: FacingTokens.touchMin,
+          height: HyphenTokens.touchMin,
           child: Center(widthFactor: 1, child: box),
         ),
       ),
@@ -275,21 +275,21 @@ class FkBadge extends StatelessWidget {
 }
 
 /// 통계 타일 — 라벨(위) + 값(아래). 홈 Milestones · 보스 대시보드 공용 형태.
-class FkStatTile extends StatelessWidget {
+class HkStatTile extends StatelessWidget {
   final String label;
   final String value;
-  const FkStatTile({super.key, required this.label, required this.value});
+  const HkStatTile({super.key, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
-    return FkCard(
+    return HkCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          FkSectionLabel(label),
-          const SizedBox(height: FacingTokens.sp1),
+          HkSectionLabel(label),
+          const SizedBox(height: HyphenTokens.sp1),
           Text(value,
-              style: FacingTokens.h3.copyWith(color: FacingTokens.fg)),
+              style: HyphenTokens.h3.copyWith(color: HyphenTokens.fg)),
         ],
       ),
     );
@@ -299,7 +299,7 @@ class FkStatTile extends StatelessWidget {
 /// 표 행 — 좌 아이콘(선택) · 제목/부제 · 우 값. "한 줄에 한 항목" 표기의 유일 규격.
 /// 홈 업적·마일스톤처럼 나열형 데이터는 그리드 타일 대신 이 행으로 쌓는다
 /// (v1.30 — 색 타일 그리드가 산만하다는 사용자 지시로 표 형태 전환).
-class FkListRow extends StatelessWidget {
+class HkListRow extends StatelessWidget {
   final IconData? icon;
   final Color? iconColor;
   final String title;
@@ -315,7 +315,7 @@ class FkListRow extends StatelessWidget {
   final Widget? below;
   final VoidCallback? onTap;
 
-  const FkListRow({
+  const HkListRow({
     super.key,
     required this.title,
     this.icon,
@@ -333,10 +333,10 @@ class FkListRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final row = Padding(
       padding: const EdgeInsets.symmetric(
-        horizontal: FacingTokens.sp3,
+        horizontal: HyphenTokens.sp3,
         // v2.5 (2026-08-12 사용자 지시): 위아래 12 씩이면 두 줄짜리 행 하나가
         // 70 을 넘어 업적·마일스톤 표가 화면을 다 먹었다. 8 로 내린다.
-        vertical: FacingTokens.sp2,
+        vertical: HyphenTokens.sp2,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -344,8 +344,8 @@ class FkListRow extends StatelessWidget {
           Row(
             children: [
               if (icon != null) ...[
-                Icon(icon, size: 20, color: iconColor ?? FacingTokens.muted),
-                const SizedBox(width: FacingTokens.sp3),
+                Icon(icon, size: 20, color: iconColor ?? HyphenTokens.muted),
+                const SizedBox(width: HyphenTokens.sp3),
               ],
               Expanded(
                 child: Column(
@@ -353,7 +353,7 @@ class FkListRow extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: FacingTokens.body
+                      style: HyphenTokens.body
                           .copyWith(fontWeight: FontWeight.w600),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -362,7 +362,7 @@ class FkListRow extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         subtitle!,
-                        style: FacingTokens.caption,
+                        style: HyphenTokens.caption,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -371,18 +371,18 @@ class FkListRow extends StatelessWidget {
                 ),
               ),
               if (trailing != null) ...[
-                const SizedBox(width: FacingTokens.sp3),
+                const SizedBox(width: HyphenTokens.sp3),
                 Text(
                   trailing!,
-                  style: FacingTokens.micro.copyWith(
-                    color: trailingColor ?? FacingTokens.muted,
+                  style: HyphenTokens.micro.copyWith(
+                    color: trailingColor ?? HyphenTokens.muted,
                     fontWeight: FontWeight.w600,
-                    fontFeatures: FacingTokens.tabular,
+                    fontFeatures: HyphenTokens.tabular,
                   ),
                 ),
               ],
               if (trailingWidget != null) ...[
-                const SizedBox(width: FacingTokens.sp3),
+                const SizedBox(width: HyphenTokens.sp3),
                 trailingWidget!,
               ],
               // v2.2 (H8): 누를 수 있는 행에 오른쪽 화살표를 붙인다. 그전엔
@@ -392,14 +392,14 @@ class FkListRow extends StatelessWidget {
               if (onTap != null &&
                   trailing == null &&
                   trailingWidget == null) ...[
-                const SizedBox(width: FacingTokens.sp2),
+                const SizedBox(width: HyphenTokens.sp2),
                 const Icon(Icons.chevron_right,
-                    size: 18, color: FacingTokens.muted),
+                    size: 18, color: HyphenTokens.muted),
               ],
             ],
           ),
           if (below != null) ...[
-            const SizedBox(height: FacingTokens.sp1),
+            const SizedBox(height: HyphenTokens.sp1),
             below!,
           ],
         ],
@@ -410,11 +410,11 @@ class FkListRow extends StatelessWidget {
   }
 }
 
-/// 표 카드 — FkListRow 들을 1px 구분선으로 쌓는다 (카드 1개 = 표 1개).
-class FkRowCard extends StatelessWidget {
+/// 표 카드 — HkListRow 들을 1px 구분선으로 쌓는다 (카드 1개 = 표 1개).
+class HkRowCard extends StatelessWidget {
   final List<Widget> rows;
   final EdgeInsetsGeometry? margin;
-  const FkRowCard({super.key, required this.rows, this.margin});
+  const HkRowCard({super.key, required this.rows, this.margin});
 
   @override
   Widget build(BuildContext context) {
@@ -424,18 +424,18 @@ class FkRowCard extends StatelessWidget {
         children.add(const Divider(
           height: 1,
           thickness: 1,
-          color: FacingTokens.border,
-          indent: FacingTokens.sp4,
-          endIndent: FacingTokens.sp4,
+          color: HyphenTokens.border,
+          indent: HyphenTokens.sp4,
+          endIndent: HyphenTokens.sp4,
         ));
       }
       children.add(rows[i]);
     }
-    return FkCard(
+    return HkCard(
       margin: margin,
       padding: EdgeInsets.zero,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(FacingTokens.r3),
+        borderRadius: BorderRadius.circular(HyphenTokens.r3),
         child: Column(children: children),
       ),
     );
@@ -447,14 +447,14 @@ class FkRowCard extends StatelessWidget {
 /// 자주 쓰지 않는 항목 다발은 펼치기 전까지 헤더 한 줄만 차지한다
 /// (v1.31 — 프로필 메뉴가 세로로 주렁주렁 길다는 사용자 지시로 도입).
 /// [inset] = 카드 안에 넣을 때 true (좌우 여백을 카드 내부에 맞춤).
-class FkAccordion extends StatelessWidget {
+class HkAccordion extends StatelessWidget {
   final String title;
   final String? subtitle;
   final List<Widget> children;
   final bool initiallyExpanded;
   final bool inset;
 
-  const FkAccordion({
+  const HkAccordion({
     super.key,
     required this.title,
     required this.children,
@@ -477,24 +477,24 @@ class FkAccordion extends StatelessWidget {
         visualDensity: VisualDensity.compact,
         minTileHeight: 44,
         tilePadding: EdgeInsets.symmetric(
-          horizontal: inset ? FacingTokens.sp3 : 2,
+          horizontal: inset ? HyphenTokens.sp3 : 2,
           vertical: 0,
         ),
         childrenPadding: inset
             ? const EdgeInsets.fromLTRB(
-                FacingTokens.sp3, 0, FacingTokens.sp3, FacingTokens.sp3)
+                HyphenTokens.sp3, 0, HyphenTokens.sp3, HyphenTokens.sp3)
             : EdgeInsets.zero,
-        collapsedIconColor: FacingTokens.muted,
-        iconColor: FacingTokens.muted,
+        collapsedIconColor: HyphenTokens.muted,
+        iconColor: HyphenTokens.muted,
         expandedCrossAxisAlignment: CrossAxisAlignment.start,
-        title: FkSectionLabel(title),
+        title: HkSectionLabel(title),
         subtitle: subtitle == null
             ? null
             : Padding(
                 padding: const EdgeInsets.only(top: 2),
                 child: Text(
                   subtitle!,
-                  style: FacingTokens.caption,
+                  style: HyphenTokens.caption,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -506,24 +506,24 @@ class FkAccordion extends StatelessWidget {
 }
 
 /// 빈 상태 — h3 제목(영문 헤드라인) + 한글 캡션 수직 스택 (V10 패턴).
-class FkEmptyState extends StatelessWidget {
+class HkEmptyState extends StatelessWidget {
   final String title;
   final String? caption;
-  const FkEmptyState({super.key, required this.title, this.caption});
+  const HkEmptyState({super.key, required this.title, this.caption});
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(FacingTokens.sp5),
+        padding: const EdgeInsets.all(HyphenTokens.sp5),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(title, style: FacingTokens.h3, textAlign: TextAlign.center),
+            Text(title, style: HyphenTokens.h3, textAlign: TextAlign.center),
             if (caption != null) ...[
-              const SizedBox(height: FacingTokens.sp2),
+              const SizedBox(height: HyphenTokens.sp2),
               Text(caption!,
-                  style: FacingTokens.caption, textAlign: TextAlign.center),
+                  style: HyphenTokens.caption, textAlign: TextAlign.center),
             ],
           ],
         ),
@@ -534,12 +534,12 @@ class FkEmptyState extends StatelessWidget {
 
 /// 에러 상태 — 메시지 + Retry. 전 화면 문구·간격 고정.
 /// AppException 이면 messageKo, 그 외 '로딩 실패.' — fromError 로 통일 매핑.
-class FkErrorState extends StatelessWidget {
+class HkErrorState extends StatelessWidget {
   final String message;
   final VoidCallback onRetry;
-  const FkErrorState({super.key, required this.message, required this.onRetry});
+  const HkErrorState({super.key, required this.message, required this.onRetry});
 
-  FkErrorState.fromError(Object? error,
+  HkErrorState.fromError(Object? error,
       {super.key, required this.onRetry})
       : message = error is AppException ? error.messageKo : '로딩 실패.';
 
@@ -547,13 +547,13 @@ class FkErrorState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(FacingTokens.sp5),
+        padding: const EdgeInsets.all(HyphenTokens.sp5),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(message,
-                style: FacingTokens.body, textAlign: TextAlign.center),
-            const SizedBox(height: FacingTokens.sp3),
+                style: HyphenTokens.body, textAlign: TextAlign.center),
+            const SizedBox(height: HyphenTokens.sp3),
             OutlinedButton(onPressed: onRetry, child: const Text('다시 시도')),
           ],
         ),
@@ -563,8 +563,8 @@ class FkErrorState extends StatelessWidget {
 }
 
 /// 로딩 스피너 — 22×22 stroke 2 muted 단일 규격.
-class FkLoading extends StatelessWidget {
-  const FkLoading({super.key});
+class HkLoading extends StatelessWidget {
+  const HkLoading({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -573,34 +573,34 @@ class FkLoading extends StatelessWidget {
         width: 22,
         height: 22,
         child: CircularProgressIndicator(
-            strokeWidth: 2, color: FacingTokens.muted),
+            strokeWidth: 2, color: HyphenTokens.muted),
       ),
     );
   }
 }
 
 /// 전면 로딩 — 진입·전환 화면 유일 규격 (DESIGN-SSOT §6).
-/// BrandLogo(기본 폭 220) + FkLoading + 선택 캡션. Scaffold body 로 그대로 끼운다.
-class FkLoadingScreen extends StatelessWidget {
+/// BrandLogo(기본 폭 220) + HkLoading + 선택 캡션. Scaffold body 로 그대로 끼운다.
+class HkLoadingScreen extends StatelessWidget {
   final String? caption;
-  const FkLoadingScreen({super.key, this.caption});
+  const HkLoadingScreen({super.key, this.caption});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: FacingTokens.bg,
+      color: HyphenTokens.bg,
       alignment: Alignment.center,
-      padding: const EdgeInsets.all(FacingTokens.sp5),
+      padding: const EdgeInsets.all(HyphenTokens.sp5),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           const BrandLogo(),
-          const SizedBox(height: FacingTokens.sp6),
-          const FkLoading(),
+          const SizedBox(height: HyphenTokens.sp6),
+          const HkLoading(),
           if (caption != null) ...[
-            const SizedBox(height: FacingTokens.sp3),
+            const SizedBox(height: HyphenTokens.sp3),
             Text(caption!,
-                style: FacingTokens.caption, textAlign: TextAlign.center),
+                style: HyphenTokens.caption, textAlign: TextAlign.center),
           ],
         ],
       ),
@@ -609,8 +609,8 @@ class FkLoadingScreen extends StatelessWidget {
 }
 
 /// 소셜 로그인 버튼 — 유일 규격 (높이 52 · r3 · 마크+라벨 중앙, DESIGN-SSOT §6).
-/// 색은 FacingTokens 외부 브랜드 색(naverGreen·googleSurface)만 사용.
-class FkSocialButton extends StatelessWidget {
+/// 색은 HyphenTokens 외부 브랜드 색(naverGreen·googleSurface)만 사용.
+class HkSocialButton extends StatelessWidget {
   final String label;
   final Color background;
   final Color foreground;
@@ -618,7 +618,7 @@ class FkSocialButton extends StatelessWidget {
   final Color? markColor;
   final VoidCallback? onPressed;
 
-  const FkSocialButton({
+  const HkSocialButton({
     super.key,
     required this.label,
     required this.background,
@@ -632,19 +632,19 @@ class FkSocialButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      height: FacingTokens.buttonH,
+      height: HyphenTokens.buttonH,
       child: Material(
         color: background,
-        borderRadius: BorderRadius.circular(FacingTokens.r3),
+        borderRadius: BorderRadius.circular(HyphenTokens.r3),
         child: InkWell(
           onTap: onPressed,
-          borderRadius: BorderRadius.circular(FacingTokens.r3),
+          borderRadius: BorderRadius.circular(HyphenTokens.r3),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
                 markText,
-                style: FacingTokens.h3.copyWith(
+                style: HyphenTokens.h3.copyWith(
                   color: markColor ?? foreground,
                   fontWeight: FontWeight.w900,
                 ),
@@ -652,12 +652,12 @@ class FkSocialButton extends StatelessWidget {
               const SizedBox(width: 10),
               Text(
                 label,
-                style: FacingTokens.body.copyWith(
+                style: HyphenTokens.body.copyWith(
                   color: foreground,
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              const SizedBox(width: FacingTokens.touchMin),
+              const SizedBox(width: HyphenTokens.touchMin),
             ],
           ),
         ),

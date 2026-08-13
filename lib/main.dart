@@ -93,7 +93,7 @@ Future<void> main() async {
     }
   });
 
-  runApp(FacingApp(
+  runApp(HyphenApp(
     api: api,
     sse: sse,
     profile: profile,
@@ -107,7 +107,7 @@ Future<void> main() async {
   ));
 }
 
-class FacingApp extends StatelessWidget {
+class HyphenApp extends StatelessWidget {
   final ApiClient api;
   final SseClient sse;
   final ProfileState profile;
@@ -118,7 +118,7 @@ class FacingApp extends StatelessWidget {
   final GoalsState goals;
   final BossAuthState bossAuth;
   final BossApiClient bossApi;
-  const FacingApp({
+  const HyphenApp({
     super.key,
     required this.api,
     required this.sse,
@@ -173,7 +173,7 @@ class FacingApp extends StatelessWidget {
         builder: (ctx, ui, _) => MaterialApp(
         // v1.28 (2026-07-28): 리브랜딩 FACING → HYPHEN (로고·앱명 통일).
         title: 'HYPHEN',
-        theme: FacingTheme.light,
+        theme: HyphenTheme.light,
         debugShowCheckedModeBanner: false,
         // v1.16 Sprint 9a: 폰트 확대 옵션 (Masters 접근성).
         builder: (ctx2, child) => MediaQuery(

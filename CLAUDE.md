@@ -3,7 +3,7 @@
 **모든 작업 완료마다 `PushNotification` 으로 폰 푸시. 사용자가 30분 이상 답이 없으면 다시 발사.**
 
 - 매 응답 종료 시 (단답·박스·긴 본문 무관) `PushNotification` 1회 호출. 응답 마지막 `✨ ... ✨` 푸터 직전에 발사.
-- 메시지 형식: `[facing] {작업 요약 30자 이내}` (80자 권장, 200자 hard limit, 이모지는 → ✓ ● ○ 만)
+- 메시지 형식: `[hyphen] {작업 요약 30자 이내}` (80자 권장, 200자 hard limit, 이모지는 → ✓ ● ○ 만)
 - 사용자가 마지막 메시지를 보낸 뒤 **30분 무응답** 이면 idle-watcher 가 자동 재발사 — 같은 idle 구간에서 30분 단위 반복
 - 안전장치 유지: rate limit (5분 2회 cap) · 무음 모드 (`"조용히"`·`"방해 금지"`·`"푸시 꺼"` 키워드 시 세션 종료까지 잠금)
 - 글로벌 `rules/common/push-notification.md` Tier 3 (= 매 응답 푸시 금지) 룰을 사용자 의지로 override
@@ -28,7 +28,7 @@
 ---
 
 ⚠️ **최우선 — 모든 작업은 `docs/ARCHITECTURE_BRIEF.md` 를 따른다.**
-이 브리프가 facing 시스템(폰 + PC + 백엔드 + RBAC + SSE + DB 모델) 전체 합의 SSOT 예요.
+이 브리프가 Hyphen 시스템(폰 + PC + 백엔드 + RBAC + SSE + DB 모델) 전체 합의 SSOT 예요.
 신규 기능·코드 변경 시:
 1. 브리프 먼저 읽고 충돌 여부 확인
 2. 충돌 발견 시 사용자에게 보고 → 브리프 갱신 승인 후 코드 변경
@@ -80,15 +80,22 @@
 - 셸 = 3탭 (Home · WOD · Profile, 기본 landing = WOD). Attend·Rehab 탭 숨김,
   페이싱 계산기(빌더·프리셋·결과) 진입점 숨김 (`box_wod _kShowPresetAccordion=false`)
 - **숨김 = 코드 보존** — 화면·라우트·백엔드 배선은 그대로 두고 셸·진입점에서만 제외. 재노출 = 진입점 복원
-- UI 컴포넌트 SSOT = `lib/widgets/fkit.dart` (FKit) — 아래 디자인 원칙 참조
+- UI 컴포넌트 SSOT = `lib/widgets/hkit.dart` (HKit) — 아래 디자인 원칙 참조
 
 ## 리브랜딩 — 표기 브랜드 HYPHEN (v1.28 · 2026-07-28 사용자 지시)
 - **HYPHEN 으로 통일**: MaterialApp title · 런처 라벨(AndroidManifest) · 스플래시/인트로/로그인 로고
   (BrandLogo) · 공유 문구("HYPHEN WOD") · appkit 스킨 brand.name · 런처 아이콘
   (`tool/gen_launcher_icon.py` 로 재생성 — BrandLogo 와 동일 기하)
-- **유지 (rename 제외)**: repo·폴더명(facing-app / app-facing) · applicationId
-  `com.netizen.facing.facing_app` (설치 업그레이드 연속성) · 코드 심볼(FacingTokens·FacingTheme 등) ·
-  백엔드 계약 값(GymSummary is_official 의 'FACING' 비교 등) · 백엔드/랜딩 서비스명(service-facing 등)
+- **2026-08-13 사용자 결정으로 전량 개명 집행됨 (applicationId 포함 — 재설치 필요)**:
+  applicationId·namespace `com.netizen.facing.facing_app` → `com.netizen.hyphen.hyphen_app`
+  (구 설치본과 업그레이드 연속성 끊김 — 재설치 필요) · 코드 심볼(FacingTokens→HyphenTokens·
+  FacingTheme→HyphenTheme·FacingApp→HyphenApp·Fk\* 위젯→Hk\*·`fkit.dart`→`hkit.dart` 전량) ·
+  pubspec `facing_app`→`hyphen_app` · 백엔드 계약 값(GymSummary is_official 판정 문자열
+  'FACING'→'HYPHEN HQ' — 백엔드 `services/facing` 쪽 동시 마이그레이션 필요) · 노출 문구
+  (알림 타이틀·약관 화면 등) 전량 HYPHEN. **아직 미개명 (다른 repo·GitHub·Railway 소관)**:
+  repo·폴더명(facing-app / app-facing) · 백엔드/랜딩 서비스명(service-facing 등) ·
+  실도메인 URL(`service-facing-production…`) · Naver OAuth URL scheme 기본값('facing' 유지 —
+  Naver 개발자 콘솔 등록값과 동기화 필요, 임의 변경 금지)
 
 ## 프로젝트 개요
 - 위치: `C:\dev\apps\facing-app\`
@@ -164,7 +171,7 @@ apps/facing-app/
 > 회원·코치·사장 모두를 위한 박스 운영 + 수업 관리. 클래스 예약·결제·계약·공지·코치 정보가 메인.
 
 ### 보조 value / 차별점 (NEW)
-> **페이싱 엔진은 facing 만의 +α.** Wodify/PushPress 가 못 따라오는 선수 도구. 메인 가치는 아니지만 우리만의 hook.
+> **페이싱 엔진은 Hyphen 만의 +α.** Wodify/PushPress 가 못 따라오는 선수 도구. 메인 가치는 아니지만 우리만의 hook.
 
 ### 톤·언어 정책 (유지)
 > Voice & Tone V1~V11 (HWPO/NOBULL/Mayhem/CompTrain 4 벤치마크) 그대로. CrossFit Games 의 미감을 일반 박스 운영 앱에 입혀서 차별화.
@@ -270,7 +277,7 @@ apps/facing-app/
 | `micro` | 13sp w500 ls+0.4 muted | 수치 보조(items, %, points) 전용. v1.19 P0-8 노안 가독성 11→13 상향 |
 | `sectionLabel` | **11sp w700 ls+1.6 muted** | **섹션 구분 라벨 전용. 대문자 필수(코드에서 toUpperCase).** |
 | `tierLabel` | 12sp w800 ls+1.8 | TierBadge 내부 전용 |
-| `brandLogo` | **72sp w800 ls-2.4** | **Splash "FACING" 전용** |
+| `brandLogo` | **72sp w800 ls-2.4** | **Splash "HYPHEN" 전용** |
 | `bannerLabel` | **12sp w700 ls+1.2** | **Offline 등 배너 라벨 전용** |
 | `quote` | 14sp italic | 명언 전용 |
 
@@ -279,7 +286,7 @@ R1. **화면당 h1 1개.** AppBar title이 있으면 화면 내 헤드라인 h2 
 R2. **Tier 결과 화면 최대 2겹.** TierBadge(크게, fontSize 24) + Score 한 줄. `OVERALL` 라벨·`N/6` 숫자 금지.
 R3. **섹션 헤더는 `sectionLabel` 단독.** micro/caption/h2 inline/body.w800 섹션 헤더 사용 금지.
 R4. **동일 지표 동일 토큰.** "500m pace"=`h3`, "총 예상시간"=`display` 화면 막론 고정.
-R5. **하드코드 fontSize 금지.** 모든 텍스트 크기는 `FacingTokens` 상수 참조. 인라인 `TextStyle(fontSize: N)` 커밋 전 리뷰 거절.
+R5. **하드코드 fontSize 금지.** 모든 텍스트 크기는 `HyphenTokens` 상수 참조. 인라인 `TextStyle(fontSize: N)` 커밋 전 리뷰 거절.
 
 ### 인터랙션
 - splashFactory = NoSplash 유지.
@@ -324,18 +331,18 @@ R5. **하드코드 fontSize 금지.** 모든 텍스트 크기는 `FacingTokens` 
 | 빈 상태 예 | "Engine 기록 없음" / "오늘 WOD 없음." / "아직 업적 없음." |
 | 다이얼로그 확인형 | "~할까요?" + 취소/확정 2버튼 ("WOD를 삭제할까요?") |
 
-## 디자인 원칙 (facing 전용 — 공통 룰은 글로벌 SSOT 위임)
+## 디자인 원칙 (Hyphen 전용 — 공통 룰은 글로벌 SSOT 위임)
 > 이모지 금지·그라디언트/과도한 그림자 금지 등 공통 디자인 차단은 글로벌 `rules/design-block.md`·`rules/design-presets.md` 가 SSOT.
 > **레이아웃·크기·폰트 굵기·카피 양식 정본 = `docs/DESIGN-SSOT.md` (v1.29 신설)** — 화면 작업은 그 양식 안에서만. 아래는 요약.
-- **UI 컴포넌트 SSOT = `lib/widgets/fkit.dart` (FKit — v1.27 신설, v1.29 확장)**: 카드(FkCard)·배지(FkBadge)·
-  섹션 라벨(FkSectionLabel)·통계 타일(FkStatTile)·빈/에러/로딩 상태(FkEmptyState/FkErrorState/FkLoading)·
-  전면 로딩(FkLoadingScreen)·소셜 버튼(FkSocialButton)은 FKit 것만 사용. 화면마다 새 버튼·배지·레이아웃
-  variant 신설 금지 — 필요하면 FKit 에 먼저 추가 후 사용 (글로벌 §3 코드·클래스 SSOT 의 프로젝트 배선).
+- **UI 컴포넌트 SSOT = `lib/widgets/hkit.dart` (HKit — v1.27 신설, v1.29 확장)**: 카드(HkCard)·배지(HkBadge)·
+  섹션 라벨(HkSectionLabel)·통계 타일(HkStatTile)·빈/에러/로딩 상태(HkEmptyState/HkErrorState/HkLoading)·
+  전면 로딩(HkLoadingScreen)·소셜 버튼(HkSocialButton)은 HKit 것만 사용. 화면마다 새 버튼·배지·레이아웃
+  variant 신설 금지 — 필요하면 HKit 에 먼저 추가 후 사용 (글로벌 §3 코드·클래스 SSOT 의 프로젝트 배선).
   완전 원형 pill 금지(글로벌 design-block) — 배지는 r1 사각. 티어 표기는 TierBadge 가 별도 SSOT.
 - 라이트 배경 기본 (`bg=#FAFAFA`, v2.0 라이트 전환 — 구 다크 #0A0A0A 폐기). 다크 모드 제공 안 함.
-- 컬러·타이포·간격·모서리 = appkit 공통 조상 재수출 (FacingTokens) + tier 5색 — 수치는 DESIGN-SSOT §1~4.
+- 컬러·타이포·간격·모서리 = appkit 공통 조상 재수출 (HyphenTokens) + tier 5색 — 수치는 DESIGN-SSOT §1~4.
 - 폰트 Pretendard 1종. 굵기 4단 정책(400/500/600/700, 로고·display 만 800~900) = DESIGN-SSOT §2.
-  ※ 글로벌은 Pretendard 차단이나 facing 앱은 예외 유지.
+  ※ 글로벌은 Pretendard 차단이나 Hyphen 앱은 예외 유지.
 - ROW 우선, 여백 충분히
 - 사진/일러스트 없음. 타이포+수치 중심.
 - **브랜드 로고 = HYPHEN 워드마크 (v1.27)**: `lib/widgets/brand_logo.dart` (BrandLogo — 모티프+워드마크

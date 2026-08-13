@@ -9,16 +9,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
-import 'package:facing_app/core/api_client.dart';
-import 'package:facing_app/core/theme.dart';
-import 'package:facing_app/core/wod_session_bus.dart';
-import 'package:facing_app/features/achievement/achievement_repository.dart';
-import 'package:facing_app/features/achievement/achievement_state.dart';
-import 'package:facing_app/features/gym/gym_repository.dart';
-import 'package:facing_app/features/gym/gym_state.dart';
-import 'package:facing_app/features/wod_session/wod_session_screen.dart';
-import 'package:facing_app/models/achievement.dart';
-import 'package:facing_app/models/gym.dart';
+import 'package:hyphen_app/core/api_client.dart';
+import 'package:hyphen_app/core/theme.dart';
+import 'package:hyphen_app/core/wod_session_bus.dart';
+import 'package:hyphen_app/features/achievement/achievement_repository.dart';
+import 'package:hyphen_app/features/achievement/achievement_state.dart';
+import 'package:hyphen_app/features/gym/gym_repository.dart';
+import 'package:hyphen_app/features/gym/gym_state.dart';
+import 'package:hyphen_app/features/wod_session/wod_session_screen.dart';
+import 'package:hyphen_app/models/achievement.dart';
+import 'package:hyphen_app/models/gym.dart';
 
 class _FakeGymRepo extends GymRepository {
   _FakeGymRepo(super.api);
@@ -73,7 +73,7 @@ GymWodPost _wodAmrap12() => GymWodPost(
     );
 
 Widget _wrap(GymWodPost wod, ApiClient api) => MaterialApp(
-      theme: FacingTheme.dark,
+      theme: HyphenTheme.dark,
       home: MultiProvider(
         providers: [
           Provider<ApiClient>.value(value: api),
