@@ -291,8 +291,27 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > - **남긴 것**: 코치 **프로필**(`/api/v1/gyms/<id>/coaches`) — 회원 앱 박스 소개
 >   카드에 쓰는 공개 정보라 계정 관리와 다른 기능이다
 > - **휴면 컬럼**: `gym_managers.pairing_code` · `pairing_code_issued_at` ·
->   `employment_type` — 읽고 쓰는 코드 0. DROP 은 사용자 승인 후 마이그레이션으로
+>   `employment_type` — 2026-08-13 사용자 승인으로 **DROP 완료** (아래 D40)
 > - 재도입 금지 — `tests/test_rules_prem.py::test_no_staff_management` 가 감시
+
+> **D40 (2026-08-13 사용자 승인) — 계약서 읽는 표 일원화 + 휴면 스키마 DROP.**
+>
+> - **계약서 정본은 `contract_instances` 하나.** 발급(POST)은 템플릿 기반
+>   ContractInstance 를 쓰는데 회원 상세의 조회(GET)만 레거시 `gym_contracts` 를
+>   읽고 있어, 계약서를 발급해도 그 탭이 **영원히 "계약서 없음"** 이었다.
+>   `GET /api/v1/admin/members/<id>/contracts` 를 `api/contracts.py` 로 옮겨
+>   ContractInstance 를 읽게 하고, `api/admin.py` 의 레거시 핸들러 3개
+>   (회원별 목록 · 박스 전체 목록 · `POST .../contracts/<id>/sign`)는 삭제했다.
+>   개인정보 export(`api/privacy.py`)도 같은 표를 본다.
+> - **DROP (`models/base.py::_migrate_drop_dormant`, 부팅 시 idempotent)**:
+>   표 `gym_contracts`(0행일 때만) · `member_claim_codes` /
+>   컬럼 `gym_managers.pairing_code` · `pairing_code_issued_at` ·
+>   `employment_type` · `user_id`, `gym_members.claim_code` ·
+>   `claim_code_expires_at` · `user_id`.
+>   `user_id` 는 소셜 계정 역참조인데 실제 연결은 `social_accounts.device_hash` ·
+>   `staff_login_id` 가 하고 있어 모델에도 없던 죽은 컬럼이다.
+> - 곁가지: `gym_managers` 를 모델 DDL 로 다시 만들면서 옛 role CHECK
+>   (`boss`·`coach` 뿐이라 `manager` 를 못 넣던 것)가 모델 기준으로 맞춰졌다.
 
 > **D31 (2026-08-12) — 명단에서 출석 체크 + 대기 순번 정정.**
 >
@@ -507,11 +526,11 @@ GET /api/v1/member/events → 회원 폰 구독 (또는 30초 poll fallback)
 
 | 테이블 | 누가 쓰나 | 핵심 컬럼 |
 |---|---|---|
-| `gym_managers` | 사장/코치 권한 분리 (다중 박스 OK) | gym_id, login_id, password_hash, role (boss/coach), name, phone, hired_at, left_at |
+| `gym_managers` | 운영자(코치) 계정 — 다중 박스 OK | gym_id, login_id, password_hash, role (boss/manager/coach — 셋 다 같은 '코치'), name, phone, device_hash, hired_at, left_at |
 | `gym_member_profiles` | 사장 회원 DB | gym_id, member_id (FK), name, gender, birth_date, phone, level, preferred_time_slot, preferred_coach_gender, safety_note, note |
 | `gym_memberships` | 회원권 관리 | member_id, plan_name, start_date, end_date, price, status (active/expired/refunded), refund_amount, refunded_at |
 | `gym_lockers` | 락커 관리 | gym_id, locker_no, member_id, start_date, end_date |
-| `gym_contracts` | 전자계약 | member_id, body, signed_at, signature_url, ip, pdf_url |
+| `contract_instances` | 전자계약 (정본 — 구 `gym_contracts` 는 D40 에서 DROP) | template_id, gym_id, member_id, status, variables, pdf_path, signed_pdf_path, signed_at, signature_* |
 | `gym_attendances` | 통계용 | member_id, gym_id, checked_at, source (qr/manual) |
 | `gym_inquiries` | 회원→사장 직접 문의 (환불·계약·분쟁) | gym_id, member_id, subject, body, status, responded_at |
 | `audit_logs` | 개인정보 접근·변경 감사 | actor_login_id, action, target_member_id, payload_hash, created_at, ip |
