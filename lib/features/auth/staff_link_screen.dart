@@ -14,7 +14,7 @@ import '../boss/boss_auth_state.dart';
 ///
 /// 소셜 로그인(보통 role=solo) 후, 기존 코치/사장 login_id + PW 를 1회 입력해
 /// `POST /api/v1/auth/link-staff` 로 본인 확인 → 소셜계정에 연결. 이후 소셜
-/// 로그인만으로 자동 boss/coach 분기. 설계: services/facing/docs/AUTH_SOCIAL_DESIGN.md.
+/// 로그인만으로 자동 boss/coach 분기. 설계: services/hyphen/docs/AUTH_SOCIAL_DESIGN.md.
 ///
 /// 세션은 메인 [ApiClient] 의 쿠키 보관(소셜 로그인 시 발급)으로 전달된다.
 class StaffLinkScreen extends StatefulWidget {

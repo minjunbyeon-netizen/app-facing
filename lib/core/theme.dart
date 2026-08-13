@@ -7,7 +7,7 @@ import 'appkit.gen.dart';
 /// hyphen 고유(HWPO 임팩트·tier 색·quote)만 이 파일에 남는다.
 /// 마스터: C:/dev/tools/appkit/master/appkit.json → python sync.py
 ///
-/// (구 v2.0.0 — 라이트 톤 전면 개편, PC facing-admin 팔레트 통합.)
+/// (구 v2.0.0 — 라이트 톤 전면 개편, PC hyphen-admin 팔레트 통합.)
 /// 컬러: 라이트 배경 + CrossFit red 액센트 (WCAG AA 보장).
 /// 폰트: 이중 모드 — HWPO 임팩트(영혼 숫자 1~2회/화면) + Strava 본문(나머지 전체).
 /// 규칙: ~/.claude/reference/{mobile,ux,design}.md + 프로젝트 CLAUDE.md.
@@ -89,7 +89,7 @@ class HyphenTokens {
   static const Color googleSurface = Color(0xFFFFFFFF);
   static const Color googleBlue = Color(0xFF4285F4);
 
-  // ==== Tier 색상 (라이트 배경에서 WCAG AA, PC facing-admin 동기화) ====
+  // ==== Tier 색상 (라이트 배경에서 WCAG AA, PC hyphen-admin 동기화) ====
   /// Scaled — neutral zinc-600.
   static const Color tierScaled = Color(0xFF52525B);
   /// RX — CrossFit red 어둡게 (라이트 배경 4.5:1).
