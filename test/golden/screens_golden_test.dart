@@ -83,7 +83,6 @@ Map<String, Object> signedInPrefs() => {
       'auth_display_name': '김민준',
       'auth_signed_at': '2026-07-01T09:00:00Z',
       'intro_seen': true,
-      'shell_tab_hint_shown_v6': true,
     };
 
 void main() {

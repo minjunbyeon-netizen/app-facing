@@ -16,8 +16,20 @@ import 'week_board.dart';
 import 'wod_post_screen.dart';
 
 /// v1.15.3: WOD 탭 진입점. GymState 상태 따라 4분기 렌더.
-class BoxWodScreen extends StatelessWidget {
+class BoxWodScreen extends StatefulWidget {
   const BoxWodScreen({super.key});
+
+  @override
+  State<BoxWodScreen> createState() => _BoxWodScreenState();
+}
+
+class _BoxWodScreenState extends State<BoxWodScreen> {
+  // v2.9 (2026-08-14): 앱바 새로고침이 GymState.loadMine() 만 불러서 주간보드의
+  // 수업(class_sessions)은 그대로였다 — PC 에서 코치가 수업을 등록해도 이 버튼으론
+  // 안 보이는 버그. 당겨서 새로고침(_WodList._refresh)과 같은 일을 하도록
+  // 리스트 상태에 키로 손을 뻗고, 리스트가 없는 분기(미가입·대기·거절)에서만
+  // WOD 상태 재로드로 폴백한다.
+  final GlobalKey<_WodListState> _listKey = GlobalKey<_WodListState>();
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +46,7 @@ class BoxWodScreen extends StatelessWidget {
       body = _RejectedState(gym: gs.membership.gym!);
     } else {
       // owner or approved member
-      body = _WodList(gymState: gs);
+      body = _WodList(key: _listKey, gymState: gs);
     }
 
     // QA B-SEC-1: 박스명 'HYPHEN HQ' 스푸핑 가능. isOwner 단독 조건으로 강화.
@@ -54,7 +66,12 @@ class BoxWodScreen extends StatelessWidget {
             icon: const Icon(Icons.refresh),
             onPressed: () {
               Haptic.light();
-              context.read<GymState>().loadMine();
+              final list = _listKey.currentState;
+              if (list != null) {
+                list.refreshAll();
+              } else {
+                context.read<GymState>().loadMine();
+              }
             },
           ),
           if (canViewDashboard)
@@ -286,18 +303,19 @@ class _RejectedState extends StatelessWidget {
 /// 7줄 안에서 날짜를 눌러 그날 WOD·수업을 함께 본다 (week_board.dart).
 class _WodList extends StatefulWidget {
   final GymState gymState;
-  const _WodList({required this.gymState});
+  const _WodList({super.key, required this.gymState});
 
   @override
   State<_WodList> createState() => _WodListState();
 }
 
 class _WodListState extends State<_WodList> {
-  // 당겨서 새로고침은 WOD(GymState) 와 수업(WeekBoard 내부 fetch) 둘 다 다시
+  // 새로고침은 WOD(GymState) 와 수업(WeekBoard 내부 fetch) 둘 다 다시
   // 받아야 한다. key 를 갈아 WeekBoard 를 새로 만드는 것이 가장 단순한 배선.
+  // v2.9: 앱바 새로고침 버튼도 이 메서드를 쓴다 (당겨서 새로고침과 동일 경로).
   int _tick = 0;
 
-  Future<void> _refresh() async {
+  Future<void> refreshAll() async {
     await context.read<GymState>().loadMine();
     if (mounted) setState(() => _tick++);
   }
@@ -306,7 +324,7 @@ class _WodListState extends State<_WodList> {
   Widget build(BuildContext context) {
     final gym = widget.gymState.membership.gym!;
     return RefreshIndicator(
-      onRefresh: _refresh,
+      onRefresh: refreshAll,
       child: ListView(
         padding: const EdgeInsets.all(HyphenTokens.sp3),
         children: [
@@ -316,7 +334,7 @@ class _WodListState extends State<_WodList> {
           if (widget.gymState.error != null) ...[
             _LoadErrorBanner(
               message: widget.gymState.error!,
-              onRetry: _refresh,
+              onRetry: refreshAll,
             ),
             const SizedBox(height: HyphenTokens.sp2),
           ],

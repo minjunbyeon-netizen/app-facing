@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/appkit.gen.dart';
 import '../../core/haptic.dart';
@@ -30,10 +29,7 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   static const int _defaultIndex = 1; // WOD as landing tab
-  // v1.27 (2026-07-28): 3기둥 개편 → 힌트 버전 v6 로 bump (기존 사용자도 1회 재노출).
-  static const String _kTabHintShown = 'shell_tab_hint_shown_v6';
   int _index = _defaultIndex;
-  bool _showTabHint = false;
   // v1.21: 베타 피드백 — 더블탭 종료 패턴. 첫 탭 SnackBar, 2초 내 재탭 시 종료.
   DateTime? _lastBackPress;
 
@@ -42,12 +38,6 @@ class _MainShellState extends State<MainShell> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final prefs = await SharedPreferences.getInstance();
-      if (prefs.getBool(_kTabHintShown) == true) return;
-      if (!mounted) return;
-      setState(() => _showTabHint = true);
-    });
     _navBus = context.read<ShellNavBus>();
     _navBus?.addListener(_onNavRequest);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -74,13 +64,6 @@ class _MainShellState extends State<MainShell> {
   void dispose() {
     _navBus?.removeListener(_onNavRequest);
     super.dispose();
-  }
-
-  Future<void> _dismissHint() async {
-    if (!_showTabHint) return;
-    setState(() => _showTabHint = false);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_kTabHintShown, true);
   }
 
   // v1.27: 3탭 — Home(게이미피케이션) · WOD(보드) · Profile.
@@ -166,12 +149,7 @@ class _MainShellState extends State<MainShell> {
         // 인셋을 먹지 않는다. 그래야 키보드가 하단 탭바를 덮고, 채팅 입력칸만
         // 키보드 위로 올라온다 (탭바가 키보드와 입력칸 사이에 끼는 현상 방지).
         resizeToAvoidBottomInset: false,
-        body: Stack(
-          children: [
-            IndexedStack(index: _index, children: _pages),
-            if (_showTabHint) _TabHintOverlay(onDismiss: _dismissHint),
-          ],
-        ),
+        body: IndexedStack(index: _index, children: _pages),
         bottomNavigationBar: NavigationBarTheme(
           data: NavigationBarThemeData(
             backgroundColor: HyphenTokens.bg,
@@ -365,69 +343,6 @@ class _IconWithDot extends StatelessWidget {
   }
 }
 
-/// 첫 실행 1회 탭 힌트. v1.21: 5탭 재구성에 맞게 갱신.
-class _TabHintOverlay extends StatelessWidget {
-  final VoidCallback onDismiss;
-  const _TabHintOverlay({required this.onDismiss});
-
-  // v1.29: 카피 한글 기본 (DESIGN-SSOT §7).
-  static const List<(String, String)> _hints = [
-    ('홈', '레벨 · 업적 · 마일스톤'),
-    ('WOD', '코치 오늘 WOD · 박스 공지'),
-    ('프로필', 'Tier · 신체 · 설정'),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned.fill(
-      child: Material(
-        color: HyphenTokens.bg.withValues(alpha: 0.88),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(HyphenTokens.sp5),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: HyphenTokens.sp5),
-                const Text('3탭', style: HyphenTokens.sectionLabel),
-                const SizedBox(height: HyphenTokens.sp2),
-                const Text('하단 내비게이션 구성',
-                    style: HyphenTokens.caption),
-                const SizedBox(height: HyphenTokens.sp5),
-                ..._hints.map((h) => Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: HyphenTokens.sp3),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            width: 72,
-                            child: Text(h.$1,
-                                style: HyphenTokens.body.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                  color: HyphenTokens.accent,
-                                )),
-                          ),
-                          Expanded(
-                            child: Text(h.$2,
-                                style: HyphenTokens.body.copyWith(
-                                  color: HyphenTokens.fg,
-                                )),
-                          ),
-                        ],
-                      ),
-                    )),
-                const Spacer(),
-                ElevatedButton(
-                  onPressed: onDismiss,
-                  child: const Text('확인'),
-                ),
-                const SizedBox(height: HyphenTokens.sp3),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+// v2.9 (2026-08-14 사용자 지시): 첫 실행 탭 힌트(_TabHintOverlay) 삭제 —
+// 앱에서 사라진 Tier 등 없는 기능을 안내하고 있었다. 3탭은 라벨이 곧 설명이라
+// 별도 튜토리얼 없이 충분하다.
