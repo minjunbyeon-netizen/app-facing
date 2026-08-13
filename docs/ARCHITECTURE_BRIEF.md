@@ -19,7 +19,7 @@
 ## 0.1. PHASE4 시작 (2026-05-23)
 
 > **상태**: PHASE3 P0 18 + P1 24 + P2 14 = 56 task 완료 후 진입 예정. 본 섹션은 PHASE4 계획 선등록.
-> **상세 로드맵**: `docs/PHASE4_ROADMAP.md`
+> **상세 로드맵**: `docs/_archive/PHASE4_ROADMAP.md`(2026-08-13 폐기 이동)
 
 ### 0.1.1. PHASE4 목표 — 듀얼 포지셔닝 확립
 
@@ -449,7 +449,7 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 >   내려간 `score_section.dart` 만 참조한다 — 사용자에게 안 보여서 그대로 뒀다.
 > - 재도입 금지. 데모가 필요하면 **시드가 아니라 그때 손으로** 넣는다.
 
-- **사장은 운영자**, PHASE5 부터는 **외출·이동 중 폰 보조 운영 가능** (linko 격차 해소 — `docs/PHASE5_ROADMAP.md` 참조). PC 가 주, 폰이 보조. **폰 사장 로그인 = PC 동일 ID/PW** 사용. 회원·코치는 device_hash 익명 유지.
+- **사장은 운영자**, PHASE5 부터는 **외출·이동 중 폰 보조 운영 가능** (linko 격차 해소 — `docs/_archive/PHASE5_ROADMAP.md`(2026-08-13 폐기 이동) 참조). PC 가 주, 폰이 보조. **폰 사장 로그인 = PC 동일 ID/PW** 사용. 회원·코치는 device_hash 익명 유지.
 - 한 사람이 두 역할 가질 수 있어요 (예: 박지훈 = 사장 + 코치). DB 상으로는 `gym_managers` 에 두 행 (또는 role 컬럼 set 형).
 - **PHASE5 추가 가정**: facing-app 진입 시 `user_type` 분기 — `device_hash` (회원·코치 익명) vs `login_id` (사장·매니저 ID/PW). 같은 앱 바이너리, 다른 진입 플로우.
 
@@ -786,7 +786,7 @@ retention 정의 = "코호트(가입 월) 의 N개월 후 시점에 attendance �
 
 ### 11.1. PHASE4 신규 테이블 (12개) — 사전 합의 등록
 
-> 등록일: 2026-05-23. 상세 DDL: `docs/PHASE4_ROADMAP.md` 각 §1.x·§2.x.
+> 등록일: 2026-05-23. 상세 DDL: `docs/_archive/PHASE4_ROADMAP.md`(2026-08-13 폐기 이동) 각 §1.x·§2.x.
 > Migration 방법: `services/facing/models/base.py` `_migrate()` 함수에 `CREATE TABLE IF NOT EXISTS` 패턴 추가 (기존 Phase 1 방식 동일).
 
 | # | 테이블 명 | PHASE4 Week | 모듈 | 브리프 §5 다이어그램 갱신 필요 |
@@ -820,7 +820,7 @@ retention 정의 = "코호트(가입 월) 의 N개월 후 시점에 attendance �
 
 ### 11.3. PHASE4 신규 API 엔드포인트 (§13 카탈로그 갱신 예고)
 
-> PHASE4 구현 착수 시 §13.2 에 신규 endpoint 추가 의무. 아래는 예고 목록 (상세: `docs/PHASE4_ROADMAP.md` 각 §).
+> PHASE4 구현 착수 시 §13.2 에 신규 endpoint 추가 의무. 아래는 예고 목록 (상세: `docs/_archive/PHASE4_ROADMAP.md`(2026-08-13 폐기 이동) 각 §).
 
 | 모듈 | 신규 엔드포인트 수 | 비고 |
 |---|---|---|
@@ -884,7 +884,7 @@ retention 정의 = "코호트(가입 월) 의 N개월 후 시점에 attendance �
 
 ### 11.4. PHASE5 §2 RBAC 변경 등록 (2026-05-23)
 
-> 등록일: 2026-05-23. 상세 plan: `docs/PHASE5_ROADMAP.md`.
+> 등록일: 2026-05-23. 상세 plan: `docs/_archive/PHASE5_ROADMAP.md`(2026-08-13 폐기 이동).
 > 사장 폰 보조 운영 가정 추가 — linko 격차 해소 (linko 9 스크린샷 분석에서 격차 발견).
 
 | 변경 항목 | Before | After | 영향 범위 |
