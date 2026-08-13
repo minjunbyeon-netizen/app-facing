@@ -392,3 +392,6 @@ v2: Play Store Internal Testing → Closed Testing → Production.
 - NEVER API 키/토큰을 Dart 코드에 하드코딩
 - NEVER 사용자 Max 데이터를 서버 백업 없이 로컬에만 저장 (MVP는 익명이라 유실 OK, v2부터는 서버 백업 필수)
 - NEVER React Native/Ionic/Capacitor 라이브러리 혼용 (Flutter 순수 스택)
+
+## 구현 대차대조 SSOT 포인터 (2026-08-13)
+- 3면(DB·API·폰·PC) 실구현 대차대조표·이름사전·갭대장 = `../../services/facing/docs/SSOT/` (`INDEX.md` 부터). 폰 화면이 어느 API·DB 컬럼에 닿는지의 정본.
