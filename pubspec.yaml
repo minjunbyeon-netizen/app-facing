@@ -3,7 +3,7 @@ description: "WOD pacing strategy app"
 publish_to: 'none'
 # H-3 (2026-06-10): 론칭 버전. versionCode 3001 (구 0.1.17+3000 에서 단조 증가 유지).
 # 3002 (2026-08-13): 가입 코드 폐기 · 없는 기능 광고 제거 · 전화번호 자동 하이픈 반영.
-version: 1.0.0+3002
+version: 1.0.0+3003
 
 environment:
   sdk: ^3.11.5
