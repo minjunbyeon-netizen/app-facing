@@ -408,7 +408,7 @@ class _ClassCard extends StatelessWidget {
                   OutlinedButton(
                     onPressed: onCancel,
                     style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(96, 44),
+                      minimumSize: const Size(96, HyphenTokens.touchMin),
                       foregroundColor: HyphenTokens.accent,
                       side:
                           BorderSide(color: HyphenTokens.accent.withAlpha(120)),
@@ -422,7 +422,7 @@ class _ClassCard extends StatelessWidget {
                         ? null
                         : onReserve,
                     style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(96, 44),
+                      minimumSize: const Size(96, HyphenTokens.touchMin),
                       backgroundColor: HyphenTokens.accent,
                       foregroundColor: HyphenTokens.onColor,
                     ),
