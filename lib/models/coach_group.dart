@@ -1,5 +1,7 @@
 // v1.18 Sprint 19: Coach Group DTO.
 
+import '../core/app_clock.dart';
+
 class CoachGroup {
   final int id;
   final String name;
@@ -72,8 +74,8 @@ class CoachGroup {
       memberCount: ((j['member_count'] ?? 0) as num).toInt(),
       createdAt: j['created_at'] is String
           ? DateTime.tryParse(j['created_at'] as String) ??
-              DateTime.now().toUtc()
-          : DateTime.now().toUtc(),
+              appClock.now().toUtc()
+          : appClock.now().toUtc(),
       colorHex: j['color_hex']?.toString(),
       capacity: j['capacity'] is num ? (j['capacity'] as num).toInt() : null,
       weekdaySlot: wdays,

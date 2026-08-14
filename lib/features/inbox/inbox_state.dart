@@ -4,7 +4,8 @@ import 'package:flutter/foundation.dart';
 
 import '../../core/exception.dart';
 import '../../models/coach_note.dart';
-import 'inbox_repository.dart';
+import 'inbox_repository.dart';
+import '../../core/app_clock.dart';
 
 class InboxState extends ChangeNotifier {
   final InboxRepository repo;
@@ -143,12 +144,12 @@ class InboxState extends ChangeNotifier {
           createdAt: n.createdAt,
           my: RecipientStatus(
             status: newStatus,
-            readAt: n.my!.readAt ?? DateTime.now(),
+            readAt: n.my!.readAt ?? appClock.now(),
             acceptedAt: newStatus == 'accepted'
-                ? DateTime.now()
+                ? appClock.now()
                 : n.my!.acceptedAt,
             completedAt: newStatus == 'completed'
-                ? DateTime.now()
+                ? appClock.now()
                 : n.my!.completedAt,
             declineReason: n.my!.declineReason,
             actual: n.my!.actual,

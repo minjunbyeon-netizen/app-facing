@@ -27,6 +27,7 @@ import 'group_management_screen.dart';
 import 'inbox_repository.dart';
 import 'inbox_state.dart';
 import 'note_detail_screen.dart';
+import '../../core/app_clock.dart';
 
 class InboxScreen extends StatefulWidget {
   const InboxScreen({super.key});
@@ -262,7 +263,7 @@ class CoachDossierTile extends StatelessWidget {
     if (dueDate == null || dueDate.isEmpty) return null;
     final due = DateTime.tryParse('${dueDate}T00:00:00');
     if (due == null) return null;
-    final now = DateTime.now().toLocal();
+    final now = appClock.now().toLocal();
     final today = DateTime(now.year, now.month, now.day);
     final diff = due.difference(today).inDays;
     if (diff < 0) return _DueBadge('OVERDUE', color: HyphenTokens.overdue);
@@ -272,7 +273,7 @@ class CoachDossierTile extends StatelessWidget {
   }
 
   static String _agoLabel(DateTime created) {
-    final now = DateTime.now().toUtc();
+    final now = appClock.now().toUtc();
     final d = now.difference(created.isUtc ? created : created.toUtc());
     if (d.inMinutes < 1) return 'now';
     if (d.inMinutes < 60) return '${d.inMinutes}m';
@@ -281,7 +282,7 @@ class CoachDossierTile extends StatelessWidget {
     final l = created.toLocal();
     final mm = l.month.toString().padLeft(2, '0');
     final dd = l.day.toString().padLeft(2, '0');
-    if (l.year != DateTime.now().year) {
+    if (l.year != appClock.now().year) {
       return '${l.year}-$mm-$dd';
     }
     return '$mm/$dd';
@@ -376,7 +377,7 @@ class _ChatBubble extends StatelessWidget {
   }
 
   static String _timeLabel(DateTime t) {
-    final now = DateTime.now();
+    final now = appClock.now();
     if (t.year == now.year && t.month == now.month && t.day == now.day) {
       final hh = t.hour.toString().padLeft(2, '0');
       final mm = t.minute.toString().padLeft(2, '0');
@@ -535,7 +536,7 @@ class _ChatInputBar extends StatelessWidget {
 }
 
 String _shortTime(DateTime t) {
-  final now = DateTime.now();
+  final now = appClock.now();
   if (t.year == now.year && t.month == now.month && t.day == now.day) {
     final hh = t.hour.toString().padLeft(2, '0');
     final mm = t.minute.toString().padLeft(2, '0');

@@ -1,6 +1,8 @@
 // v1.16.2 (2026-05-24) — 락커 DTO.
 // /api/v1/member/me/locker 응답 1 행 매핑.
 
+import '../core/app_clock.dart';
+
 class Locker {
   final int gymId;
   final String lockerNo; // "A-07" 등 자유 string
@@ -32,7 +34,7 @@ class Locker {
     if (endDate == null || endDate!.isEmpty) return null;
     try {
       final end = DateTime.parse(endDate!);
-      final now = DateTime.now();
+      final now = appClock.now();
       final endDay = DateTime(end.year, end.month, end.day);
       final today = DateTime(now.year, now.month, now.day);
       return endDay.difference(today).inDays;

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../core/app_clock.dart';
 
 /// v1.16: 데모 회원가입 상태.
 /// 실제 OAuth 통신은 Phase 2 — MVP는 Naver/Kakao 버튼 탭 시 provider 기록만.
@@ -35,7 +36,7 @@ class AuthState extends ChangeNotifier {
     _signedIn = true;
     _provider = provider;
     _displayName = displayName ?? _defaultName(provider);
-    _signedAt = DateTime.now().toUtc(); // QA B-TZ-4: UTC 저장.
+    _signedAt = appClock.now().toUtc(); // QA B-TZ-4: UTC 저장.
     await prefs.setBool(_kSignedIn, true);
     await prefs.setString(_kProvider, provider);
     await prefs.setString(_kDisplayName, _displayName!);

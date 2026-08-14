@@ -5,6 +5,7 @@ import '../../core/api_client.dart';
 import '../../core/theme.dart';
 import '../classes/classes_screen.dart' show ClassesSection;
 import '../gym/gym_repository.dart';
+import '../../core/app_clock.dart';
 
 /// v1.23 (2026-06-02) 재배치 Phase 3: Attend = 출석 캘린더 전담.
 /// 게이미피케이션(Level·업적·Milestones)은 Home 으로 이관됨.
@@ -85,7 +86,7 @@ class _AttendanceCalendarState extends State<_AttendanceCalendar> {
 
   int _currentStreak(Set<DateTime> days) {
     if (days.isEmpty) return 0;
-    final today = DateTime.now();
+    final today = appClock.now();
     DateTime cursor = DateTime(today.year, today.month, today.day);
     if (!days.contains(cursor)) {
       cursor = cursor.subtract(const Duration(days: 1));
@@ -126,7 +127,7 @@ class _AttendanceCalendarState extends State<_AttendanceCalendar> {
             );
           }
           final byDay = snap.data ?? const <DateTime, int>{};
-          final now = DateTime.now();
+          final now = appClock.now();
           final monthYear = now.year;
           final monthNum = now.month;
           final daysInMonth = DateUtils.getDaysInMonth(monthYear, monthNum);

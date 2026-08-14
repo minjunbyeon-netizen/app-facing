@@ -7,6 +7,7 @@ import '../../models/gym.dart';
 import '../../widgets/hkit.dart';
 import 'gym_state.dart';
 import 'wod_type_label.dart';
+import '../../core/app_clock.dart';
 
 /// v1.15.3: 코치 WOD 작성 폼.
 class WodPostScreen extends StatefulWidget {
@@ -25,7 +26,7 @@ class _WodPostScreenState extends State<WodPostScreen> {
   final _timeCapCtrl = TextEditingController();
 
   String _wodType = 'for_time';
-  DateTime _date = DateTime.now();
+  DateTime _date = appClock.now();
   bool _submitting = false;
   // v1.16 Sprint 15: 라운드 배열 (각 라운드별 label·content·timeCap).
   final List<_RoundDraft> _rounds = [];
@@ -150,8 +151,8 @@ class _WodPostScreenState extends State<WodPostScreen> {
     final picked = await showDatePicker(
       context: context,
       initialDate: _date,
-      firstDate: DateTime.now().subtract(const Duration(days: 30)),
-      lastDate: DateTime.now().add(const Duration(days: 30)),
+      firstDate: appClock.now().subtract(const Duration(days: 30)),
+      lastDate: appClock.now().add(const Duration(days: 30)),
     );
     if (picked != null) {
       setState(() => _date = picked);

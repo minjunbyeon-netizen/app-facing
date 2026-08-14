@@ -29,6 +29,7 @@ import '../history/history_models.dart';
 import '../history/history_repository.dart';
 import '../inbox/inbox_state.dart';
 import '../profile/profile_state.dart';
+import '../../core/app_clock.dart';
 
 class PanelBScreen extends StatefulWidget {
   const PanelBScreen({super.key});
@@ -165,7 +166,7 @@ class _PanelBScreenState extends State<PanelBScreen> {
     if (history.isEmpty) return 0;
     final sorted = [...history]
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
-    final today = DateTime.now().toLocal();
+    final today = appClock.now().toLocal();
     final todayKey = DateTime(today.year, today.month, today.day);
     final mostRecent = sorted.first.createdAt.toLocal();
     final mostRecentKey =

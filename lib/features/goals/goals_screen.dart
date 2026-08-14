@@ -10,6 +10,7 @@ import '../../core/theme.dart';
 import '../../widgets/hkit.dart';
 import '../history/history_models.dart';
 import '../history/history_repository.dart';
+import '../../core/app_clock.dart';
 
 class GoalsScreen extends StatefulWidget {
   const GoalsScreen({super.key});
@@ -31,7 +32,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
   int _sessionsThisWeek(List<WodHistoryItem> list) {
     // v1.19 차수 5 (B-LW-12): attendance(일요일 시작)와 통일.
     // DateTime.weekday: 1=Mon..7=Sun. weekday%7: Sun→0 → 이번주 시작.
-    final now = DateTime.now();
+    final now = appClock.now();
     final weekStart = now.subtract(Duration(days: now.weekday % 7));
     final weekStartDate =
         DateTime(weekStart.year, weekStart.month, weekStart.day);
@@ -41,7 +42,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
   }
 
   int _sessionsThisMonth(List<WodHistoryItem> list) {
-    final now = DateTime.now();
+    final now = appClock.now();
     return list.where((w) {
       final d = w.createdAt.toLocal();
       return d.year == now.year && d.month == now.month;

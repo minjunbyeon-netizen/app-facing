@@ -12,7 +12,8 @@
 //   - 실패해도 silent (notification 없어도 앱은 동작)
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'api_client.dart';
+import 'api_client.dart';
+import 'app_clock.dart';
 
 class FcmRegister {
   static const _lastRegisteredKey = 'fcm_last_registered_at_ms';
@@ -28,14 +29,14 @@ class FcmRegister {
 
       final lastMs = prefs.getInt(_lastRegisteredKey) ?? 0;
       final lastTok = prefs.getString(_lastTokenKey) ?? '';
-      final age = DateTime.now().millisecondsSinceEpoch - lastMs;
+      final age = appClock.now().millisecondsSinceEpoch - lastMs;
       if (lastTok == token && age < _registerInterval.inMilliseconds) {
         return; // 최근 24h 안 같은 토큰이면 skip
       }
 
       final res = await api.post('/api/v1/devices/fcm-token', {'fcm_token': token});
       if (res['ok'] == true) {
-        await prefs.setInt(_lastRegisteredKey, DateTime.now().millisecondsSinceEpoch);
+        await prefs.setInt(_lastRegisteredKey, appClock.now().millisecondsSinceEpoch);
         await prefs.setString(_lastTokenKey, token);
       }
     } catch (_) {
@@ -50,14 +51,14 @@ class FcmRegister {
     var t = prefs.getString('fcm_placeholder_token');
     if (t == null || t.isEmpty) {
       // 한 번만 만들고 SharedPreferences 에 고정 — 같은 device 는 같은 토큰
-      t = 'PLACEHOLDER_${DateTime.now().millisecondsSinceEpoch}_${_rand6()}';
+      t = 'PLACEHOLDER_${appClock.now().millisecondsSinceEpoch}_${_rand6()}';
       await prefs.setString('fcm_placeholder_token', t);
     }
     return t;
   }
 
   static String _rand6() {
-    final n = DateTime.now().microsecondsSinceEpoch & 0xFFFFFF;
+    final n = appClock.now().microsecondsSinceEpoch & 0xFFFFFF;
     return n.toRadixString(16).padLeft(6, '0');
   }
 }

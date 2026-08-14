@@ -1,6 +1,8 @@
 // v1.16.2 (2026-05-24) — 회원권 DTO.
 // /api/v1/member/me/memberships 응답 1 행 매핑.
 
+import '../core/app_clock.dart';
+
 class Membership {
   final int id;
   final int gymId;
@@ -39,7 +41,7 @@ class Membership {
     if (endDate == null) return null;
     try {
       final end = DateTime.parse(endDate!);
-      final now = DateTime.now();
+      final now = appClock.now();
       final endDay = DateTime(end.year, end.month, end.day);
       final today = DateTime(now.year, now.month, now.day);
       return endDay.difference(today).inDays;
@@ -54,7 +56,7 @@ class Membership {
     try {
       final start = DateTime.parse(startDate!);
       final end = DateTime.parse(endDate!);
-      final now = DateTime.now();
+      final now = appClock.now();
       final total = end.difference(start).inSeconds;
       if (total <= 0) return null;
       final elapsed = now.difference(start).inSeconds;

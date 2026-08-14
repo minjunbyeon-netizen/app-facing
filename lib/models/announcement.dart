@@ -1,5 +1,7 @@
 // v1.19 P2: 마케팅 피드 강화 — 이미지·CTA·기간·핀고정·카테고리.
 
+import '../core/app_clock.dart';
+
 /// 공지 카테고리.
 enum AnnouncementCategory {
   notice, // 공지
@@ -70,7 +72,7 @@ class GymAnnouncement {
   /// 기간 표시 문자열. e.g. "5월 1일 ~ 5월 30일" or "오늘 마감"
   String? get dateRangeLabel {
     if (!hasDateRange) return null;
-    final now = DateTime.now();
+    final now = appClock.now();
     String fmt(DateTime d) {
       return '${d.month}월 ${d.day}일';
     }

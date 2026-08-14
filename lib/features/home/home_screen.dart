@@ -21,6 +21,7 @@ import '../history/history_repository.dart';
 import '../inbox/inbox_screen.dart';
 import '../inbox/inbox_state.dart';
 import '../profile/profile_state.dart';
+import '../../core/app_clock.dart';
 
 /// v1.23 (2026-06-02) 재배치 Phase 3: Attend 의 게이미피케이션을 Home 으로 이관.
 /// Home = LEVEL(캐릭터 진화) + ACHIEVEMENTS(업적 그리드) + MILESTONES(3종 진행바).
@@ -258,7 +259,7 @@ class _GamificationBody extends StatelessWidget {
   int _currentStreak() {
     final days = _uniqueDays();
     if (days.isEmpty) return 0;
-    final today = DateTime.now();
+    final today = appClock.now();
     final todayDate = DateTime(today.year, today.month, today.day);
     DateTime cursor = todayDate;
     if (!days.contains(cursor)) {
@@ -286,7 +287,7 @@ class _GamificationBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final totalLifetime = records.length;
     final currentStreak = _currentStreak();
-    final now = DateTime.now();
+    final now = appClock.now();
     final daysElapsed = now.day;
     final achState = context.watch<AchievementState>();
     final unlockedCount = achState.snapshot.unlocked.length;

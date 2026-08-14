@@ -1,5 +1,7 @@
 // v1.15.3: 박스/코치 WOD 피드 DTO.
 
+import '../core/app_clock.dart';
+
 class GymSummary {
   final int id;
   final String name;
@@ -269,7 +271,7 @@ class GymMember {
   /// 오늘·어제 활동 여부. streak 끊김 경고용.
   int get daysSinceLastWod {
     if (lastWodAt == null) return 999;
-    return DateTime.now().difference(lastWodAt!).inDays;
+    return appClock.now().difference(lastWodAt!).inDays;
   }
 
   bool get isDormant => isApproved && daysSinceLastWod >= 14;

@@ -13,6 +13,7 @@ import '../classes/classes_screen.dart'
 import 'gym_state.dart';
 import 'wod_row.dart';
 import 'wod_type_label.dart';
+import '../../core/app_clock.dart';
 
 /// v2.4 (2026-08-12 사용자 지시): WOD 탭 = **그 주 월~일 아코디언**.
 ///
@@ -43,7 +44,7 @@ class _WeekBoardState extends State<WeekBoard> {
   void initState() {
     super.initState();
     _repo = ClassesRepository(context.read<ApiClient>());
-    final now = DateTime.now();
+    final now = appClock.now();
     _today = DateTime(now.year, now.month, now.day);
     _weekStart = _today.subtract(Duration(days: _today.weekday - 1));
     _selected = _today.weekday - 1;
@@ -479,7 +480,7 @@ class _ClassLine extends StatelessWidget {
     final isReserved = session.isReserved;
     final isWaitlisted = session.isWaitlisted;
     final isFull = session.isFull;
-    final isOver = l.isBefore(DateTime.now());
+    final isOver = l.isBefore(appClock.now());
     final waitlistFull = session.waitlistCount >= session.waitlistCapacity;
 
     // '8/12' 가 날짜(8월 12일)로 읽혔다 — 앞에 '정원' 을 붙여 인원임을 못 박는다.

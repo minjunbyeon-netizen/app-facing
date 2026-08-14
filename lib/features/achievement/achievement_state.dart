@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../../core/exception.dart';
 import '../../models/achievement.dart';
 import 'achievement_repository.dart';
+import '../../core/app_clock.dart';
 
 /// v1.16: Achievement 전역 상태.
 /// - `snapshot`: GET /achievements 결과
@@ -31,7 +32,7 @@ class AchievementState extends ChangeNotifier {
   bool get _checkThrottled {
     final t = _lastCheckedAt;
     if (t == null) return false;
-    return DateTime.now().difference(t).inMinutes < 10;
+    return appClock.now().difference(t).inMinutes < 10;
   }
 
   Future<void> load() async {
@@ -56,7 +57,7 @@ class AchievementState extends ChangeNotifier {
     if (throttle && _checkThrottled) return const [];
     try {
       final newly = await repo.check();
-      _lastCheckedAt = DateTime.now();
+      _lastCheckedAt = appClock.now();
       // 신규 해금이 있거나 아직 스냅샷이 비어있으면 재로딩.
       if (newly.isNotEmpty || _snapshot.unlocked.isEmpty) {
         await load();

@@ -19,6 +19,7 @@ import 'package:hyphen_app/features/gym/gym_state.dart';
 import 'package:hyphen_app/features/wod_session/wod_session_screen.dart';
 import 'package:hyphen_app/models/achievement.dart';
 import 'package:hyphen_app/models/gym.dart';
+import 'package:hyphen_app/core/app_clock.dart';
 
 class _FakeGymRepo extends GymRepository {
   _FakeGymRepo(super.api);
@@ -55,7 +56,7 @@ GymWodPost _wodForTimeFran() => GymWodPost(
       roundsData: const [],
       rounds: null,
       timeCapSec: null,
-      createdAt: DateTime.now(),
+      createdAt: appClock.now(),
     );
 
 GymWodPost _wodAmrap12() => GymWodPost(
@@ -69,7 +70,7 @@ GymWodPost _wodAmrap12() => GymWodPost(
       roundsData: const [],
       rounds: null,
       timeCapSec: 720,
-      createdAt: DateTime.now(),
+      createdAt: appClock.now(),
     );
 
 Widget _wrap(GymWodPost wod, ApiClient api) => MaterialApp(

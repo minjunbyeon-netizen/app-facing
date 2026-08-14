@@ -1,5 +1,7 @@
 // v1.18 Sprint 19: Coach Note + Recipient + structured Assignment items.
 
+import '../core/app_clock.dart';
+
 class CoachNote {
   final int id;
   final int gymId;
@@ -99,8 +101,8 @@ class CoachNote {
       autoKind: j['auto_kind']?.toString(),
       createdAt: j['created_at'] is String
           ? DateTime.tryParse(j['created_at'] as String) ??
-              DateTime.now().toUtc()
-          : DateTime.now().toUtc(),
+              appClock.now().toUtc()
+          : appClock.now().toUtc(),
       my: j['my'] is Map
           ? RecipientStatus.fromJson(Map<String, dynamic>.from(j['my'] as Map))
           : null,

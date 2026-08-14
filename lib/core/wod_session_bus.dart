@@ -2,6 +2,7 @@
 // Consumer가 notifyListeners를 받아 reload하면 된다.
 
 import 'package:flutter/foundation.dart';
+import 'app_clock.dart';
 
 class WodSessionBus extends ChangeNotifier {
   int _completedCount = 0;
@@ -13,7 +14,7 @@ class WodSessionBus extends ChangeNotifier {
   /// WOD 세션 완료 시 호출. 리스너들이 reload 트리거.
   void bump() {
     _completedCount++;
-    _lastCompletedAt = DateTime.now();
+    _lastCompletedAt = appClock.now();
     notifyListeners();
   }
 }

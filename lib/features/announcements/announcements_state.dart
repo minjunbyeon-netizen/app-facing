@@ -2,7 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/announcement.dart';
-import '../gym/gym_repository.dart';
+import '../gym/gym_repository.dart';
+import '../../core/app_clock.dart';
 
 class AnnouncementsState extends ChangeNotifier {
   static const _kLastSeenKey = 'ann_last_seen_at_ms';
@@ -40,7 +41,7 @@ class AnnouncementsState extends ChangeNotifier {
   Future<void> markSeen() async {
     if (_unreadCount == 0) return;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_kLastSeenKey, DateTime.now().millisecondsSinceEpoch);
+    await prefs.setInt(_kLastSeenKey, appClock.now().millisecondsSinceEpoch);
     _unreadCount = 0;
     notifyListeners();
   }

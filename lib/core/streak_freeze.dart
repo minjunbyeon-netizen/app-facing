@@ -7,7 +7,8 @@
 // - 누적 X (사용 안 한 freeze 는 다음 주에 사라짐).
 // - 클라이언트 로컬 저장 (Phase 2.5 백엔드 동기화).
 
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'app_clock.dart';
 
 class StreakFreezeStore {
   static const _kLastUseIso = 'streak_freeze_last_use_iso';
@@ -20,12 +21,12 @@ class StreakFreezeStore {
     if (lastUse == null) return true;
     final lastUseDt = DateTime.tryParse(lastUse);
     if (lastUseDt == null) return true;
-    return !_inSameIsoWeek(lastUseDt, now ?? DateTime.now().toLocal());
+    return !_inSameIsoWeek(lastUseDt, now ?? appClock.now().toLocal());
   }
 
   /// freeze 사용. 성공 시 true / 이미 이번 주 사용했으면 false.
   static Future<bool> consume({DateTime? now}) async {
-    final n = now ?? DateTime.now().toLocal();
+    final n = now ?? appClock.now().toLocal();
     final ok = await available(now: n);
     if (!ok) return false;
     final prefs = await SharedPreferences.getInstance();
@@ -43,7 +44,7 @@ class StreakFreezeStore {
 
   /// 다음 충전일 (월요일 00:00 KST 기준).
   static DateTime nextRefill([DateTime? now]) {
-    final n = now ?? DateTime.now().toLocal();
+    final n = now ?? appClock.now().toLocal();
     final daysUntilMonday = (8 - n.weekday) % 7;
     final base = n.add(Duration(days: daysUntilMonday == 0 ? 7 : daysUntilMonday));
     return DateTime(base.year, base.month, base.day);

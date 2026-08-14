@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'app_clock.dart';
 
 /// 입력칸 서식 — 화면마다 다시 만들지 않는다 (§3 코드 SSOT).
 /// v2.6 (2026-08-13 사용자 지시): 생년월일 자동 하이픈 + 형식 검증.
@@ -87,7 +88,7 @@ String? birthDateError(String raw, {DateTime? today}) {
   final y = int.parse(digits.substring(0, 4));
   final m = int.parse(digits.substring(4, 6));
   final d = int.parse(digits.substring(6, 8));
-  final now = today ?? DateTime.now();
+  final now = today ?? appClock.now();
 
   if (y < 1900 || y > now.year) return '연도를 확인해 주세요.';
   if (m < 1 || m > 12) return '월은 01~12 입니다.';

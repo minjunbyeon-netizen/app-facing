@@ -13,6 +13,9 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
+  # 시각 주입 지점 단일화 — DateTime.now() 직접 호출 금지, clock.now() 만.
+  # 골든 테스트가 flutter_test_config 에서 Clock.fixed 로 날짜를 고정한다.
+  clock: ^1.1.1
   dio: ^5.7.0
   shared_preferences: ^2.3.2
   uuid: ^4.5.1

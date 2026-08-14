@@ -6,6 +6,7 @@ import 'package:hyphen_app/core/exception.dart';
 import 'package:hyphen_app/core/sse_client.dart';
 import 'package:hyphen_app/features/boss/boss_api_client.dart';
 import 'package:hyphen_app/features/boss/boss_auth_state.dart';
+import 'package:hyphen_app/core/app_clock.dart';
 
 /// 골든 테스트용 가짜 백엔드 — 경로 prefix → 응답 데이터 맵. 네트워크 0.
 /// ApiClient 를 implements + noSuchMethod 로 대체 (생성자가 private 이라 상속 불가).
@@ -209,7 +210,7 @@ String _ymd(DateTime d) =>
 /// /api/v1/gyms/1/wods — 코치 오늘 WOD 보드 (rounds_data 구조화 포함).
 /// 날짜는 실행 시점 기준 — 언제 갱신해도 TODAY 밴드가 살아있게 (writeplz generations 패턴).
 List<Map<String, dynamic>> gymWods() {
-  final now = DateTime.now();
+  final now = appClock.now();
   return [
     {
       'id': 31,
@@ -255,7 +256,7 @@ List<Map<String, dynamic>> gymWods() {
 
 /// /api/v1/member/attendances — 최근 QR 체크인 6회 (실행 시점 기준).
 List<Map<String, dynamic>> memberAttendances() {
-  final now = DateTime.now();
+  final now = appClock.now();
   return [
     for (final ago in [1, 3, 5, 7, 10, 12])
       {'date': _ymd(now.subtract(Duration(days: ago))), 'count': 1},
@@ -271,15 +272,15 @@ List<Map<String, dynamic>> memberAttendances() {
 ///
 /// 저녁 시간대를 쓰는 이유는 v2.4 때와 같다 — 캡처 시점이 대개 그 전이라
 /// "아직 안 지난 오늘 수업"으로 남아 예약 버튼이 골든에 찍힌다.
-/// (남은 흔들림: **날짜**는 여전히 실행 시점이라 날이 바뀌면 주간 보드가 통째로
-/// 달라진다. 없애려면 앱 코드의 `DateTime.now()` 47곳을 `package:clock` 으로
-/// 갈아야 해서 별건으로 둔다.)
+/// (날짜 흔들림은 2026-08-14 해소 — 앱 코드 DateTime.now() 전량을 `appClock.now()`
+/// 로 갈았고, flutter_test_config 의 `kTestClock`(Clock.fixed 2026-08-12 10:30)
+/// 이 모든 테스트의 시각을 고정한다. 이 파일의 `appClock.now()` 도 같은 값을 받는다.)
 String _todayAt(DateTime now, int hour) =>
     '${_ymd(now)}T${hour.toString().padLeft(2, '0')}:00:00';
 
 /// /api/v1/member/classes — 오늘 남은 시간대 2 + 내일 아침 1 (마감 1 포함).
 List<Map<String, dynamic>> memberClasses() {
-  final now = DateTime.now();
+  final now = appClock.now();
   final tomorrow = _ymd(now.add(const Duration(days: 1)));
   return [
     {
@@ -338,7 +339,7 @@ List<Map<String, dynamic>> memberClasses() {
 
 /// /api/v1/member/me/memberships — 활성 회원권 1건 (진행률 살아있게 상대 날짜).
 List<Map<String, dynamic>> memberMemberships() {
-  final now = DateTime.now();
+  final now = appClock.now();
   return [
     {
       'id': 1,
@@ -709,7 +710,7 @@ Map<String, dynamic> classRoster() => {
 
 /// /api/v1/admin/gyms/1/dashboard — 사장 대시보드 (오늘 운영, 실행 시점 상대 날짜).
 Map<String, dynamic> bossDashboard() {
-  final now = DateTime.now();
+  final now = appClock.now();
   return {
     'today': _ymd(now),
     'today_reservations': {
