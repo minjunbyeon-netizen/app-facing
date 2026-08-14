@@ -141,7 +141,7 @@ class AchievementCard extends StatelessWidget {
       case 'ALL_CAT_80':
         return '전 카테고리 Engine 80 동시 달성.';
       case 'WOD_50':
-        return 'WOD 50회 이상 계산.';
+        return '수업 기록 50회 이상.';
       case 'STREAK_10':
         return '10일 연속 출석.';
       case 'STREAK_30':
@@ -173,7 +173,7 @@ class AchievementCard extends StatelessWidget {
       case 'SEASON_FALL':
         return '가을(9-11월) Engine 70+ 측정.';
       case 'SEASON_WINTER':
-        return '겨울(12-2월) WOD 20회.';
+        return '겨울(12-2월) 수업 기록 20회.';
       case 'SEASON_YEAREND':
         return '12월 30일 연속 출석.';
       // v1.17 이스터에그 (잠금 상태에선 hidden).
@@ -189,7 +189,7 @@ class AchievementCard extends StatelessWidget {
         return '카테고리 패턴 발현.';
       // v1.17 PR.
       case 'PR_FIRST':
-        return '동일 WOD 시간 단축 1회.';
+        return '동일 수업 내용 기록 단축 1회.';
       case 'PR_HUNTER':
         return 'PR 10회 누적.';
       case 'PR_LIFT_KING':
@@ -200,9 +200,9 @@ class AchievementCard extends StatelessWidget {
         return '1RM 체중의 2배 도달.';
       // v1.17 Volume / Discipline.
       case 'VOL_100_WODS':
-        return 'WOD 100회 누적.';
+        return '수업 기록 100회 누적.';
       case 'VOL_200_WODS':
-        return 'WOD 200회 누적.';
+        return '수업 기록 200회 누적.';
       case 'VOL_TRIPLE_STREAK':
         return '3주 연속 주 4회 출석.';
       case 'VOL_COMEBACK':

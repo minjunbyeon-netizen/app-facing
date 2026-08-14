@@ -25,7 +25,7 @@ class GymInfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final coaches = context.watch<GymState>().coaches;
 
-    final name = gym?.name ?? '내 박스';
+    final name = gym?.name ?? '내 체육관';
     final location = (gym?.location ?? '').trim().isNotEmpty
         ? gym!.location
         : '위치 미등록';

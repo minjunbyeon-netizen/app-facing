@@ -34,7 +34,7 @@ class _WodTodayScreenState extends State<WodTodayScreen> {
       gid = (gs as dynamic).membership?.gym?.id as int?;
     } catch (_) {}
     if (gid == null) {
-      setState(() { _loading = false; _error = '소속 박스 없음'; });
+      setState(() { _loading = false; _error = '소속 체육관 없음'; });
       return;
     }
     try {
@@ -45,7 +45,7 @@ class _WodTodayScreenState extends State<WodTodayScreen> {
         _loading = false; _error = null;
       });
     } catch (e) {
-      setState(() { _loading = false; _error = '오늘 WOD 가져오기 실패'; });
+      setState(() { _loading = false; _error = '오늘 수업 내용 가져오기 실패'; });
     }
   }
 
@@ -56,7 +56,7 @@ class _WodTodayScreenState extends State<WodTodayScreen> {
       appBar: AppBar(
         backgroundColor: HyphenTokens.bg,
         elevation: 0,
-        title: Text("Today's WOD.", style: HyphenTokens.h3),
+        title: Text('오늘의 수업 내용', style: HyphenTokens.h3),
       ),
       body: RefreshIndicator(
         onRefresh: _load,
@@ -74,10 +74,10 @@ class _WodTodayScreenState extends State<WodTodayScreen> {
                           Center(
                             child: Column(
                               children: [
-                                Text('오늘 WOD 없음.',
+                                Text('오늘 수업 내용 없음.',
                                     style: HyphenTokens.h3),
                                 const SizedBox(height: HyphenTokens.sp2),
-                                Text('박스에서 오늘 일정 배치 전이에요.',
+                                Text('체육관에서 오늘 일정 배치 전이에요.',
                                     style: HyphenTokens.caption),
                               ],
                             ),

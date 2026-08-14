@@ -274,7 +274,7 @@ class _PendingGateState extends State<_PendingGate> {
                 const SizedBox(height: HyphenTokens.sp3),
                 const Text(
                   '가입 신청이 코치에게 전달됐습니다.\n'
-                  '코치가 승인하면 오늘의 WOD·수업 예약이 열립니다.',
+                  '코치가 승인하면 수업 내용·수업 예약이 열립니다.',
                   style: HyphenTokens.caption,
                   textAlign: TextAlign.center,
                 ),

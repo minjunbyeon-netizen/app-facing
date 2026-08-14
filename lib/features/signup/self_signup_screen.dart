@@ -290,7 +290,7 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                 ),
                 const SizedBox(height: HyphenTokens.sp4),
 
-                const HkSectionLabel('크로스핏 경력'),
+                const HkSectionLabel('운동 경력'),
                 const SizedBox(height: HyphenTokens.sp2),
                 Wrap(
                   spacing: HyphenTokens.sp2,
@@ -326,7 +326,7 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                 ],
                 const SizedBox(height: HyphenTokens.sp4),
 
-                // '운동' 은 copy lint 금지 용어(CrossFit 정체성 보존)라 '종목' 으로 쓴다.
+                // 구체 종목을 받는 칸이라 '해온 종목' 표기 유지 ('운동' 금지는 2026-08-14 해제).
                 const HkSectionLabel('해온 종목'),
                 const SizedBox(height: HyphenTokens.sp1),
                 TextFormField(

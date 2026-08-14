@@ -100,7 +100,7 @@ class _BoxWodScreenState extends State<BoxWodScreen> {
                 ));
               },
               icon: const Icon(Icons.add),
-              label: const Text('WOD 게시'),
+              label: const Text('수업 내용 게시'),
             )
           : null,
     );
@@ -124,13 +124,13 @@ class _NoGymEmpty extends StatelessWidget {
           // 빈 상태(h3 굵게)와 규격이 달랐다 — 같은 앱에서 "없음" 화면이 두
           // 종류로 보였다 (링코 F7). HkEmptyState 와 같은 h3 + caption 으로 통일.
           const Text(
-            '박스 미가입',
+            '체육관 미가입',
             style: HyphenTokens.h3,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: HyphenTokens.sp2),
           const Text(
-            '박스 가입 시 코치 WOD 공개.',
+            '가입 승인 시 수업 내용 공개.',
             style: HyphenTokens.caption,
             textAlign: TextAlign.center,
           ),
@@ -139,9 +139,9 @@ class _NoGymEmpty extends StatelessWidget {
           // 찾을 목록도, 만들 두 번째 박스도 없다.
           // v2.7 (같은 날 사용자 지시): '가입 코드 입력' 도 삭제. 코드로 연결하면
           // 그 회원의 아이디·비밀번호를 언제 만드는지가 불분명했다. 가입은
-          // **로그인 화면의 '박스 가입 신청' 한 길**뿐이다.
+          // **로그인 화면의 '회원 가입 신청' 한 길**뿐이다.
           const Text(
-            '로그인 화면의 [박스 가입 신청] 으로 신청하면 '
+            '로그인 화면의 [회원 가입 신청] 으로 신청하면 '
             '코치가 승인한 뒤 이용할 수 있습니다.',
             style: HyphenTokens.caption,
             textAlign: TextAlign.center,
@@ -183,9 +183,9 @@ void _showCreateGymSheet(BuildContext context) {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('박스 만들기', style: HyphenTokens.sectionLabel),
+              const Text('체육관 만들기', style: HyphenTokens.sectionLabel),
               const SizedBox(height: HyphenTokens.sp1),
-              const Text('코치가 자기 박스를 생성합니다.',
+              const Text('코치가 자기 체육관을 생성합니다.',
                   style: HyphenTokens.caption),
               const SizedBox(height: HyphenTokens.sp4),
               TextField(
@@ -221,7 +221,7 @@ void _showCreateGymSheet(BuildContext context) {
                         if (!ok) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                                content: Text('박스 생성 실패. 이름 중복 확인.')),
+                                content: Text('체육관 생성 실패. 이름 중복 확인.')),
                           );
                         }
                       },
@@ -256,7 +256,7 @@ class _PendingState extends StatelessWidget {
               style: HyphenTokens.h3.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: HyphenTokens.sp2),
           const Text(
-            '코치 승인 대기 중. 승인되면 오늘의 WOD 표시.',
+            '코치 승인 대기 중. 승인되면 수업 내용 표시.',
             style: HyphenTokens.caption,
           ),
           const SizedBox(height: HyphenTokens.sp5),
@@ -508,7 +508,7 @@ class _GymInfoAccordion extends StatelessWidget {
         childrenPadding: EdgeInsets.zero,
         collapsedIconColor: HyphenTokens.muted,
         iconColor: HyphenTokens.muted,
-        title: const Text('박스 정보', style: HyphenTokens.sectionLabel),
+        title: const Text('체육관 정보', style: HyphenTokens.sectionLabel),
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 2),
           child: Text(

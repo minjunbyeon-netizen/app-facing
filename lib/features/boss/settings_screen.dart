@@ -90,7 +90,7 @@ class _PlansTabState extends State<_PlansTab> {
     final api = context.read<BossApiClient>();
     final gid = auth.gymId;
     if (gid == null || gid == 0) {
-      setState(() { _loading = false; _error = '박스 정보 없음'; });
+      setState(() { _loading = false; _error = '체육관 정보 없음'; });
       return;
     }
     try {
@@ -329,7 +329,7 @@ class _PointsTabState extends State<_PointsTab> {
     final api = context.read<BossApiClient>();
     final gid = auth.gymId;
     if (gid == null || gid == 0) {
-      setState(() { _loading = false; _error = '박스 정보 없음'; });
+      setState(() { _loading = false; _error = '체육관 정보 없음'; });
       return;
     }
     try {
@@ -373,7 +373,7 @@ class _PointsTabState extends State<_PointsTab> {
           tileColor: HyphenTokens.surface,
           activeThumbColor: HyphenTokens.primary,
           title: Text('포인트 활성', style: HyphenTokens.body),
-          subtitle: Text('박스 전체 포인트 적립·사용 on/off',
+          subtitle: Text('체육관 전체 포인트 적립·사용 on/off',
               style: HyphenTokens.caption),
           value: d['is_active'] == true,
           onChanged: (v) => _patch({'is_active': v}),
@@ -456,7 +456,7 @@ class _NotificationsTabState extends State<_NotificationsTab> {
     final api = context.read<BossApiClient>();
     final gid = auth.gymId;
     if (gid == null || gid == 0) {
-      setState(() { _loading = false; _error = '박스 정보 없음'; });
+      setState(() { _loading = false; _error = '체육관 정보 없음'; });
       return;
     }
     try {
@@ -495,7 +495,7 @@ class _NotificationsTabState extends State<_NotificationsTab> {
     }
     final d = _data ?? const {};
     final items = <(String, String, String)>[
-      ('enabled', '전체 알림', '박스 전체 알림톡 on/off'),
+      ('enabled', '전체 알림', '체육관 전체 알림톡 on/off'),
       ('expiry', '만료 알림', '회원권 만료 7일·3일·당일'),
       ('payment', '결제 알림', '결제 성공·실패'),
       ('reservation', '예약 알림', '예약 확정·취소'),
@@ -566,7 +566,7 @@ class _AutoJoinTabState extends State<_AutoJoinTab> {
     final api = context.read<BossApiClient>();
     final gid = auth.gymId ?? 0;
     if (gid == 0) {
-      setState(() { _loading = false; _error = '박스 정보 없음'; });
+      setState(() { _loading = false; _error = '체육관 정보 없음'; });
       return;
     }
     try {
@@ -610,7 +610,7 @@ class _AutoJoinTabState extends State<_AutoJoinTab> {
           activeThumbColor: HyphenTokens.primary,
           title: Text('자동 가입 승인', style: HyphenTokens.body),
           subtitle: Text(
-            '회원이 박스 가입 신청 시 코치 승인 없이 즉시 활성. 무인 박스 권장.',
+            '가입 신청 시 코치 승인 없이 즉시 활성. 무인 운영 시 권장.',
             style: HyphenTokens.caption,
           ),
           value: _enabled,

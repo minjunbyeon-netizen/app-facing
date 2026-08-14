@@ -206,7 +206,7 @@ class _ClassesSectionState extends State<ClassesSection> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (widget.showHeader) _header(),
-          _inline('박스 가입 후 클래스 예약 가능.'),
+          _inline('가입 승인 후 수업 예약 가능.'),
         ],
       );
     }

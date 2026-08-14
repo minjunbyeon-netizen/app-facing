@@ -19,27 +19,27 @@ class TermsScreen extends StatelessWidget {
             Text('1. 서비스', style: HyphenTokens.sectionLabel),
             SizedBox(height: HyphenTokens.sp2),
             Text(
-              'HYPHEN 은 CrossFit 박스(체육관) 운영을 돕는 플랫폼입니다. '
+              'HYPHEN 은 체육관 운영을 돕는 플랫폼입니다. '
               '회원에게는 수업 예약·QR 출석·전자계약·페이싱 계산 기능을, '
-              '박스 코치에게는 회원·수업·계약 관리 도구를 제공합니다.',
+              '체육관 코치에게는 회원·수업·계약 관리 도구를 제공합니다.',
               style: HyphenTokens.body,
             ),
             SizedBox(height: HyphenTokens.sp4),
 
             Text('2. 계정·가입·탈퇴', style: HyphenTokens.sectionLabel),
             SizedBox(height: HyphenTokens.sp2),
-            _Bullet('가입은 소셜 로그인(네이버·구글) 또는 박스 가입 신청으로 합니다.'),
-            _Bullet('박스 가입 신청의 승인·거절 권한은 해당 박스 코치에게 있습니다.'),
+            _Bullet('가입은 소셜 로그인(네이버·구글) 또는 회원 가입 신청으로 합니다.'),
+            _Bullet('회원 가입 신청의 승인·거절 권한은 해당 체육관 코치에게 있습니다.'),
             _Bullet('탈퇴는 Profile → Privacy Policy 화면에서 언제든 가능합니다.'),
             _Bullet('타인 명의 도용, 허위 정보 가입 시 이용이 제한될 수 있습니다.'),
             SizedBox(height: HyphenTokens.sp4),
 
-            Text('3. 박스·회원·HYPHEN 의 관계', style: HyphenTokens.sectionLabel),
+            Text('3. 체육관·회원·HYPHEN 의 관계', style: HyphenTokens.sectionLabel),
             SizedBox(height: HyphenTokens.sp2),
             Text(
-              'HYPHEN 은 박스와 회원을 연결하는 도구를 제공하는 플랫폼이며, '
-              '회원권 판매·환불·수업 운영의 당사자는 각 박스입니다. '
-              '회원권 금액·기간·환불 조건은 박스와 회원 간 계약(전자계약서 포함)을 따르며, '
+              'HYPHEN 은 체육관과 회원을 연결하는 도구를 제공하는 플랫폼이며, '
+              '회원권 판매·환불·수업 운영의 당사자는 각 체육관입니다. '
+              '회원권 금액·기간·환불 조건은 체육관과 회원 간 계약(전자계약서 포함)을 따르며, '
               'HYPHEN 은 그 계약의 당사자가 아닙니다.',
               style: HyphenTokens.body,
             ),
@@ -54,7 +54,7 @@ class TermsScreen extends StatelessWidget {
 
             Text('5. 포인트·기록', style: HyphenTokens.sectionLabel),
             SizedBox(height: HyphenTokens.sp2),
-            _Bullet('포인트 적립·사용 기준은 각 박스가 정하며 박스별로 다를 수 있습니다.'),
+            _Bullet('포인트 적립·사용 기준은 각 체육관이 정하며 체육관별로 다를 수 있습니다.'),
             _Bullet('Engine 점수·Tier·페이싱 결과는 입력 기록 기반 추정치로, '
                 '트레이닝 처방·의료 판단의 근거가 아닙니다.'),
             SizedBox(height: HyphenTokens.sp4),
@@ -69,7 +69,7 @@ class TermsScreen extends StatelessWidget {
             Text('7. 책임의 한계', style: HyphenTokens.sectionLabel),
             SizedBox(height: HyphenTokens.sp2),
             Text(
-              '트레이닝 중 발생한 부상, 박스와 회원 간 분쟁, 박스의 폐업·운영 중단에 대해 '
+              '트레이닝 중 발생한 부상, 체육관과 회원 간 분쟁, 체육관의 폐업·운영 중단에 대해 '
               'HYPHEN 은 책임을 지지 않습니다. 서비스는 베타 운영 중이며 '
               '기능은 사전 공지 후 변경될 수 있습니다. 천재지변·통신 장애 등 '
               '불가항력으로 인한 일시 중단에 대해 책임을 지지 않습니다.',

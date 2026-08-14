@@ -207,7 +207,7 @@ class _IdentityCard extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      const Text('박스 기록',
+                      const Text('체육관 기록',
                           style: HyphenTokens.sectionLabel),
                       const Spacer(),
                       if (mp.updatedAt != null)
@@ -274,7 +274,7 @@ class _MyBoxSection extends StatelessWidget {
   // 탈퇴 자체를 없앤 결정은 아니므로 흐름은 그대로 둔다 ("숨김 = 코드 보존").
   // ignore: unused_element
   Future<void> _confirmLeave(BuildContext context, GymState gs) async {
-    final gymName = gs.membership.gym?.name ?? '박스';
+    final gymName = gs.membership.gym?.name ?? '체육관';
     final ok = await showDialog<bool>(
       context: context,
       builder: (dialogCtx) => AlertDialog(
@@ -282,7 +282,7 @@ class _MyBoxSection extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(HyphenTokens.r5),
         ),
-        title: const Text('박스를 탈퇴할까요?'),
+        title: const Text('체육관을 탈퇴할까요?'),
         content: Text(
           '$gymName 에서 탈퇴합니다.\n'
           '다시 들어오려면 가입 신청을 넣고 코치 승인을 받아야 합니다.',
@@ -332,14 +332,14 @@ class _MyBoxSection extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: HyphenTokens.sp4),
       child: HkAccordion(
-        title: '내 박스',
+        title: '내 체육관',
         subtitle: gym == null
-            ? '박스 없음'
+            ? '체육관 없음'
             : '${gym.name} · ${gs.isOwner ? '코치' : '회원'} · $statusKo',
         children: [
           const SizedBox(height: HyphenTokens.sp2),
           if (gym == null)
-            const Text('박스 없음. WOD 탭에서 찾기.',
+            const Text('체육관 없음. 수업 탭에서 확인.',
                 style: HyphenTokens.caption)
           else ...[
             Text(gym.name,
@@ -368,7 +368,7 @@ class _MyBoxSection extends StatelessWidget {
                         style: HyphenTokens.body
                             .copyWith(fontWeight: FontWeight.w700)),
                     const SizedBox(height: HyphenTokens.sp1),
-                    const Text('박스에 직접 문의 또는 다른 박스 검색.',
+                    const Text('체육관에 직접 문의 또는 다른 체육관 검색.',
                         style: HyphenTokens.caption),
                   ],
                 ),

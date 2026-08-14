@@ -27,7 +27,7 @@ class EditProfileScreen extends StatelessWidget {
             // v2.3 에서 성별·경력 둘만 남았는데 체중·키·나이를 약속하고 있었다.
             _AreaCard(
               title: '기본 정보',
-              subtitle: '성별 · CrossFit 경력 (레벨 기준)',
+              subtitle: '성별 · 운동 경력 (레벨 기준)',
               route: '/onboarding/basic',
             ),
             // v2.6 (2026-08-13 사용자 지시 "지금 없는 건 다 지워"): Benchmarks

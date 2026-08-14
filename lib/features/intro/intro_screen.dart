@@ -34,9 +34,9 @@ class _IntroScreenState extends State<IntroScreen> {
     // 헤드라인 끝 마침표도 뺀다 — 한 줄 제목에 마침표는 문장처럼 읽혀 무겁다
     // (3p 'Tier' 는 도메인 고정어라 영문 유지).
     _IntroPage(
-      stage: 'WOD 보드',
-      title: '오늘의 WOD',
-      body: '코치가 올린 그날의 훈련과\n박스 공지를 한 곳에서.',
+      stage: '수업 보드',
+      title: '오늘의 수업',
+      body: '코치가 올린 그날의 수업 내용과\n체육관 공지를 한 곳에서.',
     ),
     _IntroPage(
       stage: '레벨 · 업적',

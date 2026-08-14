@@ -89,7 +89,7 @@ class TodayClass {
 
   factory TodayClass.fromJson(Map<String, dynamic> j) => TodayClass(
         id: (j['id'] as num?)?.toInt() ?? 0,
-        title: j['title']?.toString() ?? 'WOD',
+        title: j['title']?.toString() ?? '수업',
         startAt: j['start_at']?.toString() ?? '',
         endAt: j['end_at']?.toString() ?? '',
         reserved: (j['reserved'] as num?)?.toInt() ?? 0,

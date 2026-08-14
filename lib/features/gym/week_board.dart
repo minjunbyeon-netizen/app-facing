@@ -352,9 +352,12 @@ class _DayTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  // v3.0 (2026-08-14): 게시물 면 = '수업 내용', 시간표 면 = '수업 시간'
+                  // — '수업' 단독 표기가 두 면 중 어느 쪽인지 안 읽히던 것을 분리.
+                  const Text('수업 내용', style: HyphenTokens.sectionLabel),
                   _wodBlock(),
                   const SizedBox(height: HyphenTokens.sp3),
-                  const Text('수업', style: HyphenTokens.sectionLabel),
+                  const Text('수업 시간', style: HyphenTokens.sectionLabel),
                   _classBlock(),
                 ],
               ),
@@ -369,7 +372,7 @@ class _DayTile extends StatelessWidget {
       return Padding(
         padding: const EdgeInsets.only(top: HyphenTokens.sp1),
         child: Text(
-          _isFuture ? '아직 게시 전.' : '게시된 WOD 없음.',
+          _isFuture ? '아직 게시 전.' : '게시된 수업 내용 없음.',
           style: HyphenTokens.caption,
         ),
       );

@@ -187,7 +187,7 @@ class _EmptyState extends StatelessWidget {
             const SizedBox(width: HyphenTokens.sp2),
             const Expanded(
               child: Text(
-                '아직 업적 없음. WOD를 완료하면 해금됩니다.',
+                '아직 업적 없음. 수업 기록을 저장하면 해금됩니다.',
                 style: HyphenTokens.caption,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,

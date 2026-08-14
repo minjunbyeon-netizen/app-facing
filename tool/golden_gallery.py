@@ -14,23 +14,23 @@ GOLDENS = ROOT / "test" / "golden" / "goldens"
 SECTIONS = [
     ("공통", "공통 — 진입 · 인트로 2p · 로그인", [
         ("common_01_splash", "스플래시 — HYPHEN 로고 · 자동 전환 대기"),
-        ("common_02_intro_board", "인트로① WOD 보드 — 코치가 올린 그날 훈련 + 박스 공지"),
+        ("common_02_intro_board", "인트로① 수업 보드 — 코치가 올린 수업 내용 + 체육관 공지"),
         ("common_03_intro_earn", "인트로② 레벨 · 업적 — 마지막 장, CTA '시작'"),
-        ("common_05_signup", "로그인 — 아이디 · 박스 가입 신청 (소셜은 키 대기로 숨김)"),
+        ("common_05_signup", "로그인 — 아이디 · 회원 가입 신청 (소셜은 키 대기로 숨김)"),
         ("common_06_self_signup", "가입 신청① — 이름 · 생년월일 · 성별 · 연락처"),
         ("common_07_self_signup_scrolled",
          "가입 신청② — 경력 3단 · 해온 종목 · 부상 이력 · 아이디 · 비밀번호"),
     ]),
     ("온보딩", "온보딩 — 프로필 수정 경로 (가입 신청서가 같은 값을 받는다)", [
-        ("onb_01_basic", "기본 정보 — 성별 · CrossFit 경력 (레벨 기준)"),
+        ("onb_01_basic", "기본 정보 — 성별 · 운동 경력 (레벨 기준)"),
     ]),
     ("회원 셸", "회원 셸 3탭 — 홈 · 수업 · 내 정보 (승인된 회원 · HYPHEN CrossFit 서면)", [
-        ("member_01_shell_wod", "WOD 탭 (기본) — 그 주 월~일 아코디언 + 그날 수업 예약"),
+        ("member_01_shell_wod", "수업 탭 (기본) — 그 주 월~일 아코디언 + 그날 수업 예약"),
         ("member_02_shell_home", "홈 탭 — 레벨 · 업적 · 마일스톤"),
-        ("member_03_shell_profile", "프로필 탭 — 회원권 · 내 박스 · 신체 · 설정 (ENGINE 폐기)"),
+        ("member_03_shell_profile", "내 정보 탭 — 회원권 · 내 체육관 · 신체 · 설정 (ENGINE 폐기)"),
         ("member_04_profile_menu", "프로필 하단 — 아코디언 접힘 상태"),
         ("member_05_profile_menu_open", "프로필 메뉴 펼침 — 계약~이용약관 (직원 계정 연결 폐기)"),
-        ("member_06_result_sheet", "WOD 결과 입력 시트 — 완료 표시 탭 → 저장 (스케일 SCALED·RXD·ELITE 순)"),
+        ("member_06_result_sheet", "수업 결과 입력 시트 — 완료 표시 탭 → 저장 (스케일 SCALED·RXD·ELITE 순)"),
     ]),
     ("코치", "코치 — 로그인 · 대시보드 · 명단", [
         ("boss_01_login", "코치 로그인 — PC 와 같은 아이디"),
@@ -39,8 +39,8 @@ SECTIONS = [
     ]),
     ("상태 변형", "상태 변형 — 빈 · 에러 · 오프라인 · 미가입", [
         ("hist_01_empty", "History — 빈 상태 (신규 가입)"),
-        ("state_01_wod_error", "WOD 보드 로드 실패 — 네트워크 에러"),
-        ("state_02_wod_nogym", "박스 미가입 — 가입 직후 WOD 탭"),
+        ("state_01_wod_error", "수업 보드 로드 실패 — 네트워크 에러"),
+        ("state_02_wod_nogym", "체육관 미가입 — 가입 직후 수업 탭"),
         ("state_03_home_offline", "Home — OFFLINE 배너"),
         ("state_04_history_error", "History 로드 실패 — Retry"),
         ("state_05_pending", "승인 대기 — 신청 후 코치 승인 전 (셸 전체 차단)"),

@@ -260,7 +260,7 @@ class _RequestRow extends StatelessWidget {
                     style: HyphenTokens.caption),
                 const Spacer(),
                 if (req.wodPostId != null)
-                  Text('WOD #${req.wodPostId}',
+                  Text('수업 #${req.wodPostId}',
                       style: HyphenTokens.micro.copyWith(
                           color: HyphenTokens.muted)),
               ],

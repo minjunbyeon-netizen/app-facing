@@ -77,13 +77,13 @@ class _GymSearchScreenState extends State<GymSearchScreen> {
     final currentGym = state.membership.gym;
     if (currentGym != null && currentGym.id == gym.id) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('이미 소속된 박스.')),
+        const SnackBar(content: Text('이미 소속된 체육관.')),
       );
       return;
     }
     if (currentGym != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('다른 박스 소속 중. 먼저 탈퇴.')),
+        const SnackBar(content: Text('다른 체육관 소속 중. 먼저 탈퇴.')),
       );
       return;
     }
@@ -91,7 +91,7 @@ class _GymSearchScreenState extends State<GymSearchScreen> {
     if (!mounted) return;
     if (ok) {
       final msg = gym.isOfficial
-          ? '${gym.name} · 가입 완료. 오늘의 WOD 확인 가능.'
+          ? '${gym.name} · 가입 완료. 수업 내용 확인 가능.'
           : '${gym.name} · 가입 요청 전송. 코치 승인 대기.';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(msg), duration: const Duration(seconds: 2)),
@@ -107,7 +107,7 @@ class _GymSearchScreenState extends State<GymSearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('박스 찾기')),
+      appBar: AppBar(title: const Text('체육관 찾기')),
       body: SafeArea(
         child: Column(
           children: [
@@ -117,7 +117,7 @@ class _GymSearchScreenState extends State<GymSearchScreen> {
                 controller: _ctrl,
                 onChanged: _onChanged,
                 decoration: const InputDecoration(
-                  labelText: '박스 이름 검색',
+                  labelText: '체육관 이름 검색',
                   prefixIcon: Icon(Icons.search, color: HyphenTokens.muted),
                 ),
                 autofocus: true,
@@ -138,7 +138,7 @@ class _GymSearchScreenState extends State<GymSearchScreen> {
               Expanded(
                 child: _results.isEmpty
                     ? const Center(
-                        child: Text('검색 결과 없음.\n박스명 일부로 검색 가능.',
+                        child: Text('검색 결과 없음.\n체육관명 일부로 검색 가능.',
                             style: HyphenTokens.caption,
                             textAlign: TextAlign.center),
                       )
@@ -190,7 +190,7 @@ class _GymSearchScreenState extends State<GymSearchScreen> {
                             ),
                             subtitle: Text(
                               g.isOfficial
-                                  ? '공식 박스 · 즉시 승인 · 오늘의 WOD 제공'
+                                  ? '공식 체육관 · 즉시 승인 · 수업 내용 제공'
                                   : (g.location.isEmpty
                                       ? '${g.memberCount} members'
                                       : '${g.location} · ${g.memberCount} members'),

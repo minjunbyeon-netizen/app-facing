@@ -348,8 +348,8 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
 
       final notes = StringBuffer();
       notes.writeln(_scaled
-          ? '[SCALED] HYPHEN WOD — ${widget.wod.postDate}'
-          : '[RX] HYPHEN WOD — ${widget.wod.postDate}');
+          ? '[SCALED] HYPHEN 기록 — ${widget.wod.postDate}'
+          : '[RX] HYPHEN 기록 — ${widget.wod.postDate}');
       if (rounds != null) notes.writeln('Rounds: $rounds');
       if (extraReps != null) notes.writeln('Extra reps: $extraReps');
       notes.writeln('---');
@@ -446,8 +446,8 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
           SnackBar(
             content: Text(
               pointsAwarded > 0
-                  ? '기록 저장. 출석 · 박스 리더보드 자동 반영. +${pointsAwarded}P'
-                  : '기록 저장. 출석 · 박스 리더보드 자동 반영.',
+                  ? '기록 저장. 출석 · 체육관 리더보드 자동 반영. +${pointsAwarded}P'
+                  : '기록 저장. 출석 · 체육관 리더보드 자동 반영.',
             ),
             duration: const Duration(seconds: 2),
           ),

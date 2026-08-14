@@ -121,7 +121,7 @@ class _MemberContractsScreenState extends State<MemberContractsScreen> {
                   children: [
                     Text('계약 없음', style: HyphenTokens.h3),
                     const SizedBox(height: HyphenTokens.sp2),
-                    Text('박스가 계약서를 발급하면 여기에 표시.',
+                    Text('체육관이 계약서를 발급하면 여기에 표시.',
                         style: HyphenTokens.caption),
                   ],
                 ),

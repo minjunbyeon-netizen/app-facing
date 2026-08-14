@@ -80,9 +80,9 @@ class _WodTab extends StatelessWidget {
         final rows = snap.data ?? const [];
         if (rows.isEmpty) {
           return const HkEmptyState(
-            title: 'WOD 기록 없음',
-            caption: 'WOD 계산 후 자동 저장.\n'
-                'Split · Burst · 예상 완주 시간 전부 보존.',
+            title: '수업 기록 없음',
+            caption: '수업 기록 저장 시 자동 표시.\n'
+                '결과·일시 전부 보존.',
           );
         }
         return ListView.separated(

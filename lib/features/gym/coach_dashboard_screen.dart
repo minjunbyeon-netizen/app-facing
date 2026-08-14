@@ -89,7 +89,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
       body: SafeArea(
         child: gym == null
             ? const Center(
-                child: Text('박스 정보 없음.', style: HyphenTokens.caption))
+                child: Text('체육관 정보 없음.', style: HyphenTokens.caption))
             : FutureBuilder<List<GymMember>>(
                 future: _future,
                 builder: (ctx, snap) {
@@ -160,7 +160,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                           _reload();
                         },
                         icon: const Icon(Icons.edit_note_outlined, size: 18),
-                        label: const Text('박스 프로필 수정'),
+                        label: const Text('체육관 프로필 수정'),
                       ),
                       const SizedBox(height: HyphenTokens.sp5),
                       if (pending.isNotEmpty) ...[
@@ -383,7 +383,7 @@ class _MemberDetailSheet extends StatelessWidget {
               _kv('승인·거절', _dateShort(member.decidedAt!)),
             _kv('총 세션', '${member.totalSessions}'),
             _kv('현재 Streak', '${member.streakDays} days'),
-            _kv('마지막 WOD',
+            _kv('마지막 기록',
                 member.lastWodAt == null ? '-' : _dateShort(member.lastWodAt!)),
             const SizedBox(height: HyphenTokens.sp4),
             const Text('코치 노트', style: HyphenTokens.sectionLabel),
@@ -402,7 +402,7 @@ class _MemberDetailSheet extends StatelessWidget {
                 child: Text(
                   member.isDormant
                       ? '2주 이상 미참석. 재참여 캠페인 추천.'
-                      : '신규 회원. 첫 WOD 유도 필요.',
+                      : '신규 회원. 첫 수업 유도 필요.',
                   style: HyphenTokens.caption,
                 ),
               ),
@@ -465,7 +465,7 @@ class _MemberDetailSheet extends StatelessWidget {
     final wods = gs.todayWods;
     if (wods.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('오늘 WOD 없음. 먼저 WOD 게시.')),
+        const SnackBar(content: Text('오늘 수업 내용 없음. 먼저 게시.')),
       );
       return;
     }
@@ -480,7 +480,7 @@ class _MemberDetailSheet extends StatelessWidget {
             children: [
               const Padding(
                 padding: EdgeInsets.all(HyphenTokens.sp4),
-                child: Text('WOD 선택', style: HyphenTokens.sectionLabel),
+                child: Text('수업 내용 선택', style: HyphenTokens.sectionLabel),
               ),
               ...wods.map((w) => ListTile(
                     title: Text(wodTypeLabel(w.wodType)),
@@ -525,7 +525,7 @@ class _MemberDetailSheet extends StatelessWidget {
                 style: HyphenTokens.sectionLabel),
             const SizedBox(height: HyphenTokens.sp1),
             Text(
-              'WOD: ${wodTypeLabel(pickedWod!.wodType)} · ${pickedWod.postDate}',
+              '수업 내용: ${wodTypeLabel(pickedWod!.wodType)} · ${pickedWod.postDate}',
               style: HyphenTokens.caption,
             ),
             const SizedBox(height: HyphenTokens.sp3),

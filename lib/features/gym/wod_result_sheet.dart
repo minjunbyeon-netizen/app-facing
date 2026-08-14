@@ -73,7 +73,7 @@ class _WodResultSheetState extends State<WodResultSheet> {
     final gs = context.read<GymState>();
     final gym = gs.membership.gym;
     if (gym == null) {
-      setState(() => _error = '박스 정보 없음.');
+      setState(() => _error = '체육관 정보 없음.');
       return;
     }
     setState(() {
@@ -117,7 +117,7 @@ class _WodResultSheetState extends State<WodResultSheet> {
         await hist.saveWodHistory({
           'wod': {
             'wod_type': widget.wod.wodType,
-            'notes': 'Box WOD #${widget.wod.id} · ${widget.wod.content.split('\n').first}',
+            'notes': '수업 #${widget.wod.id} · ${widget.wod.content.split('\n').first}',
           },
           'plan': {
             'formula_version': 'manual',

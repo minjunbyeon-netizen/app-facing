@@ -52,7 +52,7 @@ class _WodPostScreenState extends State<WodPostScreen> {
     // 간소 구현: 가장 최근 WOD 1개를 복제.
     if (yestWods.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('복제할 기존 WOD 없음.')),
+        const SnackBar(content: Text('복제할 기존 수업 내용 없음.')),
       );
       return;
     }
@@ -68,7 +68,7 @@ class _WodPostScreenState extends State<WodPostScreen> {
     });
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('이전 WOD 복제. 필요 시 수정 후 Post.'),
+        content: Text('이전 수업 내용 복제. 필요 시 수정 후 게시.'),
         duration: Duration(seconds: 2),
       ),
     );
@@ -81,7 +81,7 @@ class _WodPostScreenState extends State<WodPostScreen> {
     final content = _contentCtrl.text.trim();
     if (content.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('WOD 내용 필수.')),
+        const SnackBar(content: Text('수업 내용 필수.')),
       );
       return;
     }
@@ -162,7 +162,7 @@ class _WodPostScreenState extends State<WodPostScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('WOD 게시'),
+        title: const Text('수업 내용 게시'),
         actions: [
           TextButton.icon(
             onPressed: _duplicateYesterday,
@@ -359,7 +359,7 @@ class _WodPostScreenState extends State<WodPostScreen> {
             const SizedBox(height: HyphenTokens.sp4),
             ElevatedButton(
               onPressed: _submitting ? null : _submit,
-              child: Text(_submitting ? 'Posting.' : 'Post WOD'),
+              child: Text(_submitting ? '게시 중' : '게시'),
             ),
           ],
         ),

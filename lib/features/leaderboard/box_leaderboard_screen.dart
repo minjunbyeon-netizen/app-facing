@@ -1,4 +1,4 @@
-﻿// v1.16 Sprint 13: 박스 내 리더보드 — total_sessions · streak_days 정렬.
+﻿// v1.16 Sprint 13: 체육관 내 리더보드 — total_sessions · streak_days 정렬.
 // P5 페르소나 최우선 요구.
 
 import 'package:flutter/material.dart';
@@ -44,7 +44,7 @@ class _BoxLeaderboardScreenState extends State<BoxLeaderboardScreen> {
       body: SafeArea(
         child: gym == null
             ? const Center(
-                child: Text('박스 소속 없음. Find Box에서 가입.',
+                child: Text('체육관 소속 없음. 가입 후 이용 가능.',
                     style: HyphenTokens.caption),
               )
             : FutureBuilder<List<GymMember>>(

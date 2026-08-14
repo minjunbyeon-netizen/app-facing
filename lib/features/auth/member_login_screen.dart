@@ -124,7 +124,7 @@ class _MemberLoginScreenState extends State<MemberLoginScreen> {
                 const SizedBox(height: HyphenTokens.sp5),
                 Text('회원 로그인', style: HyphenTokens.h1),
                 const SizedBox(height: HyphenTokens.sp1),
-                Text('박스에서 받은 아이디로 로그인합니다.',
+                Text('체육관에서 받은 아이디로 로그인합니다.',
                     style: HyphenTokens.caption),
                 const SizedBox(height: HyphenTokens.sp6),
 

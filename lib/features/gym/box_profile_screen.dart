@@ -29,7 +29,7 @@ class BoxProfileScreen extends StatelessWidget {
       backgroundColor: HyphenTokens.bg,
       appBar: AppBar(
         backgroundColor: HyphenTokens.bg,
-        title: const Text('박스'),
+        title: const Text('체육관'),
         centerTitle: false,
       ),
       body: ListView(

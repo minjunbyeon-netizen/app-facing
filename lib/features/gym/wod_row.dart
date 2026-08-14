@@ -400,7 +400,7 @@ class _WodRowState extends State<WodRow> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: HyphenTokens.surfaceOverlay,
-        title: const Text('WOD를 삭제할까요?'),
+        title: const Text('수업 내용을 삭제할까요?'),
         content:
             const Text('멤버에게 더 이상 보이지 않음.', style: HyphenTokens.caption),
         actions: [

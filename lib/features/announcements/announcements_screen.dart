@@ -280,7 +280,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
   Widget _buildBody(dynamic gym) {
     if (gym == null) {
       return const Center(
-        child: Text('박스 소속 없음.', style: HyphenTokens.caption),
+        child: Text('체육관 소속 없음.', style: HyphenTokens.caption),
       );
     }
     if (_loading) {

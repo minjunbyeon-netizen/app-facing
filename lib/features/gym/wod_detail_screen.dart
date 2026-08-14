@@ -89,7 +89,7 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
                 style: HyphenTokens.sectionLabel),
             const SizedBox(height: HyphenTokens.sp1),
             const Text(
-              '이 WOD 관련 조정·대체 요청. 예: "어깨 수술 이력 있어 Thruster 대체 부탁".',
+              '이 수업 내용 관련 조정·대체 요청. 예: "어깨 수술 이력 있어 Thruster 대체 부탁".',
               style: HyphenTokens.caption,
             ),
             const SizedBox(height: HyphenTokens.sp3),

@@ -50,7 +50,7 @@ const List<PanelBTitle> kPanelBTitles = [
   PanelBTitle(
     code: 'PB_BOX_MEMBER',
     label: 'BOX MEMBER',
-    captionKo: '박스 가입 완료.',
+    captionKo: '체육관 가입 완료.',
     rarity: 'Common',
     requirement: 'gym membership active',
     sortOrder: 30,
@@ -81,8 +81,8 @@ const List<PanelBTitle> kPanelBTitles = [
   ),
   PanelBTitle(
     code: 'PB_FIRST_WOD',
-    label: 'FIRST WOD',
-    captionKo: '첫 WOD 완료.',
+    label: 'FIRST CLASS',
+    captionKo: '첫 수업 기록 완료.',
     rarity: 'Common',
     requirement: '1 session',
     sortOrder: 70,
@@ -90,7 +90,7 @@ const List<PanelBTitle> kPanelBTitles = [
   PanelBTitle(
     code: 'PB_TEN_WODS',
     label: 'DECA',
-    captionKo: 'WOD 10회 누적.',
+    captionKo: '수업 기록 10회 누적.',
     rarity: 'Common',
     requirement: '10 sessions',
     sortOrder: 75,
@@ -98,7 +98,7 @@ const List<PanelBTitle> kPanelBTitles = [
   PanelBTitle(
     code: 'PB_FIFTY_WODS',
     label: 'HALF CENTURY',
-    captionKo: 'WOD 50회 누적.',
+    captionKo: '수업 기록 50회 누적.',
     rarity: 'Common',
     requirement: '50 sessions',
     sortOrder: 80,
@@ -138,7 +138,7 @@ const List<PanelBTitle> kPanelBTitles = [
   PanelBTitle(
     code: 'PB_FRESH_START',
     label: 'FRESH START',
-    captionKo: '신년 첫 WOD (1/1~1/7).',
+    captionKo: '신년 첫 수업 기록 (1/1~1/7).',
     rarity: 'Common',
     requirement: 'session in Jan 1~7',
     sortOrder: 97,

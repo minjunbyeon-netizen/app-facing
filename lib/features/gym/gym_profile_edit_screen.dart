@@ -79,7 +79,7 @@ class _GymProfileEditScreenState extends State<GymProfileEditScreen> {
     final gym = context.watch<GymState>().membership.gym;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('박스 프로필 수정'),
+        title: const Text('체육관 프로필 수정'),
         actions: [
           TextButton(
             onPressed: _saving ? null : _save,
@@ -97,7 +97,7 @@ class _GymProfileEditScreenState extends State<GymProfileEditScreen> {
       body: SafeArea(
         child: gym == null
             ? const Center(
-                child: Text('박스 정보 없음.', style: HyphenTokens.caption),
+                child: Text('체육관 정보 없음.', style: HyphenTokens.caption),
               )
             : ListView(
                 padding: const EdgeInsets.all(HyphenTokens.sp4),
@@ -122,7 +122,7 @@ class _GymProfileEditScreenState extends State<GymProfileEditScreen> {
                   _Field(
                     label: '코치 소개',
                     controller: _coachBio,
-                    hint: 'CrossFit L2 Trainer · 경력 9년 · 올림픽 리프팅 전문',
+                    hint: '지도자 자격 · 경력 9년 · 올림픽 리프팅 전문',
                     maxLines: 3,
                   ),
                   _Field(

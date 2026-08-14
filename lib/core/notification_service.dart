@@ -123,7 +123,7 @@ class NotificationService {
           id: _idFor('join', inner['member_id']),
           channelId: _channelStaffId,
           title: '[HYPHEN] 새 가입 신청',
-          body: '박스 가입 신청 도착. 앱에서 승인 필요.',
+          body: '회원 가입 신청 도착. 앱에서 승인 필요.',
           importance: Importance.high,
           priority: Priority.high,
         );
@@ -157,8 +157,8 @@ class NotificationService {
           channelId: _channelMemberId,
           title: approved ? '[HYPHEN] 가입 승인 완료' : '[HYPHEN] 가입 신청 결과',
           body: approved
-              ? '이제 수업 예약과 오늘의 WOD 를 볼 수 있습니다.'
-              : '가입 신청이 승인되지 않았습니다. 박스에 문의해 주세요.',
+              ? '이제 수업 예약과 수업 내용을 볼 수 있습니다.'
+              : '가입 신청이 승인되지 않았습니다. 체육관에 문의해 주세요.',
           importance: Importance.high,
           priority: Priority.high,
         );
@@ -175,8 +175,8 @@ class NotificationService {
         return _NotifSpec(
           id: _idFor('wod', inner['wod_id']),
           channelId: _channelMemberId,
-          title: '[HYPHEN] 오늘의 WOD',
-          body: (inner['title'] ?? '새 WOD 등록.') as String,
+          title: '[HYPHEN] 오늘의 수업',
+          body: (inner['title'] ?? '새 수업 내용 등록.') as String,
           importance: Importance.defaultImportance,
           priority: Priority.defaultPriority,
         );

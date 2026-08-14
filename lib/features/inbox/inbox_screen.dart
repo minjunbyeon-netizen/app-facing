@@ -610,7 +610,7 @@ class MessagingFeed extends StatelessWidget {
           const Padding(
             padding: EdgeInsets.fromLTRB(HyphenTokens.sp4, HyphenTokens.sp2,
                 HyphenTokens.sp4, HyphenTokens.sp4),
-            child: Text('박스 가입 후 코치 쪽지·공지 사용 가능.',
+            child: Text('가입 승인 후 코치 쪽지·공지 사용 가능.',
                 style: HyphenTokens.caption),
           )
         else ...[

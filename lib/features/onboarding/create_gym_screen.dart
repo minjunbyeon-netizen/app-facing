@@ -44,14 +44,14 @@ class _CreateGymScreenState extends State<CreateGymScreen> {
       } else {
         messenger.showSnackBar(
           SnackBar(
-            content: Text(context.read<GymState>().error ?? '박스 생성 실패.'),
+            content: Text(context.read<GymState>().error ?? '체육관 생성 실패.'),
           ),
         );
       }
     } on AppException catch (e) {
       if (!mounted) return;
       messenger.showSnackBar(
-        SnackBar(content: Text('박스 생성 실패: ${e.messageKo}')),
+        SnackBar(content: Text('체육관 생성 실패: ${e.messageKo}')),
       );
     } finally {
       if (mounted) setState(() => _creating = false);
@@ -62,7 +62,7 @@ class _CreateGymScreenState extends State<CreateGymScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('박스 만들기'),
+        title: const Text('체육관 만들기'),
         automaticallyImplyLeading: false,
       ),
       body: SafeArea(
@@ -72,10 +72,10 @@ class _CreateGymScreenState extends State<CreateGymScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: HyphenTokens.sp2),
-              const Text('박스 등록', style: HyphenTokens.h2),
+              const Text('체육관 등록', style: HyphenTokens.h2),
               const SizedBox(height: HyphenTokens.sp2),
               const Text(
-                '코치가 직접 박스 등록, WOD 게시 가능.',
+                '코치가 직접 체육관 등록, 수업 내용 게시 가능.',
                 style: HyphenTokens.caption,
               ),
               const SizedBox(height: HyphenTokens.sp5),
@@ -83,7 +83,7 @@ class _CreateGymScreenState extends State<CreateGymScreen> {
                 controller: _nameCtrl,
                 enabled: !_creating,
                 decoration: const InputDecoration(
-                  labelText: '박스 이름',
+                  labelText: '체육관 이름',
                   hintText: '예: HYPHEN SEONGSU',
                 ),
                 maxLength: 80,
@@ -101,7 +101,7 @@ class _CreateGymScreenState extends State<CreateGymScreen> {
               const Spacer(),
               ElevatedButton(
                 onPressed: _creating ? null : _create,
-                child: Text(_creating ? '만드는 중' : '박스 만들기'),
+                child: Text(_creating ? '만드는 중' : '체육관 만들기'),
               ),
               const SizedBox(height: HyphenTokens.sp2),
               TextButton(

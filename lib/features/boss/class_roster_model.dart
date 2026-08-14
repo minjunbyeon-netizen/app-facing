@@ -99,7 +99,7 @@ class ClassRoster {
 
   factory ClassRoster.fromJson(Map<String, dynamic> j) => ClassRoster(
         classSessionId: (j['class_session_id'] as num?)?.toInt() ?? 0,
-        title: j['title']?.toString() ?? 'WOD',
+        title: j['title']?.toString() ?? '수업',
         startAt: j['start_at']?.toString() ?? '',
         room: j['room']?.toString(),
         coachUserId: j['coach_user_id']?.toString(),

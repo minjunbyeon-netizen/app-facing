@@ -115,7 +115,7 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
         'experience_years': years,
       });
     } catch (_) {
-      if (mounted) setState(() => _error = '저장은 됐지만 박스에 전달하지 못했습니다.');
+      if (mounted) setState(() => _error = '저장은 됐지만 체육관에 전달하지 못했습니다.');
     }
     if (!mounted) return;
     setState(() => _saving = false);
@@ -201,7 +201,7 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
             ),
             const SizedBox(height: HyphenTokens.sp5),
 
-            const HkSectionLabel('크로스핏 경력'),
+            const HkSectionLabel('운동 경력'),
             const SizedBox(height: HyphenTokens.sp2),
             Wrap(
               spacing: HyphenTokens.sp2,

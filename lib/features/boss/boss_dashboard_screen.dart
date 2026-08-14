@@ -36,7 +36,7 @@ class _BossDashboardScreenState extends State<BossDashboardScreen> {
     final auth = context.read<BossAuthState>();
     final gymId = auth.gymId;
     if (gymId == null) {
-      setState(() { _loading = false; _error = '박스 정보 없음.'; });
+      setState(() { _loading = false; _error = '체육관 정보 없음.'; });
       return;
     }
     try {

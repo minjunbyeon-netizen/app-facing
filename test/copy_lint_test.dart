@@ -9,11 +9,12 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Copy lint — Voice 11원칙 + 금지 용어', () {
-    test('금지 용어 0건 (운동/헬스/다이어트/웰니스/건강/체중관리/쉬운/편리한/누구나/당신/귀하)', () {
+    // v3.0 (2026-08-14): '운동' 해제 — 크로스핏 표기 철수로 '운동 경력' 이 정본이 됐다.
+    test('금지 용어 0건 (헬스/다이어트/웰니스/체중관리/쉬운/편리한/누구나/당신/귀하)', () {
       final dir = Directory('lib');
       // 일반 피트니스 톤·다크 패턴 카피·V5 위반.
       final pattern = RegExp(
-        r'(운동|헬스|다이어트|웰니스|체중관리|쉬운|편리한|누구나|당신|귀하)',
+        r'(헬스|다이어트|웰니스|체중관리|쉬운|편리한|누구나|당신|귀하)',
       );
       // 정당한 사용 예외:
       // - test/copy_lint_test.dart: 본 테스트 자체 (패턴 정의)
@@ -74,6 +75,51 @@ void main() {
         isEmpty,
         reason: 'docs/GLOSSARY.md §1 위반 — 운영자는 "코치" 하나:\n'
             '${violations.join('\n')}',
+      );
+    });
+
+    // 크로스핏 표기 철수 (2026-08-14 v3.0 — "이 제품은 크로스핏장이 아니다").
+    // 노출 문구에서 박스·크로스핏·WOD(일반 명칭) 금지 — 박스→체육관,
+    // WOD 게시물→수업 내용, 시간표→수업 시간 (docs/GLOSSARY.md §2 v2).
+    // 내부 심볼·API·DB 값(BoxWodScreen·wodType·'WOD_50' 등)은 대상 아님.
+    test('크로스핏 표기 0건 — 박스/크로스핏/WOD 노출 문구 금지 (GLOSSARY §2 v2)', () {
+      final dir = Directory('lib');
+      // 고유명사 보존 예외: 명언 원문(quotes) · 업적 고유명(titles_catalog 의
+      // CrossFit Open/Games). 벤치마크 계열(Girls/Hero/Games WOD)은 정규화로 제거.
+      final excludePaths = <String>{
+        'lib/core/quotes.dart',
+        'lib/core/titles_catalog.dart',
+      };
+      final banned = RegExp(r'(박스|크로스핏|CrossFit|\bWOD\b)');
+      final violations = <String>[];
+      for (final f in dir.listSync(recursive: true)) {
+        if (f is! File) continue;
+        if (!f.path.endsWith('.dart')) continue;
+        final normalized = f.path.replaceAll('\\', '/');
+        if (excludePaths.any(normalized.contains)) continue;
+        final lines = f.readAsStringSync().split('\n');
+        for (var i = 0; i < lines.length; i++) {
+          final raw = lines[i];
+          final trimmed = raw.trim();
+          // 주석 라인 스킵 — 히스토리 설명에는 옛 용어가 남는다.
+          if (trimmed.startsWith('//')) continue;
+          if (trimmed.startsWith('*') || trimmed.startsWith('/*')) continue;
+          // 문자열 리터럴이 있는 라인만 — 식별자(BoxWod·wodType)는 통과.
+          if (!raw.contains("'") && !raw.contains('"')) continue;
+          final cleaned = raw
+              .replaceAll('인박스', '')
+              .replaceAll('아웃박스', '')
+              .replaceAll(RegExp(r'(Girls|Hero|Games)\s+WOD'), '');
+          if (banned.hasMatch(cleaned)) {
+            violations.add('${f.path}:${i + 1}: $trimmed');
+          }
+        }
+      }
+      expect(
+        violations,
+        isEmpty,
+        reason: 'GLOSSARY §2 v2 위반 — 크로스핏 표기 철수 (박스→체육관, '
+            'WOD→수업 내용):\n${violations.join('\n')}',
       );
     });
 
