@@ -912,17 +912,30 @@ retention 정의 = "코호트(가입 월) 의 N개월 후 시점에 attendance �
 - 미해결: 폰 미페어링 코치는 PC 에서 쪽지 열람 불가 (안내문 노출). 페어링 없이도 되게 하려면
   `gym_managers` 에 staff 전용 식별 해시를 부여하는 별도 결정이 필요하다.
 
-### 11.9. 코치 앱 = 간단 3탭 셸 등록 (2026-08-14 사용자 설계)
+### 11.9. 코치 앱 = 간단 3탭 셸 등록 (2026-08-14 사용자 설계 · 같은 날 v2 확정)
 
-- **결정**: 코치는 PC(디테일 운영)와 앱(간단) 둘 다 쓴다 (§2-0 대전제 ③ 재확인).
-  앱 쪽 코치 경험은 **CoachShell 3탭** 하나로 고정:
-  ① 예약 — 오늘 예약·출석·수업 명단 (기존 BossDashboardScreen 임베드)
-  ② 수업 — 회원과 동일 (BoxWodScreen)
-  ③ 내 정보 — 회원과 동일 (MyPageScreen; 사용 빈도 낮음 전제, 로그아웃 동선 때문에 유지)
+- **결정 (v2, 2026-08-14 12:52 사용자 확정)**: 코치는 PC(디테일 운영)와 앱(간단)
+  둘 다 쓴다 (§2-0 대전제 ③ 재확인). 앱 쪽 코치 경험은 **CoachShell 3탭** 하나로 고정:
+  ① 회원 현황 — 승인 대기·로스터·활동 통계 (기존 CoachDashboardScreen 재사용)
+  ② 예약 조회 — 오늘 예약·출석·수업 명단 (기존 BossDashboardScreen 임베드)
+  ③ 쪽지 — 핀 공지 + 회원 쪽지 스레드 (기존 MessagingScreen 재사용)
+- **v1(예약·수업·내 정보)에서 바뀐 것**: 수업 탭(BoxWodScreen) 삭제 — 수업 안내는
+  PC·회원 앱 몫. 내 정보 탭(MyPageScreen) 삭제 — 로그아웃은 예약 조회 AppBar 에
+  이미 있다.
 - **v2.3(2026-08-12) "코치 진입 숨김" 부분 폐기**: 진입 버튼(`_kShowBossEntry`) 원복.
   "코치 주 창구 = PC" 는 유지 — 앱은 보조·간단 창구다.
 - **정리**: 대시보드의 가짜 하단탭(onTap 빈 함수 4개) 삭제 — 실탭은 CoachShell 소유.
-- **스키마·API 변경 없음** — 화면 재조립뿐.
+- **백엔드 — 코치 기기 폴백 (services/facing, 2026-08-14)**: 회원 현황·쪽지 탭은
+  회원 API(X-Device-Id)를 쓰는데, 로그인만 한 코치 기기는 owner_hash 도
+  GymMember 도 아니라 "체육관 미가입" 이 났다. admin_login 이 페어링하는
+  `GymManager.device_hash`(재직 중)를 스태프 기기 증표로 인정 —
+  `api/roles.py is_staff_device()` 하나로 판정하고 `/gyms/mine`·회원 목록/승인·
+  WOD 목록·공지(G13 기기판)·coach_note 게이트(`_is_coach_device`, 구 `_is_owner`
+  개명)가 이를 쓴다. 회귀 = `tests/test_coach_device_fallback.py`.
+- **미해결**: 쪽지 신원은 PC 규약(admin.py `_staff_device_hash`)과 동일하게
+  coach 는 본인 페어링 해시다 — 회원이 시작하는 스레드는 owner_hash 로만 가므로
+  boss 아닌 코치 기기에는 회원 발신 스레드가 안 보인다 (PC 와 같은 한계).
+- **스키마 변경 없음.**
 
 ---
 

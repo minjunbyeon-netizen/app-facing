@@ -79,8 +79,8 @@ class _BossDashboardScreenState extends State<BossDashboardScreen> {
                   child: _Body(data: _data!, onRefresh: _load),
                 ),
       // v3.1 (2026-08-14 사용자 설계): 가짜 하단탭(_BottomNav — onTap 전부 빈
-      // 함수) 삭제. 실제 탭은 CoachShell(예약 현황·수업·내 정보)이 담당하고
-      // 이 화면은 그 첫 탭으로 임베드된다.
+      // 함수) 삭제. 실제 탭은 CoachShell(회원 현황·예약 조회·쪽지, v3.2)이
+      // 담당하고 이 화면은 예약 조회 탭으로 임베드된다.
     );
   }
 

@@ -208,8 +208,8 @@ class HyphenApp extends StatelessWidget {
           // PHASE5 §1.1·§1.2: 사장 폰 로그인·대시보드
           '/boss/login': (_) => const BossLoginScreen(),
           '/auth/link-staff': (_) => const StaffLinkScreen(),
-          // v3.1 (2026-08-14 사용자 설계) — 코치 앱 = 간단 3탭 셸
-          // (예약 현황 · 수업 · 내 정보). 대시보드는 셸 첫 탭으로 임베드.
+          // v3.2 (2026-08-14 사용자 확정) — 코치 앱 = 간단 3탭 셸
+          // (회원 현황 · 예약 조회 · 쪽지). 대시보드는 예약 조회 탭으로 임베드.
           '/boss/dashboard': (_) => const CoachShell(),
           '/boss/settings': (_) => const BossSettingsScreen(),
           // PHASE4 §1.1: 회원 폰 클래스 일정·예약
