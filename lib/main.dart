@@ -42,7 +42,7 @@ import 'features/shell/main_shell.dart';
 import 'features/boss/boss_auth_state.dart';
 import 'features/boss/boss_api_client.dart';
 import 'features/boss/boss_login_screen.dart';
-import 'features/boss/boss_dashboard_screen.dart';
+import 'features/shell/coach_shell.dart';
 import 'features/boss/settings_screen.dart';
 import 'features/classes/classes_screen.dart';
 import 'features/wod/wod_today_screen.dart';
@@ -208,7 +208,9 @@ class HyphenApp extends StatelessWidget {
           // PHASE5 §1.1·§1.2: 사장 폰 로그인·대시보드
           '/boss/login': (_) => const BossLoginScreen(),
           '/auth/link-staff': (_) => const StaffLinkScreen(),
-          '/boss/dashboard': (_) => const BossDashboardScreen(),
+          // v3.1 (2026-08-14 사용자 설계) — 코치 앱 = 간단 3탭 셸
+          // (예약 현황 · 수업 · 내 정보). 대시보드는 셸 첫 탭으로 임베드.
+          '/boss/dashboard': (_) => const CoachShell(),
           '/boss/settings': (_) => const BossSettingsScreen(),
           // PHASE4 §1.1: 회원 폰 클래스 일정·예약
           '/classes': (_) => const ClassesScreen(),

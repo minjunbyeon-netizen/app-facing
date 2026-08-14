@@ -78,7 +78,9 @@ class _BossDashboardScreenState extends State<BossDashboardScreen> {
                   color: HyphenTokens.primary,
                   child: _Body(data: _data!, onRefresh: _load),
                 ),
-      bottomNavigationBar: _BottomNav(),
+      // v3.1 (2026-08-14 사용자 설계): 가짜 하단탭(_BottomNav — onTap 전부 빈
+      // 함수) 삭제. 실제 탭은 CoachShell(예약 현황·수업·내 정보)이 담당하고
+      // 이 화면은 그 첫 탭으로 임베드된다.
     );
   }
 
@@ -402,64 +404,3 @@ class _ErrorView extends StatelessWidget {
       );
 }
 
-class _BottomNav extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) => Container(
-        height: 56 + MediaQuery.of(context).padding.bottom,
-        decoration: const BoxDecoration(
-          color: HyphenTokens.surface,
-          border: Border(top: BorderSide(color: HyphenTokens.border)),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _NavItem(icon: Icons.home, label: '홈', active: true,
-                onTap: () {}),
-            _NavItem(icon: Icons.people_outline, label: '회원',
-                onTap: () {}),
-            _NavItem(icon: Icons.event_note_outlined, label: '수업',
-                onTap: () {}),
-            _NavItem(icon: Icons.settings_outlined, label: '설정',
-                onTap: () {}),
-          ],
-        ),
-      );
-}
-
-class _NavItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool active;
-  final VoidCallback onTap;
-  const _NavItem({
-    required this.icon,
-    required this.label,
-    this.active = false,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) => GestureDetector(
-        onTap: onTap,
-        behavior: HitTestBehavior.opaque,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon,
-                  size: 22,
-                  color: active ? HyphenTokens.primary : HyphenTokens.muted),
-              const SizedBox(height: 2),
-              // R5: 인라인 fontSize 금지 → sectionLabel 토큰 크기 그대로 사용.
-              Text(
-                label.toUpperCase(),
-                style: HyphenTokens.sectionLabel.copyWith(
-                  color: active ? HyphenTokens.primary : HyphenTokens.mutedStrong,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-}

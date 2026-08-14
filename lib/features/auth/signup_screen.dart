@@ -34,12 +34,10 @@ class _SignupScreenState extends State<SignupScreen> {
   // false. 실 OAuth 키 확보 후 true 한 줄로 원복.
   static const bool _kShowSocialLogin = false;
 
-  // v2.3 (2026-08-12 사용자 지시): 회원 로그인 화면에서 코치·사장 진입 줄을 내린다.
-  // 3면 대전제 ③ 대로 코치·사장의 주 창구는 PC 웹이고, 회원이 보는 첫 화면에
-  // 남의 역할 로그인이 섞여 있어 뜻이 통하지 않았다. 프로젝트 룰 "숨김 = 코드
-  // 보존" — /boss/login 라우트·화면·세션 배선은 그대로 두고 이 상수만 false.
-  // 폰에서 사장 로그인이 다시 필요하면 true 한 줄로 원복.
-  static const bool _kShowBossEntry = false;
+  // v2.3 (2026-08-12): 코치 주 창구 = PC 라 진입 줄을 내렸었다.
+  // v3.1 (2026-08-14 사용자 설계): 원복 — 코치는 PC(디테일)와 앱(간단 3탭:
+  // 예약 현황·수업·내 정보) 둘 다 쓴다. 진입 → /boss/login → CoachShell.
+  static const bool _kShowBossEntry = true;
 
   // D26: stub ↔ real 자동 선택 (USE_REAL_AUTH 플래그). 실 OAuth 는 ApiClient 의존
   // 이라 const 불가 — _signIn 에서 context 로 ApiClient 받아 resolve.
