@@ -58,7 +58,7 @@ const Map<String, double> _kRxBenchmarks = {
 
 ProfileState rxProfile() {
   final p = ProfileState();
-  p.applyPersonaSnapshot(
+  p.applyProfileSnapshot(
     bodyWeightKg: 78.0,
     heightCm: 175.0,
     ageYears: 26.0,

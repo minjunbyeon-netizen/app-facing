@@ -267,9 +267,10 @@ class ProfileState extends ChangeNotifier {
     return out.map((k, v) => MapEntry(k, v.map((k2, v2) => MapEntry(k2, v2))));
   }
 
-  /// Debug persona switch: 페르소나 전환 시 상태를 원자적으로 교체.
+  /// 프로필 상태를 원자적으로 교체 — 골든 테스트 시드 주입용.
   /// SharedPreferences 에도 저장해 hot-restart 후에도 유지.
-  void applyPersonaSnapshot({
+  /// (구 applyPersonaSnapshot — 페르소나 전환 UI 폐기 후 이름만 남아 v3.0 개명, §0-B)
+  void applyProfileSnapshot({
     double? bodyWeightKg,
     double? heightCm,
     double? ageYears,
