@@ -35,8 +35,8 @@ class _SignupScreenState extends State<SignupScreen> {
   static const bool _kShowSocialLogin = false;
 
   // v2.3 (2026-08-12): 코치 주 창구 = PC 라 진입 줄을 내렸었다.
-  // v3.1 (2026-08-14 사용자 설계): 원복 — 코치는 PC(디테일)와 앱(간단 3탭:
-  // 회원 현황·예약 조회·쪽지, v3.2) 둘 다 쓴다. 진입 → /boss/login → CoachShell.
+  // v3.1 (2026-08-14 사용자 설계): 원복 — 코치는 PC(디테일)와 앱(간단 셸:
+  // v3.3 예약 현황·수업 2탭) 둘 다 쓴다. 진입 → /boss/login → CoachShell.
   static const bool _kShowBossEntry = true;
 
   // D26: stub ↔ real 자동 선택 (USE_REAL_AUTH 플래그). 실 OAuth 는 ApiClient 의존

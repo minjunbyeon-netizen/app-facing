@@ -5,6 +5,7 @@ import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../widgets/hkit.dart';
+import '../gym/coach_dashboard_screen.dart';
 import 'boss_api_client.dart';
 import 'boss_auth_state.dart';
 import 'boss_dashboard_model.dart';
@@ -97,8 +98,8 @@ class _BossDashboardScreenState extends State<BossDashboardScreen> {
                       onCompose: _openCompose),
                 ),
       // v3.1 (2026-08-14 사용자 설계): 가짜 하단탭(_BottomNav — onTap 전부 빈
-      // 함수) 삭제. 실제 탭은 CoachShell(회원 현황·예약 조회·쪽지, v3.2)이
-      // 담당하고 이 화면은 예약 조회 탭으로 임베드된다.
+      // 함수) 삭제. 실제 탭은 CoachShell(v3.3 — 예약 현황·수업 2탭)이
+      // 담당하고 이 화면은 예약 현황 탭으로 임베드된다.
     );
   }
 
@@ -183,15 +184,17 @@ class _Body extends StatelessWidget {
         const SizedBox(height: HyphenTokens.sp5),
 
         // ─── 회원 운영 관리 CTA ───────────────────────────────────────
+        // v3.3 (2026-08-18): 회원 현황 탭 제거로 이 버튼이 가입 승인의 유일한
+        // 폰 동선이 됐다 — CoachDashboardScreen(승인 대기·로스터·활동 통계)
+        // push. GymState 는 CoachShell 진입 시 loadMine() 으로 채워져 있고,
+        // 회원 API 접근은 백엔드 코치 기기 폴백(is_staff_device)이 처리한다.
         HkButton.primary(
           '회원 관리',
           onPressed: () {
-            // TODO PHASE5 §1.3: /boss/members 진입
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('PHASE5 §1.3 — 회원 목록 (구현 예정)'),
-                backgroundColor: HyphenTokens.surface,
-                duration: Duration(seconds: 2),
+            Haptic.light();
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const CoachDashboardScreen(),
               ),
             );
           },
@@ -273,8 +276,8 @@ class _CounterCard extends StatelessWidget {
 // v2.2: 자체 GestureDetector + 각진 색면을 HkButton.primary 로 교체 (H7).
 // 앱의 다른 모든 주 버튼은 r4 둥근 52 인데 이 하나만 각진 면이라 화면에서
 // 혼자 튀었다. 눌림 피드백(pressed 색)도 없었다.
-// ※ 이 버튼의 동작은 아직 '구현 예정' 스낵바이며 하단 탭 '회원' 과 목적지가
-//   같다 — 존치 여부는 제품 판단이라 모양만 맞추고 남겨 둔다.
+// (구 '구현 예정' 스낵바는 v3.3 에서 CoachDashboardScreen push 로 실배선 —
+//  회원 현황 탭이 사라지면서 이 버튼이 가입 승인 진입점이 됐다.)
 
 class _ClassCard extends StatelessWidget {
   final TodayClass cls;

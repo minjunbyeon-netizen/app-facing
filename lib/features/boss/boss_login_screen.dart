@@ -113,7 +113,8 @@ class _BossLoginScreenState extends State<BossLoginScreen> {
                 TextFormField(
                   controller: _idCtrl,
                   style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
-                  decoration: _inputDeco('boss_seongsu'),
+                  // 힌트가 옛 데모 계정(boss_seongsu)이라 실계정으로 오인됨 (2026-08-18)
+                  decoration: _inputDeco('coach'),
                   textInputAction: TextInputAction.next,
                   autocorrect: false,
                   validator: (v) =>
