@@ -19,6 +19,8 @@ class ClassSessionDto {
   final int reservedCount;
   final int waitlistCount;
   final String status; // open | cancelled | completed
+  final String? track; // 수업 종류 (intro/rx/... 자유 문자열) — G25
+  final String? color; // 캘린더 칩 hex — 파싱만, UI 미사용 (토큰 정책)
   final MyReservationDto? myReservation;
   final int? myWaitlistPosition;
 
