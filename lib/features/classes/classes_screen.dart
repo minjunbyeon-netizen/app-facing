@@ -393,6 +393,13 @@ class _ClassCard extends StatelessWidget {
           const SizedBox(height: HyphenTokens.sp2),
           Row(
             children: [
+              // G25 — 수업 트랙 배지 (초보/RX 구분). track 원문 그대로 (도메인
+              // 고정어). null·빈 문자열이면 배지 자체를 그리지 않는다 — 골든 불변.
+              // 서버 color hex 는 칠하지 않는다 (디자인 토큰 정책) — HkBadge 기본색.
+              if ((session.track ?? '').isNotEmpty) ...[
+                HkBadge(session.track!),
+                const SizedBox(width: HyphenTokens.sp1),
+              ],
               if (isCancelled)
                 const HkBadge('취소됨', color: HyphenTokens.muted)
               else if (isReserved)

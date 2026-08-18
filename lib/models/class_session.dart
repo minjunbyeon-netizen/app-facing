@@ -38,6 +38,8 @@ class ClassSessionDto {
     required this.reservedCount,
     required this.waitlistCount,
     required this.status,
+    this.track,
+    this.color,
     this.myReservation,
     this.myWaitlistPosition,
   });
@@ -62,6 +64,8 @@ class ClassSessionDto {
         reservedCount: (j['reserved_count'] as num?)?.toInt() ?? 0,
         waitlistCount: (j['waitlist_count'] as num?)?.toInt() ?? 0,
         status: (j['status'] ?? 'open').toString(),
+        track: j['track']?.toString(),
+        color: j['color']?.toString(),
         myReservation: j['my_reservation'] is Map<String, dynamic>
             ? MyReservationDto.fromJson(j['my_reservation'] as Map<String, dynamic>)
             : null,
