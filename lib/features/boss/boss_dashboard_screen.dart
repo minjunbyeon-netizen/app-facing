@@ -8,6 +8,7 @@ import '../../widgets/hkit.dart';
 import 'boss_api_client.dart';
 import 'boss_auth_state.dart';
 import 'boss_dashboard_model.dart';
+import 'class_compose_sheet.dart';
 import 'class_roster_sheet.dart';
 
 // PHASE5 §1.2 — 사장 폰 Dashboard.
@@ -49,6 +50,20 @@ class _BossDashboardScreenState extends State<BossDashboardScreen> {
     }
   }
 
+  /// G24 — 폰 수업 등록 (보조 동선, 주 동선은 PC classes.html).
+  /// 등록되면 오늘 수업 목록·예약 카운터가 달라지므로 대시보드 재조회.
+  Future<void> _openCompose() async {
+    Haptic.light();
+    final gymId = context.read<BossAuthState>().gymId;
+    if (gymId == null) return;
+    final created = await showClassComposeSheet(context, gymId);
+    if (!created || !mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('수업 등록됨.'), duration: Duration(seconds: 2)),
+    );
+    await _load();
+  }
+
   Future<void> _logout() async {
     Haptic.medium();
     final api  = context.read<BossApiClient>();
@@ -76,7 +91,10 @@ class _BossDashboardScreenState extends State<BossDashboardScreen> {
               : RefreshIndicator(
                   onRefresh: _load,
                   color: HyphenTokens.primary,
-                  child: _Body(data: _data!, onRefresh: _load),
+                  child: _Body(
+                      data: _data!,
+                      onRefresh: _load,
+                      onCompose: _openCompose),
                 ),
       // v3.1 (2026-08-14 사용자 설계): 가짜 하단탭(_BottomNav — onTap 전부 빈
       // 함수) 삭제. 실제 탭은 CoachShell(회원 현황·예약 조회·쪽지, v3.2)이
@@ -129,7 +147,10 @@ class _Body extends StatelessWidget {
 
   /// 대시보드 재조회 — 명단에서 출석을 찍고 나온 경우에만 불린다 (D31).
   final Future<void> Function()? onRefresh;
-  const _Body({required this.data, this.onRefresh});
+
+  /// G24 — '오늘 수업' 헤더의 수업 등록 진입.
+  final VoidCallback? onCompose;
+  const _Body({required this.data, this.onRefresh, this.onCompose});
 
   @override
   Widget build(BuildContext context) {
@@ -179,7 +200,16 @@ class _Body extends StatelessWidget {
 
         // ─── 오늘의 수업 ──────────────────────────────────────────────
         // v2.2: 'TODAY'S CLASSES.' → 한글 (v1.29 한글 기본, 도메인 고정어 아님).
-        Text('오늘 수업', style: HyphenTokens.sectionLabel),
+        // G24: 헤더 우측에 폰 수업 등록 진입 — AppBar 는 이미 아이콘 둘이라
+        // 섹션 헤더 쪽이 덜 붐빈다. primary 는 위 '회원 관리' 하나뿐이라 tertiary.
+        Row(
+          children: [
+            Text('오늘 수업', style: HyphenTokens.sectionLabel),
+            const Spacer(),
+            HkButton.tertiary('수업 등록',
+                icon: Icons.add, onPressed: onCompose),
+          ],
+        ),
         const SizedBox(height: HyphenTokens.sp2),
         if (data.todayClasses.isEmpty)
           _EmptyCard(message: '오늘 수업 없음.')
