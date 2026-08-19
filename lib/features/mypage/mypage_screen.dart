@@ -18,7 +18,6 @@ import '../contracts/member_contracts_screen.dart';
 import '../goals/goals_screen.dart';
 import '../gym/coach_dashboard_screen.dart';
 import '../gym/gym_state.dart';
-import '../profile/profile_state.dart';
 // v2.6 (2026-08-13): '알고리즘'·'데이터 가져오기' 메뉴 삭제 — 아래 두 import 도 함께 끊는다.
 // import 'algorithm_screen.dart';
 // import 'import_screen.dart';
@@ -55,8 +54,8 @@ class MyPageScreen extends StatelessWidget {
             _SectionDivider(),
             _MyBoxSection(),
             _SectionDivider(),
-            _BodyStats(),
-            _SectionDivider(),
+            // v3.1 (2026-08-19 사용자 지시): 신체(체중·키·나이) 아코디언 삭제 —
+            // 입력 칸이 v2.3 에서 전부 빠져 영구 '-' 플레이스홀더였다.
             _SettingsSection(),
             _SectionDivider(),
             _ActionsSection(),
@@ -410,63 +409,9 @@ class _MyBoxSection extends StatelessWidget {
   }
 }
 
-class _BodyStats extends StatelessWidget {
-  const _BodyStats();
-
-  @override
-  Widget build(BuildContext context) {
-    final p = context.watch<ProfileState>();
-    final unit = context.watch<UnitState>();
-    final weightDisplay = p.bodyWeightKg == null
-        ? '-'
-        : '${_fmt(unit.kgToDisplay(p.bodyWeightKg!)!)} ${unit.weightSuffix}';
-    final height = p.heightCm == null ? '-' : '${_fmt(p.heightCm!)} cm';
-    final age = p.ageYears == null ? '-' : '${_fmt(p.ageYears!)} yr';
-    final sex = p.gender == 'female' ? 'Female' : 'Male';
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: HyphenTokens.sp4),
-      child: HkAccordion(
-        title: '신체',
-        subtitle: '체중 $weightDisplay · 키 $height · $age',
-        children: [
-          const SizedBox(height: HyphenTokens.sp2),
-          _Kv(label: '체중', value: weightDisplay),
-          _Kv(label: '키', value: height),
-          _Kv(label: '나이', value: age),
-          _Kv(label: '성별', value: sex),
-          const SizedBox(height: HyphenTokens.sp2),
-        ],
-      ),
-    );
-  }
-
-  String _fmt(double v) =>
-      v == v.roundToDouble() ? v.toInt().toString() : v.toStringAsFixed(1);
-}
-
-class _Kv extends StatelessWidget {
-  final String label;
-  final String value;
-  const _Kv({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: HyphenTokens.sp1),
-      child: Row(
-        children: [
-          Expanded(flex: 4, child: Text(label, style: HyphenTokens.caption)),
-          Expanded(
-            flex: 5,
-            child: Text(value,
-                style:
-                    HyphenTokens.body.copyWith(fontWeight: FontWeight.w700)),
-          ),
-        ],
-      ),
-    );
-  }
-}
+// v3.1 (2026-08-19 사용자 지시): _BodyStats·_Kv(신체 아코디언) 삭제 —
+// 체중·키·나이 입력 경로가 v2.3 온보딩·프로필 수정 개편에서 전부 빠져
+// 값이 영구 '-' 인 죽은 표시부였다. 성별은 프로필 수정 화면이 담당.
 
 class _SettingsSection extends StatelessWidget {
   const _SettingsSection();
