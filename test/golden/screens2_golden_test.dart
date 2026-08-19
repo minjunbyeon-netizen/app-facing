@@ -367,10 +367,15 @@ void main() {
           matching: find.byType(Scrollable),
         )
         .first;
-    await tester.scrollUntilVisible(find.text('수업 수정'), 200,
+    // 맨 아래 '수업 취소'까지 스크롤해야 그 위 '수업 수정'의 중심이 화면 안에
+    // 들어온다 — '수업 수정' 기준 스크롤은 버튼이 하단에 걸쳐 탭이 안 닿았다.
+    await tester.scrollUntilVisible(find.text('수업 취소'), 200,
         scrollable: sheetScroll);
     await tester.tap(find.text('수업 수정'));
     await tester.pumpAndSettle();
+    // 수정 시트가 실제로 떴는지 — 프리필 값(트랙 RX)·저장 CTA 로 확인.
+    expect(find.text('저장'), findsOneWidget);
+    expect(find.text('변경 내용은 회원 화면에 바로 반영됩니다.'), findsOneWidget);
     await capture(tester, 'boss_07_class_edit');
   });
 }
