@@ -669,6 +669,9 @@ Map<String, dynamic> classRoster() => {
       'room': 'Main Floor',
       'coach_user_id': 'coach_park',
       'capacity': 12,
+      // G24 2차 — 수정 시트 프리필용 (백엔드 admin_list_class_reservations 동봉).
+      'duration_minutes': 60,
+      'track': 'RX',
       'confirmed_count': 4,
       'waitlist_count': 2,
       'items': [

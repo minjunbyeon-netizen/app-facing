@@ -7,6 +7,7 @@ import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../widgets/hkit.dart';
 import 'boss_api_client.dart';
+import 'class_compose_sheet.dart';
 import 'class_roster_model.dart';
 
 /// D29 (2026-08-12) — 수업 카드 탭 시 뜨는 예약자 명단 시트.
@@ -23,6 +24,9 @@ import 'class_roster_model.dart';
 /// G24 (2026-08-18) — 시트 하단에 '수업 취소' 추가. 확인 다이얼로그 →
 /// POST /api/v1/admin/classes/{id}/cancel (확정 예약 일괄 취소 + 알림) →
 /// 시트 닫힘. dirty 로 처리해 아래 [onChanged] 경로로 대시보드가 재조회된다.
+///
+/// G24 2차 (2026-08-19) — '수업 수정' 추가. 수정 시트(class_compose_sheet
+/// edit 모드)에서 저장하면 명단을 재조회해 헤더·정원이 새 값으로 바뀐다.
 ///
 /// [onChanged] — 출석 상태를 하나라도 바꾼 채로 시트가 닫히면 1회 호출된다.
 /// 대시보드의 '오늘 출석' 숫자가 바뀌므로 호출부에서 다시 불러오라는 신호다.
@@ -95,7 +99,14 @@ class _ClassRosterSheetState extends State<_ClassRosterSheet> {
                 ),
               );
             }
-            return _Loaded(roster: snap.data!, onDirty: widget.onDirty);
+            // ObjectKey — 수정 후 재조회하면 새 roster 로 State 를 다시 만들어
+            // _items 작업 사본까지 새 값으로 간다 (key 없으면 State 가 남는다).
+            return _Loaded(
+              key: ObjectKey(snap.data),
+              roster: snap.data!,
+              onDirty: widget.onDirty,
+              onReload: () => setState(_load),
+            );
           },
         ),
       ),
@@ -106,7 +117,15 @@ class _ClassRosterSheetState extends State<_ClassRosterSheet> {
 class _Loaded extends StatefulWidget {
   final ClassRoster roster;
   final VoidCallback onDirty;
-  const _Loaded({required this.roster, required this.onDirty});
+
+  /// 수업 수정 저장 후 명단 재조회 신호 (G24 2차).
+  final VoidCallback onReload;
+
+  const _Loaded(
+      {super.key,
+      required this.roster,
+      required this.onDirty,
+      required this.onReload});
 
   @override
   State<_Loaded> createState() => _LoadedState();
@@ -122,6 +141,15 @@ class _LoadedState extends State<_Loaded> {
 
   /// 수업 취소 요청 진행 중 — 버튼 연타 방지 (G24).
   bool _cancelling = false;
+
+  /// G24 2차 — 수업 수정. 수정 시트에서 저장하면 대시보드 재조회 신호를 걸고
+  /// 명단도 다시 불러 헤더(제목·정원)가 새 값으로 바뀐다.
+  Future<void> _editClass() async {
+    final saved = await showClassEditSheet(context, widget.roster);
+    if (!saved || !mounted) return;
+    widget.onDirty();
+    widget.onReload();
+  }
 
   /// G24 — 수업 취소. 확정 예약이 일괄 취소되고 알림이 나가는 되돌릴 수 없는
   /// 동작이라, 출석 배지(연타로 되돌리기 가능)와 달리 확인 다이얼로그를 둔다.
@@ -283,8 +311,14 @@ class _LoadedState extends State<_Loaded> {
           ...waitlist.map((e) => _EntryRow(entry: e, onMark: _mark)),
         ],
 
-        // G24 — 수업 취소 (되돌릴 수 없음 → danger 외곽선).
+        // G24 2차 — 수업 수정 (제목·시간(분)·정원·트랙. 시작 시각은 PATCH 밖).
         const SizedBox(height: HyphenTokens.sp5),
+        HkButton.secondary(
+          '수업 수정',
+          onPressed: _cancelling ? null : _editClass,
+        ),
+        // G24 — 수업 취소 (되돌릴 수 없음 → danger 외곽선).
+        const SizedBox(height: HyphenTokens.sp2),
         HkButton.secondary(
           _cancelling ? '취소 중' : '수업 취소',
           danger: true,

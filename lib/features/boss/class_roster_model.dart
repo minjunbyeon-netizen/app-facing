@@ -77,6 +77,11 @@ class ClassRoster {
   final String? room;
   final String? coachUserId;
   final int? capacity;
+
+  /// G24 2차 (2026-08-19) — 수정 시트 프리필용. 명단 응답에 백엔드가 같이 준다.
+  final int? durationMinutes;
+  final String? track;
+
   final int confirmedCount;
   final int waitlistCount;
   final List<RosterEntry> items;
@@ -91,6 +96,8 @@ class ClassRoster {
     this.room,
     this.coachUserId,
     this.capacity,
+    this.durationMinutes,
+    this.track,
   });
 
   List<RosterEntry> get reservations =>
@@ -104,6 +111,8 @@ class ClassRoster {
         room: j['room']?.toString(),
         coachUserId: j['coach_user_id']?.toString(),
         capacity: (j['capacity'] as num?)?.toInt(),
+        durationMinutes: (j['duration_minutes'] as num?)?.toInt(),
+        track: j['track']?.toString(),
         confirmedCount: (j['confirmed_count'] as num?)?.toInt() ?? 0,
         waitlistCount: (j['waitlist_count'] as num?)?.toInt() ?? 0,
         items: (j['items'] as List? ?? [])

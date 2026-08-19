@@ -57,6 +57,7 @@ SECTIONS = [
         ("coach_02_shell_board", "코치 셸 2탭② 수업 — 회원과 동일 보드 (v3.3)"),
         ("boss_05_roster_cancel", "명단 시트 하단 — 수업 취소 버튼 (G24, 폴드 아래)"),
         ("boss_06_compose_datepicker", "수업 등록 — 날짜 선택 다이얼로그 (appClock 고정)"),
+        ("boss_07_class_edit", "수업 수정 시트 — 명단 시트 '수업 수정' (G24 2차, 프리필·일시 고정)"),
     ]),
     ("상태 변형", "상태 변형 — 빈 · 에러 · 오프라인 · 미가입", [
         ("hist_01_empty", "History — 빈 상태 (신규 가입)"),

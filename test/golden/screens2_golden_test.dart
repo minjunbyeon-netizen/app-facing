@@ -341,4 +341,36 @@ void main() {
     await tester.pumpAndSettle();
     await capture(tester, 'boss_06_compose_datepicker');
   });
+
+  // ── 코치: 수업 수정 시트 — 명단 시트 '수업 수정' (G24 2차, 프리필 상태) ──
+  testWidgets('boss: class edit sheet', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues({});
+    final api = FakeApi(memberWorld());
+    final bossApi = FakeBossApi({
+      '/api/v1/admin/gyms/1/dashboard': bossDashboard(),
+      '/api/v1/admin/classes/101/reservations': classRoster(),
+    });
+    await tester.pumpWidget(harness(
+        api: api,
+        auth: AuthState(),
+        profile: ProfileState(),
+        bossAuth: FakeBossAuth(),
+        bossApi: bossApi,
+        home: const BossDashboardScreen()));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('WOD Class').first);
+    await tester.pumpAndSettle();
+    final sheetScroll = find
+        .descendant(
+          of: find.byType(BottomSheet),
+          matching: find.byType(Scrollable),
+        )
+        .first;
+    await tester.scrollUntilVisible(find.text('수업 수정'), 200,
+        scrollable: sheetScroll);
+    await tester.tap(find.text('수업 수정'));
+    await tester.pumpAndSettle();
+    await capture(tester, 'boss_07_class_edit');
+  });
 }
