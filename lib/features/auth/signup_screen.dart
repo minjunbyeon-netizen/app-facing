@@ -60,7 +60,7 @@ class _SignupScreenState extends State<SignupScreen> {
       final result = await social.signIn(provider);
       await auth.signIn(provider.wireName, displayName: result.displayName);
       if (!mounted) return;
-      _routeByRole(navigator, result.role, profile);
+      await _routeByRole(navigator, result.role, profile);
     } on SocialAuthException catch (e) {
       if (!mounted) return;
       setState(() => _busy = false);
@@ -75,11 +75,11 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   /// 서버가 내려준 role 로 직접 분기 — 수동 mode_select·role_entry 화면 폐기 (D26).
-  void _routeByRole(
+  Future<void> _routeByRole(
     NavigatorState navigator,
     SocialRole role,
     ProfileState profile,
-  ) {
+  ) async {
     if (role == SocialRole.boss) {
       // 사장: 실 OAuth 시 서버 세션 수립 후 대시보드. stub 전환기엔 ID/PW fallback.
       navigator.pushNamed('/boss/login');
@@ -87,8 +87,19 @@ class _SignupScreenState extends State<SignupScreen> {
     }
     final mode = role.toAppMode();
     if (mode != null) AppModeStore.set(mode);
-    // 프로필(등급) 없으면 온보딩, 있으면 바로 shell.
-    final next = profile.hasGrade ? '/shell' : '/onboarding/basic';
+    // 온보딩 완료 판정 (2026-08-19 서버 영속화): 로컬 등급이 있으면 그대로
+    // 통과(구 Tier 완주자 fast path), 없으면 서버 프로필로 판정한다 — 기기를
+    // 바꿔도 이미 마친 사람(코치가 PC 에서 적어준 경우 포함)은 다시 안 묻는다.
+    // 미가입(data:null → PROTOCOL 예외)·네트워크 실패는 종전 로컬 판정 유지.
+    var done = profile.hasGrade;
+    if (!done) {
+      try {
+        final data =
+            await context.read<ApiClient>().get('/api/v1/member/me/profile');
+        done = ProfileState.onboardingDoneFrom(data);
+      } catch (_) {}
+    }
+    final next = done ? '/shell' : '/onboarding/basic';
     navigator.pushNamedAndRemoveUntil(next, (_) => false);
   }
 

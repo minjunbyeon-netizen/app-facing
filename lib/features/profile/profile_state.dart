@@ -49,6 +49,18 @@ class ProfileState extends ChangeNotifier {
   bool get hasGrade => _gradeResult != null &&
       _gradeResult!['overall_number'] != null;
 
+  /// 온보딩 완료 서버 판정 (2026-08-19 — 잔존 갭 '온보딩 완료 영속 서버화').
+  ///
+  /// 종전에는 로컬 [hasGrade] 하나로 갈라 기기를 바꾸거나 재설치하면 이미
+  /// 마친 사람도 다시 온보딩에 붙잡혔다. `GET /api/v1/member/me/profile`
+  /// 응답으로 판정한다: 온보딩 필수 입력(이름·경력→level)이 서버에 있으면
+  /// 완료 — 코치가 PC 에서 대신 적어준 경우도 같은 이유로 건너뛴다.
+  static bool onboardingDoneFrom(Map<String, dynamic> data) {
+    final name = (data['name'] ?? '').toString().trim();
+    final level = (data['level'] ?? '').toString().trim();
+    return name.isNotEmpty && level.isNotEmpty;
+  }
+
   bool get isEmpty =>
       _bodyWeightKg == null && _benchmarks.isEmpty && _maxRecords.isEmpty;
 
