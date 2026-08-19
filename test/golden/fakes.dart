@@ -827,6 +827,10 @@ final Map<String, dynamic> gymsMinePending = {
 Map<String, dynamic> memberWorld() => {
       '/health': const <String, dynamic>{},
       '/api/v1/gyms/mine': gymsMine,
+      // 하위 경로(results·comments·feedback)가 아래 '/api/v1/gyms/1/wods'
+      // prefix 에 삼켜져 WOD 목록이 리더보드 행으로 오염되던 충돌 방지
+      // (2026-08-19 골든 확장에서 발견 — "0th user:" 유령 행). 구체 경로 먼저.
+      '/api/v1/gyms/1/wods/': const <dynamic>[],
       '/api/v1/gyms/1/wods': gymWods(),
       '/api/v1/gyms/1/coaches': const {
         'coaches': [
