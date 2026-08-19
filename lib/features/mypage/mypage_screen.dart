@@ -751,7 +751,7 @@ class _ActionsSection extends StatelessWidget {
           // V9: 영문 명사 + 한글 조사 혼용("provider로") 제거.
           '로그아웃해도 프로필·기록은 이 기기에 그대로 유지됩니다.\n'
           '같은 계정으로 다시 로그인하면 모든 데이터가 복구됩니다.\n'
-          '계정 삭제는 프로필 → 개인정보처리방침 → 계정 삭제.',
+          '계정 삭제는 내 정보 → 개인정보처리방침 → 계정 삭제.',
           style: HyphenTokens.caption,
         ),
         actions: [

@@ -347,10 +347,9 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
               future: _feedbackFuture,
               builder: (ctx, snap) {
                 final list = snap.data ?? const <CoachFeedback>[];
-                // QA (2026-06-11): 회원 시점 카피 + V9(영한 혼용) 해소.
                 if (list.isEmpty) {
                   return const Text(
-                    'No coach feedback yet.',
+                    '아직 피드백 없음.',
                     style: HyphenTokens.caption,
                   );
                 }

@@ -30,7 +30,7 @@ class TermsScreen extends StatelessWidget {
             SizedBox(height: HyphenTokens.sp2),
             _Bullet('가입은 소셜 로그인(네이버·구글) 또는 회원 가입 신청으로 합니다.'),
             _Bullet('회원 가입 신청의 승인·거절 권한은 해당 체육관 코치에게 있습니다.'),
-            _Bullet('탈퇴는 Profile → Privacy Policy 화면에서 언제든 가능합니다.'),
+            _Bullet('탈퇴는 내 정보 → 개인정보처리방침 화면에서 언제든 가능합니다.'),
             _Bullet('타인 명의 도용, 허위 정보 가입 시 이용이 제한될 수 있습니다.'),
             SizedBox(height: HyphenTokens.sp4),
 
