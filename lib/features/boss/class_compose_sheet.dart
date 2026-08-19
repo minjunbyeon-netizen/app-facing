@@ -90,6 +90,9 @@ class _ClassComposeSheetState extends State<_ClassComposeSheet> {
       initialDate: _date.isBefore(today) ? today : _date,
       firstDate: today,
       lastDate: today.add(const Duration(days: 365)),
+      // '오늘' 링 기준 시각도 appClock — 미지정 시 Material 내부 DateTime.now()
+      // 를 써서 골든이 실제 날짜에 흔들린다 (시각은 appClock 만).
+      currentDate: today,
     );
     if (picked == null || !mounted) return;
     setState(() => _date = DateTime(picked.year, picked.month, picked.day));

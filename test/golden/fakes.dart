@@ -337,6 +337,39 @@ List<Map<String, dynamic>> memberClasses() {
   ];
 }
 
+/// /api/v1/member/classes — 위와 동일하되 20시 수업에 내 예약 확정 (예약됨 상태 캡처용).
+List<Map<String, dynamic>> memberClassesReserved() {
+  final list = memberClasses();
+  list[0] = {
+    ...list[0],
+    'reserved_count': 9,
+    'my_reservation': {
+      'reservation_id': 55,
+      'status': 'confirmed',
+      'promoted_from_waitlist': false,
+    },
+  };
+  return list;
+}
+
+/// /api/v1/member/me/contracts — 회원 전자계약 2건 (서명 완료 1 + 서명 대기 1).
+const memberContracts = [
+  {
+    'id': 1,
+    'status': 'signed',
+    'template_name': '회원권 이용 계약',
+    'created_at': '2026-08-01T10:00:00',
+    'signed_at': '2026-08-02T18:30:00',
+  },
+  {
+    'id': 2,
+    'status': 'sent',
+    'template_name': '개인정보 수집·이용 동의서',
+    'created_at': '2026-08-10T09:00:00',
+    'signed_at': null,
+  },
+];
+
 /// /api/v1/member/me/memberships — 활성 회원권 1건 (진행률 살아있게 상대 날짜).
 List<Map<String, dynamic>> memberMemberships() {
   final now = appClock.now();

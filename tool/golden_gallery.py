@@ -20,6 +20,7 @@ SECTIONS = [
         ("common_06_self_signup", "가입 신청① — 이름 · 생년월일 · 성별 · 연락처"),
         ("common_07_self_signup_scrolled",
          "가입 신청② — 경력 3단 · 해온 종목 · 부상 이력 · 아이디 · 비밀번호"),
+        ("common_08_member_login", "회원 아이디 로그인 — 기기 바뀜 · 재설치 복귀 경로"),
     ]),
     ("온보딩", "온보딩 — 프로필 수정 경로 (가입 신청서가 같은 값을 받는다)", [
         ("onb_01_basic", "기본 정보 — 성별 · 운동 경력 (레벨 기준)"),
@@ -32,11 +33,30 @@ SECTIONS = [
         ("member_05_profile_menu_open", "프로필 메뉴 펼침 — 계약~이용약관 (직원 계정 연결 폐기)"),
         ("member_06_result_sheet", "수업 결과 입력 시트 — 완료 표시 탭 → 저장 (스케일 SCALED·RXD·ELITE 순)"),
     ]),
+    ("회원 심화", "회원 심화 — 셸에서 한 단계 더 (2026-08-19 전 화면 확장)", [
+        ("member_07_classes", "수업 예약 — 예약 · 대기 신청 · 마감 (내 정보 '수업' 버튼)"),
+        ("member_08_classes_reserved", "수업 예약 — 예약 확정 상태 (취소 진입)"),
+        ("member_09_wod_detail", "수업 상세 — RX·Scaled·Beginner 탭 + 라운드 (오늘 행 '자세히')"),
+        ("member_10_coach_ask_sheet", "코치에게 질문 시트 — 오늘 행 '메시지'"),
+        ("member_11_messaging", "쪽지 · 공지 피드 — 홈 '더 보기' · 수업 탭 종"),
+        ("member_12_achievements_all", "업적 전체 — 해금 · 미해금 카탈로그"),
+        ("member_13_achievement_detail", "업적 상세 시트 — 홈 해금 카드 탭"),
+        ("member_14_edit_profile", "프로필 수정 — 이름 줄 연필 아이콘"),
+        ("member_15_contracts", "전자계약 목록 — SIGNED · WAITING (메뉴 '계약')"),
+        ("member_16_goals", "목표 — 빈 상태 (메뉴 '목표')"),
+        ("member_17_faq", "FAQ — 시드 10문답"),
+        ("member_18_terms", "이용약관"),
+        ("member_19_privacy", "개인정보처리방침"),
+    ]),
     ("코치", "코치 — 로그인 · 대시보드 · 명단 (v3.3 셸 2탭: 예약 현황 · 수업 — 수업 탭은 회원과 동일 화면)", [
         ("boss_01_login", "코치 로그인 — PC 와 같은 아이디"),
         ("boss_02_dashboard", "대시보드(예약 현황 탭) — 오늘 예약·출석·만료 임박 · '회원 관리' → 승인 화면"),
         ("boss_03_class_roster", "수업 예약자 명단 — 카드 탭 시 (D29) · 하단 수업 취소 (G24)"),
         ("boss_04_class_compose", "수업 등록 시트 — '오늘 수업' 헤더 버튼 (G24)"),
+        ("coach_01_shell_reservations", "코치 셸 2탭① 예약 현황 — 대시보드 임베드 (v3.3)"),
+        ("coach_02_shell_board", "코치 셸 2탭② 수업 — 회원과 동일 보드 (v3.3)"),
+        ("boss_05_roster_cancel", "명단 시트 하단 — 수업 취소 버튼 (G24, 폴드 아래)"),
+        ("boss_06_compose_datepicker", "수업 등록 — 날짜 선택 다이얼로그 (appClock 고정)"),
     ]),
     ("상태 변형", "상태 변형 — 빈 · 에러 · 오프라인 · 미가입", [
         ("hist_01_empty", "History — 빈 상태 (신규 가입)"),
@@ -113,8 +133,9 @@ HEAD = """<!doctype html>
 NOTE = ("골든 테스트(flutter test --update-goldens test/golden) 산출물 — 실제 앱 위젯을 "
         "가짜 백엔드(test/golden/fakes.dart)로 렌더한 실물 픽셀입니다 (갤S22 급 360×780·2x). "
         "데이터는 샘플입니다. UI 를 바꾸면 --update-goldens 재실행 후 이 갤러리를 다시 생성하세요. "
-        "여기 실린 23장은 **지금 회원·코치가 실제로 도달할 수 있는 화면**만 남긴 것입니다 "
-        "(2026-08-18 · G24). 진입점이 사라진 화면은 갤러리에서 뺐습니다 — 페이싱 계산기, "
+        "여기 실린 41장은 **지금 회원·코치가 실제로 도달할 수 있는 화면**만 남긴 것입니다 "
+        "(2026-08-19 전 화면 확장 — 예약·상세·쪽지·업적·계약·목표·FAQ·약관·코치 셸 2탭·"
+        "날짜 선택까지). 진입점이 사라진 화면은 갤러리에서 뺐습니다 — 페이싱 계산기, "
         "Benchmarks·Tier 결과, 인트로 TIER 장. 양식 정본 docs/DESIGN-SSOT.md.")
 
 SCRIPT = """<script>
