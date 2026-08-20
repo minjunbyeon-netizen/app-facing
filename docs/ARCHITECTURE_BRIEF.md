@@ -975,6 +975,23 @@ retention 정의 = "코호트(가입 월) 의 N개월 후 시점에 attendance �
 - **앱**: 업적 카탈로그·희귀도·포인트는 서버 응답 그대로 — 필터 탭에서 빈 그룹
   (Tier·Engine·히든) 삭제만 반영. 회귀 = 백엔드 131 · 앱 167 · 골든 42장.
 
+### 11.11. 리워드 규칙 엔진 — GTM 식 행동/조건/보상 빌더 (2026-08-20 사용자 승인·구현)
+
+- **설계 정본 = `docs/PLAN-reward-rules.md`** (승인 확정: 주=ISO 월요일 · 미소급 ·
+  custom 인증 기본 코치 승인 · 카테고리 3분류 ①자동/②기록 로그/③코치 인증).
+- **신규 표 3**: `gym_reward_rules`(규칙) · `gym_reward_grants`(지급, UNIQUE
+  rule×member×window_key = 반복 재적립 중복 차단) · `gym_action_logs`(custom 인증
+  원장, UNIQUE 1일 1회). `achievements_catalog` +gym_id (커스텀 업적 `RULE_{id}`).
+- **엔진**: `services/reward_engine.py` 단일 판독 — 훅 3곳(출석 동기화 ·
+  `save_wod_history` · custom 승인) + `/achievements/check` 보조 스윕.
+  달성 시 member_points earn(created_by='reward_rule') + 업적 해금.
+- **API**: admin reward-rules CRUD·grants·action-logs 승인/대리 + member
+  `reward-rules/<id>/log`·`me/reward-progress` (§13 카탈로그 대상).
+- **PC**: `/settings/achievements` 에 카테고리 3섹션 + 문장형 빌더 + 인증 대기함.
+- **앱**: 해금 축하 = 토스트(기본 픽토그램)+컨페티 캐논 2초, 스냅샷 diff 로 서버
+  훅 해금도 감지. 완료 기록 시트 v3.3 — 수업 내용 인계·동작별 SCALED/RXD
+  (코치 무게 자동)·ELITE 제거. 잔여 = 도전 카드(P3)·트리거 확장(P4).
+
 ---
 
 ## 12. 참조 study (브리프 보강 근거)

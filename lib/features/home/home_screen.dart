@@ -63,7 +63,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _onSessionBump() {
     if (!mounted) return;
-    _reload();
+    // 기록 저장 직후 — 실제 트리거이므로 업적 체크 스로틀 우회 (토스트·컨페티).
+    _reload(checkThrottle: false);
   }
 
   @override
@@ -72,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  void _reload() {
+  void _reload({bool checkThrottle = true}) {
     setState(() {
       _future = _repo.listWodHistory(limit: _kHistoryLimit);
     });
@@ -88,10 +89,13 @@ class _HomeScreenState extends State<HomeScreen> {
       if (!mounted) return;
       setState(() => _attendDays = null);
     });
-    // 진입·새로고침마다 업적 자동 체크 (throttle: 10분 1회).
+    // 진입·새로고침마다 업적 자동 체크 (초기 진입만 10분 스로틀).
     // v3.3 (2026-08-20 사용자 지시): 새 해금이 있으면 홈에서 토스트 + 컨페티
     // 캐논 축하 (리워드 규칙 해금은 서버 훅에서 일어나 diff 로 감지된다).
-    context.read<AchievementState>().check(throttle: true).then((newly) {
+    context
+        .read<AchievementState>()
+        .check(throttle: checkThrottle)
+        .then((newly) {
       if (!mounted || newly.isEmpty) return;
       UnlockToast.showAll(context, newly);
     });
@@ -110,7 +114,8 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             tooltip: 'Refresh',
             icon: const Icon(Icons.refresh),
-            onPressed: _reload,
+            // 수동 새로고침 — 코치 승인 등 서버 해금을 바로 축하하도록 스로틀 우회.
+            onPressed: () => _reload(checkThrottle: false),
           ),
         ],
       ),
