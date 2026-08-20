@@ -11,6 +11,12 @@
 // - 결과는 종류별 최소 입력 (For Time 시간 / AMRAP 라운드+reps / EMOM 라운드)
 // - 저장 시 동작별 선택이 "Wallball RXD 20lb · Squat SCALED 40kg" 형태로
 //   기록에 쌓인다 — PR·기록 경신 로그가 읽히는 구조.
+//
+// v3.4 (2026-08-20 승인 — docs/PLAN-record-structures.md Part A):
+// - Strength 분기 신설 — 최고 무게(kg)+reps 입력 (SCALED/RXD 선택 아님)
+// - EMOM 라벨 "성공한 라운드" 명확화
+// - 저장 응답의 서버 비교 메시지("지난 기록보다 42초 단축 — PR!")를
+//   스낵바에 표시 (비교·PR 판정은 전부 백엔드 — 앱 계산 0).
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -52,6 +58,8 @@ class _WodResultSheetState extends State<WodResultSheet> {
   final _roundsCtrl = TextEditingController();
   final _extraCtrl = TextEditingController();
   final _weightCtrl = TextEditingController(); // fallback(자유 서술 게시물) 전용
+  final _stWeightCtrl = TextEditingController(); // strength — 최고 무게
+  final _stRepsCtrl = TextEditingController(); // strength — reps (선택)
   final _notesCtrl = TextEditingController();
   bool _fallbackScaled = false; // fallback 전용 — 기본 RXD
   bool _saving = false;
@@ -61,6 +69,8 @@ class _WodResultSheetState extends State<WodResultSheet> {
 
   bool get _isForTime => widget.wod.wodType.toLowerCase() == 'for_time';
   bool get _isAmrap => widget.wod.wodType.toLowerCase().contains('amrap');
+  bool get _isEmom => widget.wod.wodType.toLowerCase() == 'emom';
+  bool get _isStrength => widget.wod.wodType.toLowerCase() == 'strength';
 
   /// 게시물에 구조화 동작이 있으면 동작별 입력, 없으면 fallback(전체 1선택).
   bool get _structured => _moves.isNotEmpty;
@@ -73,7 +83,7 @@ class _WodResultSheetState extends State<WodResultSheet> {
         for (final m in r.movements) _MoveEntry(m),
     ];
     // 라운드 수는 게시물 값이 있으면 그대로 가져온다 (EMOM 10 → 10).
-    if (!_isForTime && widget.wod.rounds != null) {
+    if (!_isForTime && !_isStrength && widget.wod.rounds != null) {
       _roundsCtrl.text = '${widget.wod.rounds}';
     }
   }
@@ -84,6 +94,8 @@ class _WodResultSheetState extends State<WodResultSheet> {
     _roundsCtrl.dispose();
     _extraCtrl.dispose();
     _weightCtrl.dispose();
+    _stWeightCtrl.dispose();
+    _stRepsCtrl.dispose();
     _notesCtrl.dispose();
     for (final m in _moves) {
       m.dispose();
@@ -146,16 +158,28 @@ class _WodResultSheetState extends State<WodResultSheet> {
     final navigator = Navigator.of(context);
 
     final timeSec = _isForTime ? _parseTime(_timeCtrl.text) : null;
-    final rounds = !_isForTime ? int.tryParse(_roundsCtrl.text.trim()) : null;
+    final rounds = (!_isForTime && !_isStrength)
+        ? int.tryParse(_roundsCtrl.text.trim())
+        : null;
     final extra = _isAmrap ? int.tryParse(_extraCtrl.text.trim()) : null;
+    // strength — 최고 무게(+reps). 다른 유형은 null.
+    final stWeight =
+        _isStrength ? double.tryParse(_stWeightCtrl.text.trim()) : null;
+    final stReps = _isStrength ? int.tryParse(_stRepsCtrl.text.trim()) : null;
 
     // 전체 난도 = 동작 중 하나라도 SCALED 면 scaled (enum 은 scaled/rx 유지).
-    final anyScaled =
-        _structured ? _moves.any((m) => m.scaled) : _fallbackScaled;
+    // strength 는 난도 선택이 없다 — 기본 rx.
+    final anyScaled = _isStrength
+        ? false
+        : _structured
+            ? _moves.any((m) => m.scaled)
+            : _fallbackScaled;
     final scale = anyScaled ? 'scaled' : 'rx';
 
     final notesParts = <String>[];
-    if (_structured) {
+    if (_isStrength) {
+      // 무게는 weight_kg 필드로 간다 — 메모엔 사용자 입력만.
+    } else if (_structured) {
       notesParts.add(_movesSummary());
     } else {
       final weightKg = double.tryParse(_weightCtrl.text.trim());
@@ -172,6 +196,8 @@ class _WodResultSheetState extends State<WodResultSheet> {
             timeSec: timeSec,
             rounds: rounds,
             extraReps: extra,
+            weightKg: stWeight,
+            weightReps: stReps,
             scaleLevel: scale,
             notes: notes,
           );
@@ -198,14 +224,15 @@ class _WodResultSheetState extends State<WodResultSheet> {
       bus.bump();
       navigator.pop(true);
       final earned = res.pointsAwarded > 0;
+      // v3.4 — 서버 비교 메시지 붙여 발전 피드백 ("지난 기록보다 42초 단축 — PR!").
+      final base = earned
+          ? '저장됨 · 출석 +1 · +${res.pointsAwarded}P'
+          : '저장됨 · 출석 +1';
+      final msg = res.comparisonMessage;
       messenger.showSnackBar(
         SnackBar(
-          content: Text(
-            earned
-                ? '저장됨 · 출석 +1 · +${res.pointsAwarded}P'
-                : '저장됨 · 출석 +1',
-          ),
-          duration: const Duration(seconds: 2),
+          content: Text(msg == null ? base : '$base\n$msg'),
+          duration: Duration(seconds: msg == null ? 2 : 3),
         ),
       );
     } on AppException catch (e) {
@@ -277,6 +304,35 @@ class _WodResultSheetState extends State<WodResultSheet> {
               const SizedBox(height: HyphenTokens.sp1),
               if (_isForTime) ...[
                 _TimeField(controller: _timeCtrl),
+              ] else if (_isStrength) ...[
+                // v3.4 — 무게 측정일: 최고 무게(+reps)가 점수다.
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: TextField(
+                        controller: _stWeightCtrl,
+                        keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true),
+                        decoration: const InputDecoration(
+                          labelText: '오늘 최고 무게 (kg)',
+                          hintText: '예: 100',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: HyphenTokens.sp2),
+                    Expanded(
+                      child: TextField(
+                        controller: _stRepsCtrl,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          labelText: 'reps (선택)',
+                          hintText: '예: 5',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ] else ...[
                 Row(
                   children: [
@@ -284,8 +340,12 @@ class _WodResultSheetState extends State<WodResultSheet> {
                       child: TextField(
                         controller: _roundsCtrl,
                         keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                          labelText: '몇 라운드 했는지',
+                        decoration: InputDecoration(
+                          // EMOM 은 "성공한 라운드"가 점수 (승인 결정 1).
+                          labelText: _isEmom ? '성공한 라운드' : '몇 라운드 했는지',
+                          hintText: _isEmom && widget.wod.rounds != null
+                              ? '${widget.wod.rounds}라운드 중 몇 개 성공'
+                              : null,
                         ),
                       ),
                     ),
@@ -306,8 +366,8 @@ class _WodResultSheetState extends State<WodResultSheet> {
               ],
               const SizedBox(height: HyphenTokens.sp4),
 
-              // ── 동작별 난도 (게시물에서 그대로) ──
-              if (_structured) ...[
+              // ── 동작별 난도 (게시물에서 그대로) — strength 는 난도 없음 ──
+              if (_structured && !_isStrength) ...[
                 const Text('동작별 난도', style: HyphenTokens.sectionLabel),
                 const SizedBox(height: HyphenTokens.sp1),
                 for (final e in _moves) _MovementRow(
@@ -315,7 +375,7 @@ class _WodResultSheetState extends State<WodResultSheet> {
                   enabled: !_saving,
                   onChanged: () => setState(() {}),
                 ),
-              ] else ...[
+              ] else if (!_isStrength) ...[
                 // 자유 서술 게시물 — 전체 1선택 (코치 무게는 본문에 이미 있음).
                 const Text('난도', style: HyphenTokens.sectionLabel),
                 const SizedBox(height: HyphenTokens.sp1),

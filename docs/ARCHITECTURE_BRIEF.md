@@ -999,6 +999,23 @@ retention 정의 = "코호트(가입 월) 의 N개월 후 시점에 attendance �
   훅 +5곳: 예약 확정 3경로·결제 입력·회원권 발급(연장+연동 결제), 생일은
   출석 훅 동승 + 스윕. 앱 변화 없음 (문장·진행률 = 서버 생성).
 
+### 11.12. 수업 유형별 기록 구조 + 발전 측정 (2026-08-20 사용자 승인·Q1+Q2 구현)
+
+- **설계 정본 = `docs/PLAN-record-structures.md` Part A** (확정: EMOM 성공 라운드
+  1칸 · Strength 최고 무게+reps 1줄 · AMRAP 라운드 우선, 동라운드면 reps).
+- 점수 = 유형별 단위: for_time 시간↓ / amrap 라운드+reps↑ / emom 성공 라운드↑ /
+  **strength 무게↑** (`gym_wod_results` +weight_kg·weight_reps·is_pr·signature).
+- **비교·PR = 서버 단일 판독** (`services/wod_compare.py`): 시그니처(동작·횟수
+  시퀀스 해시, strength 는 동작 단위, 자유 서술 첫 줄 폴백)로 같은 수업 자동
+  매칭 → 저장 응답 `comparison`(직전 델타 한국어 메시지 + 역대 최고 PR,
+  For Time 0.5% 임계). 첫 기록 = PR 아님. 수업 기록 PR 은 리워드 'pr' 트리거
+  원천에 합류 (§11.11).
+- 앱: 완료 기록 시트 4분기 + 저장 스낵바 비교 메시지 표시 (계산 0). 코치 등록
+  시트 STRENGTH 추가 (백엔드 ALLOWED_WOD_TYPES 정합 — 구 드리프트 정정).
+- 잔여 = Q3 추이 2화면 (수업 상세 "내 이전 기록" · 1RM 보드). 기존 표시용
+  판정기 2종(admin_leaderboard For Time is_pr · 앱 PrDetector)은 온존 —
+  통합은 후속 검토 (PLAN A-5).
+
 ---
 
 ## 12. 참조 study (브리프 보강 근거)

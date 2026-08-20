@@ -1,8 +1,21 @@
 # PLAN — 수업 유형별 기록 구조 + 발전 측정 (②) · P4 트리거 확장 (③)
 
-> 상태: **② = 승인 대기** (사용자 지적 2026-08-20 18:58 답변) ·
+> 상태: **② = 승인 (2026-08-20 19:48 사용자 "1" — 결정 3건 추천안 확정) →
+> Q1+Q2 같은 날 구현 완료** (Q3 추이 2화면은 다음 단계) ·
 > **③ = "좋네" 승인 → 2026-08-20 저녁 세션 구현 완료** (아래 Part B 가 구현 명세 겸 기록).
-> 관련: `PLAN-reward-rules.md` (리워드 엔진 본편) · `ARCHITECTURE_BRIEF.md §11.11`.
+> 관련: `PLAN-reward-rules.md` (리워드 엔진 본편) · `ARCHITECTURE_BRIEF.md §11.11~11.12`.
+>
+> **Q1+Q2 구현 로그 (2026-08-20)**: 확정 결정 = ①EMOM 성공 라운드 1칸 ②Strength
+> 최고 무게+reps 1줄 ③AMRAP 라운드 우선. 백엔드 — `gym_wod_results` 4컬럼
+> (weight_kg·weight_reps·is_pr·signature+인덱스, ADD COLUMN 마이그레이션) ·
+> `services/wod_compare.py` 단일 판독(시그니처·직전 델타·역대 최고 PR 0.5% 임계·
+> 한국어 메시지 서버 완성) · 응답 `comparison` 블록 · 리워드 'pr' 원천에
+> gym_wod_results 합류 · ALLOWED_WOD_TYPES +strength (PC 게시와 정합) ·
+> 결과 목록 무게 필드+strength 정렬 · pytest +5 (전체 152+1). 앱 — 시트 4분기
+> (Strength 무게+reps 입력·EMOM "성공한 라운드" 라벨) · 저장 스낵바에 서버 비교
+> 메시지 · 코치 등록 시트 STRENGTH 칩 · 골든 43장 (member_06b strength 분기).
+> 구현 중 발견·정정: 앱 게시 API 가 strength 를 거부하던 드리프트 (PC 는 허용) —
+> ALLOWED_WOD_TYPES 로 정합. 배포 안 함 (로컬 커밋만).
 
 ---
 
@@ -66,13 +79,13 @@ DB: `gym_wod_results` 에 `weight_kg REAL NULL` · `weight_reps INT NULL` ·
 
 ### A-6. 단계
 
-| 단계 | 내용 |
-|---|---|
-| Q1 백엔드 | 3컬럼 + 시그니처·비교·PR + 응답 comparison + pr 원천 확장 + pytest |
-| Q2 앱 | 시트 4분기 (strength 무게 입력) + 저장 피드백 + 골든 |
-| Q3 앱 | 추이 2화면 (수업 상세 이전 기록 · 1RM 보드) + 골든 |
+| 단계 | 내용 | 상태 |
+|---|---|---|
+| Q1 백엔드 | 4컬럼 + 시그니처·비교·PR + 응답 comparison + pr 원천 확장 + pytest | ✅ 2026-08-20 |
+| Q2 앱 | 시트 4분기 (strength 무게 입력) + 저장 피드백 + 골든 | ✅ 2026-08-20 |
+| Q3 앱 | 추이 2화면 (수업 상세 "내 이전 기록" · 1RM 보드) + 백엔드 이력 API + 골든 | 대기 |
 
-Q1+Q2 가 최소 단위. **승인 후 착수.**
+Q1+Q2 가 최소 단위 — 완료. Q3 는 다음 착수분.
 
 ### A-7. 결정 필요 3건 (추천 포함)
 

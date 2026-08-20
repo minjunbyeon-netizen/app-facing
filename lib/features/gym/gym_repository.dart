@@ -265,12 +265,18 @@ class GymRepository {
         .toList();
   }
 
-  Future<({int resultId, int pointsAwarded})> submitWodResult({
+  /// v3.4 — strength 무게(+reps) 전송, 서버 비교 메시지·PR 판정 수신.
+  /// comparisonMessage 는 서버가 완성한 한 문장 ("지난 기록보다 42초 단축 — PR!").
+  /// 첫 기록이면 null (계산은 전부 백엔드 — 앱 계산 0 원칙).
+  Future<({int resultId, int pointsAwarded, bool isPr, String? comparisonMessage})>
+      submitWodResult({
     required int gymId,
     required int wodId,
     int? timeSec,
     int? rounds,
     int? extraReps,
+    double? weightKg,
+    int? weightReps,
     String scaleLevel = 'rx',
     String notes = '',
   }) async {
@@ -278,12 +284,19 @@ class GymRepository {
       'time_sec': ?timeSec,
       'rounds': ?rounds,
       'extra_reps': ?extraReps,
+      'weight_kg': ?weightKg,
+      'weight_reps': ?weightReps,
       'scale_level': scaleLevel,
       'notes': notes,
     });
+    final comparison = data['comparison'];
     return (
       resultId: (data['result_id'] as num).toInt(),
       pointsAwarded: (data['points_awarded'] as num?)?.toInt() ?? 0,
+      isPr: data['is_pr'] == true,
+      comparisonMessage: (comparison is Map<String, dynamic>)
+          ? comparison['message']?.toString()
+          : null,
     );
   }
 

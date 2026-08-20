@@ -201,7 +201,8 @@ class _WodPostScreenState extends State<WodPostScreen> {
             const SizedBox(height: HyphenTokens.sp2),
             Wrap(
               spacing: HyphenTokens.sp2,
-              children: const ['for_time', 'amrap', 'emom'].map((t) {
+              children:
+                  const ['for_time', 'amrap', 'emom', 'strength'].map((t) {
                 final selected = t == _wodType;
                 return HkBadge(
                   wodTypeLabel(t),

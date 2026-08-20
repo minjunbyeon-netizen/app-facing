@@ -73,6 +73,29 @@ void main() {
     await capture(tester, 'member_08_classes_reserved');
   });
 
+  // ── 회원: 결과 시트 — Strength(무게 측정일) 분기 (v3.4) ──
+  // 오늘 WOD 가 strength 면 시간·라운드 대신 최고 무게(kg)+reps 입력이 뜬다.
+  // 1부 member_06 과 같은 실도달 경로 (수업 탭 → 완료 표시 탭).
+  testWidgets('member: wod result sheet strength', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi({
+      ...memberWorld(),
+      '/api/v1/gyms/1/wods': gymWodsStrengthToday(),
+    });
+    final gym = GymState(GymRepository(api), sse: FakeSse());
+    await gym.loadMine();
+    await tester.pumpWidget(harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        gym: gym,
+        home: const MainShell()));
+    await tester.tap(find.text('완료 표시').first);
+    await tester.pumpAndSettle();
+    await capture(tester, 'member_06b_result_sheet_strength');
+  });
+
   // ── 회원: 수업 상세 (수업 탭 오늘 행 '자세히' 배지 → WodDetailScreen) ──
   testWidgets('member: wod detail', (tester) async {
     phone(tester);

@@ -254,6 +254,31 @@ List<Map<String, dynamic>> gymWods() {
   ];
 }
 
+/// 오늘 WOD 가 Strength(무게 측정일)인 변형 — 결과 시트 무게 입력 분기 골든용.
+/// v3.4 (2026-08-20 승인 — docs/PLAN-record-structures.md Part A).
+List<Map<String, dynamic>> gymWodsStrengthToday() {
+  final now = appClock.now();
+  return [
+    {
+      'id': 33,
+      'post_date': _ymd(now),
+      'wod_type': 'strength',
+      'content': 'Back Squat 5x5\n무거운 5회 × 5세트 — 마지막 세트 최고 무게를 기록',
+      'rounds_data': [
+        {
+          'label': 'A. Strength',
+          'content': 'Back Squat 5x5',
+          'movements': [
+            {'name': 'Back Squat', 'slug': 'back_squat', 'reps': '5x5'},
+          ],
+        },
+      ],
+      'created_at': '${_ymd(now)}T06:30:00',
+      'locked': false,
+    },
+  ];
+}
+
 /// /api/v1/member/attendances — 최근 QR 체크인 6회 (실행 시점 기준).
 List<Map<String, dynamic>> memberAttendances() {
   final now = appClock.now();
