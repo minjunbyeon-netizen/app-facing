@@ -479,6 +479,9 @@ class GymWodResult {
   final int? timeSec;
   final int? rounds;
   final int? extraReps;
+  // v3.4 — strength 최고 무게(+reps). 리더보드 표시 갭 수정 (2026-08-20 밤).
+  final double? weightKg;
+  final int? weightReps;
   final String scaleLevel; // rx · scaled · beginner
   final String notes;
   final DateTime createdAt;
@@ -491,6 +494,8 @@ class GymWodResult {
     this.timeSec,
     this.rounds,
     this.extraReps,
+    this.weightKg,
+    this.weightReps,
     required this.scaleLevel,
     required this.notes,
     required this.createdAt,
@@ -508,6 +513,12 @@ class GymWodResult {
       if (reps > 0) return '$r+$reps';
       return '$r rounds';
     }
+    if (weightKg != null && weightKg! > 0) {
+      final w = weightKg!;
+      final base =
+          w == w.roundToDouble() ? '${w.toInt()}kg' : '${w}kg';
+      return weightReps != null ? '$base×$weightReps' : base;
+    }
     return '-';
   }
 
@@ -519,6 +530,8 @@ class GymWodResult {
         timeSec: (j['time_sec'] as num?)?.toInt(),
         rounds: (j['rounds'] as num?)?.toInt(),
         extraReps: (j['extra_reps'] as num?)?.toInt(),
+        weightKg: (j['weight_kg'] as num?)?.toDouble(),
+        weightReps: (j['weight_reps'] as num?)?.toInt(),
         scaleLevel: (j['scale_level'] ?? 'rx').toString(),
         notes: (j['notes'] ?? '').toString(),
         createdAt: DateTime.parse(j['created_at'] as String),
