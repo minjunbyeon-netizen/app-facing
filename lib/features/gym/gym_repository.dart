@@ -301,7 +301,7 @@ class GymRepository {
   }
 
   /// Q3 (v3.4) — 이 수업과 같은 비교 그룹의 내 과거 기록 (라벨 서버 완성).
-  Future<({String kind, List<WodHistoryItem> items})> wodMyHistory(
+  Future<({String kind, List<WodMyHistoryItem> items})> wodMyHistory(
       int gymId, int wodId) async {
     final data =
         await api.get('/api/v1/gyms/$gymId/wods/$wodId/my-history');
@@ -309,9 +309,9 @@ class GymRepository {
     final items = (raw is List)
         ? raw
             .whereType<Map<String, dynamic>>()
-            .map(WodHistoryItem.fromJson)
+            .map(WodMyHistoryItem.fromJson)
             .toList()
-        : <WodHistoryItem>[];
+        : <WodMyHistoryItem>[];
     return (kind: (data['kind'] ?? '').toString(), items: items);
   }
 
@@ -322,6 +322,32 @@ class GymRepository {
         .whereType<Map<String, dynamic>>()
         .map(StrengthBoardEntry.fromJson)
         .toList();
+  }
+
+  /// P3 — 도전 카드: 활성 규칙별 이번 주기 진행률·대기 건수 (서버 완성).
+  Future<List<RewardProgress>> rewardProgress() async {
+    final list = await api.getList('/api/v1/member/me/reward-progress');
+    return list
+        .whereType<Map<String, dynamic>>()
+        .map(RewardProgress.fromJson)
+        .toList();
+  }
+
+  /// P3 — [인증하기]: custom 행동 인증 (1일 1회 — 중복은 409 AppException).
+  Future<({String status, List<int> grantedRules})> logRewardAction(
+      int ruleId, {String note = ''}) async {
+    final data =
+        await api.post('/api/v1/member/reward-rules/$ruleId/log', {
+      'note': note,
+    });
+    final raw = data['granted_rules'];
+    final granted = (raw is List)
+        ? raw.whereType<num>().map((e) => e.toInt()).toList()
+        : <int>[];
+    return (
+      status: (data['status'] ?? '').toString(),
+      grantedRules: granted,
+    );
   }
 
   Future<List<GymWodComment>> listWodComments(int gymId, int wodId) async {

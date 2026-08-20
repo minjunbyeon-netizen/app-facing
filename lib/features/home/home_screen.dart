@@ -18,6 +18,7 @@ import '../achievement/achievement_state.dart';
 import '../achievement/unlock_toast.dart';
 import '../gym/gym_repository.dart';
 import '../history/history_models.dart';
+import 'challenge_section.dart';
 import '../history/history_repository.dart';
 import '../inbox/inbox_screen.dart';
 import '../inbox/inbox_state.dart';
@@ -372,6 +373,9 @@ class _GamificationBody extends StatelessWidget {
             ),
           ],
         ),
+        // P3 (2026-08-20 승인 설계 §6): 도전 카드 — 코치 리워드 규칙의
+        // 진행률 + custom 행동 [인증하기]. 규칙 없으면 통째로 숨김.
+        const ChallengeSection(),
       ],
     );
   }

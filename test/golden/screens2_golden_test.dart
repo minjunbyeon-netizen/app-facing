@@ -117,6 +117,29 @@ void main() {
     await capture(tester, 'member_20_strength_board');
   });
 
+  // ── 회원: 도전 카드 인증 시트 (홈 → 도전 [인증하기]) — P3 ──
+  testWidgets('member: challenge log sheet', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi(memberWorld());
+    final gym = GymState(GymRepository(api), sse: FakeSse());
+    await gym.loadMine();
+    await tester.pumpWidget(harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        gym: gym,
+        home: const MainShell()));
+    await tester.tap(find.text('홈'));
+    await tester.pumpAndSettle();
+    // 도전 카드는 홈 리스트 하단 — 스크롤로 끌어올린 뒤 [인증하기].
+    await tester.drag(find.byType(ListView).first, const Offset(0, -900));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('인증하기'));
+    await tester.pumpAndSettle();
+    await capture(tester, 'member_21_challenge_log_sheet');
+  });
+
   // ── 회원: 수업 상세 (수업 탭 오늘 행 '자세히' 배지 → WodDetailScreen) ──
   testWidgets('member: wod detail', (tester) async {
     phone(tester);

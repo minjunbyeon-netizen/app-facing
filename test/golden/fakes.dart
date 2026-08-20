@@ -254,6 +254,34 @@ List<Map<String, dynamic>> gymWods() {
   ];
 }
 
+/// P3 — 도전 카드 (reward-progress). 문장·진행률은 서버 완성분 그대로.
+List<Map<String, dynamic>> rewardProgressRows() => [
+      {
+        'rule_id': 1,
+        'category': 3,
+        'label': '달리기 인증',
+        'trigger': 'custom',
+        'sentence': '달리기 인증 매주 2회 달성 시 100P 적립 — 주기마다 반복',
+        'progress': 1,
+        'target': 2,
+        'pending': 1,
+        'done_this_window': false,
+        'can_log': true,
+      },
+      {
+        'rule_id': 2,
+        'category': 1,
+        'label': '주간 출석 3회',
+        'trigger': 'attendance',
+        'sentence': '출석 매주 3회 달성 시 300P 적립 — 주기마다 반복',
+        'progress': 3,
+        'target': 3,
+        'pending': 0,
+        'done_this_window': true,
+        'can_log': false,
+      },
+    ];
+
 /// Q3 (v3.4) — 수업 상세 "내 이전 기록" (오늘 WOD 31 = Fran 계열 for_time).
 /// 최근이 위, PR 은 최신 기록에.
 Map<String, dynamic> wodMyHistory() {
@@ -932,6 +960,8 @@ Map<String, dynamic> memberWorld() => {
       // (2026-08-19 골든 확장에서 발견 — "0th user:" 유령 행). 구체 경로 먼저.
       // Q3 (v3.4) — 오늘 WOD(id 31)의 내 이전 기록. 구체 경로라 맨 앞.
       '/api/v1/gyms/1/wods/31/my-history': wodMyHistory(),
+      // P3 — 도전 카드 (홈). custom 1건(인증 가능·대기 1) + 자동 1건(달성).
+      '/api/v1/member/me/reward-progress': rewardProgressRows(),
       '/api/v1/gyms/1/wods/': const <dynamic>[],
       '/api/v1/gyms/1/wods': gymWods(),
       '/api/v1/gyms/1/coaches': const {

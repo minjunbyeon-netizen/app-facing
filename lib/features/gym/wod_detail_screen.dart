@@ -32,7 +32,7 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
   Future<List<GymWodComment>>? _commentsFuture;
   Future<List<CoachFeedback>>? _feedbackFuture;
   // Q3 (v3.4) — 같은 수업(시그니처 그룹)의 내 과거 기록.
-  Future<({String kind, List<WodHistoryItem> items})>? _historyFuture;
+  Future<({String kind, List<WodMyHistoryItem> items})>? _historyFuture;
   final _commentCtrl = TextEditingController();
   bool _sendingComment = false;
 
@@ -408,10 +408,10 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
             // "전과 비교해 발전했는가"를 저장 순간 스낵바 밖에서도 보여준다.
             const Text('내 이전 기록', style: HyphenTokens.sectionLabel),
             const SizedBox(height: HyphenTokens.sp2),
-            FutureBuilder<({String kind, List<WodHistoryItem> items})>(
+            FutureBuilder<({String kind, List<WodMyHistoryItem> items})>(
               future: _historyFuture,
               builder: (ctx, snap) {
-                final items = snap.data?.items ?? const <WodHistoryItem>[];
+                final items = snap.data?.items ?? const <WodMyHistoryItem>[];
                 if (items.isEmpty) {
                   return const Text(
                     '같은 수업의 기록이 아직 없습니다.',
@@ -717,7 +717,7 @@ class _MovementRow extends StatelessWidget {
 
 /// Q3 (v3.4) — 내 이전 기록 1줄: 날짜 · 기록 라벨 · PR 배지 (표시 전용).
 class _HistoryRow extends StatelessWidget {
-  final WodHistoryItem item;
+  final WodMyHistoryItem item;
   const _HistoryRow({required this.item});
 
   @override

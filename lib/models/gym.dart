@@ -552,20 +552,21 @@ class GymWodComment {
 
 /// Q3 (v3.4 2026-08-20 승인) — 수업 상세 "내 이전 기록" 1건.
 /// 라벨("4:18"·"105kg×3"·"10R+5")·PR 판정은 서버 완성 (앱 계산 0).
-class WodHistoryItem {
+class WodMyHistoryItem {
   final int wodPostId;
   final String date; // YYYY-MM-DD
   final String label;
   final bool isPr;
 
-  const WodHistoryItem({
+  const WodMyHistoryItem({
     required this.wodPostId,
     required this.date,
     required this.label,
     required this.isPr,
   });
 
-  factory WodHistoryItem.fromJson(Map<String, dynamic> j) => WodHistoryItem(
+  factory WodMyHistoryItem.fromJson(Map<String, dynamic> j) =>
+      WodMyHistoryItem(
         wodPostId: (j['wod_post_id'] as num?)?.toInt() ?? 0,
         date: (j['date'] ?? '').toString(),
         label: (j['label'] ?? '').toString(),
@@ -596,5 +597,43 @@ class StrengthBoardEntry {
         bestReps: (j['best_reps'] as num?)?.toInt(),
         bestDate: j['best_date']?.toString(),
         count: (j['count'] as num?)?.toInt() ?? 0,
+      );
+}
+
+/// P3 (2026-08-20 — PLAN-reward-rules.md §6) — 도전 카드 1행.
+/// 문장(sentence)·진행률·대기 건수는 서버 완성 (reward-progress API).
+class RewardProgress {
+  final int ruleId;
+  final String label;
+  final String trigger;
+  final String sentence;
+  final int progress;
+  final int target;
+  final int pending;
+  final bool doneThisWindow;
+  final bool canLog;
+
+  const RewardProgress({
+    required this.ruleId,
+    required this.label,
+    required this.trigger,
+    required this.sentence,
+    required this.progress,
+    required this.target,
+    required this.pending,
+    required this.doneThisWindow,
+    required this.canLog,
+  });
+
+  factory RewardProgress.fromJson(Map<String, dynamic> j) => RewardProgress(
+        ruleId: (j['rule_id'] as num?)?.toInt() ?? 0,
+        label: (j['label'] ?? '').toString(),
+        trigger: (j['trigger'] ?? '').toString(),
+        sentence: (j['sentence'] ?? '').toString(),
+        progress: (j['progress'] as num?)?.toInt() ?? 0,
+        target: (j['target'] as num?)?.toInt() ?? 1,
+        pending: (j['pending'] as num?)?.toInt() ?? 0,
+        doneThisWindow: j['done_this_window'] == true,
+        canLog: j['can_log'] == true,
       );
 }
