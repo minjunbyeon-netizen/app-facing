@@ -20,9 +20,8 @@ import '../profile/profile_state.dart';
 /// 없어 늘 비어 있었다. 저장하면 `PATCH /api/v1/member/me/profile` 로 올라가
 /// PC 목록에 바로 뜬다. 레벨도 서버가 경력에서 계산해 같이 넣는다 (D36).
 ///
-/// 뺀 값들은 화면에서 사라진 것이지 코드가 사라진 것은 아니다 — 프로필 편집의
-/// 신체·벤치마크 화면(`/onboarding/benchmarks`)은 그대로 살아 있고, Tier 를
-/// 다시 쓰려면 그 진입점만 열면 된다 ("숨김 = 코드 보존").
+/// 뺀 신체·벤치마크·Tier 화면들은 v3.2(2026-08-20)에서 코드까지 정리됨 —
+/// 목록·복원 좌표 = README.md §제거된 기능 대장 (엔진 화면은 _archive/lib-engine).
 class OnboardingBasicScreen extends StatefulWidget {
   const OnboardingBasicScreen({super.key});
 

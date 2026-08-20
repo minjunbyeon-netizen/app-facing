@@ -77,9 +77,10 @@
 ## 제품 스코프 — 3기둥 집중 (v1.27 · 2026-07-28 사용자 지시)
 회원 앱에 **게이미피케이션(레벨·업적·Milestones) · 수업 보드(코치 게시 → 회원 열람) · 내 프로필**
 3개만 노출하고 여기에 집중한다.
-- 셸 = 3탭 (홈 · 수업 · 내 정보 — v3.0 2026-08-14 표기, 기본 landing = 수업(구 WOD) 탭). Attend·Rehab 탭 숨김,
-  페이싱 계산기(빌더·프리셋·결과) 진입점 숨김 (`box_wod _kShowPresetAccordion=false`)
-- **숨김 = 코드 보존** — 화면·라우트·백엔드 배선은 그대로 두고 셸·진입점에서만 제외. 재노출 = 진입점 복원
+- 셸 = 3탭 (홈 · 수업 · 내 정보 — v3.0 2026-08-14 표기, 기본 landing = 수업(구 WOD) 탭)
+- **3기둥 밖 도달 불가 화면은 코드까지 삭제 (v3.2 · 2026-08-20 사용자 지시 — 구 "숨김 = 코드 보존" 정책 종료)**
+  — Attend·Rehab·리더보드·체육관 개설/검색·데이터 가져오기 등 일괄 제거. 목록·복원 좌표 =
+  `README.md §제거된 기능 대장` (엔진 화면은 `_archive/lib-engine/`). 백엔드 배선은 유지.
 - UI 컴포넌트 SSOT = `lib/widgets/hkit.dart` (HKit) — 아래 디자인 원칙 참조
 
 ## 리브랜딩 — 표기 브랜드 HYPHEN (v1.28 · 2026-07-28 사용자 지시)
@@ -280,7 +281,7 @@ apps/facing-app/
 | `caption` | 13sp w400 muted | 부연 설명 |
 | `micro` | 13sp w500 ls+0.4 muted | 수치 보조(items, %, points) 전용. v1.19 P0-8 노안 가독성 11→13 상향 |
 | `sectionLabel` | **11sp w700 ls+1.6 muted** | **섹션 구분 라벨 전용. 대문자 필수(코드에서 toUpperCase).** |
-| `tierLabel` | 12sp w800 ls+1.8 | TierBadge 내부 전용 |
+| `tierLabel` | 12sp w800 ls+1.8 | 구 TierBadge 전용 (위젯은 v3.2 삭제 — 토큰만 잔존) |
 | `brandLogo` | **72sp w800 ls-2.4** | **Splash "HYPHEN" 전용** |
 | `bannerLabel` | **12sp w700 ls+1.2** | **Offline 등 배너 라벨 전용** |
 | `quote` | 14sp italic | 명언 전용 |
@@ -342,7 +343,7 @@ R5. **하드코드 fontSize 금지.** 모든 텍스트 크기는 `HyphenTokens` 
   섹션 라벨(HkSectionLabel)·통계 타일(HkStatTile)·빈/에러/로딩 상태(HkEmptyState/HkErrorState/HkLoading)·
   전면 로딩(HkLoadingScreen)·소셜 버튼(HkSocialButton)은 HKit 것만 사용. 화면마다 새 버튼·배지·레이아웃
   variant 신설 금지 — 필요하면 HKit 에 먼저 추가 후 사용 (글로벌 §3 코드·클래스 SSOT 의 프로젝트 배선).
-  완전 원형 pill 금지(글로벌 design-block) — 배지는 r1 사각. 티어 표기는 TierBadge 가 별도 SSOT.
+  완전 원형 pill 금지(글로벌 design-block) — 배지는 r1 사각. (구 TierBadge 는 v3.2 삭제.)
 - 라이트 배경 기본 (`bg=#FAFAFA`, v2.0 라이트 전환 — 구 다크 #0A0A0A 폐기). 다크 모드 제공 안 함.
 - 컬러·타이포·간격·모서리 = appkit 공통 조상 재수출 (HyphenTokens) + tier 5색 — 수치는 DESIGN-SSOT §1~4.
 - 폰트 Pretendard 1종. 굵기 4단 정책(400/500/600/700, 로고·display 만 800~900) = DESIGN-SSOT §2.
@@ -377,7 +378,8 @@ python tool/golden_gallery.py               # 단일 HTML 갤러리 (build/golde
 2부 테스트 = `test/golden/screens2_golden_test.dart` (1부의 헬퍼를 import — rxProfile 등).
 **진입점이 없는 화면은 골든에서 뺀다** — 페이싱 계산기(v1.27 숨김, git 의 calc_01~04) ·
 Benchmarks·Tier 결과(v2.6, git 의 onb_02·onb_03) · 인트로 TIER(v2.6, common_04).
-화면 코드는 보존돼 있으니 진입점을 되살리는 커밋에서 캡처도 같이 되살릴 것.
+숨김 화면 코드는 v3.2(2026-08-20)에서 삭제됨 — 되살리려면 git log·`_archive/lib-engine/`
+에서 복원하고 그 커밋에서 캡처도 같이 되살릴 것 (README §제거된 기능 대장).
 기능을 넣으면 그 상태의 캡처도 같이 넣는다 (골든 없는 기능 = 골든스탠다드 미달).
 - `--update-goldens` 없이 `flutter test test/golden` 이 회귀 게이트 — 커밋된 PNG 와 1픽셀이라도 다르면 실패
 - 명언 랜덤은 `quotes.dart` 의 `quoteRandom` 시드 교체로 결정론 확보. WOD·출석·클래스 날짜는

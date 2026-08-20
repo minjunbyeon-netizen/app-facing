@@ -213,7 +213,7 @@ class HkCard extends StatelessWidget {
 /// [onTap] 을 주면 선택 컨트롤로 동작한다 — 터치 최소 48 보장, [selected] 면 면 채움 반전.
 /// 화면마다 따로 만들던 `_Pill`·`_MiniPill`·`_StatusChip`·`_CategoryChip`·`_PainChip`·
 /// `_chip` 등 11종은 v1.32 에서 전부 이 하나로 흡수했다. 새 variant 신설 금지 —
-/// 모양이 다른 배지가 필요하면 여기부터 고친다. (TierBadge 만 티어 전용 별도 정본)
+/// 모양이 다른 배지가 필요하면 여기부터 고친다.
 class HkBadge extends StatelessWidget {
   final String text;
   final Color color;

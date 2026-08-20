@@ -17,8 +17,6 @@ import 'core/unit_state.dart';
 import 'core/wod_session_bus.dart';
 import 'features/home/home_screen.dart';
 import 'features/intro/intro_screen.dart';
-// 결정2 (2026-06-10): create-gym 비활성 — 라우트 주석과 함께 복구.
-// import 'features/onboarding/create_gym_screen.dart';
 import 'features/onboarding/onboarding_basic.dart';
 import 'features/profile/profile_state.dart';
 import 'features/splash/splash_screen.dart';
@@ -29,7 +27,6 @@ import 'features/achievement/achievement_state.dart';
 import 'features/auth/auth_state.dart';
 import 'features/auth/member_login_screen.dart';
 import 'features/auth/signup_screen.dart';
-import 'features/auth/staff_link_screen.dart';
 import 'features/signup/self_signup_screen.dart';
 import 'features/gym/gym_repository.dart';
 import 'features/gym/gym_state.dart';
@@ -186,16 +183,9 @@ class HyphenApp extends StatelessWidget {
           '/signup': (_) => const SignupScreen(),
           '/intro': (_) => const IntroScreen(),
           '/onboarding/basic': (_) => const OnboardingBasicScreen(),
-          // 결정2 (2026-06-10 LAUNCH-CHECKLIST): create-gym 명시적 비활성.
-          // 박스 개설은 웹 admin 경로로만 운영 (무분별 박스 생성 방지).
-          // 재활성 시 이 라우트 + CreateGymScreen import 복구.
-          // '/onboarding/create-gym': (_) => const CreateGymScreen(),
-          // v2.6 (2026-08-13 사용자 지시): 1인 샵 전용이라 '박스 찾기'도 폐기.
-          // 버튼은 이미 없앴지만 라우트가 살아 있으면 딥링크로 열린다.
-          // 재활성 시 이 라우트 + GymSearchScreen import 복구
-          // (화면 파일 features/gym/gym_search_screen.dart 는 보존 — "숨김 = 코드 보존").
-          // '/onboarding/find-gym': (_) => const GymSearchScreen(),
-          // PHASE5 Sprint1 F4 — 신규 회원 박스 선택 + 자동 가입 신청
+          // v3.2 (2026-08-20 사용자 지시): 체육관 개설·검색 등 비활성 화면은
+          // 코드까지 삭제 — 목록·복원 좌표 = README.md §제거된 기능 대장.
+          // PHASE5 Sprint1 F4 — 신규 회원 체육관 선택 + 자동 가입 신청
           '/signup/self': (_) => const SelfSignupScreen(),
           // 회원 아이디·비밀번호 로그인 (backend api/member_auth.py)
           '/login/member': (_) => const MemberLoginScreen(),
@@ -205,7 +195,8 @@ class HyphenApp extends StatelessWidget {
           '/history': (_) => const HistoryScreen(),
           // PHASE5 §1.1·§1.2: 사장 폰 로그인·대시보드
           '/boss/login': (_) => const BossLoginScreen(),
-          '/auth/link-staff': (_) => const StaffLinkScreen(),
+          // v3.2 (2026-08-20): '/auth/link-staff'(직원 계정 연결) 라우트·화면 삭제 —
+          // 어떤 UI 도 밀어주지 않던 죽은 진입 (README §제거된 기능 대장, BRIEF D37).
           // v3.3 (2026-08-18 사용자 지시) — 코치 앱 = 간단 2탭 셸
           // (예약 현황 · 수업). 대시보드는 예약 현황 탭으로 임베드.
           '/boss/dashboard': (_) => const CoachShell(),

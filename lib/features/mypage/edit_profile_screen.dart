@@ -32,8 +32,8 @@ class EditProfileScreen extends StatelessWidget {
             ),
             // v2.6 (2026-08-13 사용자 지시 "지금 없는 건 다 지워"): Benchmarks
             // 카드 삭제. ENGINE 을 프로필에서 내린 뒤(D34) 측정 입구만 남아
-            // 있었다 — 넣어도 결과를 볼 곳이 없다. 화면·라우트
-            // (`/onboarding/benchmarks`)는 보존 ("숨김 = 코드 보존").
+            // 있었다 — 넣어도 결과를 볼 곳이 없다. 화면 코드는 v3.2(2026-08-20)
+            // 정리로 앱에서 제거됨 (README §제거된 기능 대장).
           ],
         ),
       ),

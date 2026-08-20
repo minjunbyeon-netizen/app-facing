@@ -14,12 +14,12 @@ import '../gym/gym_state.dart';
 import '../home/home_screen.dart';
 import '../announcements/announcements_state.dart';
 import '../inbox/inbox_state.dart';
-import '../mypage/mypage_screen.dart';
+import '../mypage/mypage_screen.dart';
 import '../../core/app_clock.dart';
 
 /// v1.27 (2026-07-28 사용자 지시): 3기둥 집중 — Home(게이미피케이션) · WOD(보드) ·
-/// Profile 만 노출. Attend·Rehab 탭 숨김 (코드 보존 — 화면·라우트는 잔존, 셸에서만 제외).
-/// 페이싱 계산 진입점도 전부 숨김 상태 유지 (box_wod _kShowPresetAccordion=false).
+/// Profile 만 노출. 구 Attend·Rehab 탭·페이싱 계산 진입점은 숨김을 거쳐
+/// v3.2(2026-08-20)에서 코드까지 삭제 (README §제거된 기능 대장).
 /// Default landing = WOD(index 1).
 class MainShell extends StatefulWidget {
   const MainShell({super.key});

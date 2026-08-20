@@ -21,7 +21,6 @@ import '../../widgets/avatar.dart';
 import '../announcements/announcements_state.dart';
 import '../gym/gym_repository.dart';
 import '../gym/gym_state.dart';
-import '../rehab/rehab_guide_card.dart';
 import 'compose_note_screen.dart';
 import 'group_management_screen.dart';
 import 'inbox_repository.dart';
@@ -29,49 +28,9 @@ import 'inbox_state.dart';
 import 'note_detail_screen.dart';
 import '../../core/app_clock.dart';
 
-class InboxScreen extends StatefulWidget {
-  const InboxScreen({super.key});
-
-  @override
-  State<InboxScreen> createState() => _InboxScreenState();
-}
-
-class _InboxScreenState extends State<InboxScreen> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final gym = context.read<GymState>().membership.gym;
-      if (gym != null) {
-        context.read<InboxState>().bind(gym.id);
-        // 공지 bind만 — markSeen은 사용자가 실제 탭했을 때만 (main_shell _onTap)
-        final annState = context.read<AnnouncementsState>();
-        final repo = context.read<GymRepository>();
-        if (annState.boundGymId != gym.id) {
-          annState.bind(repo, gym.id);
-        }
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // v1.24 (2026-06-03): 쪽지·공지·대화는 Attend 탭(캘린더 밑 MessagingFeed)으로 이동.
-    //   Notice 탭은 재활 가이드 전담으로 남는다. (사용자 결정 2026-06-03)
-    return Scaffold(
-      appBar: AppBar(title: const Text('재활 가이드')),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.only(
-              top: HyphenTokens.sp2, bottom: HyphenTokens.sp6),
-          children: const [
-            RehabGuideCard(),
-          ],
-        ),
-      ),
-    );
-  }
-}
+// v3.2 (2026-08-20 사용자 지시 "깨끗하게 다 지워"): 구 Notice 탭의 InboxScreen
+// (재활 가이드 전담)은 셸에서 빠진 뒤 도달 불가 — rehab 일체와 함께 삭제.
+// 대장 = README.md §제거된 기능 대장.
 
 /// 외부에서도 재사용 (홈 화면 미읽음 카드 노출 등).
 class CoachDossierTile extends StatelessWidget {

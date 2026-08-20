@@ -120,7 +120,8 @@ class _GoalsScreenState extends State<GoalsScreen> {
                 // v3.2 (2026-08-20): '목표 Tier' 섹션 삭제 — Tier 사다리는 앱에서
                 // 소멸했고(D34·D36), 회원 레벨(SCALED·RXD·ELITE)은 경력으로만
                 // 정해져 목표로 고를 수도 없다. RX+·Games 는 회원 레벨에 없는 값
-                // (GLOSSARY §3). GoalsState.targetTier 는 보존 (숨김 = 코드 보존).
+                // (GLOSSARY §3). GoalsState.targetTier 도 같은 날 삭제
+                // (README §제거된 기능 대장).
 
                 // Season goal
                 const Text('시즌 목표', style: HyphenTokens.sectionLabel),

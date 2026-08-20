@@ -18,9 +18,6 @@ import '../contracts/member_contracts_screen.dart';
 import '../goals/goals_screen.dart';
 import '../gym/coach_dashboard_screen.dart';
 import '../gym/gym_state.dart';
-// v2.6 (2026-08-13): '알고리즘'·'데이터 가져오기' 메뉴 삭제 — 아래 두 import 도 함께 끊는다.
-// import 'algorithm_screen.dart';
-// import 'import_screen.dart';
 import 'edit_profile_screen.dart';
 import 'faq_screen.dart';
 import 'privacy_screen.dart';
@@ -81,7 +78,8 @@ class _SectionDivider extends StatelessWidget {
 // score_section.dart 로 옮겨 보존 — 이 화면에서는 더 이상 그리지 않는다.
 
 // v1.23 Phase 3 (2026-06-02): 출석 캘린더(_AttendanceCompact·_StatBlock)는
-// Attend 탭으로 이관됨 (attendance_screen.dart _AttendanceCalendar).
+// Attend 탭으로 이관됐다가, Attend 탭 자체가 v3.2(2026-08-20)에서 코드까지
+// 삭제됨 (README §제거된 기능 대장).
 
 class _IdentityCard extends StatelessWidget {
   const _IdentityCard();
@@ -586,8 +584,8 @@ class _ActionsSection extends StatelessWidget {
                 //  · '알고리즘' = Engine 점수 6 카테고리·Tier 1~6(Scaled–Games)·
                 //    SPLIT/BURST 산식 설명. 앱에서 D34 로 전부 내린 기능이고,
                 //    회원 레벨은 경력 3단(SCALED/RXD/ELITE)이라 RX+·Games 는 없는 등급이다.
-                // 화면 파일(import_screen.dart·algorithm_screen.dart)은 보존한다
-                // ("숨김 = 코드 보존"). 되살리려면 이 두 행 + 위 import 를 복구.
+                // 화면 파일은 v3.2(2026-08-20)에서 코드까지 삭제
+                // (README §제거된 기능 대장 — 복원은 git log).
                 // P2-1 (2026-06-11) — FAQ (시드 10문답, 실문의 누적 시 증보).
                 HkListRow(
                   icon: Icons.help_outline,
@@ -606,10 +604,9 @@ class _ActionsSection extends StatelessWidget {
                     mode: LaunchMode.externalApplication,
                   ),
                 ),
-                // v2.6 (2026-08-12 사용자 지시): '직원 계정 연결' 행 삭제.
-                // 코치가 곧 사장 본인 한 명이라 연결할 직원이 없다. 직원 고용은
-                // 나중 일 — 화면·라우트(`/auth/link-staff`)는 그대로 살아 있어
-                // 이 6줄만 되살리면 복귀한다 ("숨김 = 코드 보존", BRIEF D37).
+                // v2.6 (2026-08-12 사용자 지시): '직원 계정 연결' 행 삭제 — 코치가
+                // 곧 본인 한 명이라 연결할 직원이 없다 (BRIEF D37). 화면·라우트는
+                // v3.2(2026-08-20)에서 코드까지 삭제 (README §제거된 기능 대장).
                 HkListRow(
                   icon: Icons.lock_outline,
                   title: '개인정보처리방침',
