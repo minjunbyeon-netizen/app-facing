@@ -90,7 +90,7 @@ class TermsScreen extends StatelessWidget {
 
             Text('최종 갱신', style: HyphenTokens.sectionLabel),
             SizedBox(height: HyphenTokens.sp2),
-            Text('2026-06-10 · 베타 운영 기준. 개정 시 앱 내 공지.',
+            Text('2026-08-20 · 제공 기능 현행화. 베타 운영 기준, 개정 시 앱 내 공지.',
                 style: HyphenTokens.caption),
           ],
         ),

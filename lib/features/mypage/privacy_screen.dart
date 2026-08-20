@@ -90,7 +90,7 @@ class PrivacyScreen extends StatelessWidget {
 
             const Text('최종 갱신', style: HyphenTokens.sectionLabel),
             const SizedBox(height: HyphenTokens.sp2),
-            const Text('2026-06-10 · 전화번호 수집·전자계약·소셜 로그인 반영. 정식 출시 시 법무 검토.',
+            const Text('2026-08-20 · 수집 항목 현행화 (신체·벤치마크 수집 종료). 정식 출시 시 법무 검토.',
                 style: HyphenTokens.caption),
           ],
         ),
