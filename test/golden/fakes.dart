@@ -254,6 +254,64 @@ List<Map<String, dynamic>> gymWods() {
   ];
 }
 
+/// Q3 (v3.4) — 수업 상세 "내 이전 기록" (오늘 WOD 31 = Fran 계열 for_time).
+/// 최근이 위, PR 은 최신 기록에.
+Map<String, dynamic> wodMyHistory() {
+  final now = appClock.now();
+  return {
+    'kind': 'time',
+    'items': [
+      {'wod_post_id': 31, 'date': _ymd(now), 'label': '4:18', 'is_pr': true},
+      {
+        'wod_post_id': 29,
+        'date': _ymd(now.subtract(const Duration(days: 7))),
+        'label': '4:30',
+        'is_pr': false,
+      },
+      {
+        'wod_post_id': 27,
+        'date': _ymd(now.subtract(const Duration(days: 14))),
+        'label': '5:02',
+        'is_pr': false,
+      },
+    ],
+  };
+}
+
+/// Q3 (v3.4) — 1RM 보드 (리프트별 역대 최고 무게).
+List<Map<String, dynamic>> strengthBoard() {
+  final now = appClock.now();
+  return [
+    {
+      'movement': 'Back Squat',
+      'best_kg': 105,
+      'best_reps': 3,
+      'best_date': _ymd(now),
+      'last_kg': 105,
+      'last_date': _ymd(now),
+      'count': 4,
+    },
+    {
+      'movement': 'Deadlift',
+      'best_kg': 140,
+      'best_reps': 1,
+      'best_date': _ymd(now.subtract(const Duration(days: 21))),
+      'last_kg': 135,
+      'last_date': _ymd(now.subtract(const Duration(days: 7))),
+      'count': 3,
+    },
+    {
+      'movement': 'Shoulder Press',
+      'best_kg': 52.5,
+      'best_reps': 5,
+      'best_date': _ymd(now.subtract(const Duration(days: 10))),
+      'last_kg': 50,
+      'last_date': _ymd(now.subtract(const Duration(days: 3))),
+      'count': 2,
+    },
+  ];
+}
+
 /// 오늘 WOD 가 Strength(무게 측정일)인 변형 — 결과 시트 무게 입력 분기 골든용.
 /// v3.4 (2026-08-20 승인 — docs/PLAN-record-structures.md Part A).
 List<Map<String, dynamic>> gymWodsStrengthToday() {
@@ -872,6 +930,8 @@ Map<String, dynamic> memberWorld() => {
       // 하위 경로(results·comments·feedback)가 아래 '/api/v1/gyms/1/wods'
       // prefix 에 삼켜져 WOD 목록이 리더보드 행으로 오염되던 충돌 방지
       // (2026-08-19 골든 확장에서 발견 — "0th user:" 유령 행). 구체 경로 먼저.
+      // Q3 (v3.4) — 오늘 WOD(id 31)의 내 이전 기록. 구체 경로라 맨 앞.
+      '/api/v1/gyms/1/wods/31/my-history': wodMyHistory(),
       '/api/v1/gyms/1/wods/': const <dynamic>[],
       '/api/v1/gyms/1/wods': gymWods(),
       '/api/v1/gyms/1/coaches': const {

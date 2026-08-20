@@ -16,6 +16,7 @@ import '../../widgets/inbox_bell.dart';
 import '../auth/auth_state.dart';
 import '../contracts/member_contracts_screen.dart';
 import '../goals/goals_screen.dart';
+import 'strength_board_screen.dart';
 import '../gym/coach_dashboard_screen.dart';
 import '../gym/gym_state.dart';
 import 'edit_profile_screen.dart';
@@ -576,6 +577,14 @@ class _ActionsSection extends StatelessWidget {
                   title: '목표',
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
                     builder: (_) => const GoalsScreen(),
+                  )),
+                ),
+                // Q3 (v3.4 2026-08-20 승인) — 리프트별 역대 최고 무게 (1RM 보드).
+                HkListRow(
+                  icon: Icons.fitness_center,
+                  title: '최고 기록',
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => const StrengthBoardScreen(),
                   )),
                 ),
                 // v2.6 (2026-08-13 사용자 지시) — 없는 기능 두 줄 삭제.

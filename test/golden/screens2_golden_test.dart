@@ -16,6 +16,7 @@ import 'package:hyphen_app/features/gym/gym_repository.dart';
 import 'package:hyphen_app/features/gym/gym_state.dart';
 import 'package:hyphen_app/features/inbox/inbox_screen.dart';
 import 'package:hyphen_app/features/mypage/edit_profile_screen.dart';
+import 'package:hyphen_app/features/mypage/strength_board_screen.dart';
 import 'package:hyphen_app/features/mypage/faq_screen.dart';
 import 'package:hyphen_app/features/mypage/privacy_screen.dart';
 import 'package:hyphen_app/features/mypage/terms_screen.dart';
@@ -94,6 +95,26 @@ void main() {
     await tester.tap(find.text('완료 표시').first);
     await tester.pumpAndSettle();
     await capture(tester, 'member_06b_result_sheet_strength');
+  });
+
+  // ── 회원: 1RM 보드 (내 정보 → 메뉴 → 최고 기록) — Q3 v3.4 ──
+  testWidgets('member: strength board', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi({
+      ...memberWorld(),
+      '/api/v1/gyms/1/strength-board': strengthBoard(),
+    });
+    final gym = GymState(GymRepository(api), sse: FakeSse());
+    await gym.loadMine();
+    await tester.pumpWidget(harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        gym: gym,
+        home: const StrengthBoardScreen()));
+    await tester.pumpAndSettle();
+    await capture(tester, 'member_20_strength_board');
   });
 
   // ── 회원: 수업 상세 (수업 탭 오늘 행 '자세히' 배지 → WodDetailScreen) ──

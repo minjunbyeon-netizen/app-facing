@@ -10,6 +10,7 @@ import '../../core/theme.dart';
 import '../../models/coach_feedback.dart';
 import '../../widgets/coach_badge.dart';
 import '../../models/gym.dart';
+import '../../widgets/hkit.dart';
 import '../wod_session/wod_session_screen.dart';
 import 'gym_repository.dart';
 import 'gym_state.dart';
@@ -30,6 +31,8 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
   Future<List<GymWodResult>>? _resultsFuture;
   Future<List<GymWodComment>>? _commentsFuture;
   Future<List<CoachFeedback>>? _feedbackFuture;
+  // Q3 (v3.4) — 같은 수업(시그니처 그룹)의 내 과거 기록.
+  Future<({String kind, List<WodHistoryItem> items})>? _historyFuture;
   final _commentCtrl = TextEditingController();
   bool _sendingComment = false;
 
@@ -54,6 +57,7 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
       _resultsFuture = repo.listWodResults(gym.id, widget.wod.id);
       _commentsFuture = repo.listWodComments(gym.id, widget.wod.id);
       _feedbackFuture = repo.listCoachFeedback(gym.id, widget.wod.id);
+      _historyFuture = repo.wodMyHistory(gym.id, widget.wod.id);
     });
   }
 
@@ -400,6 +404,27 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
             ),
             const SizedBox(height: HyphenTokens.sp5),
 
+            // Q3 (v3.4 승인): 같은 수업(벤치마크·리프트)의 내 과거 기록 —
+            // "전과 비교해 발전했는가"를 저장 순간 스낵바 밖에서도 보여준다.
+            const Text('내 이전 기록', style: HyphenTokens.sectionLabel),
+            const SizedBox(height: HyphenTokens.sp2),
+            FutureBuilder<({String kind, List<WodHistoryItem> items})>(
+              future: _historyFuture,
+              builder: (ctx, snap) {
+                final items = snap.data?.items ?? const <WodHistoryItem>[];
+                if (items.isEmpty) {
+                  return const Text(
+                    '같은 수업의 기록이 아직 없습니다.',
+                    style: HyphenTokens.caption,
+                  );
+                }
+                return Column(
+                  children: [for (final it in items) _HistoryRow(item: it)],
+                );
+              },
+            ),
+            const SizedBox(height: HyphenTokens.sp5),
+
             // Comments
             const Text('댓글', style: HyphenTokens.sectionLabel),
             const SizedBox(height: HyphenTokens.sp2),
@@ -684,6 +709,41 @@ class _MovementRow extends StatelessWidget {
                 ),
               ),
             ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Q3 (v3.4) — 내 이전 기록 1줄: 날짜 · 기록 라벨 · PR 배지 (표시 전용).
+class _HistoryRow extends StatelessWidget {
+  final WodHistoryItem item;
+  const _HistoryRow({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: HyphenTokens.sp1),
+      padding: const EdgeInsets.symmetric(
+        horizontal: HyphenTokens.sp3,
+        vertical: HyphenTokens.sp2,
+      ),
+      decoration: BoxDecoration(
+        border: Border.all(color: HyphenTokens.border),
+        borderRadius: BorderRadius.circular(HyphenTokens.r2),
+      ),
+      child: Row(
+        children: [
+          Text(item.date, style: HyphenTokens.caption),
+          const Spacer(),
+          Text(
+            item.label,
+            style: HyphenTokens.body.copyWith(fontWeight: FontWeight.w600),
+          ),
+          if (item.isPr) ...[
+            const SizedBox(width: HyphenTokens.sp2),
+            const HkBadge('PR', color: HyphenTokens.primary),
+          ],
         ],
       ),
     );

@@ -549,3 +549,52 @@ class GymWodComment {
         createdAt: DateTime.parse(j['created_at'] as String),
       );
 }
+
+/// Q3 (v3.4 2026-08-20 승인) — 수업 상세 "내 이전 기록" 1건.
+/// 라벨("4:18"·"105kg×3"·"10R+5")·PR 판정은 서버 완성 (앱 계산 0).
+class WodHistoryItem {
+  final int wodPostId;
+  final String date; // YYYY-MM-DD
+  final String label;
+  final bool isPr;
+
+  const WodHistoryItem({
+    required this.wodPostId,
+    required this.date,
+    required this.label,
+    required this.isPr,
+  });
+
+  factory WodHistoryItem.fromJson(Map<String, dynamic> j) => WodHistoryItem(
+        wodPostId: (j['wod_post_id'] as num?)?.toInt() ?? 0,
+        date: (j['date'] ?? '').toString(),
+        label: (j['label'] ?? '').toString(),
+        isPr: j['is_pr'] == true,
+      );
+}
+
+/// Q3 (v3.4) — 1RM 보드 리프트 1행 (서버 집계 그대로).
+class StrengthBoardEntry {
+  final String movement;
+  final double bestKg;
+  final int? bestReps;
+  final String? bestDate;
+  final int count;
+
+  const StrengthBoardEntry({
+    required this.movement,
+    required this.bestKg,
+    this.bestReps,
+    this.bestDate,
+    required this.count,
+  });
+
+  factory StrengthBoardEntry.fromJson(Map<String, dynamic> j) =>
+      StrengthBoardEntry(
+        movement: (j['movement'] ?? '').toString(),
+        bestKg: (j['best_kg'] as num?)?.toDouble() ?? 0,
+        bestReps: (j['best_reps'] as num?)?.toInt(),
+        bestDate: j['best_date']?.toString(),
+        count: (j['count'] as num?)?.toInt() ?? 0,
+      );
+}

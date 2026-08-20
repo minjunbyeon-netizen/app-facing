@@ -300,6 +300,30 @@ class GymRepository {
     );
   }
 
+  /// Q3 (v3.4) — 이 수업과 같은 비교 그룹의 내 과거 기록 (라벨 서버 완성).
+  Future<({String kind, List<WodHistoryItem> items})> wodMyHistory(
+      int gymId, int wodId) async {
+    final data =
+        await api.get('/api/v1/gyms/$gymId/wods/$wodId/my-history');
+    final raw = data['items'];
+    final items = (raw is List)
+        ? raw
+            .whereType<Map<String, dynamic>>()
+            .map(WodHistoryItem.fromJson)
+            .toList()
+        : <WodHistoryItem>[];
+    return (kind: (data['kind'] ?? '').toString(), items: items);
+  }
+
+  /// Q3 (v3.4) — 1RM 보드 (리프트별 역대 최고 무게, 서버 집계).
+  Future<List<StrengthBoardEntry>> strengthBoard(int gymId) async {
+    final list = await api.getList('/api/v1/gyms/$gymId/strength-board');
+    return list
+        .whereType<Map<String, dynamic>>()
+        .map(StrengthBoardEntry.fromJson)
+        .toList();
+  }
+
   Future<List<GymWodComment>> listWodComments(int gymId, int wodId) async {
     final list = await api.getList(
       '/api/v1/gyms/$gymId/wods/$wodId/comments',

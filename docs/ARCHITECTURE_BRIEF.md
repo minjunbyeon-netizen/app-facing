@@ -1012,9 +1012,11 @@ retention 정의 = "코호트(가입 월) 의 N개월 후 시점에 attendance �
   원천에 합류 (§11.11).
 - 앱: 완료 기록 시트 4분기 + 저장 스낵바 비교 메시지 표시 (계산 0). 코치 등록
   시트 STRENGTH 추가 (백엔드 ALLOWED_WOD_TYPES 정합 — 구 드리프트 정정).
-- 잔여 = Q3 추이 2화면 (수업 상세 "내 이전 기록" · 1RM 보드). 기존 표시용
-  판정기 2종(admin_leaderboard For Time is_pr · 앱 PrDetector)은 온존 —
-  통합은 후속 검토 (PLAN A-5).
+- **Q3 구현 (같은 날 저녁)**: `wods/<id>/my-history`(같은 시그니처 내 기록,
+  라벨 서버 완성) · `strength-board`(리프트별 역대 최고) → 수업 상세 "내 이전
+  기록" 섹션 + 내 정보 메뉴 "최고 기록"(1RM 보드 화면). v3.4 이전 기록은
+  signature NULL 이라 이력 미포함 (신규 축적). 기존 표시용 판정기 2종
+  (admin_leaderboard For Time is_pr · 앱 PrDetector)은 온존 — 통합 후속 (PLAN A-5).
 
 ---
 
