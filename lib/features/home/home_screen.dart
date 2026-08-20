@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
 import '../../core/exception.dart';
-import '../../core/haptic.dart';
 import '../../core/level_system.dart';
 import '../../core/pr_detector.dart';
 import '../../core/streak_freeze.dart';
@@ -20,8 +19,8 @@ import '../gym/gym_repository.dart';
 import '../history/history_models.dart';
 import 'challenge_section.dart';
 import '../history/history_repository.dart';
-import '../inbox/inbox_screen.dart';
-import '../inbox/inbox_state.dart';
+import '../../models/announcement.dart';
+import '../announcements/announcements_state.dart';
 import '../profile/profile_state.dart';
 import '../../core/app_clock.dart';
 
@@ -153,17 +152,21 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-/// v1.23 Phase 4 (2026-06-02): Notice 의 쪽지+공지 요약을 Home 최상단 아코디언으로.
-/// 데이터 = InboxState.inbox.items (쪽지·숙제·공지 합쳐진 NOTICE 피드, 최신순).
-/// 기본 접힘 — 최신 1건 헤드라인만 노출. 펼치면 최신 3건 + "더 보기" → Notice 탭.
+/// R7 (2026-08-21 사용자 보고): 여기가 인박스(쪽지·자동 알림 혼합)를 그리면서
+/// 라벨만 '공지' 라 "달리기 인증 승인" 같은 리워드 통지가 공지로 보였다.
+/// 데이터 소스를 진짜 공지(AnnouncementsState — 코치가 PC 공지사항에서 등록한
+/// GymAnnouncement)로 교체. 쪽지·알림은 종(MessagingScreen)이 전담한다.
 class _NoticeAccordion extends StatelessWidget {
   const _NoticeAccordion();
 
   @override
   Widget build(BuildContext context) {
-    final state = context.watch<InboxState>();
-    final items = [...state.inbox.items]
-      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    final state = context.watch<AnnouncementsState>();
+    final items = [...state.items]
+      ..sort((a, b) {
+        if (a.pinned != b.pinned) return a.pinned ? -1 : 1;
+        return b.createdAt.compareTo(a.createdAt);
+      });
     if (items.isEmpty) return const SizedBox.shrink();
     final top = items.take(3).toList();
     final latest = top.first;
@@ -215,28 +218,59 @@ class _NoticeAccordion extends StatelessWidget {
             ),
           ),
           children: [
-            ...top.map((n) => Padding(
-                  padding: const EdgeInsets.only(bottom: HyphenTokens.sp2),
-                  child: CoachDossierTile(note: n),
-                )),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: () {
-                  Haptic.light();
-                  // v1.26: 쪽지·공지 풀 피드 = MessagingScreen (종 일원화).
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => const MessagingScreen()));
-                },
-                style: TextButton.styleFrom(
-                  foregroundColor: HyphenTokens.fgSecondary,
-                  minimumSize: const Size(0, HyphenTokens.touchMin),
-                ),
-                child: const Text('더 보기 →'),
-              ),
-            ),
+            for (final a in top) _HomeAnnouncementRow(item: a),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// 홈 공지 행 — box_wod_screen._AnnouncementRow 와 같은 문법 (핀·제목·날짜·본문).
+class _HomeAnnouncementRow extends StatelessWidget {
+  final GymAnnouncement item;
+  const _HomeAnnouncementRow({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    final d = item.createdAt.toLocal();
+    final dateLabel =
+        '${d.month.toString().padLeft(2, '0')}.${d.day.toString().padLeft(2, '0')}';
+    return Padding(
+      padding: const EdgeInsets.only(bottom: HyphenTokens.sp3),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              if (item.pinned) ...[
+                const Icon(Icons.push_pin_outlined,
+                    size: 14, color: HyphenTokens.muted),
+                const SizedBox(width: 4),
+              ],
+              Expanded(
+                child: Text(
+                  item.title.isNotEmpty ? item.title : '공지',
+                  style: HyphenTokens.body
+                      .copyWith(fontWeight: FontWeight.w700),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: HyphenTokens.sp2),
+              Text(dateLabel, style: HyphenTokens.micro),
+            ],
+          ),
+          if (item.body.isNotEmpty) ...[
+            const SizedBox(height: 2),
+            Text(
+              item.body,
+              style: HyphenTokens.caption,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ],
       ),
     );
   }
