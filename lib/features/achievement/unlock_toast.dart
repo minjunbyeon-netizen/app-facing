@@ -5,8 +5,9 @@ import '../../core/theme.dart';
 import '../../models/achievement.dart';
 import 'confetti_overlay.dart';
 
-/// v1.16: unlock 순간 알림. 3초 자동 소멸, 이모지 없음.
-/// 여러 건이면 스택 (위에서 아래로 0.5초 간격).
+/// v1.16: unlock 순간 알림. 이모지 없음. 여러 건이면 스택 (0.5초 간격).
+/// v3.3 (2026-08-20 사용자 지시): 모든 해금에 기본 픽토그램 + 컨페티 캐논,
+/// 노출 2초.
 class UnlockToast {
   UnlockToast._();
 
@@ -36,17 +37,14 @@ class UnlockToast {
       if (!context.mounted) return;
       final u = unlocks[i];
       final color = _rarityColor(u.rarity);
-      // v1.19+ reference/gamification.md §6-3 (HWPO 톤, 조용한 만족감).
-      // Common/Rare = light haptic 1회 (조용)
-      // Epic/Legendary = light + heavy 80ms (강조) + confetti
+      // v3.3 (2026-08-20 사용자 지시): 등급 무관 모든 해금에 컨페티 캐논.
+      // haptic 강조는 Epic/Legendary 유지 (§6-3 톤).
       final isEmphasize = u.rarity == 'Epic' || u.rarity == 'Legendary';
       // unawaited — toast 와 동시 진행.
       Haptic.achievementUnlock(emphasize: isEmphasize);
-      if (isEmphasize) {
-        ConfettiOverlay.burst(context, rarity: u.rarity);
-      }
+      ConfettiOverlay.burst(context, rarity: u.rarity);
       messenger.showSnackBar(SnackBar(
-        // v1.19+ duration 3s → 2s (reference §6-3: 짧게)
+        // 노출 2초 (2026-08-20 사용자 지정).
         duration: const Duration(seconds: 2),
         backgroundColor: HyphenTokens.surface,
         behavior: SnackBarBehavior.floating,
@@ -56,7 +54,16 @@ class UnlockToast {
         ),
         content: Row(
           children: [
-            Container(width: 4, height: 20, color: color),
+            // v3.3: 기본 픽토그램 (데모용 트로피) — 등급색 원형 배지.
+            Container(
+              width: 28,
+              height: 28,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(HyphenTokens.r1),
+              ),
+              child: Icon(Icons.emoji_events_outlined, size: 18, color: color),
+            ),
             const SizedBox(width: HyphenTokens.sp3),
             Expanded(
               child: Text(

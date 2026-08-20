@@ -15,6 +15,7 @@ import '../../widgets/inbox_bell.dart';
 import '../../widgets/offline_banner.dart';
 import '../achievement/achievement_section.dart';
 import '../achievement/achievement_state.dart';
+import '../achievement/unlock_toast.dart';
 import '../gym/gym_repository.dart';
 import '../history/history_models.dart';
 import '../history/history_repository.dart';
@@ -88,7 +89,12 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() => _attendDays = null);
     });
     // 진입·새로고침마다 업적 자동 체크 (throttle: 10분 1회).
-    context.read<AchievementState>().check(throttle: true);
+    // v3.3 (2026-08-20 사용자 지시): 새 해금이 있으면 홈에서 토스트 + 컨페티
+    // 캐논 축하 (리워드 규칙 해금은 서버 훅에서 일어나 diff 로 감지된다).
+    context.read<AchievementState>().check(throttle: true).then((newly) {
+      if (!mounted || newly.isEmpty) return;
+      UnlockToast.showAll(context, newly);
+    });
   }
 
   @override

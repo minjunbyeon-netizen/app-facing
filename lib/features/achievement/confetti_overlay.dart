@@ -1,8 +1,9 @@
 // v1.17 Sprint 18 (Plan D): 칭호 잠금 해제 confetti.
 //
 // 외부 의존 없음 — 커스텀 ParticleSystem 으로 직접 구현.
-// 톤: 흑백·Obsession 컨셉 유지. 색상은 fg(흰색)·success(녹)·rarity 컬러만.
-// 입자 30개, 1.4초 후 자동 dismiss. heavyImpact haptic 동시 발사.
+// v3.3 (2026-08-20 사용자 지시): react-native-confetti-cannon 스타일 —
+// 화면 하단 양쪽 캐논에서 위로 쏘아올리는 원뿔 분사, 노출 2초, 입자 60개.
+// 색은 토큰만 (primary·success·info·warning + rarity 틴트) — design-block 준수.
 
 import 'dart:math' as math;
 
@@ -14,8 +15,7 @@ import '../../core/theme.dart';
 class ConfettiOverlay {
   ConfettiOverlay._();
 
-  /// 화면 중앙 상단에서 사방으로 분사. 1.4초 후 자동 종료.
-  /// rarity 컬러로 액센트.
+  /// 하단 캐논 발사 — 2초 후 자동 종료. rarity 컬러로 틴트.
   static Future<void> burst(
     BuildContext context, {
     required String rarity,
@@ -27,7 +27,7 @@ class ConfettiOverlay {
       builder: (ctx) => _ConfettiAnim(rarity: rarity),
     );
     overlay.insert(entry);
-    await Future.delayed(const Duration(milliseconds: 1400));
+    await Future.delayed(const Duration(milliseconds: 2000));
     entry.remove();
   }
 }
@@ -49,23 +49,28 @@ class _ConfettiAnimState extends State<_ConfettiAnim>
   void initState() {
     super.initState();
     final rng = math.Random();
-    _particles = List.generate(30, (i) {
-      final angle = rng.nextDouble() * 2 * math.pi;
-      final speed = 220 + rng.nextDouble() * 240; // px/sec
+    // v3.3 캐논: 좌·우 하단 두 발사대. 위쪽 원뿔(수직 ±35°)로 쏘아올린다.
+    _particles = List.generate(60, (i) {
+      final fromLeft = i.isEven;
+      // 수직(-90°) 기준 안쪽으로 기운 원뿔 — 좌측 캐논은 오른쪽 위로.
+      final tilt = (rng.nextDouble() - 0.5) * (math.pi * 70 / 180);
+      final lean = fromLeft ? 0.35 : -0.35; // 화면 안쪽 편향
+      final angle = -math.pi / 2 + tilt + lean;
+      final speed = 520 + rng.nextDouble() * 380; // px/sec — 캐논답게 강하게
       return _Particle(
-        startX: 0,
+        startX: fromLeft ? -1 : 1, // painter 에서 좌/우 발사대 부호로 사용
         startY: 0,
         vx: math.cos(angle) * speed,
-        vy: math.sin(angle) * speed - 80, // 위로 약간 편향.
+        vy: math.sin(angle) * speed,
         rotation: rng.nextDouble() * 6.28,
-        rotationSpeed: (rng.nextDouble() - 0.5) * 8,
-        size: 4 + rng.nextDouble() * 8,
+        rotationSpeed: (rng.nextDouble() - 0.5) * 10,
+        size: 5 + rng.nextDouble() * 8,
         kind: i % 3, // 0=square 1=circle 2=line
       );
     });
     _ctrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1400),
+      duration: const Duration(milliseconds: 2000),
     )..forward();
   }
 
@@ -142,19 +147,27 @@ class _ConfettiPainter extends CustomPainter {
     required this.tint,
   });
 
+  // v3.3: 축하 팔레트 — 토큰만 (design-block). tint(등급색)는 square 담당.
+  static const List<Color> _palette = [
+    HyphenTokens.success,
+    HyphenTokens.info,
+    HyphenTokens.warning,
+    HyphenTokens.primary,
+  ];
+
   @override
   void paint(Canvas canvas, Size size) {
-    final cx = size.width / 2;
-    final cy = size.height * 0.35; // 화면 위쪽 1/3에서 분사.
-    final gravity = 480.0; // px/sec^2
-    final dt = t * 1.4; // 시뮬레이션 시간 (sec)
+    // v3.3 캐논: 좌·우 하단 발사대 (화면 밖 살짝 아래에서 시작).
+    final gravity = 620.0; // px/sec^2
+    final dt = t * 2.0; // 시뮬레이션 시간 (sec)
+    var idx = 0;
     for (final p in particles) {
-      final x = cx + p.startX + p.vx * dt;
-      final y = cy + p.startY + p.vy * dt + 0.5 * gravity * dt * dt;
+      final baseX = p.startX < 0 ? size.width * 0.08 : size.width * 0.92;
+      final x = baseX + p.vx * dt;
+      final y = size.height + 12 + p.vy * dt + 0.5 * gravity * dt * dt;
       final fade = (1.0 - t).clamp(0.0, 1.0);
-      final paint = Paint()
-        ..color = (p.kind == 1 ? HyphenTokens.success : tint)
-            .withValues(alpha: fade);
+      final base = p.kind == 0 ? tint : _palette[idx++ % _palette.length];
+      final paint = Paint()..color = base.withValues(alpha: fade);
       canvas.save();
       canvas.translate(x, y);
       canvas.rotate(p.rotation + p.rotationSpeed * dt);

@@ -53,16 +53,34 @@ class AchievementState extends ChangeNotifier {
 
   /// 새 해금 트리거 후 호출. 신규 해금 목록 반환.
   /// throttle=true면 10분 내 중복 차단.
+  ///
+  /// v3.3 (2026-08-20): 서버 응답의 newly 만으로는 부족해졌다 — 리워드 규칙
+  /// 해금은 서버 훅(출석 기록·기록 저장·코치 승인) 시점에 이미 일어나 /check
+  /// 응답에 안 실린다. 재로딩 후 이전 스냅샷과 **diff** 해서 새로 나타난
+  /// 해금을 합쳐 돌려준다 (토스트·컨페티 재료).
   Future<List<AchievementUnlockResult>> check({bool throttle = false}) async {
     if (throttle && _checkThrottled) return const [];
     try {
+      final before = _snapshot;
+      final beforeLoaded = before.catalog.isNotEmpty;
       final newly = await repo.check();
       _lastCheckedAt = appClock.now();
-      // 신규 해금이 있거나 아직 스냅샷이 비어있으면 재로딩.
-      if (newly.isNotEmpty || _snapshot.unlocked.isEmpty) {
-        await load();
+      await load();
+      if (!beforeLoaded) return newly; // 첫 로드 — 과거 해금 전체를 토스트하지 않음
+      final beforeCodes = before.unlocked.keys.toSet();
+      final newlyCodes = newly.map((n) => n.code).toSet();
+      final byCode = {for (final c in _snapshot.catalog) c.code: c};
+      final merged = [...newly];
+      for (final code in _snapshot.unlocked.keys) {
+        if (beforeCodes.contains(code) || newlyCodes.contains(code)) continue;
+        final cat = byCode[code];
+        merged.add(AchievementUnlockResult(
+          code: code,
+          name: cat?.name ?? code,
+          rarity: cat?.rarity ?? 'Common',
+        ));
       }
-      return newly;
+      return merged;
     } on AppException catch (e) {
       _error = e.messageKo;
       notifyListeners();
