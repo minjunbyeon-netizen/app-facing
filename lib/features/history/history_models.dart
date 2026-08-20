@@ -38,7 +38,9 @@ class WodHistoryItem {
   }
 
   String get estimatedTotalDisplay {
-    if (estimatedTotalSec == null) return '-';
+    // 결함 수정 3 (2026-08-20 실기 발견): 수업 기록 미러 등 시간 없는 기록이
+    // "0:00" 으로 도배되던 문제 — 0초는 시간 미측정으로 취급.
+    if (estimatedTotalSec == null || estimatedTotalSec == 0) return '-';
     final m = estimatedTotalSec! ~/ 60;
     final s = estimatedTotalSec! % 60;
     return '$m:${s.toString().padLeft(2, '0')}';

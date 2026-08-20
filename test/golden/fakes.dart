@@ -359,6 +359,14 @@ List<Map<String, dynamic>> gymWodsStrengthToday() {
           ],
         },
       ],
+      // 결함 수정 4 — 기존 기록 상태 (카드 '기록 105kg' 배지 + 시트 프리필·
+      // 덮어쓰기 안내를 한 캡처로).
+      'my_result': {
+        'weight_kg': 105,
+        'weight_reps': 3,
+        'scale_level': 'rx',
+        'display': '105kg×3',
+      },
       'created_at': '${_ymd(now)}T06:30:00',
       'locked': false,
     },

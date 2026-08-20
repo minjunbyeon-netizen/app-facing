@@ -13,6 +13,7 @@ import '../../models/gym.dart';
 import '../../widgets/hkit.dart';
 import '../achievement/achievement_state.dart';
 import '../gym/gym_repository.dart';
+import '../gym/gym_state.dart';
 
 class ChallengeSection extends StatefulWidget {
   const ChallengeSection({super.key});
@@ -23,14 +24,26 @@ class ChallengeSection extends StatefulWidget {
 
 class _ChallengeSectionState extends State<ChallengeSection> {
   Future<List<RewardProgress>>? _future;
+  GymState? _gymState;
 
   @override
   void initState() {
     super.initState();
     _load();
+    // 결함 수정 6 (2026-08-20): PC 규칙 변경 SSE(reward_rule.changed)가
+    // GymState reload → notify 로 흐르므로, 그 notify 를 듣고 재조회.
+    _gymState = context.read<GymState>();
+    _gymState?.addListener(_load);
+  }
+
+  @override
+  void dispose() {
+    _gymState?.removeListener(_load);
+    super.dispose();
   }
 
   void _load() {
+    if (!mounted) return;
     setState(() {
       _future = context.read<GymRepository>().rewardProgress();
     });

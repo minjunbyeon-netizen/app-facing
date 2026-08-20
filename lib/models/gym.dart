@@ -414,6 +414,9 @@ class GymWodPost {
   final List<WodRoundItem> roundsData;
   final int? rounds;
   final int? timeCapSec;
+  // 결함 수정 4 (2026-08-20) — 이 수업의 내 기존 기록 요약 (서버 동봉).
+  // null = 아직 기록 없음. 카드 '기록 완료' 배지 + 시트 프리필의 원천.
+  final GymMyResult? myResult;
   final DateTime createdAt;
   // v1.23: 회원권 만료·미결제·미래 WOD 잠금. true이면 content 비공개.
   final bool locked;
@@ -429,6 +432,7 @@ class GymWodPost {
     this.roundsData = const [],
     this.rounds,
     this.timeCapSec,
+    this.myResult,
     required this.createdAt,
     this.locked = false,
   });
@@ -464,6 +468,9 @@ class GymWodPost {
       roundsData: rounds,
       rounds: (j['rounds'] as num?)?.toInt(),
       timeCapSec: (j['time_cap_sec'] as num?)?.toInt(),
+      myResult: (j['my_result'] is Map<String, dynamic>)
+          ? GymMyResult.fromJson(j['my_result'] as Map<String, dynamic>)
+          : null,
       createdAt: DateTime.parse(j['created_at'] as String),
       locked: j['locked'] == true,
     );
@@ -648,5 +655,37 @@ class RewardProgress {
         pending: (j['pending'] as num?)?.toInt() ?? 0,
         doneThisWindow: j['done_this_window'] == true,
         canLog: j['can_log'] == true,
+      );
+}
+
+/// 결함 수정 4 (2026-08-20) — 수업 카드·시트가 쓰는 "내 기존 기록" 요약.
+/// display("105kg×3"·"4:18"·"10R+5")는 서버 완성 (앱 계산 0).
+class GymMyResult {
+  final int? timeSec;
+  final int? rounds;
+  final int? extraReps;
+  final double? weightKg;
+  final int? weightReps;
+  final String scaleLevel;
+  final String display;
+
+  const GymMyResult({
+    this.timeSec,
+    this.rounds,
+    this.extraReps,
+    this.weightKg,
+    this.weightReps,
+    required this.scaleLevel,
+    required this.display,
+  });
+
+  factory GymMyResult.fromJson(Map<String, dynamic> j) => GymMyResult(
+        timeSec: (j['time_sec'] as num?)?.toInt(),
+        rounds: (j['rounds'] as num?)?.toInt(),
+        extraReps: (j['extra_reps'] as num?)?.toInt(),
+        weightKg: (j['weight_kg'] as num?)?.toDouble(),
+        weightReps: (j['weight_reps'] as num?)?.toInt(),
+        scaleLevel: (j['scale_level'] ?? 'rx').toString(),
+        display: (j['display'] ?? '').toString(),
       );
 }

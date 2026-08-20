@@ -86,6 +86,23 @@ class _WodResultSheetState extends State<WodResultSheet> {
     if (!_isForTime && !_isStrength && widget.wod.rounds != null) {
       _roundsCtrl.text = '${widget.wod.rounds}';
     }
+    // 결함 수정 4 (2026-08-20 실기 발견): 기존 기록이 있으면 프리필 —
+    // 빈 시트로 열려 조용히 덮어쓰던 문제. 안내줄은 build 쪽에.
+    final mr = widget.wod.myResult;
+    if (mr != null) {
+      if (mr.timeSec != null && mr.timeSec! > 0) {
+        final m = mr.timeSec! ~/ 60;
+        final s = mr.timeSec! % 60;
+        _timeCtrl.text = '$m:${s.toString().padLeft(2, '0')}';
+      }
+      if (mr.rounds != null) _roundsCtrl.text = '${mr.rounds}';
+      if (mr.extraReps != null) _extraCtrl.text = '${mr.extraReps}';
+      if (mr.weightKg != null) {
+        final w = mr.weightKg!;
+        _stWeightCtrl.text = w == w.roundToDouble() ? '${w.toInt()}' : '$w';
+      }
+      if (mr.weightReps != null) _stRepsCtrl.text = '${mr.weightReps}';
+    }
   }
 
   @override
@@ -302,6 +319,15 @@ class _WodResultSheetState extends State<WodResultSheet> {
               // ── 내 결과 (종류별 최소 입력) ──
               const Text('내 결과', style: HyphenTokens.sectionLabel),
               const SizedBox(height: HyphenTokens.sp1),
+              // 결함 수정 4 — 재제출 = 덮어쓰기임을 알린다 (프리필과 한 쌍).
+              if (widget.wod.myResult != null) ...[
+                Text(
+                  '이미 저장한 기록이 있습니다 — 저장하면 새 값으로 바뀝니다.',
+                  style: HyphenTokens.caption
+                      .copyWith(color: HyphenTokens.warning),
+                ),
+                const SizedBox(height: HyphenTokens.sp2),
+              ],
               if (_isForTime) ...[
                 _TimeField(controller: _timeCtrl),
               ] else if (_isStrength) ...[

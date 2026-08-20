@@ -68,6 +68,9 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
     Haptic.medium();
     final subjectCtrl = TextEditingController();
     final bodyCtrl = TextEditingController();
+    // 결함 수정 5 — 빈 전송 안내. 스낵바는 모달 시트 '뒤' Scaffold 에 그려져
+    // 안 보인다 (실기 확인) → 시트 안 인라인 에러로 표시.
+    String? sheetError;
     // QA B-GYM-2: 모달 닫힌 후 controller dispose 보장.
     try {
       await showModalBottomSheet<void>(
@@ -78,7 +81,8 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(HyphenTokens.r4)),
       ),
-      builder: (ctx) => Padding(
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheet) => Padding(
         padding: EdgeInsets.only(
           left: HyphenTokens.sp4,
           right: HyphenTokens.sp4,
@@ -111,11 +115,22 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
               maxLines: 5,
               maxLength: 2000,
             ),
+            if (sheetError != null) ...[
+              Text(
+                sheetError!,
+                style:
+                    HyphenTokens.caption.copyWith(color: HyphenTokens.warning),
+              ),
+              const SizedBox(height: HyphenTokens.sp1),
+            ],
             const SizedBox(height: HyphenTokens.sp3),
             ElevatedButton(
               onPressed: () async {
                 final body = bodyCtrl.text.trim();
-                if (body.isEmpty) return;
+                if (body.isEmpty) {
+                  setSheet(() => sheetError = '내용을 입력해 주세요.');
+                  return;
+                }
                 final gs = context.read<GymState>();
                 final gym = gs.membership.gym;
                 if (gym == null) return;
@@ -150,6 +165,7 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
             ),
           ],
         ),
+        ),
       ),
     );
     } finally {
@@ -160,7 +176,13 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
 
   Future<void> _sendComment() async {
     final body = _commentCtrl.text.trim();
-    if (body.isEmpty) return;
+    if (body.isEmpty) {
+      // 결함 수정 5 — 빈 전송 무반응 → 안내.
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('댓글 내용을 입력해 주세요.')),
+      );
+      return;
+    }
     final gs = context.read<GymState>();
     final gym = gs.membership.gym;
     if (gym == null) return;
@@ -321,16 +343,21 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
             // rounds_data 에 movements 가 있을 때만 노출. RX 본문 아래 보강 표시.
             ..._buildMovementRounds(wod),
             const SizedBox(height: HyphenTokens.sp3),
-            ElevatedButton.icon(
-              onPressed: _startSession,
-              icon: const Icon(Icons.play_arrow, size: 18),
-              label: const Text('타이머 시작'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: HyphenTokens.accent,
-                foregroundColor: HyphenTokens.fg,
+            // 결함 수정 1 (2026-08-20 실기 발견): Strength(무게 측정일)는 타이머가
+            // 무의미하고, 세션 화면이 For Time 스톱워치로 돌아 시간 기록을
+            // 저장해 버린다 — 진입 자체를 숨긴다 (기록은 완료 표시 시트가 정본).
+            if (wod.wodType.toLowerCase() != 'strength') ...[
+              ElevatedButton.icon(
+                onPressed: _startSession,
+                icon: const Icon(Icons.play_arrow, size: 18),
+                label: const Text('타이머 시작'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: HyphenTokens.accent,
+                  foregroundColor: HyphenTokens.fg,
+                ),
               ),
-            ),
-            const SizedBox(height: HyphenTokens.sp3),
+              const SizedBox(height: HyphenTokens.sp3),
+            ],
             // v1.16 Sprint 17: 멤버 건의 버튼.
             Builder(builder: (ctx) {
               final gs = ctx.watch<GymState>();

@@ -36,6 +36,9 @@ class GymState extends ChangeNotifier {
     'membership.cancelled',
     'membership.cancel_scheduled',
     'wod.posted',
+    // 결함 수정 6 (2026-08-20): 규칙 생성·수정·삭제·인증 처리 → 도전 카드
+    // 자동 갱신 (ChallengeSection 이 GymState notify 를 듣는다).
+    'reward_rule.changed',
     'announcement.posted',
     'class_cancelled',
     'member_promoted_from_waitlist',

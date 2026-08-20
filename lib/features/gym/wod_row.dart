@@ -363,9 +363,15 @@ class _WodRowState extends State<WodRow> {
                 // 확보하므로 터치 기준은 그대로다 (DESIGN-SSOT §3).
                 Row(
                   children: [
+                    // 결함 수정 4 (2026-08-20): 기록한 수업은 카드에서 바로 보이게 —
+                    // 배지가 '기록 105kg'(성공색)로 바뀐다. 탭하면 수정 시트(프리필).
                     HkBadge(
-                      '완료 표시',
-                      color: HyphenTokens.primary,
+                      wod.myResult != null
+                          ? '기록 ${wod.myResult!.display}'.trim()
+                          : '완료 표시',
+                      color: wod.myResult != null
+                          ? HyphenTokens.success
+                          : HyphenTokens.primary,
                       selected: true,
                       onTap: () => _openResultSheet(context),
                     ),
