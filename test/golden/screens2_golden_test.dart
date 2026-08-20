@@ -157,10 +157,12 @@ void main() {
         home: const MainShell()));
     await tapTab(tester, '홈');
     final homeScroll = find.byType(Scrollable).first;
-    await tester.scrollUntilVisible(find.text('First Blood').first, 300,
+    // v3.2: fakes 카탈로그 실시드 교체 — 해금 1번 = WOD_10, 행 표기는
+    // 한글 칭호 '첫 열 번' (AchievementCard.displayTitle).
+    await tester.scrollUntilVisible(find.text('첫 열 번').first, 300,
         scrollable: homeScroll);
-    await tester.ensureVisible(find.text('First Blood').first);
-    await tester.tap(find.text('First Blood').first);
+    await tester.ensureVisible(find.text('첫 열 번').first);
+    await tester.tap(find.text('첫 열 번').first);
     await tester.pump(const Duration(milliseconds: 400));
     await capture(tester, 'member_13_achievement_detail');
   });

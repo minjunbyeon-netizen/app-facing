@@ -946,6 +946,35 @@ retention 정의 = "코호트(가입 월) 의 N개월 후 시점에 attendance �
   '구현 예정' 스낵바 → 실배선), 쪽지는 수업 탭 종(InboxBellAction) →
   MessagingScreen push 로 유지. 백엔드·스키마 변경 없음.
 
+### 11.10. 체육관별 업적(게임) 설정 — PC 코치 설정 → 회원 폰 연동 (2026-08-20 사용자 지시)
+
+- **결정**: 코치가 PC 설정에서 업적(게임 요소)을 체육관 단위로 조절하면 회원
+  휴대폰에 그대로 반영된다. 앱은 서버 응답을 그리기만 하므로 **앱 코드 변경 0**.
+- **신규 테이블**: `gym_achievement_settings` (gym_id PK·FK, is_active,
+  disabled_codes_json, updated_at) — `gym_point_settings` 패턴 (행 없음 = 전부 활성).
+- **신규 endpoint 2 (§13 카탈로그 대상)**: GET·PATCH
+  `/api/v1/admin/gyms/<gid>/achievement-settings` (`@require_staff` + 감사로그).
+- **회원 연동 의미론**: 마스터 off = `/api/v1/achievements` 카탈로그·해금 빈 응답
+  + `/check` 신규 해금 중단. 개별 비활성 code = `is_hidden` 과 동일 — 미해금만
+  숨고 **기해금 기록은 계속 보인다**. 판독 단일 지점 =
+  `services/achievement_checker.py gym_achievement_policy()`.
+- **PC**: `/settings/achievements` (settings_points 패턴 — 마스터 토글 + 업적별 토글).
+- 회귀 = `tests/test_achievement_settings.py` (7건).
+
+**v2 (같은 날 2차 — 사용자 지시 "engine 이 없는데 왜 있냐 + 픽토그램·희귀도·포인트·비고")**
+- **카탈로그 대수술**: Engine 스냅샷·Tier·신체(1RM·체중)·프리셋 기반 등 원천 소멸
+  트리거의 업적 ~70종 삭제 — 시드 22종(수업 기록·PR 기반)만 잔존. 목록 정본 =
+  `models/base.py DEAD_ACHIEVEMENT_TRIGGERS` (시드 프루닝 + 마이그레이션 동일 목록).
+  G19 '숨김' 정책을 '삭제' 로 승격. 해금 기록은 보존 (카탈로그 없으면 화면 미노출).
+- **카탈로그 코치 편집 3필드**: `achievements_catalog` +icon(픽토그램 슬러그)·
+  +points(달성 시 자동 적립, member_points earn/created_by='achievement')·
+  +repeat_kind(1회/반복 — 표기용, 반복 재적립 엔진은 후속). 희귀도(rarity)도 PC
+  드롭다운 편집 — 시드는 코치 편집 필드를 덮어쓰지 않는다.
+- **신규 endpoint**: PATCH `/api/v1/admin/achievements/<code>` (rarity·icon·points·
+  repeat_kind — 카탈로그는 전역 1벌, 1샵 운영 전제).
+- **앱**: 업적 카탈로그·희귀도·포인트는 서버 응답 그대로 — 필터 탭에서 빈 그룹
+  (Tier·Engine·히든) 삭제만 반영. 회귀 = 백엔드 131 · 앱 167 · 골든 42장.
+
 ---
 
 ## 12. 참조 study (브리프 보강 근거)

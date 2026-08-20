@@ -34,15 +34,14 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   String? _featuredCode;
 
   // v1.29 한글 기본 — PR 은 도메인 고정어라 영문 유지.
+  // v3.2 (2026-08-20): Tier·Engine·히든 탭 삭제 — 백엔드 카탈로그 대수술로
+  // 해당 그룹 업적이 전부 사라져 (달성 불가 트리거 삭제) 빈 탭만 남았었다.
   static const List<(String, String)> _filters = [
     ('ALL', '전체'),
-    ('TIER', 'Tier'),
-    ('ENGINE', 'Engine'),
     ('STREAK', '연속'),
     ('PR', 'PR'),
     ('SEASON', '시즌'),
     ('VOLUME', '누적'),
-    ('EASTER', '히든'),
   ];
 
   /// v1.30: TIER 가 잡동사니 통이던 문제 해소 — Engine 점수·카테고리 숙련은
@@ -62,6 +61,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
         code == 'TITLE_OBSESSED' ||
         code == 'TITLE_RELENTLESS' ||
         code == 'VOL_TRIPLE_STREAK' ||
+        code == 'VOL_QUINTUPLE_STREAK' ||
         code.startsWith('VOL_COMEBACK')) {
       return 'STREAK';
     }
