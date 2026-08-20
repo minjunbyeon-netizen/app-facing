@@ -990,7 +990,14 @@ retention 정의 = "코호트(가입 월) 의 N개월 후 시점에 attendance �
 - **PC**: `/settings/achievements` 에 카테고리 3섹션 + 문장형 빌더 + 인증 대기함.
 - **앱**: 해금 축하 = 토스트(기본 픽토그램)+컨페티 캐논 2초, 스냅샷 diff 로 서버
   훅 해금도 감지. 완료 기록 시트 v3.3 — 수업 내용 인계·동작별 SCALED/RXD
-  (코치 무게 자동)·ELITE 제거. 잔여 = 도전 카드(P3)·트리거 확장(P4).
+  (코치 무게 자동)·ELITE 제거. 잔여 = 도전 카드(P3).
+- **P4 트리거 4종 구현 (2026-08-20 저녁 — 설계 = `docs/PLAN-record-structures.md` Part B)**:
+  reservation(예약한 날 기준, 취소 제외) · payment(paid, refund 제외) ·
+  membership_extend(2번째 발급부터, 누적 조건만) · birthday(당일~+7일 유예,
+  연 키 매년 반복, 조건 슬롯 서버 강제). 전부 카테고리 1. 기존 DB 의
+  trigger CHECK 는 `_migrate_reward_trigger_enum`(writable_schema)으로 확장.
+  훅 +5곳: 예약 확정 3경로·결제 입력·회원권 발급(연장+연동 결제), 생일은
+  출석 훅 동승 + 스윕. 앱 변화 없음 (문장·진행률 = 서버 생성).
 
 ---
 
