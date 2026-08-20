@@ -658,8 +658,10 @@ class _ActionsSection extends StatelessWidget {
           borderRadius: BorderRadius.circular(HyphenTokens.r5),
         ),
         title: const Text('데이터를 초기화할까요?'),
+        // v3.2 (2026-08-20): 등급·벤치마크는 소멸한 항목 — 실동작은
+        // prefs.clear() (이 기기 한정). 서버 기록은 남는다.
         content: const Text(
-          '프로필·등급·벤치마크를 전부 삭제합니다.\n'
+          '이 기기에 저장된 프로필·목표·설정을 전부 삭제합니다.\n'
           '되돌릴 수 없습니다.',
           style: HyphenTokens.caption,
         ),

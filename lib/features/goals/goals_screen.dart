@@ -5,9 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
 import '../../core/goals_state.dart';
-import '../../core/haptic.dart';
 import '../../core/theme.dart';
-import '../../widgets/hkit.dart';
 import '../history/history_models.dart';
 import '../history/history_repository.dart';
 import '../../core/app_clock.dart';
@@ -119,24 +117,10 @@ class _GoalsScreenState extends State<GoalsScreen> {
                 ),
                 const SizedBox(height: HyphenTokens.sp5),
 
-                // Target Tier
-                const Text('목표 Tier', style: HyphenTokens.sectionLabel),
-                const SizedBox(height: HyphenTokens.sp2),
-                Wrap(
-                  spacing: HyphenTokens.sp2,
-                  children: const ['RX', 'RX+', 'Elite', 'Games']
-                      .map((t) => HkBadge(
-                            t,
-                            color: HyphenTokens.fg,
-                            selected: goals.targetTier == t,
-                            onTap: () {
-                              Haptic.selection();
-                              goals.setTargetTier(t);
-                            },
-                          ))
-                      .toList(),
-                ),
-                const SizedBox(height: HyphenTokens.sp5),
+                // v3.2 (2026-08-20): '목표 Tier' 섹션 삭제 — Tier 사다리는 앱에서
+                // 소멸했고(D34·D36), 회원 레벨(SCALED·RXD·ELITE)은 경력으로만
+                // 정해져 목표로 고를 수도 없다. RX+·Games 는 회원 레벨에 없는 값
+                // (GLOSSARY §3). GoalsState.targetTier 는 보존 (숨김 = 코드 보존).
 
                 // Season goal
                 const Text('시즌 목표', style: HyphenTokens.sectionLabel),

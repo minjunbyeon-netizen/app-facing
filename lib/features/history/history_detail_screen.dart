@@ -90,9 +90,10 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
                 ...((plan['segments'] as List? ?? const []))
                     .whereType<Map<String, dynamic>>()
                     .map((s) => _SegmentCard(seg: s)),
-              ] else
-                const Text('페이싱 플랜 없음.',
-                    style: HyphenTokens.caption),
+              ],
+              // v3.2 (2026-08-20): '페이싱 플랜 없음.' 빈 상태 삭제 — 계산기
+              // 숨김(v1.27) 후 plan 없는 기록이 기본값이라 없는 기능 언급이었다.
+              // plan 있는 구 기록의 세그먼트 렌더는 보존 (숨김 = 코드 보존).
               const SizedBox(height: HyphenTokens.sp5),
               const Text('항목', style: HyphenTokens.sectionLabel),
               const SizedBox(height: HyphenTokens.sp2),

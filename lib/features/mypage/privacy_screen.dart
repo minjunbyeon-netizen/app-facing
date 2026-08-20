@@ -29,8 +29,9 @@ class PrivacyScreen extends StatelessWidget {
             const _Bullet('소셜 로그인: 네이버·구글 계정 식별자·표시명 (서버 DB)'),
             const _Bullet('전자계약: 계약 내용·서명 이미지·서명 일시·IP (서버 DB)'),
             const _Bullet('출석 기록: 출석 일시·체육관 — 코치가 수업 명단에서 기록 (서버 DB)'),
-            const _Bullet('profile: 체중·키·나이·성별·1RM·벤치마크 (로컬·서버 DB)'),
-            const _Bullet('gradeResult: Tier·6 카테고리 점수 (로컬·서버 DB)'),
+            // v3.2 (2026-08-20): 체중·키·나이·1RM·벤치마크 입력 경로는 v2.3
+            // 에서 소멸, gradeResult 산정도 중단 — 실수집 항목만 남긴다.
+            const _Bullet('profile: 생년월일·성별·운동 경력 (로컬·서버 DB)'),
             const _Bullet('수업 기록: 결과·일시 (서버 DB)'),
             const _Bullet('Gym membership: 체육관 가입·role·포인트 (서버 DB)'),
             const SizedBox(height: HyphenTokens.sp4),
@@ -45,7 +46,7 @@ class PrivacyScreen extends StatelessWidget {
             const Text('사용 목적', style: HyphenTokens.sectionLabel),
             const SizedBox(height: HyphenTokens.sp2),
             const Text(
-              'profile·grade·수업 기록은 본인 추이 표시 용도로만 사용. '
+              'profile·수업 기록은 본인 추이 표시 용도로만 사용. '
               'device_id 해시는 기록 소유자 식별용. '
               '이름·전화번호·출석·계약 데이터는 가입한 체육관의 운영(회원 관리·계약 증빙) 용도로 '
               '해당 체육관 코치에게 제공. '

@@ -242,9 +242,9 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
                 ],
               ),
               Text(
-                _scaled
-                    ? 'Scaled — Tier 반영 시 감산 가중치 적용.'
-                    : 'RX — 등급 기본 반영.',
+                // v3.2 (2026-08-20): Tier 반영·감산 가중치는 소멸한 시스템 —
+                // 실동작은 scale_level 저장뿐. 표기는 GLOSSARY (RXD).
+                _scaled ? 'SCALED 로 저장됩니다.' : 'RXD 로 저장됩니다.',
                 style: HyphenTokens.caption,
               ),
               const SizedBox(height: HyphenTokens.sp4),

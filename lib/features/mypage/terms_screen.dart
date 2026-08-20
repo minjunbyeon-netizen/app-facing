@@ -19,8 +19,10 @@ class TermsScreen extends StatelessWidget {
             Text('1. 서비스', style: HyphenTokens.sectionLabel),
             SizedBox(height: HyphenTokens.sp2),
             Text(
+              // v3.2 (2026-08-20): QR 출석·페이싱 계산은 없는 기능 — 출석은
+              // 코치가 수업 명단에서 기록, 페이싱 계산기는 v1.27 숨김.
               'HYPHEN 은 체육관 운영을 돕는 플랫폼입니다. '
-              '회원에게는 수업 예약·QR 출석·전자계약·페이싱 계산 기능을, '
+              '회원에게는 수업 예약·출석·전자계약·수업 기록 기능을, '
               '체육관 코치에게는 회원·수업·계약 관리 도구를 제공합니다.',
               style: HyphenTokens.body,
             ),
@@ -55,7 +57,7 @@ class TermsScreen extends StatelessWidget {
             Text('5. 포인트·기록', style: HyphenTokens.sectionLabel),
             SizedBox(height: HyphenTokens.sp2),
             _Bullet('포인트 적립·사용 기준은 각 체육관이 정하며 체육관별로 다를 수 있습니다.'),
-            _Bullet('Engine 점수·Tier·페이싱 결과는 입력 기록 기반 추정치로, '
+            _Bullet('레벨·업적·수업 기록 통계는 입력 기록 기반 표시로, '
                 '트레이닝 처방·의료 판단의 근거가 아닙니다.'),
             SizedBox(height: HyphenTokens.sp4),
 
