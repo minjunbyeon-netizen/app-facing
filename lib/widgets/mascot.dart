@@ -43,9 +43,9 @@ class HyphenMascot extends StatelessWidget {
   // ── 에셋 매핑 (단일 진원지) ────────────────────────────────────────────
   // 지금은 비어 있다 = 캐릭터 미도착. 채우는 순간 전 슬롯이 켜진다.
   static const Map<MascotMood, String> _assets = {
-    // MascotMood.happy:   'assets/character/happy.png',
-    // MascotMood.sad:     'assets/character/sad.png',
-    // MascotMood.neutral: 'assets/character/neutral.png',
+    MascotMood.happy: 'assets/character/happy.png',
+    MascotMood.sad: 'assets/character/sad.png',
+    MascotMood.neutral: 'assets/character/neutral.png',
   };
 
   /// mood → 에셋 경로. 없으면 null (= 아직 캐릭터 없음).

@@ -101,10 +101,15 @@ Widget harness({
 }
 
 /// 비동기 로드가 그려질 시간을 준 뒤 캡처. (무한 애니메이션이 있어 pumpAndSettle 금지)
+///
+/// 2026-08-21 — 캐릭터(마스코트) 도입 후 캡처마다 [precacheAllImages] 를 자동으로
+/// 돌린다. flutter_test 는 기본으로 이미지를 디코딩하지 않아, 슬롯만 열리고
+/// 캐릭터 자리가 빈 채로 찍히던 문제가 있었다.
 Future<void> capture(WidgetTester tester, String name) async {
   for (var i = 0; i < 4; i++) {
     await tester.pump(const Duration(milliseconds: 100));
   }
+  await precacheAllImages(tester);
   await expectLater(
       find.byType(MaterialApp), matchesGoldenFile('goldens/$name.png'));
 }

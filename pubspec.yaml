@@ -68,9 +68,8 @@ flutter:
     - assets/images/
     # 캐릭터 전용 폴더 (2026-08-21 사용자 지시) — 사용자가 직접 허용한 그림만
     # assets/character/ 에 들어간다. 규칙·파일명 표 = 그 폴더의 README.md.
-    # 그림이 도착하면 아래 줄 주석을 풀고 lib/widgets/mascot.dart 의 _assets
-    # 맵 한 곳만 채우면 온보딩·스낵바·업적·홈 슬롯이 동시에 살아난다.
-    # - assets/character/
+    # 2026-08-21 — 사용자가 지정한 표정 3장 도착 (HYPEE 표정시트에서 발췌).
+    - assets/character/
     - assets/textures/
     # assets/icons/ 제거 (v1.27) — 스틱맨 svg 폐기로 빈 폴더
     - assets/data/rehab/
