@@ -104,6 +104,7 @@ class AchievementSection extends StatelessWidget {
                   leadingWidget: AchievementBadge(
                     code: c.code,
                     rarity: c.rarity,
+                    icon: c.icon,
                     size: 32,
                     locked: snap.unlocked[c.code] == null,
                     hidden: c.isHidden && snap.unlocked[c.code] == null,
@@ -223,6 +224,7 @@ class _DetailSheet extends StatelessWidget {
                 AchievementBadge(
                   code: catalog.code,
                   rarity: catalog.rarity,
+                  icon: catalog.icon,
                   size: 52,
                   locked: unlock == null,
                   hidden: catalog.isHidden && unlock == null,

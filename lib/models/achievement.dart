@@ -8,6 +8,11 @@ class AchievementCatalog {
   final bool isHidden;
   final int sortOrder;
 
+  /// 코치가 PC 업적 설정에서 고른 픽토그램 이름 (예: 'flame').
+  /// 서버가 늘 내려주던 값인데 앱이 버리고 있었다 — 코치가 골라도 폰에
+  /// 반영되지 않던 끊긴 고리를 잇는다 (2026-08-21). 빈 문자열이면 미지정.
+  final String icon;
+
   const AchievementCatalog({
     required this.code,
     required this.name,
@@ -15,6 +20,7 @@ class AchievementCatalog {
     required this.rarity,
     required this.isHidden,
     required this.sortOrder,
+    this.icon = '',
   });
 
   factory AchievementCatalog.fromJson(Map<String, dynamic> j) =>
@@ -25,6 +31,7 @@ class AchievementCatalog {
         rarity: (j['rarity'] ?? 'Common').toString(),
         isHidden: j['is_hidden'] == true,
         sortOrder: ((j['sort_order'] ?? 0) as num).toInt(),
+        icon: (j['icon'] ?? '').toString(),
       );
 }
 

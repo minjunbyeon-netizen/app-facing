@@ -339,6 +339,7 @@ class _FeaturedPanel extends StatelessWidget {
             child: AchievementBadge(
               code: catalog.code,
               rarity: catalog.rarity,
+              icon: catalog.icon,
               size: 128,
               locked: !unlockedInUi,
               hidden: isHidden,
@@ -501,6 +502,7 @@ class _GridCell extends StatelessWidget {
                     child: AchievementBadge(
                       code: catalog.code,
                       rarity: catalog.rarity,
+                      icon: catalog.icon,
                       size: 56,
                       locked: !unlocked,
                       hidden: isHidden,

@@ -294,8 +294,13 @@ class HyphenPictogram {
   /// 숨김 업적이면서 아직 안 딴 것 — 자물쇠로 덮는다.
   static const String hiddenIcon = 'lock';
 
-  static String iconNameFor(String code, {bool hiddenLocked = false}) {
+  static String iconNameFor(String code,
+      {bool hiddenLocked = false, String? override}) {
     if (hiddenLocked) return hiddenIcon;
+    // 코치가 PC 업적 설정에서 고른 이름이 최우선. 팩에 없는 이름이면 무시한다.
+    if (override != null && override.isNotEmpty && hasIcon(override)) {
+      return override;
+    }
     final direct = _icon[code];
     if (direct != null) return direct;
     for (final (p, icon, _) in _prefix) {
@@ -305,8 +310,22 @@ class HyphenPictogram {
   }
 
   /// SvgPicture.asset 에 그대로 넣을 경로.
-  static String assetFor(String code, {bool hiddenLocked = false}) =>
-      '$basePath${iconNameFor(code, hiddenLocked: hiddenLocked)}.svg';
+  static String assetFor(String code,
+          {bool hiddenLocked = false, String? override}) =>
+      '$basePath${iconNameFor(code, hiddenLocked: hiddenLocked, override: override)}.svg';
+
+  /// 코치가 PC 에서 고른 이름이 있으면 그걸 쓴다 (코드 매핑보다 우선).
+  /// 팩에 없는 이름이면 무시하고 코드 매핑으로 떨어진다 — 서버 어휘와
+  /// 팩 어휘가 어긋나도 화면이 비지 않는다 (2026-08-21).
+  static bool hasIcon(String name) => _allIcons.contains(name);
+
+  /// 팩이 실제로 가진 아이콘 이름 전체 — override 유효성 검사용.
+  static final Set<String> _allIcons = {
+    ..._icon.values,
+    ...[for (final (_, i, _) in _prefix) i],
+    _defaultIcon,
+    'lock',
+  };
 
   static PictoShape shapeFor(String code) {
     final direct = _shape[code];
@@ -365,9 +384,13 @@ class AchievementBadge extends StatelessWidget {
     this.size = 56,
     this.locked = false,
     this.hidden = false,
+    this.icon,
   });
 
   final String code;
+
+  /// 코치가 PC 에서 고른 픽토그램 이름. 비면 코드 매핑을 쓴다 (2026-08-21).
+  final String? icon;
 
   /// 서버 카탈로그의 rarity 문자열 — Common / Rare / Epic / Legendary
   final String rarity;
@@ -382,6 +405,7 @@ class AchievementBadge extends StatelessWidget {
     final asset = HyphenPictogram.assetFor(
       code,
       hiddenLocked: hidden && locked,
+      override: icon,
     );
     final lip = size * 0.055;
 
