@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
 import 'core/api_client.dart';
@@ -169,6 +170,16 @@ class HyphenApp extends StatelessWidget {
         title: 'HYPHEN',
         theme: HyphenTheme.light,
         debugShowCheckedModeBanner: false,
+        // v3.3 (2026-08-21 사용자 지시): 날짜·시간 다이얼로그 한글화.
+        // Material 기본 문자열(Select date·Cancel·OK)이 영문이던 원인 =
+        // 로케일 위임 미배선. 골든 하네스(test/golden/harness.dart)도 동일 배선.
+        locale: const Locale('ko'),
+        supportedLocales: const [Locale('ko'), Locale('en')],
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
         // v1.16 Sprint 9a: 폰트 확대 옵션 (Masters 접근성).
         builder: (ctx2, child) => MediaQuery(
           data: MediaQuery.of(ctx2).copyWith(

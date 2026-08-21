@@ -12,6 +12,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  # v3.3 (2026-08-21): 날짜·시간 다이얼로그 한글화 — Material 기본 문자열
+  # (Select date·Cancel·OK)이 영문으로 나오던 것을 ko 로케일로 교체.
+  flutter_localizations:
+    sdk: flutter
   cupertino_icons: ^1.0.8
   # 시각 주입 지점 단일화 — DateTime.now() 직접 호출 금지, clock.now() 만.
   # 골든 테스트가 flutter_test_config 에서 Clock.fixed 로 날짜를 고정한다.

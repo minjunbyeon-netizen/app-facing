@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
+import '../../core/role_labels.dart';
 import '../../core/theme.dart';
 import '../../widgets/hkit.dart';
 import '../gym/coach_dashboard_screen.dart';
@@ -110,11 +111,13 @@ class _BossDashboardScreenState extends State<BossDashboardScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              auth.gymName ?? 'Box',
+              auth.gymName ?? '체육관',
               style: HyphenTokens.h3.copyWith(color: HyphenTokens.fg),
             ),
             Text(
-              auth.role?.toUpperCase() ?? 'STAFF',
+              // v3.3 (2026-08-21 사용자 지시): 생 role 값('OWNER') 노출 제거 —
+              // 운영자 호칭은 '코치' 하나 (3면 대전제 ①, 번역은 roleKoLabel SSOT).
+              roleKoLabel(role: auth.role ?? 'coach'),
               style: HyphenTokens.micro.copyWith(color: HyphenTokens.primary),
             ),
           ],
@@ -123,13 +126,13 @@ class _BossDashboardScreenState extends State<BossDashboardScreen> {
           IconButton(
             icon: const Icon(Icons.settings_outlined,
                 color: HyphenTokens.muted, size: 20),
-            tooltip: 'Settings',
+            tooltip: '설정',
             onPressed: () =>
                 Navigator.of(context).pushNamed('/boss/settings'),
           ),
           IconButton(
             icon: const Icon(Icons.logout, color: HyphenTokens.muted, size: 20),
-            tooltip: 'Logout',
+            tooltip: '로그아웃',
             onPressed: _logout,
           ),
           const SizedBox(width: 8),

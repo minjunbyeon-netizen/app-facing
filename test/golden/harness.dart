@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
@@ -80,6 +81,15 @@ Widget harness({
     child: MaterialApp(
       theme: HyphenTheme.light,
       debugShowCheckedModeBanner: false,
+      // v3.3: 실앱(main.dart)과 동일한 ko 로케일 — 날짜 다이얼로그 골든이
+      // 실물과 같은 한글로 찍히게 한다.
+      locale: const Locale('ko'),
+      supportedLocales: const [Locale('ko'), Locale('en')],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       home: home,
       // 캡처 후 화면이 다른 라우트로 넘어가도 죽지 않게 전 라우트 스텁.
       onGenerateRoute: (settings) => MaterialPageRoute(
