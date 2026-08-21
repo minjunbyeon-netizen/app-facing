@@ -28,6 +28,10 @@ SECTIONS = [
     ("회원 셸", "회원 셸 3탭 — 홈 · 수업 · 내 정보 (승인된 회원 · HYPHEN CrossFit 서면)", [
         ("member_01_shell_wod", "수업 탭 (기본) — 그 주 월~일 아코디언 + 그날 수업 예약"),
         ("member_02_shell_home", "홈 탭 — 레벨 · 업적 · 마일스톤"),
+        ("member_02b_home_notice",
+         "홈 공지 아코디언 접힘 — 진짜 공지만 (R7 소스 교체) + 미읽음 점"),
+        ("member_02c_home_notice_open",
+         "홈 공지 아코디언 펼침 — 핀 고정 우선 + 최신순 3건"),
         ("member_03_shell_profile", "내 정보 탭 — 회원권 · 내 체육관 · 신체 · 설정 (ENGINE 폐기)"),
         ("member_04_profile_menu", "프로필 하단 — 아코디언 접힘 상태"),
         ("member_05_profile_menu_open", "프로필 메뉴 펼침 — 계약~이용약관 (+최고 기록, v3.4)"),

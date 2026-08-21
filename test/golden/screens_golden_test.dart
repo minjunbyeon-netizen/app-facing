@@ -222,6 +222,34 @@ void main() {
     await capture(tester, 'member_05_profile_menu_open');
   });
 
+  // ── 홈 공지 아코디언 (R7 · 2026-08-21 — 소스를 AnnouncementsState 로 교체) ──
+  // 기본 world 는 공지 0건이라 아코디언이 아예 안 그려진다 (member_02 유지).
+  // 공지 3건(핀 1)을 주입해 접힘·펼침 두 상태 캡처 — 리워드 통지가 아닌
+  // 진짜 공지만 나오는지의 시각 게이트.
+  testWidgets('member: home notice accordion', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final world = memberWorld();
+    world['/api/v1/member/announcements'] = memberAnnouncements();
+    final api = FakeApi(world);
+    final gym = GymState(GymRepository(api), sse: FakeSse());
+    await gym.loadMine();
+    await tester.pumpWidget(harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        gym: gym,
+        home: const MainShell()));
+    await tapTab(tester, '홈');
+    await capture(tester, 'member_02b_home_notice');
+    await tester.tap(find.text('공지'));
+    // ExpansionTile 펼침 애니메이션 — 프로필 메뉴와 같은 다중 pump.
+    for (var i = 0; i < 6; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    await capture(tester, 'member_02c_home_notice_open');
+  });
+
   // ── WOD 결과 입력 시트 (v2.6 · 사용자 요청) ──
   // 회원이 실제로 도달하는 경로 그대로 탄다: WOD 탭 → 오늘 WOD(기본 펼침)의
   // '완료 표시' 배지 탭 → 바텀시트. 시트만 따로 pump 하면 진입점이 살아 있는지는

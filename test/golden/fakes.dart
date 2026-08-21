@@ -959,6 +959,46 @@ final Map<String, dynamic> gymsMinePending = {
   'status': 'pending',
 };
 
+/// /api/v1/member/announcements — 홈 공지 아코디언 노출용 (R7 소스 교체 검증).
+/// 기본 memberWorld 는 빈 목록 유지 (기존 골든 보존) — 아코디언 골든에서만 주입.
+/// 정렬 기대: 핀 고정(휴관 안내) 먼저, 나머지 최신순.
+List<Map<String, dynamic>> memberAnnouncements() {
+  final now = appClock.now();
+  String daysAgo(int d) => '${_ymd(now.subtract(Duration(days: d)))}T09:00:00';
+  return [
+    {
+      'id': 1,
+      'title': '휴관 안내',
+      'body': '8월 15일 광복절 휴관. 당일 예약 수업은 자동 취소됩니다.',
+      'priority': 'urgent',
+      'pinned': true,
+      'category': 'notice',
+      'visible_to': 'all',
+      'created_at': daysAgo(4),
+    },
+    {
+      'id': 2,
+      'title': '저녁 수업 신설',
+      'body': '저녁 8시 수업 추가. 예약 화면에서 신청.',
+      'priority': 'normal',
+      'pinned': false,
+      'category': 'notice',
+      'visible_to': 'all',
+      'created_at': daysAgo(1),
+    },
+    {
+      'id': 3,
+      'title': '샤워실 보수 공사',
+      'body': '이번 주 금요일 오전 샤워실 이용 불가.',
+      'priority': 'normal',
+      'pinned': false,
+      'category': 'notice',
+      'visible_to': 'all',
+      'created_at': daysAgo(2),
+    },
+  ];
+}
+
 /// 회원 셸 공용 기본 응답 맵 — 구체 경로 먼저 (prefix 매칭).
 Map<String, dynamic> memberWorld() => {
       '/health': const <String, dynamic>{},
