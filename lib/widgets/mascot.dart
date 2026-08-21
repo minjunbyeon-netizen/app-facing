@@ -7,11 +7,13 @@ import 'package:flutter/material.dart';
 /// 상속하는 3앱 공통 조상이고, 마스코트는 HYPHEN 전용 브랜드 자산이다.
 ///
 /// 2026-08-21 사용자 지시: 구 `mascot.png`(헬스장 사진이 배경에 박힌 1종) 폐기.
+/// 캐릭터는 **사용자가 직접 지정·허용한 것만** `assets/character/` 에 들어간다
+/// (규칙·파일명 표 = 그 폴더의 README.md). Claude 가 캐릭터를 만들지 않는다.
 /// **새 캐릭터 에셋이 도착하기 전까지 모든 슬롯은 아무것도 그리지 않는다** —
 /// 자리도 차지하지 않으므로(SizedBox.shrink) 지금 화면은 예전 그대로다.
 ///
 /// 에셋이 오면 할 일은 두 줄뿐이다:
-///   1. `pubspec.yaml` 의 `- assets/images/character/` 주석 해제
+///   1. `pubspec.yaml` 의 `- assets/character/` 주석 해제
 ///   2. 아래 [_assets] 맵 채우기
 /// 그 순간 온보딩·스낵바·업적 해금·홈 레벨카드가 **동시에** 살아난다.
 /// 화면마다 경로를 적는 순간 이원화이므로, 경로 문자열은 이 파일 밖에 두지 않는다.
@@ -50,14 +52,14 @@ class HyphenMascot extends StatelessWidget {
   // key 규칙: welcome · celebrate · cheer · level1~level5.
   // 지금은 비어 있다 = 캐릭터 미도착. 채우는 순간 전 슬롯이 켜진다.
   static const Map<String, String> _assets = {
-    // 'welcome':   'assets/images/character/welcome.png',
-    // 'celebrate': 'assets/images/character/celebrate.png',
-    // 'cheer':     'assets/images/character/cheer.png',
-    // 'level1':    'assets/images/character/level1.png',
-    // 'level2':    'assets/images/character/level2.png',
-    // 'level3':    'assets/images/character/level3.png',
-    // 'level4':    'assets/images/character/level4.png',
-    // 'level5':    'assets/images/character/level5.png',
+    // 'welcome':   'assets/character/welcome.png',
+    // 'celebrate': 'assets/character/celebrate.png',
+    // 'cheer':     'assets/character/cheer.png',
+    // 'level1':    'assets/character/level1.png',
+    // 'level2':    'assets/character/level2.png',
+    // 'level3':    'assets/character/level3.png',
+    // 'level4':    'assets/character/level4.png',
+    // 'level5':    'assets/character/level5.png',
   };
 
   /// 레벨 → 진화 단계(1~5). 구 home_screen 의 private `_mascotForLevel` 이
