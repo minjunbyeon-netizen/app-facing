@@ -23,7 +23,6 @@ import '../../models/announcement.dart';
 import '../announcements/announcements_state.dart';
 import '../profile/profile_state.dart';
 import '../../core/app_clock.dart';
-import '../../widgets/mascot.dart';
 
 /// v1.23 (2026-06-02) 재배치 Phase 3: Attend 의 게이미피케이션을 Home 으로 이관.
 /// Home = LEVEL(캐릭터 진화) + ACHIEVEMENTS(업적 그리드) + MILESTONES(3종 진행바).
@@ -428,13 +427,6 @@ class _LevelCard extends StatelessWidget {
     required this.prCount,
   });
 
-  /// 레벨대별 캐릭터 강조 색 — 회색 → 본문색 → 탠 (5 단계).
-  Color _colorForLevel(int level) {
-    if (level >= 31) return HyphenTokens.accent;
-    if (level >= 11) return HyphenTokens.fg;
-    return HyphenTokens.muted;
-  }
-
   /// 레벨대별 격려 한 줄. 친근한 톤.
   String _captionForLevel(int level) {
     if (level <= 5) return '좋은 출발. 페이스 유지.';
@@ -479,12 +471,10 @@ class _LevelCard extends StatelessWidget {
     );
     final pct = (bd.progress * 100).round();
     final isMax = bd.level >= LevelSystem.maxLevel;
-    final charColor = _colorForLevel(bd.level);
 
-    // v2.2 위계 정리 — 전엔 캐릭터가 카드 가로의 44% 를 먹었다. 정보량은 0 인데
-    // 화면에서 가장 큰 요소였고, 정작 읽어야 할 레벨 숫자·진행도는 남은 절반에
-    // 눌려 있었다. 캐릭터를 고정 88 아바타로 접고 숫자·진행바를 앞세운다.
-    // 요소는 하나도 빼지 않았다 (캐릭터·레벨·XP·캡션·진행바·다음레벨 전부 유지).
+    // v2.2 위계 정리 — 레벨 숫자·진행도를 앞세운다.
+    // 2026-08-21: 레벨 옆 캐릭터는 사용자 지시로 걷었다 (스낵바 전용).
+    // 나머지 요소는 그대로 (레벨·XP·캡션·진행바·다음레벨).
     return HkCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -492,24 +482,10 @@ class _LevelCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // 캐릭터 — 연분홍 면·반투명 컬러 보더를 걷고 중립 면 + 1px.
-              // 레벨대 색은 테두리 한 곳에만 남겨 강조를 분산시키지 않는다.
-              // 2026-08-21: 캐릭터 에셋 미도착이면 아바타 상자째 접는다 —
-              // 빈 네모만 남기지 않기 위해 슬롯 자체를 조건부로 연다.
-              if (HyphenMascot.has(MascotMood.happy)) ...[
-                Container(
-                  width: 88,
-                  height: 88,
-                  decoration: BoxDecoration(
-                    color: HyphenTokens.surfaceAlt,
-                    borderRadius: BorderRadius.circular(HyphenTokens.r2),
-                    border: Border.all(color: charColor, width: 1),
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: const HyphenMascot(mood: MascotMood.happy, size: 88),
-                ),
-                const SizedBox(width: HyphenTokens.sp4),
-              ],
+              // 2026-08-21 사용자 지시: 캐릭터는 **스낵바에만**. 레벨 옆 그림은
+              // 나중에 따로 받기로 해서 아바타 상자째 걷었다 (레벨대 색은
+              // 아래 캡션·진행바가 이어받는다). 되살릴 때는 HyphenMascot 에
+              // 레벨용 mood 를 추가하고 그 그림을 물린다.
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

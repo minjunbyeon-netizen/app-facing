@@ -7,7 +7,6 @@ import '../../core/input_formatters.dart';
 import '../../core/theme.dart';
 import '../../core/tier.dart';
 import '../../widgets/hkit.dart';
-import '../../widgets/mascot.dart';
 import '../profile/profile_state.dart';
 
 /// 가입 직후 한 번 묻는 화면 — 내 정보(이름·생년월일·전화)와 성별·경력.
@@ -135,14 +134,9 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
         child: ListView(
           padding: const EdgeInsets.all(HyphenTokens.sp5),
           children: [
-            // 2026-08-21 — 환영 캐릭터 슬롯. 에셋 도착 전엔 통째로 접혀
-            // 지금 화면(글자 폼)과 동일하다. 경로 판단은 HyphenMascot SSOT.
-            if (HyphenMascot.has(MascotMood.happy)) ...[
-              const Center(
-                child: HyphenMascot(mood: MascotMood.happy, size: 120),
-              ),
-              const SizedBox(height: HyphenTokens.sp4),
-            ],
+            // 2026-08-21 사용자 지시: 캐릭터는 **스낵바에만**. 온보딩용 그림은
+            // 나중에 따로 받기로 해서 여기 슬롯은 걷었다. 되살릴 때는
+            // HyphenMascot 에 온보딩용 mood 를 추가하고 그 그림을 물린다.
             const Text(
               '코치가 회원 명단에서 보는 정보입니다.',
               style: HyphenTokens.caption,
