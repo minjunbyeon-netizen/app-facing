@@ -729,6 +729,10 @@ class HkSnack {
       duration: duration,
       backgroundColor: HyphenTokens.surface,
       behavior: SnackBarBehavior.floating,
+      // 2026-08-21 — M3 기본 그림자가 골든에서 검은 띠로 찍힌다. 이 앱은
+      // 면+1px 테두리로 층을 표현하므로(글로벌 design-block 다중 그림자 금지)
+      // 그림자를 끈다.
+      elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(HyphenTokens.r2),
         side: BorderSide(
