@@ -8,6 +8,7 @@ import '../../widgets/hkit.dart';
 import 'achievement_card.dart';
 import 'achievement_state.dart';
 import 'achievements_screen.dart';
+import 'hyphen_pictogram.dart';
 
 /// 업적 섹션 — 최근 해금 최대 5줄 표 (v1.30: 색 타일 3열 그리드 → 한 줄 한 항목).
 /// 5개 초과 시 마지막 줄이 "그 외 N개" → 전체 보기.
@@ -15,36 +16,7 @@ import 'achievements_screen.dart';
 class AchievementSection extends StatelessWidget {
   const AchievementSection({super.key});
 
-  static IconData _iconFor(String code) {
-    if (code == 'FIRST_ENGINE') return Icons.bolt_outlined;
-    if (code == 'ALL_CAT_80') return Icons.all_inclusive_outlined;
-    if (code == 'WOD_50') return Icons.fitness_center_outlined;
-    if (code.startsWith('REACH_')) return Icons.military_tech_outlined;
-    if (code.startsWith('SCORE_')) return Icons.analytics_outlined;
-    if (code.startsWith('STREAK_')) return Icons.local_fire_department_outlined;
-    if (code.startsWith('GIRLS_')) return Icons.emoji_events_outlined;
-    if (code.startsWith('HEROES_')) return Icons.shield_outlined;
-    if (code.startsWith('GAMES_')) return Icons.sports_score_outlined;
-    if (code.startsWith('TITLE_')) return Icons.workspace_premium_outlined;
-    if (code.startsWith('SEASON_')) return Icons.wb_sunny_outlined;
-    if (code.startsWith('EGG_')) return Icons.auto_awesome_outlined;
-    if (code.startsWith('PR_')) return Icons.trending_up_outlined;
-    if (code.startsWith('VOL_')) return Icons.bar_chart_outlined;
-    return Icons.star_outline;
-  }
 
-  static Color _rarityColor(String rarity) {
-    switch (rarity) {
-      case 'Rare':
-        return HyphenTokens.accent;
-      case 'Epic':
-        return HyphenTokens.tierElite;
-      case 'Legendary':
-        return HyphenTokens.tierGames;
-      default:
-        return HyphenTokens.muted;
-    }
-  }
 
   void _showDetail(
     BuildContext context,
@@ -61,8 +33,7 @@ class AchievementSection extends StatelessWidget {
       builder: (_) => _DetailSheet(
         catalog: catalog,
         unlock: unlock,
-        icon: _iconFor(catalog.code),
-        rarityColor: _rarityColor(catalog.rarity),
+        rarityColor: RarityPalette.of(catalog.rarity).light,
       ),
     );
   }
@@ -130,12 +101,17 @@ class AchievementSection extends StatelessWidget {
             rows: [
               for (final c in displayItems)
                 HkListRow(
-                  icon: _iconFor(c.code),
-                  iconColor: _rarityColor(c.rarity),
+                  leadingWidget: AchievementBadge(
+                    code: c.code,
+                    rarity: c.rarity,
+                    size: 32,
+                    locked: snap.unlocked[c.code] == null,
+                    hidden: c.isHidden && snap.unlocked[c.code] == null,
+                  ),
                   title: _rowTitle(c),
                   subtitle: c.description,
                   trailing: c.rarity.toUpperCase(),
-                  trailingColor: _rarityColor(c.rarity),
+                  trailingColor: RarityPalette.of(c.rarity).light,
                   onTap: () => _showDetail(context, c, snap.unlocked[c.code]),
                 ),
               if (hasOverflow)
@@ -205,13 +181,11 @@ class _EmptyState extends StatelessWidget {
 class _DetailSheet extends StatelessWidget {
   final AchievementCatalog catalog;
   final AchievementUnlock? unlock;
-  final IconData icon;
   final Color rarityColor;
 
   const _DetailSheet({
     required this.catalog,
     required this.unlock,
-    required this.icon,
     required this.rarityColor,
   });
 
@@ -244,15 +218,14 @@ class _DetailSheet extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 52,
-                  height: 52,
-                  decoration: BoxDecoration(
-                    color: rarityColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(HyphenTokens.r2),
-                    border: Border.all(color: rarityColor, width: 1.5),
-                  ),
-                  child: Icon(icon, size: 28, color: rarityColor),
+                // 2026-08-21 픽토그램 팩 — AchievementBadge 가 판까지 그린다.
+                // 감싸던 원형 컨테이너는 제거 (안 지우면 판이 두 겹).
+                AchievementBadge(
+                  code: catalog.code,
+                  rarity: catalog.rarity,
+                  size: 52,
+                  locked: unlock == null,
+                  hidden: catalog.isHidden && unlock == null,
                 ),
                 const SizedBox(width: HyphenTokens.sp3),
                 Expanded(

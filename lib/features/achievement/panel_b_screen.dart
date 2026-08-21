@@ -30,6 +30,7 @@ import '../history/history_repository.dart';
 import '../inbox/inbox_state.dart';
 import '../profile/profile_state.dart';
 import '../../core/app_clock.dart';
+import 'hyphen_pictogram.dart';
 
 class PanelBScreen extends StatefulWidget {
   const PanelBScreen({super.key});
@@ -344,23 +345,10 @@ class _TitleCard extends StatelessWidget {
     this.onTap,
   });
 
-  Color _rarityColor() {
-    switch (title.rarity) {
-      case 'Rare':
-        return HyphenTokens.accent;
-      case 'Epic':
-        return HyphenTokens.tierElite;
-      case 'Legendary':
-        return HyphenTokens.tierGames;
-      case 'Common':
-      default:
-        return HyphenTokens.muted;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
-    final color = unlocked ? _rarityColor() : HyphenTokens.border;
+    final color = unlocked ? RarityPalette.of(title.rarity).light : HyphenTokens.border;
     return Padding(
       padding: const EdgeInsets.only(bottom: HyphenTokens.sp2),
       child: Material(
@@ -401,6 +389,15 @@ class _TitleCard extends StatelessWidget {
             ),
             child: Row(
               children: [
+                // 2026-08-21 픽토그램 팩 — 칭호도 같은 배지 규격으로 (코드·희귀도
+                // 필드가 업적과 동일하다). 매핑에 없으면 star + 원형 폴백.
+                AchievementBadge(
+                  code: title.code,
+                  rarity: title.rarity,
+                  size: 40,
+                  locked: !unlocked,
+                ),
+                const SizedBox(width: HyphenTokens.sp3),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -440,7 +437,7 @@ class _TitleCard extends StatelessWidget {
                           Text(
                             title.rarity.toUpperCase(),
                             style: HyphenTokens.microLabel.copyWith(
-                              color: _rarityColor(),
+                              color: RarityPalette.of(title.rarity).light,
                               fontWeight: FontWeight.w800,
                             ),
                           ),

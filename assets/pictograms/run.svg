@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none">
+<defs><clipPath id="sh"><path d="M30 -2V30H-2Z"/></clipPath></defs>
+<g stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+<g stroke="#8E96A3"><circle cx="15.6" cy="5" r="2.2"/><path d="M14 8.4 10.5 11.7l2.8 2.8.9 4.7M10.5 11.7 6.8 13M13.3 14.5 9.6 19.8M14 8.4l3.8 2.2 1.5 3"/></g>
+<g stroke="#5B6270" clip-path="url(#sh)"><circle cx="15.6" cy="5" r="2.2"/><path d="M14 8.4 10.5 11.7l2.8 2.8.9 4.7M10.5 11.7 6.8 13M13.3 14.5 9.6 19.8M14 8.4l3.8 2.2 1.5 3"/></g>
+</g>
+</svg>

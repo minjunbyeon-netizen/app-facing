@@ -16,6 +16,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
+import 'hyphen_pictogram.dart';
 import '../../models/achievement.dart';
 import '../../widgets/hkit.dart';
 import 'achievement_card.dart';
@@ -325,30 +326,22 @@ class _FeaturedPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = _rarityColor(catalog.rarity);
+    final color = RarityPalette.of(catalog.rarity).light;
     final isHidden = catalog.isHidden && !unlockedInUi;
-    final iconData = _AchievementIcon.iconFor(catalog.code, isHidden);
     return Padding(
       padding: const EdgeInsets.all(HyphenTokens.sp4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            decoration: BoxDecoration(
-              color: HyphenTokens.surface,
-              border: Border.all(color: color, width: 2),
-              borderRadius: BorderRadius.circular(HyphenTokens.r3),
-            ),
-            padding: const EdgeInsets.all(HyphenTokens.sp5),
-            child: Center(
-              child: Opacity(
-                opacity: unlockedInUi ? 1.0 : 0.45,
-                child: Icon(
-                  iconData,
-                  size: 96,
-                  color: unlockedInUi ? HyphenTokens.fg : HyphenTokens.muted,
-                ),
-              ),
+          // 2026-08-21 — 픽토그램 팩 v1.0. AchievementBadge 가 판까지 그리므로
+          // 아이콘을 감싸던 테두리 컨테이너는 걷었다 (안 걷으면 판이 두 겹).
+          Center(
+            child: AchievementBadge(
+              code: catalog.code,
+              rarity: catalog.rarity,
+              size: 128,
+              locked: !unlockedInUi,
+              hidden: isHidden,
             ),
           ),
           const SizedBox(height: HyphenTokens.sp3),
@@ -485,9 +478,8 @@ class _GridCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = _rarityColor(catalog.rarity);
+    final color = RarityPalette.of(catalog.rarity).light;
     final isHidden = catalog.isHidden && !unlocked;
-    final iconData = _AchievementIcon.iconFor(catalog.code, isHidden);
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -506,14 +498,12 @@ class _GridCell extends StatelessWidget {
               child: Stack(
                 children: [
                   Center(
-                    child: Opacity(
-                      opacity: unlocked ? 1.0 : 0.32,
-                      child: Icon(
-                        iconData,
-                        size: 36,
-                        color:
-                            unlocked ? HyphenTokens.fg : HyphenTokens.muted,
-                      ),
+                    child: AchievementBadge(
+                      code: catalog.code,
+                      rarity: catalog.rarity,
+                      size: 56,
+                      locked: !unlocked,
+                      hidden: isHidden,
                     ),
                   ),
                   if (unlocked)
@@ -553,52 +543,3 @@ class _GridCell extends StatelessWidget {
   }
 }
 
-Color _rarityColor(String rarity) {
-  switch (rarity) {
-    case 'Rare':
-      return HyphenTokens.accent;
-    case 'Epic':
-      return HyphenTokens.tierElite;
-    case 'Legendary':
-      return HyphenTokens.tierGames;
-    case 'Common':
-    default:
-      return HyphenTokens.muted;
-  }
-}
-
-/// 코드 prefix → outline 아이콘 매핑.
-class _AchievementIcon {
-  _AchievementIcon._();
-
-  static IconData iconFor(String code, bool hidden) {
-    if (hidden) return Icons.help_outline;
-    if (code.startsWith('REACH_') || code == 'TITLE_POLYMATH') {
-      return Icons.military_tech_outlined;
-    }
-    if (code.startsWith('STREAK_') ||
-        code == 'TITLE_OBSESSED' ||
-        code == 'TITLE_RELENTLESS') {
-      return Icons.local_fire_department_outlined;
-    }
-    if (code.startsWith('PR_')) return Icons.trending_up_outlined;
-    if (code == 'SEASON_SPRING') return Icons.eco_outlined;
-    if (code == 'SEASON_SUMMER') return Icons.wb_sunny_outlined;
-    if (code == 'SEASON_FALL') return Icons.park_outlined;
-    if (code == 'SEASON_WINTER') return Icons.ac_unit_outlined;
-    if (code == 'SEASON_YEAREND') return Icons.celebration_outlined;
-    if (code.startsWith('EGG_')) return Icons.auto_awesome_outlined;
-    if (code.startsWith('VOL_')) return Icons.fitness_center_outlined;
-    if (code == 'VOL_COMEBACK') return Icons.replay_outlined;
-    if (code.startsWith('GIRLS_')) return Icons.female_outlined;
-    if (code.startsWith('HEROES_')) return Icons.star_outline;
-    if (code == 'GAMES_1') return Icons.sports_score_outlined;
-    if (code.startsWith('SCORE_')) return Icons.speed_outlined;
-    if (code == 'ALL_CAT_80') return Icons.donut_large_outlined;
-    if (code == 'WOD_50') return Icons.fitness_center_outlined;
-    if (code == 'FIRST_ENGINE') return Icons.bolt_outlined;
-    if (code == 'TITLE_SCHOLAR') return Icons.science_outlined;
-    if (code == 'TITLE_UNDEFEATED') return Icons.shield_outlined;
-    return Icons.emoji_events_outlined;
-  }
-}

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme.dart';
 import '../../models/achievement.dart';
+import 'hyphen_pictogram.dart';
 
 /// v1.16 Sprint 9a: Achievement 배지 카드.
 /// 잠긴 배지에도 해금 조건 힌트 표시 — hidden 배지만 "· · ·" 유지.
@@ -15,24 +16,11 @@ class AchievementCard extends StatelessWidget {
     this.unlock,
   });
 
-  Color _rarityColor() {
-    switch (catalog.rarity) {
-      case 'Rare':
-        return HyphenTokens.accent;
-      case 'Epic':
-        return HyphenTokens.tierElite;
-      case 'Legendary':
-        return HyphenTokens.tierGames;
-      case 'Common':
-      default:
-        return HyphenTokens.muted;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     final unlocked = unlock != null;
-    final color = unlocked ? _rarityColor() : HyphenTokens.border;
+    final color = unlocked ? RarityPalette.of(catalog.rarity).light : HyphenTokens.border;
     return Container(
       margin: const EdgeInsets.only(bottom: HyphenTokens.sp3),
       padding: const EdgeInsets.fromLTRB(

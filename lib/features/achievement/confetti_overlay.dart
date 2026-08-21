@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../core/theme.dart';
+import 'hyphen_pictogram.dart';
 
 class ConfettiOverlay {
   ConfettiOverlay._();
@@ -80,19 +81,6 @@ class _ConfettiAnimState extends State<_ConfettiAnim>
     super.dispose();
   }
 
-  Color _rarityColor() {
-    switch (widget.rarity) {
-      case 'Rare':
-        return HyphenTokens.accent;
-      case 'Epic':
-        return HyphenTokens.tierElite;
-      case 'Legendary':
-        return HyphenTokens.tierGames;
-      case 'Common':
-      default:
-        return HyphenTokens.fg;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +94,7 @@ class _ConfettiAnimState extends State<_ConfettiAnim>
             painter: _ConfettiPainter(
               particles: _particles,
               t: t,
-              tint: _rarityColor(),
+              tint: RarityPalette.of(widget.rarity).light,
             ),
           );
         },

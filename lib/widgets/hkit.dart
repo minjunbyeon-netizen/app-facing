@@ -314,6 +314,10 @@ class HkListRow extends StatelessWidget {
 
   /// 행 하단 슬롯 — 진행바 등. 없으면 생략.
   final Widget? below;
+
+  /// 좌측 슬롯을 위젯으로 — 업적 배지처럼 아이콘 하나로 안 끝날 때
+  /// (2026-08-21 픽토그램 팩). [icon] 과 동시 사용 금지.
+  final Widget? leadingWidget;
   final VoidCallback? onTap;
 
   const HkListRow({
@@ -321,14 +325,17 @@ class HkListRow extends StatelessWidget {
     required this.title,
     this.icon,
     this.iconColor,
+    this.leadingWidget,
     this.subtitle,
     this.trailing,
     this.trailingColor,
     this.trailingWidget,
     this.below,
     this.onTap,
-  }) : assert(trailing == null || trailingWidget == null,
-            'trailing 과 trailingWidget 은 같은 자리다 — 하나만 쓴다');
+  })  : assert(trailing == null || trailingWidget == null,
+            'trailing 과 trailingWidget 은 같은 자리다 — 하나만 쓴다'),
+        assert(icon == null || leadingWidget == null,
+            'icon 과 leadingWidget 은 같은 자리다 — 하나만 쓴다');
 
   @override
   Widget build(BuildContext context) {
@@ -344,7 +351,10 @@ class HkListRow extends StatelessWidget {
         children: [
           Row(
             children: [
-              if (icon != null) ...[
+              if (leadingWidget != null) ...[
+                leadingWidget!,
+                const SizedBox(width: HyphenTokens.sp3),
+              ] else if (icon != null) ...[
                 Icon(icon, size: 20, color: iconColor ?? HyphenTokens.muted),
                 const SizedBox(width: HyphenTokens.sp3),
               ],

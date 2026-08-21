@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none">
+<defs><clipPath id="sh"><path d="M30 -2V30H-2Z"/></clipPath></defs>
+<g stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+<g stroke="#8E96A3"><path d="M5.5 21V3.5"/><path d="M5.5 5h14v9h-14z"/><path d="M10.2 5v9M14.8 5v9M5.5 9.5h14"/></g>
+<g stroke="#5B6270" clip-path="url(#sh)"><path d="M5.5 21V3.5"/><path d="M5.5 5h14v9h-14z"/><path d="M10.2 5v9M14.8 5v9M5.5 9.5h14"/></g>
+</g>
+</svg>
