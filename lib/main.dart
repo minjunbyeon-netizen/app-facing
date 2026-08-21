@@ -16,7 +16,6 @@ import 'core/ui_prefs_state.dart';
 import 'core/unit_state.dart';
 import 'core/wod_session_bus.dart';
 import 'features/home/home_screen.dart';
-import 'features/intro/intro_screen.dart';
 import 'features/onboarding/onboarding_basic.dart';
 import 'features/profile/profile_state.dart';
 import 'features/splash/splash_screen.dart';
@@ -181,7 +180,8 @@ class HyphenApp extends StatelessWidget {
         routes: {
           '/splash': (_) => const SplashScreen(),
           '/signup': (_) => const SignupScreen(),
-          '/intro': (_) => const IntroScreen(),
+          // v3.3 (2026-08-21): '/intro' 인트로 화면·라우트 삭제 — v2.3 에서
+          // 진입이 끊긴 채 남아 있던 코드 (README §제거된 기능 대장).
           '/onboarding/basic': (_) => const OnboardingBasicScreen(),
           // v3.2 (2026-08-20 사용자 지시): 체육관 개설·검색 등 비활성 화면은
           // 코드까지 삭제 — 목록·복원 좌표 = README.md §제거된 기능 대장.

@@ -325,8 +325,6 @@ R5. **하드코드 fontSize 금지.** 모든 텍스트 크기는 `HyphenTokens` 
 | 위치 | 카피 |
 |---|---|
 | Splash / 로그인 / 전면 로딩 | **HYPHEN 로고** (BrandLogo 기본 폭 220) — 전면 로딩은 FkLoadingScreen |
-| 인트로 2p | "오늘의 수업" / "기록이 레벨이 된다" (stage: 수업 보드 · 레벨 · 업적). v2.6 에서 3p 'Tier' 삭제 — 앱에 Tier 를 보여주는 곳이 없어졌다 (D34·D36) |
-| 인트로 CTA | "시작" (마지막 p) / "다음" / "건너뛰기" — appkit strings |
 | 로그인 버튼 | "네이버 아이디로 로그인" (1순위) · "구글로 시작" — FkSocialButton |
 | 로그인 진행 | FkLoadingScreen(caption: '로그인 중') |
 | 셸 3탭 | 홈 · 수업 · 내 정보 (v3.0 — 크로스핏 표기 철수) |
@@ -370,15 +368,16 @@ python tool/golden_gallery.py               # 단일 HTML 갤러리 (build/golde
 가짜 백엔드(`test/golden/fakes.dart` — ApiClient implements, 네트워크 0)로 실물 픽셀 렌더
 (갤S22 급 360×780·2x). 폰트는 `test/flutter_test_config.dart` 가 FontManifest 전체
 (Pretendard·MaterialIcons)를 로드. 참조 아키텍처: `apps/writeplz-app` 골든스탠다드.
-현재 **47장** (2026-08-21 — 홈 공지 아코디언 접힘/펼침 2장 추가, R7 소스 교체 검증) — 공통 7(스플래시·
-인트로 2p·로그인·가입 신청 2·아이디 로그인) + 온보딩 1(기본 정보) + 회원 셸 8(3탭·홈 공지 아코디언 2·
+현재 **45장** (2026-08-21 — 인트로 2p 삭제 v3.3 · 홈 공지 아코디언 2장은 그 전 추가) — 공통 5(스플래시·
+로그인·가입 신청 2·아이디 로그인) + 온보딩 1(기본 정보) + 회원 셸 8(3탭·홈 공지 아코디언 2·
 프로필 메뉴 2·결과 입력 시트) + 회원 심화 16(수업 예약 2·수업 상세(+내 이전 기록)·결과 시트 Strength·1RM 보드·
 도전 인증 시트·코치 질문 시트·쪽지 피드·업적 전체/상세·프로필 수정·계약·목표·FAQ·약관·방침) +
 코치 9(로그인·대시보드·명단 시트 2·수업 등록/수정 시트 2·날짜 선택·셸 2탭) + 이력 1 +
 상태 변형 5(에러·미가입·오프라인·이력 에러·승인 대기).
 2부 테스트 = `test/golden/screens2_golden_test.dart` (1부의 헬퍼를 import — rxProfile 등).
 **진입점이 없는 화면은 골든에서 뺀다** — 페이싱 계산기(v1.27 숨김, git 의 calc_01~04) ·
-Benchmarks·Tier 결과(v2.6, git 의 onb_02·onb_03) · 인트로 TIER(v2.6, common_04).
+Benchmarks·Tier 결과(v2.6, git 의 onb_02·onb_03) · 인트로 전체(v3.3 코드 삭제, git 의
+common_02~04 — README §제거된 기능 대장 11).
 숨김 화면 코드는 v3.2(2026-08-20)에서 삭제됨 — 되살리려면 git log·`_archive/lib-engine/`
 에서 복원하고 그 커밋에서 캡처도 같이 되살릴 것 (README §제거된 기능 대장).
 기능을 넣으면 그 상태의 캡처도 같이 넣는다 (골든 없는 기능 = 골든스탠다드 미달).

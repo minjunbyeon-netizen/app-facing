@@ -48,3 +48,7 @@ samples, guidance on mobile development, and a full API reference.
    Tier 사다리는 D34·D36 으로 소멸 — 회원 레벨은 경력 3단(SCALED·RXD·ELITE).
 10. **(선행 이동분) 페이싱 계산기·Benchmarks·Tier 결과·Engine 화면** — 이 커밋이 아니라
     이전 정리에서 `_archive/lib-engine/` 으로 이동됨. 복원 시 그 폴더에서 시작.
+11. **첫 실행 인트로 2p (v3.3 · 2026-08-21)** — `lib/features/intro/intro_screen.dart` +
+    `/intro` 라우트 + 골든 `common_02`·`common_03`. v2.3(2026-08-12)에서 진입이 끊긴 채
+    코드만 남아 있었고, "기록이 레벨이 된다" 등 실물과 안 맞는 약속 문구라 사용자 지시로
+    코드째 삭제. 앱 흐름은 스플래시 → 로그인 직행 그대로.

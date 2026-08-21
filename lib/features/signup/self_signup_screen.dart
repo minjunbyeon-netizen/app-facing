@@ -211,6 +211,12 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
               HyphenTokens.sp4, HyphenTokens.sp5, HyphenTokens.sp5),
           child: Form(
             key: _formKey,
+            // v3.3 (2026-08-21 사용자 지시 "유효성 검사·자동 하이픈으로 돕기"):
+            // 제출 버튼을 눌러야만 빨간 글씨가 나오던 것을, 한 번 만진 칸은
+            // 고치는 즉시 검사·해제되게 바꾼다. 자동 하이픈(생년월일·연락처)과
+            // 형식 검증 자체는 v2.6 input_formatters SSOT 그대로다 — 서버로
+            // 보내는 필드·형식은 그대로라 PC 명단·신규 등록 폼과 어긋나지 않는다.
+            autovalidateMode: AutovalidateMode.onUserInteraction,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [

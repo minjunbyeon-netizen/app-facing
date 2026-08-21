@@ -579,8 +579,26 @@ class HkLoading extends StatelessWidget {
   }
 }
 
+/// 진입 계열 화면(스플래시·로그인·전면 로딩)의 로고 위 고정 간격 (DESIGN-SSOT §6).
+///
+/// v3.3 (2026-08-21 사용자 지시 "로고 위치 고정"): 스플래시는 로고를 세로 중앙에,
+/// 로그인은 콘텐츠 블록째 중앙에 놓아 화면이 넘어갈 때마다 로고가 위아래로 뛰었다.
+/// 콘텐츠 높이와 무관하게 로고가 같은 자리에 서도록, 화면 높이의 24% 를
+/// 로고 위에 고정으로 깐다 (sp5 패딩 안 기준 — 진입 화면은 전부 sp5 패딩).
+class HkEntryLogoGap extends StatelessWidget {
+  static const double fraction = 0.24;
+  const HkEntryLogoGap({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(height: MediaQuery.sizeOf(context).height * fraction);
+  }
+}
+
 /// 전면 로딩 — 진입·전환 화면 유일 규격 (DESIGN-SSOT §6).
 /// BrandLogo(기본 폭 220) + HkLoading + 선택 캡션. Scaffold body 로 그대로 끼운다.
+/// v3.3: 세로 중앙 → HkEntryLogoGap 고정 오프셋 — 로그인 화면과 로고 자리가 같아
+/// 버튼을 누르고 로딩으로 넘어가도 로고가 움직이지 않는다.
 class HkLoadingScreen extends StatelessWidget {
   final String? caption;
   const HkLoadingScreen({super.key, this.caption});
@@ -589,12 +607,12 @@ class HkLoadingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: HyphenTokens.bg,
-      alignment: Alignment.center,
       padding: const EdgeInsets.all(HyphenTokens.sp5),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const BrandLogo(),
+          const HkEntryLogoGap(),
+          const Center(child: BrandLogo()),
           const SizedBox(height: HyphenTokens.sp6),
           const HkLoading(),
           if (caption != null) ...[

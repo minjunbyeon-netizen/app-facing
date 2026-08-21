@@ -38,7 +38,6 @@ const Set<String> _rawButtonBaseline = {
   'lib/features/inbox/compose_note_screen.dart',
   'lib/features/inbox/group_management_screen.dart',
   'lib/features/inbox/note_detail_screen.dart',
-  'lib/features/intro/intro_screen.dart',
   'lib/features/mypage/mypage_screen.dart',
   'lib/features/mypage/privacy_screen.dart',
   'lib/features/shell/main_shell.dart',

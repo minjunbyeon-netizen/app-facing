@@ -127,11 +127,13 @@ class _SignupScreenState extends State<SignupScreen> {
                   .clamp(0.0, double.infinity),
             ),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // v1.21: 베타 피드백 — 상단 브랜드/태그라인 블록 중앙정렬.
-                // v1.29: 로고 폭 = BrandLogo 기본 220 (진입 화면 통일, DESIGN-SSOT §6).
+                // v3.3 (2026-08-21 사용자 지시 "로고 위치 고정"): 블록째
+                // 세로 중앙(콘텐츠 높이 따라 로고가 움직임) → 스플래시와 같은
+                // 고정 오프셋 (HkEntryLogoGap, DESIGN-SSOT §6).
+                // v1.29: 로고 폭 = BrandLogo 기본 220 (진입 화면 통일).
+                const HkEntryLogoGap(),
                 const Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [

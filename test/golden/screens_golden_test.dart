@@ -12,7 +12,6 @@ import 'package:hyphen_app/features/boss/boss_login_screen.dart';
 import 'package:hyphen_app/features/gym/gym_repository.dart';
 import 'package:hyphen_app/features/gym/gym_state.dart';
 import 'package:hyphen_app/features/history/history_screen.dart';
-import 'package:hyphen_app/features/intro/intro_screen.dart';
 import 'package:hyphen_app/features/onboarding/onboarding_basic.dart';
 import 'package:hyphen_app/features/mypage/mypage_screen.dart';
 import 'package:hyphen_app/features/profile/profile_state.dart';
@@ -82,7 +81,6 @@ Map<String, Object> signedInPrefs() => {
       'auth_provider': 'naver',
       'auth_display_name': '김민준',
       'auth_signed_at': '2026-07-01T09:00:00Z',
-      'intro_seen': true,
     };
 
 void main() {
@@ -107,22 +105,8 @@ void main() {
     await tester.pump(const Duration(seconds: 4));
   });
 
-  // ── 공통: 인트로 2p (v2.6 — BOARD → EARN. TIER 는 폐기) ──
-  testWidgets('common: intro 2p', (tester) async {
-    phone(tester);
-    SharedPreferences.setMockInitialValues({});
-    final api = FakeApi(memberWorld());
-    await tester.pumpWidget(harness(
-        api: api,
-        auth: AuthState(),
-        profile: ProfileState(),
-        home: const IntroScreen()));
-    await capture(tester, 'common_02_intro_board');
-    await tester.tap(find.text('다음'));
-    await tester.pump(const Duration(milliseconds: 300));
-    await capture(tester, 'common_03_intro_earn');
-    // v2.6: 3p 'Tier' 는 화면에서 삭제됐다 (없는 기능 약속 제거).
-  });
+  // v3.3 (2026-08-21 사용자 지시): 인트로 2p 골든(common_02·common_03) 삭제 —
+  // 화면 코드째 제거 (README §제거된 기능 대장).
 
   // ── 공통: 소셜 로그인 ──
   testWidgets('common: signup', (tester) async {

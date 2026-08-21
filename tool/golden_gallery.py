@@ -12,10 +12,9 @@ GOLDENS = ROOT / "test" / "golden" / "goldens"
 
 # (사이드패널 라벨, 섹션 제목, [(파일 stem, 캡션)])
 SECTIONS = [
-    ("공통", "공통 — 진입 · 인트로 2p · 로그인", [
+    # v3.3 (2026-08-21): 인트로 2p 삭제 — 화면 코드째 제거 (README §제거된 기능 대장).
+    ("공통", "공통 — 진입 · 로그인 (로고 위치 고정 — HkEntryLogoGap)", [
         ("common_01_splash", "스플래시 — HYPHEN 로고 · 자동 전환 대기"),
-        ("common_02_intro_board", "인트로① 수업 보드 — 코치가 올린 수업 내용 + 체육관 공지"),
-        ("common_03_intro_earn", "인트로② 레벨 · 업적 — 마지막 장, CTA '시작'"),
         ("common_05_signup", "로그인 — 아이디 · 회원 가입 신청 (소셜은 키 대기로 숨김)"),
         ("common_06_self_signup", "가입 신청① — 이름 · 생년월일 · 성별 · 연락처"),
         ("common_07_self_signup_scrolled",
@@ -138,13 +137,18 @@ HEAD = """<!doctype html>
 <body>
 """
 
+# 장수는 SECTIONS 에서 계산 — 숫자 하드코딩이 실제 장수와 어긋나던 것을 차단 (§0-B).
+def _total_count() -> int:
+    return sum(len(items) for _, _, items in SECTIONS)
+
+
 NOTE = ("골든 테스트(flutter test --update-goldens test/golden) 산출물 — 실제 앱 위젯을 "
         "가짜 백엔드(test/golden/fakes.dart)로 렌더한 실물 픽셀입니다 (갤S22 급 360×780·2x). "
         "데이터는 샘플입니다. UI 를 바꾸면 --update-goldens 재실행 후 이 갤러리를 다시 생성하세요. "
-        "여기 실린 41장은 **지금 회원·코치가 실제로 도달할 수 있는 화면**만 남긴 것입니다 "
-        "(2026-08-19 전 화면 확장 — 예약·상세·쪽지·업적·계약·목표·FAQ·약관·코치 셸 2탭·"
-        "날짜 선택까지). 진입점이 사라진 화면은 갤러리에서 뺐습니다 — 페이싱 계산기, "
-        "Benchmarks·Tier 결과, 인트로 TIER 장. 양식 정본 docs/DESIGN-SSOT.md.")
+        f"여기 실린 {_total_count()}장은 **지금 회원·코치가 실제로 도달할 수 있는 화면**만 "
+        "남긴 것입니다 (2026-08-19 전 화면 확장 — 예약·상세·쪽지·업적·계약·목표·FAQ·약관·"
+        "코치 셸 2탭·날짜 선택까지). 진입점이 사라진 화면은 갤러리에서 뺐습니다 — 페이싱 "
+        "계산기, Benchmarks·Tier 결과, 인트로. 양식 정본 docs/DESIGN-SSOT.md.")
 
 SCRIPT = """<script>
   const btns = document.querySelectorAll('aside nav button');

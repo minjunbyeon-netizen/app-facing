@@ -103,7 +103,8 @@ class _SplashScreenState extends State<SplashScreen>
   /// boss 세션 살아있으면 → /boss/dashboard 직행.
   /// 아니면 기존 회원·코치 플로우.
   /// v2.3 (2026-08-12 사용자 지시): 첫 실행 인트로 3장을 없앴다. 앱을 켜면
-  /// 로그인 화면이 바로 뜬다 (`/intro` 화면·라우트는 보존 — 진입만 끊음).
+  /// 로그인 화면이 바로 뜬다. v3.3 (2026-08-21 사용자 지시): 남겨 뒀던
+  /// 인트로 화면·라우트 코드도 삭제 (README §제거된 기능 대장).
   /// 등급(Tier) 유무로 온보딩에 붙잡아 두던 분기도 뺐다. 성별·경력은 가입
   /// 직후 한 번만 묻고, 이미 로그인한 사람은 언제나 홈으로 들어간다.
   void _onStart() {
@@ -137,14 +138,15 @@ class _SplashScreenState extends State<SplashScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Spacer(),
+              // v3.3 (2026-08-21 사용자 지시): 세로 중앙 → 고정 오프셋.
+              // 로그인 화면과 로고 자리가 같아 전환 때 로고가 뛰지 않는다 (§6).
+              const HkEntryLogoGap(),
               // v1.27 (2026-07-28): 텍스트 워드마크 → HYPHEN 로고 (BrandLogo).
               // v1.29: 로고 폭 = 기본 220 (진입 화면 통일, DESIGN-SSOT §6).
               _fadeSlide(
                 0,
                 const Center(child: BrandLogo()),
               ),
-              const SizedBox(height: HyphenTokens.sp5),
               const Spacer(),
               // v2.3 (2026-08-12 사용자 지시): 하단 명언 카드 삭제.
               // 로딩 화면에 뜻 모를 영문 문구가 붙어 있어 로고·로더만 남긴다.
