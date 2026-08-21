@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/achievement.dart';
+import '../../widgets/mascot.dart';
 import 'confetti_overlay.dart';
 
 /// v1.16: unlock 순간 알림. 이모지 없음. 여러 건이면 스택 (0.5초 간격).
@@ -54,16 +55,21 @@ class UnlockToast {
         ),
         content: Row(
           children: [
-            // v3.3: 기본 픽토그램 (데모용 트로피) — 등급색 원형 배지.
-            Container(
-              width: 28,
-              height: 28,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.14),
-                borderRadius: BorderRadius.circular(HyphenTokens.r1),
+            // 2026-08-21 — 캐릭터 슬롯. 축하 마스코트가 준비되면 그걸 쓰고,
+            // 아직이면 기존 트로피 배지를 그대로 쓴다 (경로 판단은 SSOT 한 곳).
+            if (HyphenMascot.has(MascotMood.celebrate))
+              const HyphenMascot(mood: MascotMood.celebrate, size: 32)
+            else
+              Container(
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(HyphenTokens.r1),
+                ),
+                child:
+                    Icon(Icons.emoji_events_outlined, size: 18, color: color),
               ),
-              child: Icon(Icons.emoji_events_outlined, size: 18, color: color),
-            ),
             const SizedBox(width: HyphenTokens.sp3),
             Expanded(
               child: Text(

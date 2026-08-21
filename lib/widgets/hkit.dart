@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import '../core/exception.dart';
 import '../core/theme.dart';
 import 'brand_logo.dart';
+import 'mascot.dart';
 
 /// 버튼 위계 3단 — **누르는 것의 유일 규격** (v2.2 · 2026-08-12 가시성 개편 지시).
 ///
@@ -681,5 +682,72 @@ class HkSocialButton extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+
+/// 스낵바 SSOT — 앱의 짧은 알림은 전부 이 창구로 낸다 (2026-08-21 신설).
+///
+/// 왜 필요했나: 스낵바가 화면마다 `ScaffoldMessenger...showSnackBar(SnackBar(...))`
+/// 로 흩어져 있어(24개 파일) 모양·노출시간이 제각각이고, 캐릭터를 넣으려면
+/// 전부를 따로 고쳐야 했다. 여기 하나로 모아 캐릭터 슬롯도 한 곳에만 둔다.
+///
+/// 캐릭터는 [MascotMood.cheer] 에셋이 도착하면 자동으로 붙는다 — 호출부는
+/// `mood` 만 넘기고 경로·존재 판단은 [HyphenMascot] SSOT 가 한다.
+class HkSnack {
+  HkSnack._();
+
+  /// 일반 알림. [mood] 를 주면 캐릭터가 준비된 순간부터 함께 뜬다.
+  static void show(
+    BuildContext context,
+    String message, {
+    MascotMood? mood,
+    Duration duration = const Duration(seconds: 2),
+  }) {
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    if (messenger == null) return;
+    final showMascot = mood != null && HyphenMascot.has(mood);
+    messenger.showSnackBar(SnackBar(
+      duration: duration,
+      backgroundColor: HyphenTokens.surface,
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(HyphenTokens.r2),
+        side: const BorderSide(color: HyphenTokens.border, width: 1),
+      ),
+      content: Row(
+        children: [
+          if (showMascot) ...[
+            HyphenMascot(mood: mood, size: 32),
+            const SizedBox(width: HyphenTokens.sp3),
+          ],
+          Expanded(
+            child: Text(
+              message,
+              style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
+            ),
+          ),
+        ],
+      ),
+    ));
+  }
+
+  /// 실패 알림 — 캐릭터를 붙이지 않는다 (에러에 축하 캐릭터는 톤이 어긋난다).
+  static void error(BuildContext context, String message) {
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    if (messenger == null) return;
+    messenger.showSnackBar(SnackBar(
+      duration: const Duration(seconds: 3),
+      backgroundColor: HyphenTokens.surface,
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(HyphenTokens.r2),
+        side: const BorderSide(color: HyphenTokens.danger, width: 1),
+      ),
+      content: Text(
+        message,
+        style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
+      ),
+    ));
   }
 }

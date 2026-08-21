@@ -66,7 +66,9 @@ flutter:
 
   assets:
     - assets/images/
-    - assets/images/character/
+    # assets/images/character/ 제거 (2026-08-21) — 구 mascot.png 폐기.
+    # 새 캐릭터 에셋이 도착하면 이 줄만 되살리고 lib/widgets/mascot.dart 의
+    # _assets 맵 한 곳을 채우면 온보딩·스낵바·업적·홈 슬롯이 동시에 살아난다.
     - assets/textures/
     # assets/icons/ 제거 (v1.27) — 스틱맨 svg 폐기로 빈 폴더
     - assets/data/rehab/

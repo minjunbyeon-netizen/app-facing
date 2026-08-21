@@ -23,6 +23,7 @@ import '../../models/announcement.dart';
 import '../announcements/announcements_state.dart';
 import '../profile/profile_state.dart';
 import '../../core/app_clock.dart';
+import '../../widgets/mascot.dart';
 
 /// v1.23 (2026-06-02) 재배치 Phase 3: Attend 의 게이미피케이션을 Home 으로 이관.
 /// Home = LEVEL(캐릭터 진화) + ACHIEVEMENTS(업적 그리드) + MILESTONES(3종 진행바).
@@ -427,24 +428,20 @@ class _LevelCard extends StatelessWidget {
     required this.prCount,
   });
 
-  /// 레벨대별 캐릭터 진화. lv2/lv3 자산 없으면 mascot.png 폴백.
-  String _mascotForLevel(int level) {
-    if (level >= 41) return 'assets/images/character/mascot_lv5.png';
-    if (level >= 31) return 'assets/images/character/mascot_lv4.png';
-    if (level >= 21) return 'assets/images/character/mascot_lv3.png';
-    if (level >= 11) return 'assets/images/character/mascot_lv2.png';
-    return 'assets/images/character/mascot.png';
-  }
-
-  static const String _mascotFallback = 'assets/images/character/mascot.png';
-
-  /// 레벨대별 캐릭터 강조 색 — 회색 → 흰 → 탠 (5 단계).
+  /// 레벨대별 캐릭터 강조 색 — 회색 → 본문색 → 탠 (5 단계).
+  /// 구간 판정은 [HyphenMascot.tierOfLevel] 하나만 쓴다 — 경계 숫자(11·21·31·41)를
+  /// 여기에 다시 적으면 마스코트와 색이 따로 노는 이원화가 된다 (2026-08-21).
   Color _colorForLevel(int level) {
-    if (level >= 41) return HyphenTokens.accent;
-    if (level >= 31) return HyphenTokens.accent;
-    if (level >= 21) return HyphenTokens.fg;
-    if (level >= 11) return HyphenTokens.fg;
-    return HyphenTokens.muted;
+    switch (HyphenMascot.tierOfLevel(level)) {
+      case 5:
+      case 4:
+        return HyphenTokens.accent;
+      case 3:
+      case 2:
+        return HyphenTokens.fg;
+      default:
+        return HyphenTokens.muted;
+    }
   }
 
   /// 레벨대별 격려 한 줄. 친근한 톤.
@@ -506,25 +503,26 @@ class _LevelCard extends StatelessWidget {
             children: [
               // 캐릭터 — 연분홍 면·반투명 컬러 보더를 걷고 중립 면 + 1px.
               // 레벨대 색은 테두리 한 곳에만 남겨 강조를 분산시키지 않는다.
-              Container(
-                width: 88,
-                height: 88,
-                decoration: BoxDecoration(
-                  color: HyphenTokens.surfaceAlt,
-                  borderRadius: BorderRadius.circular(HyphenTokens.r2),
-                  border: Border.all(color: charColor, width: 1),
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: Image.asset(
-                  _mascotForLevel(bd.level),
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, _, _) => Image.asset(
-                    _mascotFallback,
-                    fit: BoxFit.cover,
+              // 2026-08-21: 캐릭터 에셋 미도착이면 아바타 상자째 접는다 —
+              // 빈 네모만 남기지 않기 위해 슬롯 자체를 조건부로 연다.
+              if (HyphenMascot.has(MascotMood.level, level: bd.level)) ...[
+                Container(
+                  width: 88,
+                  height: 88,
+                  decoration: BoxDecoration(
+                    color: HyphenTokens.surfaceAlt,
+                    borderRadius: BorderRadius.circular(HyphenTokens.r2),
+                    border: Border.all(color: charColor, width: 1),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: HyphenMascot(
+                    mood: MascotMood.level,
+                    level: bd.level,
+                    size: 88,
                   ),
                 ),
-              ),
-              const SizedBox(width: HyphenTokens.sp4),
+                const SizedBox(width: HyphenTokens.sp4),
+              ],
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
