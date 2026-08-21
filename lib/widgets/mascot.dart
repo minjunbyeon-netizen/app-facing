@@ -71,3 +71,59 @@ class HyphenMascot extends StatelessWidget {
     );
   }
 }
+
+/// 스플래시 등장 연출용 전신 액션. 스낵바 표정([MascotMood])과 별개다 —
+/// 저쪽은 "성격 3종을 전 화면이 돌려 쓴다", 이쪽은 "한 번에 다 나오는 한 벌"이다.
+/// 값·순서 정본 = `docs/SPLASH-INTRO-HANDOFF.md` (2026-08-21 대표 확정).
+enum HypeeAction {
+  hesitate,
+  stretch,
+  jumprope,
+  kettlebell,
+  battlerope,
+  wallball,
+  boxjump,
+  rest,
+  scale,
+  thumbsup,
+  cheer,
+}
+
+class HypeeActions {
+  const HypeeActions._();
+
+  /// 등장 순서 = 운동 하루의 흐름 (망설임 → 준비 → 운동 → 휴식 → 결과 → 환호).
+  /// 마지막 cheer 가 카드 덱 맨 앞에 선다 — 순서를 바꾸면 이야기가 깨진다.
+  static const List<HypeeAction> introSequence = [
+    HypeeAction.hesitate,
+    HypeeAction.stretch,
+    HypeeAction.jumprope,
+    HypeeAction.kettlebell,
+    HypeeAction.battlerope,
+    HypeeAction.wallball,
+    HypeeAction.boxjump,
+    HypeeAction.rest,
+    HypeeAction.scale,
+    HypeeAction.thumbsup,
+    HypeeAction.cheer,
+  ];
+
+  static const Map<HypeeAction, String> _assets = {
+    HypeeAction.hesitate: 'assets/character/action/hypee_hesitate.webp',
+    HypeeAction.stretch: 'assets/character/action/hypee_stretch.webp',
+    HypeeAction.jumprope: 'assets/character/action/hypee_jumprope.webp',
+    HypeeAction.kettlebell: 'assets/character/action/hypee_kettlebell.webp',
+    HypeeAction.battlerope: 'assets/character/action/hypee_battlerope.webp',
+    HypeeAction.wallball: 'assets/character/action/hypee_wallball.webp',
+    HypeeAction.boxjump: 'assets/character/action/hypee_boxjump.webp',
+    HypeeAction.rest: 'assets/character/action/hypee_rest.webp',
+    HypeeAction.scale: 'assets/character/action/hypee_scale.webp',
+    HypeeAction.thumbsup: 'assets/character/action/hypee_thumbsup.webp',
+    HypeeAction.cheer: 'assets/character/action/hypee_cheer.webp',
+  };
+
+  static String assetFor(HypeeAction a) => _assets[a]!;
+
+  /// 그림이 실제로 번들에 들어왔는지 (에셋 누락 시 연출을 통째로 접는 판단용).
+  static bool get ready => _assets.length == HypeeAction.values.length;
+}

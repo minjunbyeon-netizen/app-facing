@@ -24,6 +24,17 @@
 
 한 장만 줘도 된다 — 있는 것만 그 자리에 나오고, 없는 자리는 조용히 접힌다.
 
+## action/ 하위 폴더는 별개다 (스플래시 연출용)
+
+`assets/character/action/` 에는 **전신 액션 11종**(hesitate·stretch·jumprope·
+kettlebell·battlerope·wallball·boxjump·rest·scale·thumbsup·cheer)이 들어 있다.
+스플래시에서 카드로 쌓이는 등장 연출 전용이라, 위의 "3장이면 끝" 규칙과 성격이
+다르다 — 저쪽은 성격 3종을 전 화면이 돌려 쓰고, 이쪽은 한 번에 다 나오는 한 벌이다.
+
+- 순서·파라미터 정본 = `docs/SPLASH-INTRO-HANDOFF.md`
+- 경로 매핑 = `lib/widgets/mascot.dart` 의 `HypeeActions` (여기 밖에 경로를 적지 않는다)
+- 2.0x·3.0x 배율본이 함께 있다 (Flutter 자동 인식)
+
 ## 그림 조건
 
 1. **배경 없는 PNG** (투명). 배경이 박힌 그림은 화면 어디에 놔도 네모가 보인다

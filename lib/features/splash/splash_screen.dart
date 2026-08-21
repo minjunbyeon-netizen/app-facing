@@ -9,6 +9,7 @@ import '../../core/notification_service.dart';
 import '../../core/theme.dart';
 import '../../widgets/brand_logo.dart';
 import '../../widgets/hkit.dart';
+import '../../widgets/hypee_intro.dart';
 import '../auth/auth_state.dart';
 import '../boss/boss_auth_state.dart';
 
@@ -147,7 +148,12 @@ class _SplashScreenState extends State<SplashScreen>
                 0,
                 const Center(child: BrandLogo()),
               ),
-              const Spacer(),
+              // v3.7 (2026-08-21 대표 확정): HYPEE 전신 액션 11장이 카드로 쌓이는
+              // 등장 연출. **앱을 켤 때마다** 재생한다 (1회 플래그 없음).
+              // 1100ms < AppKit.splashMin 2500ms 라 체감 지연 0.
+              // 자기 컨트롤러를 갖고 있어 위 6슬롯 Interval 과 얽히지 않는다.
+              // 값·순서 정본 = docs/SPLASH-INTRO-HANDOFF.md (감으로 고치지 말 것)
+              const Expanded(child: HypeeIntroDeck()),
               // v2.3 (2026-08-12 사용자 지시): 하단 명언 카드 삭제.
               // 로딩 화면에 뜻 모를 영문 문구가 붙어 있어 로고·로더만 남긴다.
               // QuoteCard 위젯 자체는 등급 결과·계산 로딩에서 계속 쓴다.
