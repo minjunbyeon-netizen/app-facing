@@ -6,6 +6,7 @@
 // 읽음: stripe muted + 보통 폰트.
 
 import 'dart:async';
+import '../../widgets/hkit.dart';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -940,9 +941,7 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
       _reload();
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('전송 실패. 다시 시도.')),
-        );
+        HkSnack.error(context, '전송 실패. 다시 시도.');
       }
     } finally {
       if (mounted) setState(() => _sending = false);

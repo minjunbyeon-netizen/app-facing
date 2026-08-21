@@ -692,20 +692,38 @@ class HkSocialButton extends StatelessWidget {
 /// 로 흩어져 있어(24개 파일) 모양·노출시간이 제각각이고, 캐릭터를 넣으려면
 /// 전부를 따로 고쳐야 했다. 여기 하나로 모아 캐릭터 슬롯도 한 곳에만 둔다.
 ///
-/// 캐릭터는 [MascotMood.cheer] 에셋이 도착하면 자동으로 붙는다 — 호출부는
-/// `mood` 만 넘기고 경로·존재 판단은 [HyphenMascot] SSOT 가 한다.
+/// 캐릭터는 표정 3종(happy·sad·neutral)을 성격별로 돌려 쓴다 — 완료는 happy,
+/// 실패는 sad, 안내는 neutral. 경로·존재 판단은 [HyphenMascot] SSOT 가 한다.
 class HkSnack {
-  HkSnack._();
+  const HkSnack._(this._messenger);
 
-  /// 일반 알림. [mood] 를 주면 캐릭터가 준비된 순간부터 함께 뜬다.
-  static void show(
-    BuildContext context,
+  final ScaffoldMessengerState _messenger;
+
+  /// 비동기 작업 **전에** 미리 잡아 두는 손잡이. `await` 뒤에 context 를 다시
+  /// 쓰면 위험하므로(화면이 이미 닫혔을 수 있다) 기존 코드가
+  /// `final messenger = ScaffoldMessenger.of(context)` 로 잡아 두던 자리를
+  /// 이것으로 바꾼다 — 같은 안전성에 캐릭터 슬롯만 얹힌다.
+  static HkSnack of(BuildContext context) =>
+      HkSnack._(ScaffoldMessenger.of(context));
+
+  /// 손잡이로 내는 일반 알림.
+  void info(String message, {MascotMood? mood, Duration? duration}) =>
+      _emit(_messenger, message,
+          mood: mood, duration: duration ?? const Duration(seconds: 2));
+
+  /// 손잡이로 내는 실패 알림.
+  void fail(String message) => _emit(_messenger, message,
+      mood: MascotMood.sad,
+      duration: const Duration(seconds: 3),
+      danger: true);
+
+  static void _emit(
+    ScaffoldMessengerState messenger,
     String message, {
     MascotMood? mood,
-    Duration duration = const Duration(seconds: 2),
+    required Duration duration,
+    bool danger = false,
   }) {
-    final messenger = ScaffoldMessenger.maybeOf(context);
-    if (messenger == null) return;
     final showMascot = mood != null && HyphenMascot.has(mood);
     messenger.showSnackBar(SnackBar(
       duration: duration,
@@ -713,7 +731,10 @@ class HkSnack {
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(HyphenTokens.r2),
-        side: const BorderSide(color: HyphenTokens.border, width: 1),
+        side: BorderSide(
+          color: danger ? HyphenTokens.danger : HyphenTokens.border,
+          width: 1,
+        ),
       ),
       content: Row(
         children: [
@@ -732,22 +753,25 @@ class HkSnack {
     ));
   }
 
-  /// 실패 알림 — 캐릭터를 붙이지 않는다 (에러에 축하 캐릭터는 톤이 어긋난다).
+  /// 일반 알림. [mood] 를 주면 캐릭터가 준비된 순간부터 함께 뜬다.
+  static void show(
+    BuildContext context,
+    String message, {
+    MascotMood? mood,
+    Duration duration = const Duration(seconds: 2),
+  }) {
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    if (messenger == null) return;
+    _emit(messenger, message, mood: mood, duration: duration);
+  }
+
+  /// 실패 알림 — 우는 표정(sad)을 쓴다. 웃는 캐릭터는 절대 붙이지 않는다.
   static void error(BuildContext context, String message) {
     final messenger = ScaffoldMessenger.maybeOf(context);
     if (messenger == null) return;
-    messenger.showSnackBar(SnackBar(
-      duration: const Duration(seconds: 3),
-      backgroundColor: HyphenTokens.surface,
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(HyphenTokens.r2),
-        side: const BorderSide(color: HyphenTokens.danger, width: 1),
-      ),
-      content: Text(
-        message,
-        style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
-      ),
-    ));
+    _emit(messenger, message,
+        mood: MascotMood.sad,
+        duration: const Duration(seconds: 3),
+        danger: true);
   }
 }

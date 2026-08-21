@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../widgets/mascot.dart';
 
 import '../../core/api_client.dart';
 import '../../core/exception.dart';
@@ -19,22 +20,14 @@ Future<bool> reserveClassFlow(
   ClassSessionDto c,
 ) async {
   Haptic.medium();
-  final messenger = ScaffoldMessenger.of(context);
+  final messenger = HkSnack.of(context);
   try {
     final result = await repo.reserve(c.id);
     final status = (result['status'] ?? '').toString();
-    messenger.showSnackBar(SnackBar(
-      content: Text(status == 'waitlisted'
-          ? '대기열 ${result['position']}번 등록.'
-          : '예약 완료.'),
-      duration: const Duration(seconds: 2),
-    ));
+    messenger.info(status == 'waitlisted' ? '대기열 ${result['position']}번 등록.' : '예약 완료.', mood: MascotMood.happy);
     return true;
   } on AppException catch (e) {
-    messenger.showSnackBar(SnackBar(
-      content: Text(e.messageKo),
-      duration: const Duration(seconds: 3),
-    ));
+    messenger.fail(e.messageKo);
     return false;
   }
 }
@@ -74,19 +67,13 @@ Future<bool> cancelClassFlow(
   );
   if (ok != true || !context.mounted) return false;
   Haptic.medium();
-  final messenger = ScaffoldMessenger.of(context);
+  final messenger = HkSnack.of(context);
   try {
     await repo.cancel(res.reservationId);
-    messenger.showSnackBar(const SnackBar(
-      content: Text('예약 취소.'),
-      duration: Duration(seconds: 2),
-    ));
+    messenger.info('예약 취소.', mood: MascotMood.happy);
     return true;
   } on AppException catch (e) {
-    messenger.showSnackBar(SnackBar(
-      content: Text(e.messageKo),
-      duration: const Duration(seconds: 3),
-    ));
+    messenger.fail(e.messageKo);
     return false;
   }
 }

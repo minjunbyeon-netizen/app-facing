@@ -7,6 +7,7 @@ import '../../core/haptic.dart';
 import '../../core/shell_nav_bus.dart';
 import '../../core/theme.dart';
 import '../../widgets/hkit.dart';
+import '../../widgets/mascot.dart';
 import '../auth/auth_state.dart';
 import '../gym/box_wod_screen.dart';
 import '../gym/gym_repository.dart';
@@ -136,13 +137,8 @@ class _MainShellState extends State<MainShell> {
             now.difference(_lastBackPress!).inSeconds >= 2) {
           _lastBackPress = now;
           ScaffoldMessenger.of(context).clearSnackBars();
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('한 번 더 누르면 앱이 종료됩니다.'),
-              duration: Duration(seconds: 2),
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+          HkSnack.show(context, '한 번 더 누르면 앱이 종료됩니다.',
+              mood: MascotMood.neutral);
           return;
         }
         SystemNavigator.pop();
@@ -241,12 +237,7 @@ class _PendingGateState extends State<_PendingGate> {
     setState(() => _checking = false);
     // 아직 pending 이면 이 화면이 그대로 다시 그려진다 — 헛걸음이 아님을 알려준다.
     if (context.read<GymState>().membership.isPending) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('아직 승인 전입니다.'),
-          duration: Duration(seconds: 2),
-        ),
-      );
+      HkSnack.show(context, '아직 승인 전입니다.', mood: MascotMood.neutral);
     }
   }
 

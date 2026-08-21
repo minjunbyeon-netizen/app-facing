@@ -3,6 +3,8 @@
 // BoxProfileScreen "COACHES" 카드 → 코치 행 탭 → 이 화면 진입.
 
 import 'package:flutter/material.dart';
+import '../../widgets/hkit.dart';
+import '../../widgets/mascot.dart';
 
 import '../../core/theme.dart';
 import '../../models/coach_profile.dart';
@@ -187,9 +189,7 @@ class _PtBookCard extends StatelessWidget {
               ),
               onPressed: () {
                 // TODO(v1.16.2): PT 예약 흐름 연결 (별도 작업)
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('PT 예약 — 준비 중.')),
-                );
+                HkSnack.show(context, 'PT 예약 — 준비 중.', mood: MascotMood.neutral);
               },
               child: const Text('PT 예약'),
             ),

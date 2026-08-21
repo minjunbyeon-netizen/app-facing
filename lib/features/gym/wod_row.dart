@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../widgets/mascot.dart';
 
 import '../../core/api_client.dart';
 import '../../core/haptic.dart';
@@ -458,14 +459,10 @@ class _MsgCoachSheetState extends State<_MsgCoachSheet> {
       );
       if (!mounted) return;
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('코치에게 전송됨.')),
-      );
+      HkSnack.show(context, '코치에게 전송됨.', mood: MascotMood.happy);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('전송 실패. 다시 시도.')),
-      );
+      HkSnack.error(context, '전송 실패. 다시 시도.');
     } finally {
       if (mounted) setState(() => _sending = false);
     }

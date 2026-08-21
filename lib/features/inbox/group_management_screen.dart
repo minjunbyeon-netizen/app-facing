@@ -52,7 +52,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
     final selectedDays = <int>{};
     final gym = context.read<GymState>().membership.gym;
     final repo = context.read<InboxRepository>();
-    final messenger = ScaffoldMessenger.of(context);
+    final messenger = HkSnack.of(context);
     if (gym == null) {
       nameCtrl.dispose();
       descCtrl.dispose();
@@ -176,36 +176,28 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
     if (ok != true) return;
     final name = nameCtrl.text.trim();
     if (name.isEmpty) {
-      messenger.showSnackBar(
-        const SnackBar(content: Text('그룹 이름 필요.')),
-      );
+      messenger.fail('그룹 이름 필요.');
       return;
     }
     // v1.19 차수 5 fix (B-IN-3,4,6): time/capacity/color 형식 검증.
     final timeText = timeCtrl.text.trim();
     if (timeText.isNotEmpty &&
         !RegExp(r'^([01]\d|2[0-3]):[0-5]\d$').hasMatch(timeText)) {
-      messenger.showSnackBar(
-        const SnackBar(content: Text('시간 형식 오류 (HH:MM).')),
-      );
+      messenger.fail('시간 형식 오류 (HH:MM).');
       return;
     }
     final capText = capCtrl.text.trim();
     if (capText.isNotEmpty) {
       final cap = int.tryParse(capText);
       if (cap == null || cap <= 0) {
-        messenger.showSnackBar(
-          const SnackBar(content: Text('정원은 양수만.')),
-        );
+        messenger.fail('정원은 양수만.');
         return;
       }
     }
     final colorText = colorCtrl.text.trim();
     if (colorText.isNotEmpty &&
         !RegExp(r'^#[0-9A-Fa-f]{6}$').hasMatch(colorText)) {
-      messenger.showSnackBar(
-        const SnackBar(content: Text('색상 형식 오류 (#RRGGBB).')),
-      );
+      messenger.fail('색상 형식 오류 (#RRGGBB).');
       return;
     }
     try {
@@ -223,9 +215,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
       if (!mounted) return;
       _reload();
     } on AppException catch (e) {
-      messenger.showSnackBar(
-        SnackBar(content: Text('생성 실패: ${e.messageKo}')),
-      );
+      messenger.fail('생성 실패: ${e.messageKo}');
     }
     } finally {
       nameCtrl.dispose();
@@ -243,7 +233,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
     final hashCtrl = TextEditingController();
     final gym = context.read<GymState>().membership.gym;
     final repo = context.read<InboxRepository>();
-    final messenger = ScaffoldMessenger.of(context);
+    final messenger = HkSnack.of(context);
     if (gym == null) {
       hashCtrl.dispose();
       return;
@@ -296,9 +286,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
     final h = hashCtrl.text.trim();
     // v1.19 차수 5 (B-IN-5): hex 형식 + 길이 검증.
     if (h.length < 8 || !RegExp(r'^[a-f0-9]+$').hasMatch(h)) {
-      messenger.showSnackBar(
-        const SnackBar(content: Text('Hash 형식 오류 (hex 8자 이상).')),
-      );
+      messenger.fail('Hash 형식 오류 (hex 8자 이상).');
       return;
     }
     try {
@@ -311,9 +299,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
       if (!mounted) return;
       _reload();
     } on AppException catch (e) {
-      messenger.showSnackBar(
-        SnackBar(content: Text('추가 실패: ${e.messageKo}')),
-      );
+      messenger.fail('추가 실패: ${e.messageKo}');
     }
     } finally {
       hashCtrl.dispose();

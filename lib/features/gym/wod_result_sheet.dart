@@ -20,6 +20,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../widgets/mascot.dart';
 
 import '../../core/api_client.dart';
 import '../../core/exception.dart';
@@ -171,7 +172,7 @@ class _WodResultSheetState extends State<WodResultSheet> {
     final repo = context.read<GymRepository>();
     final api = context.read<ApiClient>();
     final bus = context.read<WodSessionBus>();
-    final messenger = ScaffoldMessenger.of(context);
+    final messenger = HkSnack.of(context);
     final navigator = Navigator.of(context);
 
     final timeSec = _isForTime ? _parseTime(_timeCtrl.text) : null;
@@ -246,11 +247,10 @@ class _WodResultSheetState extends State<WodResultSheet> {
           ? '저장됨 · 출석 +1 · +${res.pointsAwarded}P'
           : '저장됨 · 출석 +1';
       final msg = res.comparisonMessage;
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(msg == null ? base : '$base\n$msg'),
-          duration: Duration(seconds: msg == null ? 2 : 3),
-        ),
+      messenger.info(
+        msg == null ? base : '$base\n$msg',
+        mood: MascotMood.happy,
+        duration: Duration(seconds: msg == null ? 2 : 3),
       );
     } on AppException catch (e) {
       if (!mounted) return;

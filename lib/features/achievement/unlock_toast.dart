@@ -57,8 +57,8 @@ class UnlockToast {
           children: [
             // 2026-08-21 — 캐릭터 슬롯. 축하 마스코트가 준비되면 그걸 쓰고,
             // 아직이면 기존 트로피 배지를 그대로 쓴다 (경로 판단은 SSOT 한 곳).
-            if (HyphenMascot.has(MascotMood.celebrate))
-              const HyphenMascot(mood: MascotMood.celebrate, size: 32)
+            if (HyphenMascot.has(MascotMood.happy))
+              const HyphenMascot(mood: MascotMood.happy, size: 32)
             else
               Container(
                 width: 28,

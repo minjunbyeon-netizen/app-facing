@@ -5,6 +5,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../widgets/mascot.dart';
 
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
@@ -54,7 +55,7 @@ class _ChallengeSectionState extends State<ChallengeSection> {
     final noteCtrl = TextEditingController();
     final repo = context.read<GymRepository>();
     final achState = context.read<AchievementState>();
-    final messenger = ScaffoldMessenger.of(context);
+    final messenger = HkSnack.of(context);
     try {
       await showModalBottomSheet<void>(
         context: context,
@@ -100,14 +101,7 @@ class _ChallengeSectionState extends State<ChallengeSection> {
                       if (!ctx.mounted) return;
                       Navigator.of(ctx).pop();
                       final granted = res.grantedRules.isNotEmpty;
-                      messenger.showSnackBar(SnackBar(
-                        content: Text(res.status == 'approved'
-                            ? (granted
-                                ? '인증 완료 · 조건 충족 — 보상 지급'
-                                : '인증 완료')
-                            : '인증 접수 — 코치 승인 대기'),
-                        duration: const Duration(seconds: 2),
-                      ));
+                      messenger.info(res.status == 'approved' ? (granted ? '인증 완료 · 조건 충족 — 보상 지급' : '인증 완료') : '인증 접수 — 코치 승인 대기', mood: MascotMood.happy);
                       // 즉시 지급(자동 인정)이면 업적 해금 diff → 토스트·컨페티.
                       if (granted) {
                         achState.check(throttle: false);
@@ -116,14 +110,11 @@ class _ChallengeSectionState extends State<ChallengeSection> {
                     } on AppException catch (e) {
                       if (!ctx.mounted) return;
                       Navigator.of(ctx).pop();
-                      messenger.showSnackBar(
-                        SnackBar(content: Text(e.messageKo)),
-                      );
+                      messenger.fail(e.messageKo);
                     } catch (_) {
                       if (!ctx.mounted) return;
                       Navigator.of(ctx).pop();
-                      messenger.showSnackBar(const SnackBar(
-                          content: Text('인증 실패. 다시 시도.')));
+                      messenger.fail('인증 실패. 다시 시도.');
                     }
                 },
               ),

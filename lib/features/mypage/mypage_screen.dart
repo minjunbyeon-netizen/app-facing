@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../widgets/mascot.dart';
 
 import '../../core/api_client.dart';
 import '../../core/app_mode.dart';
@@ -305,12 +306,7 @@ class _MyBoxSection extends StatelessWidget {
     final success = await gs.leaveGym();
     if (!context.mounted) return;
     if (!success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(gs.error ?? 'Leave failed.'),
-          duration: const Duration(seconds: 3),
-        ),
-      );
+      HkSnack.error(context, gs.error ?? 'Leave failed.');
       return;
     }
     // v2.6 (2026-08-13): 탈퇴 후 '박스 찾기'로 보내지 않는다 — 박스는 하나뿐이라
@@ -761,12 +757,7 @@ class _ModeRowState extends State<_ModeRow> {
       _mode = m;
       _saving = false;
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Mode → ${_label(m)}'),
-        duration: const Duration(seconds: 2),
-      ),
-    );
+    HkSnack.show(context, 'Mode → ${_label(m)}', mood: MascotMood.neutral);
   }
 
   String _label(AppMode m) => switch (m) {

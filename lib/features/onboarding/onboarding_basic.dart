@@ -137,9 +137,9 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
           children: [
             // 2026-08-21 — 환영 캐릭터 슬롯. 에셋 도착 전엔 통째로 접혀
             // 지금 화면(글자 폼)과 동일하다. 경로 판단은 HyphenMascot SSOT.
-            if (HyphenMascot.has(MascotMood.welcome)) ...[
+            if (HyphenMascot.has(MascotMood.happy)) ...[
               const Center(
-                child: HyphenMascot(mood: MascotMood.welcome, size: 120),
+                child: HyphenMascot(mood: MascotMood.happy, size: 120),
               ),
               const SizedBox(height: HyphenTokens.sp4),
             ],

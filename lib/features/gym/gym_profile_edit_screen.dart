@@ -3,6 +3,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../widgets/hkit.dart';
+import '../../widgets/mascot.dart';
 
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
@@ -63,14 +65,10 @@ class _GymProfileEditScreenState extends State<GymProfileEditScreen> {
     if (!mounted) return;
     setState(() => _saving = false);
     if (ok) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('프로필 저장 완료.')),
-      );
+      HkSnack.show(context, '프로필 저장 완료.', mood: MascotMood.happy);
       Navigator.of(context).pop(true);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(gs.error ?? 'Save failed.')),
-      );
+      HkSnack.error(context, gs.error ?? 'Save failed.');
     }
   }
 

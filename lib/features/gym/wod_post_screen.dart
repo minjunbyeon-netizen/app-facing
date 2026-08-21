@@ -52,9 +52,7 @@ class _WodPostScreenState extends State<WodPostScreen> {
     // todayWods는 "오늘" 필터로 loadMine 하지만 실제로는 전체 최근 WOD를 가져오도록 loadMine 구조 필요.
     // 간소 구현: 가장 최근 WOD 1개를 복제.
     if (yestWods.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('복제할 기존 수업 내용 없음.')),
-      );
+      HkSnack.error(context, '복제할 기존 수업 내용 없음.');
       return;
     }
     final w = yestWods.first;
@@ -67,12 +65,7 @@ class _WodPostScreenState extends State<WodPostScreen> {
         _timeCapCtrl.text = '${(w.timeCapSec! / 60).round()}';
       }
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('이전 수업 내용 복제. 필요 시 수정 후 게시.'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+    HkSnack.error(context, '이전 수업 내용 복제. 필요 시 수정 후 게시.');
   }
 
   String get _dateIso =>
@@ -81,9 +74,7 @@ class _WodPostScreenState extends State<WodPostScreen> {
   Future<void> _submit() async {
     final content = _contentCtrl.text.trim();
     if (content.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('수업 내용 필수.')),
-      );
+      HkSnack.error(context, '수업 내용 필수.');
       return;
     }
     setState(() => _submitting = true);
@@ -127,9 +118,7 @@ class _WodPostScreenState extends State<WodPostScreen> {
     if (ok) {
       Navigator.of(context).pop();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.read<GymState>().error ?? '게시 실패')),
-      );
+      HkSnack.error(context, context.read<GymState>().error ?? '게시 실패');
     }
   }
 

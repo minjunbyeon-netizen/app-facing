@@ -54,7 +54,7 @@ class _SignupScreenState extends State<SignupScreen> {
     final auth = context.read<AuthState>();
     final profile = context.read<ProfileState>();
     final social = resolveSocialAuthService(context.read<ApiClient>());
-    final messenger = ScaffoldMessenger.of(context);
+    final messenger = HkSnack.of(context);
     final navigator = Navigator.of(context);
     try {
       final result = await social.signIn(provider);
@@ -64,13 +64,11 @@ class _SignupScreenState extends State<SignupScreen> {
     } on SocialAuthException catch (e) {
       if (!mounted) return;
       setState(() => _busy = false);
-      messenger.showSnackBar(SnackBar(content: Text(e.message)));
+      messenger.fail(e.message);
     } catch (_) {
       if (!mounted) return;
       setState(() => _busy = false);
-      messenger.showSnackBar(
-        const SnackBar(content: Text('로그인 실패. 다시 시도해 주세요.')),
-      );
+      messenger.fail('로그인 실패. 다시 시도해 주세요.');
     }
   }
 

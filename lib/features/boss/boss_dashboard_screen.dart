@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../widgets/mascot.dart';
 
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
@@ -60,9 +61,7 @@ class _BossDashboardScreenState extends State<BossDashboardScreen> {
     if (gymId == null) return;
     final created = await showClassComposeSheet(context, gymId);
     if (!created || !mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('수업 등록됨.'), duration: Duration(seconds: 2)),
-    );
+    HkSnack.show(context, '수업 등록됨.', mood: MascotMood.happy);
     await _load();
   }
 

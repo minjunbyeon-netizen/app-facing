@@ -281,9 +281,7 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
     if (gym == null) return;
     final body = _bodyCtrl.text.trim();
     if (body.isEmpty && _titleCtrl.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('내용 또는 제목 필요.')),
-      );
+      HkSnack.error(context, '내용 또는 제목 필요.');
       return;
     }
     String? targetId;
@@ -291,22 +289,16 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
       targetId = _individualHashCtrl.text.trim();
       // v1.19 차수 5 fix (B-IN-1): 디바이스 hash는 SHA-256 hex 64자 또는 prefix(8~64자).
       if (targetId.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('수신자 hash 필요.')),
-        );
+        HkSnack.error(context, '수신자 hash 필요.');
         return;
       }
       if (targetId.length < 8 || !RegExp(r'^[a-f0-9]+$').hasMatch(targetId)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('hash 형식 오류 (hex 8자 이상).')),
-        );
+        HkSnack.error(context, 'hash 형식 오류 (hex 8자 이상).');
         return;
       }
     } else if (_targetType == 'group') {
       if (_selectedGroup == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('그룹 선택 필요.')),
-        );
+        HkSnack.error(context, '그룹 선택 필요.');
         return;
       }
       targetId = _selectedGroup!.id.toString();
@@ -322,9 +314,7 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
       ['Due End', dueEnd],
     ]) {
       if (entry[1].isNotEmpty && !dateRe.hasMatch(entry[1])) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${entry[0]} 형식 오류 (YYYY-MM-DD).')),
-        );
+        HkSnack.error(context, '${entry[0]} 형식 오류 (YYYY-MM-DD).');
         return;
       }
     }
@@ -354,16 +344,12 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
       Navigator.of(context).pop(true);
     } on AppException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('전송 실패: ${e.messageKo}')),
-      );
+      HkSnack.error(context, '전송 실패: ${e.messageKo}');
     } catch (e) {
       // /go Tier 3: generic catch — 타임아웃/예외 시 사용자 알림.
       debugPrint('[ComposeNote._send] $e');
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('전송 실패. 다시 시도.')),
-      );
+      HkSnack.error(context, '전송 실패. 다시 시도.');
     } finally {
       if (mounted) setState(() => _sending = false);
     }

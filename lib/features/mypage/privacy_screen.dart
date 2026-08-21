@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../widgets/hkit.dart';
 
 import '../../core/api_client.dart';
 import '../../core/haptic.dart';
@@ -136,10 +137,7 @@ class PrivacyScreen extends StatelessWidget {
       await api.delete('/api/v1/member/me');
     } catch (_) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('서버 삭제 실패. 연결 확인 후 다시 시도.'),
-        duration: Duration(seconds: 3),
-      ));
+      HkSnack.error(context, '서버 삭제 실패. 연결 확인 후 다시 시도.');
       return;
     }
     if (!context.mounted) return;

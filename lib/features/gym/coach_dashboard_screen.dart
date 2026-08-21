@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../widgets/mascot.dart';
 
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
@@ -55,9 +56,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
     if (ok) {
       _reload();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.read<GymState>().error ?? '처리 실패')),
-      );
+      HkSnack.error(context, context.read<GymState>().error ?? '처리 실패');
     }
   }
 
@@ -464,9 +463,7 @@ class _MemberDetailSheet extends StatelessWidget {
     if (gym == null || m.deviceHashFull == null) return;
     final wods = gs.todayWods;
     if (wods.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('오늘 수업 내용 없음. 먼저 게시.')),
-      );
+      HkSnack.error(context, '오늘 수업 내용 없음. 먼저 게시.');
       return;
     }
     // WOD 선택 (today 1개면 스킵).
@@ -545,9 +542,7 @@ class _MemberDetailSheet extends StatelessWidget {
                 final body = bodyCtrl.text.trim();
                 // v1.19 차수 5 (B-IN-11): 빈 / 공백 / 너무 짧음 차단.
                 if (body.length < 4) {
-                  ScaffoldMessenger.of(ctx).showSnackBar(
-                    const SnackBar(content: Text('노트 4자 이상 필요.')),
-                  );
+                  HkSnack.error(ctx, '노트 4자 이상 필요.');
                   return;
                 }
                 try {
@@ -559,21 +554,15 @@ class _MemberDetailSheet extends StatelessWidget {
                       );
                   if (!ctx.mounted) return;
                   Navigator.of(ctx).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('코치 노트 저장.')),
-                  );
+                  HkSnack.show(context, '코치 노트 저장.', mood: MascotMood.happy);
                 } on AppException catch (e) {
                   if (!ctx.mounted) return;
-                  ScaffoldMessenger.of(ctx).showSnackBar(
-                    SnackBar(content: Text('실패: ${e.messageKo}')),
-                  );
+                  HkSnack.error(ctx, '실패: ${e.messageKo}');
                 } catch (e) {
                   // /go Tier 3: generic catch.
                   debugPrint('[CoachDashboard._coachNoteFlow] $e');
                   if (!ctx.mounted) return;
-                  ScaffoldMessenger.of(ctx).showSnackBar(
-                    const SnackBar(content: Text('실패. 다시 시도.')),
-                  );
+                  HkSnack.error(ctx, '실패. 다시 시도.');
                 }
               },
               child: const Text('노트 저장'),

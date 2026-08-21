@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../widgets/mascot.dart';
 
 import '../../core/exception.dart';
 import '../../core/futures.dart';
@@ -186,7 +187,7 @@ class _LoadedState extends State<_Loaded> {
     // await 전에 BuildContext 의존 객체 캡처 (async gap).
     final api = context.read<BossApiClient>();
     final navigator = Navigator.of(context);
-    final messenger = ScaffoldMessenger.of(context);
+    final messenger = HkSnack.of(context);
     try {
       final data = await api.post(
           '/api/v1/admin/classes/${widget.roster.classSessionId}/cancel',
@@ -194,24 +195,15 @@ class _LoadedState extends State<_Loaded> {
       final notified = (data['notified_count'] as num?)?.toInt() ?? 0;
       widget.onDirty(); // 시트가 닫히면 대시보드 재조회 신호.
       navigator.pop();
-      messenger.showSnackBar(SnackBar(
-        content: Text('수업 취소됨 · 알림 $notified건'),
-        duration: const Duration(seconds: 2),
-      ));
+      messenger.info('수업 취소됨 · 알림 $notified건', mood: MascotMood.happy);
     } on AppException catch (e) {
       if (!mounted) return;
       setState(() => _cancelling = false);
-      messenger.showSnackBar(SnackBar(
-        content: Text(e.messageKo),
-        duration: const Duration(seconds: 3),
-      ));
+      messenger.fail(e.messageKo);
     } catch (_) {
       if (!mounted) return;
       setState(() => _cancelling = false);
-      messenger.showSnackBar(const SnackBar(
-        content: Text('수업 취소 실패'),
-        duration: Duration(seconds: 3),
-      ));
+      messenger.fail('수업 취소 실패');
     }
   }
 
@@ -236,9 +228,7 @@ class _LoadedState extends State<_Loaded> {
     } catch (err) {
       if (!mounted) return;
       setState(() => _items[idx] = e.withStatus(prev)); // 롤백
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('출석 저장 실패')),
-      );
+      HkSnack.error(context, '출석 저장 실패');
     } finally {
       if (mounted) setState(() => _busy.remove(id));
     }

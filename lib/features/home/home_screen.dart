@@ -429,19 +429,10 @@ class _LevelCard extends StatelessWidget {
   });
 
   /// 레벨대별 캐릭터 강조 색 — 회색 → 본문색 → 탠 (5 단계).
-  /// 구간 판정은 [HyphenMascot.tierOfLevel] 하나만 쓴다 — 경계 숫자(11·21·31·41)를
-  /// 여기에 다시 적으면 마스코트와 색이 따로 노는 이원화가 된다 (2026-08-21).
   Color _colorForLevel(int level) {
-    switch (HyphenMascot.tierOfLevel(level)) {
-      case 5:
-      case 4:
-        return HyphenTokens.accent;
-      case 3:
-      case 2:
-        return HyphenTokens.fg;
-      default:
-        return HyphenTokens.muted;
-    }
+    if (level >= 31) return HyphenTokens.accent;
+    if (level >= 11) return HyphenTokens.fg;
+    return HyphenTokens.muted;
   }
 
   /// 레벨대별 격려 한 줄. 친근한 톤.
@@ -505,7 +496,7 @@ class _LevelCard extends StatelessWidget {
               // 레벨대 색은 테두리 한 곳에만 남겨 강조를 분산시키지 않는다.
               // 2026-08-21: 캐릭터 에셋 미도착이면 아바타 상자째 접는다 —
               // 빈 네모만 남기지 않기 위해 슬롯 자체를 조건부로 연다.
-              if (HyphenMascot.has(MascotMood.level, level: bd.level)) ...[
+              if (HyphenMascot.has(MascotMood.happy)) ...[
                 Container(
                   width: 88,
                   height: 88,
@@ -515,11 +506,7 @@ class _LevelCard extends StatelessWidget {
                     border: Border.all(color: charColor, width: 1),
                   ),
                   clipBehavior: Clip.antiAlias,
-                  child: HyphenMascot(
-                    mood: MascotMood.level,
-                    level: bd.level,
-                    size: 88,
-                  ),
+                  child: const HyphenMascot(mood: MascotMood.happy, size: 88),
                 ),
                 const SizedBox(width: HyphenTokens.sp4),
               ],

@@ -192,9 +192,7 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
   }
 
   void _toast(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg), duration: const Duration(seconds: 2)),
-    );
+    HkSnack.error(context, msg);
   }
 
   @override

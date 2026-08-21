@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../widgets/hkit.dart';
 
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
@@ -142,16 +143,12 @@ class _MemberRequestsScreenState extends State<MemberRequestsScreen> {
       _reload();
     } on AppException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('실패: ${e.messageKo}')),
-      );
+      HkSnack.error(context, '실패: ${e.messageKo}');
     } catch (e) {
       // /go Tier 3: generic catch.
       debugPrint('[MemberRequests._patch] $e');
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('실패. 다시 시도.')),
-      );
+      HkSnack.error(context, '실패. 다시 시도.');
     }
   }
 

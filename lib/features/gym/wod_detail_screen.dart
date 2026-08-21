@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../widgets/mascot.dart';
 
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
@@ -144,21 +145,15 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
                   if (!ctx.mounted) return;
                   Navigator.of(ctx).pop();
                   // QA A-11: 부모 context는 ctx.mounted로는 보호 불가. ScaffoldMessenger를 ctx 기준으로 사용.
-                  ScaffoldMessenger.of(ctx).showSnackBar(
-                    const SnackBar(content: Text('건의 전송. 코치 응답 대기.')),
-                  );
+                  HkSnack.show(ctx, '건의 전송. 코치 응답 대기.', mood: MascotMood.happy);
                 } on AppException catch (e) {
                   if (!ctx.mounted) return;
-                  ScaffoldMessenger.of(ctx).showSnackBar(
-                    SnackBar(content: Text('실패: ${e.messageKo}')),
-                  );
+                  HkSnack.error(ctx, '실패: ${e.messageKo}');
                 } catch (e) {
                   // /go Tier 3: generic catch.
                   debugPrint('[WodDetail._sendRequest] $e');
                   if (!ctx.mounted) return;
-                  ScaffoldMessenger.of(ctx).showSnackBar(
-                    const SnackBar(content: Text('전송 실패. 다시 시도.')),
-                  );
+                  HkSnack.error(ctx, '전송 실패. 다시 시도.');
                 }
               },
               child: const Text('보내기'),
@@ -178,9 +173,7 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
     final body = _commentCtrl.text.trim();
     if (body.isEmpty) {
       // 결함 수정 5 — 빈 전송 무반응 → 안내.
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('댓글 내용을 입력해 주세요.')),
-      );
+      HkSnack.error(context, '댓글 내용을 입력해 주세요.');
       return;
     }
     final gs = context.read<GymState>();
@@ -198,16 +191,12 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
       _reload();
     } on AppException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('댓글 실패: ${e.messageKo}')),
-      );
+      HkSnack.error(context, '댓글 실패: ${e.messageKo}');
     } catch (e) {
       // /go Tier 3: generic catch.
       debugPrint('[WodDetail._sendComment] $e');
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('댓글 실패. 다시 시도.')),
-      );
+      HkSnack.error(context, '댓글 실패. 다시 시도.');
     } finally {
       if (mounted) setState(() => _sendingComment = false);
     }
@@ -238,9 +227,7 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
     if (uri == null) return;
     final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!ok && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('영상 열기 실패.')),
-      );
+      HkSnack.error(context, '영상 열기 실패.');
     }
   }
 

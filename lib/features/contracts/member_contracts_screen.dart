@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:ui' as ui;
+import '../../widgets/mascot.dart';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -392,24 +393,23 @@ class _SignaturePadScreenState extends State<SignaturePadScreen> {
     if (!_hasSignature || _submitting) return;
     setState(() => _submitting = true);
     Haptic.medium();
-    final messenger = ScaffoldMessenger.of(context);
+    final messenger = HkSnack.of(context);
     final navigator = Navigator.of(context);
     final repo = ContractRepository(context.read<ApiClient>());
     try {
       final b64 = await _exportBase64();
       await repo.sign(widget.contractId, b64);
       Haptic.heavy();
-      messenger.showSnackBar(const SnackBar(content: Text('서명 완료.')));
+      messenger.info('서명 완료.', mood: MascotMood.happy);
       navigator.pop(true);
     } on AppException catch (e) {
       if (!mounted) return;
       setState(() => _submitting = false);
-      messenger.showSnackBar(SnackBar(content: Text(e.messageKo)));
+      messenger.fail(e.messageKo);
     } catch (_) {
       if (!mounted) return;
       setState(() => _submitting = false);
-      messenger.showSnackBar(
-          const SnackBar(content: Text('서명 제출 실패. 잠시 후 재시도.')));
+      messenger.fail('서명 제출 실패. 잠시 후 재시도.');
     }
   }
 

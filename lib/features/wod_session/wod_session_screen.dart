@@ -8,6 +8,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../widgets/hkit.dart';
+import '../../widgets/mascot.dart';
 import 'package:provider/provider.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -281,12 +283,8 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
               Center(
                 child: TextButton(
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('공유 카드 생성은 Phase 2에서 제공.'),
-                        duration: Duration(seconds: 2),
-                      ),
-                    );
+                    HkSnack.show(context, '공유 카드 생성은 Phase 2에서 제공.',
+                        mood: MascotMood.neutral);
                   },
                   child: const Text('Share (Phase 2)'),
                 ),
@@ -411,14 +409,11 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
         final m = totalSec ~/ 60;
         final s = totalSec % 60;
         Haptic.achievementUnlock(emphasize: true);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'PR · ${wodTypeLabel(widget.wod.wodType)} '
-              '$m:${s.toString().padLeft(2, '0')}',
-            ),
-            duration: const Duration(seconds: 2),
-          ),
+        HkSnack.show(
+          context,
+          'PR · ${wodTypeLabel(widget.wod.wodType)} '
+          '$m:${s.toString().padLeft(2, '0')}',
+          mood: MascotMood.happy,
         );
         anyUnlockShown = true;
       }
@@ -442,32 +437,25 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
       if (!mounted) return true;
       // unlock 발화 시 '기록 저장.' toast 생략 — 사용자에 이미 완료 신호 전달됨.
       if (!anyUnlockShown) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              pointsAwarded > 0
-                  ? '기록 저장. 출석 · 체육관 리더보드 자동 반영. +${pointsAwarded}P'
-                  : '기록 저장. 출석 · 체육관 리더보드 자동 반영.',
-            ),
-            duration: const Duration(seconds: 2),
-          ),
+        HkSnack.show(
+          context,
+          pointsAwarded > 0
+              ? '기록 저장. 출석 · 체육관 리더보드 자동 반영. +${pointsAwarded}P'
+              : '기록 저장. 출석 · 체육관 리더보드 자동 반영.',
+          mood: MascotMood.happy,
         );
       }
       Navigator.of(context).pop(); // 세션 스크린 종료
       return true;
     } on AppException catch (e) {
       if (!mounted) return false;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('저장 실패: ${e.messageKo}')),
-      );
+      HkSnack.error(context, '저장 실패: ${e.messageKo}');
       return false;
     } catch (e) {
       // /go 전수조사: 원본 exception toString 노출 차단 — 일반 메시지 + debugPrint.
       debugPrint('[WodSession._saveRecord] $e');
       if (!mounted) return false;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('저장 실패. 다시 시도.')),
-      );
+      HkSnack.error(context, '저장 실패. 다시 시도.');
       return false;
     } finally {
       if (mounted) setState(() => _saving = false);

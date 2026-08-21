@@ -125,10 +125,8 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
   }
 
   void _toast(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      backgroundColor: HyphenTokens.surface,
-      content: Text(msg, style: HyphenTokens.body),
-    ));
+    // 이 화면의 _toast 는 실패 문구가 대부분이라 실패 창구로 보낸다 (2026-08-21).
+    HkSnack.error(context, msg);
   }
 
   Future<List<ActualSet>?> _openCompleteModal(CoachNote n) async {
