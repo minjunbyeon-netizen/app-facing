@@ -40,6 +40,25 @@ class _BossSettingsScreenState extends State<BossSettingsScreen>
           icon: const Icon(Icons.arrow_back, color: HyphenTokens.fg),
           onPressed: () => Navigator.of(context).pop(),
         ),
+        // v3.4 (2026-08-21 사용자 지시) — 대시보드 우상단 아이콘만으론 못 찾던
+        // 로그아웃을 설정에도 글자 버튼으로 노출 (동작은 대시보드 _logout 동일).
+        actions: [
+          TextButton(
+            onPressed: () async {
+              final api = context.read<BossApiClient>();
+              final auth = context.read<BossAuthState>();
+              try {
+                await api.post('/api/v1/admin/logout', {});
+              } catch (_) {}
+              await auth.clear();
+              if (!context.mounted) return;
+              Navigator.of(context)
+                  .pushNamedAndRemoveUntil('/splash', (_) => false);
+            },
+            child: Text('로그아웃',
+                style: HyphenTokens.body.copyWith(color: HyphenTokens.muted)),
+          ),
+        ],
         bottom: TabBar(
           controller: _tab,
           indicatorColor: HyphenTokens.primary,

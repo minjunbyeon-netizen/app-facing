@@ -523,14 +523,17 @@ StreamSubscription<SseEvent> _listenNoteNew(
 
 /// v1.26 (2026-06-11): 쪽지·공지 진입을 종(벨)으로 일원화 — 벨 탭 시 이 화면.
 /// (구 v1.24 Attend 캘린더 밑 임베드는 ClassesSection 으로 대체됨.)
+/// v3.4 (2026-08-21): 코치 셸 쪽지 탭으로도 임베드 — 탭 문맥에선 제목만 '쪽지'.
 class MessagingScreen extends StatelessWidget {
-  const MessagingScreen({super.key});
+  const MessagingScreen({super.key, this.title = '알림함'});
+
+  final String title;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       // 쪽지·숙제·공지가 함께 쌓이는 화면이라 '공지' 는 내용과 불일치 (2026-08-06).
-      appBar: AppBar(title: const Text('알림함')),
+      appBar: AppBar(title: Text(title)),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.symmetric(vertical: HyphenTokens.sp4),

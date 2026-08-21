@@ -9,18 +9,19 @@ import '../boss/boss_dashboard_screen.dart';
 import '../gym/box_wod_screen.dart';
 import '../gym/gym_repository.dart';
 import '../gym/gym_state.dart';
+import '../inbox/inbox_screen.dart';
 import '../inbox/inbox_state.dart';
 
-/// v3.3 (2026-08-18 사용자 지시) — 코치 앱 셸. 딱 2탭:
+/// v3.4 (2026-08-21 사용자 지시 "앱에서 코치 쪽지 필요") — 코치 앱 셸 3탭:
 ///   ① 예약 현황 — 오늘 예약·출석·수업 명단·수업 등록 (BossDashboardScreen 임베드)
 ///   ② 수업 — 회원 셸의 수업 탭과 **동일한 위젯** (BoxWodScreen 그대로 재사용,
 ///      variant 신설 금지)
+///   ③ 쪽지 — MessagingScreen 임베드 (v3.3 에서 종 뒤에 숨겼더니 기능이
+///      없는 걸로 보였다 — 탭 복귀. 수업 탭 종 진입도 유지)
 /// "코치는 대부분 PC. 폰 코치는 진짜 기본만." — 내 정보류 탭은 코치에게 불필요.
 ///
-/// v3.2 의 회원 현황(CoachDashboardScreen)·쪽지(MessagingScreen) 탭은 제거.
-/// 숨김 = 코드 보존 — 화면 파일·배선은 그대로 두고 셸에서만 뺐다. 진입 동선:
+/// v3.2 의 회원 현황(CoachDashboardScreen) 탭은 계속 제거 상태. 진입 동선:
 ///   · 가입 승인 → 예약 현황 탭 '회원 관리' 버튼 → CoachDashboardScreen push
-///   · 쪽지 → 수업 탭 AppBar 종(InboxBellAction) → MessagingScreen push
 ///
 /// 수업 탭은 회원 API(X-Device-Id)를 쓴다 — 로그인만 한 기기도 admin_login 이
 /// GymManager.device_hash 를 페어링하므로 백엔드 코치 기기 폴백
@@ -51,6 +52,11 @@ class _CoachShellState extends State<CoachShell> {
       selectedIcon: Icon(Icons.list_alt),
       label: '수업',
     ),
+    NavigationDestination(
+      icon: Icon(Icons.chat_bubble_outline),
+      selectedIcon: Icon(Icons.chat_bubble),
+      label: '쪽지',
+    ),
   ];
 
   @override
@@ -74,9 +80,8 @@ class _CoachShellState extends State<CoachShell> {
   @override
   Widget build(BuildContext context) {
     final gs = context.watch<GymState>();
-    // 수업 탭 배선 — 공지 아코디언(AnnouncementsState) + AppBar 종 미읽음
-    // dot(InboxState). 쪽지 "탭"은 v3.3 에서 빠졌지만 종 → MessagingScreen
-    // 진입이 남아 있으므로 InboxState 바인딩은 유지한다 (빼면 dot 이 항상 꺼짐).
+    // 수업 탭 공지 아코디언(AnnouncementsState) + 쪽지 탭·종 미읽음
+    // dot(InboxState) 배선.
     final gymId = gs.membership.gym?.id;
     if (gymId != null) {
       final inboxState = context.read<InboxState>();
@@ -93,6 +98,7 @@ class _CoachShellState extends State<CoachShell> {
     final pages = <Widget>[
       const BossDashboardScreen(),
       const BoxWodScreen(),
+      const MessagingScreen(title: '쪽지'),
     ];
 
     return Scaffold(

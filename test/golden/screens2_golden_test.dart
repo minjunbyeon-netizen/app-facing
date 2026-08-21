@@ -333,11 +333,16 @@ void main() {
     await capture(tester, 'common_08_member_login');
   });
 
-  // ── 코치 셸 2탭 (v3.3) — 예약 현황 · 수업 ──
-  testWidgets('coach: shell 2 tabs', (tester) async {
+  // ── 코치 셸 3탭 (v3.4) — 예약 현황 · 수업 · 쪽지 ──
+  testWidgets('coach: shell 3 tabs', (tester) async {
     phone(tester);
     SharedPreferences.setMockInitialValues(signedInPrefs());
-    final api = FakeApi(memberWorld());
+    // 코치 기기는 mine 이 role=owner 로 내려온다 (백엔드 is_staff_device 폴백)
+    // — 쪽지 탭이 코치 시점(회원에게 발신)으로 찍히도록 역할만 덮는다.
+    final api = FakeApi({
+      ...memberWorld(),
+      '/api/v1/gyms/mine': {...gymsMine, 'role': 'owner'},
+    });
     final bossApi =
         FakeBossApi({'/api/v1/admin/gyms/1/dashboard': bossDashboard()});
     final gym = GymState(GymRepository(api), sse: FakeSse());
@@ -353,6 +358,8 @@ void main() {
     await capture(tester, 'coach_01_shell_reservations');
     await tapTab(tester, '수업');
     await capture(tester, 'coach_02_shell_board');
+    await tapTab(tester, '쪽지');
+    await capture(tester, 'coach_03_shell_messages');
   });
 
   // ── 코치: 명단 시트 하단 — 수업 취소 버튼 (G24, 폴드 아래) ──
