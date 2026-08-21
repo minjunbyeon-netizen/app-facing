@@ -47,7 +47,7 @@ SECTIONS = [
         ("member_13_achievement_detail", "업적 상세 시트 — 홈 해금 카드 탭"),
         ("member_14_edit_profile", "프로필 수정 — 이름 줄 연필 아이콘"),
         ("member_15_contracts", "전자계약 목록 — SIGNED · WAITING (메뉴 '계약')"),
-        ("member_16_goals", "목표 — 빈 상태 (메뉴 '목표')"),
+        ("member_16_goals", "목표 — 주간 4회 · 월간 16회 타겟 + PR 목표 Fran 2:00 (메뉴 '목표')"),
         ("member_17_faq", "FAQ — 시드 10문답"),
         ("member_18_terms", "이용약관"),
         ("member_19_privacy", "개인정보처리방침"),
