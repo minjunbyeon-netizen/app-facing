@@ -79,3 +79,12 @@
   3(대회) 카드 안 소절로 분배, 별도 표 폐지
 - 활성 체크박스 → .toggle 스위치 (규칙·카탈로그·마스터 전부, 왕복 검증)
 - admin 커밋·railway up·4v 태그 ×3 repo
+
+## 버전 재시작 (2026-08-21 09:21 사용자 지시 — "원본 v1 빼고 2가지 디벨롭")
+- **v1** = 4v 시점 스냅샷 (원본 마커, 세 repo)
+- **v2** = 업적 카테고리 서버 승격 (catalog.category — 시드 _category 정본,
+  RULE_* 는 규칙 카테고리) + 수업 칩 분 단위 비례 높이 (50분 83% vs 60분 100%)
+- **v3** = 성능: Chrome localhost(::1 선시도) 오리진이 요청당 ~310ms 를 태우던 것
+  실측 규명 → 관리자 localhost→127.0.0.1 308 리다이렉트 (API 24-37ms, ~10×) +
+  RULE_* category 백필 마이그레이션
+- 태그 v1·v2·v3 ×3 repo, railway 배포 (rollback: git checkout v{N})
