@@ -13,6 +13,9 @@ import 'package:flutter/services.dart';
 import '../../core/theme.dart';
 import 'hyphen_pictogram.dart';
 
+/// 테스트에서만 갈아 끼우는 난수원. null 이면 매번 새 폭죽 (2026-08-21 골든 안정화).
+math.Random? confettiRandom;
+
 class ConfettiOverlay {
   ConfettiOverlay._();
 
@@ -49,7 +52,9 @@ class _ConfettiAnimState extends State<_ConfettiAnim>
   @override
   void initState() {
     super.initState();
-    final rng = math.Random();
+    // 골든 캡처를 결정론으로 만들려면 시드를 갈아 끼운다 (quotes.quoteRandom 패턴).
+    // 실사용에서는 null 이라 매번 다른 폭죽이 터진다.
+    final rng = confettiRandom ?? math.Random();
     // v3.3 캐논: 좌·우 하단 두 발사대. 위쪽 원뿔(수직 ±35°)로 쏘아올린다.
     _particles = List.generate(60, (i) {
       final fromLeft = i.isEven;

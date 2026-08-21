@@ -564,6 +564,89 @@ const achievementsSnapshot = {
   'visible_count': 4,
 };
 
+/// 등급 4단 + 판 모양 3종이 실제로 구분돼 보이는지 고정하는 표본
+/// (2026-08-21 — 팩 체크리스트 "전설이 검은 판인지·32px 에서도 모양이 갈리는지").
+/// 전부 해금 상태로 둔다 — 잠기면 회색이라 등급 색을 볼 수 없다.
+const achievementsAllRarities = {
+  'catalog': [
+    {
+      'code': 'WOD_10',
+      'name': 'First Ten.',
+      'description': '수업 기록 10회.',
+      'rarity': 'Common',
+      'is_hidden': false,
+      'sort_order': 10,
+      'icon': 'barbell',
+      'points': 100,
+      'repeat_kind': 'once',
+    },
+    {
+      'code': 'STREAK_7',
+      'name': 'Seven Straight.',
+      'description': '7일 연속 출석.',
+      'rarity': 'Rare',
+      'is_hidden': false,
+      'sort_order': 20,
+      'icon': 'flame',
+      'points': 200,
+      'repeat_kind': 'once',
+    },
+    {
+      'code': 'PR_10',
+      'name': 'PR Hunter.',
+      'description': 'PR 10회 누적.',
+      'rarity': 'Epic',
+      'is_hidden': false,
+      'sort_order': 30,
+      'icon': 'trophy',
+      'points': 300,
+      'repeat_kind': 'once',
+    },
+    {
+      'code': 'GAMES_1',
+      'name': 'Games Finisher.',
+      'description': 'Games WOD 완주 — 코치 확인.',
+      'rarity': 'Legendary',
+      'is_hidden': false,
+      'sort_order': 40,
+      'icon': 'crown',
+      'points': 1000,
+      'repeat_kind': 'once',
+    },
+    {
+      'code': 'GIRLS_FRAN',
+      'name': 'Fran.',
+      'description': 'Fran 완주 — 코치 확인.',
+      'rarity': 'Rare',
+      'is_hidden': false,
+      'sort_order': 50,
+      'icon': 'ribbon',
+      'points': 200,
+      'repeat_kind': 'once',
+    },
+    {
+      'code': 'EGG_1',
+      'name': '???',
+      'description': '숨김 업적.',
+      'rarity': 'Epic',
+      'is_hidden': true,
+      'sort_order': 60,
+      'icon': 'star',
+      'points': 0,
+      'repeat_kind': 'once',
+    },
+  ],
+  'unlocked': [
+    {'code': 'WOD_10', 'unlocked_at': '2026-07-10T10:00:00'},
+    {'code': 'STREAK_7', 'unlocked_at': '2026-07-12T10:00:00'},
+    {'code': 'PR_10', 'unlocked_at': '2026-07-14T10:00:00'},
+    {'code': 'GAMES_1', 'unlocked_at': '2026-07-16T10:00:00'},
+    {'code': 'GIRLS_FRAN', 'unlocked_at': '2026-07-18T10:00:00'},
+  ],
+  'unlocked_count': 5,
+  'visible_count': 6,
+};
+
 /// /api/v1/movements/categories — WOD 빌더 동작 카탈로그 (축약 4 카테고리).
 const movementCategories = [
   {

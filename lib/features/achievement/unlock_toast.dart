@@ -37,6 +37,9 @@ class UnlockToast {
         duration: const Duration(seconds: 2),
         backgroundColor: HyphenTokens.surface,
         behavior: SnackBarBehavior.floating,
+        // 2026-08-21 — M3 기본 그림자가 스낵바 밖에 검은 띠로 찍힌다 (HkSnack 과
+        // 같은 처치). 이 앱은 면+테두리로 층을 표현한다.
+        elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(HyphenTokens.r2),
           side: BorderSide(color: color, width: 2),
