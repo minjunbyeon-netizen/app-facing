@@ -1,6 +1,7 @@
-# HANDOFF - 2026-08-21 18:27
+# HANDOFF - 2026-08-22 02:20
 
-> 실데이터 반영 + 코치 쪽지·로그아웃 + 마스코트 SSOT 배선 + 스낵바 71건 이관 세션.
+> 실데이터 반영 · 코치 쪽지·로그아웃 · 마스코트/스낵바 SSOT · 업적 픽토그램 3면 통일 ·
+> 스플래시 HYPEE 연출까지 끝낸 세션.
 > 직전 인계장 = `docs/archive/HANDOFF-2026-08-21-1419.md`.
 
 ## 완료
@@ -41,6 +42,19 @@
 - [x] CLAUDE.md 디자인 원칙 "사진/일러스트 없음" → "사진 없음" + 캐릭터 예외 조항
       (사용자 승인 2026-08-21). 골든 8장 갱신 · analyze 0 · 170 tests pass
 
+### 4-2. 앱 v3.6·v3.7 (2026-08-21 밤 ~ 08-22 새벽)
+- [x] **업적 픽토그램 55종 적용** (hyphen-achievement-pack v1.0) — 호출부 6곳
+      AchievementBadge 로 교체, 중복 8벌(_rarityColor 6 · _iconFor 2) 한 벌로 통일
+- [x] **PC 관리자도 같은 배지로** — 스프라이트(단색) 오적용 정정 → per-file 2톤 +
+      static/pictogram.js(앱 AchievementBadge 포팅). 코드→그림 매핑은 팩 json 에서
+      생성(picto_map.gen.js) — 앱 dart 와 74코드 전수 대조 불일치 0
+- [x] **PC 업적 설정 '회원 화면' 미리보기 열** — 고르는 즉시 반영. 서버 어휘 13 → 55
+- [x] **코치 선택이 폰에 도달** — 앱이 서버 icon 을 버리던 끊긴 고리 연결 + 테스트 5건
+- [x] 업적 등급 4단·판 3모양·해금 축하 골든 2장 (컨페티 시드 고정으로 결정론화)
+- [x] **스플래시 HYPEE 카드 덱 연출** (v3.7, 대표 확정 4안) — 액션 11종 × 3배율,
+      widgets/hypee_intro.dart, 매 실행 재생. 에뮬레이터 실동작 확인
+      정본 = `docs/SPLASH-INTRO-HANDOFF.md`
+
 ### 5. 기기·기타
 - [x] 갤S22 릴리즈 APK 설치·기동 확인 (프로드 URL 주입). 중복 앱 3개 삭제 —
       구 HYPHEN(com.netizen.facing.facing_app) · 구 공수체크 TWA(app.workcheck.twa) ·
@@ -57,14 +71,10 @@
       ① `pubspec.yaml` 의 `- assets/character/` 주석 해제
       ② `lib/widgets/mascot.dart` 의 `_assets` 맵 주석 해제
       **Claude 가 캐릭터를 생성·교체하지 않는다** (사용자 지시). 규칙 = `assets/character/README.md`
-- [ ] **HYPEE 스플래시 등장 연출 — Flutter 이식만 남음** (2026-08-21 19:31 별도 세션).
-      전신 액션 11종이 카드로 착착 쌓이는 연출. 웹 데모 제작·검증 완료, **대표 결정도 끝났다**:
-      **① 4안 카드 쌓기 ② 스플래시에 얹기 — 앱 켤 때마다 재생 (1회 플래그 없음)**
-      데모 = `C:\dev\services\design\_작업\앱에셋\온보딩연출데모.html`
-      **인계 정본 = `docs/SPLASH-INTRO-HANDOFF.md`** (이식 4스텝·Flutter 코드 스켈레톤·
-      카드 파라미터 표·검증 절차·함정 9가지. 이 문서만 읽으면 바로 착수 가능)
-      ⚠ `/intro` 부활 아님 — v3.3(`fb7ae8c`)에서 지운 그대로 두고 `splash_screen.dart` 에만 얹는다
-- [ ] 새 스낵바 모양 실기 확인 — APK 재빌드 후 폰 설치 (현재 폰에는 이관 전 빌드)
+- [ ] **갤S22 실기 확인** — 무선 디버깅이 꺼져 에뮬레이터로만 확인했다. 폰에서 켜면
+      `adb mdns services` 로 IP 재확인 후(19:30 기준 192.168.1.100 로 바뀌었다)
+      `build/app/outputs/flutter-apk/app-release.apk`(64.5MB) 설치 → 스플래시 연출·
+      업적 배지·스낵바 캐릭터 3종을 한 번에 볼 수 있다
 - [ ] 프로드 테스트 쪽지 3건 정리 (변민준 대화에 남음) — 사용자 요청 시
 
 ## 결정사항 / 주의
