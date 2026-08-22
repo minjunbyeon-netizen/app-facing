@@ -7,7 +7,6 @@ import '../../core/device_id.dart';
 import '../../core/haptic.dart';
 import '../../core/notification_service.dart';
 import '../../core/theme.dart';
-import '../../widgets/brand_logo.dart';
 import '../../widgets/hkit.dart';
 import '../../widgets/hypee_intro.dart';
 import '../auth/auth_state.dart';
@@ -24,10 +23,10 @@ class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _ctrl;
 
-  // 6 슬롯: 0=HYPHEN / 1=tagline / 2=body / 3=caption / 4=quote / 5=loader
+  // v3.8 (2026-08-22): 로고가 연출 위젯(HypeeIntroDeck)으로 옮겨가면서 슬라이드
+  // 등장이 필요한 요소가 사라졌다 — 남은 것은 하단 로더 페이드(_fadeOnly)뿐이다.
+  // 6 슬롯 Interval 은 그대로 두되 실제로 쓰는 것은 슬롯 2 하나다.
   late final List<Animation<double>> _opacities;
-  // 슬라이드는 앞 5개만 (loader는 fade만)
-  late final List<Animation<Offset>> _slides;
 
   @override
   void initState() {
@@ -48,17 +47,6 @@ class _SplashScreenState extends State<SplashScreen>
         parent: _ctrl,
         curve: Interval(s[i], e[i], curve: Curves.easeOut),
       ),
-    );
-
-    _slides = List.generate(
-      5,
-      (i) => Tween<Offset>(
-        begin: const Offset(0, -0.6),
-        end: Offset.zero,
-      ).animate(CurvedAnimation(
-        parent: _ctrl,
-        curve: Interval(s[i], e[i], curve: Curves.easeOutCubic),
-      )),
     );
 
     _ctrl.forward();
@@ -121,11 +109,6 @@ class _SplashScreenState extends State<SplashScreen>
         .pushReplacementNamed(auth.isSignedIn ? '/shell' : '/signup');
   }
 
-  Widget _fadeSlide(int slot, Widget child) => SlideTransition(
-        position: _slides[slot],
-        child: FadeTransition(opacity: _opacities[slot], child: child),
-      );
-
   Widget _fadeOnly(int slot, Widget child) =>
       FadeTransition(opacity: _opacities[slot], child: child);
 
@@ -139,20 +122,13 @@ class _SplashScreenState extends State<SplashScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // v3.3 (2026-08-21 사용자 지시): 세로 중앙 → 고정 오프셋.
-              // 로그인 화면과 로고 자리가 같아 전환 때 로고가 뛰지 않는다 (§6).
-              const HkEntryLogoGap(),
-              // v1.27 (2026-07-28): 텍스트 워드마크 → HYPHEN 로고 (BrandLogo).
-              // v1.29: 로고 폭 = 기본 220 (진입 화면 통일, DESIGN-SSOT §6).
-              _fadeSlide(
-                0,
-                const Center(child: BrandLogo()),
-              ),
-              // v3.7 (2026-08-21 대표 확정): HYPEE 전신 액션 11장이 카드로 쌓이는
-              // 등장 연출. **앱을 켤 때마다** 재생한다 (1회 플래그 없음).
-              // 1100ms < AppKit.splashMin 2500ms 라 체감 지연 0.
-              // 자기 컨트롤러를 갖고 있어 위 6슬롯 Interval 과 얽히지 않는다.
-              // 값·순서 정본 = docs/SPLASH-INTRO-HANDOFF.md (감으로 고치지 말 것)
+              // v3.8 (2026-08-22 대표 확정 — C안): 캐릭터가 나올 때는 캐릭터만
+              // 보이고, 카드가 가운데로 빨려든 뒤 그 자리에서 로고가 떴다 사라진다.
+              // 그래서 **로고 슬롯을 여기서 걷었다** — 로고는 연출 위젯 안에 있다.
+              //   · 구 v3.7 은 로고가 위에 계속 떠 있었다(A안).
+              //   · HkEntryLogoGap(로그인과 로고 자리 맞춤, v3.3)도 함께 뺐다.
+              //     로고가 사라진 뒤 화면이 넘어가므로 자리를 맞출 대상이 없다.
+              // 전체 2450ms < AppKit.splashMin 2500ms — 타이밍은 위젯 안에서만 조정.
               const Expanded(child: HypeeIntroDeck()),
               // v2.3 (2026-08-12 사용자 지시): 하단 명언 카드 삭제.
               // 로딩 화면에 뜻 모를 영문 문구가 붙어 있어 로고·로더만 남긴다.

@@ -25,7 +25,10 @@ SECTIONS = [
     ]),
     # v3.3 (2026-08-21): 인트로 2p 삭제 — 화면 코드째 제거 (README §제거된 기능 대장).
     ("공통", "공통 — 진입 · 로그인 (로고 위치 고정 — HkEntryLogoGap)", [
-        ("common_01_splash", "스플래시 — HYPHEN 로고 + HYPEE 카드 덱 등장 연출 (v3.7, 매 실행 재생)"),
+        ("common_01_splash", "스플래시 — 연출 마무리 시점 (v3.8 C안)"),
+        ("splash_c1_deck", "스플래시 C안 ① 카드만 — 로고 없이 캐릭터만 쌓인다"),
+        ("splash_c2_suck", "스플래시 C안 ② 중앙으로 빨려듦"),
+        ("splash_c3_logo", "스플래시 C안 ③ 로고만 — 그 자리에서 피어났다 사라진다"),
         ("common_05_signup", "로그인 — 아이디 · 회원 가입 신청 (소셜은 키 대기로 숨김)"),
         ("common_06_self_signup", "가입 신청① — 이름 · 생년월일 · 성별 · 연락처"),
         ("common_07_self_signup_scrolled",
