@@ -193,6 +193,23 @@ void main() {
     await tester.ensureVisible(find.text('메뉴'));
     await tester.pump(const Duration(milliseconds: 100));
     await capture(tester, 'member_04_profile_menu');
+    // v3.9 (2026-08-22): 설정 아코디언 펼침. 여기 있던 모드(Coach/Member/Solo)
+    // 전환을 걷어냈는데 이 구역을 덮는 캡처가 하나도 없어 회귀를 못 잡았다
+    // — 단위·글자 크기 두 줄만 남은 상태를 게이트로 박아 둔다.
+    await tester.ensureVisible(find.text('설정'));
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.tap(find.text('설정'));
+    for (var i = 0; i < 6; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    await capture(tester, 'member_04b_settings_open');
+    // 다시 접어 아래 메뉴 캡처의 스크롤 배치를 원래대로 돌린다.
+    await tester.tap(find.text('설정'));
+    for (var i = 0; i < 6; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    await tester.ensureVisible(find.text('메뉴'));
+    await tester.pump(const Duration(milliseconds: 100));
     await tester.tap(find.text('메뉴'));
     // 펼침 애니메이션이 레이아웃에 반영될 때까지 프레임을 여러 번 돌린다.
     // 한 번만 pump 하면 maxScrollExtent 가 아직 안 늘어 드래그가 먹지 않는다.
