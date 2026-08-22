@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
-import '../../core/app_mode.dart';
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/input_formatters.dart';
@@ -132,7 +131,6 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
       // 가입 신청 성공 = 이 기기의 신원 확정. AuthState 를 세워 두지 않으면
       // 다음 실행 때 splash 가 !isSignedIn 을 보고 로그인 화면으로 되돌린다.
       await auth.signIn('self', displayName: _nameCtrl.text.trim());
-      await AppModeStore.set(AppMode.member);
       if (!mounted) return;
 
       if (duplicate) {

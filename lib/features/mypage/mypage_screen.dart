@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../widgets/mascot.dart';
 
 import '../../core/api_client.dart';
-import '../../core/app_mode.dart';
 import '../../core/haptic.dart';
 import '../../core/role_labels.dart';
 import '../../core/shell_nav_bus.dart';
@@ -421,8 +419,6 @@ class _SettingsSection extends StatelessWidget {
         title: '설정',
         children: [
           const SizedBox(height: HyphenTokens.sp1),
-          const _ModeRow(),
-          const SizedBox(height: HyphenTokens.sp2),
           Row(
             children: [
               const Expanded(child: Text('단위', style: HyphenTokens.body)),
@@ -724,98 +720,6 @@ class _ActionsSection extends StatelessWidget {
   }
 }
 
-class _ModeRow extends StatefulWidget {
-  const _ModeRow();
-
-  @override
-  State<_ModeRow> createState() => _ModeRowState();
-}
-
-class _ModeRowState extends State<_ModeRow> {
-  AppMode? _mode;
-  bool _saving = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    final m = await AppModeStore.get();
-    if (!mounted) return;
-    setState(() => _mode = m);
-  }
-
-  Future<void> _setMode(AppMode m) async {
-    if (_mode == m || _saving) return;
-    Haptic.medium();
-    setState(() => _saving = true);
-    await AppModeStore.set(m);
-    if (!mounted) return;
-    setState(() {
-      _mode = m;
-      _saving = false;
-    });
-    HkSnack.show(context, 'Mode → ${_label(m)}', mood: MascotMood.neutral);
-  }
-
-  String _label(AppMode m) => switch (m) {
-        AppMode.coach => 'Coach',
-        AppMode.member => 'Member',
-        AppMode.solo => 'Solo',
-      };
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('모드', style: HyphenTokens.body),
-            const SizedBox(width: HyphenTokens.sp2),
-            if (_saving)
-              const SizedBox(
-                width: 12,
-                height: 12,
-                child: CircularProgressIndicator(
-                  strokeWidth: 1.5,
-                  color: HyphenTokens.muted,
-                ),
-              ),
-          ],
-        ),
-        const SizedBox(height: HyphenTokens.sp2),
-        Semantics(
-          explicitChildNodes: true,
-          container: true,
-          child: Wrap(
-            alignment: WrapAlignment.center,
-            spacing: HyphenTokens.sp2,
-            children: [
-              for (final m in AppMode.values)
-                HkBadge(
-                  _label(m),
-                  color: HyphenTokens.fg,
-                  selected: _mode == m,
-                  onTap: _saving ? null : () => _setMode(m),
-                ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// v1.16.2 (2026-05-24) — 내 회원권 카드 (진행 막대 + 월별 타임라인).
-/// GymState.currentMembership 에서 fetch. 회원권 없으면 안 그림.
-/// 갱신 시 늘어난 구간은 primary 색, 이미 지난 구간은 muted 색으로 분리.
-/// v1.31 — 회원권 + 락커를 아코디언 1개로 묶는다. 만료 임박처럼 놓치면 안 되는
-/// 값은 접힌 상태에서도 보이도록 헤더 부제에 싣는다 (DESIGN-SSOT §7-B).
 class _MembershipSection extends StatelessWidget {
   const _MembershipSection();
 

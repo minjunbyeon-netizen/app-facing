@@ -4,11 +4,11 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:naver_login_sdk/naver_login_sdk.dart';
 
 import '../../core/api_client.dart';
-import '../../core/app_mode.dart';
 import '../../core/device_id.dart';
 
 /// 서버가 결정하는 역할 (D26). boss 는 폰 보조 운영(BossAuthState) 경로로,
-/// coach·member·solo 는 [AppMode] 폰 shell 로 분기된다.
+/// 서버가 내려주는 역할 값. 실제 화면 분기는 로그인 상태(AuthState·
+/// BossAuthState)와 서버 응답으로만 한다 — 기기에 역할을 저장하지 않는다.
 enum SocialRole {
   boss,
   coach,
@@ -16,12 +16,6 @@ enum SocialRole {
   solo;
 
   /// 폰 shell 모드 매핑. boss 는 별도 경로라 null.
-  AppMode? toAppMode() => switch (this) {
-        SocialRole.coach => AppMode.coach,
-        SocialRole.member => AppMode.member,
-        SocialRole.solo => AppMode.solo,
-        SocialRole.boss => null,
-      };
 }
 
 /// D26 (2026-06-03) — 소셜 로그인 통일 추상화 층.
@@ -79,7 +73,7 @@ abstract class SocialAuthService {
 
 /// 현재 기본 구현 — 가짜 버튼. 실제 OAuth 통신 0.
 ///
-/// provider 탭 → 즉시 성공한 것처럼 결과 반환. role 은 [AppMode.solo]
+/// provider 탭 → 즉시 성공한 것처럼 결과 반환. role 은 solo
 /// (신규 계정 = 아직 어느 박스에도 안 엮임). 코치·회원·사장 데모 진입은
 /// 별도 DEMO ACCOUNTS 버튼이 담당 (백엔드 페르소나 시드).
 class StubSocialAuthService implements SocialAuthService {

@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../../core/api_client.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
-import '../../core/app_mode.dart';
 import '../../widgets/brand_logo.dart';
 import '../../widgets/hkit.dart';
 import '../mypage/privacy_screen.dart';
@@ -83,8 +82,6 @@ class _SignupScreenState extends State<SignupScreen> {
       navigator.pushNamed('/boss/login');
       return;
     }
-    final mode = role.toAppMode();
-    if (mode != null) AppModeStore.set(mode);
     // 온보딩 완료 판정 (2026-08-19 서버 영속화): 로컬 등급이 있으면 그대로
     // 통과(구 Tier 완주자 fast path), 없으면 서버 프로필로 판정한다 — 기기를
     // 바꿔도 이미 마친 사람(코치가 PC 에서 적어준 경우 포함)은 다시 안 묻는다.

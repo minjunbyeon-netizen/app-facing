@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
-import '../../core/app_mode.dart';
 import '../../core/device_id.dart';
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
@@ -72,7 +71,6 @@ class _MemberLoginScreenState extends State<MemberLoginScreen> {
       await DeviceIdService.adopt(deviceId);
       await auth.signIn('member_id',
           displayName: data['name']?.toString() ?? _idCtrl.text.trim());
-      await AppModeStore.set(AppMode.member);
 
       // 박스 소속·프로필 미리 불러오기 (실패해도 진입은 막지 않는다).
       try {
