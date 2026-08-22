@@ -13,7 +13,6 @@ import 'core/staff_push_service.dart';
 import 'core/theme.dart';
 import 'core/goals_state.dart';
 import 'core/shell_nav_bus.dart';
-import 'core/ui_prefs_state.dart';
 import 'core/wod_session_bus.dart';
 import 'features/home/home_screen.dart';
 import 'features/onboarding/onboarding_basic.dart';
@@ -51,7 +50,6 @@ Future<void> main() async {
   final profile = ProfileState();
   final connectivity = ConnectivityState();
   final auth = AuthState();
-  final uiPrefs = UiPrefsState();
   final goals = GoalsState();
   // PHASE5 §1.1: 사장 폰 로그인 상태
   final bossAuth = BossAuthState();
@@ -60,7 +58,6 @@ Future<void> main() async {
     profile.load(),
     connectivity.init(),
     auth.load(),
-    uiPrefs.load(),
     goals.load(),
     bossAuth.load(),
   ]);
@@ -91,7 +88,6 @@ Future<void> main() async {
     profile: profile,
     connectivity: connectivity,
     auth: auth,
-    uiPrefs: uiPrefs,
     goals: goals,
     bossAuth: bossAuth,
     bossApi: bossApi,
@@ -104,7 +100,6 @@ class HyphenApp extends StatelessWidget {
   final ProfileState profile;
   final ConnectivityState connectivity;
   final AuthState auth;
-  final UiPrefsState uiPrefs;
   final GoalsState goals;
   final BossAuthState bossAuth;
   final BossApiClient bossApi;
@@ -115,7 +110,6 @@ class HyphenApp extends StatelessWidget {
     required this.profile,
     required this.connectivity,
     required this.auth,
-    required this.uiPrefs,
     required this.goals,
     required this.bossAuth,
     required this.bossApi,
@@ -149,7 +143,6 @@ class HyphenApp extends StatelessWidget {
               AchievementState(ctx.read<AchievementRepository>())..load(),
         ),
         ChangeNotifierProvider<AuthState>.value(value: auth),
-        ChangeNotifierProvider<UiPrefsState>.value(value: uiPrefs),
         // PHASE5 §1.1: 사장 폰 로그인
         ChangeNotifierProvider<BossAuthState>.value(value: bossAuth),
         Provider<BossApiClient>.value(value: bossApi),
@@ -157,8 +150,7 @@ class HyphenApp extends StatelessWidget {
         ChangeNotifierProvider<ShellNavBus>(create: (_) => ShellNavBus()),
         ChangeNotifierProvider<GoalsState>.value(value: goals),
       ],
-      child: Consumer<UiPrefsState>(
-        builder: (ctx, ui, _) => MaterialApp(
+      child: MaterialApp(
         // v1.28 (2026-07-28): 리브랜딩 FACING → HYPHEN (로고·앱명 통일).
         title: 'HYPHEN',
         theme: HyphenTheme.light,
@@ -173,10 +165,13 @@ class HyphenApp extends StatelessWidget {
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        // v1.16 Sprint 9a: 폰트 확대 옵션 (Masters 접근성).
+        // v3.10 (2026-08-22): 앱 안의 글자 크기 조절 옵션은 없앴다. 다만
+        // 배율 고정(1.0)은 남긴다 — 이 한 줄을 빼면 폰 설정의 '글자 크기 크게'
+        // 가 그대로 들어와 카드·탭바 레이아웃이 밀린다. 지금까지도 이 값은
+        // 사실상 1.0 고정이었으므로 동작은 그대로다.
         builder: (ctx2, child) => MediaQuery(
           data: MediaQuery.of(ctx2).copyWith(
-            textScaler: TextScaler.linear(ui.textScale),
+            textScaler: TextScaler.noScaling,
           ),
           child: child ?? const SizedBox.shrink(),
         ),
@@ -221,7 +216,6 @@ class HyphenApp extends StatelessWidget {
           }
           return null;
         },
-      ),
       ),
     );
   }

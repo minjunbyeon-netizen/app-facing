@@ -9,7 +9,6 @@ import 'package:hyphen_app/core/goals_state.dart';
 import 'package:hyphen_app/core/shell_nav_bus.dart';
 import 'package:hyphen_app/core/sse_client.dart';
 import 'package:hyphen_app/core/theme.dart';
-import 'package:hyphen_app/core/ui_prefs_state.dart';
 import 'package:hyphen_app/core/wod_session_bus.dart';
 import 'package:hyphen_app/features/achievement/achievement_repository.dart';
 import 'package:hyphen_app/features/achievement/achievement_state.dart';
@@ -68,7 +67,6 @@ Widget harness({
           create: (ctx) =>
               AchievementState(ctx.read<AchievementRepository>())..load()),
       ChangeNotifierProvider<AuthState>.value(value: auth),
-      ChangeNotifierProvider<UiPrefsState>(create: (_) => UiPrefsState()),
       ChangeNotifierProvider<BossAuthState>.value(
           value: bossAuth ?? BossAuthState()),
       Provider<BossApiClient>.value(value: bossApi ?? BossApiClient.create()),

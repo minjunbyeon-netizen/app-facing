@@ -8,7 +8,6 @@ import '../../core/haptic.dart';
 import '../../core/role_labels.dart';
 import '../../core/shell_nav_bus.dart';
 import '../../core/theme.dart';
-import '../../core/ui_prefs_state.dart';
 import '../../widgets/hkit.dart';
 import '../../widgets/inbox_bell.dart';
 import '../auth/auth_state.dart';
@@ -52,8 +51,9 @@ class MyPageScreen extends StatelessWidget {
             _SectionDivider(),
             // v3.1 (2026-08-19 사용자 지시): 신체(체중·키·나이) 아코디언 삭제 —
             // 입력 칸이 v2.3 에서 전부 빠져 영구 '-' 플레이스홀더였다.
-            _SettingsSection(),
-            _SectionDivider(),
+            // v3.10 (2026-08-22 사용자 지시 "과한 거 없애라"): 설정 아코디언도
+            // 삭제. 단위 토글을 뺀 뒤 남은 건 글자 크기 하나뿐이었고, 그것도
+            // 필요 없다는 판단이다 — 아코디언 한 겹이 항목 하나를 감싸고 있었다.
             _ActionsSection(),
           ],
         ),
@@ -404,70 +404,6 @@ class _MyBoxSection extends StatelessWidget {
 // v3.1 (2026-08-19 사용자 지시): _BodyStats·_Kv(신체 아코디언) 삭제 —
 // 체중·키·나이 입력 경로가 v2.3 온보딩·프로필 수정 개편에서 전부 빠져
 // 값이 영구 '-' 인 죽은 표시부였다. 성별은 프로필 수정 화면이 담당.
-
-class _SettingsSection extends StatelessWidget {
-  const _SettingsSection();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: HyphenTokens.sp4),
-      // v2.5 (사용자 지시): 부제 삭제 — 헤더가 두 줄이면 '설정' 한 줄 버튼이
-      // 아니게 된다. 안에 뭐가 있는지는 눌러서 확인한다.
-      child: HkAccordion(
-        title: '설정',
-        children: [
-          const SizedBox(height: HyphenTokens.sp1),
-          // v3.9 (2026-08-22 사용자 지시): kg/lb 토글 삭제. 이 값을 읽는 화면이
-          // 앱 전체에 쪽지 기록 한 줄뿐이었고, 그마저 숫자는 그대로 둔 채
-          // 뒤 글자만 바꿔 100kg 을 "100lb" 로 잘못 적었다. 1RM 보드·결과
-          // 입력·목표 등 나머지 무게 표기는 전부 kg 고정이라 토글을 만져도
-          // 꿈쩍 않았다 — 한 줄만 거짓말하느니 없애는 쪽이 맞다.
-          // 무게 단위는 처방마다 코치가 고른 값(CoachNote.unit)을 따른다.
-          Consumer<UiPrefsState>(
-            builder: (ctx, ui, _) => Row(
-              children: [
-                const Expanded(
-                    child: Text('글자 크기', style: HyphenTokens.body)),
-                _TextScaleToggle(current: ui.textScale, state: ui),
-              ],
-            ),
-          ),
-          const SizedBox(height: HyphenTokens.sp2),
-        ],
-      ),
-    );
-  }
-}
-
-class _TextScaleToggle extends StatelessWidget {
-  final double current;
-  final UiPrefsState state;
-  const _TextScaleToggle({required this.current, required this.state});
-
-  @override
-  Widget build(BuildContext context) {
-    const options = [(1.0, 'A'), (1.15, 'A+'), (1.30, 'A++')];
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: options.map((o) {
-        final selected = (current - o.$1).abs() < 0.01;
-        return Padding(
-          padding: const EdgeInsets.only(left: HyphenTokens.sp1),
-          child: HkBadge(
-            o.$2,
-            color: HyphenTokens.fg,
-            selected: selected,
-            onTap: () {
-              Haptic.light();
-              state.setTextScale(o.$1);
-            },
-          ),
-        );
-      }).toList(),
-    );
-  }
-}
 
 class _ActionsSection extends StatelessWidget {
   const _ActionsSection();
