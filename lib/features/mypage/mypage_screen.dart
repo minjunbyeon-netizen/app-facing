@@ -9,7 +9,6 @@ import '../../core/role_labels.dart';
 import '../../core/shell_nav_bus.dart';
 import '../../core/theme.dart';
 import '../../core/ui_prefs_state.dart';
-import '../../core/unit_state.dart';
 import '../../widgets/hkit.dart';
 import '../../widgets/inbox_bell.dart';
 import '../auth/auth_state.dart';
@@ -419,15 +418,12 @@ class _SettingsSection extends StatelessWidget {
         title: '설정',
         children: [
           const SizedBox(height: HyphenTokens.sp1),
-          Row(
-            children: [
-              const Expanded(child: Text('단위', style: HyphenTokens.body)),
-              Consumer<UnitState>(
-                builder: (ctx, u, _) => _UnitToggle(u: u),
-              ),
-            ],
-          ),
-          const SizedBox(height: HyphenTokens.sp2),
+          // v3.9 (2026-08-22 사용자 지시): kg/lb 토글 삭제. 이 값을 읽는 화면이
+          // 앱 전체에 쪽지 기록 한 줄뿐이었고, 그마저 숫자는 그대로 둔 채
+          // 뒤 글자만 바꿔 100kg 을 "100lb" 로 잘못 적었다. 1RM 보드·결과
+          // 입력·목표 등 나머지 무게 표기는 전부 kg 고정이라 토글을 만져도
+          // 꿈쩍 않았다 — 한 줄만 거짓말하느니 없애는 쪽이 맞다.
+          // 무게 단위는 처방마다 코치가 고른 값(CoachNote.unit)을 따른다.
           Consumer<UiPrefsState>(
             builder: (ctx, ui, _) => Row(
               children: [
@@ -469,32 +465,6 @@ class _TextScaleToggle extends StatelessWidget {
           ),
         );
       }).toList(),
-    );
-  }
-}
-
-class _UnitToggle extends StatelessWidget {
-  final UnitState u;
-  const _UnitToggle({required this.u});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        HkBadge('kg',
-            color: HyphenTokens.fg,
-            selected: u.isKg,
-            onTap: () {
-              if (!u.isKg) u.toggle();
-            }),
-        const SizedBox(width: HyphenTokens.sp2),
-        HkBadge('lb',
-            color: HyphenTokens.fg,
-            selected: !u.isKg,
-            onTap: () {
-              if (u.isKg) u.toggle();
-            }),
-      ],
     );
   }
 }

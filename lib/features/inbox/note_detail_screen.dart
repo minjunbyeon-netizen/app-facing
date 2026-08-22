@@ -12,7 +12,6 @@ import 'package:provider/provider.dart';
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
-import '../../core/unit_state.dart';
 import '../../models/coach_note.dart';
 import '../../widgets/avatar.dart';
 import '../../widgets/hkit.dart';
@@ -617,7 +616,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 2),
                 child: Text(
                   'SET ${a.setIndex + 1} · '
-                  '${a.actualLoad != null ? '${a.actualLoad}${context.read<UnitState>().weightSuffix}' : '-'} · '
+                  '${a.actualLoad != null ? '${a.actualLoad}${_loadUnit(n)}' : '-'} · '
                   '${a.actualReps ?? '-'} reps · '
                   'RPE ${a.rpe ?? '-'}',
                   style: HyphenTokens.body,
@@ -784,4 +783,14 @@ class _RecipientsList extends StatelessWidget {
         return HyphenTokens.accent;
     }
   }
+}
+
+/// 기록된 무게에 붙일 단위. 전역 kg/lb 토글은 v3.9 에서 없앴다 — 무게 단위는
+/// **처방마다 코치가 고른 값**(CoachNote.structured 의 unit)이 정본이다.
+/// 처방에 무게 항목이 없으면 kg 로 본다 (입력 화면 기본값과 같다).
+String _loadUnit(CoachNote n) {
+  for (final it in n.structured) {
+    if (it.unit == 'kg' || it.unit == 'lb') return it.unit!;
+  }
+  return 'kg';
 }

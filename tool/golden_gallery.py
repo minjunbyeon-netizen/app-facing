@@ -48,7 +48,7 @@ SECTIONS = [
         ("member_03_shell_profile", "내 정보 탭 — 회원권 · 내 체육관 · 신체 · 설정 (ENGINE 폐기)"),
         ("member_04_profile_menu", "프로필 하단 — 아코디언 접힘 상태"),
         ("member_04b_settings_open",
-         "설정 펼침 — 단위 · 글자 크기 (v3.9 모드 전환 삭제 후 게이트)"),
+         "설정 펼침 — 글자 크기 (v3.9 모드 전환 · kg/lb 토글 삭제 후 게이트)"),
         ("member_05_profile_menu_open", "프로필 메뉴 펼침 — 계약~이용약관 (+최고 기록, v3.4)"),
         ("member_06_result_sheet", "수업 결과 입력 시트 — 완료 표시 탭 → 저장 (동작별 SCALED/RXD, v3.3 — ELITE 제거)"),
         ("member_06b_result_sheet_strength", "결과 시트 Strength 분기 — 최고 무게(kg)+reps 입력 (v3.4 발전 측정)"),

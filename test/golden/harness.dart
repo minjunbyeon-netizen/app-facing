@@ -10,7 +10,6 @@ import 'package:hyphen_app/core/shell_nav_bus.dart';
 import 'package:hyphen_app/core/sse_client.dart';
 import 'package:hyphen_app/core/theme.dart';
 import 'package:hyphen_app/core/ui_prefs_state.dart';
-import 'package:hyphen_app/core/unit_state.dart';
 import 'package:hyphen_app/core/wod_session_bus.dart';
 import 'package:hyphen_app/features/achievement/achievement_repository.dart';
 import 'package:hyphen_app/features/achievement/achievement_state.dart';
@@ -56,7 +55,6 @@ Widget harness({
       Provider<GymRepository>(create: (_) => GymRepository(api)),
       Provider<InboxRepository>(create: (_) => InboxRepository(api)),
       ChangeNotifierProvider<ProfileState>.value(value: profile),
-      ChangeNotifierProvider<UnitState>(create: (_) => UnitState()),
       ChangeNotifierProvider<ConnectivityState>.value(
           value: connectivity ?? ConnectivityState()),
       ChangeNotifierProvider<GymState>.value(value: gymState),

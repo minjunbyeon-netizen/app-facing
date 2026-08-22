@@ -14,7 +14,6 @@ import 'core/theme.dart';
 import 'core/goals_state.dart';
 import 'core/shell_nav_bus.dart';
 import 'core/ui_prefs_state.dart';
-import 'core/unit_state.dart';
 import 'core/wod_session_bus.dart';
 import 'features/home/home_screen.dart';
 import 'features/onboarding/onboarding_basic.dart';
@@ -50,7 +49,6 @@ Future<void> main() async {
   final api = ApiClient.create();
   final sse = SseClient(api);
   final profile = ProfileState();
-  final unit = UnitState();
   final connectivity = ConnectivityState();
   final auth = AuthState();
   final uiPrefs = UiPrefsState();
@@ -60,7 +58,6 @@ Future<void> main() async {
   final bossApi = BossApiClient.create();
   await Future.wait([
     profile.load(),
-    unit.load(),
     connectivity.init(),
     auth.load(),
     uiPrefs.load(),
@@ -92,7 +89,6 @@ Future<void> main() async {
     api: api,
     sse: sse,
     profile: profile,
-    unit: unit,
     connectivity: connectivity,
     auth: auth,
     uiPrefs: uiPrefs,
@@ -106,7 +102,6 @@ class HyphenApp extends StatelessWidget {
   final ApiClient api;
   final SseClient sse;
   final ProfileState profile;
-  final UnitState unit;
   final ConnectivityState connectivity;
   final AuthState auth;
   final UiPrefsState uiPrefs;
@@ -118,7 +113,6 @@ class HyphenApp extends StatelessWidget {
     required this.api,
     required this.sse,
     required this.profile,
-    required this.unit,
     required this.connectivity,
     required this.auth,
     required this.uiPrefs,
@@ -136,7 +130,6 @@ class HyphenApp extends StatelessWidget {
         Provider<GymRepository>(create: (_) => GymRepository(api)),
         Provider<InboxRepository>(create: (_) => InboxRepository(api)),
         ChangeNotifierProvider<ProfileState>.value(value: profile),
-        ChangeNotifierProvider<UnitState>.value(value: unit),
         ChangeNotifierProvider<ConnectivityState>.value(value: connectivity),
         ChangeNotifierProvider<GymState>(
           create: (ctx) => GymState(GymRepository(api), sse: sse)..loadMine(),
