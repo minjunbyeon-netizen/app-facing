@@ -61,6 +61,13 @@ class _WodResultSheetState extends State<WodResultSheet> {
   final _weightCtrl = TextEditingController(); // fallback(자유 서술 게시물) 전용
   final _stWeightCtrl = TextEditingController(); // strength — 최고 무게
   final _stRepsCtrl = TextEditingController(); // strength — reps (선택)
+  // v3.14 (2026-08-23 조인트 1) — custom 수업의 무게 기록(선택).
+  // 그날 내용(BUILD Back Squat 5×5 …)은 custom 게시물이라 strength 분기가
+  // 안 떠, 회원이 무게를 적을 곳이 없었다. 동작 이름이 기록의 묶음 열쇠
+  // (서버가 strength 게시물과 같은 그룹으로 묶어 PR·1RM 보드 연동).
+  final _liftNameCtrl = TextEditingController();
+  final _liftWeightCtrl = TextEditingController();
+  final _liftRepsCtrl = TextEditingController();
   final _notesCtrl = TextEditingController();
   bool _fallbackScaled = false; // fallback 전용 — 기본 RXD
   bool _saving = false;
@@ -114,6 +121,9 @@ class _WodResultSheetState extends State<WodResultSheet> {
     _weightCtrl.dispose();
     _stWeightCtrl.dispose();
     _stRepsCtrl.dispose();
+    _liftNameCtrl.dispose();
+    _liftWeightCtrl.dispose();
+    _liftRepsCtrl.dispose();
     _notesCtrl.dispose();
     for (final m in _moves) {
       m.dispose();
@@ -181,9 +191,17 @@ class _WodResultSheetState extends State<WodResultSheet> {
         : null;
     final extra = _isAmrap ? int.tryParse(_extraCtrl.text.trim()) : null;
     // strength — 최고 무게(+reps). 다른 유형은 null.
-    final stWeight =
-        _isStrength ? double.tryParse(_stWeightCtrl.text.trim()) : null;
-    final stReps = _isStrength ? int.tryParse(_stRepsCtrl.text.trim()) : null;
+    final liftName = _isStrength ? null : _liftNameCtrl.text.trim();
+    final liftWeight =
+        _isStrength ? null : double.tryParse(_liftWeightCtrl.text.trim());
+    final hasLift =
+        liftName != null && liftName.isNotEmpty && liftWeight != null;
+    final stWeight = _isStrength
+        ? double.tryParse(_stWeightCtrl.text.trim())
+        : (hasLift ? liftWeight : null);
+    final stReps = _isStrength
+        ? int.tryParse(_stRepsCtrl.text.trim())
+        : (hasLift ? int.tryParse(_liftRepsCtrl.text.trim()) : null);
 
     // 전체 난도 = 동작 중 하나라도 SCALED 면 scaled (enum 은 scaled/rx 유지).
     // strength 는 난도 선택이 없다 — 기본 rx.
@@ -216,6 +234,7 @@ class _WodResultSheetState extends State<WodResultSheet> {
             extraReps: extra,
             weightKg: stWeight,
             weightReps: stReps,
+            movement: hasLift ? liftName : null,
             scaleLevel: scale,
             notes: notes,
           );
@@ -389,6 +408,50 @@ class _WodResultSheetState extends State<WodResultSheet> {
                         ),
                       ),
                     ],
+                  ],
+                ),
+                // v3.14 — 무게 기록 (선택). 근력 파트가 낀 날(BUILD Back
+                // Squat 5×5 …) 여기 적으면 최고 기록·PR 로 이어진다.
+                // 동작 이름이 같으면 날짜가 달라도 같은 기록으로 묶인다.
+                const SizedBox(height: HyphenTokens.sp4),
+                const Text('무게 기록 (선택)', style: HyphenTokens.sectionLabel),
+                const SizedBox(height: HyphenTokens.sp1),
+                Text('오늘 리프트를 했으면 적어 주세요 — 최고 기록과 PR 에 반영됩니다.',
+                    style: HyphenTokens.caption),
+                const SizedBox(height: HyphenTokens.sp2),
+                TextField(
+                  controller: _liftNameCtrl,
+                  decoration: const InputDecoration(
+                    labelText: '동작 이름',
+                    hintText: '예: Back Squat',
+                  ),
+                ),
+                const SizedBox(height: HyphenTokens.sp2),
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: TextField(
+                        controller: _liftWeightCtrl,
+                        keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true),
+                        decoration: const InputDecoration(
+                          labelText: '오늘 최고 무게 (kg)',
+                          hintText: '예: 100',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: HyphenTokens.sp2),
+                    Expanded(
+                      child: TextField(
+                        controller: _liftRepsCtrl,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          labelText: 'reps (선택)',
+                          hintText: '예: 5',
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ],

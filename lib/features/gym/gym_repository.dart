@@ -277,6 +277,7 @@ class GymRepository {
     int? extraReps,
     double? weightKg,
     int? weightReps,
+    String? movement,
     String scaleLevel = 'rx',
     String notes = '',
   }) async {
@@ -286,6 +287,7 @@ class GymRepository {
       'extra_reps': ?extraReps,
       'weight_kg': ?weightKg,
       'weight_reps': ?weightReps,
+      'movement': ?movement,
       'scale_level': scaleLevel,
       'notes': notes,
     });
