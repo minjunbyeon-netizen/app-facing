@@ -58,3 +58,8 @@ samples, guidance on mobile development, and a full API reference.
     짝)도 같은 날 삭제 — "폰 회원에게 즉시 노출" 안내가 실제로는 거짓이었다.
     회원 수업 내용의 정본은 wod-posts(수업 탭 보드) 하나. 백엔드 daily-plans API 는
     반복 스케줄 실체화(materialize_rules)의 설명 폴백으로 남아 있어 유지.
+13. **'당일 공개' 잠금 (v3.15 · 2026-08-23 사용자 결정 "당일공개 폐지")** — 미래
+    게시물을 회원에게 잠그던 정책. 서버 `future_locked`(services/facing api/gym.py
+    2곳) + 앱 `LockedWodBanner` 의 미래 분기(week_board.dart)·'당일 공개.' 문구
+    삭제. 코치가 미리 적는 새 흐름과 충돌해 폐지 — 잠금 사유는 회원권 만료 하나만
+    남음 (LockedWodBanner 는 그 용도로 존치).

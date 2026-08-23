@@ -17,13 +17,11 @@ import 'wod_type_label.dart';
 /// 주간 보드(week_board.dart)와 WOD 보드가 같은 행 규격을 쓴다 — 같은 역할의
 /// 위젯을 두 벌 만들지 않기 위한 분리 (§3 코드 SSOT).
 
-/// locked WOD 카드 — 회원권 만료 시 내용 숨김 + 자물쇠 배너.
+/// locked 수업 카드 — 회원권 만료 시 내용 숨김 + 자물쇠 배너.
+/// (미래 게시물 '당일 공개' 잠금은 2026-08-23 폐지 — 잠금 사유는 회원권 만료뿐.)
 class LockedWodBanner extends StatelessWidget {
   final String dateLabel;
   final String wodType;
-
-  /// true=회원권 만료, false=아직 공개 전인 미래 WOD.
-  final bool isMembershipExpired;
 
   /// 날짜를 함께 보일지. 주간 보드처럼 날짜가 이미 위에 있으면 false.
   final bool showDate;
@@ -32,7 +30,6 @@ class LockedWodBanner extends StatelessWidget {
     super.key,
     required this.dateLabel,
     required this.wodType,
-    required this.isMembershipExpired,
     this.showDate = true,
   });
 
@@ -52,8 +49,7 @@ class LockedWodBanner extends StatelessWidget {
           Container(
             width: 3,
             height: 36,
-            color:
-                isMembershipExpired ? HyphenTokens.warning : HyphenTokens.border,
+            color: HyphenTokens.warning,
           ),
           const SizedBox(width: HyphenTokens.sp3),
           Expanded(
@@ -78,24 +74,19 @@ class LockedWodBanner extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(top: 2),
                   child: Text(
-                    isMembershipExpired
-                        ? '회원권 만료. 갱신 후 열람.'
-                        : '당일 공개.',
+                    '회원권 만료. 갱신 후 열람.',
                     style: HyphenTokens.caption.copyWith(
-                      color: isMembershipExpired
-                          ? HyphenTokens.warning
-                          : HyphenTokens.muted,
+                      color: HyphenTokens.warning,
                     ),
                   ),
                 ),
               ],
             ),
           ),
-          Icon(
-            isMembershipExpired ? Icons.lock : Icons.lock_outline,
+          const Icon(
+            Icons.lock,
             size: 16,
-            color:
-                isMembershipExpired ? HyphenTokens.warning : HyphenTokens.muted,
+            color: HyphenTokens.warning,
           ),
         ],
       ),

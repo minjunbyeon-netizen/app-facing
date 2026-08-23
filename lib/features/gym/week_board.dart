@@ -383,19 +383,13 @@ class _DayTile extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        // '당일 공개' 잠금 폐지 (2026-08-23) — 미래 게시물도 회원에게 그대로.
+        // 잠금 사유는 회원권 만료(w.locked)뿐.
         for (final (i, w) in wods.indexed)
           if (w.locked)
             LockedWodBanner(
               dateLabel: dateLabel,
               wodType: w.wodType,
-              isMembershipExpired: true,
-              showDate: false,
-            )
-          else if (_isFuture && !isOwner)
-            LockedWodBanner(
-              dateLabel: dateLabel,
-              wodType: w.wodType,
-              isMembershipExpired: false,
               showDate: false,
             )
           else
