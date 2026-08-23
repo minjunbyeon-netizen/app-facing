@@ -5,7 +5,9 @@
 // 로컬 추론. 추론 불가능한 신호(WOD 기록·외부 자격)는 잠금 유지.
 //
 // 정책:
-// - 모든 칭호는 영문 라벨 (V8 단어 1개 / V11 명사+마침표). 부연은 한글 캡션 (V10).
+// - v3.12 (2026-08-23): 칭호 이름은 한글 명사형. 구 '영문 라벨' 원칙은
+//   v1.29 한글 기본 전환으로 폐기됐는데 이 파일만 옛 원칙에 머물러 있었다.
+//   도메인 고정어(PR·Streak)는 그대로 둔다 (DESIGN-SSOT §7).
 // - rarity: Common < Rare < Epic < Legendary.
 // - 착용은 1개 (worn_title_store). 해금은 누적.
 // - 분포 (50): Common 15 / Rare 20 / Epic 10 / Legendary 5.
@@ -33,23 +35,15 @@ const List<PanelBTitle> kPanelBTitles = [
   // ===== Common (15) =====
   PanelBTitle(
     code: 'PB_GRINDER',
-    label: 'THE GRINDER',
+    label: '백 번의 수업',
     captionKo: '총 세션 100회 누적.',
     rarity: 'Common',
     requirement: '100 sessions',
     sortOrder: 10,
   ),
   PanelBTitle(
-    code: 'PB_METRIC_DEVOTEE',
-    label: 'METRIC DEVOTEE',
-    captionKo: '벤치마크 5종 입력.',
-    rarity: 'Common',
-    requirement: '5 benchmarks logged',
-    sortOrder: 20,
-  ),
-  PanelBTitle(
     code: 'PB_BOX_MEMBER',
-    label: 'BOX MEMBER',
+    label: '입문',
     captionKo: '체육관 가입 완료.',
     rarity: 'Common',
     requirement: 'gym membership active',
@@ -57,7 +51,7 @@ const List<PanelBTitle> kPanelBTitles = [
   ),
   PanelBTitle(
     code: 'PB_EARLY_BIRD',
-    label: 'COFFEE BREW',
+    label: '새벽반',
     captionKo: '06:00 이전 세션 10회.',
     rarity: 'Common',
     requirement: '10 sessions before 06:00',
@@ -65,7 +59,7 @@ const List<PanelBTitle> kPanelBTitles = [
   ),
   PanelBTitle(
     code: 'PB_NIGHT_OWL',
-    label: 'LATE NIGHT',
+    label: '야간반',
     captionKo: '22:00 이후 세션 10회.',
     rarity: 'Common',
     requirement: '10 sessions after 22:00',
@@ -73,7 +67,7 @@ const List<PanelBTitle> kPanelBTitles = [
   ),
   PanelBTitle(
     code: 'PB_WEEKEND',
-    label: 'WEEKEND WARRIOR',
+    label: '주말반',
     captionKo: '주말 세션 20회.',
     rarity: 'Common',
     requirement: '20 weekend sessions',
@@ -81,7 +75,7 @@ const List<PanelBTitle> kPanelBTitles = [
   ),
   PanelBTitle(
     code: 'PB_FIRST_WOD',
-    label: 'FIRST CLASS',
+    label: '첫 수업',
     captionKo: '첫 수업 기록 완료.',
     rarity: 'Common',
     requirement: '1 session',
@@ -89,7 +83,7 @@ const List<PanelBTitle> kPanelBTitles = [
   ),
   PanelBTitle(
     code: 'PB_TEN_WODS',
-    label: 'DECA',
+    label: '열 번의 수업',
     captionKo: '수업 기록 10회 누적.',
     rarity: 'Common',
     requirement: '10 sessions',
@@ -97,23 +91,15 @@ const List<PanelBTitle> kPanelBTitles = [
   ),
   PanelBTitle(
     code: 'PB_FIFTY_WODS',
-    label: 'HALF CENTURY',
+    label: '쉰 번의 수업',
     captionKo: '수업 기록 50회 누적.',
     rarity: 'Common',
     requirement: '50 sessions',
     sortOrder: 80,
   ),
   PanelBTitle(
-    code: 'PB_PROFILE_COMPLETE',
-    label: 'PROFILE READY',
-    captionKo: '프로필 + 5 벤치마크 입력.',
-    rarity: 'Common',
-    requirement: 'profile complete + 5 benchmarks',
-    sortOrder: 85,
-  ),
-  PanelBTitle(
     code: 'PB_WARM_UP',
-    label: 'WARM UP',
+    label: 'Streak 7일',
     captionKo: 'Streak 7일.',
     rarity: 'Common',
     requirement: '7-day streak',
@@ -121,7 +107,7 @@ const List<PanelBTitle> kPanelBTitles = [
   ),
   PanelBTitle(
     code: 'PB_COMMITTED',
-    label: 'COMMITTED',
+    label: 'Streak 14일',
     captionKo: 'Streak 14일.',
     rarity: 'Common',
     requirement: '14-day streak',
@@ -129,7 +115,7 @@ const List<PanelBTitle> kPanelBTitles = [
   ),
   PanelBTitle(
     code: 'PB_DEDICATED',
-    label: 'DEDICATED',
+    label: 'Streak 30일',
     captionKo: 'Streak 30일.',
     rarity: 'Common',
     requirement: '30-day streak',
@@ -137,7 +123,7 @@ const List<PanelBTitle> kPanelBTitles = [
   ),
   PanelBTitle(
     code: 'PB_FRESH_START',
-    label: 'FRESH START',
+    label: '새해 첫 수업',
     captionKo: '신년 첫 수업 기록 (1/1~1/7).',
     rarity: 'Common',
     requirement: 'session in Jan 1~7',
@@ -145,7 +131,7 @@ const List<PanelBTitle> kPanelBTitles = [
   ),
   PanelBTitle(
     code: 'PB_PHOTO_FINISH',
-    label: 'SHARE',
+    label: '기록 공유',
     captionKo: 'SNS 공유 1회.',
     rarity: 'Common',
     requirement: 'shared 1+',
@@ -154,48 +140,8 @@ const List<PanelBTitle> kPanelBTitles = [
 
   // ===== Rare (20) =====
   PanelBTitle(
-    code: 'PB_IRON_LUNG',
-    label: 'IRON LUNG',
-    captionKo: 'Engine 80+ 5회.',
-    rarity: 'Rare',
-    requirement: 'Engine score 80+ logged 5 times',
-    sortOrder: 110,
-  ),
-  PanelBTitle(
-    code: 'PB_UNBROKEN',
-    label: 'UNBROKEN',
-    captionKo: 'UB 50+ 3회.',
-    rarity: 'Rare',
-    requirement: 'UB 50+ in 3 separate sessions',
-    sortOrder: 120,
-  ),
-  PanelBTitle(
-    code: 'PB_DOUBLE_UNDER',
-    label: 'DOUBLE-UNDER',
-    captionKo: '더블 언더 50회 unbroken.',
-    rarity: 'Rare',
-    requirement: 'DU 50 unbroken',
-    sortOrder: 130,
-  ),
-  PanelBTitle(
-    code: 'PB_RUNNER',
-    label: 'RUNNER',
-    captionKo: '러닝 5km sub-25:00.',
-    rarity: 'Rare',
-    requirement: '5km < 25:00',
-    sortOrder: 140,
-  ),
-  PanelBTitle(
-    code: 'PB_ROWER',
-    label: 'ROWER',
-    captionKo: '로잉 2km sub-7:30.',
-    rarity: 'Rare',
-    requirement: '2km row < 7:30',
-    sortOrder: 150,
-  ),
-  PanelBTitle(
     code: 'PB_TEACHER',
-    label: 'THE TEACHER',
+    label: '먼저 묻는 사람',
     captionKo: '코치 노트 10건 발송.',
     rarity: 'Rare',
     requirement: '10 coach notes sent',
@@ -203,23 +149,15 @@ const List<PanelBTitle> kPanelBTitles = [
   ),
   PanelBTitle(
     code: 'PB_STUDENT',
-    label: 'THE STUDENT',
+    label: '배우는 사람',
     captionKo: '코치 노트 10건 수령.',
     rarity: 'Rare',
     requirement: '10 coach notes received',
     sortOrder: 170,
   ),
   PanelBTitle(
-    code: 'PB_HSPU',
-    label: 'HSPU MASTER',
-    captionKo: 'HSPU 10회 unbroken.',
-    rarity: 'Rare',
-    requirement: 'HSPU 10 unbroken',
-    sortOrder: 180,
-  ),
-  PanelBTitle(
     code: 'PB_PR_HUNTER',
-    label: 'PR HUNTER',
+    label: 'PR 5회',
     captionKo: 'PR 5회 누적.',
     rarity: 'Rare',
     requirement: '5 PRs logged',
@@ -227,216 +165,24 @@ const List<PanelBTitle> kPanelBTitles = [
   ),
   PanelBTitle(
     code: 'PB_PR_MACHINE',
-    label: 'PR MACHINE',
+    label: 'PR 10회',
     captionKo: 'PR 10회 누적.',
     rarity: 'Rare',
     requirement: '10 PRs logged',
     sortOrder: 190,
   ),
   PanelBTitle(
-    code: 'PB_DEADLIFT_DOUBLE',
-    label: 'DEADLIFT DOUBLE',
-    captionKo: '데드리프트 1RM 체중 2배.',
-    rarity: 'Rare',
-    requirement: 'DL 1RM ≥ 2x BW',
-    sortOrder: 195,
-  ),
-  PanelBTitle(
-    code: 'PB_PRESS_BODYWEIGHT',
-    label: 'SHOULDER STRONG',
-    captionKo: '스트릭트 프레스 1RM 체중.',
-    rarity: 'Rare',
-    requirement: 'Strict Press 1RM ≥ BW',
-    sortOrder: 200,
-  ),
-  PanelBTitle(
-    code: 'PB_KIPPING_PULLUP',
-    label: 'KIPPING',
-    captionKo: '키핑 풀업 30회 unbroken.',
-    rarity: 'Rare',
-    requirement: 'kipping pullup 30 unbroken',
-    sortOrder: 205,
-  ),
-  PanelBTitle(
-    code: 'PB_TOES_TO_BAR',
-    label: 'T2B PRO',
-    captionKo: 'T2B 30회 unbroken.',
-    rarity: 'Rare',
-    requirement: 'T2B 30 unbroken',
-    sortOrder: 207,
-  ),
-  PanelBTitle(
-    code: 'PB_WALL_BALL',
-    label: 'WALL BALL',
-    captionKo: '월볼 100회 unbroken.',
-    rarity: 'Rare',
-    requirement: 'WB 100 unbroken',
-    sortOrder: 209,
-  ),
-  PanelBTitle(
-    code: 'PB_BURPEE',
-    label: 'BURPEE',
-    captionKo: '버피 100회 sub-5:00.',
-    rarity: 'Rare',
-    requirement: '100 burpees < 5:00',
-    sortOrder: 211,
-  ),
-  PanelBTitle(
     code: 'PB_DOUBLE_DAY',
-    label: 'DOUBLE DAY',
+    label: '하루 두 번',
     captionKo: '하루 2 세션 5회.',
     rarity: 'Rare',
     requirement: '2 sessions/day x5',
     sortOrder: 213,
   ),
-  PanelBTitle(
-    code: 'PB_OPEN_ROOKIE',
-    label: 'OPEN ROOKIE',
-    captionKo: 'CrossFit Open 첫 참가.',
-    rarity: 'Rare',
-    requirement: 'first Open registered',
-    sortOrder: 215,
-  ),
-  PanelBTitle(
-    code: 'PB_GRACE_FAST',
-    label: 'GRACE FAST',
-    captionKo: 'Grace 2분 이내.',
-    rarity: 'Rare',
-    requirement: 'Grace < 2:00',
-    sortOrder: 217,
-  ),
-  PanelBTitle(
-    code: 'PB_SPLIT_MASTER',
-    label: 'SPLIT MASTER',
-    captionKo: '페이싱 정확도 95%+ 10회.',
-    rarity: 'Rare',
-    requirement: 'pacing accuracy 95% x10',
-    sortOrder: 219,
-  ),
 
   // ===== Epic (10) =====
-  PanelBTitle(
-    code: 'PB_HEAVY',
-    label: 'HEAVY',
-    captionKo: '백 스쿼트 1RM 200kg+.',
-    rarity: 'Epic',
-    requirement: 'BS 1RM ≥ 200kg',
-    sortOrder: 310,
-  ),
-  PanelBTitle(
-    code: 'PB_THRUSTER',
-    label: 'THRUSTER LORD',
-    captionKo: 'Fran 3분 이내.',
-    rarity: 'Epic',
-    requirement: 'Fran < 3:00',
-    sortOrder: 320,
-  ),
-  PanelBTitle(
-    code: 'PB_RING',
-    label: 'RING',
-    captionKo: '머슬업 5회 unbroken.',
-    rarity: 'Epic',
-    requirement: 'MUS 5 unbroken',
-    sortOrder: 330,
-  ),
-  PanelBTitle(
-    code: 'PB_COMPETITOR',
-    label: 'COMPETITOR',
-    captionKo: 'CrossFit Open 등록.',
-    rarity: 'Epic',
-    requirement: 'Open registered',
-    sortOrder: 340,
-  ),
-  PanelBTitle(
-    code: 'PB_DEADLIFT_TRIPLE',
-    label: 'DEADLIFT TRIPLE',
-    captionKo: '데드리프트 1RM 체중 3배.',
-    rarity: 'Epic',
-    requirement: 'DL 1RM ≥ 3x BW',
-    sortOrder: 345,
-  ),
-  PanelBTitle(
-    code: 'PB_HELEN_FAST',
-    label: 'HELEN',
-    captionKo: 'Helen 9분 이내.',
-    rarity: 'Epic',
-    requirement: 'Helen < 9:00',
-    sortOrder: 350,
-  ),
-  PanelBTitle(
-    code: 'PB_DT_SUB_8',
-    label: 'DT',
-    captionKo: 'DT 8분 이내.',
-    rarity: 'Epic',
-    requirement: 'DT < 8:00',
-    sortOrder: 355,
-  ),
-  PanelBTitle(
-    code: 'PB_FILTHY_FIFTY',
-    label: 'FILTHY FIFTY',
-    captionKo: 'Filthy Fifty 25분 이내.',
-    rarity: 'Epic',
-    requirement: 'F50 < 25:00',
-    sortOrder: 360,
-  ),
-  PanelBTitle(
-    code: 'PB_MURPH_SCALED',
-    label: 'MURPH',
-    captionKo: 'Murph scaled 완료.',
-    rarity: 'Epic',
-    requirement: 'Murph any scale',
-    sortOrder: 365,
-  ),
-  PanelBTitle(
-    code: 'PB_QF_QUALIFIER',
-    label: 'QF QUALIFIER',
-    captionKo: 'Quarterfinals 통과.',
-    rarity: 'Epic',
-    requirement: 'QF qualified',
-    sortOrder: 370,
-  ),
 
   // ===== Legendary (5) =====
-  PanelBTitle(
-    code: 'PB_PRINCIPAL',
-    label: 'PRINCIPAL',
-    captionKo: '프론트 스쿼트 1RM 150kg+.',
-    rarity: 'Legendary',
-    requirement: 'FS 1RM ≥ 150kg',
-    sortOrder: 410,
-  ),
-  PanelBTitle(
-    code: 'PB_SNATCH_KING',
-    label: 'SNATCH KING',
-    captionKo: '스내치 1RM 100kg+.',
-    rarity: 'Legendary',
-    requirement: 'Snatch 1RM ≥ 100kg',
-    sortOrder: 420,
-  ),
-  PanelBTitle(
-    code: 'PB_GAMES',
-    label: 'GAMES',
-    captionKo: 'CrossFit Games 진출.',
-    rarity: 'Legendary',
-    requirement: 'Games qualified',
-    sortOrder: 430,
-  ),
-  PanelBTitle(
-    code: 'PB_REGIONAL_CHAMP',
-    label: 'REGIONAL CHAMP',
-    captionKo: '지역 1위.',
-    rarity: 'Legendary',
-    requirement: 'regional #1',
-    sortOrder: 440,
-  ),
-  PanelBTitle(
-    code: 'PB_HERO_MURPH',
-    label: 'HERO',
-    captionKo: 'Murph RX 40분 이내.',
-    rarity: 'Legendary',
-    requirement: 'Murph RX < 40:00',
-    sortOrder: 450,
-  ),
 ];
 
 /// 클라이언트-사이드 해금 추론.
@@ -544,7 +290,6 @@ class PanelBUnlocker {
     final out = <String>{};
     // Common
     if (s.totalSessions >= 100) out.add('PB_GRINDER');
-    if (s.benchmarkCount >= 5) out.add('PB_METRIC_DEVOTEE');
     if (s.hasGym) out.add('PB_BOX_MEMBER');
     if (s.sessionsBefore6am >= 10) out.add('PB_EARLY_BIRD');
     if (s.sessionsAfter10pm >= 10) out.add('PB_NIGHT_OWL');
@@ -552,7 +297,6 @@ class PanelBUnlocker {
     if (s.totalSessions >= 1) out.add('PB_FIRST_WOD');
     if (s.totalSessions >= 10) out.add('PB_TEN_WODS');
     if (s.totalSessions >= 50) out.add('PB_FIFTY_WODS');
-    if (s.profileComplete) out.add('PB_PROFILE_COMPLETE');
     if (s.streakDays >= 7) out.add('PB_WARM_UP');
     if (s.streakDays >= 14) out.add('PB_COMMITTED');
     if (s.streakDays >= 30) out.add('PB_DEDICATED');
@@ -560,62 +304,32 @@ class PanelBUnlocker {
     if (s.shareCount >= 1) out.add('PB_PHOTO_FINISH');
 
     // Rare
-    if (s.engineScore80PlusCount >= 5) out.add('PB_IRON_LUNG');
-    if (s.ub50PlusSessions >= 3) out.add('PB_UNBROKEN');
-    if (s.du50Unbroken) out.add('PB_DOUBLE_UNDER');
-    if (s.fiveKmSub25) out.add('PB_RUNNER');
-    if (s.twoKmRowSub730) out.add('PB_ROWER');
     if (s.coachNotesSent >= 10) out.add('PB_TEACHER');
     if (s.coachNotesReceived >= 10) out.add('PB_STUDENT');
-    if (s.hspu10Unbroken) out.add('PB_HSPU');
     if (s.prCount >= 5) out.add('PB_PR_HUNTER');
     if (s.prCount >= 10) out.add('PB_PR_MACHINE');
     if (s.deadlift1rmKg != null &&
         s.bodyWeightKg != null &&
         s.deadlift1rmKg! >= s.bodyWeightKg! * 2) {
-      out.add('PB_DEADLIFT_DOUBLE');
     }
     if (s.pressStrict1rmKg != null &&
         s.bodyWeightKg != null &&
         s.pressStrict1rmKg! >= s.bodyWeightKg!) {
-      out.add('PB_PRESS_BODYWEIGHT');
     }
-    if (s.kippingPullupUnbroken >= 30) out.add('PB_KIPPING_PULLUP');
-    if (s.t2bUnbrokenMax >= 30) out.add('PB_TOES_TO_BAR');
-    if (s.wbUnbrokenMax >= 100) out.add('PB_WALL_BALL');
     if (s.burpee100Sec != null && s.burpee100Sec! < 300) {
-      out.add('PB_BURPEE');
     }
     if (s.doubleSessionDayCount >= 5) out.add('PB_DOUBLE_DAY');
-    if (s.openRegistered) out.add('PB_OPEN_ROOKIE');
-    if (s.graceSec != null && s.graceSec! < 120) out.add('PB_GRACE_FAST');
-    if (s.pacingAccuracy95Count >= 10) out.add('PB_SPLIT_MASTER');
 
     // Epic
-    if ((s.backSquat1rmKg ?? 0) >= 200) out.add('PB_HEAVY');
-    if (s.franSec != null && s.franSec! < 180) out.add('PB_THRUSTER');
-    if (s.mus5Unbroken) out.add('PB_RING');
-    if (s.openRegistered) out.add('PB_COMPETITOR');
     if (s.deadlift1rmKg != null &&
         s.bodyWeightKg != null &&
         s.deadlift1rmKg! >= s.bodyWeightKg! * 3) {
-      out.add('PB_DEADLIFT_TRIPLE');
     }
-    if (s.helenSec != null && s.helenSec! < 540) out.add('PB_HELEN_FAST');
-    if (s.dtSec != null && s.dtSec! < 480) out.add('PB_DT_SUB_8');
     if (s.filthyFiftySec != null && s.filthyFiftySec! < 1500) {
-      out.add('PB_FILTHY_FIFTY');
     }
-    if (s.murphAnyScale) out.add('PB_MURPH_SCALED');
-    if (s.qfQualified) out.add('PB_QF_QUALIFIER');
 
     // Legendary
-    if ((s.frontSquat1rmKg ?? 0) >= 150) out.add('PB_PRINCIPAL');
-    if ((s.snatch1rmKg ?? 0) >= 100) out.add('PB_SNATCH_KING');
-    if (s.gamesQualified) out.add('PB_GAMES');
-    if (s.regionalChampion) out.add('PB_REGIONAL_CHAMP');
     if (s.murphRxSec != null && s.murphRxSec! < 2400) {
-      out.add('PB_HERO_MURPH');
     }
     return out;
   }
