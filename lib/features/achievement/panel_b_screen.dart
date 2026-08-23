@@ -23,10 +23,11 @@ import '../../core/pr_detector.dart';
 import '../../core/share_count_store.dart';
 import '../../core/theme.dart';
 import '../../core/titles_catalog.dart';
-import '../../core/worn_title_store.dart';
+import '../../core/goals_state.dart';
 import '../gym/gym_state.dart';
 import '../history/history_models.dart';
 import '../history/history_repository.dart';
+import '../gym/gym_repository.dart';
 import '../inbox/inbox_state.dart';
 import '../profile/profile_state.dart';
 import '../../core/app_clock.dart';
@@ -41,18 +42,41 @@ class PanelBScreen extends StatefulWidget {
 
 class _PanelBScreenState extends State<PanelBScreen> {
   Future<List<WodHistoryItem>>? _historyFuture;
-  /// /go Tier 3: 현재 착용 칭호 코드.
-  String? _wornCode;
+  // v3.12 (2026-08-23): 착용 칭호는 GoalsState(서버 저장)가 갖는다 —
+  // 화면 안에 사본을 두지 않는다 (§0-B). 종전 로컬 전용 WornTitleStore 는
+  // 폰을 바꾸면 착용이 풀렸다.
   /// /go 7 (B2): 누적 공유 횟수 (PB_PHOTO_FINISH 등 signal).
   int _shareCount = 0;
+  /// v3.12 (2026-08-23): 1RM 보드에서 뽑은 상위 등급 신호 2종.
+  /// 서버가 이미 동작별 최고 무게를 집계해 주므로 앱은 최대값·종수만 센다.
+  /// 체육관 미가입이면 호출 자체가 403 이라 0 으로 남는다 (해금 안 됨).
+  double _maxLiftKg = 0;
+  int _liftMovementCount = 0;
 
   @override
   void initState() {
     super.initState();
     final api = context.read<ApiClient>();
     _historyFuture = retainError(HistoryRepository(api).listWodHistory(limit: 500));
-    _loadWornCode();
     _loadShareCount();
+    _loadStrengthBoard();
+  }
+
+  Future<void> _loadStrengthBoard() async {
+    final gym = context.read<GymState>();
+    final gid = gym.membership.gym?.id;
+    if (gid == null) return;
+    try {
+      final rows = await context.read<GymRepository>().strengthBoard(gid);
+      if (!mounted || rows.isEmpty) return;
+      final best = rows.map((e) => e.bestKg).reduce((a, b) => a > b ? a : b);
+      setState(() {
+        _maxLiftKg = best;
+        _liftMovementCount = rows.length;
+      });
+    } catch (_) {
+      // 미가입·오프라인 — 상위 등급만 안 뜬다. 화면은 그대로.
+    }
   }
 
   Future<void> _loadShareCount() async {
@@ -61,23 +85,11 @@ class _PanelBScreenState extends State<PanelBScreen> {
     setState(() => _shareCount = n);
   }
 
-  Future<void> _loadWornCode() async {
-    final code = await WornTitleStore.get();
-    if (!mounted) return;
-    setState(() => _wornCode = code);
-  }
-
   Future<void> _toggleWorn(String code) async {
     Haptic.medium();
-    if (_wornCode == code) {
-      await WornTitleStore.clear();
-      if (!mounted) return;
-      setState(() => _wornCode = null);
-    } else {
-      await WornTitleStore.set(code);
-      if (!mounted) return;
-      setState(() => _wornCode = code);
-    }
+    final goals = context.read<GoalsState>();
+    // 같은 것을 다시 누르면 해제 (빈 문자열). 저장·서버 전송은 GoalsState 몫.
+    await goals.setWornTitle(goals.wornTitle == code ? '' : code);
   }
 
   TitleUnlockSignals _buildSignals(
@@ -158,6 +170,8 @@ class _PanelBScreenState extends State<PanelBScreen> {
       pressStrict1rmKg: sp == null ? null : sp * 0.4536,
       doubleSessionDayCount: doubleSessionDays,
       shareCount: _shareCount,
+      maxLiftKg: _maxLiftKg,
+      liftMovementCount: _liftMovementCount,
     );
   }
 
@@ -263,14 +277,14 @@ class _PanelBScreenState extends State<PanelBScreen> {
                 const Text('칭호', style: HyphenTokens.sectionLabel),
                 const SizedBox(height: 2),
                 const Text(
-                  '해금된 칭호를 탭하면 Profile 상단에 표시. 다시 탭하면 해제.',
+                  '해금된 칭호를 탭하면 내 정보 이름 아래에 표시됩니다. 다시 탭하면 해제.',
                   style: HyphenTokens.caption,
                 ),
                 const SizedBox(height: HyphenTokens.sp2),
                 ...sorted.map((t) => _TitleCard(
                       title: t,
                       unlocked: unlocked.contains(t.code),
-                      worn: _wornCode == t.code,
+                      worn: context.watch<GoalsState>().wornTitle == t.code,
                       onTap: unlocked.contains(t.code)
                           ? () => _toggleWorn(t.code)
                           : null,

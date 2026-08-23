@@ -44,6 +44,8 @@ Widget harness({
   ConnectivityState? connectivity,
   BossAuthState? bossAuth,
   BossApiClient? bossApi,
+  /// v3.12 — 착용 칭호가 붙은 프로필을 찍기 위한 주입구.
+  GoalsState? goals,
   required Widget home,
 }) {
   final gymState = gym ?? GymState(GymRepository(api), sse: FakeSse());
@@ -72,7 +74,7 @@ Widget harness({
       Provider<BossApiClient>.value(value: bossApi ?? BossApiClient.create()),
       ChangeNotifierProvider<WodSessionBus>(create: (_) => WodSessionBus()),
       ChangeNotifierProvider<ShellNavBus>(create: (_) => ShellNavBus()),
-      ChangeNotifierProvider<GoalsState>(create: (_) => GoalsState()),
+      ChangeNotifierProvider<GoalsState>.value(value: goals ?? GoalsState()),
     ],
     child: MaterialApp(
       theme: HyphenTheme.light,

@@ -4,8 +4,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/api_client.dart';
+import '../../core/goals_state.dart';
 import '../../core/haptic.dart';
 import '../../core/role_labels.dart';
+import '../../core/titles_catalog.dart';
 import '../../core/shell_nav_bus.dart';
 import '../../core/theme.dart';
 import '../../widgets/hkit.dart';
@@ -137,6 +139,24 @@ class _IdentityCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(name, style: HyphenTokens.h3),
+                    // v3.12 (2026-08-23): 착용 칭호. 업적 화면에서 고른 것이
+                    // 여기 이름 바로 아래 한 줄로 붙는다 — 고르는 자리는 있는데
+                    // 드러나는 자리가 없어 아무도 못 보던 값이었다.
+                    // 값은 GoalsState(서버 저장), 이름은 칭호 카탈로그가 정본.
+                    Builder(builder: (_) {
+                      final code = context.watch<GoalsState>().wornTitle;
+                      if (code.isEmpty) return const SizedBox.shrink();
+                      final t = kPanelBTitles
+                          .where((e) => e.code == code)
+                          .firstOrNull;
+                      // 카탈로그에서 사라진 code 를 착용 중일 수 있다
+                      // (v3.12 해금 불가 32종 정리) — 그때는 조용히 숨긴다.
+                      if (t == null) return const SizedBox.shrink();
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 3),
+                        child: HkBadge(t.label, color: HyphenTokens.accent),
+                      );
+                    }),
                     // v1.16.2 — 박스명 · 역할 라벨 (GymState 데이터 소스)
                     Builder(builder: (_) {
                       final gym = gs.membership.gym;

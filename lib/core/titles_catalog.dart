@@ -183,6 +183,74 @@ const List<PanelBTitle> kPanelBTitles = [
   // ===== Epic (10) =====
 
   // ===== Legendary (5) =====
+  // ===== Epic (5) — v3.12 (2026-08-23) 신설 =====
+  // 구 Epic·Legendary 15종은 벤치마크·대회 기록 기반이라 전멸했다. 그 자리를
+  // 지금 실제로 쌓이는 데이터(수업 누적·Streak·PR·1RM 보드)로 다시 채운다.
+  PanelBTitle(
+    code: 'PB_LIFT_100',
+    label: '세 자리',
+    captionKo: '1RM 보드 최고 100kg 달성.',
+    rarity: 'Epic',
+    requirement: 'best lift 100kg+',
+    sortOrder: 300,
+  ),
+  PanelBTitle(
+    code: 'PB_LIFT_VARIETY',
+    label: '다섯 가지 리프트',
+    captionKo: '1RM 보드에 동작 5종 기록.',
+    rarity: 'Epic',
+    requirement: '5 lifts on board',
+    sortOrder: 310,
+  ),
+  PanelBTitle(
+    code: 'PB_TWO_HUNDRED',
+    label: '이백 번의 수업',
+    captionKo: '수업 기록 200회 누적.',
+    rarity: 'Epic',
+    requirement: '200 sessions',
+    sortOrder: 320,
+  ),
+  PanelBTitle(
+    code: 'PB_STREAK_60',
+    label: 'Streak 60일',
+    captionKo: 'Streak 60일.',
+    rarity: 'Epic',
+    requirement: '60 day streak',
+    sortOrder: 330,
+  ),
+  PanelBTitle(
+    code: 'PB_PR_25',
+    label: 'PR 25회',
+    captionKo: 'PR 25회 누적.',
+    rarity: 'Epic',
+    requirement: '25 PRs',
+    sortOrder: 340,
+  ),
+  // ===== Legendary (3) =====
+  PanelBTitle(
+    code: 'PB_LIFT_150',
+    label: '백오십',
+    captionKo: '1RM 보드 최고 150kg 달성.',
+    rarity: 'Legendary',
+    requirement: 'best lift 150kg+',
+    sortOrder: 400,
+  ),
+  PanelBTitle(
+    code: 'PB_YEAR_ROUND',
+    label: '한 해를 채운 사람',
+    captionKo: '수업 기록 365회 누적.',
+    rarity: 'Legendary',
+    requirement: '365 sessions',
+    sortOrder: 410,
+  ),
+  PanelBTitle(
+    code: 'PB_STREAK_100',
+    label: 'Streak 100일',
+    captionKo: 'Streak 100일.',
+    rarity: 'Legendary',
+    requirement: '100 day streak',
+    sortOrder: 420,
+  ),
 ];
 
 /// 클라이언트-사이드 해금 추론.
@@ -223,6 +291,13 @@ class TitleUnlockSignals {
   final int wbUnbrokenMax;
   final int? burpee100Sec;
   final int doubleSessionDayCount;
+  // v3.12 (2026-08-23): 1RM 보드에서 오는 신호 2종. 상위 등급(Epic·Legendary)이
+  // 전멸한 자리를 **지금 실제로 쌓이는 데이터**로 채우기 위해 신설했다.
+  // 소스 = GET /api/v1/gyms/{id}/strength-board (Strength 수업 결과 집계).
+  // 동작 이름은 수업 내용에서 파생돼 표기가 흔들리므로 이름으로 판정하지
+  // 않는다 — '가장 무겁게 든 무게'와 '기록된 동작 수'만 본다.
+  final double maxLiftKg;
+  final int liftMovementCount;
   final int? graceSec;
   final int pacingAccuracy95Count;
   final int? helenSec;
@@ -268,6 +343,8 @@ class TitleUnlockSignals {
     this.wbUnbrokenMax = 0,
     this.burpee100Sec,
     this.doubleSessionDayCount = 0,
+    this.maxLiftKg = 0,
+    this.liftMovementCount = 0,
     this.graceSec,
     this.pacingAccuracy95Count = 0,
     this.helenSec,
@@ -319,6 +396,15 @@ class PanelBUnlocker {
     if (s.burpee100Sec != null && s.burpee100Sec! < 300) {
     }
     if (s.doubleSessionDayCount >= 5) out.add('PB_DOUBLE_DAY');
+    // v3.12 — Epic·Legendary. 1RM 보드·누적 기록만 본다 (입력 경로가 살아있는 값).
+    if (s.maxLiftKg >= 100) out.add('PB_LIFT_100');
+    if (s.liftMovementCount >= 5) out.add('PB_LIFT_VARIETY');
+    if (s.totalSessions >= 200) out.add('PB_TWO_HUNDRED');
+    if (s.streakDays >= 60) out.add('PB_STREAK_60');
+    if (s.prCount >= 25) out.add('PB_PR_25');
+    if (s.maxLiftKg >= 150) out.add('PB_LIFT_150');
+    if (s.totalSessions >= 365) out.add('PB_YEAR_ROUND');
+    if (s.streakDays >= 100) out.add('PB_STREAK_100');
 
     // Epic
     if (s.deadlift1rmKg != null &&

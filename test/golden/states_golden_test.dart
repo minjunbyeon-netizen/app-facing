@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:hyphen_app/core/goals_state.dart';
 import 'package:hyphen_app/core/quotes.dart';
 import 'package:hyphen_app/features/gym/gym_repository.dart';
 import 'package:hyphen_app/features/gym/gym_state.dart';
@@ -102,5 +103,33 @@ void main() {
         profile: rxProfile(),
         home: const HistoryScreen()));
     await capture(tester, 'state_04_history_error');
+  });
+  _wornTitleGoldens();
+}
+
+// ── v3.12 (2026-08-23) 착용 칭호 ──
+// 업적 화면에서 고른 칭호가 내 정보 이름 아래에 붙는지의 시각 게이트.
+// 고르는 자리는 있는데 드러나는 자리가 없어 아무도 못 보던 값이라,
+// 노출을 붙이면서 캡처도 같이 남긴다 (골든 없는 기능 = 골든스탠다드 미달).
+void _wornTitleGoldens() {
+  testWidgets('state: profile worn title', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi(memberWorld());
+    final gym = GymState(GymRepository(api), sse: FakeSse());
+    await gym.loadMine();
+    final goals = GoalsState();
+    await goals.load();
+    await goals.setWornTitle('PB_WEEKEND'); // '주말반'
+    await tester.pumpWidget(harness(
+      api: api,
+      auth: await signedInAuth(),
+      profile: rxProfile(),
+      gym: gym,
+      goals: goals,
+      home: const MainShell(),
+    ));
+    await tapTab(tester, '내 정보');
+    await capture(tester, 'state_06_worn_title');
   });
 }

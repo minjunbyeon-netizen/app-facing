@@ -16,22 +16,22 @@ import 'package:hyphen_app/core/titles_catalog.dart';
 
 void main() {
   group('Panel B catalog', () {
-    test('칭호 18개 · code 고유', () {
-      expect(kPanelBTitles.length, 18);
-      expect(kPanelBTitles.map((t) => t.code).toSet().length, 18);
+    test('칭호 26개 · code 고유', () {
+      expect(kPanelBTitles.length, 26);
+      expect(kPanelBTitles.map((t) => t.code).toSet().length, 26);
     });
 
-    test('rarity 분포 — Common 13 / Rare 5', () {
+    test('rarity 분포 — Common 13 / Rare 5 / Epic 5 / Legendary 3', () {
       final by = <String, int>{};
       for (final t in kPanelBTitles) {
         by[t.rarity] = (by[t.rarity] ?? 0) + 1;
       }
       expect(by['Common'], 13);
       expect(by['Rare'], 5);
-      // Epic·Legendary 는 전멸했다 — 남아 있던 것이 전부 1RM·대회 기록
-      // 기반이라 입력 경로가 없다. 되살리려면 그 입력부터 만들어야 한다.
-      expect(by['Epic'], isNull);
-      expect(by['Legendary'], isNull);
+      // v3.12 — 구 Epic·Legendary 15종은 벤치마크·대회 기록 기반이라 전멸했고,
+      // 그 자리를 1RM 보드·누적 기록으로 다시 채웠다 (전부 살아있는 신호).
+      expect(by['Epic'], 5);
+      expect(by['Legendary'], 3);
     });
 
     test('칭호 이름은 한글 (도메인 고정어 PR·Streak 는 예외)', () {
@@ -91,6 +91,20 @@ void main() {
           <String>['PB_WARM_UP', 'PB_COMMITTED', 'PB_DEDICATED']));
     });
 
+    test('1RM 보드 150kg → Epic·Legendary 둘 다 (누적 해금)', () {
+      final out = PanelBUnlocker.unlockedCodes(
+        const TitleUnlockSignals(maxLiftKg: 150),
+      );
+      expect(out, containsAll(<String>['PB_LIFT_100', 'PB_LIFT_150']));
+    });
+
+    test('1RM 99kg → 미해금 (경계)', () {
+      final out = PanelBUnlocker.unlockedCodes(
+        const TitleUnlockSignals(maxLiftKg: 99),
+      );
+      expect(out, isNot(contains('PB_LIFT_100')));
+    });
+
     test('복합 signals → 다중 해금', () {
       final out = PanelBUnlocker.unlockedCodes(
         const TitleUnlockSignals(
@@ -126,6 +140,8 @@ void main() {
         coachNotesReceived: 100,
         prCount: 100,
         doubleSessionDayCount: 100,
+        maxLiftKg: 500,
+        liftMovementCount: 20,
       ));
       final all = kPanelBTitles.map((t) => t.code).toSet();
       expect(out.difference(all), isEmpty, reason: '규칙에만 있고 카탈로그에 없는 code');
