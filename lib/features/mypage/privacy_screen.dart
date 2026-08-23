@@ -35,6 +35,9 @@ class PrivacyScreen extends StatelessWidget {
             const _Bullet('프로필: 생년월일·성별·운동 경력 (이 기기·서버 보관)'),
             const _Bullet('수업 기록: 결과·일시 (서버 보관)'),
             const _Bullet('체육관 정보: 가입한 체육관·회원 구분·포인트 (서버 보관)'),
+            // v3.11 (2026-08-23): 목표가 서버 저장으로 바뀌면서 수집 항목이
+            // 하나 늘었다 — 고지에도 같이 적는다 (member_goals).
+            const _Bullet('목표: 주간·월간 횟수 · PR 목표 · 시즌 목표 (이 기기·서버 보관)'),
             const SizedBox(height: HyphenTokens.sp4),
 
             const Text('수집하지 않는 것', style: HyphenTokens.sectionLabel),
@@ -94,7 +97,11 @@ class PrivacyScreen extends StatelessWidget {
 
             const Text('최종 갱신', style: HyphenTokens.sectionLabel),
             const SizedBox(height: HyphenTokens.sp2),
-            const Text('2026-08-20 · 수집 항목 현행화 (신체·벤치마크 수집 종료). 정식 출시 시 법무 검토.',
+            // 본문을 고치면 이 날짜도 같은 커밋에서 함께 고친다 (§0-B).
+            // 법적 고지의 갱신일이 실제 내용과 어긋나면 고지 자체가 신뢰를 잃는다.
+            const Text(
+                '2026-08-23 · 표기 정정 (앱에 없는 버튼 이름 교체, 내부 용어를 '
+                '이용자 용어로) + 목표 저장 위치 반영. 정식 출시 시 법무 검토.',
                 style: HyphenTokens.caption),
           ],
         ),
