@@ -1,108 +1,41 @@
-# HANDOFF - 2026-08-22 02:20
+# HANDOFF - 2026-08-23 18:12
 
-> 실데이터 반영 · 코치 쪽지·로그아웃 · 마스코트/스낵바 SSOT · 업적 픽토그램 3면 통일 ·
-> 스플래시 HYPEE 연출까지 끝낸 세션.
-> 직전 인계장 = `docs/archive/HANDOFF-2026-08-21-1419.md`.
+## 완료 (이 세션 — 전부 배포·검증 끝)
+- [x] **수업 시스템 개편** (3 repo 배포 완료)
+  - 수업 안내 = 수업의 정본: '매주 시간표' 열 + 시간 추가/삭제 (반복 규칙 편집 창구 일원화, 수업 관리의 반복 스케줄 모달 삭제)
+  - 규칙 저장 시 "첫 수업 M/D(요일) HH:MM" 안내 + 캘린더 자동 이동 (first_session_at — autoflush=False 라 flush 후 조회)
+  - **그날 내용 정본 = (날짜 × 수업 종류) 게시물** — 스웻은 스웻끼리, 빌드는 빌드끼리 (사용자 확정. 날짜 통합 아님 — 중간에 잘못 넓혔다 되돌림). `_sync_wod_post` (services/facing/api/classes.py) write-through: 생성/수정 upsert · 마지막 타임까지 취소 시 삭제
+  - PC 상세·수정·등록 모달 전부 그날 게시물 표시/프리필 (`_dayContentFor`, templates/classes.html)
+  - 템플릿 소개문이 세션 '그날 내용' 칸에 복사되던 것 차단 + 오염 정리 마이그레이션
+- [x] **기록→PR→1RM 보드 연동** (조인트 3종, services/facing 1a9438c · 앱 e3758b1)
+  - GymWodResult.movement 컬럼 + movement_signature (strength 게시물과 같은 그룹 형식)
+  - _score: weight_kg 있으면 타입 불문 무게 기준 / 1RM 보드 strength 한정 필터 해제
+  - 앱 결과 시트 '무게 기록 (선택)' 섹션 (동작 이름+무게+reps)
+  - 종단 검증: 100kg 첫 기록 → 105kg is_pr=True "5kg 증가 — PR!" → 보드 자동 갱신 → 리워드 'pr' 트리거 기존 배선
+- [x] 목표·착용 칭호 서버 저장 (member_goals + worn_title) · 칭호 카탈로그 정리 (해금 불가 32종 삭제, 한글화, 26종) · 칭호 프로필 노출
+- [x] PC 정리: 페이지 헤더 통일 · 인라인 17→8 · 카카오 토큰 · 픽토그램 팔레트 생성물화 · 약관 동기화 · 배치 기능 삭제
+- [x] 앱 정리: 설정 아코디언 삭제 · 예외 원문 노출 4건 · 영문 라벨 11건 · 방침 문구 정정
 
-## 완료
-
-### 1. 실물 포스터 3종 → 프로드 반영 (gym_id=2)
-- [x] 회원권 6종 오픈 할인가 (1개월 무제한 200,000 · 주3회 160,000 · 3개월 무제한
-      504,000 · 주3회 432,000 · 수강권 10회 176,000 · 20회 320,000). 구 3종 비활성
-- [x] 수업 4종 (BUILD·SWEAT·AWAKE·TEAM HYPHEN) — 프로그램 가이드 설명·색 반영
-- [x] 반복 규칙 6개 (월~금 06:30 AWAKE / 10:00 SWEAT / 18:30 BUILD / 19:30 SWEAT /
-      20:30 BUILD + 토 10:00 TEAM HYPHEN) → 4주치 자동 생성
-- [x] 메모리 저장: `~/.claude/projects/C--dev-apps-facing-app/memory/project-real-gym-data.md`
-
-### 2. 백엔드 결함 3건 (services/facing — 전부 배포 SUCCESS)
-- [x] **KST 나이브에 astimezone 이중 변환** → Railway(UTC)서 +9h 왜곡. 코치 대시보드
-      오늘 수업(06:30→15:30)·출석 날짜/시각·예약 라벨 6곳. `_kst_wall()` 가드 (admin.py)
-- [x] **PC 쪽지 폰 페어링 게이트 제거** — coach role 미페어링이면 쪽지 통째 차단됐고,
-      페어링해도 회원 답장(owner_hash)과 편지함이 갈라짐 → 전 역할 gym.owner_hash 통일
-- [x] **폰 쪽 편지함도 공용 해시로** — `_inbox_hash()` 로 발신·inbox·outbox·messages·
-      threads·상세·읽음 8곳 치환 (coach_note.py) + 스레드 이름 GymMemberProfile 폴백
-
-### 3. admin 웹 (web/facing-admin — 배포 SUCCESS)
-- [x] 금액 입력 천 단위 콤마 전면 (결제 4칸·분할행·회원권 발급/연장/정정·회원
-      추가/수정·계약) + 파싱 19곳 교체. 환불 prompt `parseInt('150,000')=150` 함정도 수정
-- [x] 포인트 규칙 모달 — "조건 값(선택)" → 결제 트리거 전용 "얼마당 적립할까요?"
-      + "→ 출석 1회당 100P 적립" 실시간 미리보기 + 표 열 '적립 기준'
-- [x] 업적 설정 레이아웃 (P 단위 줄바꿈 밀림 nowrap · 픽토그램 정렬 · 규칙 0건 빈상태)
-- [x] 쪽지 스레드 이름 역참조 (`_nameByHash`)
-
-### 4. 앱 (apps/facing-app — v3.4·v3.5, push 완료 / 배포는 수동 APK)
-- [x] **코치 셸 3탭** — 예약 현황·수업·**쪽지**(MessagingScreen 임베드). 종 진입도 유지
-- [x] 코치 설정 AppBar 에 '로그아웃' 글자 버튼 (대시보드 아이콘과 동작 동일)
-- [x] **마스코트 SSOT 신설** `lib/widgets/mascot.dart` — 표정 3종
-      (happy·sad·neutral)만 두고 전 화면이 돌려 쓴다. 경로 문자열은 이 파일 밖 0건(검증)
-- [x] 캐릭터 전용 폴더 `assets/character/` + README(파일명↔자리 표·투명PNG·32px 조건)
-- [x] **스낵바 71건 전량 HkSnack 이관** — 실패 51 → error/fail(sad) · 완료 12 →
-      show/info(happy) · 안내 6 → neutral. 남은 raw 는 업적 해금 커스텀 2건(의도적)
-- [x] 죽은 에셋 삭제 (mascot.png · hero_splash.jpg · hero_grade.jpg — 참조 0건)
-- [x] CLAUDE.md 디자인 원칙 "사진/일러스트 없음" → "사진 없음" + 캐릭터 예외 조항
-      (사용자 승인 2026-08-21). 골든 8장 갱신 · analyze 0 · 170 tests pass
-
-### 4-2. 앱 v3.6·v3.7 (2026-08-21 밤 ~ 08-22 새벽)
-- [x] **업적 픽토그램 55종 적용** (hyphen-achievement-pack v1.0) — 호출부 6곳
-      AchievementBadge 로 교체, 중복 8벌(_rarityColor 6 · _iconFor 2) 한 벌로 통일
-- [x] **PC 관리자도 같은 배지로** — 스프라이트(단색) 오적용 정정 → per-file 2톤 +
-      static/pictogram.js(앱 AchievementBadge 포팅). 코드→그림 매핑은 팩 json 에서
-      생성(picto_map.gen.js) — 앱 dart 와 74코드 전수 대조 불일치 0
-- [x] **PC 업적 설정 '회원 화면' 미리보기 열** — 고르는 즉시 반영. 서버 어휘 13 → 55
-- [x] **코치 선택이 폰에 도달** — 앱이 서버 icon 을 버리던 끊긴 고리 연결 + 테스트 5건
-- [x] 업적 등급 4단·판 3모양·해금 축하 골든 2장 (컨페티 시드 고정으로 결정론화)
-- [x] **스플래시 HYPEE 카드 덱 연출** (v3.7 → **v3.8 C안**, 2026-08-22 대표 확정)
-      — 액션 11종 × 3배율, widgets/hypee_intro.dart, 매 실행 재생.
-      **C안 = 캐릭터만 나왔다가 가운데로 빨려들고, 그 자리에서 로고가 떴다 사라짐.**
-      로고를 연출 위젯 안으로 들이고 스플래시 상단 로고 슬롯·HkEntryLogoGap 제거.
-      전체 2450ms (splashMin 2500ms 안에 끝나야 함 — appkit 값은 건드리지 말 것).
-      단계 골든 3장(splash_c1~c3) + 갤S22 실기 확인 완료.
-      비교 데모(4안) = `services/design/_작업/앱에셋/스플래시연출비교.html`
-      구 정본 = `docs/SPLASH-INTRO-HANDOFF.md` (A안 기준이라 §3·§4 는 v3.8 과 다름)
-- [x] **갤S22 실기 확인 완료** (2026-08-22 12:13) — 스플래시 카드 덱 · 업적
-      픽토그램 배지 · 스낵바 캐릭터(안내=놀란 얼굴) 3종 모두 실물 확인.
-      프레임 튐 없음. ⚠ 폰 무선 ADB 포트는 매번 바뀐다 (12:10 기준 192.168.1.100:38099)
-
-### 5. 기기·기타
-- [x] 갤S22 릴리즈 APK 설치·기동 확인 (프로드 URL 주입). 중복 앱 3개 삭제 —
-      구 HYPHEN(com.netizen.facing.facing_app) · 구 공수체크 TWA(app.workcheck.twa) ·
-      공수체크 네이티브(com.gongsucheck.workcheck_app)
-- [x] 스낵바 이관 대장 페이지 발행 (Artifact) —
-      https://claude.ai/code/artifact/87a5e3db-8eb3-4ef3-a24f-bc0dc08a329b
-
-## 진행중
-- (없음)
+## 진행중 (다음 세션 이어서)
+- [ ] **회원 기록 UX 4종 제안 — 사용자 응답 대기가 중단 지점** (마지막 턴 제안, 통과 전)
+  1. 결과 시트 기록 종류 칩 [시간/라운드/무게]
+  2. 서버 힌트: 게시물 저장 시 내용에서 score_hint 추출 (For Time→시간 등, 판정 사전 서버 한 곳)
+  3. 동작 이름 칩 제안 (movement_library 대조)
+  4. 시트 머리에 그날 내용 3줄
+  - 관련: lib/features/gym/wod_result_sheet.dart · services/facing/api/gym.py(결과 저장 ~1895) · services/wod_compare.py
 
 ## 대기
-- [ ] **캐릭터 그림 3장 수령 대기** — 사용자가 `happy.png`/`sad.png`/`neutral.png` 를
-      주면 Claude 가 2단계만 하면 켜진다:
-      ① `pubspec.yaml` 의 `- assets/character/` 주석 해제
-      ② `lib/widgets/mascot.dart` 의 `_assets` 맵 주석 해제
-      **Claude 가 캐릭터를 생성·교체하지 않는다** (사용자 지시). 규칙 = `assets/character/README.md`
-- [ ] **프로드 쪽지 대화 정리 — 보류 (2026-08-22 12:16 확인, 삭제 안 함)**
-      실제로 열어 보니 인계장 기록("테스트 쪽지 3건")이 틀렸다. 변민준 대화에 5건이고
-      그중 **Claude 가 만든 것은 2건**(8/21 16:17·16:52), 나머지 3건(하이요·됩니까·
-      바로 테스트11111)은 **사용자가 직접 보낸 것**이다.
-      더 중요한 건 **쪽지 삭제 기능이 어디에도 없다** — 앱·PC·API 전부. 지우려면
-      ① 삭제 기능 신설(메모리 제1원칙 '기능 추가 금지'에 걸림 — 사용자 승인 필요) 또는
-      ② 프로드 DB 직접 삭제(되돌릴 수 없음) 뿐이라 손대지 않았다.
-      실사용 대화처럼 보여 무해하므로 그대로 두는 것을 권한다.
+- [ ] '당일 공개' 정책 결정 — 미래 수업 내용은 회원에게 잠김 (LockedWodBanner). 코치가 미리 적는 새 흐름과 충돌 여부 사용자 결정 대기
+- [ ] 에뮬레이터 실물: 결과 시트 무게 기록 → PR 스낵바 (백엔드 배포됨, 앱 debug 재빌드 필요)
+- [ ] 실 체육관(gym_id=2) 프로드 오염 금지 — 쓰기 테스트는 로컬/데모(gym 1)만
 
 ## 결정사항 / 주의
-
-- **캐릭터는 성격 3종만** (2026-08-21 사용자 결정). 화면별 전용 그림 금지 —
-  화면 수만큼 그림이 늘고 변경 파급을 못 잡는다. 레벨별 진화 5종 안(v3.5 초안)은 폐기
-- **경로 문자열은 mascot.dart 밖에 절대 금지** (§0-B). 화면 코드에 파일명이 들어가는
-  순간 이원화. 슬롯 위치는 그 파일 주석에 명시
-- **appkit 에 마스코트 금지** — 거기는 workcheck·writeplz 공통 조상, 마스코트는 HYPHEN 전용
-- 스낵바 창구는 **HkSnack 하나** (`lib/widgets/hkit.dart`). static show/error(동기) +
-  `HkSnack.of(context)` 손잡이 info/fail(async gap 안전). 새 raw SnackBar 작성 금지
-- 프로드 gym_id=2 는 **실영업 데이터** — 쓰기 테스트는 로컬(8081/5060)에서
-- 갤S22 무선 디버깅은 자주 꺼진다. 실패 시 `adb kill-server` → `adb mdns services`
-  → mDNS 시리얼(`adb-R5CT503NB5M-...`)로 직접 `-s` 지정
-- 자동 변환 스크립트가 과매칭한 이력 있음 (main_shell·wod_session·wod_result_sheet) —
-  대량 정규식 치환 후에는 반드시 `flutter analyze` + 전체 테스트로 확인
-- 이 repo 는 **push ≠ 배포** (APK 수동). services/facing·web/facing-admin 은 `railway up` 수동
+- 내용 단위 = **(날짜 × 수업 종류)**. "같은 날은 전부 같다" 아님 — 재론 금지
+- 반복 규칙 편집 = 수업 안내 한 곳 (§0-B). 수업 관리 = 달력·그날 내용·휴강·단발
+- classes.html 인라인 <script> 는 배포 전 `node -e "new Function(...)"` 문법 검사 (개행 리터럴 사고 2회)
+- 에뮬레이터 저장공간 부족 → install -r 조용히 실패 → 옛 빌드로 오판 주의 (uninstall 후 install)
+- 로컬 회원 테스트 계정: member/1234 (비번은 이 세션에서 로컬 DB 만 재설정)
+- heredoc 파이썬에 `\n` 리터럴 금지 — chr(10) 또는 Edit 도구
 
 ## 다음 세션 권장 첫 프롬프트
-`/resume`
+`/resume` → 회원 기록 UX 4종 제안(위 진행중)에 대한 사용자 통과 여부 확인부터
