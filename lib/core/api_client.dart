@@ -109,6 +109,16 @@ class ApiClient {
     }
   }
 
+  /// 통째로 덮어쓰기 (부분 수정은 [patch]). 2026-08-23 회원 목표 저장에 신설.
+  Future<Map<String, dynamic>> put(String path, Map<String, dynamic> body) async {
+    try {
+      final res = await _dio.put(path, data: body);
+      return _unwrap(res);
+    } on DioException catch (e) {
+      throw _mapDio(e);
+    }
+  }
+
   Future<Map<String, dynamic>> patch(String path, Map<String, dynamic> body) async {
     try {
       final res = await _dio.patch(path, data: body);

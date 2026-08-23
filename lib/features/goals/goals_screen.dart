@@ -19,12 +19,38 @@ class GoalsScreen extends StatefulWidget {
 
 class _GoalsScreenState extends State<GoalsScreen> {
   Future<List<WodHistoryItem>>? _history;
+  // dispose 시점엔 context 로 provider 를 못 읽는다 — 미리 잡아 둔다.
+  GoalsState? _goals;
 
   @override
   void initState() {
     super.initState();
     final repo = HistoryRepository(context.read<ApiClient>());
     _history = repo.listWodHistory(limit: 200);
+    // v3.11 (2026-08-23): 화면에 들어올 때마다 서버 값을 다시 읽는다.
+    // 앱 부팅의 load() 한 번만으로는 부족하다 — 그 시점엔 아직 로그인 전이라
+    // 기기 식별값이 로그인 뒤와 달라, 갓 설치한 폰에서 남의(=익명) 목표를
+    // 읽고 끝났다. 실기에서 재설치 후 로그인하니 서버에 있는 값 대신
+    // 기본값(주4·월16)이 떠서 발견 (2026-08-23 에뮬레이터 검증).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) context.read<GoalsState>().pull();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _goals = context.read<GoalsState>();
+  }
+
+  @override
+  void dispose() {
+    // v3.11 (2026-08-23): 화면을 떠날 때 서버에 통째로 올린다.
+    // 슬라이더는 놓는 순간(onChangeEnd)에도 올리지만, 시즌 목표는 글자마다
+    // 보낼 수 없어 여기서 마무리한다. 실패는 GoalsState 가 삼키고 로컬
+    // 캐시에 남겨 다음 진입의 pull·sync 에서 만회한다.
+    _goals?.sync();
+    super.dispose();
   }
 
   int _sessionsThisWeek(List<WodHistoryItem> list) {
@@ -78,6 +104,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                   min: 1,
                   max: 10,
                   onChanged: (v) => goals.setWeeklyTarget(v.round()),
+                  onChangeEnd: (_) => goals.sync(),
                 ),
                 const SizedBox(height: HyphenTokens.sp5),
 
@@ -97,6 +124,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                   min: 4,
                   max: 30,
                   onChanged: (v) => goals.setMonthlyTarget(v.round()),
+                  onChangeEnd: (_) => goals.sync(),
                 ),
                 const SizedBox(height: HyphenTokens.sp5),
 
@@ -131,8 +159,14 @@ class _GoalsScreenState extends State<GoalsScreen> {
                   onSave: (v) => goals.setSeasonGoal(v),
                 ),
                 const SizedBox(height: HyphenTokens.sp4),
-                const Text(
-                  '목표·진행률은 이 기기에 저장됩니다.',
+                // v3.11 (2026-08-23): 구 문구 '목표·진행률은 이 기기에
+                // 저장됩니다' 는 두 군데가 틀렸다 — 진행률은 서버 히스토리에서
+                // 세는 값이고, 목표도 이제 서버에 저장된다(member_goals).
+                // 서버 저장이 실패한 동안만 '이 기기에만' 이라고 알린다.
+                Text(
+                  goals.isServerDown
+                      ? '지금은 이 기기에만 저장됩니다. 연결되면 자동으로 올라갑니다.'
+                      : '목표는 계정에 저장되어 폰을 바꿔도 따라옵니다.',
                   style: HyphenTokens.caption,
                   textAlign: TextAlign.center,
                 ),
@@ -172,7 +206,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
               if (m != null) {
                 final sec =
                     int.parse(m.group(1)!) * 60 + int.parse(m.group(2)!);
-                goals.setFranPrSec(sec);
+                goals.setFranPrSec(sec).then((_) => goals.sync());
               }
               Navigator.pop(ctx);
             },
@@ -205,7 +239,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
           TextButton(
             onPressed: () {
               final v = double.tryParse(ctrl.text);
-              if (v != null) goals.setBackSquatKg(v);
+              if (v != null) goals.setBackSquatKg(v).then((_) => goals.sync());
               Navigator.pop(ctx);
             },
             child: const Text('저장'),
@@ -277,12 +311,16 @@ class _TargetSlider extends StatelessWidget {
   final double min;
   final double max;
   final void Function(double) onChanged;
+  /// 드래그를 놓는 순간 1회. 서버 저장은 여기서만 한다 — onChanged 는
+  /// 드래그 내내 수십 번 불려 그대로 보내면 요청 폭주다.
+  final void Function(double)? onChangeEnd;
   const _TargetSlider({
     required this.label,
     required this.value,
     required this.min,
     required this.max,
     required this.onChanged,
+    this.onChangeEnd,
   });
 
   @override
@@ -298,6 +336,7 @@ class _TargetSlider extends StatelessWidget {
           divisions: (max - min).toInt(),
           activeColor: HyphenTokens.accent,
           onChanged: onChanged,
+          onChangeEnd: onChangeEnd,
         ),
       ],
     );

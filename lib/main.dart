@@ -50,7 +50,9 @@ Future<void> main() async {
   final profile = ProfileState();
   final connectivity = ConnectivityState();
   final auth = AuthState();
-  final goals = GoalsState();
+  // v3.11 (2026-08-23): 목표가 서버에 저장된다 — ApiClient 를 넘겨야
+  // load() 가 서버 값을 끌어온다. 안 넘기면 예전처럼 로컬 전용으로 돈다.
+  final goals = GoalsState(api: api);
   // PHASE5 §1.1: 사장 폰 로그인 상태
   final bossAuth = BossAuthState();
   final bossApi = BossApiClient.create();
