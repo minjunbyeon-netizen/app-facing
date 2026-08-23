@@ -39,7 +39,6 @@ import 'features/boss/boss_login_screen.dart';
 import 'features/shell/coach_shell.dart';
 import 'features/boss/settings_screen.dart';
 import 'features/classes/classes_screen.dart';
-import 'features/wod/wod_today_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -204,7 +203,6 @@ class HyphenApp extends StatelessWidget {
           '/boss/settings': (_) => const BossSettingsScreen(),
           // PHASE4 §1.1: 회원 폰 클래스 일정·예약
           '/classes': (_) => const ClassesScreen(),
-          '/wod/today': (_) => const WodTodayScreen(),
         },
         onGenerateRoute: (settings) {
           if (settings.name == '/history/detail') {

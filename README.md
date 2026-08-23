@@ -52,3 +52,9 @@ samples, guidance on mobile development, and a full API reference.
     `/intro` 라우트 + 골든 `common_02`·`common_03`. v2.3(2026-08-12)에서 진입이 끊긴 채
     코드만 남아 있었고, "기록이 레벨이 된다" 등 실물과 안 맞는 약속 문구라 사용자 지시로
     코드째 삭제. 앱 흐름은 스플래시 → 로그인 직행 그대로.
+12. **오늘의 수업 내용 화면 (v3.13 · 2026-08-23)** — `lib/features/wod/wod_today_screen.dart`
+    + `/wod/today` 라우트. daily-plans API 를 읽는 유일한 앱 화면이었는데 어떤 화면도
+    이 라우트를 밀어주지 않던 고아. PC 의 '오늘 수업 내용 배치' 섹션(같은 표를 쓰던
+    짝)도 같은 날 삭제 — "폰 회원에게 즉시 노출" 안내가 실제로는 거짓이었다.
+    회원 수업 내용의 정본은 wod-posts(수업 탭 보드) 하나. 백엔드 daily-plans API 는
+    반복 스케줄 실체화(materialize_rules)의 설명 폴백으로 남아 있어 유지.
