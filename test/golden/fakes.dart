@@ -240,6 +240,9 @@ List<Map<String, dynamic>> gymWods() {
       'time_cap_sec': 600,
       'created_at': '${_ymd(now)}T06:30:00',
       'locked': false,
+      // v3.16 기록 UX 2·3 — 서버 추천 (score_hint + 동작 이름 후보).
+      'score_hint': 'time',
+      'movement_suggestions': ['Thruster'],
     },
     {
       'id': 30,
@@ -250,6 +253,8 @@ List<Map<String, dynamic>> gymWods() {
       'time_cap_sec': 1200,
       'created_at': '${_ymd(now.subtract(const Duration(days: 1)))}T06:30:00',
       'locked': false,
+      'score_hint': 'rounds',
+      'movement_suggestions': <String>[],
     },
   ];
 }
@@ -369,6 +374,8 @@ List<Map<String, dynamic>> gymWodsStrengthToday() {
       },
       'created_at': '${_ymd(now)}T06:30:00',
       'locked': false,
+      'score_hint': 'weight',
+      'movement_suggestions': ['Back Squat'],
     },
   ];
 }

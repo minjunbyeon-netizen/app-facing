@@ -23,6 +23,12 @@
 // 회원이 직접 고른다. 기본값은 타입에서 (for_time→시간 · strength→무게 ·
 // 그 외→라운드), 재수정이면 저장된 값의 종류를 그대로 연다. 서버는 기록이
 // 실제 담은 값으로 비교·표시한다 (services/wod_compare.py result_kind_of).
+//
+// v3.16 (2026-08-23 승인 — 기록 UX 2·3): 서버 추천 배선.
+// - 칩 기본값 = 서버 score_hint (custom 도 내용에서 추정 — 판정 사전은
+//   services/wod_compare.py score_hint 한 곳, 앱 판정 0)
+// - 동작 이름 칩 = 서버 movement_suggestions (게시물 구조화 동작 +
+//   movement_library 대조) — 탭 한 번 = 오타 없는 이름 (PR 묶음 열쇠).
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -135,7 +141,7 @@ class _WodResultSheetState extends State<WodResultSheet> {
     _kind = _initialKind();
   }
 
-  /// 기본 기록 종류 — 재수정이면 저장된 값, 아니면 게시물 타입에서.
+  /// 기본 기록 종류 — 재수정이면 저장된 값 > 서버 힌트(UX 2) > 게시물 타입.
   _RecordKind _initialKind() {
     final mr = widget.wod.myResult;
     if (mr != null) {
@@ -143,9 +149,42 @@ class _WodResultSheetState extends State<WodResultSheet> {
       if ((mr.timeSec ?? 0) > 0) return _RecordKind.time;
       if (mr.weightKg != null) return _RecordKind.weight;
     }
+    switch (widget.wod.scoreHint) {
+      case 'time':
+        return _RecordKind.time;
+      case 'weight':
+        return _RecordKind.weight;
+      case 'rounds':
+        return _RecordKind.rounds;
+    }
+    // 힌트 없음 (구 서버) — 타입 폴백.
     if (_isForTime) return _RecordKind.time;
     if (_isStrength) return _RecordKind.weight;
     return _RecordKind.rounds;
+  }
+
+  /// v3.16 (UX 3) — 동작 이름 후보 칩. 탭 = 이름 채움 (오타 원천 차단).
+  List<Widget> _liftNameSuggestions() {
+    final names = widget.wod.movementSuggestions;
+    if (names.isEmpty) return const [];
+    return [
+      Wrap(
+        spacing: HyphenTokens.sp1,
+        runSpacing: HyphenTokens.sp1,
+        children: [
+          for (final n in names)
+            HkBadge(
+              n,
+              color: HyphenTokens.fgSecondary,
+              selected: _liftNameCtrl.text.trim() == n,
+              onTap: _saving
+                  ? null
+                  : () => setState(() => _liftNameCtrl.text = n),
+            ),
+        ],
+      ),
+      const SizedBox(height: HyphenTokens.sp2),
+    ];
   }
 
   static String _kindLabel(_RecordKind k) => switch (k) {
@@ -425,8 +464,11 @@ class _WodResultSheetState extends State<WodResultSheet> {
                 // v3.4 — 무게가 점수. strength 게시물은 게시물이 리프트
                 // 그룹이라 이름 생략, 그 외(수업 등)는 이름이 묶음 열쇠.
                 if (!_isStrength) ...[
+                  ..._liftNameSuggestions(),
                   TextField(
                     controller: _liftNameCtrl,
+                    // 칩 selected 상태를 타이핑에도 따라가게.
+                    onChanged: (_) => setState(() {}),
                     decoration: const InputDecoration(
                       labelText: '동작 이름',
                       hintText: '예: Back Squat',
@@ -505,8 +547,10 @@ class _WodResultSheetState extends State<WodResultSheet> {
                 Text('오늘 리프트를 했으면 적어 주세요 — 최고 기록과 PR 에 반영됩니다.',
                     style: HyphenTokens.caption),
                 const SizedBox(height: HyphenTokens.sp2),
+                ..._liftNameSuggestions(),
                 TextField(
                   controller: _liftNameCtrl,
+                  onChanged: (_) => setState(() {}),
                   decoration: const InputDecoration(
                     labelText: '동작 이름',
                     hintText: '예: Back Squat',

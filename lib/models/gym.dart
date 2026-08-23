@@ -418,8 +418,13 @@ class GymWodPost {
   // null = 아직 기록 없음. 카드 '기록 완료' 배지 + 시트 프리필의 원천.
   final GymMyResult? myResult;
   final DateTime createdAt;
-  // v1.23: 회원권 만료·미결제·미래 WOD 잠금. true이면 content 비공개.
+  // v1.23: 회원권 만료·미결제 잠금. true이면 content 비공개.
+  // ('당일 공개' 미래 잠금은 v3.15 폐지 — 사유는 회원권 만료만.)
   final bool locked;
+
+  // v3.16 (기록 UX 2·3) — 서버 추천: 기본 기록 종류 + 무게 동작 이름 후보.
+  final String? scoreHint; // 'time' | 'rounds' | 'weight'
+  final List<String> movementSuggestions;
 
   const GymWodPost({
     required this.id,
@@ -435,6 +440,8 @@ class GymWodPost {
     this.myResult,
     required this.createdAt,
     this.locked = false,
+    this.scoreHint,
+    this.movementSuggestions = const [],
   });
 
   bool get hasVersions =>
@@ -473,6 +480,13 @@ class GymWodPost {
           : null,
       createdAt: DateTime.parse(j['created_at'] as String),
       locked: j['locked'] == true,
+      scoreHint: j['score_hint']?.toString(),
+      movementSuggestions: (j['movement_suggestions'] is List)
+          ? (j['movement_suggestions'] as List)
+              .map((e) => e.toString())
+              .where((s) => s.isNotEmpty)
+              .toList()
+          : const [],
     );
   }
 }
