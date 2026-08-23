@@ -132,7 +132,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                           )),
                       const SizedBox(height: HyphenTokens.sp1),
                       Text(
-                        '${approved.length} approved · $activeCount active · $dormantCount dormant · $totalSessions sessions',
+                        '승인 ${approved.length} · 활동 $activeCount · 휴면 $dormantCount · 세션 $totalSessions',
                         style: HyphenTokens.caption,
                       ),
                       const SizedBox(height: HyphenTokens.sp3),
@@ -287,7 +287,11 @@ class _RosterRow extends StatelessWidget {
                       ),
                       const SizedBox(width: HyphenTokens.sp2),
                       if ((member.level ?? '').isNotEmpty)
-                        HkBadge(member.level!, color: HyphenTokens.accent),
+                        // 저장값 'RX' 의 노출 표기는 'RXD' (GLOSSARY §3).
+                        HkBadge(
+                          member.level == 'RX' ? 'RXD' : member.level!,
+                          color: HyphenTokens.accent,
+                        ),
                       if (member.isDormant)
                         const HkBadge('DORMANT', color: HyphenTokens.warning)
                       else if (member.lastWodAt == null && member.isApproved)
@@ -368,7 +372,14 @@ class _MemberDetailSheet extends StatelessWidget {
                       style: HyphenTokens.h3),
                 ),
                 Text(
-                  member.status.toUpperCase(),
+                  // 서버 상태 코드를 그대로 대문자 노출하던 것 → 한글
+                  // (roleKoLabel 은 '회원·승인됨' 묶음이라 상태 단독 표기는 여기서).
+                  switch (member.status) {
+                    'approved' => '승인됨',
+                    'pending' => '대기',
+                    'rejected' => '거절됨',
+                    _ => member.status,
+                  },
                   style: HyphenTokens.microLabel.copyWith(
                     color: HyphenTokens.accent,
                     fontWeight: FontWeight.w800,
@@ -381,7 +392,7 @@ class _MemberDetailSheet extends StatelessWidget {
             if (member.decidedAt != null)
               _kv('승인·거절', _dateShort(member.decidedAt!)),
             _kv('총 세션', '${member.totalSessions}'),
-            _kv('현재 Streak', '${member.streakDays} days'),
+            _kv('현재 Streak', '${member.streakDays}일'),
             _kv('마지막 기록',
                 member.lastWodAt == null ? '-' : _dateShort(member.lastWodAt!)),
             const SizedBox(height: HyphenTokens.sp4),
