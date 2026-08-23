@@ -17,6 +17,12 @@
 // - EMOM 라벨 "성공한 라운드" 명확화
 // - 저장 응답의 서버 비교 메시지("지난 기록보다 42초 단축 — PR!")를
 //   스낵바에 표시 (비교·PR 판정은 전부 백엔드 — 앱 계산 0).
+//
+// v3.15 (2026-08-23 승인 — 기록 UX 1): 기록 종류 칩 [시간/라운드/무게].
+// 그날 내용은 custom(수업) 게시물로 흘러와 타입이 기록 종류를 못 정한다 —
+// 회원이 직접 고른다. 기본값은 타입에서 (for_time→시간 · strength→무게 ·
+// 그 외→라운드), 재수정이면 저장된 값의 종류를 그대로 연다. 서버는 기록이
+// 실제 담은 값으로 비교·표시한다 (services/wod_compare.py result_kind_of).
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -33,6 +39,9 @@ import '../history/history_repository.dart';
 import 'gym_repository.dart';
 import 'gym_state.dart';
 import 'wod_type_label.dart';
+
+/// 기록 종류 — 회원이 칩으로 직접 고른다 (v3.15 UX 1).
+enum _RecordKind { time, rounds, weight }
 
 /// 동작 1개의 입력 상태 — 게시물의 WodMovementItem + 회원 선택.
 class _MoveEntry {
@@ -75,8 +84,10 @@ class _WodResultSheetState extends State<WodResultSheet> {
 
   late final List<_MoveEntry> _moves;
 
+  /// v3.15 — 이번에 적을 기록 종류. 칩으로 전환.
+  late _RecordKind _kind;
+
   bool get _isForTime => widget.wod.wodType.toLowerCase() == 'for_time';
-  bool get _isAmrap => widget.wod.wodType.toLowerCase().contains('amrap');
   bool get _isEmom => widget.wod.wodType.toLowerCase() == 'emom';
   bool get _isStrength => widget.wod.wodType.toLowerCase() == 'strength';
 
@@ -107,11 +118,41 @@ class _WodResultSheetState extends State<WodResultSheet> {
       if (mr.extraReps != null) _extraCtrl.text = '${mr.extraReps}';
       if (mr.weightKg != null) {
         final w = mr.weightKg!;
-        _stWeightCtrl.text = w == w.roundToDouble() ? '${w.toInt()}' : '$w';
+        final txt = w == w.roundToDouble() ? '${w.toInt()}' : '$w';
+        // strength 는 전용칸, 그 외는 무게 칩·선택 리프트칸 — 양쪽 다 채워
+        // 어느 UI 로 열려도 프리필이 산다 (v3.15).
+        _stWeightCtrl.text = txt;
+        _liftWeightCtrl.text = txt;
       }
-      if (mr.weightReps != null) _stRepsCtrl.text = '${mr.weightReps}';
+      if (mr.weightReps != null) {
+        _stRepsCtrl.text = '${mr.weightReps}';
+        _liftRepsCtrl.text = '${mr.weightReps}';
+      }
+      if (mr.movement != null && mr.movement!.isNotEmpty) {
+        _liftNameCtrl.text = mr.movement!;
+      }
     }
+    _kind = _initialKind();
   }
+
+  /// 기본 기록 종류 — 재수정이면 저장된 값, 아니면 게시물 타입에서.
+  _RecordKind _initialKind() {
+    final mr = widget.wod.myResult;
+    if (mr != null) {
+      if (mr.rounds != null || mr.extraReps != null) return _RecordKind.rounds;
+      if ((mr.timeSec ?? 0) > 0) return _RecordKind.time;
+      if (mr.weightKg != null) return _RecordKind.weight;
+    }
+    if (_isForTime) return _RecordKind.time;
+    if (_isStrength) return _RecordKind.weight;
+    return _RecordKind.rounds;
+  }
+
+  static String _kindLabel(_RecordKind k) => switch (k) {
+        _RecordKind.time => '시간',
+        _RecordKind.rounds => '라운드',
+        _RecordKind.weight => '무게',
+      };
 
   @override
   void dispose() {
@@ -185,23 +226,36 @@ class _WodResultSheetState extends State<WodResultSheet> {
     final messenger = HkSnack.of(context);
     final navigator = Navigator.of(context);
 
-    final timeSec = _isForTime ? _parseTime(_timeCtrl.text) : null;
-    final rounds = (!_isForTime && !_isStrength)
+    // v3.15 — 칩이 정한 종류의 값만 주 기록으로 나간다.
+    final timeSec =
+        _kind == _RecordKind.time ? _parseTime(_timeCtrl.text) : null;
+    final rounds = _kind == _RecordKind.rounds
         ? int.tryParse(_roundsCtrl.text.trim())
         : null;
-    final extra = _isAmrap ? int.tryParse(_extraCtrl.text.trim()) : null;
-    // strength — 최고 무게(+reps). 다른 유형은 null.
-    final liftName = _isStrength ? null : _liftNameCtrl.text.trim();
-    final liftWeight =
-        _isStrength ? null : double.tryParse(_liftWeightCtrl.text.trim());
-    final hasLift =
-        liftName != null && liftName.isNotEmpty && liftWeight != null;
-    final stWeight = _isStrength
-        ? double.tryParse(_stWeightCtrl.text.trim())
-        : (hasLift ? liftWeight : null);
-    final stReps = _isStrength
-        ? int.tryParse(_stRepsCtrl.text.trim())
-        : (hasLift ? int.tryParse(_liftRepsCtrl.text.trim()) : null);
+    final extra = (_kind == _RecordKind.rounds && !_isEmom)
+        ? int.tryParse(_extraCtrl.text.trim())
+        : null;
+    // 무게 — 무게 칩이면 주 기록, 시간·라운드 칩이면 선택 리프트 병기(v3.14).
+    double? weightKg;
+    int? weightReps;
+    String? movement;
+    if (_kind == _RecordKind.weight) {
+      weightKg = double.tryParse(
+          (_isStrength ? _stWeightCtrl : _liftWeightCtrl).text.trim());
+      weightReps = int.tryParse(
+          (_isStrength ? _stRepsCtrl : _liftRepsCtrl).text.trim());
+      // strength 게시물은 게시물 자체가 리프트 그룹 — 이름 없이도 묶인다.
+      final name = _liftNameCtrl.text.trim();
+      if (!_isStrength && name.isNotEmpty) movement = name;
+    } else if (!_isStrength) {
+      final name = _liftNameCtrl.text.trim();
+      final w = double.tryParse(_liftWeightCtrl.text.trim());
+      if (name.isNotEmpty && w != null) {
+        weightKg = w;
+        weightReps = int.tryParse(_liftRepsCtrl.text.trim());
+        movement = name;
+      }
+    }
 
     // 전체 난도 = 동작 중 하나라도 SCALED 면 scaled (enum 은 scaled/rx 유지).
     // strength 는 난도 선택이 없다 — 기본 rx.
@@ -232,9 +286,9 @@ class _WodResultSheetState extends State<WodResultSheet> {
             timeSec: timeSec,
             rounds: rounds,
             extraReps: extra,
-            weightKg: stWeight,
-            weightReps: stReps,
-            movement: hasLift ? liftName : null,
+            weightKg: weightKg,
+            weightReps: weightReps,
+            movement: movement,
             scaleLevel: scale,
             notes: notes,
           );
@@ -337,9 +391,25 @@ class _WodResultSheetState extends State<WodResultSheet> {
               ),
               const SizedBox(height: HyphenTokens.sp4),
 
-              // ── 내 결과 (종류별 최소 입력) ──
+              // ── 내 결과 (칩이 정한 종류의 최소 입력 — v3.15) ──
               const Text('내 결과', style: HyphenTokens.sectionLabel),
               const SizedBox(height: HyphenTokens.sp1),
+              // 기록 종류 칩 — 게시물 타입은 기본값만 정하고 최종 선택은 회원.
+              // custom(수업) 게시물에서 시간·무게 기록일 곳이 없던 갭의 입구.
+              Wrap(
+                spacing: HyphenTokens.sp2,
+                children: [
+                  for (final k in _RecordKind.values)
+                    HkBadge(
+                      _kindLabel(k),
+                      color: HyphenTokens.fg,
+                      selected: _kind == k,
+                      onTap:
+                          _saving ? null : () => setState(() => _kind = k),
+                    ),
+                ],
+              ),
+              const SizedBox(height: HyphenTokens.sp2),
               // 결함 수정 4 — 재제출 = 덮어쓰기임을 알린다 (프리필과 한 쌍).
               if (widget.wod.myResult != null) ...[
                 Text(
@@ -349,16 +419,28 @@ class _WodResultSheetState extends State<WodResultSheet> {
                 ),
                 const SizedBox(height: HyphenTokens.sp2),
               ],
-              if (_isForTime) ...[
+              if (_kind == _RecordKind.time) ...[
                 _TimeField(controller: _timeCtrl),
-              ] else if (_isStrength) ...[
-                // v3.4 — 무게 측정일: 최고 무게(+reps)가 점수다.
+              ] else if (_kind == _RecordKind.weight) ...[
+                // v3.4 — 무게가 점수. strength 게시물은 게시물이 리프트
+                // 그룹이라 이름 생략, 그 외(수업 등)는 이름이 묶음 열쇠.
+                if (!_isStrength) ...[
+                  TextField(
+                    controller: _liftNameCtrl,
+                    decoration: const InputDecoration(
+                      labelText: '동작 이름',
+                      hintText: '예: Back Squat',
+                    ),
+                  ),
+                  const SizedBox(height: HyphenTokens.sp2),
+                ],
                 Row(
                   children: [
                     Expanded(
                       flex: 2,
                       child: TextField(
-                        controller: _stWeightCtrl,
+                        controller:
+                            _isStrength ? _stWeightCtrl : _liftWeightCtrl,
                         keyboardType: const TextInputType.numberWithOptions(
                             decimal: true),
                         decoration: const InputDecoration(
@@ -370,7 +452,7 @@ class _WodResultSheetState extends State<WodResultSheet> {
                     const SizedBox(width: HyphenTokens.sp2),
                     Expanded(
                       child: TextField(
-                        controller: _stRepsCtrl,
+                        controller: _isStrength ? _stRepsCtrl : _liftRepsCtrl,
                         keyboardType: TextInputType.number,
                         decoration: const InputDecoration(
                           labelText: 'reps (선택)',
@@ -396,7 +478,8 @@ class _WodResultSheetState extends State<WodResultSheet> {
                         ),
                       ),
                     ),
-                    if (_isAmrap) ...[
+                    // EMOM 만 추가 reps 가 없다 — custom 도 AMRAP 식 기록 가능.
+                    if (!_isEmom) ...[
                       const SizedBox(width: HyphenTokens.sp2),
                       Expanded(
                         child: TextField(
@@ -410,9 +493,12 @@ class _WodResultSheetState extends State<WodResultSheet> {
                     ],
                   ],
                 ),
-                // v3.14 — 무게 기록 (선택). 근력 파트가 낀 날(BUILD Back
-                // Squat 5×5 …) 여기 적으면 최고 기록·PR 로 이어진다.
-                // 동작 이름이 같으면 날짜가 달라도 같은 기록으로 묶인다.
+              ],
+              // v3.14 — 무게 기록 (선택). 근력 파트가 낀 날(BUILD Back
+              // Squat 5×5 …) 여기 적으면 최고 기록·PR 로 이어진다.
+              // 동작 이름이 같으면 날짜가 달라도 같은 기록으로 묶인다.
+              // 무게 칩이 주 기록일 때는 중복이라 숨긴다 (v3.15).
+              if (_kind != _RecordKind.weight && !_isStrength) ...[
                 const SizedBox(height: HyphenTokens.sp4),
                 const Text('무게 기록 (선택)', style: HyphenTokens.sectionLabel),
                 const SizedBox(height: HyphenTokens.sp1),

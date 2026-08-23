@@ -666,6 +666,9 @@ class GymMyResult {
   final int? extraReps;
   final double? weightKg;
   final int? weightReps;
+
+  /// 무게 기록의 동작 이름 (v3.15 — 재수정 시트 프리필용).
+  final String? movement;
   final String scaleLevel;
   final String display;
 
@@ -675,6 +678,7 @@ class GymMyResult {
     this.extraReps,
     this.weightKg,
     this.weightReps,
+    this.movement,
     required this.scaleLevel,
     required this.display,
   });
@@ -685,6 +689,7 @@ class GymMyResult {
         extraReps: (j['extra_reps'] as num?)?.toInt(),
         weightKg: (j['weight_kg'] as num?)?.toDouble(),
         weightReps: (j['weight_reps'] as num?)?.toInt(),
+        movement: j['movement'] as String?,
         scaleLevel: (j['scale_level'] ?? 'rx').toString(),
         display: (j['display'] ?? '').toString(),
       );
