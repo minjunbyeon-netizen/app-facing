@@ -253,7 +253,7 @@ class _RequestRow extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: HyphenTokens.sp2),
-                Text('from ${req.fromHashPrefix}',
+                Text('보낸 사람 ${req.fromHashPrefix}',
                     style: HyphenTokens.caption),
                 const Spacer(),
                 if (req.wodPostId != null)

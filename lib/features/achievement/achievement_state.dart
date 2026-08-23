@@ -44,7 +44,9 @@ class AchievementState extends ChangeNotifier {
     } on AppException catch (e) {
       _error = e.messageKo;
     } catch (e) {
-      _error = '불러오기 실패: $e';
+      // 예외 원문은 사용자에게 보이지 않는다 — 로그로만 (2026-08-23).
+      debugPrint('[AchievementState.load] $e');
+      _error = '업적을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.';
     } finally {
       _loading = false;
       notifyListeners();

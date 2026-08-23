@@ -262,7 +262,9 @@ class _WodResultSheetState extends State<WodResultSheet> {
       if (!mounted) return;
       setState(() {
         _saving = false;
-        _error = '저장 실패: $e';
+        // 원문은 로그로만 — 화면에는 사람이 읽을 문구 (2026-08-23).
+        debugPrint('[WodResultSheet.save] $e');
+        _error = '저장하지 못했습니다. 연결을 확인해 주세요.';
       });
     }
   }

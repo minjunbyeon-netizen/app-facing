@@ -163,7 +163,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                       ),
                       const SizedBox(height: HyphenTokens.sp5),
                       if (pending.isNotEmpty) ...[
-                        Text('PENDING (${pending.length})',
+                        Text('승인 대기 (${pending.length})',
                             style: HyphenTokens.sectionLabel),
                         const SizedBox(height: HyphenTokens.sp2),
                         ...pending.map((m) => _PendingRow(
@@ -173,7 +173,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                             )),
                         const SizedBox(height: HyphenTokens.sp5),
                       ],
-                      Text('ROSTER (${approved.length})',
+                      Text('회원 명단 (${approved.length})',
                           style: HyphenTokens.sectionLabel),
                       const SizedBox(height: HyphenTokens.sp2),
                       if (approved.isEmpty)
@@ -186,7 +186,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                             )),
                       if (rejected.isNotEmpty) ...[
                         const SizedBox(height: HyphenTokens.sp5),
-                        Text('REJECTED (${rejected.length})',
+                        Text('거절됨 (${rejected.length})',
                             style: HyphenTokens.sectionLabel),
                         const SizedBox(height: HyphenTokens.sp2),
                         ...rejected.map((m) => _RosterRow(
@@ -364,7 +364,7 @@ class _MemberDetailSheet extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: Text('user:${member.deviceHashPrefix}',
+                  child: Text('회원 ${member.deviceHashPrefix}',
                       style: HyphenTokens.h3),
                 ),
                 Text(
@@ -518,7 +518,7 @@ class _MemberDetailSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('COACH NOTE → ${m.deviceHashPrefix}',
+            Text('쪽지 보내기 → ${m.deviceHashPrefix}',
                 style: HyphenTokens.sectionLabel),
             const SizedBox(height: HyphenTokens.sp1),
             Text(

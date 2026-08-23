@@ -58,7 +58,8 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _error = '로딩 실패: $e';
+        debugPrint('[NoteDetail.load] $e');
+        _error = '쪽지를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.';
         _loading = false;
       });
     }
@@ -363,7 +364,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
           children: [
             const Text('코치에게 질문', style: HyphenTokens.sectionLabel),
             const SizedBox(height: HyphenTokens.sp1),
-            Text('거절 대신 질문 1줄. 코치 인박스로 발송.',
+            Text('거절 대신 질문 한 줄. 코치에게 바로 갑니다.',
                 style: HyphenTokens.caption),
             const SizedBox(height: HyphenTokens.sp2),
             // 빠른 템플릿 chip.

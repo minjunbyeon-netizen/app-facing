@@ -4,7 +4,8 @@ import 'package:flutter/foundation.dart';
 
 import '../../core/exception.dart';
 import '../../models/coach_note.dart';
-import 'inbox_repository.dart';
+import 'inbox_repository.dart';
+
 import '../../core/app_clock.dart';
 
 class InboxState extends ChangeNotifier {
@@ -50,7 +51,7 @@ class InboxState extends ChangeNotifier {
     } on AppException catch (e) {
       _error = e.messageKo;
     } catch (e) {
-      _error = '인박스 로딩 실패: $e';
+      _error = '쪽지를 불러오지 못했습니다.';
     } finally {
       _loading = false;
       notifyListeners();
@@ -68,7 +69,7 @@ class InboxState extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       // QA B-EX-1: 일반 예외도 사용자 알림.
-      _error = '아웃박스 로딩 실패';
+      _error = '보낸 쪽지를 불러오지 못했습니다.';
       notifyListeners();
       debugPrint('[InboxState.refreshOutbox] $e');
     }

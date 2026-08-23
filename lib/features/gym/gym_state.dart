@@ -181,7 +181,8 @@ class GymState extends ChangeNotifier {
     } on AppException catch (e) {
       _error = e.messageKo;
     } catch (e) {
-      _error = '불러오기 실패: $e';
+      debugPrint('[GymState] $e');
+      _error = '정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.';
     } finally {
       _loading = false;
       notifyListeners();

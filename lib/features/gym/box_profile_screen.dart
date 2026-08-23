@@ -203,7 +203,7 @@ class _CoachesCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('COACHES (${hasCoaches ? coaches.length : 1})',
+          Text('코치 (${hasCoaches ? coaches.length : 1})',
               style: HyphenTokens.sectionLabel),
           const SizedBox(height: 8),
           if (hasCoaches)
