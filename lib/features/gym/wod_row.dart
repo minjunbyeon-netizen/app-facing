@@ -197,14 +197,19 @@ class _WodRowState extends State<WodRow> {
   }
 
   /// v1.20: Start 버튼 없이 바로 결과 입력.
-  void _openResultSheet(BuildContext context) {
+  /// v3.17: 시트가 저장 성공 시 pop(true) — 받아서 수업 목록 재조회.
+  /// 배지(week_board 카드·이 행 둘 다)의 원천이 GymState.wods 라 여기 한 곳이면 된다.
+  Future<void> _openResultSheet(BuildContext context) async {
     Haptic.medium();
-    showModalBottomSheet<bool>(
+    final saved = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => WodResultSheet(wod: widget.wod),
     );
+    if (saved == true && context.mounted) {
+      await context.read<GymState>().loadMine();
+    }
   }
 
   @override
