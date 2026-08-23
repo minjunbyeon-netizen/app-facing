@@ -313,6 +313,29 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > - 곁가지: `gym_managers` 를 모델 DDL 로 다시 만들면서 옛 role CHECK
 >   (`boss`·`coach` 뿐이라 `manager` 를 못 넣던 것)가 모델 기준으로 맞춰졌다.
 
+> **D41 (2026-08-24) — 예약 정책 2종: 종료 수업 차단 + 하루 예약 한도.**
+>
+> - **종료 수업 차단 (갭 픽스)**: 종전엔 어제 수업도 `status=open` 이면 예약이
+>   통과됐다. `POST /member/classes/<id>/reservations` 와 회원 취소 DELETE 에
+>   `CLASS_ENDED`(409) 게이트 — **컷오프 = 시작 + duration_minutes (종료 시각)**.
+>   시작 시각이 아닌 이유: 코치 대리 예약 API 가 없어 지각 회원의 수업 중
+>   자가 예약(→명단 등재)이 유일한 구제 경로다. 취소까지 막는 이유: 끝난 뒤
+>   취소하면 노쇼 기록을 회피한다 — 출결 정정은 스태프 PATCH 만.
+>   앱 거울: `ClassSessionDto.isEnded` (appClock) → 버튼 숨김 + '종료' 배지.
+>   주간 보드(week_board `isOver`)는 시작 시각 기준으로 더 엄격 — 기존 유지.
+> - **하루 예약 한도 (opt-in)**: 신규 표 `gym_class_settings.daily_reservation_limit`
+>   (0=무제한 기본·1~10, gym_id PK — gym_point_settings 패턴).
+>   설정 API `GET/PATCH /admin/gyms/<gid>/class-settings` (staff + audit,
+>   `api/class_settings.py`) · 앱 코치 설정 '예약' 탭.
+>   집행 = `api/classes.py _daily_limit_blocked` **한 곳** — 신규 confirmed ·
+>   취소 후 재활성 · 대기 신청 세 진입로 전부 + 대기열 승격 재검사(초과 회원은
+>   건너뛰고 다음 대기자 승격, 건너뛴 회원은 대기열 잔류).
+>   기준일 = 수업 시작일(KST) · 카운트 = confirmed+attended. 초과 시
+>   `DAILY_LIMIT_REACHED`(409). 리워드 엔진의 reserved_at 기준 "예약 행동일"
+>   정규화와는 다른 축 (그쪽은 보상 1회 제한, 이쪽은 예약 자체 제한).
+> - 회귀 게이트: 서버 `tests/test_reservation_policy.py`·`tests/test_class_settings.py`,
+>   골든 `state_07_class_ended`·`boss_08_settings_reservation`.
+
 > **D31 (2026-08-12) — 명단에서 출석 체크 + 대기 순번 정정.**
 >
 > - **대기 순번**: `class_waitlist_promotions.promoted_position` 은 "줄 설 때" 번호라

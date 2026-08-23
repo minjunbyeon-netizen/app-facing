@@ -478,6 +478,42 @@ List<Map<String, dynamic>> memberClassesReserved() {
   return list;
 }
 
+/// /api/v1/member/classes — 위와 동일 + 이미 끝난 오전 수업 1 (종료 배지 캡처용).
+/// kTestClock 10:30 기준 08:00+60분 = 09:00 종료 → isEnded true.
+List<Map<String, dynamic>> memberClassesWithEnded() {
+  final now = appClock.now();
+  return [
+    {
+      'id': 100,
+      'gym_id': 1,
+      'start_at': _todayAt(now, 8),
+      'duration_minutes': 60,
+      'title': 'Morning Metcon',
+      'description': '오전 컨디셔닝 · 소그룹',
+      'room': 'Main Floor',
+      'coach_user_id': 11,
+      'capacity': 12,
+      'waitlist_capacity': 4,
+      'reserved_count': 10,
+      'waitlist_count': 0,
+      'status': 'scheduled',
+      'my_reservation': null,
+      'my_waitlist_position': null,
+    },
+    ...memberClasses(),
+  ];
+}
+
+/// /api/v1/admin/gyms/1/class-settings — 예약 정책 (설정 예약 탭 골든용).
+const bossClassSettings = {
+  'gym_id': 1,
+  'daily_reservation_limit': 2,
+  'updated_at': null,
+};
+
+/// /api/v1/admin/gyms/1/plans — 설정 첫 탭(요금제)이 mount 시 먼저 부른다.
+const bossPlansEmpty = {'plans': []};
+
 /// /api/v1/member/me/contracts — 회원 전자계약 2건 (서명 완료 1 + 서명 대기 1).
 const memberContracts = [
   {

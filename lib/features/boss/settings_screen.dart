@@ -20,7 +20,7 @@ class BossSettingsScreen extends StatefulWidget {
 
 class _BossSettingsScreenState extends State<BossSettingsScreen>
     with SingleTickerProviderStateMixin {
-  late final TabController _tab = TabController(length: 4, vsync: this);
+  late final TabController _tab = TabController(length: 5, vsync: this);
 
   @override
   void dispose() {
@@ -61,6 +61,9 @@ class _BossSettingsScreenState extends State<BossSettingsScreen>
         ],
         bottom: TabBar(
           controller: _tab,
+          // 5탭부터 고정폭에선 '자동 가입' 라벨이 잘린다 — 스크롤 탭.
+          isScrollable: true,
+          tabAlignment: TabAlignment.start,
           indicatorColor: HyphenTokens.primary,
           labelColor: HyphenTokens.fg,
           unselectedLabelColor: HyphenTokens.muted,
@@ -70,6 +73,7 @@ class _BossSettingsScreenState extends State<BossSettingsScreen>
             Tab(text: '포인트'),
             Tab(text: '알림'),
             Tab(text: '자동 가입'),
+            Tab(text: '예약'),
           ],
         ),
       ),
@@ -80,6 +84,7 @@ class _BossSettingsScreenState extends State<BossSettingsScreen>
           _PointsTab(),
           _NotificationsTab(),
           _AutoJoinTab(),
+          _ReservationTab(),
         ],
       ),
     );
@@ -533,6 +538,122 @@ class _NotificationsTabState extends State<_NotificationsTab> {
               ))
           .toList(),
     );
+  }
+}
+
+// ───── Reservation 탭 — 수업 예약 정책 (2026-08-24) ─────────────────
+// 백엔드 gym_class_settings — 하루 예약 한도 (0=무제한, 1~10).
+// 집행은 서버 create_reservation 게이트 — 이 탭은 설정값 CRUD 만.
+class _ReservationTab extends StatefulWidget {
+  const _ReservationTab();
+  @override
+  State<_ReservationTab> createState() => _ReservationTabState();
+}
+
+class _ReservationTabState extends State<_ReservationTab> {
+  Map<String, dynamic>? _data;
+  bool _loading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final auth = context.read<BossAuthState>();
+    final api = context.read<BossApiClient>();
+    final gid = auth.gymId;
+    if (gid == null || gid == 0) {
+      setState(() { _loading = false; _error = '체육관 정보 없음'; });
+      return;
+    }
+    try {
+      final res = await api.get('/api/v1/admin/gyms/$gid/class-settings');
+      setState(() {
+        _data = Map<String, dynamic>.from(res);
+        _loading = false; _error = null;
+      });
+    } catch (e) {
+      setState(() { _loading = false; _error = '연결 실패'; });
+    }
+  }
+
+  Future<void> _patch(Map<String, dynamic> changes) async {
+    final auth = context.read<BossAuthState>();
+    final api = context.read<BossApiClient>();
+    final gid = auth.gymId ?? 0;
+    try {
+      final res = await api.patch(
+          '/api/v1/admin/gyms/$gid/class-settings', changes);
+      setState(() => _data = Map<String, dynamic>.from(res));
+    } on AppException catch (e) {
+      // 범위 밖(BAD_RANGE) 등 — 조용히 삼키면 저장된 줄 안다.
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(e.messageKo)));
+      }
+    } catch (_) {}
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_loading) {
+      return const Center(
+          child: CircularProgressIndicator(color: HyphenTokens.primary));
+    }
+    if (_error != null) {
+      return Center(
+          child: Text(_error!,
+              style: HyphenTokens.body.copyWith(color: HyphenTokens.danger)));
+    }
+    final d = _data ?? const {};
+    final limit = (d['daily_reservation_limit'] as num?)?.toInt() ?? 0;
+    return ListView(
+      padding: const EdgeInsets.all(HyphenTokens.sp4),
+      children: [
+        _EditRow(
+          label: '하루 예약 한도',
+          value: limit == 0 ? '무제한' : '$limit회',
+          onTap: () => _editInt(
+              'daily_reservation_limit', '하루 예약 한도 (0 = 무제한, 최대 10)',
+              limit),
+        ),
+        const SizedBox(height: HyphenTokens.sp2),
+        Text('회원 1명이 하루(수업 날짜 기준)에 잡을 수 있는 예약 수입니다. '
+            '한도를 넘으면 예약·대기 신청이 거절됩니다.',
+            style: HyphenTokens.caption),
+      ],
+    );
+  }
+
+  Future<void> _editInt(String key, String label, int current) async {
+    final ctrl = TextEditingController(text: '$current');
+    final v = await showDialog<int>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: HyphenTokens.surface,
+        title: Text(label, style: HyphenTokens.h3),
+        content: TextField(
+          controller: ctrl,
+          keyboardType: TextInputType.number,
+          autofocus: true,
+          style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text('취소')),
+          TextButton(
+              onPressed: () =>
+                  Navigator.of(ctx).pop(int.tryParse(ctrl.text.trim())),
+              child: const Text('저장')),
+        ],
+      ),
+    );
+    if (v == null) return;
+    await _patch({key: v});
   }
 }
 

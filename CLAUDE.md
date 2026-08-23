@@ -374,12 +374,11 @@ python tool/golden_gallery.py               # 단일 HTML 갤러리 (build/golde
 가짜 백엔드(`test/golden/fakes.dart` — ApiClient implements, 네트워크 0)로 실물 픽셀 렌더
 (갤S22 급 360×780·2x). 폰트는 `test/flutter_test_config.dart` 가 FontManifest 전체
 (Pretendard·MaterialIcons)를 로드. 참조 아키텍처: `apps/writeplz-app` 골든스탠다드.
-현재 **45장** (2026-08-21 — 인트로 2p 삭제 v3.3 · 홈 공지 아코디언 2장은 그 전 추가) — 공통 5(스플래시·
-로그인·가입 신청 2·아이디 로그인) + 온보딩 1(기본 정보) + 회원 셸 8(3탭·홈 공지 아코디언 2·
-프로필 메뉴 2·결과 입력 시트) + 회원 심화 16(수업 예약 2·수업 상세(+내 이전 기록)·결과 시트 Strength·1RM 보드·
-도전 인증 시트·코치 질문 시트·쪽지 피드·업적 전체/상세·프로필 수정·계약·목표·FAQ·약관·방침) +
-코치 9(로그인·대시보드·명단 시트 2·수업 등록/수정 시트 2·날짜 선택·셸 2탭) + 이력 1 +
-상태 변형 5(에러·미가입·오프라인·이력 에러·승인 대기).
+현재 **57장** (2026-08-24 실측 — 8/21 "45장" 서술 이후 v3.4~v3.17 증가분 포함.
+prefix 집계: member 24 · boss 8 · state 7 · common 5 · coach 3 · snack 3 ·
+splash 3 · ach 2 · hist 1 · onb 1. 2026-08-24 신규 2장 = state_07 종료 수업
+카드(버튼 숨김+'종료' 배지) · boss_08 코치 설정 '예약' 탭(하루 예약 한도) —
+브리프 D41. 장별 상세 목록 정본 = `tool/golden_gallery.py` SECTIONS).
 2부 테스트 = `test/golden/screens2_golden_test.dart` (1부의 헬퍼를 import — rxProfile 등).
 **진입점이 없는 화면은 골든에서 뺀다** — 페이싱 계산기(v1.27 숨김, git 의 calc_01~04) ·
 Benchmarks·Tier 결과(v2.6, git 의 onb_02·onb_03) · 인트로 전체(v3.3 코드 삭제, git 의

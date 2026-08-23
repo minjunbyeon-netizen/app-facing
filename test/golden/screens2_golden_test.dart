@@ -9,6 +9,7 @@ import 'package:hyphen_app/features/achievement/achievements_screen.dart';
 import 'package:hyphen_app/features/auth/auth_state.dart';
 import 'package:hyphen_app/features/auth/member_login_screen.dart';
 import 'package:hyphen_app/features/boss/boss_dashboard_screen.dart';
+import 'package:hyphen_app/features/boss/settings_screen.dart';
 import 'package:hyphen_app/features/classes/classes_screen.dart';
 import 'package:hyphen_app/features/contracts/member_contracts_screen.dart';
 import 'package:hyphen_app/features/goals/goals_screen.dart';
@@ -455,5 +456,29 @@ void main() {
     expect(find.text('저장'), findsOneWidget);
     expect(find.text('변경 내용은 회원 화면에 바로 반영됩니다.'), findsOneWidget);
     await capture(tester, 'boss_07_class_edit');
+  });
+
+  // ── 코치 설정 — 예약 탭 (하루 예약 한도, 2026-08-24) ──
+  testWidgets('boss: settings reservation tab', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues({});
+    final api = FakeApi(memberWorld());
+    final bossApi = FakeBossApi({
+      '/api/v1/admin/gyms/1/plans': bossPlansEmpty,
+      '/api/v1/admin/gyms/1/class-settings': bossClassSettings,
+    });
+    await tester.pumpWidget(harness(
+        api: api,
+        auth: AuthState(),
+        profile: ProfileState(),
+        bossAuth: FakeBossAuth(),
+        bossApi: bossApi,
+        home: const BossSettingsScreen()));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('예약'));
+    await tester.pumpAndSettle();
+    // 한도 2회가 로드됐는지 — _EditRow 값으로 확인.
+    expect(find.text('2회'), findsOneWidget);
+    await capture(tester, 'boss_08_settings_reservation');
   });
 }

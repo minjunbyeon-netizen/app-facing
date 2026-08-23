@@ -5,6 +5,8 @@
 //   POST   /api/v1/member/classes/{id}/reservations
 //   DELETE /api/v1/member/reservations/{id}
 
+import '../core/app_clock.dart';
+
 class ClassSessionDto {
   final int id;
   final int gymId;
@@ -46,6 +48,14 @@ class ClassSessionDto {
 
   bool get isOpen => status == 'open';
   bool get isCancelled => status == 'cancelled';
+
+  /// 종료 여부 — 시작 + 진행시간 경과. 서버 예약 게이트(CLASS_ENDED)의 UX 거울
+  /// (정본은 서버 — 기기 시계가 틀려도 서버가 최종 거절한다).
+  /// 주간 보드(week_board)의 시작 시각 기준 isOver 보다 느슨하다 — 진행 중
+  /// 지각 예약은 이 화면 경로로만 열려 있다 (서버 컷오프와 동일).
+  bool get isEnded => appClock
+      .now()
+      .isAfter(startAt.add(Duration(minutes: durationMinutes)));
   bool get isFull => reservedCount >= capacity;
   bool get isReserved => myReservation?.status == 'confirmed';
   bool get isWaitlisted => myWaitlistPosition != null;

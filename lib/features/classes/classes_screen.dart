@@ -300,6 +300,7 @@ class _ClassCard extends StatelessWidget {
     final hh = l.hour.toString().padLeft(2, '0');
     final mm = l.minute.toString().padLeft(2, '0');
     final isCancelled = session.isCancelled;
+    final isEnded = session.isEnded;
     final isReserved = session.isReserved;
     final isWaitlisted = session.isWaitlisted;
     final isFull = session.isFull;
@@ -389,13 +390,17 @@ class _ClassCard extends StatelessWidget {
               ],
               if (isCancelled)
                 const HkBadge('취소됨', color: HyphenTokens.muted)
+              else if (isEnded)
+                // 2026-08-24 — 종료 수업은 예약·취소 불가 (서버 CLASS_ENDED 게이트).
+                // 버튼을 숨기는 이유를 배지로 남긴다.
+                const HkBadge('종료', color: HyphenTokens.muted)
               else if (isReserved)
                 const HkBadge('예약됨', color: HyphenTokens.success)
               else if (isWaitlisted)
                 HkBadge('대기 #${session.myWaitlistPosition}',
                     color: HyphenTokens.warning),
               const Spacer(),
-              if (!isCancelled) ...[
+              if (!isCancelled && !isEnded) ...[
                 // 전역 버튼 테마의 minimumSize(double.infinity) 는 Row 안에서
                 // 무한 폭 layout 예외 → 화면 전체 백지. 카드 내 버튼은 고유 폭.
                 if (isReserved || isWaitlisted)

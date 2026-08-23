@@ -79,6 +79,8 @@ SECTIONS = [
         ("boss_05_roster_cancel", "명단 시트 하단 — 수업 취소 버튼 (G24, 폴드 아래)"),
         ("boss_06_compose_datepicker", "수업 등록 — 날짜 선택 다이얼로그 (appClock 고정)"),
         ("boss_07_class_edit", "수업 수정 시트 — 명단 시트 '수업 수정' (G24 2차, 프리필·일시 고정)"),
+        ("boss_08_settings_reservation",
+         "설정 예약 탭 — 하루 예약 한도 (0=무제한, 2026-08-24)"),
     ]),
     ("상태 변형", "상태 변형 — 빈 · 에러 · 오프라인 · 미가입", [
         ("hist_01_empty", "History — 빈 상태 (신규 가입)"),
@@ -89,6 +91,8 @@ SECTIONS = [
         ("state_05_pending", "승인 대기 — 신청 후 코치 승인 전 (셸 전체 차단)"),
         ("state_06_worn_title",
          "착용 칭호 — 업적에서 고른 칭호가 이름 아래 (v3.12)"),
+        ("state_07_class_ended",
+         "종료 수업 카드 — 버튼 숨김 + '종료' 배지 (CLASS_ENDED 게이트 UX)"),
     ]),
 ]
 
