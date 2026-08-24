@@ -50,7 +50,8 @@
       "mcp__playwright__browser_find",
       "Bash(rm pc_slot_modal.png pc_slot_modal2.png)",
       "Bash(git add *)",
-      "Bash(git commit -q -m 'feat\\(shell\\): 코치 셸 2탭 v3.3 — 예약 현황·수업\\(회원과 동일 보드\\), 사용자 지시 2026-08-18 *)"
+      "Bash(git commit -q -m 'feat\\(shell\\): 코치 셸 2탭 v3.3 — 예약 현황·수업\\(회원과 동일 보드\\), 사용자 지시 2026-08-18 *)",
+      "Bash(curl -s -o /dev/null -w \"local-backend:%{http_code}\\\\n\" http://localhost:5060/health)"
     ]
   }
 }
