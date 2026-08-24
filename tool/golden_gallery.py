@@ -93,6 +93,8 @@ SECTIONS = [
          "착용 칭호 — 업적에서 고른 칭호가 이름 아래 (v3.12)"),
         ("state_07_class_ended",
          "종료 수업 카드 — 버튼 숨김 + '종료' 배지 (CLASS_ENDED 게이트 UX)"),
+        ("state_08_waitlist_cancel_dialog",
+         "대기 취소 다이얼로그 — 대기자 이탈 경로 (G30 픽스)"),
     ]),
 ]
 

@@ -124,6 +124,30 @@ void main() {
     await capture(tester, 'state_07_class_ended');
   });
 
+  // ── 대기 취소 다이얼로그 — 대기자 이탈 경로 (G30 픽스, 2026-08-24) ──
+  // 종전엔 대기 카드 '취소' 버튼이 예약 행이 없어 조용히 무동작이었다.
+  testWidgets('state: waitlist cancel dialog', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi({
+      ...memberWorld(),
+      '/api/v1/member/classes': memberClassesWaitlisted(),
+    });
+    final gym = GymState(GymRepository(api), sse: FakeSse());
+    await gym.loadMine();
+    await tester.pumpWidget(harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        gym: gym,
+        home: const ClassesScreen()));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('취소'));
+    await tester.pumpAndSettle();
+    expect(find.text('대기를 취소할까요?'), findsOneWidget);
+    await capture(tester, 'state_08_waitlist_cancel_dialog');
+  });
+
   _wornTitleGoldens();
 }
 

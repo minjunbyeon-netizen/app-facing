@@ -38,8 +38,11 @@ Future<bool> cancelClassFlow(
   ClassesRepository repo,
   ClassSessionDto c,
 ) async {
+  // G30 픽스 (2026-08-24): 대기자는 예약 행이 없어 종전엔 여기서 조용히
+  // return — 대기 '취소' 버튼이 무동작이었다. 대기는 전용 DELETE 로 이탈.
+  final isWaitlistCancel = c.isWaitlisted;
   final res = c.myReservation;
-  if (res == null) return false;
+  if (!isWaitlistCancel && (res == null || !c.isReserved)) return false;
   final l = c.startAt.toLocal();
   final when = '${l.month}/${l.day} '
       '${l.hour.toString().padLeft(2, '0')}:${l.minute.toString().padLeft(2, '0')}';
@@ -50,7 +53,7 @@ Future<bool> cancelClassFlow(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(HyphenTokens.r4),
       ),
-      title: const Text('예약을 취소할까요?'),
+      title: Text(isWaitlistCancel ? '대기를 취소할까요?' : '예약을 취소할까요?'),
       content: Text('${c.title} · $when', style: HyphenTokens.caption),
       actions: [
         TextButton(
@@ -69,8 +72,13 @@ Future<bool> cancelClassFlow(
   Haptic.medium();
   final messenger = HkSnack.of(context);
   try {
-    await repo.cancel(res.reservationId);
-    messenger.info('예약 취소.', mood: MascotMood.happy);
+    if (isWaitlistCancel) {
+      await repo.cancelWaitlist(c.id);
+      messenger.info('대기 취소.', mood: MascotMood.happy);
+    } else {
+      await repo.cancel(res!.reservationId);
+      messenger.info('예약 취소.', mood: MascotMood.happy);
+    }
     return true;
   } on AppException catch (e) {
     messenger.fail(e.messageKo);

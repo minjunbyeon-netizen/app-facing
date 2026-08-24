@@ -333,8 +333,14 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 >   기준일 = 수업 시작일(KST) · 카운트 = confirmed+attended. 초과 시
 >   `DAILY_LIMIT_REACHED`(409). 리워드 엔진의 reserved_at 기준 "예약 행동일"
 >   정규화와는 다른 축 (그쪽은 보상 1회 제한, 이쪽은 예약 자체 제한).
-> - 회귀 게이트: 서버 `tests/test_reservation_policy.py`·`tests/test_class_settings.py`,
->   골든 `state_07_class_ended`·`boss_08_settings_reservation`.
+> - **같은 날 후속 (G29·G30 픽스)**: 재활성 분기를 정원 검사 안쪽으로 이동
+>   (만석이면 waitlist 로) + 대기 중 재신청 `ALREADY_WAITLISTED`(409) 차단 +
+>   대기 이탈 신설 `DELETE /member/classes/<id>/waitlist` (미승격 sentinel 행만
+>   삭제 · SSE `member_waitlist_cancelled`) — 폰 `cancelClassFlow` 가 대기
+>   상태면 전용 DELETE 로 분기 ('대기를 취소할까요?'). 종전엔 대기 '취소'
+>   버튼이 예약 행 부재로 조용히 무동작이었다.
+> - 회귀 게이트: 서버 `tests/test_reservation_policy.py`(11)·`tests/test_class_settings.py`(8),
+>   골든 `state_07_class_ended`·`boss_08_settings_reservation`·`state_08_waitlist_cancel_dialog`.
 
 > **D31 (2026-08-12) — 명단에서 출석 체크 + 대기 순번 정정.**
 >

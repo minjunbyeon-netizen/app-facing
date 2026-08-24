@@ -504,6 +504,16 @@ List<Map<String, dynamic>> memberClassesWithEnded() {
   ];
 }
 
+/// /api/v1/member/classes — 21시 만석 수업에 내가 대기 1번 (대기 취소 캡처용).
+List<Map<String, dynamic>> memberClassesWaitlisted() {
+  final list = memberClasses();
+  list[1] = {
+    ...list[1],
+    'my_waitlist_position': 1,
+  };
+  return list;
+}
+
 /// /api/v1/admin/gyms/1/class-settings — 예약 정책 (설정 예약 탭 골든용).
 const bossClassSettings = {
   'gym_id': 1,

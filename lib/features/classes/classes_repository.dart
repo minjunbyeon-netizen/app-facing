@@ -51,4 +51,10 @@ class ClassesRepository {
   Future<void> cancel(int reservationId) async {
     await _api.delete('/api/v1/member/reservations/$reservationId');
   }
+
+  /// 본인 대기열 이탈 (G30, 2026-08-24). 대기자는 예약 행이 없어 cancel()
+  /// 로는 못 나간다 — 수업 id 로 미승격 대기행을 지우는 전용 경로.
+  Future<void> cancelWaitlist(int classSessionId) async {
+    await _api.delete('/api/v1/member/classes/$classSessionId/waitlist');
+  }
 }
