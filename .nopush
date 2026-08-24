@@ -1,4 +1,0 @@
-# 이 파일이 있으면 autopush-dev 훅이 로컬 커밋만 하고 git push 는 건너뜁니다.
-# 이유: facing-app 은 CLAUDE.md "🚫 배포 금지" 규칙 — 사용자가 명시적으로 "push" 라고
-#       말하기 전엔 어떤 push 도 금지. 자동저장 훅의 auto-push 를 막기 위함.
-# 해제: 이 파일 삭제 시 자동 push 복구.
