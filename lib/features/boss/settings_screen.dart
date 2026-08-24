@@ -8,9 +8,10 @@ import 'boss_auth_state.dart';
 
 /// PHASE5 §1-4 — 사장 폰 설정 화면.
 ///
-/// 3 탭: Plans (회원권 마스터) · Points (포인트 정책) · Notifications (알림톡 토글).
-/// Backend Phase 1-1·1-2·1-3 endpoint 위에 얹힘. Phase 4-3 자동 금액 매핑·
-/// Phase 2-4 포인트 잔액·Phase 5-3 공지사항 자동알림 이 모두 이 설정 의존.
+/// 4 탭: 요금제 · 알림 · 자동 가입 · 예약.
+/// (구 포인트 탭은 2026-08-24 포인트 이원화 정리로 삭제 — gym_point_settings
+/// 가 읽는 코드 0 고아라 API·모델과 함께 제거. 포인트 지급은 리워드 규칙
+/// 엔진 + PC 수동 지급 프리셋만.)
 class BossSettingsScreen extends StatefulWidget {
   const BossSettingsScreen({super.key});
 
@@ -20,7 +21,7 @@ class BossSettingsScreen extends StatefulWidget {
 
 class _BossSettingsScreenState extends State<BossSettingsScreen>
     with SingleTickerProviderStateMixin {
-  late final TabController _tab = TabController(length: 5, vsync: this);
+  late final TabController _tab = TabController(length: 4, vsync: this);
 
   @override
   void dispose() {
@@ -70,7 +71,6 @@ class _BossSettingsScreenState extends State<BossSettingsScreen>
           labelStyle: HyphenTokens.body.copyWith(fontWeight: FontWeight.w700),
           tabs: const [
             Tab(text: '요금제'),
-            Tab(text: '포인트'),
             Tab(text: '알림'),
             Tab(text: '자동 가입'),
             Tab(text: '예약'),
@@ -81,7 +81,6 @@ class _BossSettingsScreenState extends State<BossSettingsScreen>
         controller: _tab,
         children: const [
           _PlansTab(),
-          _PointsTab(),
           _NotificationsTab(),
           _AutoJoinTab(),
           _ReservationTab(),
@@ -328,133 +327,6 @@ Future<void> _showCreateSheet(BuildContext ctx,
       ),
     ),
   );
-}
-
-// ───── Points 탭 — 박스 포인트 정책 ─────────────────────────────────
-class _PointsTab extends StatefulWidget {
-  const _PointsTab();
-  @override
-  State<_PointsTab> createState() => _PointsTabState();
-}
-
-class _PointsTabState extends State<_PointsTab> {
-  Map<String, dynamic>? _data;
-  bool _loading = true;
-  String? _error;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    final auth = context.read<BossAuthState>();
-    final api = context.read<BossApiClient>();
-    final gid = auth.gymId;
-    if (gid == null || gid == 0) {
-      setState(() { _loading = false; _error = '체육관 정보 없음'; });
-      return;
-    }
-    try {
-      final res = await api.get('/api/v1/admin/gyms/$gid/point-settings');
-      setState(() {
-        _data = Map<String, dynamic>.from(res);
-        _loading = false; _error = null;
-      });
-    } catch (e) {
-      setState(() { _loading = false; _error = '연결 실패'; });
-    }
-  }
-
-  Future<void> _patch(Map<String, dynamic> changes) async {
-    final auth = context.read<BossAuthState>();
-    final api = context.read<BossApiClient>();
-    final gid = auth.gymId ?? 0;
-    try {
-      final res = await api.patch(
-          '/api/v1/admin/gyms/$gid/point-settings', changes);
-      setState(() => _data = Map<String, dynamic>.from(res));
-    } catch (_) {}
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_loading) {
-      return const Center(
-          child: CircularProgressIndicator(color: HyphenTokens.primary));
-    }
-    if (_error != null) {
-      return Center(
-          child: Text(_error!,
-              style: HyphenTokens.body.copyWith(color: HyphenTokens.danger)));
-    }
-    final d = _data ?? const {};
-    return ListView(
-      padding: const EdgeInsets.all(HyphenTokens.sp4),
-      children: [
-        SwitchListTile(
-          tileColor: HyphenTokens.surface,
-          activeThumbColor: HyphenTokens.primary,
-          title: Text('포인트 활성', style: HyphenTokens.body),
-          subtitle: Text('체육관 전체 포인트 적립·사용 on/off',
-              style: HyphenTokens.caption),
-          value: d['is_active'] == true,
-          onChanged: (v) => _patch({'is_active': v}),
-        ),
-        const SizedBox(height: HyphenTokens.sp3),
-        // PHASE5 §1-2 후속 — 값 inline 편집. tap 시 prompt-style dialog.
-        _EditRow(
-          label: '적립률 (%)',
-          value: '${d['earn_rate'] ?? 0}',
-          onTap: () => _editInt('earn_rate', '적립률 (0~100)',
-              (d['earn_rate'] as num?)?.toInt() ?? 0),
-        ),
-        _EditRow(
-          label: '사용 최소 단위 (P)',
-          value: '${d['redeem_unit'] ?? 0}',
-          onTap: () => _editInt('redeem_unit', '사용 최소 단위 (P)',
-              (d['redeem_unit'] as num?)?.toInt() ?? 1000),
-        ),
-        _EditRow(
-          label: '만료 일수',
-          value: (d['expiry_days'] ?? 0) == 0
-              ? '무기한'
-              : '${d['expiry_days']}일',
-          onTap: () => _editInt('expiry_days', '만료 일수 (0 = 무기한)',
-              (d['expiry_days'] as num?)?.toInt() ?? 365),
-        ),
-      ],
-    );
-  }
-
-  Future<void> _editInt(String key, String label, int current) async {
-    final ctrl = TextEditingController(text: '$current');
-    final v = await showDialog<int>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: HyphenTokens.surface,
-        title: Text(label, style: HyphenTokens.h3),
-        content: TextField(
-          controller: ctrl,
-          keyboardType: TextInputType.number,
-          autofocus: true,
-          style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('취소')),
-          TextButton(
-              onPressed: () =>
-                  Navigator.of(ctx).pop(int.tryParse(ctrl.text.trim())),
-              child: const Text('저장')),
-        ],
-      ),
-    );
-    if (v == null) return;
-    await _patch({key: v});
-  }
 }
 
 // ───── Notifications 탭 — 알림톡 토글 ──────────────────────────────

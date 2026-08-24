@@ -318,7 +318,7 @@ class _WodResultSheetState extends State<WodResultSheet> {
     final notes = notesParts.join(' · ');
 
     try {
-      // 1) 결과 제출. (첫 제출이면 points_awarded > 0)
+      // 1) 결과 제출.
       final res = await repo.submitWodResult(
             gymId: gym.id,
             wodId: widget.wod.id,
@@ -353,11 +353,9 @@ class _WodResultSheetState extends State<WodResultSheet> {
       // 3) Attendance / Trends 즉시 reload.
       bus.bump();
       navigator.pop(true);
-      final earned = res.pointsAwarded > 0;
       // v3.4 — 서버 비교 메시지 붙여 발전 피드백 ("지난 기록보다 42초 단축 — PR!").
-      final base = earned
-          ? '저장됨 · 출석 +1 · +${res.pointsAwarded}P'
-          : '저장됨 · 출석 +1';
+      // (구 +100P 표기는 2026-08-24 첫 제출 적립 폐기와 함께 제거.)
+      const base = '저장됨 · 출석 +1';
       final msg = res.comparisonMessage;
       messenger.info(
         msg == null ? base : '$base\n$msg',

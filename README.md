@@ -63,3 +63,9 @@ samples, guidance on mobile development, and a full API reference.
     2곳) + 앱 `LockedWodBanner` 의 미래 분기(week_board.dart)·'당일 공개.' 문구
     삭제. 코치가 미리 적는 새 흐름과 충돌해 폐지 — 잠금 사유는 회원권 만료 하나만
     남음 (LockedWodBanner 는 그 용도로 존치).
+14. **코치 설정 '포인트' 탭 + gym_point_settings (2026-08-24 포인트 이원화 정리)** —
+    `settings_screen.dart` 의 `_PointsTab`(적립률·사용 최소 단위·만료 일수) + 백엔드
+    `api/point_settings.py`·`models/gym_point_settings.py`. 저장만 되고 읽는 코드가
+    0 인 고아였다 (earn_rate 자동 적립·redeem_unit 검증·만료 처리 전부 미구현).
+    DB 표는 존치. 같은 날 WOD 첫 기록 100P 하드코딩(api/gym.py `WOD_RESULT_POINTS`)도
+    폐기 — 포인트 지급은 리워드 규칙 엔진(자동) + PC 수동 지급 프리셋 두 경로로 정리.

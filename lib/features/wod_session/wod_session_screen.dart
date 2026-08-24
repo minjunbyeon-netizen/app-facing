@@ -375,23 +375,21 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
       // v1.16 Sprint 16: 박스 WOD인 경우 참가자 기록 리더보드 POST (best-effort).
       // QA A-18: await 후 context.read 전 mounted 검사.
       if (!mounted) return true;
-      var pointsAwarded = 0;  // 첫 제출이면 > 0 (저장 toast 에 표시).
       try {
         final gs = context.read<GymState>();
         final gym = gs.membership.gym;
         final gymRepo = context.read<GymRepository>();
         if (gym != null &&
             (gs.isOwner || gs.membership.isApprovedMember)) {
-          final res = await gymRepo.submitWodResult(
-                gymId: gym.id,
-                wodId: widget.wod.id,
-                timeSec: _mode == _TimerMode.forTime ? totalSec : null,
-                rounds: rounds,
-                extraReps: extraReps,
-                scaleLevel: _scaled ? 'scaled' : 'rx',
-                notes: '',
-              );
-          pointsAwarded = res.pointsAwarded;
+          await gymRepo.submitWodResult(
+            gymId: gym.id,
+            wodId: widget.wod.id,
+            timeSec: _mode == _TimerMode.forTime ? totalSec : null,
+            rounds: rounds,
+            extraReps: extraReps,
+            scaleLevel: _scaled ? 'scaled' : 'rx',
+            notes: '',
+          );
         }
       } catch (_) {
         // 리더보드 실패는 history 저장 성공을 막지 않음.
@@ -437,11 +435,10 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
       if (!mounted) return true;
       // unlock 발화 시 '기록 저장.' toast 생략 — 사용자에 이미 완료 신호 전달됨.
       if (!anyUnlockShown) {
+        // (구 +100P 표기는 2026-08-24 첫 제출 적립 폐기와 함께 제거.)
         HkSnack.show(
           context,
-          pointsAwarded > 0
-              ? '기록 저장. 출석 · 체육관 리더보드 자동 반영. +${pointsAwarded}P'
-              : '기록 저장. 출석 · 체육관 리더보드 자동 반영.',
+          '기록 저장. 출석 · 체육관 리더보드 자동 반영.',
           mood: MascotMood.happy,
         );
       }
