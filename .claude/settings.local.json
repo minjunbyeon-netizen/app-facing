@@ -3,8 +3,8 @@
     "CC_IDLE_THRESHOLD": "1800"
   },
   "permissions": {
+    "defaultMode": "bypassPermissions",
     "allow": [
-      "defaultMode": "bypassPermissions",
       "PowerShell(adb *)",
       "Skill(schedule)",
       "PowerShell(Start-Process \"docs\\\\ABOUT.md\")",
