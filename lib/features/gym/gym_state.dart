@@ -121,10 +121,21 @@ class GymState extends ChangeNotifier {
   List<Membership> get myMemberships => _myMemberships;
   Membership? get currentMembership {
     if (_myMemberships.isEmpty) return null;
-    for (final m in _myMemberships) {
-      if (m.isActive) return m;
+    final actives = _myMemberships.where((m) => m.isActive).toList();
+    if (actives.isEmpty) return _myMemberships.first;
+    // 오늘을 포함하는 기간이 대표 (2026-08-24 결함 수정 — 목록이 최신 발급
+    // 우선이라 미래 시작권이 현재 이용중 권을 가렸다). 미래권만 있으면 최신.
+    final today = todayIso;
+    for (final m in actives) {
+      final s = m.startDate, e = m.endDate;
+      if (s != null &&
+          e != null &&
+          s.compareTo(today) <= 0 &&
+          today.compareTo(e) <= 0) {
+        return m;
+      }
     }
-    return _myMemberships.first;
+    return actives.first;
   }
   /// v1.16.2 — 본인 락커.
   List<Locker> get myLockers => _myLockers;

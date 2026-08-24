@@ -42,13 +42,14 @@ class ContractSummary {
         signedAt: j['signed_at'] as String?,
       );
 
-  /// V8 — 단어 라벨 영문 (마침표 없음)
+  /// 상태 라벨 — 한글 기본 (v3.0 카피 정책, 2026-08-24 구 V8 영문 라벨 교체).
   String get statusLabel => switch (status) {
-        'signed' => 'SIGNED',
-        'sent' || 'viewed' => 'WAITING',
-        'draft' => 'DRAFT',
-        'cancelled' => 'CANCELLED',
-        _ => status.toUpperCase(),
+        'signed' => '서명 완료',
+        'sent' || 'viewed' => '서명 대기',
+        'draft' => '작성 중',
+        'cancelled' => '취소',
+        'expired' => '만료',
+        _ => status,
       };
 
   bool get signable => status == 'sent' || status == 'viewed';
@@ -274,15 +275,35 @@ class _ContractDetailScreenState extends State<ContractDetailScreen> {
                       const SizedBox(height: HyphenTokens.sp2),
                       HkBadge(
                         switch (status) {
-                          'signed' => 'SIGNED',
-                          'sent' || 'viewed' => 'WAITING',
-                          'cancelled' => 'CANCELLED',
-                          _ => status.toUpperCase(),
+                          'signed' => '서명 완료',
+                          'sent' || 'viewed' => '서명 대기',
+                          'cancelled' => '취소',
+                          'expired' => '만료',
+                          _ => status,
                         },
                         color: signable
                             ? HyphenTokens.primary
                             : HyphenTokens.muted,
                       ),
+                      // 서명 전 본문 열람 (2026-08-24 갭 해소 — 서버 렌더 텍스트).
+                      if (((d['body_text'] as String?) ?? '')
+                          .isNotEmpty) ...[
+                        const SizedBox(height: HyphenTokens.sp4),
+                        const Text('본문', style: HyphenTokens.sectionLabel),
+                        const SizedBox(height: HyphenTokens.sp2),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(HyphenTokens.sp3),
+                          decoration: BoxDecoration(
+                            color: HyphenTokens.surface,
+                            border: Border.all(color: HyphenTokens.border),
+                            borderRadius:
+                                BorderRadius.circular(HyphenTokens.r2),
+                          ),
+                          child: Text((d['body_text'] as String?) ?? '',
+                              style: HyphenTokens.caption),
+                        ),
+                      ],
                       const SizedBox(height: HyphenTokens.sp4),
                       const Text('내용', style: HyphenTokens.sectionLabel),
                       const SizedBox(height: HyphenTokens.sp2),

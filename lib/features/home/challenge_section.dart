@@ -52,85 +52,28 @@ class _ChallengeSectionState extends State<ChallengeSection> {
 
   Future<void> _openLogSheet(RewardProgress r) async {
     Haptic.medium();
-    final noteCtrl = TextEditingController();
     final repo = context.read<GymRepository>();
     final achState = context.read<AchievementState>();
     final messenger = HkSnack.of(context);
-    try {
-      await showModalBottomSheet<void>(
-        context: context,
-        backgroundColor: HyphenTokens.surface,
-        isScrollControlled: true,
-        shape: const RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.vertical(top: Radius.circular(HyphenTokens.r4)),
-        ),
-        builder: (ctx) => Padding(
-          padding: EdgeInsets.only(
-            left: HyphenTokens.sp4,
-            right: HyphenTokens.sp4,
-            top: HyphenTokens.sp4,
-            bottom: MediaQuery.of(ctx).viewInsets.bottom + HyphenTokens.sp4,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text('${r.label} — 인증하기',
-                  style: HyphenTokens.sectionLabel),
-              const SizedBox(height: HyphenTokens.sp1),
-              Text(r.sentence, style: HyphenTokens.caption),
-              const SizedBox(height: HyphenTokens.sp3),
-              TextField(
-                controller: noteCtrl,
-                maxLength: 200,
-                decoration: const InputDecoration(
-                  labelText: '메모 (선택)',
-                  hintText: '예: 한강 5km',
-                ),
-              ),
-              const SizedBox(height: HyphenTokens.sp2),
-              HkButton(
-                '인증하기',
-                onPressed: () async {
-                    try {
-                      final res = await repo.logRewardAction(
-                        r.ruleId,
-                        note: noteCtrl.text.trim(),
-                      );
-                      if (!ctx.mounted) return;
-                      Navigator.of(ctx).pop();
-                      final granted = res.grantedRules.isNotEmpty;
-                      messenger.info(res.status == 'approved' ? (granted ? '인증 완료 · 조건 충족 — 보상 지급' : '인증 완료') : '인증 접수 — 코치 승인 대기', mood: MascotMood.happy);
-                      // 즉시 지급(자동 인정)이면 업적 해금 diff → 토스트·컨페티.
-                      if (granted) {
-                        achState.check(throttle: false);
-                      }
-                      _load();
-                    } on AppException catch (e) {
-                      if (!ctx.mounted) return;
-                      Navigator.of(ctx).pop();
-                      messenger.fail(e.messageKo);
-                    } catch (_) {
-                      if (!ctx.mounted) return;
-                      Navigator.of(ctx).pop();
-                      messenger.fail('인증 실패. 다시 시도.');
-                    }
-                },
-              ),
-              const SizedBox(height: HyphenTokens.sp1),
-              const Text(
-                '하루에 한 번 인증할 수 있습니다.',
-                style: HyphenTokens.caption,
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ),
-      );
-    } finally {
-      noteCtrl.dispose();
-    }
+    // 컨트롤러는 _LogSheet(State) 가 소유 — 종전엔 시트 pop 직후 finally 로
+    // dispose 해, 퇴장 애니메이션 중인 TextField 가 죽은 컨트롤러를 물고
+    // 프레임워크 단정('_dependents.isEmpty')으로 크래시했다 (2026-08-24 실기).
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: HyphenTokens.surface,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(HyphenTokens.r4)),
+      ),
+      builder: (ctx) => _LogSheet(
+        rule: r,
+        repo: repo,
+        achState: achState,
+        messenger: messenger,
+        onLogged: _load,
+      ),
+    );
   }
 
   @override
@@ -170,6 +113,110 @@ class _ChallengeSectionState extends State<ChallengeSection> {
           ],
         );
       },
+    );
+  }
+}
+
+/// 인증 바텀시트 — 메모 컨트롤러 수명은 이 State 가 소유 (route 언마운트 후
+/// dispose 되므로 퇴장 애니메이션과 안 겹친다).
+class _LogSheet extends StatefulWidget {
+  final RewardProgress rule;
+  final GymRepository repo;
+  final AchievementState achState;
+  final HkSnack messenger;
+  final VoidCallback onLogged;
+  const _LogSheet({
+    required this.rule,
+    required this.repo,
+    required this.achState,
+    required this.messenger,
+    required this.onLogged,
+  });
+
+  @override
+  State<_LogSheet> createState() => _LogSheetState();
+}
+
+class _LogSheetState extends State<_LogSheet> {
+  final _noteCtrl = TextEditingController();
+  bool _submitting = false;
+
+  @override
+  void dispose() {
+    _noteCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (_submitting) return;
+    setState(() => _submitting = true);
+    // 키보드가 열린 채 pop 하지 않는다 — 닫힘 레이스 방지.
+    FocusManager.instance.primaryFocus?.unfocus();
+    try {
+      final res = await widget.repo.logRewardAction(
+        widget.rule.ruleId,
+        note: _noteCtrl.text.trim(),
+      );
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      final granted = res.grantedRules.isNotEmpty;
+      widget.messenger.info(
+          res.status == 'approved'
+              ? (granted ? '인증 완료 · 조건 충족 — 보상 지급' : '인증 완료')
+              : '인증 접수 — 코치 승인 대기',
+          mood: MascotMood.happy);
+      // 즉시 지급(자동 인정)이면 업적 해금 diff → 토스트·컨페티.
+      if (granted) {
+        widget.achState.check(throttle: false);
+      }
+      widget.onLogged();
+    } on AppException catch (e) {
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      widget.messenger.fail(e.messageKo);
+    } catch (_) {
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      widget.messenger.fail('인증 실패. 다시 시도.');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        left: HyphenTokens.sp4,
+        right: HyphenTokens.sp4,
+        top: HyphenTokens.sp4,
+        bottom: MediaQuery.of(context).viewInsets.bottom + HyphenTokens.sp4,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('${widget.rule.label} — 인증하기',
+              style: HyphenTokens.sectionLabel),
+          const SizedBox(height: HyphenTokens.sp1),
+          Text(widget.rule.sentence, style: HyphenTokens.caption),
+          const SizedBox(height: HyphenTokens.sp3),
+          TextField(
+            controller: _noteCtrl,
+            maxLength: 200,
+            decoration: const InputDecoration(
+              labelText: '메모 (선택)',
+              hintText: '예: 한강 5km',
+            ),
+          ),
+          const SizedBox(height: HyphenTokens.sp2),
+          HkButton('인증하기', onPressed: _submitting ? null : _submit),
+          const SizedBox(height: HyphenTokens.sp1),
+          const Text(
+            '하루에 한 번 인증할 수 있습니다.',
+            style: HyphenTokens.caption,
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 }

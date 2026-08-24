@@ -12,6 +12,8 @@ class Membership {
   final String? endDate;
   final int? price;
   final String status; // active / expired / refunded / scheduled / ...
+  final String? pauseStart; // 'YYYY-MM-DD' — 일시정지 창 (2026-08-24 갭 해소)
+  final String? pauseEnd;
 
   const Membership({
     required this.id,
@@ -22,6 +24,8 @@ class Membership {
     this.endDate,
     this.price,
     this.status = 'active',
+    this.pauseStart,
+    this.pauseEnd,
   });
 
   factory Membership.fromJson(Map<String, dynamic> j) => Membership(
@@ -33,6 +37,8 @@ class Membership {
         endDate: j['end_date']?.toString(),
         price: (j['price'] as num?)?.toInt(),
         status: (j['status'] ?? 'active').toString(),
+        pauseStart: j['pause_start']?.toString(),
+        pauseEnd: j['pause_end']?.toString(),
       );
 
   /// 만료까지 남은 일수. end_date 가 없으면 null.
@@ -70,4 +76,33 @@ class Membership {
   }
 
   bool get isActive => status == 'active';
+
+  /// 오늘이 일시정지 창 안인가 (pause_start ≤ 오늘 < pause_end —
+  /// 해제일(pause_end)부터는 정지 아님, 서버 admin.py 판정과 동일 규약).
+  bool get isPausedNow {
+    if (pauseStart == null || pauseEnd == null) return false;
+    try {
+      final now = appClock.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final ps = DateTime.parse(pauseStart!);
+      final pe = DateTime.parse(pauseEnd!);
+      return !today.isBefore(DateTime(ps.year, ps.month, ps.day)) &&
+          today.isBefore(DateTime(pe.year, pe.month, pe.day));
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// 정지가 예약돼 있고 아직 시작 전인가.
+  bool get isPauseScheduled {
+    if (pauseStart == null || pauseEnd == null) return false;
+    try {
+      final now = appClock.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final ps = DateTime.parse(pauseStart!);
+      return today.isBefore(DateTime(ps.year, ps.month, ps.day));
+    } catch (_) {
+      return false;
+    }
+  }
 }

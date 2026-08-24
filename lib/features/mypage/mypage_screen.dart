@@ -666,6 +666,7 @@ class _MembershipSection extends StatelessWidget {
       } else {
         parts.add('$days일 남음');
       }
+      if (ms.isPausedNow) parts.add('일시정지 중');
     }
     if (lk != null) parts.add('락커 ${lk.lockerNo}');
 
@@ -741,6 +742,23 @@ class _MembershipCard extends StatelessWidget {
                   ),
               ],
             ),
+            // 일시정지 상태 (2026-08-24 갭 해소 — PC 만 알던 정지 창 표시).
+            if (ms.isPausedNow || ms.isPauseScheduled) ...[
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  HkBadge(ms.isPausedNow ? '일시정지 중' : '일시정지 예정',
+                      color: HyphenTokens.warning),
+                  const SizedBox(width: HyphenTokens.sp2),
+                  Expanded(
+                    child: Text(
+                      '${ms.pauseStart ?? ''} ~ ${ms.pauseEnd ?? ''}',
+                      style: HyphenTokens.caption,
+                    ),
+                  ),
+                ],
+              ),
+            ],
             const SizedBox(height: 12),
             // 진행 막대 — 사용 비율 = progress, 남은 비율 = 1-progress
             TweenAnimationBuilder<double>(
@@ -1041,14 +1059,26 @@ class _PointsBalanceRow extends StatefulWidget {
 
 class _PointsBalanceRowState extends State<_PointsBalanceRow> {
   int? _balance;
+  GymState? _gymState;
 
   @override
   void initState() {
     super.initState();
     _load();
+    // 2026-08-24 — 적립·SSE 후에도 800P 고착되던 갱신 배선 (challenge_section
+    // 결함 수정 6 과 동일 패턴: GymState notify 를 듣고 재조회).
+    _gymState = context.read<GymState>();
+    _gymState?.addListener(_load);
+  }
+
+  @override
+  void dispose() {
+    _gymState?.removeListener(_load);
+    super.dispose();
   }
 
   Future<void> _load() async {
+    if (!mounted) return;
     try {
       final api = context.read<ApiClient>();
       final res = await api.get('/api/v1/member/points');
