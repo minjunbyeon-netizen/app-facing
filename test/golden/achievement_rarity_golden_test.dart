@@ -33,12 +33,14 @@ void main() {
       ...memberWorld(),
       '/api/v1/achievements': achievementsAllRarities,
     });
-    await tester.pumpWidget(harness(
-      api: api,
-      auth: await signedInAuth(),
-      profile: rxProfile(),
-      home: const AchievementsScreen(),
-    ));
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        home: const AchievementsScreen(),
+      ),
+    );
     await tester.pump(const Duration(milliseconds: 300));
     await capture(tester, 'ach_01_rarities');
   });
@@ -46,12 +48,14 @@ void main() {
   testWidgets('업적 해금 축하 — 전설 토스트 + 컨페티', (tester) async {
     phone(tester);
     final api = FakeApi(memberWorld());
-    await tester.pumpWidget(harness(
-      api: api,
-      auth: await signedInAuth(),
-      profile: rxProfile(),
-      home: const AchievementsScreen(),
-    ));
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        home: const AchievementsScreen(),
+      ),
+    );
     await tester.pump(const Duration(milliseconds: 300));
     final ctx = tester.element(find.byType(AchievementsScreen));
     // showAll 은 순차 대기가 있어 await 하면 타이머가 남는다 — 발사만 하고 픽셀을 본다.

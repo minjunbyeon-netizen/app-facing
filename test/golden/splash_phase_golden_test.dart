@@ -16,17 +16,21 @@ void main() {
   Future<void> shot(WidgetTester tester, String name, Duration at) async {
     phone(tester);
     SharedPreferences.setMockInitialValues({});
-    await tester.pumpWidget(harness(
-      api: FakeApi(memberWorld()),
-      auth: AuthState(),
-      profile: ProfileState(),
-      home: const SplashScreen(),
-    ));
+    await tester.pumpWidget(
+      harness(
+        api: FakeApi(memberWorld()),
+        auth: AuthState(),
+        profile: ProfileState(),
+        home: const SplashScreen(),
+      ),
+    );
     // 이미지 디코딩을 먼저 끝낸다 — 안 하면 카드가 빈 칸으로 찍힌다.
     await precacheAllImages(tester);
     await tester.pump(at);
     await expectLater(
-        find.byType(SplashScreen), matchesGoldenFile('goldens/$name.png'));
+      find.byType(SplashScreen),
+      matchesGoldenFile('goldens/$name.png'),
+    );
     // splashMin(2.5s) 타이머 flush — 스텁 라우트로 전환시켜 pending timer 제거.
     await tester.pump(const Duration(seconds: 4));
   }

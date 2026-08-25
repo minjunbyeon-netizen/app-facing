@@ -131,3 +131,19 @@ samples, guidance on mobile development, and a full API reference.
     예약 화면이 카드 모양으로 따로 있었다. 예약·취소 흐름 함수만
     `classes/class_flows.dart` 로 남기고 화면은 삭제. 골든 4장(member_07·08·state_07·08)은
     주간보드(BoxWodScreen)로 재촬영 — 같은 fake 를 소비하므로 상태 변형은 그대로.
+20. **코치 앱 '수업' 탭 (v3.28 · 2026-08-25 사용자 결정 "니 말대로 1")** — 코치 셸이
+    회원 주간보드(BoxWodScreen/WeekBoard)를 `isOwner` 분기로 재사용하던 탭. 한 위젯 안에서
+    회원판·코치판이 if 로 갈리는 것도 이원화라 폐지. 대체 = 예약 현황 탭의
+    `boss/coach_week_classes.dart`(주간 수업/예약 — 같은 부품: 주간 헤더 규격·ClassLine.coach·
+    명단 시트, 데이터는 코치 세션 API `GET /admin/gyms/<id>/classes`). 회원 화면에서 코치
+    분기 전부 제거 — week_board·box_wod(배지·가입 신청 아이콘)·wod_row(완료 표시·메시지 가드)·
+    wod_detail(배지·요청 버튼 가드)·mypage('가입 신청' 버튼·'코치' 라벨). 코치 셸 = 2탭.
+    골든 `coach_02_shell_board` 삭제.
+21. **폰 쪽지 그룹·작성 화면 (v3.28 · 2026-08-25 사용자 지시)** —
+    `inbox/group_management_screen.dart`(그룹 만들기·회원 추가) · `inbox/compose_note_screen.dart`
+    (대상 individual/group/all · 종류 note/assignment · 제목·근거·기한·동작 표) ·
+    `models/coach_group.dart` · `InboxRepository` 그룹 메서드 4종. 쪽지 탭 '그룹' 버튼 삭제,
+    '새 쪽지' = `inbox/new_note_screen.dart` (내 회원 목록 → 탭 → 그 회원과의 대화에서 입력·전송).
+    전송 API 는 종전과 같은 `POST /gym/<id>/notes` individual·note — PC 쪽지함 연동 그대로.
+    그룹·숙제(assignment) 서버 API 는 PC 용으로 유지.
+

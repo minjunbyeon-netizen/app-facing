@@ -73,9 +73,9 @@ SECTIONS = [
     ("코치", "코치 — 예약 현황 · 명단 (v3.3 셸 2탭: 예약 현황 · 수업 — 수업 탭은 회원과 동일 화면)", [
         ("boss_02_dashboard", "예약 현황 — 오늘 예약·출석 수치 · 오늘 수업 목록 · '가입 신청' 버튼"),
         ("boss_03_class_roster", "수업 예약자 명단 — 카드 탭 시 (D29) · 출석/노쇼 체크만 (v3.21)"),
-        ("coach_01_shell_reservations", "코치 셸 3탭① 예약 현황 — 대시보드 임베드 (v3.4)"),
-        ("coach_02_shell_board", "코치 셸 3탭② 수업 — 회원과 동일 보드 (v3.4)"),
-        ("coach_03_shell_messages", "코치 셸 3탭③ 쪽지 — MessagingScreen 임베드 (v3.4)"),
+        ("coach_01_shell_reservations", "코치 셸 2탭① 예약 현황 — 오늘 수치 · 가입 신청 · 주간 수업/예약 (v3.28)"),
+        ("coach_03_shell_messages", "코치 셸 2탭② 쪽지 — MessagingScreen 임베드 (v3.28: 그룹 버튼 삭제)"),
+        ("coach_04_new_note_members", "새 쪽지 — 내 회원 목록에서 받을 사람 선택 → 대화 (v3.28)"),
     ]),
     ("상태 변형", "상태 변형 — 빈 · 에러 · 오프라인 · 미가입", [
         ("hist_01_empty", "History — 빈 상태 (신규 가입)"),

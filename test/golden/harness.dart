@@ -44,6 +44,7 @@ Widget harness({
   ConnectivityState? connectivity,
   BossAuthState? bossAuth,
   BossApiClient? bossApi,
+
   /// v3.12 — 착용 칭호가 붙은 프로필을 찍기 위한 주입구.
   GoalsState? goals,
   required Widget home,
@@ -57,20 +58,26 @@ Widget harness({
       Provider<InboxRepository>(create: (_) => InboxRepository(api)),
       ChangeNotifierProvider<ProfileState>.value(value: profile),
       ChangeNotifierProvider<ConnectivityState>.value(
-          value: connectivity ?? ConnectivityState()),
+        value: connectivity ?? ConnectivityState(),
+      ),
       ChangeNotifierProvider<GymState>.value(value: gymState),
       ChangeNotifierProvider<InboxState>(
-          create: (_) => InboxState(InboxRepository(api))),
+        create: (_) => InboxState(InboxRepository(api)),
+      ),
       ChangeNotifierProvider<AnnouncementsState>(
-          create: (_) => AnnouncementsState()),
+        create: (_) => AnnouncementsState(),
+      ),
       Provider<AchievementRepository>(
-          create: (_) => AchievementRepository(api)),
+        create: (_) => AchievementRepository(api),
+      ),
       ChangeNotifierProvider<AchievementState>(
-          create: (ctx) =>
-              AchievementState(ctx.read<AchievementRepository>())..load()),
+        create: (ctx) =>
+            AchievementState(ctx.read<AchievementRepository>())..load(),
+      ),
       ChangeNotifierProvider<AuthState>.value(value: auth),
       ChangeNotifierProvider<BossAuthState>.value(
-          value: bossAuth ?? BossAuthState()),
+        value: bossAuth ?? BossAuthState(),
+      ),
       Provider<BossApiClient>.value(value: bossApi ?? BossApiClient.create()),
       ChangeNotifierProvider<WodSessionBus>(create: (_) => WodSessionBus()),
       ChangeNotifierProvider<ShellNavBus>(create: (_) => ShellNavBus()),
@@ -109,7 +116,9 @@ Future<void> capture(WidgetTester tester, String name) async {
   }
   await precacheAllImages(tester);
   await expectLater(
-      find.byType(MaterialApp), matchesGoldenFile('goldens/$name.png'));
+    find.byType(MaterialApp),
+    matchesGoldenFile('goldens/$name.png'),
+  );
 }
 
 /// 트리 안 모든 Image(에셋 jpg 등)를 실디코딩 — flutter_test 는 기본으로
@@ -126,7 +135,8 @@ Future<void> precacheAllImages(WidgetTester tester) async {
 
 /// 하단 탭 전환 — NavigationBar 안 라벨만 정확히 탭.
 Future<void> tapTab(WidgetTester tester, String label) async {
-  await tester.tap(find.descendant(
-      of: find.byType(NavigationBar), matching: find.text(label)));
+  await tester.tap(
+    find.descendant(of: find.byType(NavigationBar), matching: find.text(label)),
+  );
   await tester.pump(const Duration(milliseconds: 300));
 }

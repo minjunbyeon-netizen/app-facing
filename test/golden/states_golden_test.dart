@@ -31,16 +31,18 @@ void main() {
   testWidgets('state: wod board error', (tester) async {
     phone(tester);
     SharedPreferences.setMockInitialValues(signedInPrefs());
-    final api =
-        FakeApi(memberWorld(), errorPaths: {'/api/v1/gyms/1/wods'});
+    final api = FakeApi(memberWorld(), errorPaths: {'/api/v1/gyms/1/wods'});
     final gym = GymState(GymRepository(api), sse: FakeSse());
     await gym.loadMine();
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: await signedInAuth(),
         profile: rxProfile(),
         gym: gym,
-        home: const MainShell()));
+        home: const MainShell(),
+      ),
+    );
     await capture(tester, 'state_01_wod_error');
   });
 
@@ -52,12 +54,15 @@ void main() {
     final api = FakeApi(world);
     final gym = GymState(GymRepository(api), sse: FakeSse());
     await gym.loadMine();
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: await signedInAuth(),
         profile: rxProfile(),
         gym: gym,
-        home: const MainShell()));
+        home: const MainShell(),
+      ),
+    );
     await capture(tester, 'state_02_wod_nogym');
   });
 
@@ -69,12 +74,15 @@ void main() {
     final api = FakeApi(world);
     final gym = GymState(GymRepository(api), sse: FakeSse());
     await gym.loadMine();
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: await signedInAuth(),
         profile: rxProfile(),
         gym: gym,
-        home: const MainShell()));
+        home: const MainShell(),
+      ),
+    );
     await capture(tester, 'state_05_pending');
   });
 
@@ -85,13 +93,16 @@ void main() {
     final api = FakeApi(memberWorld());
     final gym = GymState(GymRepository(api), sse: FakeSse());
     await gym.loadMine();
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: await signedInAuth(),
         profile: rxProfile(),
         gym: gym,
         connectivity: OfflineConnectivity(),
-        home: const HomeScreen()));
+        home: const HomeScreen(),
+      ),
+    );
     await capture(tester, 'state_03_home_offline');
   });
 
@@ -102,11 +113,14 @@ void main() {
     // 두 탭 모두 에러 — retainError(core/futures.dart) 적용 전엔 숨은 WOD 탭
     // future 가 unhandled 로 테스트를 죽였다. 이 캡처가 그 픽스의 회귀 게이트.
     final api = FakeApi(memberWorld(), errorPaths: {'/api/v1/history'});
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: await signedInAuth(),
         profile: rxProfile(),
-        home: const HistoryScreen()));
+        home: const HistoryScreen(),
+      ),
+    );
     await capture(tester, 'state_04_history_error');
   });
   // ── 종료 수업 — 버튼 숨김 + '종료' 배지 (2026-08-24 CLASS_ENDED 게이트 UX) ──
@@ -119,12 +133,15 @@ void main() {
     });
     final gym = GymState(GymRepository(api), sse: FakeSse());
     await gym.loadMine();
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: await signedInAuth(),
         profile: rxProfile(),
         gym: gym,
-        home: const BoxWodScreen()));
+        home: const BoxWodScreen(),
+      ),
+    );
     await capture(tester, 'state_07_class_ended');
   });
 
@@ -139,12 +156,15 @@ void main() {
     });
     final gym = GymState(GymRepository(api), sse: FakeSse());
     await gym.loadMine();
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: await signedInAuth(),
         profile: rxProfile(),
         gym: gym,
-        home: const BoxWodScreen()));
+        home: const BoxWodScreen(),
+      ),
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.text('취소'));
     await tester.pumpAndSettle();
@@ -164,16 +184,20 @@ void _rememberedLoginGolden() {
     phone(tester);
     SharedPreferences.setMockInitialValues({
       'remembered_login_id': 'seojun',
-      'remembered_login_until':
-          appClock.now().add(const Duration(days: 30)).millisecondsSinceEpoch,
+      'remembered_login_until': appClock
+          .now()
+          .add(const Duration(days: 30))
+          .millisecondsSinceEpoch,
     });
     final api = FakeApi(memberWorld());
-    await tester.pumpWidget(harness(
-      api: api,
-      auth: AuthState(),
-      profile: ProfileState(),
-      home: const LoginScreen(),
-    ));
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: AuthState(),
+        profile: ProfileState(),
+        home: const LoginScreen(),
+      ),
+    );
     await tester.pumpAndSettle();
     expect(find.text('아이디 기억하기 (30일)'), findsOneWidget);
     await capture(tester, 'state_09_login_remembered');
@@ -194,14 +218,16 @@ void _wornTitleGoldens() {
     final goals = GoalsState();
     await goals.load();
     await goals.setWornTitle('PB_WEEKEND'); // '주말반'
-    await tester.pumpWidget(harness(
-      api: api,
-      auth: await signedInAuth(),
-      profile: rxProfile(),
-      gym: gym,
-      goals: goals,
-      home: const MainShell(),
-    ));
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        gym: gym,
+        goals: goals,
+        home: const MainShell(),
+      ),
+    );
     await tapTab(tester, '내 정보');
     await capture(tester, 'state_06_worn_title');
   });

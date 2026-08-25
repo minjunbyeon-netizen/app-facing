@@ -45,12 +45,15 @@ void main() {
     final api = FakeApi(memberWorld());
     final gym = GymState(GymRepository(api), sse: FakeSse());
     await gym.loadMine();
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: await signedInAuth(),
         profile: rxProfile(),
         gym: gym,
-        home: const BoxWodScreen()));
+        home: const BoxWodScreen(),
+      ),
+    );
     await capture(tester, 'member_07_classes');
   });
 
@@ -64,12 +67,15 @@ void main() {
     });
     final gym = GymState(GymRepository(api), sse: FakeSse());
     await gym.loadMine();
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: await signedInAuth(),
         profile: rxProfile(),
         gym: gym,
-        home: const BoxWodScreen()));
+        home: const BoxWodScreen(),
+      ),
+    );
     await capture(tester, 'member_08_classes_reserved');
   });
 
@@ -86,12 +92,15 @@ void main() {
     });
     final gym = GymState(GymRepository(api), sse: FakeSse());
     await gym.loadMine();
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: await signedInAuth(),
         profile: rxProfile(),
         gym: gym,
-        home: const MainShell()));
+        home: const MainShell(),
+      ),
+    );
     // HkBadge 는 라벨을 대문자로 렌더한다 (105kg → 105KG).
     await tester.tap(find.textContaining('기록 105KG×3').first);
     await tester.pumpAndSettle();
@@ -108,12 +117,15 @@ void main() {
     });
     final gym = GymState(GymRepository(api), sse: FakeSse());
     await gym.loadMine();
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: await signedInAuth(),
         profile: rxProfile(),
         gym: gym,
-        home: const StrengthBoardScreen()));
+        home: const StrengthBoardScreen(),
+      ),
+    );
     await tester.pumpAndSettle();
     await capture(tester, 'member_20_strength_board');
   });
@@ -125,12 +137,15 @@ void main() {
     final api = FakeApi(memberWorld());
     final gym = GymState(GymRepository(api), sse: FakeSse());
     await gym.loadMine();
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: await signedInAuth(),
         profile: rxProfile(),
         gym: gym,
-        home: const MainShell()));
+        home: const MainShell(),
+      ),
+    );
     await tester.tap(find.text('홈'));
     await tester.pumpAndSettle();
     // 도전 카드는 홈 리스트 하단 — 스크롤로 끌어올린 뒤 [인증하기].
@@ -148,12 +163,15 @@ void main() {
     final api = FakeApi(memberWorld());
     final gym = GymState(GymRepository(api), sse: FakeSse());
     await gym.loadMine();
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: await signedInAuth(),
         profile: rxProfile(),
         gym: gym,
-        home: const MainShell()));
+        home: const MainShell(),
+      ),
+    );
     await tester.pump(const Duration(milliseconds: 300));
     await tester.ensureVisible(find.text('자세히').first);
     await tester.tap(find.text('자세히').first);
@@ -168,12 +186,15 @@ void main() {
     final api = FakeApi(memberWorld());
     final gym = GymState(GymRepository(api), sse: FakeSse());
     await gym.loadMine();
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: await signedInAuth(),
         profile: rxProfile(),
         gym: gym,
-        home: const MainShell()));
+        home: const MainShell(),
+      ),
+    );
     await tester.pump(const Duration(milliseconds: 300));
     await tester.ensureVisible(find.text('메시지').first);
     await tester.tap(find.text('메시지').first);
@@ -188,12 +209,15 @@ void main() {
     final api = FakeApi(memberWorld());
     final gym = GymState(GymRepository(api), sse: FakeSse());
     await gym.loadMine();
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: await signedInAuth(),
         profile: rxProfile(),
         gym: gym,
-        home: const MessagingScreen()));
+        home: const MessagingScreen(),
+      ),
+    );
     await capture(tester, 'member_11_messaging');
   });
 
@@ -202,11 +226,14 @@ void main() {
     phone(tester);
     SharedPreferences.setMockInitialValues(signedInPrefs());
     final api = FakeApi(memberWorld());
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: await signedInAuth(),
         profile: rxProfile(),
-        home: const AchievementsScreen()));
+        home: const AchievementsScreen(),
+      ),
+    );
     await capture(tester, 'member_12_achievements_all');
   });
 
@@ -217,18 +244,24 @@ void main() {
     final api = FakeApi(memberWorld());
     final gym = GymState(GymRepository(api), sse: FakeSse());
     await gym.loadMine();
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: await signedInAuth(),
         profile: rxProfile(),
         gym: gym,
-        home: const MainShell()));
+        home: const MainShell(),
+      ),
+    );
     await tapTab(tester, '홈');
     final homeScroll = find.byType(Scrollable).first;
     // v3.2: fakes 카탈로그 실시드 교체 — 해금 1번 = WOD_10, 행 표기는
     // 한글 칭호 '첫 열 번' (AchievementCard.displayTitle).
-    await tester.scrollUntilVisible(find.text('첫 열 번').first, 300,
-        scrollable: homeScroll);
+    await tester.scrollUntilVisible(
+      find.text('첫 열 번').first,
+      300,
+      scrollable: homeScroll,
+    );
     await tester.ensureVisible(find.text('첫 열 번').first);
     await tester.tap(find.text('첫 열 번').first);
     await tester.pump(const Duration(milliseconds: 400));
@@ -242,12 +275,15 @@ void main() {
     final api = FakeApi(memberWorld());
     final gym = GymState(GymRepository(api), sse: FakeSse());
     await gym.loadMine();
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: await signedInAuth(),
         profile: rxProfile(),
         gym: gym,
-        home: const EditProfileScreen()));
+        home: const EditProfileScreen(),
+      ),
+    );
     await capture(tester, 'member_14_edit_profile');
   });
 
@@ -259,11 +295,14 @@ void main() {
       ...memberWorld(),
       '/api/v1/member/me/contracts': memberContracts,
     });
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: await signedInAuth(),
         profile: rxProfile(),
-        home: const MemberContractsScreen()));
+        home: const MemberContractsScreen(),
+      ),
+    );
     await capture(tester, 'member_15_contracts');
   });
 
@@ -275,11 +314,14 @@ void main() {
       ...memberWorld(),
       '/api/v1/member/contracts/2': memberContractDetail,
     });
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: await signedInAuth(),
         profile: rxProfile(),
-        home: const ContractDetailScreen(contractId: 2)));
+        home: const ContractDetailScreen(contractId: 2),
+      ),
+    );
     await tester.pumpAndSettle();
     // raw 키('member name')가 아니라 서버 사전의 한글 이름이 떠야 한다.
     expect(find.text('회원 이름'), findsOneWidget);
@@ -292,11 +334,14 @@ void main() {
     phone(tester);
     SharedPreferences.setMockInitialValues(signedInPrefs());
     final api = FakeApi(memberWorld());
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: await signedInAuth(),
         profile: rxProfile(),
-        home: const GoalsScreen()));
+        home: const GoalsScreen(),
+      ),
+    );
     await capture(tester, 'member_16_goals');
   });
 
@@ -305,11 +350,14 @@ void main() {
     phone(tester);
     SharedPreferences.setMockInitialValues(signedInPrefs());
     final api = FakeApi(memberWorld());
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: await signedInAuth(),
         profile: rxProfile(),
-        home: const FaqScreen()));
+        home: const FaqScreen(),
+      ),
+    );
     await capture(tester, 'member_17_faq');
   });
 
@@ -318,11 +366,14 @@ void main() {
     phone(tester);
     SharedPreferences.setMockInitialValues(signedInPrefs());
     final api = FakeApi(memberWorld());
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: await signedInAuth(),
         profile: rxProfile(),
-        home: const TermsScreen()));
+        home: const TermsScreen(),
+      ),
+    );
     await capture(tester, 'member_18_terms');
   });
 
@@ -331,11 +382,14 @@ void main() {
     phone(tester);
     SharedPreferences.setMockInitialValues(signedInPrefs());
     final api = FakeApi(memberWorld());
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: await signedInAuth(),
         profile: rxProfile(),
-        home: const PrivacyScreen()));
+        home: const PrivacyScreen(),
+      ),
+    );
     await capture(tester, 'member_19_privacy');
   });
 
@@ -346,16 +400,19 @@ void main() {
     phone(tester);
     SharedPreferences.setMockInitialValues({});
     final api = FakeApi(memberWorld());
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: AuthState(),
         profile: ProfileState(),
-        home: const LoginScreen()));
+        home: const LoginScreen(),
+      ),
+    );
     await capture(tester, 'common_08_login');
   });
 
   // ── 코치 셸 3탭 (v3.4) — 예약 현황 · 수업 · 쪽지 ──
-  testWidgets('coach: shell 3 tabs', (tester) async {
+  testWidgets('coach: shell 2 tabs', (tester) async {
     phone(tester);
     SharedPreferences.setMockInitialValues(signedInPrefs());
     // 코치 기기는 mine 이 role=owner 로 내려온다 (백엔드 is_staff_device 폴백)
@@ -364,23 +421,29 @@ void main() {
       ...memberWorld(),
       '/api/v1/gyms/mine': {...gymsMine, 'role': 'owner'},
     });
-    final bossApi =
-        FakeBossApi({'/api/v1/admin/gyms/1/dashboard': bossDashboard()});
+    final bossApi = FakeBossApi({
+      '/api/v1/admin/gyms/1/dashboard': bossDashboard(),
+      '/api/v1/admin/gyms/1/classes': memberClasses(),
+    });
     final gym = GymState(GymRepository(api), sse: FakeSse());
     await gym.loadMine();
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: await signedInAuth(),
         profile: rxProfile(),
         gym: gym,
         bossAuth: FakeBossAuth(),
         bossApi: bossApi,
-        home: const CoachShell()));
+        home: const CoachShell(),
+      ),
+    );
     await capture(tester, 'coach_01_shell_reservations');
-    await tapTab(tester, '수업');
-    await capture(tester, 'coach_02_shell_board');
     await tapTab(tester, '쪽지');
     await capture(tester, 'coach_03_shell_messages');
+    // v3.28: 새 쪽지 = 회원 목록 → 탭 → 대화. 목록 화면 한 장.
+    await tester.tap(find.text('새 쪽지'));
+    await tester.pumpAndSettle();
+    await capture(tester, 'coach_04_new_note_members');
   });
-
 }

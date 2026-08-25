@@ -109,6 +109,27 @@ class BossApiClient {
     }
   }
 
+  /// 인증 헤더 포함 GET — 목록 응답 (`data: [...]`). v3.28 주간 수업 목록용.
+  Future<List<dynamic>> getList(String path) async {
+    try {
+      final res = await _dio.get(path, options: _authOpts());
+      final data = res.data;
+      if (data is Map && data['ok'] == true && data['data'] is List) {
+        return List<dynamic>.from(data['data'] as List);
+      }
+      if (data is Map && data['ok'] != true) {
+        throw AppException(
+          (data['error'] ?? '서버 오류').toString(),
+          code: data['code']?.toString(),
+          statusCode: res.statusCode,
+        );
+      }
+      throw AppException('응답 형식 오류', code: 'PROTOCOL');
+    } on DioException catch (e) {
+      throw _mapDio(e);
+    }
+  }
+
   /// 인증 헤더 포함 GET
   Future<Map<String, dynamic>> get(String path) async {
     try {

@@ -1,4 +1,4 @@
-﻿import 'dart:math';
+import 'dart:math';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -76,11 +76,11 @@ Future<AuthState> signedInAuth() async {
 }
 
 Map<String, Object> signedInPrefs() => {
-      'auth_signed_in': true,
-      'auth_provider': 'naver',
-      'auth_display_name': '김민준',
-      'auth_signed_at': '2026-07-01T09:00:00Z',
-    };
+  'auth_signed_in': true,
+  'auth_provider': 'naver',
+  'auth_display_name': '김민준',
+  'auth_signed_at': '2026-07-01T09:00:00Z',
+};
 
 void main() {
   setUp(() {
@@ -93,11 +93,14 @@ void main() {
     phone(tester);
     SharedPreferences.setMockInitialValues({});
     final api = FakeApi(memberWorld());
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: AuthState(),
         profile: ProfileState(),
-        home: const SplashScreen()));
+        home: const SplashScreen(),
+      ),
+    );
     await tester.pump(const Duration(milliseconds: 900));
     await capture(tester, 'common_01_splash'); // 애니메이션 완료(1.3s) 시점
     // splashMin(2.5s) 타이머 flush — 스텁 라우트로 자동 전환시켜 pending timer 제거.
@@ -112,11 +115,14 @@ void main() {
     phone(tester);
     SharedPreferences.setMockInitialValues({});
     final api = FakeApi(memberWorld());
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: AuthState(),
         profile: ProfileState(),
-        home: const SignupScreen()));
+        home: const SignupScreen(),
+      ),
+    );
     await precacheAllImages(tester);
     await capture(tester, 'common_05_signup');
   });
@@ -127,29 +133,36 @@ void main() {
     phone(tester);
     SharedPreferences.setMockInitialValues({});
     final api = FakeApi(memberWorld());
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: AuthState(),
         profile: ProfileState(),
-        home: const SelfSignupScreen()));
+        home: const SelfSignupScreen(),
+      ),
+    );
     await capture(tester, 'common_06_self_signup');
     await tester.drag(
-        find.byType(SingleChildScrollView), const Offset(0, -420));
+      find.byType(SingleChildScrollView),
+      const Offset(0, -420),
+    );
     await tester.pump(const Duration(milliseconds: 200));
     await capture(tester, 'common_07_self_signup_scrolled');
   });
-
 
   // ── 온보딩: 기본 정보 → Benchmarks → Tier 결과 ──
   testWidgets('onboarding: basic', (tester) async {
     phone(tester);
     SharedPreferences.setMockInitialValues(signedInPrefs());
     final api = FakeApi(memberWorld());
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: await signedInAuth(),
         profile: ProfileState(),
-        home: const OnboardingBasicScreen()));
+        home: const OnboardingBasicScreen(),
+      ),
+    );
     await capture(tester, 'onb_01_basic');
   });
 
@@ -164,12 +177,15 @@ void main() {
     final api = FakeApi(memberWorld());
     final gym = GymState(GymRepository(api), sse: FakeSse());
     await gym.loadMine();
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: await signedInAuth(),
         profile: rxProfile(),
         gym: gym,
-        home: const MainShell()));
+        home: const MainShell(),
+      ),
+    );
     await capture(tester, 'member_01_shell_wod');
     await tapTab(tester, '홈');
     await capture(tester, 'member_02_shell_home');
@@ -187,8 +203,11 @@ void main() {
           matching: find.byType(Scrollable),
         )
         .first;
-    await tester.scrollUntilVisible(find.text('메뉴'), 300,
-        scrollable: profileScroll);
+    await tester.scrollUntilVisible(
+      find.text('메뉴'),
+      300,
+      scrollable: profileScroll,
+    );
     await tester.ensureVisible(find.text('메뉴'));
     await tester.pump(const Duration(milliseconds: 100));
     await capture(tester, 'member_04_profile_menu');
@@ -219,12 +238,15 @@ void main() {
     final api = FakeApi(world);
     final gym = GymState(GymRepository(api), sse: FakeSse());
     await gym.loadMine();
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: await signedInAuth(),
         profile: rxProfile(),
         gym: gym,
-        home: const MainShell()));
+        home: const MainShell(),
+      ),
+    );
     await tapTab(tester, '홈');
     await capture(tester, 'member_02b_home_notice');
     await tester.tap(find.text('공지'));
@@ -245,12 +267,15 @@ void main() {
     final api = FakeApi(memberWorld());
     final gym = GymState(GymRepository(api), sse: FakeSse());
     await gym.loadMine();
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: await signedInAuth(),
         profile: rxProfile(),
         gym: gym,
-        home: const MainShell()));
+        home: const MainShell(),
+      ),
+    );
     await tester.tap(find.text('완료 표시').first);
     await tester.pumpAndSettle();
     await capture(tester, 'member_06_result_sheet');
@@ -261,15 +286,20 @@ void main() {
     phone(tester);
     SharedPreferences.setMockInitialValues({});
     final api = FakeApi(memberWorld());
-    final bossApi =
-        FakeBossApi({'/api/v1/admin/gyms/1/dashboard': bossDashboard()});
-    await tester.pumpWidget(harness(
+    final bossApi = FakeBossApi({
+      '/api/v1/admin/gyms/1/dashboard': bossDashboard(),
+      '/api/v1/admin/gyms/1/classes': memberClasses(),
+    });
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: AuthState(),
         profile: ProfileState(),
         bossAuth: FakeBossAuth(),
         bossApi: bossApi,
-        home: const BossDashboardScreen()));
+        home: const BossDashboardScreen(),
+      ),
+    );
     await capture(tester, 'boss_02_dashboard');
   });
 
@@ -280,15 +310,19 @@ void main() {
     final api = FakeApi(memberWorld());
     final bossApi = FakeBossApi({
       '/api/v1/admin/gyms/1/dashboard': bossDashboard(),
+      '/api/v1/admin/gyms/1/classes': memberClasses(),
       '/api/v1/admin/classes/101/reservations': classRoster(),
     });
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: AuthState(),
         profile: ProfileState(),
         bossAuth: FakeBossAuth(),
         bossApi: bossApi,
-        home: const BossDashboardScreen()));
+        home: const BossDashboardScreen(),
+      ),
+    );
     await tester.pumpAndSettle();
     // 오늘 수업 첫 카드(class 101) 탭 → 명단 시트.
     await tester.tap(find.text('WOD Class').first);
@@ -301,11 +335,14 @@ void main() {
     phone(tester);
     SharedPreferences.setMockInitialValues(signedInPrefs());
     final api = FakeApi(memberWorld());
-    await tester.pumpWidget(harness(
+    await tester.pumpWidget(
+      harness(
         api: api,
         auth: await signedInAuth(),
         profile: rxProfile(),
-        home: const HistoryScreen()));
+        home: const HistoryScreen(),
+      ),
+    );
     await capture(tester, 'hist_01_empty');
   });
 
@@ -313,4 +350,3 @@ void main() {
   // v3.19 (2026-08-25): 'boss: login' 캡처 삭제 — 코치 전용 로그인 화면이
   // 없어졌다. 로그인은 common_08_login 한 장으로 통합 (README §제거된 기능 대장).
 }
-

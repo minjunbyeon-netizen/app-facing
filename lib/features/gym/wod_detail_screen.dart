@@ -9,7 +9,6 @@ import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/coach_feedback.dart';
-import '../../widgets/coach_badge.dart';
 import '../../models/gym.dart';
 import '../../widgets/hkit.dart';
 import '../wod_session/wod_session_screen.dart';
@@ -270,12 +269,11 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
         wod.scaledVersion != null && wod.scaledVersion!.isNotEmpty;
     final hasBeginner =
         wod.beginnerVersion != null && wod.beginnerVersion!.isNotEmpty;
-    final isOwner = context.watch<GymState>().isOwner;
+
     return Scaffold(
       appBar: HkAppBar(
         title: wodTypeLabel(wod.wodType),
         actions: [
-          if (isOwner) const CoachBadgeAction(),
           IconButton(icon: const Icon(Icons.refresh), onPressed: _reload),
         ],
       ),
@@ -342,8 +340,6 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
             // v1.16 Sprint 17: 멤버 건의 버튼.
             Builder(
               builder: (ctx) {
-                final gs = ctx.watch<GymState>();
-                if (gs.isOwner) return const SizedBox.shrink();
                 // QA (2026-06-11): 물음표(help) 아이콘 → 전송 아이콘 (의미 일치).
                 return HkButton.secondary(
                   '코치에게 요청',

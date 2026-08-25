@@ -16,7 +16,6 @@ import '../auth/auth_state.dart';
 import '../contracts/member_contracts_screen.dart';
 import '../goals/goals_screen.dart';
 import 'strength_board_screen.dart';
-import '../gym/member_approvals_screen.dart';
 import '../gym/gym_state.dart';
 import 'edit_profile_screen.dart';
 import 'faq_screen.dart';
@@ -324,9 +323,7 @@ class _MyBoxSection extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: HyphenTokens.sp4),
       child: HkAccordion(
         title: '내 체육관',
-        subtitle: gym == null
-            ? '체육관 없음'
-            : '${gym.name} · ${gs.isOwner ? '코치' : '회원'} · $statusKo',
+        subtitle: gym == null ? '체육관 없음' : '${gym.name} · 회원 · $statusKo',
         children: [
           const SizedBox(height: HyphenTokens.sp2),
           if (gym == null)
@@ -338,7 +335,7 @@ class _MyBoxSection extends StatelessWidget {
             ),
             const SizedBox(height: HyphenTokens.sp1),
             Text(
-              '${gs.isOwner ? '코치' : '회원'} · $statusKo · ${gym.memberCount}명',
+              '회원 · $statusKo · ${gym.memberCount}명',
               style: HyphenTokens.caption,
             ),
             // P1-5 (2026-06-10): 거절 상태 무안내 해소 — 멤버십이 조용히
@@ -370,20 +367,7 @@ class _MyBoxSection extends StatelessWidget {
                 ),
               ),
             ],
-            if (gs.isOwner) ...[
-              const SizedBox(height: HyphenTokens.sp3),
-              HkButton.secondary(
-                '가입 신청',
-                onPressed: () {
-                  Haptic.light();
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const MemberApprovalsScreen(),
-                    ),
-                  );
-                },
-              ),
-            ],
+            // v3.28: 코치 분기('가입 신청' 버튼) 제거 — 내 정보는 회원만 본다.
             // v3.25: '수업' 버튼 삭제 — 예약은 수업 탭 주간보드 한 곳 (대장 19).
             // v2.6 (2026-08-13 사용자 지시): '박스 변경' 삭제. 1인 샵 전용이라
             // 옮겨 갈 다른 박스가 없다. 탈퇴가 필요하면 코치에게 말하는 쪽이 맞다.

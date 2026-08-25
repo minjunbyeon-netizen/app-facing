@@ -22,12 +22,11 @@ import '../../widgets/avatar.dart';
 import '../announcements/announcements_state.dart';
 import '../gym/gym_repository.dart';
 import '../gym/gym_state.dart';
-import 'compose_note_screen.dart';
-import 'group_management_screen.dart';
 import 'inbox_repository.dart';
 import 'inbox_state.dart';
 import 'note_detail_screen.dart';
 import '../../core/app_clock.dart';
+import 'new_note_screen.dart';
 
 // v3.2 (2026-08-20 사용자 지시 "깨끗하게 다 지워"): 구 Notice 탭의 InboxScreen
 // (재활 가이드 전담)은 셸에서 빠진 뒤 도달 불가 — rehab 일체와 함께 삭제.
@@ -573,26 +572,17 @@ class MessagingFeed extends StatelessWidget {
   ) {
     if (isCoach) {
       return [
-        _FeedAction(
-          icon: Icons.group_outlined,
-          label: '그룹',
-          onTap: () {
-            Haptic.light();
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const GroupManagementScreen()),
-            );
-          },
-        ),
-        const SizedBox(width: HyphenTokens.sp2),
+        // v3.28 (2026-08-25 사용자 지시): '그룹' 삭제. '새 쪽지' 는 회원 목록에서
+        // 받을 사람을 고르면 그 회원과의 대화로 — 대상·종류·제목 같은 칸 없음.
         _FeedAction(
           icon: Icons.edit_outlined,
           label: '새 쪽지',
           onTap: () async {
             Haptic.light();
-            final ok = await Navigator.of(context).push<bool>(
-              MaterialPageRoute(builder: (_) => const ComposeNoteScreen()),
+            await Navigator.of(context).push<void>(
+              MaterialPageRoute(builder: (_) => const NewNoteScreen()),
             );
-            if (ok == true && context.mounted) {
+            if (context.mounted) {
               await context.read<InboxState>().refresh();
             }
           },

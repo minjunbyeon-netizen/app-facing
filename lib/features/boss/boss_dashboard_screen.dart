@@ -10,9 +10,7 @@ import '../gym/member_approvals_screen.dart';
 import 'boss_api_client.dart';
 import 'boss_auth_state.dart';
 import 'boss_dashboard_model.dart';
-import 'class_roster_sheet.dart';
-import '../classes/class_line.dart';
-import '../../core/time_format.dart';
+import 'coach_week_classes.dart';
 
 // PHASE5 §1.2 — 사장 폰 Dashboard.
 // GET /api/v1/admin/gyms/{gym_id}/dashboard → 오늘 운영 데이터.
@@ -100,7 +98,11 @@ class _BossDashboardScreenState extends State<BossDashboardScreen> {
           : RefreshIndicator(
               onRefresh: _load,
               color: HyphenTokens.primary,
-              child: _Body(data: _data!, onRefresh: _load),
+              child: _Body(
+                data: _data!,
+                gymId: auth.gymId ?? 0,
+                onRefresh: _load,
+              ),
             ),
       // v3.1 (2026-08-14 사용자 설계): 가짜 하단탭(_BottomNav — onTap 전부 빈
       // 함수) 삭제. 실제 탭은 CoachShell(v3.3 — 예약 현황·수업 2탭)이
@@ -132,7 +134,8 @@ class _Body extends StatelessWidget {
   /// 대시보드 재조회 — 명단에서 출석을 찍고 나온 경우에만 불린다 (D31).
   final Future<void> Function()? onRefresh;
 
-  const _Body({required this.data, this.onRefresh});
+  final int gymId;
+  const _Body({required this.data, required this.gymId, this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
@@ -193,30 +196,13 @@ class _Body extends StatelessWidget {
         ),
         const SizedBox(height: HyphenTokens.sp5),
 
-        // ─── 오늘의 수업 ──────────────────────────────────────────────
-        // v2.2: 'TODAY'S CLASSES.' → 한글 (v1.29 한글 기본, 도메인 고정어 아님).
-        // v3.21: '수업 등록' 버튼 삭제 — 수업 만들기는 PC 몫.
-        HkSectionLabel('오늘 수업'),
+        // ─── 주간 예약 현황 (v3.28) ─────────────────────────────────
+        // 오늘만 보여주던 '오늘 수업' 을 한 주로 넓혔다 — 코치 '수업' 탭 폐지
+        // (회원 주간보드 재사용)의 대체. 부품은 회원 쪽과 같은 규격(주간 헤더·
+        // ClassLine.coach·명단 시트), 화면은 코치용 (브리프 D51).
+        HkSectionLabel('수업 · 예약'),
         const SizedBox(height: HyphenTokens.sp2),
-        if (data.todayClasses.isEmpty)
-          const HkEmptyState(title: '오늘 수업 없음')
-        else
-          // v3.25: 회원 주간보드와 같은 ClassLine — 한 수업을 두 모양으로 그리지 않는다.
-          // onChanged: 명단에서 출석을 찍으면 위쪽 '오늘 출석' 숫자가 달라진다 (D31).
-          // D29: 탭 → 예약자 명단 시트 (예약 "수"만 보이고 "누가" 를 볼 곳이 없었다).
-          ...data.todayClasses.map(
-            (c) => ClassLine.coach(
-              timeLabel: '${hhmmIso(c.startAt)} – ${hhmmIso(c.endAt)}',
-              title: c.title,
-              subtitle: c.coaches.join(', '),
-              reserved: c.reserved,
-              capacity: c.capacity,
-              onTap: () {
-                Haptic.light();
-                showClassRosterSheet(context, c.id, onChanged: onRefresh);
-              },
-            ),
-          ),
+        CoachWeekClasses(gymId: gymId, onChanged: onRefresh),
         const SizedBox(height: HyphenTokens.sp5),
 
         // v3.21: '만료 임박' 섹션 삭제 — 회원권은 PC 에서 본다

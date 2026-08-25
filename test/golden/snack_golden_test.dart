@@ -19,19 +19,23 @@ void main() {
     void Function(BuildContext) fire,
   ) async {
     phone(tester);
-    await tester.pumpWidget(harness(
-      api: FakeApi(memberWorld()),
-      auth: AuthState(),
-      profile: ProfileState(),
-      home: Scaffold(
-        backgroundColor: HyphenTokens.bg,
-        body: Builder(builder: (ctx) {
-          // 첫 프레임 뒤 발사 — showSnackBar 는 Scaffold 가 붙은 뒤라야 뜬다.
-          WidgetsBinding.instance.addPostFrameCallback((_) => fire(ctx));
-          return const SizedBox.expand();
-        }),
+    await tester.pumpWidget(
+      harness(
+        api: FakeApi(memberWorld()),
+        auth: AuthState(),
+        profile: ProfileState(),
+        home: Scaffold(
+          backgroundColor: HyphenTokens.bg,
+          body: Builder(
+            builder: (ctx) {
+              // 첫 프레임 뒤 발사 — showSnackBar 는 Scaffold 가 붙은 뒤라야 뜬다.
+              WidgetsBinding.instance.addPostFrameCallback((_) => fire(ctx));
+              return const SizedBox.expand();
+            },
+          ),
+        ),
       ),
-    ));
+    );
     await capture(tester, name);
   }
 
@@ -49,8 +53,7 @@ void main() {
 
   testWidgets('snack: 안내 — 담담한 캐릭터', (tester) async {
     await shot(tester, 'snack_03_neutral', (ctx) {
-      HkSnack.show(ctx, '한 번 더 누르면 앱이 종료됩니다.',
-          mood: MascotMood.neutral);
+      HkSnack.show(ctx, '한 번 더 누르면 앱이 종료됩니다.', mood: MascotMood.neutral);
     });
   });
 }

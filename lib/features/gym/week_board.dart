@@ -14,7 +14,6 @@ import 'wod_row.dart';
 import 'wod_type_label.dart';
 import '../../core/app_clock.dart';
 import '../classes/class_line.dart';
-import '../boss/class_roster_sheet.dart';
 import '../../core/time_format.dart';
 
 /// v2.4 (2026-08-12 사용자 지시): WOD 탭 = **그 주 월~일 아코디언**.
@@ -26,9 +25,7 @@ import '../../core/time_format.dart';
 class WeekBoard extends StatefulWidget {
   final GymState gymState;
 
-  /// 코치 시점 — 수업 줄 우측이 예약 배지 대신 인원+명단 진입 (v3.25).
-  final bool isOwner;
-  const WeekBoard({super.key, required this.gymState, this.isOwner = false});
+  const WeekBoard({super.key, required this.gymState});
 
   @override
   State<WeekBoard> createState() => _WeekBoardState();
@@ -163,15 +160,6 @@ class _WeekBoardState extends State<WeekBoard> {
                     if (ok && mounted) _loadClasses();
                   },
                   onRetryClasses: _loadClasses,
-                  isOwner: widget.isOwner,
-                  onOpenRoster: (c) {
-                    Haptic.light();
-                    showClassRosterSheet(
-                      context,
-                      c.id,
-                      onChanged: _loadClasses,
-                    );
-                  },
                 ),
             ],
           ),
@@ -249,8 +237,6 @@ class _DayTile extends StatelessWidget {
   final Future<void> Function(ClassSessionDto) onReserve;
   final Future<void> Function(ClassSessionDto) onCancel;
   final VoidCallback onRetryClasses;
-  final bool isOwner;
-  final void Function(ClassSessionDto) onOpenRoster;
 
   const _DayTile({
     required this.date,
@@ -267,8 +253,6 @@ class _DayTile extends StatelessWidget {
     required this.onReserve,
     required this.onCancel,
     required this.onRetryClasses,
-    required this.isOwner,
-    required this.onOpenRoster,
   });
 
   bool get _isFuture => date.isAfter(today);
@@ -447,28 +431,16 @@ class _DayTile extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (final c in classes)
-          isOwner
-              ? ClassLine.coach(
-                  timeLabel: hhmm(c.startAt.toLocal()),
-                  title: c.title,
-                  subtitle: [
-                    if ((c.room ?? '').isNotEmpty) c.room!,
-                    if (c.waitlistCount > 0) '대기 ${c.waitlistCount}',
-                  ].join(' · '),
-                  reserved: c.reservedCount,
-                  capacity: c.capacity,
-                  muted: c.isCancelled,
-                  onTap: () => onOpenRoster(c),
-                )
-              : ClassLine.member(
-                  session: c,
-                  isPastDay: _isPast,
-                  onReserve: () => onReserve(c),
-                  onCancel: () => onCancel(c),
-                ),
+          ClassLine.member(
+            session: c,
+            isPastDay: _isPast,
+            onReserve: () => onReserve(c),
+            onCancel: () => onCancel(c),
+          ),
       ],
     );
   }
 }
 
-// (구 _ClassLine 은 v3.25 에서 classes/class_line.dart 로 — 코치 카드와 한 벌.)
+// (구 _ClassLine 은 v3.25 에서 classes/class_line.dart 로. v3.28: 코치 분기(isOwner)
+// 제거 — 코치는 boss/coach_week_classes.dart 가 같은 부품으로 따로 조립한다.)

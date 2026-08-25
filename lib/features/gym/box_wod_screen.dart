@@ -4,12 +4,10 @@ import 'package:provider/provider.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/gym.dart';
-import '../../widgets/coach_badge.dart';
 import '../../widgets/hkit.dart';
 import '../announcements/announcements_state.dart';
 import '../../widgets/gym_info_card.dart';
 import '../../widgets/inbox_bell.dart';
-import 'member_approvals_screen.dart';
 import 'gym_state.dart';
 import 'week_board.dart';
 import 'membership_status_view.dart';
@@ -60,8 +58,6 @@ class _BoxWodScreenState extends State<BoxWodScreen> {
       body = _WodList(key: _listKey, gymState: gs);
     }
 
-    // QA B-SEC-1: 박스명 'HYPHEN HQ' 스푸핑 가능. isOwner 단독 조건으로 강화.
-    final canViewDashboard = gs.isOwner;
     return Scaffold(
       // v3.23 (2026-08-25 사용자 지시 "상단화면 통일하라고 1개로"): 코치 셸에
       // 얹힐 때는 상단바를 그리지 않는다 — 셸이 하나만 갖는다. 회원 셸에서는
@@ -71,7 +67,7 @@ class _BoxWodScreenState extends State<BoxWodScreen> {
           : HkAppBar(
               title: '수업',
               actions: [
-                if (canViewDashboard) const CoachBadgeAction(),
+                // v3.28: 코치 분기(배지·가입 신청 아이콘) 제거 — 회원 전용 화면.
                 const InboxBellAction(),
                 IconButton(
                   tooltip: 'Refresh',
@@ -86,19 +82,6 @@ class _BoxWodScreenState extends State<BoxWodScreen> {
                     }
                   },
                 ),
-                if (canViewDashboard)
-                  IconButton(
-                    tooltip: '가입 신청',
-                    icon: const Icon(Icons.people_outline),
-                    onPressed: () {
-                      Haptic.light();
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const MemberApprovalsScreen(),
-                        ),
-                      );
-                    },
-                  ),
               ],
             ),
       // v3.20 (2026-08-25 사용자 지시): '수업 내용 게시' FAB 삭제 —
@@ -150,12 +133,7 @@ class _WodListState extends State<_WodList> {
             HkInlineError(widget.gymState.error!, onRetry: refreshAll),
             const SizedBox(height: HyphenTokens.sp2),
           ],
-          WeekBoard(
-            key: ValueKey('week-$_tick'),
-            gymState: widget.gymState,
-            // v3.25: 코치는 예약 버튼 대신 인원+명단 — 예약 현황 탭과 같은 줄.
-            isOwner: widget.gymState.isOwner,
-          ),
+          WeekBoard(key: ValueKey('week-$_tick'), gymState: widget.gymState),
           // 박스 정보·공지는 맨 아래 (자주 보는 것이 아니다 — 접힌 줄로 유지).
           const SizedBox(height: HyphenTokens.sp3),
           const Divider(height: 1, color: HyphenTokens.border, thickness: 1),

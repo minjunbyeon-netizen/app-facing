@@ -2,7 +2,6 @@
 
 import '../../core/api_client.dart';
 import '../../models/chat_message.dart';
-import '../../models/coach_group.dart';
 import '../../models/coach_note.dart';
 
 class InboxRepository {
@@ -146,55 +145,7 @@ class InboxRepository {
   Future<Map<String, dynamic>> joinByCode(String code) =>
       api.post('/api/v1/gym/join-by-code', {'code': code});
 
-  // ---- Groups ----
-
-  Future<List<CoachGroup>> listGroups(int gymId) async {
-    final data = await api.get('/api/v1/gym/$gymId/groups');
-    return (data['groups'] as List? ?? const [])
-        .whereType<Map<String, dynamic>>()
-        .map(CoachGroup.fromJson)
-        .toList();
-  }
-
-  Future<int> createGroup({
-    required int gymId,
-    required String name,
-    String description = '',
-    String? colorHex,
-    int? capacity,
-    List<int> weekdaySlot = const [],
-    String? timeSlot,
-    String? notes,
-  }) async {
-    final data = await api.post('/api/v1/gym/$gymId/groups', {
-      'name': name,
-      'description': description,
-      if (colorHex != null && colorHex.isNotEmpty) 'color_hex': colorHex,
-      'capacity': ?capacity,
-      if (weekdaySlot.isNotEmpty) 'weekday_slot': weekdaySlot,
-      if (timeSlot != null && timeSlot.isNotEmpty) 'time_slot': timeSlot,
-      if (notes != null && notes.isNotEmpty) 'notes': notes,
-    });
-    return ((data['id'] ?? 0) as num).toInt();
-  }
-
-  Future<void> addGroupMember({
-    required int gymId,
-    required int groupId,
-    required String memberHash,
-  }) async {
-    await api.post('/api/v1/gym/$gymId/groups/$groupId/members', {
-      'member_hash': memberHash,
-    });
-  }
-
-  Future<void> removeGroupMember({
-    required int gymId,
-    required int groupId,
-    required String memberHash,
-  }) async {
-    await api.delete('/api/v1/gym/$gymId/groups/$groupId/members/$memberHash');
-  }
+  // (v3.28: 그룹 메서드 4종 삭제 — 폰 쪽지에서 그룹 기능 폐지. 서버 API 는 PC 용으로 유지.)
 }
 
 class InboxResult {

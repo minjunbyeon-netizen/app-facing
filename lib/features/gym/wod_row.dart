@@ -330,31 +330,26 @@ class _WodRowState extends State<WodRow> {
                 // 확보하므로 터치 기준은 그대로다 (DESIGN-SSOT §3).
                 Row(
                   children: [
-                    // v3.27 (2026-08-25 사용자 지시): 코치에게는 회원용 '완료 표시'
-                    // (내 기록 남기기)를 보이지 않는다 — 코치는 이 탭에서 읽고
-                    // 인원·명단만 본다. '메시지'(코치에게) 도 같은 이유로 숨김.
+                    // v3.28: 코치 가드(isOwner) 제거 — 이 화면은 회원만 본다.
                     // 결함 수정 4 (2026-08-20): 기록한 수업은 카드에서 바로 보이게 —
                     // 배지가 '기록 105kg'(성공색)로 바뀐다. 탭하면 수정 시트(프리필).
-                    if (!context.watch<GymState>().isOwner)
-                      HkBadge(
-                        wod.myResult != null
-                            ? '기록 ${wod.myResult!.display}'.trim()
-                            : '완료 표시',
-                        color: wod.myResult != null
-                            ? HyphenTokens.success
-                            : HyphenTokens.primary,
-                        selected: true,
-                        onTap: () => _openResultSheet(context),
-                      ),
+                    HkBadge(
+                      wod.myResult != null
+                          ? '기록 ${wod.myResult!.display}'.trim()
+                          : '완료 표시',
+                      color: wod.myResult != null
+                          ? HyphenTokens.success
+                          : HyphenTokens.primary,
+                      selected: true,
+                      onTap: () => _openResultSheet(context),
+                    ),
                     const Spacer(),
-                    if (!context.watch<GymState>().isOwner) ...[
-                      HkBadge(
-                        '메시지',
-                        color: HyphenTokens.fgSecondary,
-                        onTap: () => _openMsgSheet(context),
-                      ),
-                      const SizedBox(width: HyphenTokens.sp2),
-                    ],
+                    HkBadge(
+                      '메시지',
+                      color: HyphenTokens.fgSecondary,
+                      onTap: () => _openMsgSheet(context),
+                    ),
+                    const SizedBox(width: HyphenTokens.sp2),
                     // v1.29 한글 기본 — 'Detail' 은 도메인 고정어가 아니다.
                     HkBadge(
                       '자세히',

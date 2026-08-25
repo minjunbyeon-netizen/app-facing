@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 
 import 'package:hyphen_app/core/api_client.dart';
 import 'package:hyphen_app/core/connectivity_state.dart';
@@ -23,10 +23,12 @@ class FakeApi implements ApiClient {
   /// 이 prefix 로 시작하는 경로는 네트워크 에러 — 에러 상태 화면 고정용.
   final Set<String> errorPaths;
 
-  FakeApi(this.responses,
-      {this.hang = false,
-      this.hangPaths = const {},
-      this.errorPaths = const {}});
+  FakeApi(
+    this.responses, {
+    this.hang = false,
+    this.hangPaths = const {},
+    this.errorPaths = const {},
+  });
 
   Future<dynamic> _respond(String path) {
     if (hang || hangPaths.any(path.startsWith)) {
@@ -55,7 +57,9 @@ class FakeApi implements ApiClient {
 
   @override
   Future<Map<String, dynamic>> post(
-      String path, Map<String, dynamic> body) async {
+    String path,
+    Map<String, dynamic> body,
+  ) async {
     if (hang || hangPaths.any(path.startsWith)) {
       return Completer<Map<String, dynamic>>().future;
     }
@@ -162,6 +166,18 @@ class FakeBossApi implements BossApiClient {
   @override
   Future<Map<String, dynamic>> get(String path) => _respond(path);
 
+  // v3.28 주간 수업 목록 — 경로 prefix 로 찾아 List 그대로 (쿼리스트링 무시).
+  @override
+  Future<List<dynamic>> getList(String path) async {
+    if (errorPaths.any(path.startsWith)) {
+      throw AppException('백엔드 OFF · 재시도', code: 'NETWORK');
+    }
+    for (final e in responses.entries) {
+      if (path.startsWith(e.key)) return List<dynamic>.from(e.value as List);
+    }
+    throw AppException('골든 미정의 경로: $path', code: 'NO_FAKE');
+  }
+
   @override
   Future<Map<String, dynamic>> post(String path, Map<String, dynamic> body) =>
       _respond(path);
@@ -266,31 +282,31 @@ List<Map<String, dynamic>> gymWods() {
 
 /// P3 — 도전 카드 (reward-progress). 문장·진행률은 서버 완성분 그대로.
 List<Map<String, dynamic>> rewardProgressRows() => [
-      {
-        'rule_id': 1,
-        'category': 3,
-        'label': '달리기 인증',
-        'trigger': 'custom',
-        'sentence': '달리기 인증 매주 2회 달성 시 100P 적립 — 주기마다 반복',
-        'progress': 1,
-        'target': 2,
-        'pending': 1,
-        'done_this_window': false,
-        'can_log': true,
-      },
-      {
-        'rule_id': 2,
-        'category': 1,
-        'label': '주간 출석 3회',
-        'trigger': 'attendance',
-        'sentence': '출석 매주 3회 달성 시 300P 적립 — 주기마다 반복',
-        'progress': 3,
-        'target': 3,
-        'pending': 0,
-        'done_this_window': true,
-        'can_log': false,
-      },
-    ];
+  {
+    'rule_id': 1,
+    'category': 3,
+    'label': '달리기 인증',
+    'trigger': 'custom',
+    'sentence': '달리기 인증 매주 2회 달성 시 100P 적립 — 주기마다 반복',
+    'progress': 1,
+    'target': 2,
+    'pending': 1,
+    'done_this_window': false,
+    'can_log': true,
+  },
+  {
+    'rule_id': 2,
+    'category': 1,
+    'label': '주간 출석 3회',
+    'trigger': 'attendance',
+    'sentence': '출석 매주 3회 달성 시 300P 적립 — 주기마다 반복',
+    'progress': 3,
+    'target': 3,
+    'pending': 0,
+    'done_this_window': true,
+    'can_log': false,
+  },
+];
 
 /// Q3 (v3.4) — 수업 상세 "내 이전 기록" (오늘 WOD 31 = Fran 계열 for_time).
 /// 최근이 위, PR 은 최신 기록에.
@@ -512,10 +528,7 @@ List<Map<String, dynamic>> memberClassesWithEnded() {
 /// /api/v1/member/classes — 21시 만석 수업에 내가 대기 1번 (대기 취소 캡처용).
 List<Map<String, dynamic>> memberClassesWaitlisted() {
   final list = memberClasses();
-  list[1] = {
-    ...list[1],
-    'my_waitlist_position': 1,
-  };
+  list[1] = {...list[1], 'my_waitlist_position': 1};
   return list;
 }
 
@@ -1006,86 +1019,86 @@ const pacingPlanFran = {
 /// 고아 예약(회원 행 삭제 + 예약 잔존) 1건 포함 — 실DB 에 존재하는 상태다.
 /// 대기 position 은 저장값이 아니라 백엔드가 매번 다시 센 현재 순번 (D31).
 Map<String, dynamic> classRoster() => {
-      'class_session_id': 101,
-      'title': 'WOD Class',
-      'start_at': '2026-08-12T19:00:00',
-      'room': 'Main Floor',
-      'coach_user_id': 'coach_park',
-      'capacity': 12,
-      // G24 2차 — 수정 시트 프리필용 (백엔드 admin_list_class_reservations 동봉).
-      'duration_minutes': 60,
-      'track': 'RX',
-      'confirmed_count': 4,
-      'waitlist_count': 2,
-      'items': [
-        {
-          'kind': 'reservation',
-          'reservation_id': 1,
-          'member_id': 11,
-          'name': '김도윤',
-          'phone': '010-****-1234',
-          'status': 'confirmed',
-          'orphan': false,
-          'promoted_from_waitlist': false,
-          'reserved_at': '2026-08-11T09:12:00',
-        },
-        {
-          'kind': 'reservation',
-          'reservation_id': 2,
-          'member_id': 12,
-          'name': '정하은',
-          'phone': '010-****-5678',
-          'status': 'attended',
-          'orphan': false,
-          'promoted_from_waitlist': false,
-          'reserved_at': '2026-08-11T10:30:00',
-        },
-        {
-          'kind': 'reservation',
-          'reservation_id': 3,
-          'member_id': 13,
-          'name': '강민석',
-          'phone': '010-****-9012',
-          'status': 'no_show',
-          'orphan': false,
-          'promoted_from_waitlist': true,
-          'reserved_at': '2026-08-11T18:05:00',
-        },
-        {
-          'kind': 'reservation',
-          'reservation_id': 4,
-          'member_id': 99,
-          'name': '탈퇴 회원',
-          'phone': null,
-          'status': 'confirmed',
-          'orphan': true,
-          'promoted_from_waitlist': false,
-          'reserved_at': '2026-08-10T21:40:00',
-        },
-        {
-          'kind': 'waitlist',
-          'waitlist_id': 7,
-          'member_id': 14,
-          'name': '한서연',
-          'phone': '010-****-3456',
-          'status': 'waitlisted',
-          'orphan': false,
-          'position': 1,
-          'waitlisted_at': '2026-08-12T08:00:00',
-        },
-        {
-          'kind': 'waitlist',
-          'waitlist_id': 8,
-          'member_id': 15,
-          'name': '최지우',
-          'phone': '010-****-7890',
-          'status': 'waitlisted',
-          'orphan': false,
-          'position': 2,
-          'waitlisted_at': '2026-08-12T08:20:00',
-        },
-      ],
-    };
+  'class_session_id': 101,
+  'title': 'WOD Class',
+  'start_at': '2026-08-12T19:00:00',
+  'room': 'Main Floor',
+  'coach_user_id': 'coach_park',
+  'capacity': 12,
+  // G24 2차 — 수정 시트 프리필용 (백엔드 admin_list_class_reservations 동봉).
+  'duration_minutes': 60,
+  'track': 'RX',
+  'confirmed_count': 4,
+  'waitlist_count': 2,
+  'items': [
+    {
+      'kind': 'reservation',
+      'reservation_id': 1,
+      'member_id': 11,
+      'name': '김도윤',
+      'phone': '010-****-1234',
+      'status': 'confirmed',
+      'orphan': false,
+      'promoted_from_waitlist': false,
+      'reserved_at': '2026-08-11T09:12:00',
+    },
+    {
+      'kind': 'reservation',
+      'reservation_id': 2,
+      'member_id': 12,
+      'name': '정하은',
+      'phone': '010-****-5678',
+      'status': 'attended',
+      'orphan': false,
+      'promoted_from_waitlist': false,
+      'reserved_at': '2026-08-11T10:30:00',
+    },
+    {
+      'kind': 'reservation',
+      'reservation_id': 3,
+      'member_id': 13,
+      'name': '강민석',
+      'phone': '010-****-9012',
+      'status': 'no_show',
+      'orphan': false,
+      'promoted_from_waitlist': true,
+      'reserved_at': '2026-08-11T18:05:00',
+    },
+    {
+      'kind': 'reservation',
+      'reservation_id': 4,
+      'member_id': 99,
+      'name': '탈퇴 회원',
+      'phone': null,
+      'status': 'confirmed',
+      'orphan': true,
+      'promoted_from_waitlist': false,
+      'reserved_at': '2026-08-10T21:40:00',
+    },
+    {
+      'kind': 'waitlist',
+      'waitlist_id': 7,
+      'member_id': 14,
+      'name': '한서연',
+      'phone': '010-****-3456',
+      'status': 'waitlisted',
+      'orphan': false,
+      'position': 1,
+      'waitlisted_at': '2026-08-12T08:00:00',
+    },
+    {
+      'kind': 'waitlist',
+      'waitlist_id': 8,
+      'member_id': 15,
+      'name': '최지우',
+      'phone': '010-****-7890',
+      'status': 'waitlisted',
+      'orphan': false,
+      'position': 2,
+      'waitlisted_at': '2026-08-12T08:20:00',
+    },
+  ],
+};
 
 /// /api/v1/admin/gyms/1/dashboard — 사장 대시보드 (오늘 운영, 실행 시점 상대 날짜).
 Map<String, dynamic> bossDashboard() {
@@ -1157,17 +1170,10 @@ Map<String, dynamic> bossDashboard() {
 }
 
 /// /api/v1/gyms/mine — 박스 미가입 (신규 가입 직후) 상태.
-const gymsMineEmpty = {
-  'gym': null,
-  'role': null,
-  'status': null,
-};
+const gymsMineEmpty = {'gym': null, 'role': null, 'status': null};
 
 /// /api/v1/gyms/mine — 가입 신청은 냈고 코치 승인 대기 중 (v2.8 승인 대기 게이트).
-final Map<String, dynamic> gymsMinePending = {
-  ...gymsMine,
-  'status': 'pending',
-};
+final Map<String, dynamic> gymsMinePending = {...gymsMine, 'status': 'pending'};
 
 /// /api/v1/member/announcements — 홈 공지 아코디언 노출용 (R7 소스 교체 검증).
 /// 기본 memberWorld 는 빈 목록 유지 (기존 골든 보존) — 아코디언 골든에서만 주입.
@@ -1211,64 +1217,64 @@ List<Map<String, dynamic>> memberAnnouncements() {
 
 /// 회원 셸 공용 기본 응답 맵 — 구체 경로 먼저 (prefix 매칭).
 Map<String, dynamic> memberWorld() => {
-      '/health': const <String, dynamic>{},
-      '/api/v1/gyms/mine': gymsMine,
-      // 하위 경로(results·comments·feedback)가 아래 '/api/v1/gyms/1/wods'
-      // prefix 에 삼켜져 WOD 목록이 리더보드 행으로 오염되던 충돌 방지
-      // (2026-08-19 골든 확장에서 발견 — "0th user:" 유령 행). 구체 경로 먼저.
-      // Q3 (v3.4) — 오늘 WOD(id 31)의 내 이전 기록. 구체 경로라 맨 앞.
-      '/api/v1/gyms/1/wods/31/my-history': wodMyHistory(),
-      // P3 — 도전 카드 (홈). custom 1건(인증 가능·대기 1) + 자동 1건(달성).
-      '/api/v1/member/me/reward-progress': rewardProgressRows(),
-      '/api/v1/gyms/1/wods/': const <dynamic>[],
-      '/api/v1/gyms/1/wods': gymWods(),
-      '/api/v1/gyms/1/coaches': const {
-        'coaches': [
-          {
-            'id': 1,
-            'coach_user_id': 11,
-            'gym_id': 1,
-            'name': '박준서',
-            'career': 'CF-L2 · 리저널 3회 출전',
-            'certifications': 'CF-L2, USAW-L1',
-            'specialty': 'Olympic Lifting',
-            'pt_bookable': true,
-            'hired_at': '2025-03-01T00:00:00',
-            'display_order': 1,
-          },
-          {
-            'id': 2,
-            'coach_user_id': 12,
-            'gym_id': 1,
-            'name': '이서연',
-            'career': 'CF-L1 · 지도 5년',
-            'certifications': 'CF-L1',
-            'specialty': 'Gymnastics',
-            'pt_bookable': false,
-            'hired_at': '2025-06-15T00:00:00',
-            'display_order': 2,
-          },
-        ],
+  '/health': const <String, dynamic>{},
+  '/api/v1/gyms/mine': gymsMine,
+  // 하위 경로(results·comments·feedback)가 아래 '/api/v1/gyms/1/wods'
+  // prefix 에 삼켜져 WOD 목록이 리더보드 행으로 오염되던 충돌 방지
+  // (2026-08-19 골든 확장에서 발견 — "0th user:" 유령 행). 구체 경로 먼저.
+  // Q3 (v3.4) — 오늘 WOD(id 31)의 내 이전 기록. 구체 경로라 맨 앞.
+  '/api/v1/gyms/1/wods/31/my-history': wodMyHistory(),
+  // P3 — 도전 카드 (홈). custom 1건(인증 가능·대기 1) + 자동 1건(달성).
+  '/api/v1/member/me/reward-progress': rewardProgressRows(),
+  '/api/v1/gyms/1/wods/': const <dynamic>[],
+  '/api/v1/gyms/1/wods': gymWods(),
+  '/api/v1/gyms/1/coaches': const {
+    'coaches': [
+      {
+        'id': 1,
+        'coach_user_id': 11,
+        'gym_id': 1,
+        'name': '박준서',
+        'career': 'CF-L2 · 리저널 3회 출전',
+        'certifications': 'CF-L2, USAW-L1',
+        'specialty': 'Olympic Lifting',
+        'pt_bookable': true,
+        'hired_at': '2025-03-01T00:00:00',
+        'display_order': 1,
       },
-      '/api/v1/gyms/1/announcements': const <dynamic>[],
-      '/api/v1/member/announcements': const <dynamic>[],
-      '/api/v1/member/attendances': memberAttendances(),
-      '/api/v1/member/classes': memberClasses(),
-      '/api/v1/member/reservations': const <dynamic>[],
-      '/api/v1/member/me/memberships': memberMemberships(),
-      '/api/v1/member/me/locker': const <dynamic>[],
-      '/api/v1/member/points': const {'points': 300, 'history': <dynamic>[]},
-      '/api/v1/achievements/check': const {'newly_unlocked': <dynamic>[]},
-      '/api/v1/achievements': achievementsSnapshot,
-      '/api/v1/movements/categories': movementCategories,
-      '/api/v1/wods/presets': presetWods,
-      '/api/v1/pacing/calculate': pacingPlanFran,
-      '/api/v1/history/engine': const <dynamic>[],
-      '/api/v1/history/wod': const <dynamic>[],
-      '/api/v1/gym/1/inbox': const {'items': <dynamic>[]},
-      '/api/v1/gym/1/outbox': const {'items': <dynamic>[]},
-      '/api/v1/gym/1/threads': const {'items': <dynamic>[]},
-      '/api/v1/gym/1/messages': const {'items': <dynamic>[]},
-      '/api/v1/gym/1/groups': const {'groups': <dynamic>[]},
-      '/api/v1/profile/info': const <String, dynamic>{},
-    };
+      {
+        'id': 2,
+        'coach_user_id': 12,
+        'gym_id': 1,
+        'name': '이서연',
+        'career': 'CF-L1 · 지도 5년',
+        'certifications': 'CF-L1',
+        'specialty': 'Gymnastics',
+        'pt_bookable': false,
+        'hired_at': '2025-06-15T00:00:00',
+        'display_order': 2,
+      },
+    ],
+  },
+  '/api/v1/gyms/1/announcements': const <dynamic>[],
+  '/api/v1/member/announcements': const <dynamic>[],
+  '/api/v1/member/attendances': memberAttendances(),
+  '/api/v1/member/classes': memberClasses(),
+  '/api/v1/member/reservations': const <dynamic>[],
+  '/api/v1/member/me/memberships': memberMemberships(),
+  '/api/v1/member/me/locker': const <dynamic>[],
+  '/api/v1/member/points': const {'points': 300, 'history': <dynamic>[]},
+  '/api/v1/achievements/check': const {'newly_unlocked': <dynamic>[]},
+  '/api/v1/achievements': achievementsSnapshot,
+  '/api/v1/movements/categories': movementCategories,
+  '/api/v1/wods/presets': presetWods,
+  '/api/v1/pacing/calculate': pacingPlanFran,
+  '/api/v1/history/engine': const <dynamic>[],
+  '/api/v1/history/wod': const <dynamic>[],
+  '/api/v1/gym/1/inbox': const {'items': <dynamic>[]},
+  '/api/v1/gym/1/outbox': const {'items': <dynamic>[]},
+  '/api/v1/gym/1/threads': const {'items': <dynamic>[]},
+  '/api/v1/gym/1/messages': const {'items': <dynamic>[]},
+  '/api/v1/gym/1/groups': const {'groups': <dynamic>[]},
+  '/api/v1/profile/info': const <String, dynamic>{},
+};
