@@ -5,12 +5,15 @@ import '../../core/appkit.gen.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../announcements/announcements_state.dart';
+import '../boss/boss_api_client.dart';
+import '../boss/boss_auth_state.dart';
 import '../boss/boss_dashboard_screen.dart';
 import '../gym/box_wod_screen.dart';
 import '../gym/gym_repository.dart';
 import '../gym/gym_state.dart';
 import '../inbox/inbox_screen.dart';
 import '../inbox/inbox_state.dart';
+import '../../core/role_labels.dart';
 
 /// v3.4 (2026-08-21 사용자 지시 "앱에서 코치 쪽지 필요") — 코치 앱 셸 3탭:
 ///   ① 예약 현황 — 오늘 예약·출석 수치 · 오늘 수업 목록 · 예약자 명단(출석/노쇼)
@@ -35,6 +38,10 @@ import '../inbox/inbox_state.dart';
 ///
 /// MainShell(회원 셸)과 같은 NavigationBar 규격 — 셸이 둘이어도 물건은 하나로
 /// 보이게 한다. 공지 dot 등 회원 전용 배선은 싣지 않는다 (간단이 목적).
+///
+/// v3.23 (2026-08-25 사용자 지시 "상단화면 통일하라고 1개로") — **상단바는 셸이
+/// 하나만 갖는다.** 세 페이지는 `embedded: true` 로 들어와 자기 AppBar 를 그리지
+/// 않는다. 단일 바 = 체육관명 + '코치' + 로그아웃 (브리프 D46).
 class CoachShell extends StatefulWidget {
   const CoachShell({super.key});
 
@@ -75,6 +82,56 @@ class _CoachShellState extends State<CoachShell> {
     });
   }
 
+  /// 셸 단일 상단바 — 세 탭 어디서나 같은 모양.
+  /// 어느 탭인지는 하단 탭바가 알려주므로 제목은 체육관 신원 하나로 고정한다.
+  PreferredSizeWidget _appBar(BuildContext context) {
+    final auth = context.watch<BossAuthState>();
+    return AppBar(
+      backgroundColor: HyphenTokens.surface,
+      elevation: 0,
+      automaticallyImplyLeading: false,
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            auth.gymName ?? '체육관',
+            style: HyphenTokens.h3.copyWith(color: HyphenTokens.fg),
+          ),
+          Text(
+            // 운영자 호칭은 '코치' 하나 (3면 대전제 ①, 번역은 roleKoLabel SSOT).
+            roleKoLabel(role: auth.role ?? 'coach'),
+            style: HyphenTokens.micro.copyWith(color: HyphenTokens.primary),
+          ),
+        ],
+      ),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.logout, color: HyphenTokens.muted, size: 20),
+          tooltip: '로그아웃',
+          onPressed: _logout,
+        ),
+        const SizedBox(width: 8),
+      ],
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(1),
+        child: Container(height: 1, color: HyphenTokens.border),
+      ),
+    );
+  }
+
+  Future<void> _logout() async {
+    Haptic.medium();
+    final api = context.read<BossApiClient>();
+    final auth = context.read<BossAuthState>();
+    final navigator = Navigator.of(context);
+    try {
+      await api.post('/api/v1/admin/logout', {});
+    } catch (_) {}
+    await auth.clear();
+    if (!mounted) return;
+    navigator.pushNamedAndRemoveUntil('/splash', (_) => false);
+  }
+
   void _onTap(int i) {
     if (i == _index) return;
     Haptic.selection();
@@ -100,13 +157,18 @@ class _CoachShellState extends State<CoachShell> {
     }
 
     final pages = <Widget>[
-      const BossDashboardScreen(),
-      const BoxWodScreen(),
-      const MessagingScreen(title: '쪽지'),
+      const BossDashboardScreen(embedded: true),
+      const BoxWodScreen(embedded: true),
+      const MessagingScreen(title: '쪽지', embedded: true),
     ];
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
+      // v3.23 (2026-08-25 사용자 지시 "상단화면 통일하라고 1개로"): 탭마다
+      // 제각각이던 상단바(예약 현황=체육관명+로그아웃 / 수업=제목+배지+종+
+      // 새로고침+회원 / 쪽지=제목만)를 셸이 갖는 **하나**로 합쳤다.
+      // 새로고침 버튼은 뺐다 — 예약 현황·수업 둘 다 당겨서 새로고침이 있다.
+      appBar: _appBar(context),
       body: IndexedStack(index: _index, children: pages),
       bottomNavigationBar: NavigationBarTheme(
         data: NavigationBarThemeData(

@@ -15,7 +15,11 @@ import 'class_roster_sheet.dart';
 // PHASE5 §1.2 — 사장 폰 Dashboard.
 // GET /api/v1/admin/gyms/{gym_id}/dashboard → 오늘 운영 데이터.
 class BossDashboardScreen extends StatefulWidget {
-  const BossDashboardScreen({super.key});
+  /// 셸(CoachShell) 안에 얹힐 때는 자기 AppBar 를 그리지 않는다 — 상단바는
+  /// 셸이 하나만 갖는다 (v3.23 사용자 지시 "상단화면 통일하라고 1개로").
+  final bool embedded;
+
+  const BossDashboardScreen({super.key, this.embedded = false});
 
   @override
   State<BossDashboardScreen> createState() => _BossDashboardScreenState();
@@ -71,7 +75,7 @@ class _BossDashboardScreenState extends State<BossDashboardScreen> {
     final auth = context.watch<BossAuthState>();
     return Scaffold(
       backgroundColor: HyphenTokens.bg,
-      appBar: _buildAppBar(context, auth),
+      appBar: widget.embedded ? null : _buildAppBar(context, auth),
       body: _loading
           ? const Center(
               child: CircularProgressIndicator(

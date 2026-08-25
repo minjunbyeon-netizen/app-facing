@@ -16,7 +16,11 @@ import 'week_board.dart';
 
 /// v1.15.3: WOD 탭 진입점. GymState 상태 따라 4분기 렌더.
 class BoxWodScreen extends StatefulWidget {
-  const BoxWodScreen({super.key});
+  /// 코치 셸에 얹힐 때는 자기 AppBar 를 그리지 않는다 — 상단바는 셸이 하나만
+  /// 갖는다 (v3.23). 회원 셸(MainShell)은 종전대로 각 탭이 제목을 갖는다.
+  final bool embedded;
+
+  const BoxWodScreen({super.key, this.embedded = false});
 
   @override
   State<BoxWodScreen> createState() => _BoxWodScreenState();
@@ -51,42 +55,42 @@ class _BoxWodScreenState extends State<BoxWodScreen> {
     // QA B-SEC-1: 박스명 'HYPHEN HQ' 스푸핑 가능. isOwner 단독 조건으로 강화.
     final canViewDashboard = gs.isOwner;
     return Scaffold(
-      appBar: AppBar(
-        // v3.0: 탭 표기 '수업' 과 화면 제목을 일치시킨다 (구 'WOD').
-        title: const Text('수업'),
-        // v1.22: AppBar 정리 — Messages/Announcements/Leaderboard 제거.
-        //   Messages/Announcements → Inbox(NOTICE) 탭으로 통합 (Bell 단축).
-        //   Leaderboard → Home Hero 영역(추후) 또는 Profile에서 진입.
-        //   유지: CoachBadge(코치 표시) + Bell(공통) + Refresh + CoachDashboard(owner).
-        actions: [
-          if (canViewDashboard) const CoachBadgeAction(),
-          const InboxBellAction(),
-          IconButton(
-            tooltip: 'Refresh',
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              Haptic.light();
-              final list = _listKey.currentState;
-              if (list != null) {
-                list.refreshAll();
-              } else {
-                context.read<GymState>().loadMine();
-              }
-            },
-          ),
-          if (canViewDashboard)
-            IconButton(
-              tooltip: '가입 신청',
-              icon: const Icon(Icons.people_outline),
-              onPressed: () {
-                Haptic.light();
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => const MemberApprovalsScreen(),
-                ));
-              },
+      // v3.23 (2026-08-25 사용자 지시 "상단화면 통일하라고 1개로"): 코치 셸에
+      // 얹힐 때는 상단바를 그리지 않는다 — 셸이 하나만 갖는다. 회원 셸에서는
+      // 종전 그대로 (제목 '수업' + 종 + 새로고침).
+      appBar: widget.embedded
+          ? null
+          : AppBar(
+              title: const Text('수업'),
+              actions: [
+                if (canViewDashboard) const CoachBadgeAction(),
+                const InboxBellAction(),
+                IconButton(
+                  tooltip: 'Refresh',
+                  icon: const Icon(Icons.refresh),
+                  onPressed: () {
+                    Haptic.light();
+                    final list = _listKey.currentState;
+                    if (list != null) {
+                      list.refreshAll();
+                    } else {
+                      context.read<GymState>().loadMine();
+                    }
+                  },
+                ),
+                if (canViewDashboard)
+                  IconButton(
+                    tooltip: '가입 신청',
+                    icon: const Icon(Icons.people_outline),
+                    onPressed: () {
+                      Haptic.light();
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => const MemberApprovalsScreen(),
+                      ));
+                    },
+                  ),
+              ],
             ),
-        ],
-      ),
       // v3.20 (2026-08-25 사용자 지시): '수업 내용 게시' FAB 삭제 —
       // 수업 내용은 PC 에서 쓴다. 폰의 이 탭은 코치에게도 **보는 화면**이다
       // (README §제거된 기능 대장 16). 삭제 아이콘도 같이 내렸다 — 폰에서

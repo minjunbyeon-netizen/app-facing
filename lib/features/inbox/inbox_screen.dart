@@ -526,15 +526,18 @@ StreamSubscription<SseEvent> _listenNoteNew(
 /// (구 v1.24 Attend 캘린더 밑 임베드는 ClassesSection 으로 대체됨.)
 /// v3.4 (2026-08-21): 코치 셸 쪽지 탭으로도 임베드 — 탭 문맥에선 제목만 '쪽지'.
 class MessagingScreen extends StatelessWidget {
-  const MessagingScreen({super.key, this.title = '알림함'});
+  const MessagingScreen({super.key, this.title = '알림함', this.embedded = false});
 
   final String title;
+
+  /// 코치 셸에 얹힐 때는 자기 AppBar 를 그리지 않는다 (v3.23 — 상단바는 셸 하나).
+  final bool embedded;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       // 쪽지·숙제·공지가 함께 쌓이는 화면이라 '공지' 는 내용과 불일치 (2026-08-06).
-      appBar: AppBar(title: Text(title)),
+      appBar: embedded ? null : AppBar(title: Text(title)),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.symmetric(vertical: HyphenTokens.sp4),
