@@ -483,16 +483,11 @@ class _GridCell extends StatelessWidget {
     final isHidden = catalog.isHidden && !unlocked;
     return InkWell(
       onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: HyphenTokens.surface,
-          border: Border.all(
-            // badge-lint: ignore — 배지가 아니라 선택 상태를 갖는 카드(그리드 칸).
-            color: selected ? HyphenTokens.fg : HyphenTokens.border,
-            width: selected ? 1.5 : 1,
-          ),
-          borderRadius: BorderRadius.circular(HyphenTokens.r2),
-        ),
+      child: HkCard(
+        padding: EdgeInsets.zero,
+        radius: HyphenTokens.r2,
+        borderColor: selected ? HyphenTokens.fg : HyphenTokens.border,
+        borderWidth: selected ? 1.5 : 1,
         child: Column(
           children: [
             Expanded(

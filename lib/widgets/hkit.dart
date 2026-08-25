@@ -68,32 +68,35 @@ class HkButton extends StatelessWidget {
     this.danger = false,
   });
 
-  const HkButton.primary(this.label,
-      {super.key,
-      required this.onPressed,
-      this.icon,
-      this.expand = true,
-      this.danger = false})
-      : kind = HkButtonKind.primary,
-        neutral = false;
+  const HkButton.primary(
+    this.label, {
+    super.key,
+    required this.onPressed,
+    this.icon,
+    this.expand = true,
+    this.danger = false,
+  }) : kind = HkButtonKind.primary,
+       neutral = false;
 
-  const HkButton.secondary(this.label,
-      {super.key,
-      required this.onPressed,
-      this.icon,
-      this.expand = true,
-      this.danger = false})
-      : kind = HkButtonKind.secondary,
-        neutral = false;
+  const HkButton.secondary(
+    this.label, {
+    super.key,
+    required this.onPressed,
+    this.icon,
+    this.expand = true,
+    this.danger = false,
+  }) : kind = HkButtonKind.secondary,
+       neutral = false;
 
-  const HkButton.tertiary(this.label,
-      {super.key,
-      required this.onPressed,
-      this.icon,
-      this.expand = false,
-      this.neutral = false})
-      : kind = HkButtonKind.tertiary,
-        danger = false;
+  const HkButton.tertiary(
+    this.label, {
+    super.key,
+    required this.onPressed,
+    this.icon,
+    this.expand = false,
+    this.neutral = false,
+  }) : kind = HkButtonKind.tertiary,
+       danger = false;
 
   @override
   Widget build(BuildContext context) {
@@ -138,7 +141,8 @@ class HkButton extends StatelessWidget {
                 : null,
             side: danger
                 ? const WidgetStatePropertyAll<BorderSide>(
-                    BorderSide(color: HyphenTokens.danger))
+                    BorderSide(color: HyphenTokens.danger),
+                  )
                 : null,
           ),
           child: child,
@@ -150,8 +154,7 @@ class HkButton extends StatelessWidget {
             minimumSize: size,
             tapTargetSize: shrink,
             foregroundColor: neutral
-                ? const WidgetStatePropertyAll<Color>(
-                    HyphenTokens.fgSecondary)
+                ? const WidgetStatePropertyAll<Color>(HyphenTokens.fgSecondary)
                 : null,
           ),
           child: child,
@@ -207,17 +210,23 @@ class HkCheckRow extends StatelessWidget {
               decoration: BoxDecoration(
                 color: value ? HyphenTokens.primary : HyphenTokens.surface,
                 border: Border.all(
-                    color: value ? HyphenTokens.primary : HyphenTokens.border),
+                  color: value ? HyphenTokens.primary : HyphenTokens.border,
+                ),
                 borderRadius: BorderRadius.circular(HyphenTokens.r1),
               ),
               child: value
-                  ? const Icon(Icons.check,
-                      size: 14, color: HyphenTokens.onColor)
+                  ? const Icon(
+                      Icons.check,
+                      size: 14,
+                      color: HyphenTokens.onColor,
+                    )
                   : null,
             ),
             const SizedBox(width: HyphenTokens.sp2),
-            Text(label,
-                style: HyphenTokens.caption.copyWith(color: HyphenTokens.fg)),
+            Text(
+              label,
+              style: HyphenTokens.caption.copyWith(color: HyphenTokens.fg),
+            ),
           ],
         ),
       ),
@@ -225,36 +234,54 @@ class HkCheckRow extends StatelessWidget {
   }
 }
 
-/// 표준 카드 — surface + 1px border + r3.
+/// 표준 카드 — surface + 1px border + 모서리(r3 기본).
+///
+/// v3.27 (2026-08-25 사용자 지시 "카드 36곳 마저"): 화면마다 Container 로
+/// 같은 크롬을 다시 그리던 것을 흡수하려고 네 칸을 열었다 —
+/// [radius](r2 카드도 있다) · [borderColor](예약됨=초록 같은 상태 테두리) ·
+/// [clipBehavior](안쪽 ExpansionTile 이 모서리를 넘지 않게) · [width].
+/// 그 밖의 모양(왼쪽 색띠·말풍선·원형)은 카드가 아니다 — 여기 넣지 않는다.
 class HkCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
   final EdgeInsetsGeometry? margin;
   final VoidCallback? onTap;
+  final double radius;
+  final Color borderColor;
+  final double borderWidth;
+  final Clip clipBehavior;
+  final double? width;
   const HkCard({
     super.key,
     required this.child,
     this.padding = const EdgeInsets.all(HyphenTokens.sp4),
     this.margin,
     this.onTap,
+    this.radius = HyphenTokens.r3,
+    this.borderColor = HyphenTokens.border,
+    this.borderWidth = 1,
+    this.clipBehavior = Clip.none,
+    this.width,
   });
 
   @override
   Widget build(BuildContext context) {
     final card = Container(
+      width: width,
       margin: margin,
       padding: padding,
+      clipBehavior: clipBehavior,
       decoration: BoxDecoration(
         color: HyphenTokens.surface,
-        border: Border.all(color: HyphenTokens.border),
-        borderRadius: BorderRadius.circular(HyphenTokens.r3),
+        border: Border.all(color: borderColor, width: borderWidth),
+        borderRadius: BorderRadius.circular(radius),
       ),
       child: child,
     );
     if (onTap == null) return card;
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(HyphenTokens.r3),
+      borderRadius: BorderRadius.circular(radius),
       child: card,
     );
   }
@@ -341,8 +368,7 @@ class HkStatTile extends StatelessWidget {
         children: [
           HkSectionLabel(label),
           const SizedBox(height: HyphenTokens.sp1),
-          Text(value,
-              style: HyphenTokens.h3.copyWith(color: HyphenTokens.fg)),
+          Text(value, style: HyphenTokens.h3.copyWith(color: HyphenTokens.fg)),
         ],
       ),
     );
@@ -384,10 +410,14 @@ class HkListRow extends StatelessWidget {
     this.trailingWidget,
     this.below,
     this.onTap,
-  })  : assert(trailing == null || trailingWidget == null,
-            'trailing 과 trailingWidget 은 같은 자리다 — 하나만 쓴다'),
-        assert(icon == null || leadingWidget == null,
-            'icon 과 leadingWidget 은 같은 자리다 — 하나만 쓴다');
+  }) : assert(
+         trailing == null || trailingWidget == null,
+         'trailing 과 trailingWidget 은 같은 자리다 — 하나만 쓴다',
+       ),
+       assert(
+         icon == null || leadingWidget == null,
+         'icon 과 leadingWidget 은 같은 자리다 — 하나만 쓴다',
+       );
 
   @override
   Widget build(BuildContext context) {
@@ -416,8 +446,9 @@ class HkListRow extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: HyphenTokens.body
-                          .copyWith(fontWeight: FontWeight.w600),
+                      style: HyphenTokens.body.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -456,8 +487,11 @@ class HkListRow extends StatelessWidget {
                   trailing == null &&
                   trailingWidget == null) ...[
                 const SizedBox(width: HyphenTokens.sp2),
-                const Icon(Icons.chevron_right,
-                    size: 18, color: HyphenTokens.muted),
+                const Icon(
+                  Icons.chevron_right,
+                  size: 18,
+                  color: HyphenTokens.muted,
+                ),
               ],
             ],
           ),
@@ -484,13 +518,15 @@ class HkRowCard extends StatelessWidget {
     final children = <Widget>[];
     for (var i = 0; i < rows.length; i++) {
       if (i > 0) {
-        children.add(const Divider(
-          height: 1,
-          thickness: 1,
-          color: HyphenTokens.border,
-          indent: HyphenTokens.sp4,
-          endIndent: HyphenTokens.sp4,
-        ));
+        children.add(
+          const Divider(
+            height: 1,
+            thickness: 1,
+            color: HyphenTokens.border,
+            indent: HyphenTokens.sp4,
+            endIndent: HyphenTokens.sp4,
+          ),
+        );
       }
       children.add(rows[i]);
     }
@@ -545,7 +581,11 @@ class HkAccordion extends StatelessWidget {
         ),
         childrenPadding: inset
             ? const EdgeInsets.fromLTRB(
-                HyphenTokens.sp3, 0, HyphenTokens.sp3, HyphenTokens.sp3)
+                HyphenTokens.sp3,
+                0,
+                HyphenTokens.sp3,
+                HyphenTokens.sp3,
+              )
             : EdgeInsets.zero,
         collapsedIconColor: HyphenTokens.muted,
         iconColor: HyphenTokens.muted,
@@ -585,8 +625,11 @@ class HkEmptyState extends StatelessWidget {
             Text(title, style: HyphenTokens.h3, textAlign: TextAlign.center),
             if (caption != null) ...[
               const SizedBox(height: HyphenTokens.sp2),
-              Text(caption!,
-                  style: HyphenTokens.caption, textAlign: TextAlign.center),
+              Text(
+                caption!,
+                style: HyphenTokens.caption,
+                textAlign: TextAlign.center,
+              ),
             ],
           ],
         ),
@@ -602,9 +645,8 @@ class HkErrorState extends StatelessWidget {
   final VoidCallback onRetry;
   const HkErrorState({super.key, required this.message, required this.onRetry});
 
-  HkErrorState.fromError(Object? error,
-      {super.key, required this.onRetry})
-      : message = error is AppException ? error.messageKo : '로딩 실패.';
+  HkErrorState.fromError(Object? error, {super.key, required this.onRetry})
+    : message = error is AppException ? error.messageKo : '로딩 실패.';
 
   @override
   Widget build(BuildContext context) {
@@ -614,8 +656,11 @@ class HkErrorState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(message,
-                style: HyphenTokens.body, textAlign: TextAlign.center),
+            Text(
+              message,
+              style: HyphenTokens.body,
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: HyphenTokens.sp3),
             HkButton.secondary('다시 시도', onPressed: onRetry),
           ],
@@ -636,7 +681,9 @@ class HkLoading extends StatelessWidget {
         width: 22,
         height: 22,
         child: CircularProgressIndicator(
-            strokeWidth: 2, color: HyphenTokens.muted),
+          strokeWidth: 2,
+          color: HyphenTokens.muted,
+        ),
       ),
     );
   }
@@ -680,8 +727,11 @@ class HkLoadingScreen extends StatelessWidget {
           const HkLoading(),
           if (caption != null) ...[
             const SizedBox(height: HyphenTokens.sp3),
-            Text(caption!,
-                style: HyphenTokens.caption, textAlign: TextAlign.center),
+            Text(
+              caption!,
+              style: HyphenTokens.caption,
+              textAlign: TextAlign.center,
+            ),
           ],
         ],
       ),
@@ -747,7 +797,6 @@ class HkSocialButton extends StatelessWidget {
   }
 }
 
-
 /// 스낵바 SSOT — 앱의 짧은 알림은 전부 이 창구로 낸다 (2026-08-21 신설).
 ///
 /// 왜 필요했나: 스낵바가 화면마다 `ScaffoldMessenger...showSnackBar(SnackBar(...))`
@@ -769,15 +818,21 @@ class HkSnack {
       HkSnack._(ScaffoldMessenger.of(context));
 
   /// 손잡이로 내는 일반 알림.
-  void info(String message, {MascotMood? mood, Duration? duration}) =>
-      _emit(_messenger, message,
-          mood: mood, duration: duration ?? const Duration(seconds: 2));
+  void info(String message, {MascotMood? mood, Duration? duration}) => _emit(
+    _messenger,
+    message,
+    mood: mood,
+    duration: duration ?? const Duration(seconds: 2),
+  );
 
   /// 손잡이로 내는 실패 알림.
-  void fail(String message) => _emit(_messenger, message,
-      mood: MascotMood.sad,
-      duration: const Duration(seconds: 3),
-      danger: true);
+  void fail(String message) => _emit(
+    _messenger,
+    message,
+    mood: MascotMood.sad,
+    duration: const Duration(seconds: 3),
+    danger: true,
+  );
 
   static void _emit(
     ScaffoldMessengerState messenger,
@@ -787,36 +842,38 @@ class HkSnack {
     bool danger = false,
   }) {
     final showMascot = mood != null && HyphenMascot.has(mood);
-    messenger.showSnackBar(SnackBar(
-      duration: duration,
-      backgroundColor: HyphenTokens.surface,
-      behavior: SnackBarBehavior.floating,
-      // 2026-08-21 — M3 기본 그림자가 골든에서 검은 띠로 찍힌다. 이 앱은
-      // 면+1px 테두리로 층을 표현하므로(글로벌 design-block 다중 그림자 금지)
-      // 그림자를 끈다.
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(HyphenTokens.r2),
-        side: BorderSide(
-          color: danger ? HyphenTokens.danger : HyphenTokens.border,
-          width: 1,
+    messenger.showSnackBar(
+      SnackBar(
+        duration: duration,
+        backgroundColor: HyphenTokens.surface,
+        behavior: SnackBarBehavior.floating,
+        // 2026-08-21 — M3 기본 그림자가 골든에서 검은 띠로 찍힌다. 이 앱은
+        // 면+1px 테두리로 층을 표현하므로(글로벌 design-block 다중 그림자 금지)
+        // 그림자를 끈다.
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(HyphenTokens.r2),
+          side: BorderSide(
+            color: danger ? HyphenTokens.danger : HyphenTokens.border,
+            width: 1,
+          ),
+        ),
+        content: Row(
+          children: [
+            if (showMascot) ...[
+              HyphenMascot(mood: mood, size: 32),
+              const SizedBox(width: HyphenTokens.sp3),
+            ],
+            Expanded(
+              child: Text(
+                message,
+                style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
+              ),
+            ),
+          ],
         ),
       ),
-      content: Row(
-        children: [
-          if (showMascot) ...[
-            HyphenMascot(mood: mood, size: 32),
-            const SizedBox(width: HyphenTokens.sp3),
-          ],
-          Expanded(
-            child: Text(
-              message,
-              style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
-            ),
-          ),
-        ],
-      ),
-    ));
+    );
   }
 
   /// 일반 알림. [mood] 를 주면 캐릭터가 준비된 순간부터 함께 뜬다.
@@ -835,10 +892,13 @@ class HkSnack {
   static void error(BuildContext context, String message) {
     final messenger = ScaffoldMessenger.maybeOf(context);
     if (messenger == null) return;
-    _emit(messenger, message,
-        mood: MascotMood.sad,
-        duration: const Duration(seconds: 3),
-        danger: true);
+    _emit(
+      messenger,
+      message,
+      mood: MascotMood.sad,
+      duration: const Duration(seconds: 3),
+      danger: true,
+    );
   }
 }
 
@@ -861,16 +921,23 @@ class HkAppBar extends StatelessWidget implements PreferredSizeWidget {
   final List<Widget>? actions;
   final bool implyLeading;
 
-  const HkAppBar({super.key, this.title, this.actions, this.implyLeading = true})
-      : identityName = null,
-        identityRole = null;
+  const HkAppBar({
+    super.key,
+    this.title,
+    this.actions,
+    this.implyLeading = true,
+  }) : identityName = null,
+       identityRole = null;
 
-  const HkAppBar.identity(
-      {super.key, required String name, required String role, this.actions})
-      : title = null,
-        identityName = name,
-        identityRole = role,
-        implyLeading = false;
+  const HkAppBar.identity({
+    super.key,
+    required String name,
+    required String role,
+    this.actions,
+  }) : title = null,
+       identityName = name,
+       identityRole = role,
+       implyLeading = false;
 
   @override
   Size get preferredSize => const Size.fromHeight(HyphenTokens.appBarH);
@@ -884,11 +951,14 @@ class HkAppBar extends StatelessWidget implements PreferredSizeWidget {
         title: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(identityName!,
-                style: HyphenTokens.h3.copyWith(color: HyphenTokens.fg)),
-            Text(identityRole!,
-                style:
-                    HyphenTokens.micro.copyWith(color: HyphenTokens.primary)),
+            Text(
+              identityName!,
+              style: HyphenTokens.h3.copyWith(color: HyphenTokens.fg),
+            ),
+            Text(
+              identityRole!,
+              style: HyphenTokens.micro.copyWith(color: HyphenTokens.primary),
+            ),
           ],
         ),
         actions: actions,
@@ -910,7 +980,11 @@ class HkDialog {
   HkDialog._();
 
   static const EdgeInsets _actionsPad = EdgeInsets.fromLTRB(
-      HyphenTokens.sp3, 0, HyphenTokens.sp3, HyphenTokens.sp3);
+    HyphenTokens.sp3,
+    0,
+    HyphenTokens.sp3,
+    HyphenTokens.sp3,
+  );
 
   /// 취소/확정 두 버튼. 확정이면 true.
   static Future<bool> confirm(
@@ -928,15 +1002,22 @@ class HkDialog {
         content: message == null ? null : Text(message),
         actionsPadding: _actionsPad,
         actions: [
-          HkButton.tertiary(cancelLabel,
-              neutral: true, onPressed: () => Navigator.pop(ctx, false)),
+          HkButton.tertiary(
+            cancelLabel,
+            neutral: true,
+            onPressed: () => Navigator.pop(ctx, false),
+          ),
           danger
-              ? HkButton.primary(confirmLabel,
+              ? HkButton.primary(
+                  confirmLabel,
                   expand: false,
                   danger: true,
-                  onPressed: () => Navigator.pop(ctx, true))
-              : HkButton.tertiary(confirmLabel,
-                  onPressed: () => Navigator.pop(ctx, true)),
+                  onPressed: () => Navigator.pop(ctx, true),
+                )
+              : HkButton.tertiary(
+                  confirmLabel,
+                  onPressed: () => Navigator.pop(ctx, true),
+                ),
         ],
       ),
     );
@@ -1012,14 +1093,17 @@ class HkInlineError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final text = Text(message,
-        style: HyphenTokens.caption.copyWith(color: HyphenTokens.danger),
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis);
+    final text = Text(
+      message,
+      style: HyphenTokens.caption.copyWith(color: HyphenTokens.danger),
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+    );
     return Container(
       padding: EdgeInsets.symmetric(
-          horizontal: HyphenTokens.sp3,
-          vertical: onRetry == null ? HyphenTokens.sp2 : 0),
+        horizontal: HyphenTokens.sp3,
+        vertical: onRetry == null ? HyphenTokens.sp2 : 0,
+      ),
       decoration: BoxDecoration(
         color: HyphenTokens.danger.withValues(alpha: 0.12),
         border: Border.all(color: HyphenTokens.danger.withValues(alpha: 0.4)),
@@ -1030,8 +1114,7 @@ class HkInlineError extends StatelessWidget {
           : Row(
               children: [
                 Expanded(child: text),
-                HkButton.tertiary('다시 시도',
-                    neutral: true, onPressed: onRetry),
+                HkButton.tertiary('다시 시도', neutral: true, onPressed: onRetry),
               ],
             ),
     );
@@ -1092,4 +1175,3 @@ class HkTabBar extends StatelessWidget {
     );
   }
 }
-

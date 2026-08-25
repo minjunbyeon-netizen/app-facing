@@ -470,13 +470,9 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                       padding: const EdgeInsets.symmetric(
                         vertical: HyphenTokens.sp1,
                       ),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: HyphenTokens.surface,
-                          border: Border.all(color: HyphenTokens.border),
-                          borderRadius: BorderRadius.circular(HyphenTokens.r2),
-                        ),
+                      child: HkCard(
                         padding: const EdgeInsets.all(HyphenTokens.sp3),
+                        radius: HyphenTokens.r2,
                         child: Row(
                           children: [
                             Expanded(

@@ -154,10 +154,7 @@ class _PendingRow extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                Text(
-                  ymd(member.requestedAt),
-                  style: HyphenTokens.caption,
-                ),
+                Text(ymd(member.requestedAt), style: HyphenTokens.caption),
                 if ((member.phone ?? '').isNotEmpty)
                   Text(member.phone!, style: HyphenTokens.caption),
               ],

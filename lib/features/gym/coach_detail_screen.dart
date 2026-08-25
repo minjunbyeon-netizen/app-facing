@@ -94,14 +94,10 @@ class _Card extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(top: 12),
+    return HkCard(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: HyphenTokens.surface,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: HyphenTokens.border),
-      ),
+      margin: const EdgeInsets.only(top: 12),
+      radius: HyphenTokens.r2,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -121,14 +117,10 @@ class _LinkCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(top: 12),
+    return HkCard(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: HyphenTokens.surface,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: HyphenTokens.border),
-      ),
+      margin: const EdgeInsets.only(top: 12),
+      radius: HyphenTokens.r2,
       child: Row(
         children: [
           Expanded(
@@ -158,14 +150,10 @@ class _PtBookCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(top: 12),
+    return HkCard(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: HyphenTokens.surface,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: HyphenTokens.border),
-      ),
+      margin: const EdgeInsets.only(top: 12),
+      radius: HyphenTokens.r2,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

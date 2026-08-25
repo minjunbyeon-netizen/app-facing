@@ -238,14 +238,9 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
     final widgets = <Widget>[const SizedBox(height: HyphenTokens.sp3)];
     for (final r in rounds) {
       widgets.add(
-        Container(
-          margin: const EdgeInsets.only(bottom: HyphenTokens.sp2),
+        HkCard(
           padding: const EdgeInsets.all(HyphenTokens.sp3),
-          decoration: BoxDecoration(
-            color: HyphenTokens.surface,
-            borderRadius: BorderRadius.circular(HyphenTokens.r3),
-            border: Border.all(color: HyphenTokens.border),
-          ),
+          margin: const EdgeInsets.only(bottom: HyphenTokens.sp2),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -313,13 +308,8 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
             if (hasScaled || hasBeginner)
               const SizedBox(height: HyphenTokens.sp3),
             // 본문
-            Container(
+            HkCard(
               padding: const EdgeInsets.all(HyphenTokens.sp4),
-              decoration: BoxDecoration(
-                color: HyphenTokens.surface,
-                borderRadius: BorderRadius.circular(HyphenTokens.r3),
-                border: Border.all(color: HyphenTokens.border),
-              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

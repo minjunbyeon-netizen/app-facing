@@ -185,13 +185,9 @@ class _AnnouncementsAccordion extends StatelessWidget {
     final latest = top.first;
     final preview = latest.title.isNotEmpty ? latest.title : latest.body;
 
-    return Container(
+    return HkCard(
+      padding: EdgeInsets.zero,
       margin: const EdgeInsets.only(top: HyphenTokens.sp2),
-      decoration: BoxDecoration(
-        color: HyphenTokens.surface,
-        border: Border.all(color: HyphenTokens.border),
-        borderRadius: BorderRadius.circular(HyphenTokens.r3),
-      ),
       clipBehavior: Clip.antiAlias,
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),

@@ -55,14 +55,10 @@ class CoachDossierTile extends StatelessWidget {
           await context.read<InboxState>().refresh();
         }
       },
-      child: Container(
-        decoration: BoxDecoration(
-          color: HyphenTokens.surface,
-          border: Border.all(color: HyphenTokens.border, width: 1),
-          borderRadius: BorderRadius.circular(HyphenTokens.r2),
-        ),
-        clipBehavior: Clip.antiAlias,
+      child: HkCard(
         padding: EdgeInsets.zero,
+        radius: HyphenTokens.r2,
+        clipBehavior: Clip.antiAlias,
         child: IntrinsicHeight(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -348,22 +344,17 @@ class _PinnedAnnouncement extends StatelessWidget {
   Widget build(BuildContext context) {
     final latest = announcements.first;
     final more = announcements.length - 1;
-    return Container(
-      width: double.infinity,
+    return HkCard(
+      padding: const EdgeInsets.all(HyphenTokens.sp3),
       margin: const EdgeInsets.fromLTRB(
         HyphenTokens.sp4,
         HyphenTokens.sp3,
         HyphenTokens.sp4,
         0,
       ),
-      padding: const EdgeInsets.all(HyphenTokens.sp3),
-      decoration: BoxDecoration(
-        color: HyphenTokens.surface,
-        borderRadius: BorderRadius.circular(HyphenTokens.r2),
-        border: Border.all(
-          color: latest.isUrgent ? HyphenTokens.accent : HyphenTokens.border,
-        ),
-      ),
+      width: double.infinity,
+      radius: HyphenTokens.r2,
+      borderColor: latest.isUrgent ? HyphenTokens.accent : HyphenTokens.border,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

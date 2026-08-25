@@ -181,13 +181,9 @@ class _NoticeAccordion extends StatelessWidget {
     final hasUnread = state.unreadCount > 0;
     final latestPreview = latest.title.isNotEmpty ? latest.title : latest.body;
 
-    return Container(
+    return HkCard(
+      padding: EdgeInsets.zero,
       margin: const EdgeInsets.only(bottom: HyphenTokens.sp4),
-      decoration: BoxDecoration(
-        color: HyphenTokens.surface,
-        border: Border.all(color: HyphenTokens.border),
-        borderRadius: BorderRadius.circular(HyphenTokens.r3),
-      ),
       clipBehavior: Clip.antiAlias,
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),

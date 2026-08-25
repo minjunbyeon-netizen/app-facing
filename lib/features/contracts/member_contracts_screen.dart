@@ -139,13 +139,9 @@ class _MemberContractsScreenState extends State<MemberContractsScreen> {
                     );
                     _reload(); // 서명 후 상태 갱신
                   },
-                  child: Container(
+                  child: HkCard(
                     padding: const EdgeInsets.all(HyphenTokens.sp4),
-                    decoration: BoxDecoration(
-                      color: HyphenTokens.surface,
-                      border: Border.all(color: HyphenTokens.border),
-                      borderRadius: BorderRadius.circular(HyphenTokens.r2),
-                    ),
+                    radius: HyphenTokens.r2,
                     child: Row(
                       children: [
                         Expanded(
@@ -281,16 +277,10 @@ class _ContractDetailScreenState extends State<ContractDetailScreen> {
                         const SizedBox(height: HyphenTokens.sp4),
                         const HkSectionLabel('본문'),
                         const SizedBox(height: HyphenTokens.sp2),
-                        Container(
-                          width: double.infinity,
+                        HkCard(
                           padding: const EdgeInsets.all(HyphenTokens.sp3),
-                          decoration: BoxDecoration(
-                            color: HyphenTokens.surface,
-                            border: Border.all(color: HyphenTokens.border),
-                            borderRadius: BorderRadius.circular(
-                              HyphenTokens.r2,
-                            ),
-                          ),
+                          width: double.infinity,
+                          radius: HyphenTokens.r2,
                           child: Text(
                             (d['body_text'] as String?) ?? '',
                             style: HyphenTokens.caption,

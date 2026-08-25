@@ -343,12 +343,9 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
                 final cap = g.capacity != null
                     ? '${g.memberCount}/${g.capacity}'
                     : '${g.memberCount}';
-                return Container(
-                  decoration: BoxDecoration(
-                    color: HyphenTokens.surface,
-                    border: Border.all(color: HyphenTokens.border, width: 1),
-                    borderRadius: BorderRadius.circular(HyphenTokens.r2),
-                  ),
+                return HkCard(
+                  padding: EdgeInsets.zero,
+                  radius: HyphenTokens.r2,
                   clipBehavior: Clip.antiAlias,
                   child: IntrinsicHeight(
                     child: Row(

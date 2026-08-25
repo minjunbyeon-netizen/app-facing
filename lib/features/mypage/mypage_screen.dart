@@ -219,13 +219,9 @@ class _IdentityCard extends StatelessWidget {
               ((mp.safetyNote ?? '').isNotEmpty ||
                   (mp.note ?? '').isNotEmpty)) ...[
             const SizedBox(height: HyphenTokens.sp2),
-            Container(
+            HkCard(
               padding: const EdgeInsets.all(HyphenTokens.sp3),
-              decoration: BoxDecoration(
-                color: HyphenTokens.surface,
-                border: Border.all(color: HyphenTokens.border),
-                borderRadius: BorderRadius.circular(HyphenTokens.r2),
-              ),
+              radius: HyphenTokens.r2,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -665,13 +661,9 @@ class _MembershipCard extends StatelessWidget {
     return Padding(
       // 가로 여백은 감싸는 _MembershipSection 아코디언이 준다.
       padding: EdgeInsets.zero,
-      child: Container(
+      child: HkCard(
         padding: const EdgeInsets.all(HyphenTokens.sp4),
-        decoration: BoxDecoration(
-          color: HyphenTokens.surface,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: HyphenTokens.border),
-        ),
+        radius: HyphenTokens.r2,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -942,13 +934,9 @@ class _LockerCard extends StatelessWidget {
     return Padding(
       // 가로 여백은 감싸는 _MembershipSection 아코디언이 준다.
       padding: const EdgeInsets.only(top: HyphenTokens.sp3),
-      child: Container(
+      child: HkCard(
         padding: const EdgeInsets.all(HyphenTokens.sp4),
-        decoration: BoxDecoration(
-          color: HyphenTokens.surface,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: HyphenTokens.border),
-        ),
+        radius: HyphenTokens.r2,
         child: Row(
           children: [
             Container(
@@ -1045,16 +1033,12 @@ class _PointsBalanceRowState extends State<_PointsBalanceRow> {
     if (balance == null) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.only(bottom: HyphenTokens.sp3),
-      child: Container(
+      child: HkCard(
         padding: const EdgeInsets.symmetric(
           horizontal: HyphenTokens.sp4,
           vertical: HyphenTokens.sp3,
         ),
-        decoration: BoxDecoration(
-          color: HyphenTokens.surface,
-          border: Border.all(color: HyphenTokens.border),
-          borderRadius: BorderRadius.circular(HyphenTokens.r2),
-        ),
+        radius: HyphenTokens.r2,
         child: Row(
           children: [
             const Expanded(child: HkSectionLabel('포인트')),

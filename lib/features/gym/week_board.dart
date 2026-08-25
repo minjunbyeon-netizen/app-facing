@@ -131,12 +131,8 @@ class _WeekBoardState extends State<WeekBoard> {
       children: [
         _weekHeader(),
         const SizedBox(height: HyphenTokens.sp2),
-        Container(
-          decoration: BoxDecoration(
-            color: HyphenTokens.surface,
-            border: Border.all(color: HyphenTokens.border),
-            borderRadius: BorderRadius.circular(HyphenTokens.r3),
-          ),
+        HkCard(
+          padding: EdgeInsets.zero,
           clipBehavior: Clip.antiAlias,
           child: Column(
             children: [

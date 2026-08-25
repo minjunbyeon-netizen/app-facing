@@ -83,14 +83,10 @@ class _BoardRow extends StatelessWidget {
       if (entry.bestDate != null) entry.bestDate!,
       '기록 ${entry.count}회',
     ].join(' · ');
-    return Container(
-      margin: const EdgeInsets.only(bottom: HyphenTokens.sp2),
+    return HkCard(
       padding: const EdgeInsets.all(HyphenTokens.sp3),
-      decoration: BoxDecoration(
-        color: HyphenTokens.surface,
-        border: Border.all(color: HyphenTokens.border),
-        borderRadius: BorderRadius.circular(HyphenTokens.r2),
-      ),
+      margin: const EdgeInsets.only(bottom: HyphenTokens.sp2),
+      radius: HyphenTokens.r2,
       child: Row(
         children: [
           Expanded(

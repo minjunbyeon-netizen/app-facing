@@ -508,14 +508,9 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
             child: Column(
               children: [
                 // WOD 내용
-                Container(
-                  width: double.infinity,
+                HkCard(
                   padding: const EdgeInsets.all(HyphenTokens.sp4),
-                  decoration: BoxDecoration(
-                    color: HyphenTokens.surface,
-                    borderRadius: BorderRadius.circular(HyphenTokens.r3),
-                    border: Border.all(color: HyphenTokens.border),
-                  ),
+                  width: double.infinity,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

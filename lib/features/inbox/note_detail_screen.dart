@@ -503,12 +503,9 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
           // v1.19 페르소나 P0-4 (M1 송): WHY 섹션 — 본문 위 고정.
           if (n.rationale != null && n.rationale!.isNotEmpty) ...[
             const SizedBox(height: HyphenTokens.sp1),
-            Container(
-              decoration: BoxDecoration(
-                color: HyphenTokens.surface,
-                border: Border.all(color: HyphenTokens.border, width: 1),
-                borderRadius: BorderRadius.circular(HyphenTokens.r2),
-              ),
+            HkCard(
+              padding: EdgeInsets.zero,
+              radius: HyphenTokens.r2,
               clipBehavior: Clip.antiAlias,
               child: IntrinsicHeight(
                 child: Row(
@@ -552,13 +549,9 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
             for (final it in n.structured)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: HyphenTokens.sp1),
-                child: Container(
+                child: HkCard(
                   padding: const EdgeInsets.all(HyphenTokens.sp3),
-                  decoration: BoxDecoration(
-                    color: HyphenTokens.surface,
-                    border: Border.all(color: HyphenTokens.border),
-                    borderRadius: BorderRadius.circular(HyphenTokens.r2),
-                  ),
+                  radius: HyphenTokens.r2,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

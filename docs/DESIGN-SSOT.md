@@ -96,6 +96,7 @@
 | `MembershipStatusView` (gym/) | 미가입·승인 대기·거절 화면 한 벌 (v3.25) — 셸 게이트·수업 탭 공용 |
 | `AnnouncementRow` (announcements/) | 공지 한 줄 (v3.25) — 홈·수업 탭 아코디언 공용, `bodyMaxLines` 만 다름 |
 | 날짜·시각 표기 | `core/time_format.dart` 한 곳 — `ymd`·`hhmm`·`hhmmIso`·`mdDot`·`mdHm`·`mmss`. 화면별 `_fmt` 금지 (v3.26, `ssot_lint_test`) |
+| `HkCard` 슬롯 (v3.27) | `radius`·`borderColor`·`borderWidth`·`clipBehavior`·`width` — 정식 카드 변형은 전부 이 안. 색띠·말풍선·원형·요일 타일은 카드가 아니다 |
 | 스피너 · 섹션 라벨 · 빈 상태 · 통계 타일 | 각각 `HkLoading`·`HkSectionLabel`·`HkEmptyState`·`HkStatTile` **만** (v3.26 전수 치환 — 인라인 CircularProgressIndicator·sectionLabel 직접 지정은 게이트가 막는다) |
 | 입력칸 | 모양은 `theme.dart inputDecorationTheme` 한 벌 (테두리·에러·안내 글꼴). 화면은 `InputDecoration(hintText:)` 만 — 화면별 `_deco()` 금지 (v3.24, `test/ssot_lint_test.dart`) |
 | `TierBadge` | 티어 표기 별도 정본 |

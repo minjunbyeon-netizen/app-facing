@@ -526,6 +526,21 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 >   `String _fmt/_hhmm/_ymd/_dateShort…(` 3패턴 → 총 10패턴.
 > - 회귀: 골든 54장 재생성 · 앱 194건.
 
+> **D50 (2026-08-25 사용자 지시 "1,2,3번 다") — 카드 마저 · 코치 다중 기기 · 코치 수업 탭 읽기 전용.**
+>
+> - **카드 27곳 → `HkCard`**: 정본에 `radius`(r2 카드)·`borderColor`(예약됨=초록 같은
+>   상태 테두리)·`borderWidth`·`clipBehavior`·`width` 네 칸을 열어 D49 에서 시그니처 밖이던
+>   것을 흡수. 남은 10곳은 카드가 아니다 — 왼쪽 색띠(업적·칭호), 원형(코치 사진),
+>   말풍선(채팅), 요일 타일(주간보드), 내 기록 강조(배경 색 조건), 결과 시트 헤더.
+> - **코치 다중 기기 페어링 (서버)**: `GymManager.device_hash` 1개가 마지막 로그인 기기로
+>   덮어써져 에뮬레이터 로그인 뒤 갤S22 수업 탭이 '미가입'으로 떨어졌다 (실기 발견).
+>   신규 표 `gym_manager_devices(gym_id, login_id, device_hash, paired_at, last_seen_at)`
+>   — 로그인마다 upsert. 판정·SSE 구독·기기 폴백은 `roles.staff_rows_for_device()`
+>   **한 곳**(표 ∪ 구 컬럼). 구 컬럼은 '마지막 로그인 기기' 로 계속 갱신 — PC 쪽지함
+>   신원(`_staff_device_hash`) 등 구 경로 호환. 회귀: `tests/test_manager_devices.py`(4).
+> - **코치 수업 탭 읽기 전용**: 회원용 '완료 표시'(내 기록) 배지를 코치에게 숨김
+>   ('메시지' 는 이미 숨김). 코치가 이 탭에서 하는 건 읽기 + 인원·명단뿐 (D43·D44 정합).
+
 > **D31 (2026-08-12) — 명단에서 출석 체크 + 대기 순번 정정.**
 >
 > - **대기 순번**: `class_waitlist_promotions.promoted_position` 은 "줄 설 때" 번호라
