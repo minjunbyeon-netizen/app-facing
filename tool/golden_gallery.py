@@ -76,8 +76,6 @@ SECTIONS = [
         ("coach_01_shell_reservations", "코치 셸 3탭① 예약 현황 — 대시보드 임베드 (v3.4)"),
         ("coach_02_shell_board", "코치 셸 3탭② 수업 — 회원과 동일 보드 (v3.4)"),
         ("coach_03_shell_messages", "코치 셸 3탭③ 쪽지 — MessagingScreen 임베드 (v3.4)"),
-        ("boss_08_settings_reservation",
-         "설정 예약 탭 — 하루 예약 한도 (0=무제한, 2026-08-24)"),
     ]),
     ("상태 변형", "상태 변형 — 빈 · 에러 · 오프라인 · 미가입", [
         ("hist_01_empty", "History — 빈 상태 (신규 가입)"),

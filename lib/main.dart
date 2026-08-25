@@ -36,7 +36,6 @@ import 'features/shell/main_shell.dart';
 import 'features/boss/boss_auth_state.dart';
 import 'features/boss/boss_api_client.dart';
 import 'features/shell/coach_shell.dart';
-import 'features/boss/settings_screen.dart';
 import 'features/classes/classes_screen.dart';
 
 Future<void> main() async {
@@ -201,7 +200,8 @@ class HyphenApp extends StatelessWidget {
           // v3.3 (2026-08-18 사용자 지시) — 코치 앱 = 간단 2탭 셸
           // (예약 현황 · 수업). 대시보드는 예약 현황 탭으로 임베드.
           '/boss/dashboard': (_) => const CoachShell(),
-          '/boss/settings': (_) => const BossSettingsScreen(),
+          // v3.22 (2026-08-25): '/boss/settings' 라우트·BossSettingsScreen 삭제 —
+          // 알림·예약 한도는 PC, 자동 가입 승인은 기능 폐기 (README §제거된 기능 대장 18).
           // PHASE4 §1.1: 회원 폰 클래스 일정·예약
           '/classes': (_) => const ClassesScreen(),
         },

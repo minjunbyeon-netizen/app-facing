@@ -112,4 +112,16 @@ samples, guidance on mobile development, and a full API reference.
     백엔드 API 는 전부 그대로다 — PC 웹이 쓴다. 폰 창구만 닫았다.
     rename: CoachDashboardScreen → MemberApprovalsScreen (coach_dashboard_screen.dart
     → member_approvals_screen.dart)
+18. **폰 코치 설정 화면 전체 (v3.22 · 2026-08-25 사용자 지시)** —
+    `lib/features/boss/settings_screen.dart`(BossSettingsScreen 3탭) +
+    `/boss/settings` 라우트 + 대시보드 AppBar 톱니 + 골든
+    `boss_08_settings_reservation`. 탭별 사유가 다르다:
+    · 알림 on/off → **PC** (`web/facing-admin/templates/notifications.html` 존재)
+    · 하루 예약 한도 → **PC** (`settings_reservations.html` 존재)
+    · 자동 가입 승인 → **기능 자체 폐기** ("내가 항상 승인해서 하는걸로").
+      백엔드도 같이 내렸다: `GET/PATCH /api/v1/admin/gyms/<id>/auto-approve`
+      삭제 · `api/gym.py` 가입 분기에서 `auto_approve_joins` 제거(항상 pending) ·
+      `models/gym_profile.auto_approve_joins` 는 휴면 컬럼으로만 존치.
+      공식 HYPHEN HQ 체육관 즉시 승인(데모용 `OFFICIAL_GYM_NAME` 분기)은 별개라 유지.
+    폰 코치 AppBar 에 남는 것은 로그아웃 하나.
 

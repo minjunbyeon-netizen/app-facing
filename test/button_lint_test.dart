@@ -20,7 +20,6 @@ const Set<String> _rawButtonBaseline = {
   'lib/features/achievement/panel_b_screen.dart',
   'lib/features/auth/login_screen.dart',
   'lib/features/auth/signup_screen.dart',
-  'lib/features/boss/settings_screen.dart',
   'lib/features/classes/classes_screen.dart',
   'lib/features/contracts/member_contracts_screen.dart',
   'lib/features/goals/goals_screen.dart',

@@ -108,13 +108,9 @@ class _BossDashboardScreenState extends State<BossDashboardScreen> {
           ],
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.settings_outlined,
-                color: HyphenTokens.muted, size: 20),
-            tooltip: '설정',
-            onPressed: () =>
-                Navigator.of(context).pushNamed('/boss/settings'),
-          ),
+          // v3.22 (2026-08-25 사용자 지시): '설정' 진입 삭제 — 알림·예약 한도는
+          // PC 에서 하고, 자동 가입 승인은 기능 자체를 없앴다 (항상 코치가 직접
+          // 승인). 폰 AppBar 에 남는 건 로그아웃 하나 (README §제거된 기능 대장 18).
           IconButton(
             icon: const Icon(Icons.logout, color: HyphenTokens.muted, size: 20),
             tooltip: '로그아웃',
@@ -137,7 +133,6 @@ class _Body extends StatelessWidget {
   /// 대시보드 재조회 — 명단에서 출석을 찍고 나온 경우에만 불린다 (D31).
   final Future<void> Function()? onRefresh;
 
-  /// G24 — '오늘 수업' 헤더의 수업 등록 진입.
   const _Body({required this.data, this.onRefresh});
 
   @override

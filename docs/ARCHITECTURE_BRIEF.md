@@ -413,6 +413,24 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 >   `boss_02_dashboard`·`boss_03_class_roster`·`coach_01` 재생성 ·
 >   button_lint baseline 2줄 축소 + 1줄 개명.
 
+> **D45 (2026-08-25 사용자 지시) — 폰 코치 설정 화면 폐지 + 자동 가입 승인 기능 폐기.**
+>
+> D44 목록을 한 번 더 추린 결과. 폰 코치 설정 3탭이 전부 사라진다.
+> - 알림 on/off · 하루 예약 한도 → **PC** (관리자 웹에 이미 화면이 있다:
+>   `notifications.html` · `settings_reservations.html`).
+> - **자동 가입 승인은 기능 자체를 없앤다** — "내가 항상 승인해서 하는걸로".
+>   가입 신청은 예외 없이 코치가 직접 승인한다. 앱 탭 + 백엔드 엔드포인트
+>   (`/api/v1/admin/gyms/<id>/auto-approve`) + `api/gym.py` 의 분기까지 전부 삭제.
+>   `GymProfile.auto_approve_joins` 는 읽는 코드 0 인 휴면 컬럼으로만 남긴다
+>   (gym_point_settings 와 같은 처리). 되살리지 말 것.
+>   ※ 공식 HYPHEN HQ 체육관 즉시 승인(`OFFICIAL_GYM_NAME` 분기)은 데모 계정용
+>   별개 장치라 유지한다 — 코치가 설정으로 켜고 끄는 물건이 아니다.
+> - 폰 코치 AppBar 에 남는 것은 로그아웃 하나. 폰에서 코치가 할 수 있는 일은
+>   이제 **7가지**다: 오늘 예약·출석 수치 · 오늘 수업 목록 · 예약자 명단 ·
+>   출석/노쇼 체크 · 가입 신청 승인/거절 · 쪽지 · 수업 내용 읽기.
+> - 회귀 게이트: 골든 54장(boss_08 삭제) · button_lint baseline 1줄 축소 ·
+>   서버 211건.
+
 > **D31 (2026-08-12) — 명단에서 출석 체크 + 대기 순번 정정.**
 >
 > - **대기 순번**: `class_waitlist_promotions.promoted_position` 은 "줄 설 때" 번호라
