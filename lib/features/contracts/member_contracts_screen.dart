@@ -261,6 +261,11 @@ class _ContractDetailScreenState extends State<ContractDetailScreen> {
             final status = (d['status'] ?? '') as String;
             final signable = status == 'sent' || status == 'viewed';
             final vars = (d['variables'] as Map?) ?? const {};
+            // 항목 이름은 서버 사전(variable_labels)을 그대로 쓴다 — 앱이
+            // 옛날처럼 `member_name` 을 'member name' 으로 풀어 보여주던 자리
+            // (2026-08-25 갭 해소. 사전 정본 = services/hyphen api/contracts.py
+            // VARIABLE_LABELS §0-B). 사전에 없는 키는 원문 그대로 둔다.
+            final varLabels = (d['variable_labels'] as Map?) ?? const {};
             final entries = vars.entries
                 .where((e) => !e.key.toString().startsWith('gym_'))
                 .toList();
@@ -316,7 +321,8 @@ class _ContractDetailScreenState extends State<ContractDetailScreen> {
                                 SizedBox(
                                   width: 120,
                                   child: Text(
-                                    e.key.toString().replaceAll('_', ' '),
+                                    varLabels[e.key]?.toString() ??
+                                        e.key.toString().replaceAll('_', ' '),
                                     style: HyphenTokens.caption,
                                   ),
                                 ),

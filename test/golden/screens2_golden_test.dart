@@ -269,6 +269,26 @@ void main() {
     await capture(tester, 'member_15_contracts');
   });
 
+  // ── 회원: 전자계약 상세 (항목 이름 한글화 2026-08-25) ──
+  testWidgets('member: contract detail', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi({
+      ...memberWorld(),
+      '/api/v1/member/contracts/2': memberContractDetail,
+    });
+    await tester.pumpWidget(harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        home: const ContractDetailScreen(contractId: 2)));
+    await tester.pumpAndSettle();
+    // raw 키('member name')가 아니라 서버 사전의 한글 이름이 떠야 한다.
+    expect(find.text('회원 이름'), findsOneWidget);
+    expect(find.text('결제 수단'), findsOneWidget);
+    await capture(tester, 'member_22_contract_detail');
+  });
+
   // ── 회원: 목표 (내 정보 메뉴 '목표') ──
   testWidgets('member: goals', (tester) async {
     phone(tester);
@@ -480,5 +500,28 @@ void main() {
     // 한도 2회가 로드됐는지 — _EditRow 값으로 확인.
     expect(find.text('2회'), findsOneWidget);
     await capture(tester, 'boss_08_settings_reservation');
+  });
+
+  // ── 코치 설정 — 요금제 탭 (표기 한글화 2026-08-25) ──
+  testWidgets('boss: settings plans tab', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues({});
+    final api = FakeApi(memberWorld());
+    final bossApi = FakeBossApi({
+      '/api/v1/admin/gyms/1/plans': bossPlans,
+      '/api/v1/admin/gyms/1/class-settings': bossClassSettings,
+    });
+    await tester.pumpWidget(harness(
+        api: api,
+        auth: AuthState(),
+        profile: ProfileState(),
+        bossAuth: FakeBossAuth(),
+        bossApi: bossApi,
+        home: const BossSettingsScreen()));
+    await tester.pumpAndSettle();
+    // 내부 값(time_based·-d·₩)이 아니라 사람 말로 떠야 한다.
+    expect(find.text('630,000원 · 90일 · 기간제'), findsOneWidget);
+    expect(find.text('176,000원 · 10회 · 횟수제'), findsOneWidget);
+    await capture(tester, 'boss_09_settings_plans');
   });
 }

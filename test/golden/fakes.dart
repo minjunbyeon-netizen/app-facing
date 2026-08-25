@@ -524,6 +524,40 @@ const bossClassSettings = {
 /// /api/v1/admin/gyms/1/plans — 설정 첫 탭(요금제)이 mount 시 먼저 부른다.
 const bossPlansEmpty = {'plans': []};
 
+/// 같은 경로 — 요금제가 있는 박스. 표기 한글화(2026-08-25) 확인용:
+/// 기간제·횟수제·비활성 3형태를 한 화면에 담는다.
+const bossPlans = {
+  'plans': [
+    {
+      'id': 1,
+      'name': '3개월권',
+      'plan_type': 'time_based',
+      'price_krw': 630000,
+      'duration_days': 90,
+      'session_count': null,
+      'is_active': true,
+    },
+    {
+      'id': 2,
+      'name': '수강권 10회',
+      'plan_type': 'session_based',
+      'price_krw': 176000,
+      'duration_days': null,
+      'session_count': 10,
+      'is_active': true,
+    },
+    {
+      'id': 3,
+      'name': '6개월권',
+      'plan_type': 'time_based',
+      'price_krw': 1200000,
+      'duration_days': 180,
+      'session_count': null,
+      'is_active': false,
+    },
+  ],
+};
+
 /// /api/v1/member/me/contracts — 회원 전자계약 2건 (서명 완료 1 + 서명 대기 1).
 const memberContracts = [
   {
@@ -541,6 +575,41 @@ const memberContracts = [
     'signed_at': null,
   },
 ];
+
+/// /api/v1/member/contracts/2 — 서명 대기 계약 상세.
+/// variable_labels 는 서버가 내려주는 한글 항목 이름 (2026-08-25 갭 해소).
+const memberContractDetail = {
+  'id': 2,
+  'status': 'sent',
+  'template_name': '회원권 이용 계약',
+  'template_category': 'membership',
+  'body_text': null,
+  'variables': {
+    'member_name': '박서준',
+    'member_phone': '010-1234-5678',
+    'plan_name': '3개월권',
+    'start_date': '2026-08-01',
+    'end_date': '2026-10-30',
+    'price': '630,000',
+    'payment_method': '카드',
+    'gym_name': 'HYPHEN',
+  },
+  'variable_labels': {
+    'member_name': '회원 이름',
+    'member_phone': '회원 전화',
+    'plan_name': '회원권 종류',
+    'start_date': '시작일',
+    'end_date': '종료일',
+    'price': '결제 금액',
+    'payment_method': '결제 수단',
+    'gym_name': '체육관 이름',
+  },
+  'pdf_path': null,
+  'sent_at': '2026-08-10T09:00:00',
+  'viewed_at': null,
+  'signed_at': null,
+  'created_at': '2026-08-10T09:00:00',
+};
 
 /// /api/v1/member/me/memberships — 활성 회원권 1건 (진행률 살아있게 상대 날짜).
 List<Map<String, dynamic>> memberMemberships() {

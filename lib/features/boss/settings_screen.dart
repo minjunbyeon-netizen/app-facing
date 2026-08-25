@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/exception.dart';
+import '../../core/plan_labels.dart';
 import '../../core/theme.dart';
 import 'boss_api_client.dart';
 import 'boss_auth_state.dart';
@@ -189,9 +190,8 @@ class _PlansTabState extends State<_PlansTab> {
                                             : HyphenTokens.muted)),
                                 const SizedBox(height: 2),
                                 Text(
-                                  '${p['price_krw'] ?? 0}₩ · '
-                                  '${p['duration_days'] ?? '-'}d · '
-                                  '${p['plan_type']}',
+                                  planSummaryKoLabel(
+                                      p.cast<String, dynamic>()),
                                   style: HyphenTokens.caption,
                                 ),
                               ],
@@ -285,7 +285,7 @@ Future<void> _showCreateSheet(BuildContext ctx,
             controller: priceCtrl,
             style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
             keyboardType: TextInputType.number,
-            decoration: const InputDecoration(hintText: '금액 (KRW)'),
+            decoration: const InputDecoration(hintText: '금액 (원)'),
           ),
           const SizedBox(height: HyphenTokens.sp2),
           TextField(
