@@ -224,35 +224,6 @@ class GymRepository {
     return (data['status'] ?? '').toString();
   }
 
-  Future<int> postWod({
-    required int gymId,
-    required String postDate,
-    required String wodType,
-    required String content,
-    String? scaledVersion,
-    String? beginnerVersion,
-    String? scaleGuide,
-    List<WodRoundItem> roundsData = const [],
-    int? rounds,
-    int? timeCapSec,
-  }) async {
-    final data = await api.post('/api/v1/gyms/$gymId/wods', {
-      'post_date': postDate,
-      'wod_type': wodType,
-      'content': content,
-      if (scaledVersion != null && scaledVersion.isNotEmpty)
-        'scaled_version': scaledVersion,
-      if (beginnerVersion != null && beginnerVersion.isNotEmpty)
-        'beginner_version': beginnerVersion,
-      if (scaleGuide != null && scaleGuide.isNotEmpty) 'scale_guide': scaleGuide,
-      if (roundsData.isNotEmpty)
-        'rounds_data': roundsData.map((r) => r.toJson()).toList(),
-      'rounds': ?rounds,
-      'time_cap_sec': ?timeCapSec,
-    });
-    return (data['wod_post_id'] as num).toInt();
-  }
-
   // ---- v1.16 Sprint 16: 박스 내 리더보드 + 댓글 ----
 
   Future<List<GymWodResult>> listWodResults(int gymId, int wodId) async {
@@ -485,10 +456,6 @@ class GymRepository {
         .whereType<Map<String, dynamic>>()
         .map(GymWodPost.fromJson)
         .toList();
-  }
-
-  Future<void> deleteWod({required int gymId, required int wodId}) async {
-    await api.delete('/api/v1/gyms/$gymId/wods/$wodId');
   }
 
   // ---- v1.16 Sprint 17: Coach Feedback ----

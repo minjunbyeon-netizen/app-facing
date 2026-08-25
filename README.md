@@ -77,3 +77,14 @@ samples, guidance on mobile development, and a full API reference.
     (`POST /api/v1/auth/login` → `kind`). 로그인 화면 하나 = `login_screen.dart`
     (구 `member_login_screen.dart`, 골든 `common_08_login`). 백엔드 구 창구 2개
     (`/api/v1/admin/login`·`/api/v1/auth/member-login`)는 관리자 웹·구 APK 때문에 유지.
+16. **폰 코치의 수업 내용 게시·삭제 (v3.20 · 2026-08-25 사용자 지시 "수업내용 게시
+    하는건 굳이 폰에는 넣지말자 — 그런 상세내역은 pc에서")** —
+    `lib/features/gym/wod_post_screen.dart`(WodPostScreen 작성 폼) + 수업 탭의
+    '수업 내용 게시' FAB(`box_wod_screen.dart`) + WodRow 삭제 아이콘·확인
+    다이얼로그(`wod_row.dart` `canDelete`·`_confirmDelete`) + 그 배선
+    (`gym_state.postWod`·`deleteWod` · `gym_repository.postWod`·`deleteWod` ·
+    `week_board` 의 `isOwner` 전달). 폰의 수업 탭은 코치에게도 **보는 화면**이다.
+    삭제까지 같이 내린 이유: 폰에서 지울 수는 있는데 다시 쓸 수는 없으면 그게 더
+    나쁜 상태다. 백엔드 라우트(`POST/DELETE /api/v1/gyms/<id>/wods`)는 PC 가
+    계속 쓰므로 그대로 둔다. 골든 `coach_02_shell_board` 재생성.
+

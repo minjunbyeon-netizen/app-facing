@@ -152,7 +152,6 @@ class _WeekBoardState extends State<WeekBoard> {
                   // 이전 결과를 들고 있는 동안은 로딩 취급하지 않는다 (깜빡임 방지).
                   classesLoading: _classesLoading && _classes.isEmpty,
                   classesError: _classesError,
-                  isOwner: gs.isOwner,
                   today: _today,
                   onTap: () => _select(i),
                   onReserve: (c) async {
@@ -231,7 +230,6 @@ class _DayTile extends StatelessWidget {
   final List<ClassSessionDto> classes;
   final bool classesLoading;
   final bool classesError;
-  final bool isOwner;
   final DateTime today;
   final VoidCallback onTap;
   final Future<void> Function(ClassSessionDto) onReserve;
@@ -248,7 +246,6 @@ class _DayTile extends StatelessWidget {
     required this.classes,
     required this.classesLoading,
     required this.classesError,
-    required this.isOwner,
     required this.today,
     required this.onTap,
     required this.onReserve,
@@ -396,7 +393,6 @@ class _DayTile extends StatelessWidget {
             WodRow(
               wod: w,
               dateLabel: dateLabel,
-              canDelete: isOwner,
               // 지난 날 WOD 도 이 날을 직접 골라 연 것이므로 흐리게 두지 않는다.
               isToday: !_isPast,
               // 하루에 WOD 가 둘 이상이면 첫 개만 펼친다 — 실기에서 둘 다 펼쳐져

@@ -13,7 +13,6 @@ import '../../widgets/inbox_bell.dart';
 import 'coach_dashboard_screen.dart';
 import 'gym_state.dart';
 import 'week_board.dart';
-import 'wod_post_screen.dart';
 
 /// v1.15.3: WOD 탭 진입점. GymState 상태 따라 4분기 렌더.
 class BoxWodScreen extends StatefulWidget {
@@ -88,21 +87,11 @@ class _BoxWodScreenState extends State<BoxWodScreen> {
             ),
         ],
       ),
+      // v3.20 (2026-08-25 사용자 지시): '수업 내용 게시' FAB 삭제 —
+      // 수업 내용은 PC 에서 쓴다. 폰의 이 탭은 코치에게도 **보는 화면**이다
+      // (README §제거된 기능 대장 16). 삭제 아이콘도 같이 내렸다 — 폰에서
+      // 지울 수는 있는데 다시 쓸 수는 없으면 그게 더 나쁜 상태다.
       body: SafeArea(child: body),
-      floatingActionButton: gs.isOwner
-          ? FloatingActionButton.extended(
-              backgroundColor: HyphenTokens.accent,
-              foregroundColor: HyphenTokens.fg,
-              onPressed: () {
-                Haptic.medium();
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => const WodPostScreen(),
-                ));
-              },
-              icon: const Icon(Icons.add),
-              label: const Text('수업 내용 게시'),
-            )
-          : null,
     );
   }
 }

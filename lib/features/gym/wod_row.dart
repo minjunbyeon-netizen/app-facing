@@ -98,7 +98,6 @@ class LockedWodBanner extends StatelessWidget {
 class WodRow extends StatefulWidget {
   final GymWodPost wod;
   final String dateLabel;
-  final bool canDelete;
 
   /// 진하게 표시할지 (오늘 WOD). false 면 muted 1줄 요약 톤.
   final bool isToday;
@@ -113,7 +112,6 @@ class WodRow extends StatefulWidget {
     super.key,
     required this.wod,
     required this.dateLabel,
-    required this.canDelete,
     required this.isToday,
     this.initiallyExpanded,
     this.showDate = true,
@@ -263,21 +261,8 @@ class _WodRowState extends State<WodRow> {
                     Text('${wod.rounds} rounds', style: HyphenTokens.caption),
                   ],
                   const Spacer(),
-                  if (widget.canDelete && _expanded)
-                    IconButton(
-                      icon: const Icon(Icons.delete_outline, size: 18),
-                      color: HyphenTokens.muted,
-                      padding: EdgeInsets.zero,
-                      constraints:
-                          const BoxConstraints(minWidth: 28, minHeight: 28),
-                      onPressed: () async {
-                        final ok = await _confirmDelete(context);
-                        if (ok == true && context.mounted) {
-                          Haptic.medium();
-                          await context.read<GymState>().deleteWod(wod.id);
-                        }
-                      },
-                    ),
+                  // v3.20: 수업 내용 삭제 버튼 제거 — 게시가 PC 몫이 되면서
+                  // 삭제도 PC 로 넘겼다 (README §제거된 기능 대장 16).
                   Icon(
                     _expanded ? Icons.expand_less : Icons.expand_more,
                     size: 20,
@@ -394,28 +379,6 @@ class _WodRowState extends State<WodRow> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Future<bool?> _confirmDelete(BuildContext context) {
-    return showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: HyphenTokens.surfaceOverlay,
-        title: const Text('수업 내용을 삭제할까요?'),
-        content:
-            const Text('멤버에게 더 이상 보이지 않음.', style: HyphenTokens.caption),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('취소')),
-          TextButton(
-            style: TextButton.styleFrom(foregroundColor: HyphenTokens.accent),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('삭제'),
-          ),
-        ],
       ),
     );
   }

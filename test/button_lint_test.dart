@@ -30,7 +30,6 @@ const Set<String> _rawButtonBaseline = {
   'lib/features/gym/gym_profile_edit_screen.dart',
   'lib/features/gym/member_requests_screen.dart',
   'lib/features/gym/wod_detail_screen.dart',
-  'lib/features/gym/wod_post_screen.dart',
   'lib/features/gym/wod_result_sheet.dart',
   'lib/features/gym/wod_row.dart',
   // home_screen — R7 (2026-08-21) 공지 아코디언 소스 교체로 원시 TextButton 소멸, 래칫 제거

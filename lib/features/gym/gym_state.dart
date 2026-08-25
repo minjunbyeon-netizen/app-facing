@@ -331,52 +331,7 @@ class GymState extends ChangeNotifier {
     }
   }
 
-  Future<bool> postWod({
-    required String postDate,
-    required String wodType,
-    required String content,
-    String? scaledVersion,
-    String? beginnerVersion,
-    String? scaleGuide,
-    List<WodRoundItem> roundsData = const [],
-    int? rounds,
-    int? timeCapSec,
-  }) async {
-    final gym = _membership.gym;
-    if (gym == null || !isOwner) return false;
-    try {
-      await repo.postWod(
-        gymId: gym.id,
-        postDate: postDate,
-        wodType: wodType,
-        content: content,
-        scaledVersion: scaledVersion,
-        beginnerVersion: beginnerVersion,
-        scaleGuide: scaleGuide,
-        roundsData: roundsData,
-        rounds: rounds,
-        timeCapSec: timeCapSec,
-      );
-      await loadMine();
-      return true;
-    } on AppException catch (e) {
-      _error = e.messageKo;
-      notifyListeners();
-      return false;
-    }
-  }
-
-  Future<bool> deleteWod(int wodId) async {
-    final gym = _membership.gym;
-    if (gym == null || !isOwner) return false;
-    try {
-      await repo.deleteWod(gymId: gym.id, wodId: wodId);
-      await loadMine();
-      return true;
-    } on AppException catch (e) {
-      _error = e.messageKo;
-      notifyListeners();
-      return false;
-    }
-  }
+  // v3.20 (2026-08-25 사용자 지시): postWod·deleteWod 삭제 — 수업 내용은
+  // PC 에서 쓰고 지운다. 폰에서 부르는 코드가 하나도 남지 않았다
+  // (README §제거된 기능 대장 16). 백엔드 라우트는 PC 가 계속 쓰므로 유지.
 }

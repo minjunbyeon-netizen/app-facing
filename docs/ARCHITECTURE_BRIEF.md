@@ -374,6 +374,23 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 >   `test/remembered_login_test.dart`(8) · 골든 `common_08_login`(로고 없는 통합
 >   로그인)·`common_05_signup`(코치 줄 사라진 진입)·`state_09_login_remembered`.
 
+> **D43 (2026-08-25 사용자 지시) — 폰 코치는 보는 쪽. 수업 내용은 PC 에서 쓴다.**
+>
+> "코치로 로그인 하면 예약 현황만 제대로 보이고, 수업 내용 게시하는 건 굳이 폰에
+> 넣지 말자 — 그런 상세 내역은 PC 에서 하게 하자." 대전제 3(코치는 PC 가 주,
+> 폰이 보조)의 화면 단위 집행이다.
+> - 앱에서 삭제: `WodPostScreen`(수업 내용 작성 폼) · 수업 탭 '수업 내용 게시'
+>   FAB · WodRow 삭제 아이콘. 게시가 PC 몫이 되면 삭제도 PC 몫이다 — 폰에서
+>   지울 수는 있는데 다시 쓸 수는 없는 상태가 더 나쁘다. 죽은 배선
+>   (`gym_state`·`gym_repository` 의 postWod·deleteWod)까지 같이 내렸다.
+> - **백엔드는 그대로**: `POST/DELETE /api/v1/gyms/<id>/wods` 는 PC 웹이 쓴다.
+>   폰만 창구를 닫은 것이지 기능을 없앤 것이 아니다.
+> - 폰 코치에 남는 쓰기 동선은 **예약 현황 탭** 쪽뿐이다 — 수업 등록·수정·취소
+>   (G24 시트) · 출석/노쇼 체크(D31) · 가입 승인. 이건 '예약 현황' 의 일부라
+>   이번 스코프에 넣지 않았다 (더 내릴지는 사용자 결정 대기).
+> - 회귀 게이트: 골든 `coach_02_shell_board`(FAB·삭제 아이콘 없는 수업 탭) ·
+>   `test/button_lint_test.dart` baseline 래칫 1줄 축소.
+
 > **D31 (2026-08-12) — 명단에서 출석 체크 + 대기 순번 정정.**
 >
 > - **대기 순번**: `class_waitlist_promotions.promoted_position` 은 "줄 설 때" 번호라
