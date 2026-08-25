@@ -158,30 +158,30 @@ class _SignupScreenState extends State<SignupScreen> {
                 // 주 CTA — 아이디를 받은 사람 전원(회원·코치)의 단일 진입로.
                 // v3.19: '아이디로 로그인' → '로그인'. 역할을 고르는 자리가
                 // 없어졌으니 수식어도 뺀다 (backend api/auth_login.py).
-                ElevatedButton(
+                HkButton.primary(
+                  '로그인',
                   onPressed: _busy
                       ? null
                       : () {
                           Haptic.light();
                           Navigator.of(context).pushNamed('/login');
                         },
-                  child: const Text('로그인'),
                 ),
                 const SizedBox(height: HyphenTokens.sp3),
 
                 // v1.33 — 아직 아이디가 없는 신규 방문자. 박스 선택 → 실명·전화 →
                 // 가입 신청(pending) → 사장 승인 → 회원 활성.
                 // A-4 (2026-06-10): /signup/self 고아 라우트 해소 이력 유지.
-                OutlinedButton(
+                // v2.3: 그냥 '가입 신청' 이면 무엇에 신청하는지가 없어 뜻이
+                // 통하지 않았다. 실제 동작(체육관을 골라 등록을 신청)을 라벨에 넣는다.
+                HkButton.secondary(
+                  '회원 가입 신청',
                   onPressed: _busy
                       ? null
                       : () {
                           Haptic.light();
                           Navigator.of(context).pushNamed('/signup/self');
                         },
-                  // v2.3: 그냥 '가입 신청' 이면 무엇에 신청하는지가 없어 뜻이
-                  // 통하지 않았다. 실제 동작(박스를 골라 등록을 신청)을 라벨에 넣는다.
-                  child: const Text('회원 가입 신청'),
                 ),
                 // v2.7 (2026-08-13 사용자 지시) — '가입 코드 입력' 삭제.
                 // 코드로 기기를 잇는 길과 신청서로 들어오는 길이 갈려 있어서,
@@ -193,30 +193,20 @@ class _SignupScreenState extends State<SignupScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => const TermsScreen()),
-                      ),
-                      style: TextButton.styleFrom(
-                        foregroundColor: HyphenTokens.fgSecondary,
-                        minimumSize: const Size(0, HyphenTokens.touchMin),
-                      ),
-                      child: Text('이용약관', style: HyphenTokens.caption),
-                    ),
+                    HkButton.tertiary('이용약관',
+                        neutral: true,
+                        onPressed: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                  builder: (_) => const TermsScreen()),
+                            )),
                     const Text(' · ',
                         style: TextStyle(color: HyphenTokens.muted)),
-                    TextButton(
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => const PrivacyScreen()),
-                      ),
-                      style: TextButton.styleFrom(
-                        foregroundColor: HyphenTokens.fgSecondary,
-                        minimumSize: const Size(0, HyphenTokens.touchMin),
-                      ),
-                      child: Text('개인정보처리방침', style: HyphenTokens.caption),
-                    ),
+                    HkButton.tertiary('개인정보처리방침',
+                        neutral: true,
+                        onPressed: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                  builder: (_) => const PrivacyScreen()),
+                            )),
                   ],
                 ),
               ],

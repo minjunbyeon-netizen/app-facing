@@ -18,7 +18,7 @@ class PrivacyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('개인정보처리방침')),
+      appBar: const HkAppBar(title: '개인정보처리방침'),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(HyphenTokens.sp4),
@@ -80,14 +80,8 @@ class PrivacyScreen extends StatelessWidget {
             const _Bullet('계정 탈퇴 = 서버·로컬 모든 데이터 영구 삭제 (아래 버튼)'),
             const SizedBox(height: HyphenTokens.sp5),
 
-            OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                foregroundColor: HyphenTokens.error,
-                side: const BorderSide(color: HyphenTokens.error),
-              ),
-              onPressed: () => _confirmDelete(context),
-              child: const Text('계정 삭제'),
-            ),
+            HkButton.secondary('계정 삭제',
+                danger: true, onPressed: () => _confirmDelete(context)),
             const SizedBox(height: HyphenTokens.sp3),
             const Text(
               '탈퇴 시 서버에 저장된 내 기록 일괄 삭제. 복구 불가.',

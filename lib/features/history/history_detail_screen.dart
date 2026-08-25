@@ -6,6 +6,7 @@ import '../../core/exception.dart';
 import '../../core/theme.dart';
 import '../gym/wod_type_label.dart';
 import 'history_repository.dart';
+import '../../widgets/hkit.dart';
 
 class HistoryDetailScreen extends StatefulWidget {
   final int recordId;
@@ -28,7 +29,7 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Record #${widget.recordId}')),
+      appBar: HkAppBar(title: 'Record #${widget.recordId}'),
       body: FutureBuilder<Map<String, dynamic>>(
         future: _future,
         builder: (ctx, snap) {

@@ -67,8 +67,8 @@ class _MemberApprovalsScreenState extends State<MemberApprovalsScreen> {
     final gs = context.watch<GymState>();
     final gym = gs.membership.gym;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('가입 신청'),
+      appBar: HkAppBar(
+        title: '가입 신청',
         actions: [
           const CoachBadgeAction(),
           IconButton(icon: const Icon(Icons.refresh), onPressed: _reload),
@@ -161,12 +161,8 @@ class _PendingRow extends StatelessWidget {
               ],
             ),
           ),
-          TextButton(onPressed: onApprove, child: const Text('승인')),
-          TextButton(
-            style: TextButton.styleFrom(foregroundColor: HyphenTokens.fgSecondary),
-            onPressed: onReject,
-            child: const Text('거절'),
-          ),
+          HkButton.tertiary('승인', onPressed: onApprove),
+          HkButton.tertiary('거절', neutral: true, onPressed: onReject),
         ],
       ),
     );

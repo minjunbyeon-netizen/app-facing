@@ -650,27 +650,10 @@ class _WodResultSheetState extends State<WodResultSheet> {
               ],
               const SizedBox(height: HyphenTokens.sp4),
               // 버튼은 '저장' 하나 — 출석 동반 처리는 아래 한 줄로 고지 (GLOSSARY §3).
-              SizedBox(
-                height: HyphenTokens.buttonH,
-                child: ElevatedButton.icon(
-                  onPressed: _saving ? null : _submit,
-                  icon: _saving
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: HyphenTokens.fg,
-                          ),
-                        )
-                      : const Icon(Icons.check, size: 18),
-                  label: Text(_saving ? '저장 중' : '저장'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: HyphenTokens.accent,
-                    foregroundColor: HyphenTokens.fg,
-                  ),
-                ),
-              ),
+              _saving
+                  ? const HkLoading()
+                  : HkButton.primary('저장',
+                      icon: Icons.check, onPressed: _submit),
               const SizedBox(height: HyphenTokens.sp2),
               const Text(
                 '저장하면 오늘 출석도 함께 기록됩니다.',

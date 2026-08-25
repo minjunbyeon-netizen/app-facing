@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme.dart';
+import '../../widgets/hkit.dart';
 
 class _FaqItem {
   final String q;
@@ -77,7 +78,7 @@ class FaqScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('FAQ')),
+      appBar: const HkAppBar(title: 'FAQ'),
       body: SafeArea(
         child: ListView.separated(
           padding: const EdgeInsets.all(HyphenTokens.sp4),

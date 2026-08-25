@@ -11,6 +11,7 @@ import '../../models/coach_profile.dart';
 import '../../models/gym.dart';
 import 'gym_state.dart';
 import 'coach_detail_screen.dart';
+import '../../widgets/hkit.dart';
 
 class BoxProfileScreen extends StatelessWidget {
   const BoxProfileScreen({super.key, this.overrideCoaches});
@@ -27,11 +28,7 @@ class BoxProfileScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: HyphenTokens.bg,
-      appBar: AppBar(
-        backgroundColor: HyphenTokens.bg,
-        title: const Text('체육관'),
-        centerTitle: false,
-      ),
+      appBar: const HkAppBar(title: '체육관'),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         children: [

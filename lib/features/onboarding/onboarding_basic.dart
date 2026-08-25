@@ -125,11 +125,7 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: HyphenTokens.bg,
-      appBar: AppBar(
-        title: const Text('내 정보'),
-        backgroundColor: HyphenTokens.bg,
-        automaticallyImplyLeading: false,
-      ),
+      appBar: const HkAppBar(title: '내 정보', implyLeading: false),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(HyphenTokens.sp5),

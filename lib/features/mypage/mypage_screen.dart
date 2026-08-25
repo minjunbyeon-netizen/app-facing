@@ -32,15 +32,17 @@ import '../../core/app_clock.dart';
 /// 이 화면에서 내렸다. 코드는 `score_section.dart` 에 보존 — 되돌리려면
 /// 아래 children 에 `ScoreSection()` 한 줄을 되살리면 된다.
 class MyPageScreen extends StatelessWidget {
-  const MyPageScreen({super.key});
+  /// 회원 셸에 얹힐 때는 자기 AppBar 를 그리지 않는다 — 상단바는 셸 하나 (v3.24, D47).
+  final bool embedded;
+
+  const MyPageScreen({super.key, this.embedded = false});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('내 정보'),
-        actions: const [InboxBellAction()],
-      ),
+      appBar: embedded
+          ? null
+          : const HkAppBar(title: '내 정보', actions: [InboxBellAction()]),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.symmetric(vertical: HyphenTokens.sp3),
@@ -370,27 +372,21 @@ class _MyBoxSection extends StatelessWidget {
             ],
             if (gs.isOwner) ...[
               const SizedBox(height: HyphenTokens.sp3),
-              OutlinedButton(
-                onPressed: () {
-                  Haptic.light();
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => const MemberApprovalsScreen(),
-                  ));
-                },
-                child: const Text('가입 신청'),
-              ),
+              HkButton.secondary('가입 신청', onPressed: () {
+                Haptic.light();
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => const MemberApprovalsScreen(),
+                ));
+              }),
             ],
             // 클래스 일정 진입 (회원·owner 모두). PC 사장이 등록한 클래스를 본다.
             if (gs.membership.isApprovedMember || gs.isOwner) ...[
               const SizedBox(height: HyphenTokens.sp2),
-              OutlinedButton.icon(
-                onPressed: () {
-                  Haptic.light();
-                  Navigator.of(context).pushNamed('/classes');
-                },
-                icon: const Icon(Icons.event_outlined, size: 18),
-                label: const Text('수업'),
-              ),
+              HkButton.secondary('수업', icon: Icons.event_outlined,
+                  onPressed: () {
+                Haptic.light();
+                Navigator.of(context).pushNamed('/classes');
+              }),
             ],
             // v2.6 (2026-08-13 사용자 지시): '박스 변경' 삭제. 1인 샵 전용이라
             // 옮겨 갈 다른 박스가 없다. 탈퇴가 필요하면 코치에게 말하는 쪽이 맞다.

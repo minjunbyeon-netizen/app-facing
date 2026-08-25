@@ -332,9 +332,12 @@ R5. **하드코드 fontSize 금지.** 모든 텍스트 크기는 `HyphenTokens` 
 ## 디자인 원칙 (Hyphen 전용 — 공통 룰은 글로벌 SSOT 위임)
 > 이모지 금지·그라디언트/과도한 그림자 금지 등 공통 디자인 차단은 글로벌 `rules/design-block.md`·`rules/design-presets.md` 가 SSOT.
 > **레이아웃·크기·폰트 굵기·카피 양식 정본 = `docs/DESIGN-SSOT.md` (v1.29 신설)** — 화면 작업은 그 양식 안에서만. 아래는 요약.
-- **UI 컴포넌트 SSOT = `lib/widgets/hkit.dart` (HKit — v1.27 신설, v1.29 확장)**: 카드(HkCard)·배지(HkBadge)·
+- **UI 컴포넌트 SSOT = `lib/widgets/hkit.dart` (HKit — v1.27 신설, v1.29 확장, v3.24 골격 통일)**: 카드(HkCard)·배지(HkBadge)·
   섹션 라벨(HkSectionLabel)·통계 타일(HkStatTile)·빈/에러/로딩 상태(HkEmptyState/HkErrorState/HkLoading)·
-  전면 로딩(HkLoadingScreen)·소셜 버튼(HkSocialButton)은 HKit 것만 사용. 화면마다 새 버튼·배지·레이아웃
+  전면 로딩(HkLoadingScreen)·소셜 버튼(HkSocialButton)·**상단바(HkAppBar/.identity)·다이얼로그(HkDialog)·
+  바텀시트(HkSheet)·인라인 에러(HkInlineError)·버튼(HkButton — 원시 버튼 0건)**은 HKit 것만 사용.
+  화면 코드에 `AppBar(`·`AlertDialog(`·`showModalBottomSheet`·`OutlineInputBorder(`·화면별 `_deco()` 가
+  생기면 `test/ssot_lint_test.dart` 가 막는다 (v3.24 · 2026-08-25 사용자 지시 "인라인·이원화 전부 통일"). 화면마다 새 버튼·배지·레이아웃
   variant 신설 금지 — 필요하면 HKit 에 먼저 추가 후 사용 (글로벌 §3 코드·클래스 SSOT 의 프로젝트 배선).
   완전 원형 pill 금지(글로벌 design-block) — 배지는 r1 사각. (구 TierBadge 는 v3.2 삭제.)
 - 라이트 배경 기본 (`bg=#FAFAFA`, v2.0 라이트 전환 — 구 다크 #0A0A0A 폐기). 다크 모드 제공 안 함.

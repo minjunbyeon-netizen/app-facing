@@ -200,10 +200,8 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                   maxLength: 100,
                 ),
                 const SizedBox(height: HyphenTokens.sp3),
-                ElevatedButton(
-                  onPressed: () => Navigator.of(ctx).pop(true),
-                  child: const Text('추가'),
-                ),
+                HkButton.primary('추가',
+                    onPressed: () => Navigator.of(ctx).pop(true)),
               ],
             ),
           ),
@@ -351,10 +349,7 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('새 노트'),
-        actions: const [CoachBadgeAction()],
-      ),
+      appBar: const HkAppBar(title: '새 노트', actions: [CoachBadgeAction()]),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(HyphenTokens.sp4),
@@ -438,11 +433,8 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                       child: Text('처방',
                           style: HyphenTokens.sectionLabel),
                     ),
-                    TextButton.icon(
-                      onPressed: _addItem,
-                      icon: const Icon(Icons.add, size: 16),
-                      label: const Text('추가'),
-                    ),
+                    HkButton.tertiary('추가',
+                        icon: Icons.add, onPressed: _addItem),
                   ],
                 ),
                 if (_items.isEmpty)
@@ -510,10 +502,9 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                 ]),
               ],
               const SizedBox(height: HyphenTokens.sp5),
-              ElevatedButton(
-                onPressed: _sending ? null : _send,
-                child: Text(_sending ? 'Sending.' : 'Send'),
-              ),
+              _sending
+                  ? const HkLoading()
+                  : HkButton.primary('보내기', onPressed: _send),
             ],
           ),
         ),
@@ -552,15 +543,13 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                 const Text('그룹 없음. 먼저 그룹 생성 필요.',
                     style: HyphenTokens.caption),
                 const SizedBox(height: HyphenTokens.sp2),
-                OutlinedButton(
-                  // QA B-NAV-1: 작성 화면을 닫는 대신 GroupManagement 화면 push.
-                  onPressed: () => Navigator.of(ctx).push(
-                    MaterialPageRoute(
-                      builder: (_) => const GroupManagementScreen(),
-                    ),
-                  ),
-                  child: const Text('그룹 관리'),
-                ),
+                // QA B-NAV-1: 작성 화면을 닫는 대신 GroupManagement 화면 push.
+                HkButton.secondary('그룹 관리',
+                    onPressed: () => Navigator.of(ctx).push(
+                          MaterialPageRoute(
+                            builder: (_) => const GroupManagementScreen(),
+                          ),
+                        )),
               ],
             ),
           );

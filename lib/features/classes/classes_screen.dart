@@ -90,16 +90,8 @@ class _ClassesScreenState extends State<ClassesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('수업'),
-        actions: [
-          IconButton(
-            onPressed: _reload,
-            icon: const Icon(Icons.refresh, size: 20),
-            tooltip: 'Refresh',
-          ),
-        ],
-      ),
+      // v3.24: 새로고침 아이콘 삭제 — 아래 RefreshIndicator(당겨서 새로고침)가 있다.
+      appBar: const HkAppBar(title: '수업'),
       body: SafeArea(
         child: RefreshIndicator(
           color: HyphenTokens.accent,
@@ -207,15 +199,8 @@ class _ClassesSectionState extends State<ClassesSection> {
           final msg = err is AppException ? err.messageKo : 'Load failed.';
           body = _inline(
             msg,
-            action: TextButton(
-              onPressed: _reload,
-              style: TextButton.styleFrom(
-                foregroundColor: HyphenTokens.fgSecondary,
-                minimumSize: const Size(0, HyphenTokens.touchMin),
-                padding: EdgeInsets.zero,
-              ),
-              child: const Text('다시 시도'),
-            ),
+            action: HkButton.tertiary('다시 시도',
+                neutral: true, onPressed: _reload),
           );
         } else {
           // v1.26: 내 예약이 없는 취소 클래스는 노이즈 — 리스트에서 제외.
@@ -397,28 +382,15 @@ class _ClassCard extends StatelessWidget {
                 // 전역 버튼 테마의 minimumSize(double.infinity) 는 Row 안에서
                 // 무한 폭 layout 예외 → 화면 전체 백지. 카드 내 버튼은 고유 폭.
                 if (isReserved || isWaitlisted)
-                  OutlinedButton(
-                    onPressed: onCancel,
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(96, HyphenTokens.touchMin),
-                      foregroundColor: HyphenTokens.accent,
-                      side:
-                          BorderSide(color: HyphenTokens.accent.withAlpha(120)),
-                    ),
-                    child: const Text('취소'),
-                  )
+                  HkButton.secondary('취소', expand: false, onPressed: onCancel)
                 else
-                  ElevatedButton(
-                    onPressed: isFull && session.waitlistCount >=
-                            session.waitlistCapacity
+                  HkButton.primary(
+                    isFull ? '대기 신청' : '예약',
+                    expand: false,
+                    onPressed: isFull &&
+                            session.waitlistCount >= session.waitlistCapacity
                         ? null
                         : onReserve,
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(96, HyphenTokens.touchMin),
-                      backgroundColor: HyphenTokens.accent,
-                      foregroundColor: HyphenTokens.onColor,
-                    ),
-                    child: Text(isFull ? '대기 신청' : '예약'),
                   ),
               ],
             ],

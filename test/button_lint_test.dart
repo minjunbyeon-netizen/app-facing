@@ -14,31 +14,9 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
 /// §7-D 선언(2026-08-12) 이전부터 원시 버튼을 쓰던 레거시 파일 — 줄어들기만 한다.
-const Set<String> _rawButtonBaseline = {
-  'lib/features/achievement/achievement_section.dart',
-  'lib/features/achievement/achievements_screen.dart',
-  'lib/features/achievement/panel_b_screen.dart',
-  'lib/features/auth/login_screen.dart',
-  'lib/features/auth/signup_screen.dart',
-  'lib/features/classes/classes_screen.dart',
-  'lib/features/contracts/member_contracts_screen.dart',
-  'lib/features/goals/goals_screen.dart',
-  'lib/features/gym/box_wod_screen.dart',
-  'lib/features/gym/member_approvals_screen.dart',
-  'lib/features/gym/coach_detail_screen.dart',
-  'lib/features/gym/wod_detail_screen.dart',
-  'lib/features/gym/wod_result_sheet.dart',
-  'lib/features/gym/wod_row.dart',
-  // home_screen — R7 (2026-08-21) 공지 아코디언 소스 교체로 원시 TextButton 소멸, 래칫 제거
-  'lib/features/inbox/compose_note_screen.dart',
-  'lib/features/inbox/group_management_screen.dart',
-  'lib/features/inbox/note_detail_screen.dart',
-  'lib/features/mypage/mypage_screen.dart',
-  'lib/features/mypage/privacy_screen.dart',
-  'lib/features/shell/main_shell.dart',
-  'lib/features/signup/self_signup_screen.dart',
-  'lib/features/wod_session/wod_session_screen.dart',
-};
+/// v3.24 (2026-08-25): 22개 파일 71건 전부 HkButton 으로 이관 — 래칫이 0에 닿았다.
+/// 여기에 다시 파일을 넣는 것은 §3 코드·클래스 SSOT 위반.
+const Set<String> _rawButtonBaseline = {};
 
 /// lib/ 아래 .dart 파일을 (경로, 줄번호, 원문) 으로 훑는다. 주석 줄은 건너뛴다.
 /// HkButton 구현체인 hkit.dart 자신은 원시 버튼을 가질 수 있어 제외한다.

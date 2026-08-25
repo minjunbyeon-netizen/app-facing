@@ -104,7 +104,7 @@ class _MemberContractsScreenState extends State<MemberContractsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: HyphenTokens.bg,
-      appBar: AppBar(title: const Text('계약')),
+      appBar: const HkAppBar(title: '계약'),
       body: SafeArea(
         child: FutureBuilder<List<ContractSummary>>(
           future: _future,
@@ -200,7 +200,7 @@ class _ErrorRetry extends StatelessWidget {
         children: [
           Text('불러오기 실패', style: HyphenTokens.h3),
           const SizedBox(height: HyphenTokens.sp3),
-          TextButton(onPressed: onRetry, child: const Text('다시 시도')),
+          HkButton.tertiary('다시 시도', onPressed: onRetry),
         ],
       ),
     );
@@ -246,7 +246,7 @@ class _ContractDetailScreenState extends State<ContractDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: HyphenTokens.bg,
-      appBar: AppBar(title: const Text('계약')),
+      appBar: const HkAppBar(title: '계약'),
       body: SafeArea(
         child: FutureBuilder<Map<String, dynamic>>(
           future: _future,
@@ -346,18 +346,7 @@ class _ContractDetailScreenState extends State<ContractDetailScreen> {
                 if (signable)
                   Padding(
                     padding: const EdgeInsets.all(HyphenTokens.sp4),
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: HyphenTokens.buttonH,
-                      child: ElevatedButton(
-                        onPressed: _openSignPad,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: HyphenTokens.primary,
-                          foregroundColor: HyphenTokens.onColor,
-                        ),
-                        child: const Text('서명'),
-                      ),
-                    ),
+                    child: HkButton.primary('서명', onPressed: _openSignPad),
                   ),
               ],
             );
@@ -444,15 +433,11 @@ class _SignaturePadScreenState extends State<SignaturePadScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: HyphenTokens.bg,
-      appBar: AppBar(
-        title: const Text('서명'),
+      appBar: HkAppBar(
+        title: '서명',
         actions: [
-          TextButton(
-            onPressed: _submitting
-                ? null
-                : () => setState(_strokes.clear),
-            child: const Text('지우기'),
-          ),
+          HkButton.tertiary('지우기',
+              onPressed: _submitting ? null : () => setState(_strokes.clear)),
         ],
       ),
       body: SafeArea(
@@ -490,26 +475,10 @@ class _SignaturePadScreenState extends State<SignaturePadScreen> {
             ),
             Padding(
               padding: const EdgeInsets.all(HyphenTokens.sp4),
-              child: SizedBox(
-                width: double.infinity,
-                height: HyphenTokens.buttonH,
-                child: ElevatedButton(
-                  onPressed:
-                      (_hasSignature && !_submitting) ? _submit : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: HyphenTokens.primary,
-                    foregroundColor: HyphenTokens.onColor,
-                  ),
-                  child: _submitting
-                      ? const SizedBox(
-                          width: 22,
-                          height: 22,
-                          child: CircularProgressIndicator(
-                              color: HyphenTokens.onColor, strokeWidth: 2.4),
-                        )
-                      : const Text('제출'),
-                ),
-              ),
+              child: _submitting
+                  ? const HkLoading()
+                  : HkButton.primary('제출',
+                      onPressed: _hasSignature ? _submit : null),
             ),
           ],
         ),

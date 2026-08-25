@@ -14,6 +14,7 @@ import '../gym/gym_state.dart';
 import '../inbox/inbox_screen.dart';
 import '../inbox/inbox_state.dart';
 import '../../core/role_labels.dart';
+import '../../widgets/hkit.dart';
 
 /// v3.4 (2026-08-21 사용자 지시 "앱에서 코치 쪽지 필요") — 코치 앱 셸 3탭:
 ///   ① 예약 현황 — 오늘 예약·출석 수치 · 오늘 수업 목록 · 예약자 명단(출석/노쇼)
@@ -84,26 +85,14 @@ class _CoachShellState extends State<CoachShell> {
 
   /// 셸 단일 상단바 — 세 탭 어디서나 같은 모양.
   /// 어느 탭인지는 하단 탭바가 알려주므로 제목은 체육관 신원 하나로 고정한다.
+  /// 셸 단일 상단바 — 세 탭 어디서나 같은 모양 (회원 셸과 같은 HkAppBar.identity).
+  /// 어느 탭인지는 하단 탭바가 알려주므로 제목은 체육관 신원 하나로 고정한다.
   PreferredSizeWidget _appBar(BuildContext context) {
     final auth = context.watch<BossAuthState>();
-    return AppBar(
-      backgroundColor: HyphenTokens.surface,
-      elevation: 0,
-      automaticallyImplyLeading: false,
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            auth.gymName ?? '체육관',
-            style: HyphenTokens.h3.copyWith(color: HyphenTokens.fg),
-          ),
-          Text(
-            // 운영자 호칭은 '코치' 하나 (3면 대전제 ①, 번역은 roleKoLabel SSOT).
-            roleKoLabel(role: auth.role ?? 'coach'),
-            style: HyphenTokens.micro.copyWith(color: HyphenTokens.primary),
-          ),
-        ],
-      ),
+    return HkAppBar.identity(
+      name: auth.gymName ?? '체육관',
+      // 운영자 호칭은 '코치' 하나 (3면 대전제 ①, 번역은 roleKoLabel SSOT).
+      role: roleKoLabel(role: auth.role ?? 'coach'),
       actions: [
         IconButton(
           icon: const Icon(Icons.logout, color: HyphenTokens.muted, size: 20),
@@ -112,10 +101,6 @@ class _CoachShellState extends State<CoachShell> {
         ),
         const SizedBox(width: 8),
       ],
-      bottom: PreferredSize(
-        preferredSize: const Size.fromHeight(1),
-        child: Container(height: 1, color: HyphenTokens.border),
-      ),
     );
   }
 

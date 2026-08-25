@@ -87,6 +87,11 @@
 | `HkLoadingScreen` | **전면 로딩 유일 규격** — BrandLogo + HkLoading + 선택 캡션 |
 | `HkSocialButton` | 소셜 로그인 버튼 유일 규격 — 높이 52 · r3 · 마크+라벨 중앙 |
 | `BrandLogo` | 브랜드 로고 정본 — **기본 폭 220 고정** (진입·로딩 화면 전부 동일) |
+| `HkAppBar` / `.identity` | **상단바 유일 규격** (v3.24) — push 화면은 제목(+actions), 셸은 체육관명+역할 두 줄. 화면에서 `AppBar(` 직접 금지 |
+| `HkDialog.confirm/info/custom` | **다이얼로그 유일 규격** (v3.24) — 모양은 dialogTheme(r4), 버튼은 HkButton. 위험 확정은 `danger: true` |
+| `HkSheet.show` | **바텀시트 유일 규격** (v3.24) — 모양은 bottomSheetTheme(상단 r5), 항상 스크롤 제어 |
+| `HkInlineError` | 폼 안 인라인 에러 박스 (로그인 실패 등). 전면 = HkErrorState, 스낵 = HkSnack.error |
+| 입력칸 | 모양은 `theme.dart inputDecorationTheme` 한 벌 (테두리·에러·안내 글꼴). 화면은 `InputDecoration(hintText:)` 만 — 화면별 `_deco()` 금지 (v3.24, `test/ssot_lint_test.dart`) |
 | `TierBadge` | 티어 표기 별도 정본 |
 
 ## 6. 진입·로딩 화면 양식 (v1.29 · v3.3 로고 위치 고정 · v3.19 로그인 흐름 로고 철수)

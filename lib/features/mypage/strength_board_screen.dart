@@ -38,7 +38,7 @@ class _StrengthBoardScreenState extends State<StrengthBoardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('최고 기록')),
+      appBar: const HkAppBar(title: '최고 기록'),
       body: SafeArea(
         child: FutureBuilder<List<StrengthBoardEntry>>(
           future: _future,

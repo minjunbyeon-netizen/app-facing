@@ -119,7 +119,8 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
               const SizedBox(height: HyphenTokens.sp1),
             ],
             const SizedBox(height: HyphenTokens.sp3),
-            ElevatedButton(
+            HkButton.primary(
+              '보내기',
               onPressed: () async {
                 final body = bodyCtrl.text.trim();
                 if (body.isEmpty) {
@@ -150,7 +151,6 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
                   HkSnack.error(ctx, '전송 실패. 다시 시도.');
                 }
               },
-              child: const Text('보내기'),
             ),
           ],
         ),
@@ -268,8 +268,8 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
         wod.beginnerVersion != null && wod.beginnerVersion!.isNotEmpty;
     final isOwner = context.watch<GymState>().isOwner;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(wodTypeLabel(wod.wodType)),
+      appBar: HkAppBar(
+        title: wodTypeLabel(wod.wodType),
         actions: [
           if (isOwner) const CoachBadgeAction(),
           IconButton(icon: const Icon(Icons.refresh), onPressed: _reload),
@@ -328,15 +328,8 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
             // 무의미하고, 세션 화면이 For Time 스톱워치로 돌아 시간 기록을
             // 저장해 버린다 — 진입 자체를 숨긴다 (기록은 완료 표시 시트가 정본).
             if (wod.wodType.toLowerCase() != 'strength') ...[
-              ElevatedButton.icon(
-                onPressed: _startSession,
-                icon: const Icon(Icons.play_arrow, size: 18),
-                label: const Text('타이머 시작'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: HyphenTokens.accent,
-                  foregroundColor: HyphenTokens.fg,
-                ),
-              ),
+              HkButton.primary('타이머 시작',
+                  icon: Icons.play_arrow, onPressed: _startSession),
               const SizedBox(height: HyphenTokens.sp3),
             ],
             // v1.16 Sprint 17: 멤버 건의 버튼.
@@ -344,11 +337,8 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
               final gs = ctx.watch<GymState>();
               if (gs.isOwner) return const SizedBox.shrink();
               // QA (2026-06-11): 물음표(help) 아이콘 → 전송 아이콘 (의미 일치).
-              return OutlinedButton.icon(
-                onPressed: _sendRequest,
-                icon: const Icon(Icons.send_outlined, size: 18),
-                label: const Text('코치에게 요청'),
-              );
+              return HkButton.secondary('코치에게 요청',
+                  icon: Icons.send_outlined, onPressed: _sendRequest);
             }),
             const SizedBox(height: HyphenTokens.sp5),
 

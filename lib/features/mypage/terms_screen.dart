@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme.dart';
+import '../../widgets/hkit.dart';
 
 class TermsScreen extends StatelessWidget {
   const TermsScreen({super.key});
@@ -11,7 +12,7 @@ class TermsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('이용약관')),
+      appBar: const HkAppBar(title: '이용약관'),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(HyphenTokens.sp4),

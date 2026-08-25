@@ -247,16 +247,15 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
               Row(
                 children: [
                   Expanded(
-                    child: OutlinedButton(
-                      onPressed: _saving
-                          ? null
-                          : () => Navigator.of(sheetCtx).pop(),
-                      child: const Text('취소'),
-                    ),
+                    child: HkButton.secondary('취소',
+                        onPressed: _saving
+                            ? null
+                            : () => Navigator.of(sheetCtx).pop()),
                   ),
                   const SizedBox(width: HyphenTokens.sp3),
                   Expanded(
-                    child: ElevatedButton(
+                    child: HkButton.primary(
+                      _saving ? '저장 중' : '저장',
                       onPressed: _saving
                           ? null
                           : () async {
@@ -268,20 +267,18 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
                               if (!sheetCtx.mounted) return;
                               if (ok) Navigator.of(sheetCtx).pop();
                             },
-                      child: Text(_saving ? 'Saving.' : 'Save'),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: HyphenTokens.sp2),
               Center(
-                child: TextButton(
-                  onPressed: () {
-                    HkSnack.show(context, '공유 카드 생성은 Phase 2에서 제공.',
-                        mood: MascotMood.neutral);
-                  },
-                  child: const Text('Share (Phase 2)'),
-                ),
+                child: HkButton.tertiary('공유 (준비 중)',
+                    neutral: true,
+                    onPressed: () {
+                      HkSnack.show(context, '공유 카드 생성은 Phase 2에서 제공.',
+                          mood: MascotMood.neutral);
+                    }),
               ),
             ],
           ),
@@ -481,9 +478,7 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
         }
       },
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(wodTypeLabel(widget.wod.wodType)),
-        ),
+        appBar: HkAppBar(title: wodTypeLabel(widget.wod.wodType)),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(HyphenTokens.sp4),
@@ -575,37 +570,22 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
               Row(
                 children: [
                   Expanded(
-                    child: OutlinedButton(
-                      onPressed: _reset,
-                      child: const Text('초기화'),
-                    ),
+                    child: HkButton.secondary('초기화', onPressed: _reset),
                   ),
                   const SizedBox(width: HyphenTokens.sp3),
                   Expanded(
                     flex: 2,
+                    // QA B-PF-5: _start/_resume 동일 함수였음. 단일 호출로 정리.
+                    // 라벨만 시작/재개로 분기.
                     child: _running
-                        ? ElevatedButton(
-                            onPressed: _pause,
-                            child: const Text('일시정지'),
-                          )
-                        : ElevatedButton(
-                            // QA B-PF-5: _start/_resume 동일 함수였음. 단일 호출로 정리.
-                            // 라벨만 시작/재개로 분기.
-                            onPressed: _start,
-                            child:
-                                Text(_elapsedSec == 0 ? 'Start' : 'Resume'),
-                          ),
+                        ? HkButton.primary('일시정지', onPressed: _pause)
+                        : HkButton.primary(_elapsedSec == 0 ? '시작' : '재개',
+                            onPressed: _start),
                   ),
                   const SizedBox(width: HyphenTokens.sp3),
                   Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: HyphenTokens.accent,
-                        foregroundColor: HyphenTokens.fg,
-                      ),
-                      onPressed: _elapsedSec == 0 ? null : _complete,
-                      child: const Text('완료'),
-                    ),
+                    child: HkButton.primary('완료',
+                        onPressed: _elapsedSec == 0 ? null : _complete),
                   ),
                 ],
               ),

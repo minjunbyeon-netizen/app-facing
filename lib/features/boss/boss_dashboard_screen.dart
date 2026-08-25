@@ -93,28 +93,12 @@ class _BossDashboardScreenState extends State<BossDashboardScreen> {
     );
   }
 
-  AppBar _buildAppBar(BuildContext context, BossAuthState auth) => AppBar(
-        backgroundColor: HyphenTokens.surface,
-        elevation: 0,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              auth.gymName ?? '체육관',
-              style: HyphenTokens.h3.copyWith(color: HyphenTokens.fg),
-            ),
-            Text(
-              // v3.3 (2026-08-21 사용자 지시): 생 role 값('OWNER') 노출 제거 —
-              // 운영자 호칭은 '코치' 하나 (3면 대전제 ①, 번역은 roleKoLabel SSOT).
-              roleKoLabel(role: auth.role ?? 'coach'),
-              style: HyphenTokens.micro.copyWith(color: HyphenTokens.primary),
-            ),
-          ],
-        ),
+  // 단독으로 띄울 때(골든)만 쓰는 상단바 — 셸 안에서는 셸 것을 쓴다.
+  PreferredSizeWidget _buildAppBar(BuildContext context, BossAuthState auth) =>
+      HkAppBar.identity(
+        name: auth.gymName ?? '체육관',
+        role: roleKoLabel(role: auth.role ?? 'coach'),
         actions: [
-          // v3.22 (2026-08-25 사용자 지시): '설정' 진입 삭제 — 알림·예약 한도는
-          // PC 에서 하고, 자동 가입 승인은 기능 자체를 없앴다 (항상 코치가 직접
-          // 승인). 폰 AppBar 에 남는 건 로그아웃 하나 (README §제거된 기능 대장 18).
           IconButton(
             icon: const Icon(Icons.logout, color: HyphenTokens.muted, size: 20),
             tooltip: '로그아웃',
@@ -122,10 +106,6 @@ class _BossDashboardScreenState extends State<BossDashboardScreen> {
           ),
           const SizedBox(width: 8),
         ],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Container(height: 1, color: HyphenTokens.border),
-        ),
       );
 }
 

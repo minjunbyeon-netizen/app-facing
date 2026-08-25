@@ -146,14 +146,8 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: HyphenTokens.bg,
-      appBar: AppBar(
-        backgroundColor: HyphenTokens.bg,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: HyphenTokens.fg),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-      ),
+      // 제목 없는 상단바 — 뒤로가기만. 제목 '로그인' 은 본문 h1 이 갖는다 (R1).
+      appBar: const HkAppBar(),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(
@@ -177,7 +171,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 TextFormField(
                   controller: _idCtrl,
                   style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
-                  decoration: _inputDeco('아이디'),
+                  decoration: const InputDecoration(hintText: '아이디'),
                   textInputAction: TextInputAction.next,
                   autocorrect: false,
                   enableSuggestions: false,
@@ -192,7 +186,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 TextFormField(
                   controller: _pwCtrl,
                   style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
-                  decoration: _inputDeco('비밀번호').copyWith(
+                  decoration: InputDecoration(hintText: '비밀번호', 
                     suffixIcon: IconButton(
                       icon: Icon(
                         _pwVisible ? Icons.visibility_off : Icons.visibility,
@@ -223,28 +217,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 if (_error != null) ...[
                   const SizedBox(height: HyphenTokens.sp3),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: HyphenTokens.sp3,
-                        vertical: HyphenTokens.sp2),
-                    decoration: BoxDecoration(
-                      color: HyphenTokens.danger.withValues(alpha: 0.12),
-                      border: Border.all(
-                          color: HyphenTokens.danger.withValues(alpha: 0.4)),
-                    ),
-                    child: Text(
-                      _error!,
-                      style: HyphenTokens.caption
-                          .copyWith(color: HyphenTokens.danger),
-                    ),
-                  ),
+                  HkInlineError(_error!),
                 ],
 
                 const SizedBox(height: HyphenTokens.sp6),
                 _busy
                     ? const HkLoading()
-                    : ElevatedButton(
-                        onPressed: _login, child: const Text('로그인')),
+                    : HkButton.primary('로그인', onPressed: _login),
               ],
             ),
           ),
@@ -252,30 +231,4 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-
-  InputDecoration _inputDeco(String hint) => InputDecoration(
-        hintText: hint,
-        hintStyle: HyphenTokens.body.copyWith(color: HyphenTokens.mutedStrong),
-        filled: true,
-        fillColor: HyphenTokens.surface,
-        contentPadding: const EdgeInsets.symmetric(
-            horizontal: HyphenTokens.sp3, vertical: HyphenTokens.sp3),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(HyphenTokens.r2),
-          borderSide: const BorderSide(color: HyphenTokens.border),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(HyphenTokens.r2),
-          borderSide: const BorderSide(color: HyphenTokens.primary, width: 1.5),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(HyphenTokens.r2),
-          borderSide: const BorderSide(color: HyphenTokens.danger),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(HyphenTokens.r2),
-          borderSide: const BorderSide(color: HyphenTokens.danger, width: 1.5),
-        ),
-        errorStyle: HyphenTokens.micro.copyWith(color: HyphenTokens.danger),
-      );
 }

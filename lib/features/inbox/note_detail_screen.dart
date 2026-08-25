@@ -208,7 +208,8 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                 ),
               ),
             const SizedBox(height: HyphenTokens.sp3),
-            ElevatedButton(
+            HkButton.primary(
+              '완료',
               onPressed: () {
                 final list = <ActualSet>[];
                 controllers.forEach((idx, c) {
@@ -226,13 +227,11 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                 });
                 Navigator.of(ctx).pop(list);
               },
-              child: const Text('완료'),
             ),
             const SizedBox(height: HyphenTokens.sp1),
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(<ActualSet>[]),
-              child: const Text('기록 생략'),
-            ),
+            HkButton.tertiary('기록 생략',
+                neutral: true,
+                onPressed: () => Navigator.of(ctx).pop(<ActualSet>[])),
           ],
         ),
       ),
@@ -306,7 +305,9 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                 maxLength: 300,
               ),
               const SizedBox(height: HyphenTokens.sp3),
-              ElevatedButton(
+              HkButton.primary(
+                '거절',
+                danger: true,
                 onPressed: () {
                   final parts = <String>[];
                   if (selectedReason != null) parts.add(selectedReason!);
@@ -314,12 +315,9 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                   if (free.isNotEmpty) parts.add(free);
                   Navigator.of(ctx).pop(parts.join(' · '));
                 },
-                child: const Text('거절'),
               ),
-              TextButton(
-                onPressed: () => Navigator.of(ctx).pop(null),
-                child: const Text('취소'),
-              ),
+              HkButton.tertiary('취소',
+                  neutral: true, onPressed: () => Navigator.of(ctx).pop(null)),
             ],
           ),
         );
@@ -379,14 +377,10 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
               maxLength: 500,
             ),
             const SizedBox(height: HyphenTokens.sp3),
-            ElevatedButton(
-              onPressed: () => Navigator.of(ctx).pop(ctrl.text),
-              child: const Text('보내기'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(null),
-              child: const Text('취소'),
-            ),
+            HkButton.primary('보내기',
+                onPressed: () => Navigator.of(ctx).pop(ctrl.text)),
+            HkButton.tertiary('취소',
+                neutral: true, onPressed: () => Navigator.of(ctx).pop(null)),
           ],
         ),
       ),
@@ -398,7 +392,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('노트')),
+      appBar: const HkAppBar(title: '노트'),
       body: SafeArea(
         child: _loading
             ? const Center(
@@ -413,16 +407,13 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                       children: [
                         Text(_error!, style: HyphenTokens.body),
                         const SizedBox(height: HyphenTokens.sp3),
-                        OutlinedButton(
-                          onPressed: () {
-                            setState(() {
-                              _loading = true;
-                              _error = null;
-                            });
-                            _load();
-                          },
-                          child: const Text('다시 시도'),
-                        ),
+                        HkButton.secondary('다시 시도', onPressed: () {
+                          setState(() {
+                            _loading = true;
+                            _error = null;
+                          });
+                          _load();
+                        }),
                       ],
                     ),
                   )
@@ -653,10 +644,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          OutlinedButton(
-            onPressed: _ask,
-            child: const Text('코치에게 질문'),
-          ),
+          HkButton.secondary('코치에게 질문', onPressed: _ask),
         ],
       );
     }
@@ -666,27 +654,15 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (isAccepted)
-          ElevatedButton(
-            onPressed: _complete,
-            child: const Text('완료'),
-          )
+          HkButton.primary('완료', onPressed: _complete)
         else
-          ElevatedButton(
-            onPressed: _accept,
-            child: const Text('수락'),
-          ),
+          HkButton.primary('수락', onPressed: _accept),
         const SizedBox(height: HyphenTokens.sp2),
         // v1.19 페르소나 P1-15: Accept/Decline 사이 Ask Coach.
-        OutlinedButton(
-          onPressed: _ask,
-          child: Text(isAsked ? 'Asked · Ask again' : 'Ask Coach'),
-        ),
+        HkButton.secondary(isAsked ? '질문함 · 다시 질문' : '코치에게 질문',
+            onPressed: _ask),
         const SizedBox(height: HyphenTokens.sp2),
-        TextButton(
-          style: TextButton.styleFrom(foregroundColor: HyphenTokens.fgSecondary),
-          onPressed: _decline,
-          child: const Text('거절'),
-        ),
+        HkButton.tertiary('거절', neutral: true, onPressed: _decline),
       ],
     );
   }

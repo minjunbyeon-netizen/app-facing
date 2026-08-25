@@ -450,29 +450,14 @@ class _ChatInputBar extends StatelessWidget {
         onSubmitted: (_) => onSend(),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: HyphenTokens.caption,
+          // v3.24: 테두리·채움·안내 글꼴은 테마 한 벌 — 채팅칸은 촘촘한 패딩만 고유.
           counterText: '',
           isDense: true,
-          filled: true,
-          fillColor: HyphenTokens.surface,
           contentPadding: const EdgeInsets.fromLTRB(
             HyphenTokens.sp3,
             HyphenTokens.sp2 + 2,
             HyphenTokens.sp1,
             HyphenTokens.sp2 + 2,
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(HyphenTokens.r3),
-            borderSide: const BorderSide(color: HyphenTokens.border),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(HyphenTokens.r3),
-            borderSide: const BorderSide(color: HyphenTokens.border),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(HyphenTokens.r3),
-            borderSide:
-                const BorderSide(color: HyphenTokens.accent, width: 1.5),
           ),
           suffixIcon: sending
               ? const Padding(
@@ -537,7 +522,7 @@ class MessagingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       // 쪽지·숙제·공지가 함께 쌓이는 화면이라 '공지' 는 내용과 불일치 (2026-08-06).
-      appBar: embedded ? null : AppBar(title: Text(title)),
+      appBar: embedded ? null : HkAppBar(title: title),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.symmetric(vertical: HyphenTokens.sp4),
@@ -962,7 +947,7 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
   Widget build(BuildContext context) {
     final isOwner = context.watch<GymState>().isOwner;
     return Scaffold(
-      appBar: AppBar(title: Text(widget.peerName)),
+      appBar: HkAppBar(title: widget.peerName),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

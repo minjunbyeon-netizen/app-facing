@@ -28,7 +28,10 @@ import '../../core/app_clock.dart';
 /// Home = LEVEL(캐릭터 진화) + ACHIEVEMENTS(업적 그리드) + MILESTONES(3종 진행바).
 /// 출석 캘린더는 Attend 가 전담. (Phase 4 예정: 공지/쪽지 아코디언이 최상단 추가)
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  /// 회원 셸에 얹힐 때는 자기 AppBar 를 그리지 않는다 — 상단바는 셸 하나 (v3.24, D47).
+  final bool embedded;
+
+  const HomeScreen({super.key, this.embedded = false});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -104,21 +107,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('홈'),
-        automaticallyImplyLeading: false,
-        // v1.25: 종(쪽지·공지) = 모든 화면 공통 메시징 진입. Home 도 예외 아님.
-        //   (D7 에서 잠깐 뺐다가, 종이 핵심 메시징 버튼이라 전 화면 유지로 복원)
-        actions: [
-          const InboxBellAction(),
-          IconButton(
-            tooltip: 'Refresh',
-            icon: const Icon(Icons.refresh),
-            // 수동 새로고침 — 코치 승인 등 서버 해금을 바로 축하하도록 스로틀 우회.
-            onPressed: () => _reload(checkThrottle: false),
-          ),
-        ],
-      ),
+      // v3.24 (2026-08-25 사용자 지시 "상단화면 통일"): 셸에 얹히면 상단바 없음.
+      // 종은 셸 상단바로, 새로고침은 아래 당겨서 새로고침으로 옮겼다.
+      appBar: widget.embedded
+          ? null
+          : const HkAppBar(
+              title: '홈', implyLeading: false, actions: [InboxBellAction()]),
       body: Column(
         children: [
           const OfflineBanner(),
@@ -137,10 +131,18 @@ class _HomeScreenState extends State<HomeScreen> {
                     return HkErrorState(message: msg, onRetry: _reload);
                   }
                   final records = snap.data ?? const [];
-                  return _GamificationBody(
-                    records: records,
-                    freezeUse: _freezeUse,
-                    attendDays: _attendDays,
+                  // 수동 새로고침 — 코치 승인 등 서버 해금을 바로 축하하도록 스로틀 우회.
+                  return RefreshIndicator(
+                    color: HyphenTokens.primary,
+                    onRefresh: () async {
+                      _reload(checkThrottle: false);
+                      await _future;
+                    },
+                    child: _GamificationBody(
+                      records: records,
+                      freezeUse: _freezeUse,
+                      attendDays: _attendDays,
+                    ),
                   );
                 },
               ),

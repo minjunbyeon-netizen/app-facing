@@ -157,10 +157,8 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
                   maxLength: 500,
                 ),
                 const SizedBox(height: HyphenTokens.sp3),
-                ElevatedButton(
-                  onPressed: () => Navigator.of(ctx).pop(true),
-                  child: const Text('만들기'),
-                ),
+                HkButton.primary('만들기',
+                    onPressed: () => Navigator.of(ctx).pop(true)),
               ],
             ),
           ),
@@ -262,10 +260,8 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
               style: HyphenTokens.micro,
             ),
             const SizedBox(height: HyphenTokens.sp3),
-            ElevatedButton(
-              onPressed: () => Navigator.of(ctx).pop(true),
-              child: const Text('추가'),
-            ),
+            HkButton.primary('추가',
+                onPressed: () => Navigator.of(ctx).pop(true)),
           ],
         ),
       ),
@@ -297,14 +293,11 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('그룹'),
+      appBar: HkAppBar(
+        title: '그룹',
         actions: [
           const CoachBadgeAction(),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _reload,
-          ),
+          IconButton(icon: const Icon(Icons.refresh), onPressed: _reload),
         ],
       ),
       body: SafeArea(
@@ -422,10 +415,8 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
                             style: HyphenTokens.caption),
                       ],
                       const SizedBox(height: HyphenTokens.sp2),
-                      OutlinedButton(
-                        onPressed: () => _openAddMember(g),
-                        child: const Text('회원 추가'),
-                      ),
+                      HkButton.secondary('회원 추가',
+                          onPressed: () => _openAddMember(g)),
                     ],
                   );
   }

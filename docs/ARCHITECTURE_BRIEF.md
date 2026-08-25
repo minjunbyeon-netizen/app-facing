@@ -451,6 +451,33 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 >   false 라 회원 쪽 렌더는 1픽셀도 안 바뀐다 (골든으로 확인).
 > - 회귀 게이트: 골든 `coach_01`·`coach_02`·`coach_03` 재생성 (세 장 상단바 동일).
 
+> **D47 (2026-08-25 사용자 지시) — 앱 UI 골격 SSOT: 인라인·이원화 전부 HKit/테마 한 곳으로.**
+>
+> "PC 에서 SSOT 로 하나로 묶어서 하듯이 앱에서도 인라인으로 되어 있거나 이원화되어
+> 있거나 찾아서 전부 통일." 전수 조사 결과 5종이 흩어져 있었다 — 상단바 31곳 ·
+> 다이얼로그 11곳 · 바텀시트 13곳 · 원시 버튼 71곳(22파일) · 입력칸 스타일 4벌.
+> - **정본 신설 (`lib/widgets/hkit.dart`)**: `HkAppBar`(push 화면) / `HkAppBar.identity`
+>   (셸: 체육관명 + 역할) · `HkDialog.confirm/info/custom` · `HkSheet.show` ·
+>   `HkInlineError`. 모양은 `theme.dart` 가 갖는다 — `dialogTheme`·`bottomSheetTheme`
+>   신설, `inputDecorationTheme` 에 에러 테두리·errorStyle 보강 (이게 없어서 로그인·
+>   가입 화면이 각자 `_inputDeco` 를 들고 있었다).
+> - **회원 셸도 상단바 하나** (D46 코치 셸에 이어): 체육관명 + '회원' + 종.
+>   홈·수업·내 정보 세 탭이 `embedded: true` 로 들어와 자기 AppBar 를 안 그린다.
+>   홈의 새로고침 아이콘은 당겨서 새로고침(RefreshIndicator)으로 이관.
+> - **원시 버튼 0건**: ElevatedButton/OutlinedButton/TextButton 직접 사용 71곳 전부
+>   `HkButton.primary/secondary/tertiary` 로. `button_lint_test.dart` baseline 이
+>   22파일 → **빈 집합** (래칫 종료). 영문 라벨 잔재(Start/Resume/Save/Send/Ask
+>   Coach/Share)는 이 김에 한글로.
+> - **바텀시트 모서리 r5 로 통일** (DESIGN-SSOT §모서리 — 종전엔 r3/r4 혼재) ·
+>   다이얼로그 r4 · 위험 동작(탈퇴·초기화·계정 삭제·세션 종료) 확정 버튼은
+>   `danger: true` 채움으로 통일.
+> - **새 게이트 `test/ssot_lint_test.dart`**: lib/features/** 에서 `AppBar(`·
+>   `AlertDialog(`·`showModalBottomSheet`·`InputDecoration _x(`·`OutlineInputBorder(`·
+>   인라인 에러 박스 6패턴 0건 강제 — 다시 인라인이 생기면 CI 에서 죽는다.
+> - 남겨 둔 것 (보고): `hyphen_pictogram.dart` 의 hex 32개는 업적 픽토그램 6색 팔레트
+>   ×N — 토큰으로 올리면 테마가 부풀어 art asset 으로 취급. `avatar.dart` hex 6개
+>   (이니셜 배경 해시 팔레트)·`grain_overlay.dart` 1개 동일.
+
 > **D31 (2026-08-12) — 명단에서 출석 체크 + 대기 순번 정정.**
 >
 > - **대기 순번**: `class_waitlist_promotions.promoted_position` 은 "줄 설 때" 번호라

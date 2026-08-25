@@ -53,9 +53,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('히스토리'),
-      ),
+      appBar: const HkAppBar(title: '히스토리'),
       body: _WodTab(future: _wodFuture, onRetry: _reload),
     );
   }

@@ -454,47 +454,16 @@ class _MsgCoachSheetState extends State<_MsgCoachSheet> {
             maxLines: 4,
             maxLength: 500,
             style: HyphenTokens.body,
-            decoration: InputDecoration(
+            // v3.24: 테두리·채움은 테마 한 벌 (inputDecorationTheme) — 여기선 문구만.
+            decoration: const InputDecoration(
               hintText: '오늘 무릎 통증 있어서 스케일드로 할게요.',
-              hintStyle: HyphenTokens.caption,
-              filled: true,
-              fillColor: HyphenTokens.bg,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(HyphenTokens.r2),
-                borderSide: const BorderSide(color: HyphenTokens.border),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(HyphenTokens.r2),
-                borderSide: const BorderSide(color: HyphenTokens.border),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(HyphenTokens.r2),
-                borderSide:
-                    const BorderSide(color: HyphenTokens.accent, width: 1.5),
-              ),
               counterStyle: HyphenTokens.micro,
             ),
           ),
           const SizedBox(height: HyphenTokens.sp3),
-          ElevatedButton(
-            onPressed: _sending ? null : _send,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: HyphenTokens.accent,
-              foregroundColor: HyphenTokens.fg,
-              minimumSize: const Size.fromHeight(48),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(HyphenTokens.r2),
-              ),
-            ),
-            child: _sending
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                        color: HyphenTokens.fg, strokeWidth: 2),
-                  )
-                : const Text('보내기'),
-          ),
+          _sending
+              ? const HkLoading()
+              : HkButton.primary('보내기', onPressed: _send),
         ],
       ),
     );

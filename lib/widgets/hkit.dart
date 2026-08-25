@@ -860,11 +860,7 @@ class HkAppBar extends StatelessWidget implements PreferredSizeWidget {
   final List<Widget>? actions;
   final bool implyLeading;
 
-  const HkAppBar(
-      {super.key,
-      required String this.title,
-      this.actions,
-      this.implyLeading = true})
+  const HkAppBar({super.key, this.title, this.actions, this.implyLeading = true})
       : identityName = null,
         identityRole = null;
 
@@ -899,7 +895,7 @@ class HkAppBar extends StatelessWidget implements PreferredSizeWidget {
     }
     return AppBar(
       automaticallyImplyLeading: implyLeading,
-      title: Text(title!),
+      title: title == null ? null : Text(title!),
       actions: actions,
     );
   }

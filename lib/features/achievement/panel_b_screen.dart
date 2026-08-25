@@ -32,6 +32,7 @@ import '../inbox/inbox_state.dart';
 import '../profile/profile_state.dart';
 import '../../core/app_clock.dart';
 import 'hyphen_pictogram.dart';
+import '../../widgets/hkit.dart';
 
 class PanelBScreen extends StatefulWidget {
   const PanelBScreen({super.key});
@@ -212,9 +213,7 @@ class _PanelBScreenState extends State<PanelBScreen> {
     final gym = context.watch<GymState>();
     final inbox = context.watch<InboxState>();
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('칭호'),
-      ),
+      appBar: const HkAppBar(title: '칭호'),
       body: SafeArea(
         child: FutureBuilder<List<WodHistoryItem>>(
           future: _historyFuture,
@@ -245,16 +244,13 @@ class _PanelBScreenState extends State<PanelBScreen> {
                       const Text('네트워크 확인 후 다시 시도.',
                           style: HyphenTokens.caption),
                       const SizedBox(height: HyphenTokens.sp3),
-                      OutlinedButton(
-                        onPressed: () {
-                          setState(() {
-                            final api = context.read<ApiClient>();
-                            _historyFuture = retainError(HistoryRepository(api)
-                                .listWodHistory(limit: 500));
-                          });
-                        },
-                        child: const Text('다시 시도'),
-                      ),
+                      HkButton.secondary('다시 시도', onPressed: () {
+                        setState(() {
+                          final api = context.read<ApiClient>();
+                          _historyFuture = retainError(HistoryRepository(api)
+                              .listWodHistory(limit: 500));
+                        });
+                      }),
                     ],
                   ),
                 ),

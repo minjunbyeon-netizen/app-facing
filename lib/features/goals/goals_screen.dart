@@ -78,7 +78,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
   Widget build(BuildContext context) {
     final goals = context.watch<GoalsState>();
     return Scaffold(
-      appBar: AppBar(title: const Text('목표')),
+      appBar: const HkAppBar(title: '목표'),
       body: SafeArea(
         child: FutureBuilder<List<WodHistoryItem>>(
           future: _history,

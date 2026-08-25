@@ -17,11 +17,7 @@ class CoachDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: HyphenTokens.bg,
-      appBar: AppBar(
-        backgroundColor: HyphenTokens.bg,
-        title: const Text('코치'),
-        centerTitle: false,
-      ),
+      appBar: const HkAppBar(title: '코치'),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         children: [
@@ -176,24 +172,10 @@ class _PtBookCard extends StatelessWidget {
         children: [
           Text('PT (1:1)', style: HyphenTokens.sectionLabel),
           const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: HyphenTokens.primary,
-                foregroundColor: HyphenTokens.fg,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-              ),
-              onPressed: () {
-                // TODO(v1.16.2): PT 예약 흐름 연결 (별도 작업)
-                HkSnack.show(context, 'PT 예약 — 준비 중.', mood: MascotMood.neutral);
-              },
-              child: const Text('PT 예약'),
-            ),
-          ),
+          HkButton.primary('PT 예약', onPressed: () {
+            // TODO(v1.16.2): PT 예약 흐름 연결 (별도 작업)
+            HkSnack.show(context, 'PT 예약 — 준비 중.', mood: MascotMood.neutral);
+          }),
         ],
       ),
     );

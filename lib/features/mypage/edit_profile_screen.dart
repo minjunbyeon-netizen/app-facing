@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
+import '../../widgets/hkit.dart';
 
 /// v1.22: Edit Profile 영역 chooser.
 /// 사용자 요구: 측정값 편집 진입 — Basic / Benchmarks 두 영역.
@@ -11,7 +12,7 @@ class EditProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('프로필 수정')),
+      appBar: const HkAppBar(title: '프로필 수정'),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(HyphenTokens.sp4),

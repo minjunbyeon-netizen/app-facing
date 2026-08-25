@@ -17,6 +17,8 @@ import '../announcements/announcements_state.dart';
 import '../inbox/inbox_state.dart';
 import '../mypage/mypage_screen.dart';
 import '../../core/app_clock.dart';
+import '../../core/role_labels.dart';
+import '../../widgets/inbox_bell.dart';
 
 /// v1.27 (2026-07-28 사용자 지시): 3기둥 집중 — Home(게이미피케이션) · WOD(보드) ·
 /// Profile 만 노출. 구 Attend·Rehab 탭·페이싱 계산 진입점은 숨김을 거쳐
@@ -90,9 +92,9 @@ class _MainShellState extends State<MainShell> {
   ];
 
   late final List<Widget> _pages = [
-    const HomeScreen(),
-    const BoxWodScreen(),
-    const MyPageScreen(),
+    const HomeScreen(embedded: true),
+    const BoxWodScreen(embedded: true),
+    const MyPageScreen(embedded: true),
   ];
 
   void _onTap(int i) {
@@ -148,6 +150,15 @@ class _MainShellState extends State<MainShell> {
         // 인셋을 먹지 않는다. 그래야 키보드가 하단 탭바를 덮고, 채팅 입력칸만
         // 키보드 위로 올라온다 (탭바가 키보드와 입력칸 사이에 끼는 현상 방지).
         resizeToAvoidBottomInset: false,
+        // v3.24 (2026-08-25 사용자 지시 "상단화면 통일하라고 1개로" — 코치 셸에
+        // 이어 회원 셸도): 탭마다 다르던 상단바(홈=종+새로고침 / 수업=배지+종+
+        // 새로고침+회원 / 내 정보=종)를 셸이 갖는 하나로. 체육관명 + '회원' + 종.
+        // 어느 탭인지는 하단 탭바가 알려준다 (브리프 D47).
+        appBar: HkAppBar.identity(
+          name: gs.membership.gym?.name ?? 'HYPHEN',
+          role: roleKoLabel(role: 'member', status: 'approved'),
+          actions: const [InboxBellAction()],
+        ),
         body: IndexedStack(index: _index, children: _pages),
         bottomNavigationBar: NavigationBarTheme(
           data: NavigationBarThemeData(
@@ -275,10 +286,7 @@ class _PendingGateState extends State<_PendingGate> {
                     ? const HkLoading()
                     : HkButton.primary('승인됐는지 확인', onPressed: _recheck),
                 const SizedBox(height: HyphenTokens.sp3),
-                TextButton(
-                  onPressed: _signOut,
-                  child: const Text('로그아웃'),
-                ),
+                HkButton.tertiary('로그아웃', neutral: true, onPressed: _signOut),
               ],
             ),
           ),

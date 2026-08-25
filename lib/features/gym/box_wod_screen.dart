@@ -60,8 +60,8 @@ class _BoxWodScreenState extends State<BoxWodScreen> {
       // 종전 그대로 (제목 '수업' + 종 + 새로고침).
       appBar: widget.embedded
           ? null
-          : AppBar(
-              title: const Text('수업'),
+          : HkAppBar(
+              title: '수업',
               actions: [
                 if (canViewDashboard) const CoachBadgeAction(),
                 const InboxBellAction(),
@@ -170,13 +170,10 @@ class _PendingState extends StatelessWidget {
             style: HyphenTokens.caption,
           ),
           const SizedBox(height: HyphenTokens.sp5),
-          OutlinedButton(
-            onPressed: () {
-              Haptic.light();
-              context.read<GymState>().loadMine();
-            },
-            child: const Text('새로고침'),
-          ),
+          HkButton.secondary('새로고침', onPressed: () {
+            Haptic.light();
+            context.read<GymState>().loadMine();
+          }),
         ],
       ),
     );

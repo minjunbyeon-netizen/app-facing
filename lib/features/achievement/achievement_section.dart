@@ -77,14 +77,7 @@ class AchievementSection extends StatelessWidget {
             const Expanded(child: HkSectionLabel('업적')),
             Text('$unlockedCount / $totalVisible', style: HyphenTokens.caption),
             const SizedBox(width: HyphenTokens.sp2),
-            TextButton(
-              style: TextButton.styleFrom(
-                foregroundColor: HyphenTokens.accent,
-                padding: const EdgeInsets.symmetric(horizontal: HyphenTokens.sp2),
-              ),
-              onPressed: () => _goAll(context),
-              child: const Text('전체 보기'),
-            ),
+            HkButton.tertiary('전체 보기', onPressed: () => _goAll(context)),
           ],
         ),
         const SizedBox(height: HyphenTokens.sp2),

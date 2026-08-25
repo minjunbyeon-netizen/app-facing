@@ -184,10 +184,7 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: HyphenTokens.bg,
-      appBar: AppBar(
-        title: const Text('가입 신청'),
-        backgroundColor: HyphenTokens.bg,
-      ),
+      appBar: const HkAppBar(title: '가입 신청'),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(HyphenTokens.sp5,
@@ -208,7 +205,7 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                 TextFormField(
                   controller: _nameCtrl,
                   style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
-                  decoration: _deco('코치에게 보일 이름'),
+                  decoration: const InputDecoration(hintText: '코치에게 보일 이름'),
                   textInputAction: TextInputAction.next,
                   validator: (v) =>
                       (v ?? '').trim().isEmpty ? '이름을 입력해 주세요.' : null,
@@ -220,7 +217,7 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                 TextFormField(
                   controller: _birthCtrl,
                   style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
-                  decoration: _deco('1995-01-01'),
+                  decoration: const InputDecoration(hintText: '1995-01-01'),
                   keyboardType: TextInputType.number,
                   textInputAction: TextInputAction.next,
                   // 숫자만 치면 하이픈이 알아서 들어간다 (input_formatters SSOT).
@@ -261,7 +258,7 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                 TextFormField(
                   controller: _phoneCtrl,
                   style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
-                  decoration: _deco('010-1234-5678'),
+                  decoration: const InputDecoration(hintText: '010-1234-5678'),
                   keyboardType: TextInputType.phone,
                   textInputAction: TextInputAction.next,
                   inputFormatters: [PhoneInputFormatter()],
@@ -321,7 +318,7 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                 TextFormField(
                   controller: _sportsCtrl,
                   style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
-                  decoration: _deco('예: 축구 5년, 웨이트 2년 · 없으면 비워 두세요'),
+                  decoration: const InputDecoration(hintText: '예: 축구 5년, 웨이트 2년 · 없으면 비워 두세요'),
                   textInputAction: TextInputAction.next,
                   maxLength: 200,
                 ),
@@ -333,7 +330,7 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                   controller: _injuryCtrl,
                   style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
                   // 코치가 수업 전에 보는 값이라 무엇을 적어야 하는지 예를 준다.
-                  decoration: _deco('예: 오른쪽 어깨 부상 · 오버헤드 동작 주의\n'
+                  decoration: const InputDecoration(hintText: '예: 오른쪽 어깨 부상 · 오버헤드 동작 주의\n'
                       '없으면 비워 두세요'),
                   textInputAction: TextInputAction.next,
                   maxLines: 3,
@@ -346,7 +343,7 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                 TextFormField(
                   controller: _idCtrl,
                   style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
-                  decoration: _deco('로그인에 쓸 아이디'),
+                  decoration: const InputDecoration(hintText: '로그인에 쓸 아이디'),
                   autocorrect: false,
                   enableSuggestions: false,
                   textInputAction: TextInputAction.next,
@@ -367,7 +364,7 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                 TextFormField(
                   controller: _pwCtrl,
                   style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
-                  decoration: _deco('비밀번호').copyWith(
+                  decoration: InputDecoration(hintText: '비밀번호', 
                     suffixIcon: IconButton(
                       icon: Icon(
                         _pwVisible ? Icons.visibility_off : Icons.visibility,
@@ -387,7 +384,7 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                 TextFormField(
                   controller: _pw2Ctrl,
                   style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
-                  decoration: _deco('비밀번호 확인'),
+                  decoration: const InputDecoration(hintText: '비밀번호 확인'),
                   obscureText: !_pwVisible,
                   textInputAction: TextInputAction.done,
                   onFieldSubmitted: (_) => _submit(),
@@ -412,30 +409,4 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
       ),
     );
   }
-
-  InputDecoration _deco(String hint) => InputDecoration(
-        hintText: hint,
-        hintStyle: HyphenTokens.body.copyWith(color: HyphenTokens.placeholder),
-        filled: true,
-        fillColor: HyphenTokens.surface,
-        contentPadding: const EdgeInsets.symmetric(
-            horizontal: HyphenTokens.sp3, vertical: HyphenTokens.sp3),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(HyphenTokens.r2),
-          borderSide: const BorderSide(color: HyphenTokens.border),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(HyphenTokens.r2),
-          borderSide: const BorderSide(color: HyphenTokens.primary, width: 1.5),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(HyphenTokens.r2),
-          borderSide: const BorderSide(color: HyphenTokens.danger),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(HyphenTokens.r2),
-          borderSide: const BorderSide(color: HyphenTokens.danger, width: 1.5),
-        ),
-        errorStyle: HyphenTokens.micro.copyWith(color: HyphenTokens.danger),
-      );
 }

@@ -124,8 +124,8 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     final hasError = state.error != null && all.isEmpty;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('업적'),
+      appBar: HkAppBar(
+        title: '업적',
         actions: [
           // v1.20 Phase 2.5: Panel B 20-title 진입.
           IconButton(
@@ -157,10 +157,8 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                           const SizedBox(height: HyphenTokens.sp2),
                           Text(state.error!, style: HyphenTokens.caption),
                           const SizedBox(height: HyphenTokens.sp3),
-                          OutlinedButton(
-                            onPressed: () => state.load(),
-                            child: const Text('다시 시도'),
-                          ),
+                          HkButton.secondary('다시 시도',
+                              onPressed: () => state.load()),
                         ],
                       ),
                     ),
