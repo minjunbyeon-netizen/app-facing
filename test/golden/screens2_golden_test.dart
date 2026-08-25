@@ -420,6 +420,7 @@ void main() {
     final api = FakeApi({
       ...memberWorld(),
       '/api/v1/gyms/mine': {...gymsMine, 'role': 'owner'},
+      '/api/v1/gyms/1/members': gymMembersList(),
     });
     final bossApi = FakeBossApi({
       '/api/v1/admin/gyms/1/dashboard': bossDashboard(),

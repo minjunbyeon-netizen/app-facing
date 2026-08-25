@@ -196,6 +196,27 @@ class FakeBossApi implements BossApiClient {
 // ── 샘플 데이터 ─────────────────────────────────────────────
 
 /// /api/v1/gyms/mine — 승인된 일반 회원 (박스: HYPHEN CrossFit 서면).
+/// /api/v1/gyms/1/members — 코치 시점 회원 목록 (새 쪽지 받는 사람 고르기, v3.28).
+List<Map<String, dynamic>> gymMembersList() => [
+      {
+        'id': 41, 'device_hash_prefix': 'a1b2c3d4', 'device_hash': 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2',
+        'status': 'approved', 'requested_at': '2026-07-01T10:00:00',
+        'decided_at': '2026-07-01T11:00:00', 'name': '김민준', 'phone': '010-1234-5678',
+        'level': 'rxd', 'total_sessions': 42, 'streak_days': 5,
+      },
+      {
+        'id': 42, 'device_hash_prefix': 'b2c3d4e5', 'device_hash': 'b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3',
+        'status': 'approved', 'requested_at': '2026-07-10T10:00:00',
+        'decided_at': '2026-07-10T11:00:00', 'name': '박서연', 'phone': '010-2345-6789',
+        'level': 'scaled', 'total_sessions': 12, 'streak_days': 2,
+      },
+      {
+        'id': 43, 'device_hash_prefix': 'c3d4e5f6', 'device_hash': 'c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4',
+        'status': 'pending', 'requested_at': '2026-08-20T10:00:00', 'name': '이도윤',
+        'total_sessions': 0, 'streak_days': 0,
+      },
+    ];
+
 const gymsMine = {
   'gym': {
     'id': 1,
