@@ -358,12 +358,19 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 >   (구 admin/login 수준 유지 — 창구가 넓어진 만큼 계정 축을 새로 조인다).
 >   Flask-Limiter 기본 429 는 HTML 이라 앱이 파싱하다 죽어 `app.py` 에
 >   JSON 429 핸들러(`RATE_LIMITED`)를 붙였다.
+> - **아이디에 대소문자 규칙은 없다** (같은 날 사용자 추가 지시). 스태프는 원래
+>   대소문자를 무시했는데 회원만 구분해서, 창구가 합쳐진 뒤 같은 화면인데 규칙이
+>   둘로 보였다. 회원 조회 정본 = `models/member_credential.find_credential()`
+>   한 곳 (자가가입 중복 검사도 같은 함수 — 'Member' 와 'member' 가 둘 다
+>   만들어지지 않게). 세션·응답에는 사용자가 친 문자열이 아니라 **저장된 정본
+>   아이디**를 담는다. 비밀번호는 그대로 대소문자를 구분한다.
 > - **앱**: `login_screen.dart`(구 `member_login_screen.dart`) 한 화면 —
->   **브랜드 로고 없음**(사용자 지시) · 역할 선택 UI 없음 · `kind` 로
+>   **브랜드 로고 없음**(사용자 지시 — 진입 화면 `signup_screen.dart` 도 같이
+>   철수. 로고가 남는 자리는 스플래시·전면 로딩 둘뿐) · 역할 선택 UI 없음 · `kind` 로
 >   `/boss/dashboard` ↔ `/shell` 분기. `BossLoginScreen`·`/boss/login` 삭제
 >   (README §제거된 기능 대장 15). '아이디 기억하기' 저장 칸도 회원/코치 2칸 →
 >   1칸 (구 값은 첫 로드 때 흡수).
-> - 회귀 게이트: 서버 `tests/test_unified_login.py`(8) · 앱
+> - 회귀 게이트: 서버 `tests/test_unified_login.py`(11) · 앱
 >   `test/remembered_login_test.dart`(8) · 골든 `common_08_login`(로고 없는 통합
 >   로그인)·`common_05_signup`(코치 줄 사라진 진입)·`state_09_login_remembered`.
 

@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../../core/api_client.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
-import '../../widgets/brand_logo.dart';
 import '../../widgets/hkit.dart';
 import '../mypage/privacy_screen.dart';
 import '../mypage/terms_screen.dart';
@@ -123,19 +122,12 @@ class _SignupScreenState extends State<SignupScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // v3.3 (2026-08-21 사용자 지시 "로고 위치 고정"): 블록째
-                // 세로 중앙(콘텐츠 높이 따라 로고가 움직임) → 스플래시와 같은
-                // 고정 오프셋 (HkEntryLogoGap, DESIGN-SSOT §6).
-                // v1.29: 로고 폭 = BrandLogo 기본 220 (진입 화면 통일).
+                // v3.19 (2026-08-25 사용자 지시): 진입 화면에서도 BrandLogo 제거.
+                // 로고는 스플래시·전면 로딩에만 남는다 — 로그인 흐름의 화면은
+                // 전부 로고 없이 간다 (DESIGN-SSOT §6).
+                // 자리는 그대로 — HkEntryLogoGap 이 버튼 스택을 스플래시 로고와
+                // 같은 높이에 고정한다 (v3.3 "로고 위치 고정" 의도 유지).
                 const HkEntryLogoGap(),
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    BrandLogo(),
-                    SizedBox(height: HyphenTokens.sp2),
-                  ],
-                ),
-                const SizedBox(height: HyphenTokens.sp5),
 
                 // v1.33: 소셜 로그인 블록 — 실 OAuth 키 확보 전까지 숨김.
                 if (_kShowSocialLogin) ...[

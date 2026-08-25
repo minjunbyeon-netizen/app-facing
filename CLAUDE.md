@@ -317,7 +317,8 @@ R5. **하드코드 fontSize 금지.** 모든 텍스트 크기는 `HyphenTokens` 
 
 | 위치 | 카피 |
 |---|---|
-| Splash / 진입 / 전면 로딩 | **HYPHEN 로고** (BrandLogo 기본 폭 220) — 전면 로딩은 FkLoadingScreen |
+| Splash / 전면 로딩 | **HYPHEN 로고** (BrandLogo 기본 폭 220) — 전면 로딩은 FkLoadingScreen. 로고가 남는 자리는 이 둘뿐 |
+| 진입 화면 | **로고 없음** (v3.19 사용자 지시) — 로그인 · 회원 가입 신청 버튼 + 약관 |
 | 로그인 화면 | **로고 없음** (v3.19 사용자 지시) — 제목 '로그인' + 아이디/비밀번호. 역할 선택 없음 (코치·회원 판정은 서버) |
 | 로그인 버튼 | "네이버 아이디로 로그인" (1순위) · "구글로 시작" — FkSocialButton |
 | 로그인 진행 | FkLoadingScreen(caption: '로그인 중') |
