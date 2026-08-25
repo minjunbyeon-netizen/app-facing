@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../widgets/mascot.dart';
 
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/role_labels.dart';
 import '../../core/theme.dart';
 import '../../widgets/hkit.dart';
-import '../gym/coach_dashboard_screen.dart';
+import '../gym/member_approvals_screen.dart';
 import 'boss_api_client.dart';
 import 'boss_auth_state.dart';
 import 'boss_dashboard_model.dart';
-import 'class_compose_sheet.dart';
 import 'class_roster_sheet.dart';
 
 // PHASE5 §1.2 — 사장 폰 Dashboard.
@@ -53,17 +51,8 @@ class _BossDashboardScreenState extends State<BossDashboardScreen> {
     }
   }
 
-  /// G24 — 폰 수업 등록 (보조 동선, 주 동선은 PC classes.html).
-  /// 등록되면 오늘 수업 목록·예약 카운터가 달라지므로 대시보드 재조회.
-  Future<void> _openCompose() async {
-    Haptic.light();
-    final gymId = context.read<BossAuthState>().gymId;
-    if (gymId == null) return;
-    final created = await showClassComposeSheet(context, gymId);
-    if (!created || !mounted) return;
-    HkSnack.show(context, '수업 등록됨.', mood: MascotMood.happy);
-    await _load();
-  }
+  // v3.21 (2026-08-25 사용자 지시): 폰 수업 등록(_openCompose) 삭제 —
+  // 수업을 만들고 고치는 건 PC 몫이다 (README §제거된 기능 대장 17).
 
   Future<void> _logout() async {
     Haptic.medium();
@@ -92,10 +81,7 @@ class _BossDashboardScreenState extends State<BossDashboardScreen> {
               : RefreshIndicator(
                   onRefresh: _load,
                   color: HyphenTokens.primary,
-                  child: _Body(
-                      data: _data!,
-                      onRefresh: _load,
-                      onCompose: _openCompose),
+                  child: _Body(data: _data!, onRefresh: _load),
                 ),
       // v3.1 (2026-08-14 사용자 설계): 가짜 하단탭(_BottomNav — onTap 전부 빈
       // 함수) 삭제. 실제 탭은 CoachShell(v3.3 — 예약 현황·수업 2탭)이
@@ -152,8 +138,7 @@ class _Body extends StatelessWidget {
   final Future<void> Function()? onRefresh;
 
   /// G24 — '오늘 수업' 헤더의 수업 등록 진입.
-  final VoidCallback? onCompose;
-  const _Body({required this.data, this.onRefresh, this.onCompose});
+  const _Body({required this.data, this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
@@ -185,18 +170,17 @@ class _Body extends StatelessWidget {
         ),
         const SizedBox(height: HyphenTokens.sp5),
 
-        // ─── 회원 운영 관리 CTA ───────────────────────────────────────
-        // v3.3 (2026-08-18): 회원 현황 탭 제거로 이 버튼이 가입 승인의 유일한
-        // 폰 동선이 됐다 — CoachDashboardScreen(승인 대기·로스터·활동 통계)
-        // push. GymState 는 CoachShell 진입 시 loadMine() 으로 채워져 있고,
+        // ─── 가입 신청 CTA ───────────────────────────────────────────
+        // v3.21: 폰 코치가 하는 회원 관리는 '가입 신청 승인/거절' 하나다
+        // (명단·통계·프로필은 PC). 라벨을 그 하나에 맞춘다.
         // 회원 API 접근은 백엔드 코치 기기 폴백(is_staff_device)이 처리한다.
         HkButton.primary(
-          '회원 관리',
+          '가입 신청',
           onPressed: () {
             Haptic.light();
             Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (_) => const CoachDashboardScreen(),
+                builder: (_) => const MemberApprovalsScreen(),
               ),
             );
           },
@@ -205,16 +189,8 @@ class _Body extends StatelessWidget {
 
         // ─── 오늘의 수업 ──────────────────────────────────────────────
         // v2.2: 'TODAY'S CLASSES.' → 한글 (v1.29 한글 기본, 도메인 고정어 아님).
-        // G24: 헤더 우측에 폰 수업 등록 진입 — AppBar 는 이미 아이콘 둘이라
-        // 섹션 헤더 쪽이 덜 붐빈다. primary 는 위 '회원 관리' 하나뿐이라 tertiary.
-        Row(
-          children: [
-            Text('오늘 수업', style: HyphenTokens.sectionLabel),
-            const Spacer(),
-            HkButton.tertiary('수업 등록',
-                icon: Icons.add, onPressed: onCompose),
-          ],
-        ),
+        // v3.21: '수업 등록' 버튼 삭제 — 수업 만들기는 PC 몫.
+        Text('오늘 수업', style: HyphenTokens.sectionLabel),
         const SizedBox(height: HyphenTokens.sp2),
         if (data.todayClasses.isEmpty)
           _EmptyCard(message: '오늘 수업 없음.')
@@ -224,13 +200,8 @@ class _Body extends StatelessWidget {
               (c) => _ClassCard(cls: c, onChanged: onRefresh)),
         const SizedBox(height: HyphenTokens.sp5),
 
-        // ─── 만료 임박 ────────────────────────────────────────────────
-        if (data.expiringSoon.isNotEmpty) ...[
-          Text('만료 임박', style: HyphenTokens.sectionLabel),
-          const SizedBox(height: HyphenTokens.sp2),
-          ...data.expiringSoon.map((m) => _ExpiringCard(member: m)),
-          const SizedBox(height: HyphenTokens.sp5),
-        ],
+        // v3.21: '만료 임박' 섹션 삭제 — 회원권은 PC 에서 본다
+        // (백엔드 응답의 expiring_soon 은 PC 가 계속 쓰므로 유지).
       ],
     );
   }
@@ -359,43 +330,6 @@ String _hhmm(String iso) {
       '${t.minute.toString().padLeft(2, '0')}';
 }
 
-class _ExpiringCard extends StatelessWidget {
-  final ExpiringMember member;
-  const _ExpiringCard({required this.member});
-
-  @override
-  Widget build(BuildContext context) => Container(
-        margin: const EdgeInsets.only(bottom: HyphenTokens.sp2),
-        padding: const EdgeInsets.symmetric(
-            horizontal: HyphenTokens.sp3, vertical: HyphenTokens.sp2),
-        decoration: BoxDecoration(
-          color: HyphenTokens.surface,
-          border: Border.all(
-            color: member.dDay <= 7
-                ? HyphenTokens.danger.withValues(alpha: 0.5)
-                : HyphenTokens.border,
-          ),
-          borderRadius: BorderRadius.circular(HyphenTokens.r3),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(member.name,
-                  style: HyphenTokens.body.copyWith(color: HyphenTokens.fg)),
-            ),
-            Text(
-              member.dDay == 0 ? 'D-Day' : 'D-${member.dDay}',
-              style: HyphenTokens.lead.copyWith(
-                color: member.dDay <= 7
-                    ? HyphenTokens.danger
-                    : HyphenTokens.warning,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
-      );
-}
 
 class _EmptyCard extends StatelessWidget {
   final String message;

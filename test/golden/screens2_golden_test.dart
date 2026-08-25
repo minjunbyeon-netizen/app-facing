@@ -8,7 +8,6 @@ import 'package:hyphen_app/core/quotes.dart';
 import 'package:hyphen_app/features/achievement/achievements_screen.dart';
 import 'package:hyphen_app/features/auth/auth_state.dart';
 import 'package:hyphen_app/features/auth/login_screen.dart';
-import 'package:hyphen_app/features/boss/boss_dashboard_screen.dart';
 import 'package:hyphen_app/features/boss/settings_screen.dart';
 import 'package:hyphen_app/features/classes/classes_screen.dart';
 import 'package:hyphen_app/features/contracts/member_contracts_screen.dart';
@@ -385,101 +384,6 @@ void main() {
     await capture(tester, 'coach_03_shell_messages');
   });
 
-  // ── 코치: 명단 시트 하단 — 수업 취소 버튼 (G24, 폴드 아래) ──
-  testWidgets('boss: roster sheet cancel button', (tester) async {
-    phone(tester);
-    SharedPreferences.setMockInitialValues({});
-    final api = FakeApi(memberWorld());
-    final bossApi = FakeBossApi({
-      '/api/v1/admin/gyms/1/dashboard': bossDashboard(),
-      '/api/v1/admin/classes/101/reservations': classRoster(),
-    });
-    await tester.pumpWidget(harness(
-        api: api,
-        auth: AuthState(),
-        profile: ProfileState(),
-        bossAuth: FakeBossAuth(),
-        bossApi: bossApi,
-        home: const BossDashboardScreen()));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('WOD Class').first);
-    await tester.pumpAndSettle();
-    final sheetScroll = find
-        .descendant(
-          of: find.byType(BottomSheet),
-          matching: find.byType(Scrollable),
-        )
-        .first;
-    await tester.scrollUntilVisible(find.text('수업 취소'), 200,
-        scrollable: sheetScroll);
-    await tester.pump(const Duration(milliseconds: 200));
-    await capture(tester, 'boss_05_roster_cancel');
-  });
-
-  // ── 코치: 수업 등록 — 날짜 선택 다이얼로그 ──
-  testWidgets('boss: compose date picker', (tester) async {
-    phone(tester);
-    SharedPreferences.setMockInitialValues({});
-    final api = FakeApi(memberWorld());
-    final bossApi = FakeBossApi({
-      '/api/v1/admin/gyms/1/dashboard': bossDashboard(),
-      '/api/v1/admin/gyms/1/classes': const {'id': 999},
-    });
-    await tester.pumpWidget(harness(
-        api: api,
-        auth: AuthState(),
-        profile: ProfileState(),
-        bossAuth: FakeBossAuth(),
-        bossApi: bossApi,
-        home: const BossDashboardScreen()));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('수업 등록'));
-    await tester.pumpAndSettle();
-    // kTestClock 고정(2026-08-12) — 시트 기본 날짜 라벨. 대시보드의 오늘
-    // 날짜 텍스트와 겹치므로 바텀시트 내부로 한정해 잡는다.
-    await tester.tap(find.descendant(
-        of: find.byType(BottomSheet), matching: find.text('2026-08-12')));
-    await tester.pumpAndSettle();
-    await capture(tester, 'boss_06_compose_datepicker');
-  });
-
-  // ── 코치: 수업 수정 시트 — 명단 시트 '수업 수정' (G24 2차, 프리필 상태) ──
-  testWidgets('boss: class edit sheet', (tester) async {
-    phone(tester);
-    SharedPreferences.setMockInitialValues({});
-    final api = FakeApi(memberWorld());
-    final bossApi = FakeBossApi({
-      '/api/v1/admin/gyms/1/dashboard': bossDashboard(),
-      '/api/v1/admin/classes/101/reservations': classRoster(),
-    });
-    await tester.pumpWidget(harness(
-        api: api,
-        auth: AuthState(),
-        profile: ProfileState(),
-        bossAuth: FakeBossAuth(),
-        bossApi: bossApi,
-        home: const BossDashboardScreen()));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('WOD Class').first);
-    await tester.pumpAndSettle();
-    final sheetScroll = find
-        .descendant(
-          of: find.byType(BottomSheet),
-          matching: find.byType(Scrollable),
-        )
-        .first;
-    // 맨 아래 '수업 취소'까지 스크롤해야 그 위 '수업 수정'의 중심이 화면 안에
-    // 들어온다 — '수업 수정' 기준 스크롤은 버튼이 하단에 걸쳐 탭이 안 닿았다.
-    await tester.scrollUntilVisible(find.text('수업 취소'), 200,
-        scrollable: sheetScroll);
-    await tester.tap(find.text('수업 수정'));
-    await tester.pumpAndSettle();
-    // 수정 시트가 실제로 떴는지 — 프리필 값(트랙 RX)·저장 CTA 로 확인.
-    expect(find.text('저장'), findsOneWidget);
-    expect(find.text('변경 내용은 회원 화면에 바로 반영됩니다.'), findsOneWidget);
-    await capture(tester, 'boss_07_class_edit');
-  });
-
   // ── 코치 설정 — 예약 탭 (하루 예약 한도, 2026-08-24) ──
   testWidgets('boss: settings reservation tab', (tester) async {
     phone(tester);
@@ -504,26 +408,4 @@ void main() {
     await capture(tester, 'boss_08_settings_reservation');
   });
 
-  // ── 코치 설정 — 요금제 탭 (표기 한글화 2026-08-25) ──
-  testWidgets('boss: settings plans tab', (tester) async {
-    phone(tester);
-    SharedPreferences.setMockInitialValues({});
-    final api = FakeApi(memberWorld());
-    final bossApi = FakeBossApi({
-      '/api/v1/admin/gyms/1/plans': bossPlans,
-      '/api/v1/admin/gyms/1/class-settings': bossClassSettings,
-    });
-    await tester.pumpWidget(harness(
-        api: api,
-        auth: AuthState(),
-        profile: ProfileState(),
-        bossAuth: FakeBossAuth(),
-        bossApi: bossApi,
-        home: const BossSettingsScreen()));
-    await tester.pumpAndSettle();
-    // 내부 값(time_based·-d·₩)이 아니라 사람 말로 떠야 한다.
-    expect(find.text('630,000원 · 90일 · 기간제'), findsOneWidget);
-    expect(find.text('176,000원 · 10회 · 횟수제'), findsOneWidget);
-    await capture(tester, 'boss_09_settings_plans');
-  });
 }

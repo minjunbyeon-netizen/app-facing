@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/exception.dart';
-import '../../core/plan_labels.dart';
 import '../../core/theme.dart';
 import 'boss_api_client.dart';
 import 'boss_auth_state.dart';
 
 /// PHASE5 §1-4 — 사장 폰 설정 화면.
 ///
-/// 4 탭: 요금제 · 알림 · 자동 가입 · 예약.
+/// 3 탭: 알림 · 자동 가입 · 예약.
+///
+/// v3.21 (2026-08-25 사용자 지시): '요금제' 탭 삭제 — 요금제를 만들고 고치는 건
+/// PC 몫이다 (README §제거된 기능 대장 17). 백엔드 요금제 API 는 PC 가 계속 쓴다.
 /// (구 포인트 탭은 2026-08-24 포인트 이원화 정리로 삭제 — gym_point_settings
 /// 가 읽는 코드 0 고아라 API·모델과 함께 제거. 포인트 지급은 리워드 규칙
 /// 엔진 + PC 수동 지급 프리셋만.)
@@ -22,7 +24,7 @@ class BossSettingsScreen extends StatefulWidget {
 
 class _BossSettingsScreenState extends State<BossSettingsScreen>
     with SingleTickerProviderStateMixin {
-  late final TabController _tab = TabController(length: 4, vsync: this);
+  late final TabController _tab = TabController(length: 3, vsync: this);
 
   @override
   void dispose() {
@@ -71,7 +73,6 @@ class _BossSettingsScreenState extends State<BossSettingsScreen>
           unselectedLabelColor: HyphenTokens.muted,
           labelStyle: HyphenTokens.body.copyWith(fontWeight: FontWeight.w700),
           tabs: const [
-            Tab(text: '요금제'),
             Tab(text: '알림'),
             Tab(text: '자동 가입'),
             Tab(text: '예약'),
@@ -81,7 +82,6 @@ class _BossSettingsScreenState extends State<BossSettingsScreen>
       body: TabBarView(
         controller: _tab,
         children: const [
-          _PlansTab(),
           _NotificationsTab(),
           _AutoJoinTab(),
           _ReservationTab(),
@@ -92,244 +92,6 @@ class _BossSettingsScreenState extends State<BossSettingsScreen>
 }
 
 // ───── Plans 탭 — 회원권 마스터 CRUD ────────────────────────────────
-class _PlansTab extends StatefulWidget {
-  const _PlansTab();
-  @override
-  State<_PlansTab> createState() => _PlansTabState();
-}
-
-class _PlansTabState extends State<_PlansTab> {
-  List<Map<String, dynamic>> _plans = [];
-  bool _loading = true;
-  String? _error;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    final auth = context.read<BossAuthState>();
-    final api = context.read<BossApiClient>();
-    final gid = auth.gymId;
-    if (gid == null || gid == 0) {
-      setState(() { _loading = false; _error = '체육관 정보 없음'; });
-      return;
-    }
-    try {
-      final res = await api.get('/api/v1/admin/gyms/$gid/plans');
-      final list = (res['plans'] as List?) ?? [];
-      setState(() {
-        _plans = list.map((e) => Map<String, dynamic>.from(e as Map)).toList();
-        _loading = false; _error = null;
-      });
-    } on AppException catch (e) {
-      setState(() { _loading = false; _error = e.messageKo; });
-    } catch (e) {
-      setState(() { _loading = false; _error = '연결 실패'; });
-    }
-  }
-
-  // _delete 함수는 다음 사이클 plan row 삭제 액션에 연결 예정 — 지금은 _load 사이클만 활용.
-
-  @override
-  Widget build(BuildContext context) {
-    if (_loading) {
-      return const Center(
-        child: CircularProgressIndicator(color: HyphenTokens.primary),
-      );
-    }
-    if (_error != null) {
-      return Center(
-        child: Text(_error!,
-            style: HyphenTokens.body.copyWith(color: HyphenTokens.danger)),
-      );
-    }
-    return Column(
-      children: [
-        Expanded(
-          child: _plans.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text('요금제 없음', style: HyphenTokens.h3),
-                      const SizedBox(height: HyphenTokens.sp2),
-                      Text('회원권을 추가하면\n회원 등록 시 자동 금액이 떠요.',
-                          textAlign: TextAlign.center,
-                          style: HyphenTokens.caption),
-                    ],
-                  ),
-                )
-              : ListView.separated(
-                  padding: const EdgeInsets.all(HyphenTokens.sp4),
-                  itemCount: _plans.length,
-                  separatorBuilder: (ctx, idx) =>
-                      const SizedBox(height: HyphenTokens.sp2),
-                  itemBuilder: (_, i) {
-                    final p = _plans[i];
-                    final active = p['is_active'] == true;
-                    return Container(
-                      padding: const EdgeInsets.all(HyphenTokens.sp3),
-                      decoration: BoxDecoration(
-                        color: HyphenTokens.surface,
-                        border: Border.all(color: HyphenTokens.border),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(p['name']?.toString() ?? '?',
-                                    style: HyphenTokens.body.copyWith(
-                                        fontWeight: FontWeight.w700,
-                                        color: active
-                                            ? HyphenTokens.fg
-                                            : HyphenTokens.muted)),
-                                const SizedBox(height: 2),
-                                Text(
-                                  planSummaryKoLabel(
-                                      p.cast<String, dynamic>()),
-                                  style: HyphenTokens.caption,
-                                ),
-                              ],
-                            ),
-                          ),
-                          if (!active)
-                            const Padding(
-                              padding: EdgeInsets.only(right: HyphenTokens.sp2),
-                              child: Text('비활성', style: HyphenTokens.micro),
-                            ),
-                          // PHASE5 §1-1 plan soft delete (is_active=false). 활성만 노출.
-                          if (active)
-                            IconButton(
-                              icon: const Icon(Icons.delete_outline,
-                                  size: 18, color: HyphenTokens.muted),
-                              tooltip: 'Disable plan',
-                              onPressed: () async {
-                                final id = (p['id'] as num?)?.toInt() ?? 0;
-                                if (id == 0) return;
-                                final api = context.read<BossApiClient>();
-                                try {
-                                  await api.delete('/api/v1/admin/plans/$id');
-                                } catch (_) {}
-                                await _load();
-                              },
-                            ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(HyphenTokens.sp3),
-          child: SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => _showCreateSheet(context, onDone: _load),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: HyphenTokens.primary,
-                foregroundColor: HyphenTokens.onColor,
-                padding: const EdgeInsets.symmetric(
-                    vertical: HyphenTokens.sp3),
-                shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.zero),
-              ),
-              // v1.33: color 명시 — HyphenTokens.body 가 어두운 fg 를 품고 있어
-              // 위 foregroundColor(흰색) 를 덮어쓰고 빨간 배경에 어두운 글자가 됐다.
-              child: Text('요금제 추가',
-                  style: HyphenTokens.body.copyWith(
-                      color: HyphenTokens.onColor,
-                      fontWeight: FontWeight.w700, letterSpacing: 0.6)),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-Future<void> _showCreateSheet(BuildContext ctx,
-    {required Future<void> Function() onDone}) async {
-  final nameCtrl = TextEditingController();
-  final priceCtrl = TextEditingController();
-  final daysCtrl = TextEditingController();
-  String planType = 'time_based';
-  await showModalBottomSheet<void>(
-    context: ctx,
-    backgroundColor: HyphenTokens.surface,
-    isScrollControlled: true,
-    builder: (sheetCtx) => Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(sheetCtx).viewInsets.bottom,
-        left: HyphenTokens.sp4,
-        right: HyphenTokens.sp4,
-        top: HyphenTokens.sp4,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text('새 요금제', style: HyphenTokens.h2),
-          const SizedBox(height: HyphenTokens.sp4),
-          TextField(
-            controller: nameCtrl,
-            style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
-            decoration: const InputDecoration(hintText: '이름 (예: 3개월권)'),
-          ),
-          const SizedBox(height: HyphenTokens.sp2),
-          TextField(
-            controller: priceCtrl,
-            style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(hintText: '금액 (원)'),
-          ),
-          const SizedBox(height: HyphenTokens.sp2),
-          TextField(
-            controller: daysCtrl,
-            style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(hintText: '기간 일수 (예: 90)'),
-          ),
-          const SizedBox(height: HyphenTokens.sp4),
-          ElevatedButton(
-            onPressed: () async {
-              final api = sheetCtx.read<BossApiClient>();
-              final auth = sheetCtx.read<BossAuthState>();
-              final gid = auth.gymId ?? 0;
-              try {
-                await api.post('/api/v1/admin/gyms/$gid/plans', {
-                  'name': nameCtrl.text.trim(),
-                  'plan_type': planType,
-                  'price_krw': int.tryParse(priceCtrl.text.trim()) ?? 0,
-                  'duration_days': int.tryParse(daysCtrl.text.trim()),
-                });
-                if (sheetCtx.mounted) Navigator.of(sheetCtx).pop();
-                await onDone();
-              } catch (_) {
-                if (sheetCtx.mounted) Navigator.of(sheetCtx).pop();
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: HyphenTokens.primary,
-              foregroundColor: HyphenTokens.onColor,
-              shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.zero),
-              padding: const EdgeInsets.symmetric(vertical: HyphenTokens.sp3),
-            ),
-            child: Text('저장', style: HyphenTokens.body),
-          ),
-          const SizedBox(height: HyphenTokens.sp4),
-        ],
-      ),
-    ),
-  );
-}
-
-// ───── Notifications 탭 — 알림톡 토글 ──────────────────────────────
 class _NotificationsTab extends StatefulWidget {
   const _NotificationsTab();
   @override

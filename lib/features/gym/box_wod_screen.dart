@@ -10,7 +10,7 @@ import '../../widgets/hkit.dart';
 import '../announcements/announcements_state.dart';
 import '../../widgets/gym_info_card.dart';
 import '../../widgets/inbox_bell.dart';
-import 'coach_dashboard_screen.dart';
+import 'member_approvals_screen.dart';
 import 'gym_state.dart';
 import 'week_board.dart';
 
@@ -76,12 +76,12 @@ class _BoxWodScreenState extends State<BoxWodScreen> {
           ),
           if (canViewDashboard)
             IconButton(
-              tooltip: 'Coach Dashboard',
+              tooltip: '가입 신청',
               icon: const Icon(Icons.people_outline),
               onPressed: () {
                 Haptic.light();
                 Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => const CoachDashboardScreen(),
+                  builder: (_) => const MemberApprovalsScreen(),
                 ));
               },
             ),

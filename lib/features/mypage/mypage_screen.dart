@@ -16,7 +16,7 @@ import '../auth/auth_state.dart';
 import '../contracts/member_contracts_screen.dart';
 import '../goals/goals_screen.dart';
 import 'strength_board_screen.dart';
-import '../gym/coach_dashboard_screen.dart';
+import '../gym/member_approvals_screen.dart';
 import '../gym/gym_state.dart';
 import 'edit_profile_screen.dart';
 import 'faq_screen.dart';
@@ -392,10 +392,10 @@ class _MyBoxSection extends StatelessWidget {
                 onPressed: () {
                   Haptic.light();
                   Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => const CoachDashboardScreen(),
+                    builder: (_) => const MemberApprovalsScreen(),
                   ));
                 },
-                child: const Text('회원 관리'),
+                child: const Text('가입 신청'),
               ),
             ],
             // 클래스 일정 진입 (회원·owner 모두). PC 사장이 등록한 클래스를 본다.

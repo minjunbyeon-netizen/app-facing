@@ -296,32 +296,6 @@ void main() {
     await capture(tester, 'boss_03_class_roster');
   });
 
-  // ── 수업 등록 시트 (G24) ──
-  // 코치가 실제로 도달하는 경로 그대로: 예약 현황 탭(대시보드) → '오늘 수업'
-  // 헤더의 '수업 등록' 버튼 → 바텀시트. 시트만 따로 pump 하면 진입점이 살아
-  // 있는지는 증명하지 못한다 (명단 시트 골든과 같은 방식).
-  testWidgets('boss: class compose sheet', (tester) async {
-    phone(tester);
-    SharedPreferences.setMockInitialValues({});
-    final api = FakeApi(memberWorld());
-    final bossApi = FakeBossApi({
-      '/api/v1/admin/gyms/1/dashboard': bossDashboard(),
-      // 제출까지 눌러도 골든이 죽지 않게 생성 응답도 깔아 둔다.
-      '/api/v1/admin/gyms/1/classes': const {'id': 999},
-    });
-    await tester.pumpWidget(harness(
-        api: api,
-        auth: AuthState(),
-        profile: ProfileState(),
-        bossAuth: FakeBossAuth(),
-        bossApi: bossApi,
-        home: const BossDashboardScreen()));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('수업 등록'));
-    await tester.pumpAndSettle();
-    await capture(tester, 'boss_04_class_compose');
-  });
-
   // ── 이력 (빈 상태) ──
   testWidgets('history: empty', (tester) async {
     phone(tester);

@@ -369,11 +369,13 @@ python tool/golden_gallery.py               # 단일 HTML 갤러리 (build/golde
 가짜 백엔드(`test/golden/fakes.dart` — ApiClient implements, 네트워크 0)로 실물 픽셀 렌더
 (갤S22 급 360×780·2x). 폰트는 `test/flutter_test_config.dart` 가 FontManifest 전체
 (Pretendard·MaterialIcons)를 로드. 참조 아키텍처: `apps/writeplz-app` 골든스탠다드.
-현재 **60장** (2026-08-25 실측 — 8/21 "45장" 서술 이후 v3.4~v3.19 증감 포함.
-prefix 집계: member 25 · state 9 · boss 8 · common 5 · coach 3 · snack 3 ·
-splash 3 · ach 2 · hist 1 · onb 1. 2026-08-25 로그인 창구 통합(v3.19) 증감 =
-`boss_01_login` 삭제(코치 전용 로그인 화면 폐기) · `common_08_member_login`
-→ `common_08_login` 개명(로고 없는 통합 로그인). 같은 날 신규 3장 = member_22
+현재 **55장** (2026-08-25 실측 — 8/21 "45장" 서술 이후 v3.4~v3.21 증감 포함.
+prefix 집계: member 25 · state 9 · common 5 · splash 3 · snack 3 · coach 3 ·
+boss 3 · ach 2 · hist 1 · onb 1. 2026-08-25 폰 코치 축소(v3.21)로 5장 삭제 =
+boss_04 수업 등록 · boss_05 수업 취소 · boss_06 날짜 선택 · boss_07 수업 수정 ·
+boss_09 요금제 탭 (전부 PC 로 이관 — README §제거된 기능 대장 17).
+같은 날 로그인 창구 통합(v3.19) 증감 = `boss_01_login` 삭제(코치 전용 로그인
+화면 폐기) · `common_08_member_login` → `common_08_login` 개명. 신규 3장 = member_22
 전자계약 상세(항목 이름 한글화) · boss_09 코치 설정 '요금제' 탭(금액·기간·종류
 한글 표기) · state_09 로그인 '아이디 기억하기' 채워진 상태.
 2026-08-24 신규 3장 = state_07 종료 수업 카드 · boss_08 코치 설정 '예약'

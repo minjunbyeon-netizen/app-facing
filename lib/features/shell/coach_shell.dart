@@ -13,7 +13,9 @@ import '../inbox/inbox_screen.dart';
 import '../inbox/inbox_state.dart';
 
 /// v3.4 (2026-08-21 사용자 지시 "앱에서 코치 쪽지 필요") — 코치 앱 셸 3탭:
-///   ① 예약 현황 — 오늘 예약·출석·수업 명단·수업 등록 (BossDashboardScreen 임베드)
+///   ① 예약 현황 — 오늘 예약·출석 수치 · 오늘 수업 목록 · 예약자 명단(출석/노쇼)
+///      · 가입 신청 승인 (BossDashboardScreen 임베드). v3.21: 수업 등록·수정·취소
+///      와 만료 임박은 PC 로 넘겼다 (README §제거된 기능 대장 17)
 ///   ② 수업 — 회원 셸의 수업 탭과 **동일한 위젯** (BoxWodScreen 그대로 재사용,
 ///      variant 신설 금지). v3.20: 코치에게도 **보는 화면**이다 — 수업 내용
 ///      게시·삭제는 PC 몫 (README §제거된 기능 대장 16, 브리프 D43)
@@ -21,8 +23,8 @@ import '../inbox/inbox_state.dart';
 ///      없는 걸로 보였다 — 탭 복귀. 수업 탭 종 진입도 유지)
 /// "코치는 대부분 PC. 폰 코치는 진짜 기본만." — 내 정보류 탭은 코치에게 불필요.
 ///
-/// v3.2 의 회원 현황(CoachDashboardScreen) 탭은 계속 제거 상태. 진입 동선:
-///   · 가입 승인 → 예약 현황 탭 '회원 관리' 버튼 → CoachDashboardScreen push
+/// 회원 현황 탭은 계속 제거 상태. 진입 동선:
+///   · 가입 승인 → 예약 현황 탭 '가입 신청' 버튼 → MemberApprovalsScreen push
 ///
 /// 수업 탭은 회원 API(X-Device-Id)를 쓴다 — 로그인만 한 기기도 admin_login 이
 /// GymManager.device_hash 를 페어링하므로 백엔드 코치 기기 폴백
@@ -65,7 +67,7 @@ class _CoachShellState extends State<CoachShell> {
     super.initState();
     // 코치 로그인 직후 진입 — 앱 부팅 시점 loadMine 은 페어링 전이라
     // gym=null 일 수 있다. 여기서 한 번 더 읽어 코치 기기 폴백을 반영.
-    // (수업 탭 + '회원 관리' → CoachDashboardScreen push 둘 다 이 값에 의존.)
+    // (수업 탭 + '가입 신청' → MemberApprovalsScreen push 둘 다 이 값에 의존.)
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       context.read<GymState>().loadMine();

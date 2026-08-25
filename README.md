@@ -87,4 +87,29 @@ samples, guidance on mobile development, and a full API reference.
     삭제까지 같이 내린 이유: 폰에서 지울 수는 있는데 다시 쓸 수는 없으면 그게 더
     나쁜 상태다. 백엔드 라우트(`POST/DELETE /api/v1/gyms/<id>/wods`)는 PC 가
     계속 쓰므로 그대로 둔다. 골든 `coach_02_shell_board` 재생성.
+17. **폰 코치 화면 축소 7건 (v3.21 · 2026-08-25 사용자 지시)** — "코치가 폰에서
+    되는 것" 목록을 사용자가 직접 추려 내린 결과. 폰은 **오늘 돌리는 것**만 남기고
+    만들고·고치고·들여다보는 건 전부 PC 로 넘겼다.
+    · 수업 등록 — `lib/features/boss/class_compose_sheet.dart` + 대시보드
+      '수업 등록' 버튼(`_openCompose`) + 골든 `boss_04_class_compose`·
+      `boss_06_compose_datepicker`
+    · 수업 수정·수업 취소 — `class_roster_sheet.dart` 의 `_editClass`·`_cancelClass`
+      + 두 버튼 + 골든 `boss_05_roster_cancel`·`boss_07_class_edit`
+    · 대기자 수동 승격 — 원래 버튼이 없었다. 서버가 이미 자동으로 올린다
+      (`api/classes.py cancel_reservation` — 앞사람이 취소하면 대기 1번이
+      confirmed. 하루 예약 한도 초과자는 건너뛰고 다음 대기자).
+      명단의 '승격' 은 버튼이 아니라 상태 배지다.
+    · 회원 명단·활동 통계·회원 상세 — 구 `CoachDashboardScreen` 의 로스터·
+      `_RosterRow`·`_MemberDetailSheet`. 화면은 가입 승인만 남아
+      **`MemberApprovalsScreen`(`member_approvals_screen.dart`)** 으로 개명.
+    · 코치 노트 — 위 상세 시트와 함께 삭제 (쪽지와 중복이었다)
+    · 회원 요청 — `member_requests_screen.dart` (쪽지로 대체)
+    · 만료 임박 — 대시보드 섹션 + `_ExpiringCard` (백엔드 `expiring_soon` 응답은
+      PC 가 계속 쓰므로 유지)
+    · 체육관 프로필 수정 — `gym_profile_edit_screen.dart`
+    · 요금제 탭 — `settings_screen.dart` 의 `_PlansTab` (설정 4탭 → 3탭:
+      알림·자동 가입·예약) + 골든 `boss_09_settings_plans`
+    백엔드 API 는 전부 그대로다 — PC 웹이 쓴다. 폰 창구만 닫았다.
+    rename: CoachDashboardScreen → MemberApprovalsScreen (coach_dashboard_screen.dart
+    → member_approvals_screen.dart)
 

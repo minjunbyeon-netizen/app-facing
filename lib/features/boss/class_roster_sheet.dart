@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../widgets/mascot.dart';
 
-import '../../core/exception.dart';
 import '../../core/futures.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../widgets/hkit.dart';
 import 'boss_api_client.dart';
-import 'class_compose_sheet.dart';
 import 'class_roster_model.dart';
 
 /// D29 (2026-08-12) — 수업 카드 탭 시 뜨는 예약자 명단 시트.
@@ -119,7 +116,7 @@ class _Loaded extends StatefulWidget {
   final ClassRoster roster;
   final VoidCallback onDirty;
 
-  /// 수업 수정 저장 후 명단 재조회 신호 (G24 2차).
+  /// 명단 재조회 신호.
   final VoidCallback onReload;
 
   const _Loaded(
@@ -140,72 +137,9 @@ class _LoadedState extends State<_Loaded> {
   /// PATCH 진행 중인 예약 id — 같은 행 연타를 막는다.
   final Set<int> _busy = {};
 
-  /// 수업 취소 요청 진행 중 — 버튼 연타 방지 (G24).
-  bool _cancelling = false;
-
-  /// G24 2차 — 수업 수정. 수정 시트에서 저장하면 대시보드 재조회 신호를 걸고
-  /// 명단도 다시 불러 헤더(제목·정원)가 새 값으로 바뀐다.
-  Future<void> _editClass() async {
-    final saved = await showClassEditSheet(context, widget.roster);
-    if (!saved || !mounted) return;
-    widget.onDirty();
-    widget.onReload();
-  }
-
-  /// G24 — 수업 취소. 확정 예약이 일괄 취소되고 알림이 나가는 되돌릴 수 없는
-  /// 동작이라, 출석 배지(연타로 되돌리기 가능)와 달리 확인 다이얼로그를 둔다.
-  Future<void> _cancelClass() async {
-    if (_cancelling) return;
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: HyphenTokens.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(HyphenTokens.r4),
-        ),
-        title: const Text('수업을 취소할까요?'),
-        content: const Text('확정 예약이 모두 취소되고 회원에게 알림이 갑니다.',
-            style: HyphenTokens.caption),
-        actions: [
-          HkButton.tertiary('유지',
-              neutral: true, onPressed: () => Navigator.pop(ctx, false)),
-          const SizedBox(width: HyphenTokens.sp1),
-          HkButton(
-            '수업 취소',
-            kind: HkButtonKind.secondary,
-            expand: false,
-            danger: true,
-            onPressed: () => Navigator.pop(ctx, true),
-          ),
-        ],
-      ),
-    );
-    if (ok != true || !mounted) return;
-
-    Haptic.medium();
-    setState(() => _cancelling = true);
-    // await 전에 BuildContext 의존 객체 캡처 (async gap).
-    final api = context.read<BossApiClient>();
-    final navigator = Navigator.of(context);
-    final messenger = HkSnack.of(context);
-    try {
-      final data = await api.post(
-          '/api/v1/admin/classes/${widget.roster.classSessionId}/cancel',
-          const {});
-      final notified = (data['notified_count'] as num?)?.toInt() ?? 0;
-      widget.onDirty(); // 시트가 닫히면 대시보드 재조회 신호.
-      navigator.pop();
-      messenger.info('수업 취소됨 · 알림 $notified건', mood: MascotMood.happy);
-    } on AppException catch (e) {
-      if (!mounted) return;
-      setState(() => _cancelling = false);
-      messenger.fail(e.messageKo);
-    } catch (_) {
-      if (!mounted) return;
-      setState(() => _cancelling = false);
-      messenger.fail('수업 취소 실패');
-    }
-  }
+  // v3.21 (2026-08-25 사용자 지시): 수업 수정·수업 취소 삭제 — 수업을 만들고
+  // 고치고 없애는 건 PC 몫이다. 폰 명단에 남는 동작은 출석·노쇼 체크뿐
+  // (README §제거된 기능 대장 17).
 
   Future<void> _mark(RosterEntry e, String next) async {
     final id = e.reservationId;
@@ -301,19 +235,6 @@ class _LoadedState extends State<_Loaded> {
           ...waitlist.map((e) => _EntryRow(entry: e, onMark: _mark)),
         ],
 
-        // G24 2차 — 수업 수정 (제목·시간(분)·정원·트랙. 시작 시각은 PATCH 밖).
-        const SizedBox(height: HyphenTokens.sp5),
-        HkButton.secondary(
-          '수업 수정',
-          onPressed: _cancelling ? null : _editClass,
-        ),
-        // G24 — 수업 취소 (되돌릴 수 없음 → danger 외곽선).
-        const SizedBox(height: HyphenTokens.sp2),
-        HkButton.secondary(
-          _cancelling ? '취소 중' : '수업 취소',
-          danger: true,
-          onPressed: _cancelling ? null : _cancelClass,
-        ),
         const SizedBox(height: HyphenTokens.sp4),
       ],
     );
