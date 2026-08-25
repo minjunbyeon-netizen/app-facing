@@ -22,16 +22,18 @@ class BossApiClient {
   }
 
   static BossApiClient create() {
-    final dio = Dio(BaseOptions(
-      baseUrl: ApiClient.baseUrl,
-      connectTimeout: const Duration(seconds: 5),
-      receiveTimeout: const Duration(seconds: 15),
-      contentType: 'application/json',
-      responseType: ResponseType.json,
-      // 쿠키 리다이렉트 자동 따라가되 Set-Cookie 보존
-      followRedirects: false,
-      validateStatus: (s) => s != null && s < 500,
-    ));
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: ApiClient.baseUrl,
+        connectTimeout: const Duration(seconds: 5),
+        receiveTimeout: const Duration(seconds: 15),
+        contentType: 'application/json',
+        responseType: ResponseType.json,
+        // 쿠키 리다이렉트 자동 따라가되 Set-Cookie 보존
+        followRedirects: false,
+        validateStatus: (s) => s != null && s < 500,
+      ),
+    );
     return BossApiClient._(dio);
   }
 
@@ -45,7 +47,9 @@ class BossApiClient {
   /// 반환: `{'data': {...kind 포함...}, 'session_cookie': '...'}`
   /// (회원이면 session_cookie 는 빈 문자열일 수 있다 — 쓰지 않는다.)
   Future<Map<String, dynamic>> unifiedLogin(
-      String loginId, String password) async {
+    String loginId,
+    String password,
+  ) async {
     return _loginTo('/api/v1/auth/login', loginId, password);
   }
 
@@ -58,16 +62,21 @@ class BossApiClient {
 
   /// 두 로그인 창구가 공유하는 몸통 — 요청·쿠키 추출·에러 매핑 한 벌 (§0-B).
   Future<Map<String, dynamic>> _loginTo(
-      String path, String loginId, String password) async {
+    String path,
+    String loginId,
+    String password,
+  ) async {
     try {
       final deviceId = await DeviceIdService.get();
       final res = await _dio.post(
         path,
         data: {'login_id': loginId, 'password': password},
-        options: Options(headers: {
-          'Content-Type': 'application/json',
-          'X-Device-Id': deviceId,
-        }),
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Device-Id': deviceId,
+          },
+        ),
       );
       final raw = res.data;
       if (raw is! Map || raw['ok'] != true) {
@@ -90,7 +99,9 @@ class BossApiClient {
         }
       }
       if (sessionCookie.isEmpty) {
-        debugPrint('[BossApiClient] 경고: session 쿠키 없음 — 백엔드 SESSION_COOKIE_SECURE 확인');
+        debugPrint(
+          '[BossApiClient] 경고: session 쿠키 없음 — 백엔드 SESSION_COOKIE_SECURE 확인',
+        );
       }
       return {'data': raw['data'], 'session_cookie': sessionCookie};
     } on DioException catch (e) {
@@ -110,7 +121,9 @@ class BossApiClient {
 
   /// 인증 헤더 포함 POST
   Future<Map<String, dynamic>> post(
-      String path, Map<String, dynamic> body) async {
+    String path,
+    Map<String, dynamic> body,
+  ) async {
     try {
       final res = await _dio.post(path, data: body, options: _authOpts());
       return _unwrap(res);
@@ -121,7 +134,9 @@ class BossApiClient {
 
   /// 인증 헤더 포함 PATCH (Phase 1-2·1-3 settings 갱신용)
   Future<Map<String, dynamic>> patch(
-      String path, Map<String, dynamic> body) async {
+    String path,
+    Map<String, dynamic> body,
+  ) async {
     try {
       final res = await _dio.patch(path, data: body, options: _authOpts());
       return _unwrap(res);
@@ -179,10 +194,16 @@ class BossApiClient {
     }
     final d = e.response?.data;
     if (d is Map && d['error'] != null) {
-      return AppException(d['error'].toString(),
-          code: d['code']?.toString(), statusCode: e.response?.statusCode);
+      return AppException(
+        d['error'].toString(),
+        code: d['code']?.toString(),
+        statusCode: e.response?.statusCode,
+      );
     }
-    return AppException('요청 실패', code: 'UNKNOWN',
-        statusCode: e.response?.statusCode);
+    return AppException(
+      '요청 실패',
+      code: 'UNKNOWN',
+      statusCode: e.response?.statusCode,
+    );
   }
 }

@@ -23,6 +23,7 @@ import 'faq_screen.dart';
 import 'privacy_screen.dart';
 import 'terms_screen.dart';
 import '../../core/app_clock.dart';
+import '../../core/time_format.dart';
 
 /// v1.22: Profile = identity + 측정값 편집 진입 + 잘안쓰는 actions.
 /// Engine score · Tier · Radar · Category Tier · Trend · Records · RoleModel 등
@@ -72,9 +73,9 @@ class _SectionDivider extends StatelessWidget {
   // v2.5: 구분선 위아래 24 씩(총 48)이 섹션마다 붙어 화면의 절반이 여백이었다.
   // 아코디언 헤더가 이미 자기 여백을 갖고 있으므로 선만 남긴다 (사용자 지시).
   Widget build(BuildContext context) => const Padding(
-        padding: EdgeInsets.symmetric(vertical: HyphenTokens.sp1),
-        child: Divider(height: 1, color: HyphenTokens.border),
-      );
+    padding: EdgeInsets.symmetric(vertical: HyphenTokens.sp1),
+    child: Divider(height: 1, color: HyphenTokens.border),
+  );
 }
 
 // v2.6 (2026-08-12): ENGINE 섹션(ScoreSection·WeaknessInline)은
@@ -100,11 +101,12 @@ class _IdentityCard extends StatelessWidget {
       final i = s.indexOf(' · ');
       return i > 0 ? s.substring(0, i).trim() : s.trim();
     }
+
     final name = boxRegisteredName.isNotEmpty
         ? boxRegisteredName
         : ((auth.displayName?.trim().isNotEmpty == true)
-            ? firstSegment(auth.displayName!)
-            : 'Athlete');
+              ? firstSegment(auth.displayName!)
+              : 'Athlete');
     final initial = name.isEmpty ? '?' : name.characters.first.toUpperCase();
 
     return Padding(
@@ -130,9 +132,7 @@ class _IdentityCard extends StatelessWidget {
                 alignment: Alignment.center,
                 child: Text(
                   initial,
-                  style: HyphenTokens.h3.copyWith(
-                    color: HyphenTokens.accent,
-                  ),
+                  style: HyphenTokens.h3.copyWith(color: HyphenTokens.accent),
                 ),
               ),
               const SizedBox(width: HyphenTokens.sp3),
@@ -145,50 +145,53 @@ class _IdentityCard extends StatelessWidget {
                     // 여기 이름 바로 아래 한 줄로 붙는다 — 고르는 자리는 있는데
                     // 드러나는 자리가 없어 아무도 못 보던 값이었다.
                     // 값은 GoalsState(서버 저장), 이름은 칭호 카탈로그가 정본.
-                    Builder(builder: (_) {
-                      final code = context.watch<GoalsState>().wornTitle;
-                      if (code.isEmpty) return const SizedBox.shrink();
-                      final t = kPanelBTitles
-                          .where((e) => e.code == code)
-                          .firstOrNull;
-                      // 카탈로그에서 사라진 code 를 착용 중일 수 있다
-                      // (v3.12 해금 불가 32종 정리) — 그때는 조용히 숨긴다.
-                      if (t == null) return const SizedBox.shrink();
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 3),
-                        child: HkBadge(t.label, color: HyphenTokens.accent),
-                      );
-                    }),
+                    Builder(
+                      builder: (_) {
+                        final code = context.watch<GoalsState>().wornTitle;
+                        if (code.isEmpty) return const SizedBox.shrink();
+                        final t = kPanelBTitles
+                            .where((e) => e.code == code)
+                            .firstOrNull;
+                        // 카탈로그에서 사라진 code 를 착용 중일 수 있다
+                        // (v3.12 해금 불가 32종 정리) — 그때는 조용히 숨긴다.
+                        if (t == null) return const SizedBox.shrink();
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 3),
+                          child: HkBadge(t.label, color: HyphenTokens.accent),
+                        );
+                      },
+                    ),
                     // v1.16.2 — 박스명 · 역할 라벨 (GymState 데이터 소스)
-                    Builder(builder: (_) {
-                      final gym = gs.membership.gym;
-                      final roleLabel = roleKoLabel(
-                        role: gs.membership.role,
-                        status: gs.membership.status,
-                      );
-                      final gymLine = [
-                        if (gym?.name != null && gym!.name.isNotEmpty)
-                          gym.name,
-                        if (roleLabel.isNotEmpty) roleLabel,
-                      ].join(' · ');
-                      if (gymLine.isEmpty) return const SizedBox.shrink();
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 2),
-                        child: Text(
-                          gymLine,
-                          style: HyphenTokens.caption,
-                        ),
-                      );
-                    }),
+                    Builder(
+                      builder: (_) {
+                        final gym = gs.membership.gym;
+                        final roleLabel = roleKoLabel(
+                          role: gs.membership.role,
+                          status: gs.membership.status,
+                        );
+                        final gymLine = [
+                          if (gym?.name != null && gym!.name.isNotEmpty)
+                            gym.name,
+                          if (roleLabel.isNotEmpty) roleLabel,
+                        ].join(' · ');
+                        if (gymLine.isEmpty) return const SizedBox.shrink();
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Text(gymLine, style: HyphenTokens.caption),
+                        );
+                      },
+                    ),
                     // 위치 (gyms.location) — 있을 때만 한 줄 더
-                    Builder(builder: (_) {
-                      final loc = gs.membership.gym?.location ?? '';
-                      if (loc.isEmpty) return const SizedBox.shrink();
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 2),
-                        child: Text(loc, style: HyphenTokens.caption),
-                      );
-                    }),
+                    Builder(
+                      builder: (_) {
+                        final loc = gs.membership.gym?.location ?? '';
+                        if (loc.isEmpty) return const SizedBox.shrink();
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Text(loc, style: HyphenTokens.caption),
+                        );
+                      },
+                    ),
                     // v2.5: 로그인 수단(NAVER 등) 표기 삭제 — 회원이 이 화면에서
                     // 할 수 있는 일이 없는 정보다 (사용자 지시 "안 쓰는 건 안 보이게").
                   ],
@@ -201,9 +204,11 @@ class _IdentityCard extends StatelessWidget {
                 color: HyphenTokens.fgSecondary,
                 onPressed: () {
                   Haptic.light();
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => const EditProfileScreen(),
-                  ));
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const EditProfileScreen(),
+                    ),
+                  );
                 },
               ),
             ],
@@ -226,12 +231,11 @@ class _IdentityCard extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      const Text('체육관 기록',
-                          style: HyphenTokens.sectionLabel),
+                      const HkSectionLabel('체육관 기록'),
                       const Spacer(),
                       if (mp.updatedAt != null)
                         Text(
-                          _fmtUpdated(mp.updatedAt!),
+                          mdHm(mp.updatedAt!.toLocal()),
                           style: HyphenTokens.micro,
                         ),
                     ],
@@ -252,11 +256,6 @@ class _IdentityCard extends StatelessWidget {
       ),
     );
   }
-
-  String _fmtUpdated(DateTime dt) {
-    final l = dt.toLocal();
-    return '${l.month}/${l.day} ${l.hour.toString().padLeft(2, '0')}:${l.minute.toString().padLeft(2, '0')}';
-  }
 }
 
 class _ProfileRow extends StatelessWidget {
@@ -273,13 +272,12 @@ class _ProfileRow extends StatelessWidget {
         children: [
           SizedBox(
             width: 70,
-            child: Text(label,
-                style: HyphenTokens.micro
-                    .copyWith(color: HyphenTokens.muted)),
+            child: Text(
+              label,
+              style: HyphenTokens.micro.copyWith(color: HyphenTokens.muted),
+            ),
           ),
-          Expanded(
-            child: Text(value, style: HyphenTokens.caption),
-          ),
+          Expanded(child: Text(value, style: HyphenTokens.caption)),
         ],
       ),
     );
@@ -297,7 +295,8 @@ class _MyBoxSection extends StatelessWidget {
     final ok = await HkDialog.confirm(
       context,
       title: '체육관을 탈퇴할까요?',
-      message: '$gymName 에서 탈퇴합니다.\n'
+      message:
+          '$gymName 에서 탈퇴합니다.\n'
           '다시 들어오려면 가입 신청을 넣고 코치 승인을 받아야 합니다.',
       confirmLabel: '탈퇴',
       danger: true,
@@ -335,12 +334,12 @@ class _MyBoxSection extends StatelessWidget {
         children: [
           const SizedBox(height: HyphenTokens.sp2),
           if (gym == null)
-            const Text('체육관 없음. 수업 탭에서 확인.',
-                style: HyphenTokens.caption)
+            const Text('체육관 없음. 수업 탭에서 확인.', style: HyphenTokens.caption)
           else ...[
-            Text(gym.name,
-                style:
-                    HyphenTokens.body.copyWith(fontWeight: FontWeight.w800)),
+            Text(
+              gym.name,
+              style: HyphenTokens.body.copyWith(fontWeight: FontWeight.w800),
+            ),
             const SizedBox(height: HyphenTokens.sp1),
             Text(
               '${gs.isOwner ? '코치' : '회원'} · $statusKo · ${gym.memberCount}명',
@@ -360,24 +359,34 @@ class _MyBoxSection extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('가입이 승인되지 않았습니다.',
-                        style: HyphenTokens.body
-                            .copyWith(fontWeight: FontWeight.w700)),
+                    Text(
+                      '가입이 승인되지 않았습니다.',
+                      style: HyphenTokens.body.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                     const SizedBox(height: HyphenTokens.sp1),
-                    const Text('체육관에 직접 문의 또는 다른 체육관 검색.',
-                        style: HyphenTokens.caption),
+                    const Text(
+                      '체육관에 직접 문의 또는 다른 체육관 검색.',
+                      style: HyphenTokens.caption,
+                    ),
                   ],
                 ),
               ),
             ],
             if (gs.isOwner) ...[
               const SizedBox(height: HyphenTokens.sp3),
-              HkButton.secondary('가입 신청', onPressed: () {
-                Haptic.light();
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => const MemberApprovalsScreen(),
-                ));
-              }),
+              HkButton.secondary(
+                '가입 신청',
+                onPressed: () {
+                  Haptic.light();
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const MemberApprovalsScreen(),
+                    ),
+                  );
+                },
+              ),
             ],
             // v3.25: '수업' 버튼 삭제 — 예약은 수업 탭 주간보드 한 곳 (대장 19).
             // v2.6 (2026-08-13 사용자 지시): '박스 변경' 삭제. 1인 샵 전용이라
@@ -446,80 +455,86 @@ class _ActionsSection extends StatelessWidget {
             title: '메뉴',
             children: [
               const SizedBox(height: HyphenTokens.sp2),
-              HkRowCard(rows: [
-                // B-6 (2026-06-10) — 회원 전자계약 목록·상세·서명 진입
-                HkListRow(
-                  icon: Icons.assignment_outlined,
-                  title: '계약',
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => const MemberContractsScreen(),
-                  )),
-                ),
-                HkListRow(
-                  icon: Icons.history,
-                  title: '히스토리',
-                  onTap: () => Navigator.of(context).pushNamed('/history'),
-                ),
-                HkListRow(
-                  icon: Icons.flag_outlined,
-                  title: '목표',
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => const GoalsScreen(),
-                  )),
-                ),
-                // Q3 (v3.4 2026-08-20 승인) — 리프트별 역대 최고 무게 (1RM 보드).
-                HkListRow(
-                  icon: Icons.fitness_center,
-                  title: '최고 기록',
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => const StrengthBoardScreen(),
-                  )),
-                ),
-                // v2.6 (2026-08-13 사용자 지시) — 없는 기능 두 줄 삭제.
-                //  · '데이터 가져오기' = 화면 스스로 "가상 UI" 라고 적어둔 껍데기.
-                //    BTWB·Wodify '지원 예정' 만 늘어놓을 뿐 붙는 데가 없다.
-                //  · '알고리즘' = Engine 점수 6 카테고리·Tier 1~6(Scaled–Games)·
-                //    SPLIT/BURST 산식 설명. 앱에서 D34 로 전부 내린 기능이고,
-                //    회원 레벨은 경력 3단(SCALED/RXD/ELITE)이라 RX+·Games 는 없는 등급이다.
-                // 화면 파일은 v3.2(2026-08-20)에서 코드까지 삭제
-                // (README §제거된 기능 대장 — 복원은 git log).
-                // P2-1 (2026-06-11) — FAQ (시드 10문답, 실문의 누적 시 증보).
-                HkListRow(
-                  icon: Icons.help_outline,
-                  title: 'FAQ',
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => const FaqScreen(),
-                  )),
-                ),
-                // P0-3 (2026-06-10) — 고객센터 단일 채널 (카카오톡 채널 1:1 채팅).
-                HkListRow(
-                  icon: Icons.chat_bubble_outline,
-                  title: '고객지원',
-                  subtitle: '카카오톡 · 평일 10–18시 답변',
-                  onTap: () => launchUrl(
-                    Uri.parse('http://pf.kakao.com/_kxbxanX/chat'),
-                    mode: LaunchMode.externalApplication,
+              HkRowCard(
+                rows: [
+                  // B-6 (2026-06-10) — 회원 전자계약 목록·상세·서명 진입
+                  HkListRow(
+                    icon: Icons.assignment_outlined,
+                    title: '계약',
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const MemberContractsScreen(),
+                      ),
+                    ),
                   ),
-                ),
-                // v2.6 (2026-08-12 사용자 지시): '직원 계정 연결' 행 삭제 — 코치가
-                // 곧 본인 한 명이라 연결할 직원이 없다 (BRIEF D37). 화면·라우트는
-                // v3.2(2026-08-20)에서 코드까지 삭제 (README §제거된 기능 대장).
-                HkListRow(
-                  icon: Icons.lock_outline,
-                  title: '개인정보처리방침',
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => const PrivacyScreen(),
-                  )),
-                ),
-                // P0-1 (2026-06-10): 이용약관 진입 — 가입 화면 외 상시 접근 경로.
-                HkListRow(
-                  icon: Icons.article_outlined,
-                  title: '이용약관',
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => const TermsScreen(),
-                  )),
-                ),
-              ]),
+                  HkListRow(
+                    icon: Icons.history,
+                    title: '히스토리',
+                    onTap: () => Navigator.of(context).pushNamed('/history'),
+                  ),
+                  HkListRow(
+                    icon: Icons.flag_outlined,
+                    title: '목표',
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const GoalsScreen()),
+                    ),
+                  ),
+                  // Q3 (v3.4 2026-08-20 승인) — 리프트별 역대 최고 무게 (1RM 보드).
+                  HkListRow(
+                    icon: Icons.fitness_center,
+                    title: '최고 기록',
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const StrengthBoardScreen(),
+                      ),
+                    ),
+                  ),
+                  // v2.6 (2026-08-13 사용자 지시) — 없는 기능 두 줄 삭제.
+                  //  · '데이터 가져오기' = 화면 스스로 "가상 UI" 라고 적어둔 껍데기.
+                  //    BTWB·Wodify '지원 예정' 만 늘어놓을 뿐 붙는 데가 없다.
+                  //  · '알고리즘' = Engine 점수 6 카테고리·Tier 1~6(Scaled–Games)·
+                  //    SPLIT/BURST 산식 설명. 앱에서 D34 로 전부 내린 기능이고,
+                  //    회원 레벨은 경력 3단(SCALED/RXD/ELITE)이라 RX+·Games 는 없는 등급이다.
+                  // 화면 파일은 v3.2(2026-08-20)에서 코드까지 삭제
+                  // (README §제거된 기능 대장 — 복원은 git log).
+                  // P2-1 (2026-06-11) — FAQ (시드 10문답, 실문의 누적 시 증보).
+                  HkListRow(
+                    icon: Icons.help_outline,
+                    title: 'FAQ',
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const FaqScreen()),
+                    ),
+                  ),
+                  // P0-3 (2026-06-10) — 고객센터 단일 채널 (카카오톡 채널 1:1 채팅).
+                  HkListRow(
+                    icon: Icons.chat_bubble_outline,
+                    title: '고객지원',
+                    subtitle: '카카오톡 · 평일 10–18시 답변',
+                    onTap: () => launchUrl(
+                      Uri.parse('http://pf.kakao.com/_kxbxanX/chat'),
+                      mode: LaunchMode.externalApplication,
+                    ),
+                  ),
+                  // v2.6 (2026-08-12 사용자 지시): '직원 계정 연결' 행 삭제 — 코치가
+                  // 곧 본인 한 명이라 연결할 직원이 없다 (BRIEF D37). 화면·라우트는
+                  // v3.2(2026-08-20)에서 코드까지 삭제 (README §제거된 기능 대장).
+                  HkListRow(
+                    icon: Icons.lock_outline,
+                    title: '개인정보처리방침',
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const PrivacyScreen()),
+                    ),
+                  ),
+                  // P0-1 (2026-06-10): 이용약관 진입 — 가입 화면 외 상시 접근 경로.
+                  HkListRow(
+                    icon: Icons.article_outlined,
+                    title: '이용약관',
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const TermsScreen()),
+                    ),
+                  ),
+                ],
+              ),
               // v2.2 (H3): 되돌릴 수 없는 동작이 일반 메뉴와 같은 빨강 글자
               // 링크였다 — 링코 S17('서비스 탈퇴'가 일반 항목과 같은 비중)과
               // 같은 문제. 테두리 있는 danger 버튼으로 올려 "동작"임을 알리고,
@@ -549,7 +564,8 @@ class _ActionsSection extends StatelessWidget {
     final ok = await HkDialog.confirm(
       context,
       title: '데이터를 초기화할까요?',
-      message: '이 기기에 저장된 프로필·목표·설정을 전부 삭제합니다.\n'
+      message:
+          '이 기기에 저장된 프로필·목표·설정을 전부 삭제합니다.\n'
           '되돌릴 수 없습니다.',
       confirmLabel: '초기화',
       danger: true,
@@ -565,7 +581,8 @@ class _ActionsSection extends StatelessWidget {
     final ok = await HkDialog.confirm(
       context,
       title: '로그아웃',
-      message: '로그아웃해도 프로필·기록은 이 기기에 그대로 유지됩니다.\n'
+      message:
+          '로그아웃해도 프로필·기록은 이 기기에 그대로 유지됩니다.\n'
           '같은 계정으로 다시 로그인하면 모든 데이터가 복구됩니다.\n'
           '계정 삭제는 내 정보 → 개인정보처리방침 → 계정 삭제.',
       confirmLabel: '로그아웃',
@@ -669,8 +686,7 @@ class _MembershipCard extends StatelessWidget {
                 if (days != null)
                   Text(
                     isExpired ? 'EXPIRED' : 'D-${days.abs()}',
-                    style:
-                        HyphenTokens.h3.copyWith(color: accentColor),
+                    style: HyphenTokens.h3.copyWith(color: accentColor),
                   ),
               ],
             ),
@@ -679,8 +695,10 @@ class _MembershipCard extends StatelessWidget {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  HkBadge(ms.isPausedNow ? '일시정지 중' : '일시정지 예정',
-                      color: HyphenTokens.warning),
+                  HkBadge(
+                    ms.isPausedNow ? '일시정지 중' : '일시정지 예정',
+                    color: HyphenTokens.warning,
+                  ),
                   const SizedBox(width: HyphenTokens.sp2),
                   Expanded(
                     child: Text(
@@ -727,19 +745,14 @@ class _MembershipCard extends StatelessWidget {
                 const Spacer(),
                 Text(
                   '${((1 - progress) * 100).toStringAsFixed(0)}% 남음',
-                  style: HyphenTokens.caption
-                      .copyWith(color: accentColor),
+                  style: HyphenTokens.caption.copyWith(color: accentColor),
                 ),
               ],
             ),
             const SizedBox(height: 16),
             // 월별 타임라인
             if (start != null && end != null)
-              _MembershipTimeline(
-                start: start,
-                end: end,
-                accent: accentColor,
-              ),
+              _MembershipTimeline(start: start, end: end, accent: accentColor),
             const SizedBox(height: 6),
             Row(
               children: [
@@ -774,8 +787,11 @@ class _MembershipTimeline extends StatelessWidget {
     final totalDays = end.difference(start).inDays.clamp(1, 9999);
     final now = appClock.now();
     final today = DateTime(now.year, now.month, now.day);
-    final elapsedDays =
-        today.difference(start).inDays.clamp(0, totalDays).toInt();
+    final elapsedDays = today
+        .difference(start)
+        .inDays
+        .clamp(0, totalDays)
+        .toInt();
     final todayFraction = elapsedDays / totalDays;
 
     // 월 단위 라벨 — 시작 월부터 끝 월까지.
@@ -787,128 +803,129 @@ class _MembershipTimeline extends StatelessWidget {
       cursor = DateTime(cursor.year, cursor.month + 1, 1);
     }
 
-    return LayoutBuilder(builder: (context, constraints) {
-      final width = constraints.maxWidth;
-      final todayX = (width * todayFraction).clamp(0, width).toDouble();
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final todayX = (width * todayFraction).clamp(0, width).toDouble();
 
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 월 라벨 줄
-          SizedBox(
-            height: 14,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: monthLabels.map((m) {
-                final monthFrac =
-                    m.difference(start).inDays / totalDays;
-                final clamped = monthFrac.clamp(0, 1).toDouble();
-                final x = (width * clamped).clamp(0, width - 22).toDouble();
-                return Positioned(
-                  left: x,
-                  top: 0,
-                  child: Text(
-                    '${m.month}월',
-                    style: HyphenTokens.caption.copyWith(
-                      color: m.month == now.month && m.year == now.year
-                          ? accent
-                          : HyphenTokens.muted,
-                      fontWeight: m.month == now.month && m.year == now.year
-                          ? FontWeight.w700
-                          : FontWeight.w400,
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 월 라벨 줄
+            SizedBox(
+              height: 14,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: monthLabels.map((m) {
+                  final monthFrac = m.difference(start).inDays / totalDays;
+                  final clamped = monthFrac.clamp(0, 1).toDouble();
+                  final x = (width * clamped).clamp(0, width - 22).toDouble();
+                  return Positioned(
+                    left: x,
+                    top: 0,
+                    child: Text(
+                      '${m.month}월',
+                      style: HyphenTokens.caption.copyWith(
+                        color: m.month == now.month && m.year == now.year
+                            ? accent
+                            : HyphenTokens.muted,
+                        fontWeight: m.month == now.month && m.year == now.year
+                            ? FontWeight.w700
+                            : FontWeight.w400,
+                      ),
                     ),
-                  ),
-                );
-              }).toList(),
+                  );
+                }).toList(),
+              ),
             ),
-          ),
-          const SizedBox(height: 4),
-          // 타임라인 바 (왼쪽=과거 mutedStrong / 오른쪽=미래 accent)
-          SizedBox(
-            height: 18,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                // 전체 배경
-                Positioned.fill(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: HyphenTokens.surfaceMax,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                ),
-                // 지난 구간
-                Positioned(
-                  left: 0,
-                  top: 0,
-                  bottom: 0,
-                  width: todayX,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: HyphenTokens.mutedStrong,
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(4),
-                        bottomLeft: Radius.circular(4),
+            const SizedBox(height: 4),
+            // 타임라인 바 (왼쪽=과거 mutedStrong / 오른쪽=미래 accent)
+            SizedBox(
+              height: 18,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  // 전체 배경
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: HyphenTokens.surfaceMax,
+                        borderRadius: BorderRadius.circular(4),
                       ),
                     ),
                   ),
-                ),
-                // 미래 구간 (남은 회원권)
-                Positioned(
-                  left: todayX,
-                  top: 0,
-                  bottom: 0,
-                  right: 0,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: accent,
-                      borderRadius: const BorderRadius.only(
-                        topRight: Radius.circular(4),
-                        bottomRight: Radius.circular(4),
+                  // 지난 구간
+                  Positioned(
+                    left: 0,
+                    top: 0,
+                    bottom: 0,
+                    width: todayX,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: HyphenTokens.mutedStrong,
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(4),
+                          bottomLeft: Radius.circular(4),
+                        ),
                       ),
                     ),
                   ),
-                ),
-                // today 마커
-                Positioned(
-                  left: todayX - 1,
-                  top: -2,
-                  bottom: -2,
-                  width: 2,
-                  child: Container(color: HyphenTokens.fg),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 4),
-          // 오늘 표식. clamp 상한이 라벨 실폭(약 30)이 아니라 24 로 잡혀 있어
-          // 만료 직전(todayX 가 오른쪽 끝)이면 글자가 잘렸다 — v1.31 정정.
-          SizedBox(
-            height: 14,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Positioned(
-                  left: (todayX - 15)
-                      .clamp(0, (width - 30).clamp(0, double.infinity))
-                      .toDouble(),
-                  top: 0,
-                  child: Text(
-                    '오늘',
-                    style: HyphenTokens.caption.copyWith(
-                      color: HyphenTokens.fg,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.8,
+                  // 미래 구간 (남은 회원권)
+                  Positioned(
+                    left: todayX,
+                    top: 0,
+                    bottom: 0,
+                    right: 0,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: accent,
+                        borderRadius: const BorderRadius.only(
+                          topRight: Radius.circular(4),
+                          bottomRight: Radius.circular(4),
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ],
+                  // today 마커
+                  Positioned(
+                    left: todayX - 1,
+                    top: -2,
+                    bottom: -2,
+                    width: 2,
+                    child: Container(color: HyphenTokens.fg),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
-      );
-    });
+            const SizedBox(height: 4),
+            // 오늘 표식. clamp 상한이 라벨 실폭(약 30)이 아니라 24 로 잡혀 있어
+            // 만료 직전(todayX 가 오른쪽 끝)이면 글자가 잘렸다 — v1.31 정정.
+            SizedBox(
+              height: 14,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Positioned(
+                    left: (todayX - 15)
+                        .clamp(0, (width - 30).clamp(0, double.infinity))
+                        .toDouble(),
+                    top: 0,
+                    child: Text(
+                      '오늘',
+                      style: HyphenTokens.caption.copyWith(
+                        color: HyphenTokens.fg,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.8,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -942,37 +959,37 @@ class _LockerCard extends StatelessWidget {
                 color: HyphenTokens.surfaceMax,
                 borderRadius: BorderRadius.circular(6),
               ),
-              child: Text(lk.lockerNo,
-                  style:
-                      HyphenTokens.h3.copyWith(color: HyphenTokens.fg)),
+              child: Text(
+                lk.lockerNo,
+                style: HyphenTokens.h3.copyWith(color: HyphenTokens.fg),
+              ),
             ),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('내 락커', style: HyphenTokens.sectionLabel),
+                  HkSectionLabel('내 락커'),
                   const SizedBox(height: 4),
                   Text(
                     lk.endDate != null && lk.endDate!.isNotEmpty
                         ? '${lk.endDate} 까지'
                         : '회원권 만료일 자동',
-                    style: HyphenTokens.body
-                        .copyWith(color: HyphenTokens.fg),
+                    style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
                   ),
                   if (lk.memo != null && lk.memo!.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(top: 2),
-                      child: Text(lk.memo!,
-                          style: HyphenTokens.caption),
+                      child: Text(lk.memo!, style: HyphenTokens.caption),
                     ),
                 ],
               ),
             ),
             if (days != null && days >= 0 && days <= 14)
-              Text('D-$days',
-                  style: HyphenTokens.h3
-                      .copyWith(color: HyphenTokens.warning)),
+              Text(
+                'D-$days',
+                style: HyphenTokens.h3.copyWith(color: HyphenTokens.warning),
+              ),
           ],
         ),
       ),
@@ -1030,7 +1047,9 @@ class _PointsBalanceRowState extends State<_PointsBalanceRow> {
       padding: const EdgeInsets.only(bottom: HyphenTokens.sp3),
       child: Container(
         padding: const EdgeInsets.symmetric(
-            horizontal: HyphenTokens.sp4, vertical: HyphenTokens.sp3),
+          horizontal: HyphenTokens.sp4,
+          vertical: HyphenTokens.sp3,
+        ),
         decoration: BoxDecoration(
           color: HyphenTokens.surface,
           border: Border.all(color: HyphenTokens.border),
@@ -1038,11 +1057,11 @@ class _PointsBalanceRowState extends State<_PointsBalanceRow> {
         ),
         child: Row(
           children: [
-            const Expanded(
-              child: Text('포인트', style: HyphenTokens.sectionLabel),
+            const Expanded(child: HkSectionLabel('포인트')),
+            Text(
+              '$balance P',
+              style: HyphenTokens.h3.copyWith(color: HyphenTokens.primary),
             ),
-            Text('$balance P',
-                style: HyphenTokens.h3.copyWith(color: HyphenTokens.primary)),
           ],
         ),
       ),

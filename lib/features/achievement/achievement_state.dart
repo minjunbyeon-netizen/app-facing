@@ -76,11 +76,13 @@ class AchievementState extends ChangeNotifier {
       for (final code in _snapshot.unlocked.keys) {
         if (beforeCodes.contains(code) || newlyCodes.contains(code)) continue;
         final cat = byCode[code];
-        merged.add(AchievementUnlockResult(
-          code: code,
-          name: cat?.name ?? code,
-          rarity: cat?.rarity ?? 'Common',
-        ));
+        merged.add(
+          AchievementUnlockResult(
+            code: code,
+            name: cat?.name ?? code,
+            rarity: cat?.rarity ?? 'Common',
+          ),
+        );
       }
       return merged;
     } on AppException catch (e) {

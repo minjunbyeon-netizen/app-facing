@@ -46,8 +46,8 @@ class ProfileState extends ChangeNotifier {
   String? get injuryNotes => _injuryNotes;
 
   // v1.19 차수 5 (B-PF-12): 키 일관성. overall_number 가 SSOT (백엔드 응답).
-  bool get hasGrade => _gradeResult != null &&
-      _gradeResult!['overall_number'] != null;
+  bool get hasGrade =>
+      _gradeResult != null && _gradeResult!['overall_number'] != null;
 
   /// 온보딩 완료 서버 판정 (2026-08-19 — 잔존 갭 '온보딩 완료 영속 서버화').
   ///

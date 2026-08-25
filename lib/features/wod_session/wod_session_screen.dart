@@ -76,8 +76,10 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
   /// AMRAP/EMOM 지속시간. time_cap_sec 우선, 없으면 content에서 "AMRAP 12" · "EMOM 10" 숫자 추출.
   static int _resolveCap(GymWodPost wod, _TimerMode mode) {
     if (wod.timeCapSec != null && wod.timeCapSec! > 0) return wod.timeCapSec!;
-    final m = RegExp(r'(AMRAP|EMOM)\s+(\d+)', caseSensitive: false)
-        .firstMatch(wod.content);
+    final m = RegExp(
+      r'(AMRAP|EMOM)\s+(\d+)',
+      caseSensitive: false,
+    ).firstMatch(wod.content);
     if (m != null) {
       final mins = int.tryParse(m.group(2) ?? '') ?? 0;
       if (mins > 0) return mins * 60;
@@ -168,124 +170,144 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
     // QA B-COR-2: 모달 닫힌 후 controller dispose 보장.
     try {
       await HkSheet.show<void>(
-      context,
-      builder: (sheetCtx) {
-        return StatefulBuilder(builder: (innerCtx, setSheet) {
-        return Padding(
-          padding: EdgeInsets.only(
-            left: HyphenTokens.sp4,
-            right: HyphenTokens.sp4,
-            top: HyphenTokens.sp4,
-            bottom:
-                MediaQuery.of(sheetCtx).viewInsets.bottom + HyphenTokens.sp4,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text('기록 저장', style: HyphenTokens.sectionLabel),
-              const SizedBox(height: HyphenTokens.sp1),
-              Text(wodTypeLabel(widget.wod.wodType),
-                  style: HyphenTokens.h3.copyWith(
-                    color: HyphenTokens.accent,
-                    fontWeight: FontWeight.w800,
-                  )),
-              const SizedBox(height: HyphenTokens.sp4),
-              if (_mode == _TimerMode.forTime) ...[
-                const Text('완료 시간 (MM:SS)', style: HyphenTokens.caption),
-                const SizedBox(height: HyphenTokens.sp1),
-                TextField(
-                  controller: timeCtrl,
-                  decoration: const InputDecoration(hintText: '7:43'),
-                  keyboardType: TextInputType.datetime,
+        context,
+        builder: (sheetCtx) {
+          return StatefulBuilder(
+            builder: (innerCtx, setSheet) {
+              return Padding(
+                padding: EdgeInsets.only(
+                  left: HyphenTokens.sp4,
+                  right: HyphenTokens.sp4,
+                  top: HyphenTokens.sp4,
+                  bottom:
+                      MediaQuery.of(sheetCtx).viewInsets.bottom +
+                      HyphenTokens.sp4,
                 ),
-              ] else if (_mode == _TimerMode.amrap) ...[
-                const Text('완료한 라운드', style: HyphenTokens.caption),
-                const SizedBox(height: HyphenTokens.sp1),
-                TextField(
-                  controller: roundsCtrl,
-                  decoration: const InputDecoration(hintText: '5'),
-                  keyboardType: TextInputType.number,
-                ),
-                const SizedBox(height: HyphenTokens.sp3),
-                const Text('추가 반복 (optional)', style: HyphenTokens.caption),
-                const SizedBox(height: HyphenTokens.sp1),
-                TextField(
-                  controller: repsCtrl,
-                  decoration: const InputDecoration(hintText: '12'),
-                  keyboardType: TextInputType.number,
-                ),
-              ] else ...[
-                Text('${_capSec ~/ 60}분 EMOM 완료.',
-                    style: HyphenTokens.body),
-              ],
-              const SizedBox(height: HyphenTokens.sp3),
-              // v1.16 Sprint 11: Scaled 토글 (P2 Q8/Q18).
-              Row(
-                children: [
-                  const Expanded(
-                    child: Text('Scaled 기록',
-                        style: HyphenTokens.body),
-                  ),
-                  Switch(
-                    value: _scaled,
-                    activeTrackColor: HyphenTokens.accent,
-                    onChanged: (v) {
-                      setSheet(() {});
-                      setState(() => _scaled = v);
-                    },
-                  ),
-                ],
-              ),
-              Text(
-                // v3.2 (2026-08-20): Tier 반영·감산 가중치는 소멸한 시스템 —
-                // 실동작은 scale_level 저장뿐. 표기는 GLOSSARY (RXD).
-                _scaled ? 'SCALED 로 저장됩니다.' : 'RXD 로 저장됩니다.',
-                style: HyphenTokens.caption,
-              ),
-              const SizedBox(height: HyphenTokens.sp4),
-              Row(
-                children: [
-                  Expanded(
-                    child: HkButton.secondary('취소',
-                        onPressed: _saving
-                            ? null
-                            : () => Navigator.of(sheetCtx).pop()),
-                  ),
-                  const SizedBox(width: HyphenTokens.sp3),
-                  Expanded(
-                    child: HkButton.primary(
-                      _saving ? '저장 중' : '저장',
-                      onPressed: _saving
-                          ? null
-                          : () async {
-                              final ok = await _saveRecord(
-                                timeStr: timeCtrl.text.trim(),
-                                rounds: int.tryParse(roundsCtrl.text.trim()),
-                                extraReps: int.tryParse(repsCtrl.text.trim()),
-                              );
-                              if (!sheetCtx.mounted) return;
-                              if (ok) Navigator.of(sheetCtx).pop();
-                            },
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const HkSectionLabel('기록 저장'),
+                    const SizedBox(height: HyphenTokens.sp1),
+                    Text(
+                      wodTypeLabel(widget.wod.wodType),
+                      style: HyphenTokens.h3.copyWith(
+                        color: HyphenTokens.accent,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: HyphenTokens.sp2),
-              Center(
-                child: HkButton.tertiary('공유 (준비 중)',
-                    neutral: true,
-                    onPressed: () {
-                      HkSnack.show(context, '공유 카드 생성은 Phase 2에서 제공.',
-                          mood: MascotMood.neutral);
-                    }),
-              ),
-            ],
-          ),
-        );
-        });
-      },
-    );
+                    const SizedBox(height: HyphenTokens.sp4),
+                    if (_mode == _TimerMode.forTime) ...[
+                      const Text('완료 시간 (MM:SS)', style: HyphenTokens.caption),
+                      const SizedBox(height: HyphenTokens.sp1),
+                      TextField(
+                        controller: timeCtrl,
+                        decoration: const InputDecoration(hintText: '7:43'),
+                        keyboardType: TextInputType.datetime,
+                      ),
+                    ] else if (_mode == _TimerMode.amrap) ...[
+                      const Text('완료한 라운드', style: HyphenTokens.caption),
+                      const SizedBox(height: HyphenTokens.sp1),
+                      TextField(
+                        controller: roundsCtrl,
+                        decoration: const InputDecoration(hintText: '5'),
+                        keyboardType: TextInputType.number,
+                      ),
+                      const SizedBox(height: HyphenTokens.sp3),
+                      const Text(
+                        '추가 반복 (optional)',
+                        style: HyphenTokens.caption,
+                      ),
+                      const SizedBox(height: HyphenTokens.sp1),
+                      TextField(
+                        controller: repsCtrl,
+                        decoration: const InputDecoration(hintText: '12'),
+                        keyboardType: TextInputType.number,
+                      ),
+                    ] else ...[
+                      Text(
+                        '${_capSec ~/ 60}분 EMOM 완료.',
+                        style: HyphenTokens.body,
+                      ),
+                    ],
+                    const SizedBox(height: HyphenTokens.sp3),
+                    // v1.16 Sprint 11: Scaled 토글 (P2 Q8/Q18).
+                    Row(
+                      children: [
+                        const Expanded(
+                          child: Text('Scaled 기록', style: HyphenTokens.body),
+                        ),
+                        Switch(
+                          value: _scaled,
+                          activeTrackColor: HyphenTokens.accent,
+                          onChanged: (v) {
+                            setSheet(() {});
+                            setState(() => _scaled = v);
+                          },
+                        ),
+                      ],
+                    ),
+                    Text(
+                      // v3.2 (2026-08-20): Tier 반영·감산 가중치는 소멸한 시스템 —
+                      // 실동작은 scale_level 저장뿐. 표기는 GLOSSARY (RXD).
+                      _scaled ? 'SCALED 로 저장됩니다.' : 'RXD 로 저장됩니다.',
+                      style: HyphenTokens.caption,
+                    ),
+                    const SizedBox(height: HyphenTokens.sp4),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: HkButton.secondary(
+                            '취소',
+                            onPressed: _saving
+                                ? null
+                                : () => Navigator.of(sheetCtx).pop(),
+                          ),
+                        ),
+                        const SizedBox(width: HyphenTokens.sp3),
+                        Expanded(
+                          child: HkButton.primary(
+                            _saving ? '저장 중' : '저장',
+                            onPressed: _saving
+                                ? null
+                                : () async {
+                                    final ok = await _saveRecord(
+                                      timeStr: timeCtrl.text.trim(),
+                                      rounds: int.tryParse(
+                                        roundsCtrl.text.trim(),
+                                      ),
+                                      extraReps: int.tryParse(
+                                        repsCtrl.text.trim(),
+                                      ),
+                                    );
+                                    if (!sheetCtx.mounted) return;
+                                    if (ok) Navigator.of(sheetCtx).pop();
+                                  },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: HyphenTokens.sp2),
+                    Center(
+                      child: HkButton.tertiary(
+                        '공유 (준비 중)',
+                        neutral: true,
+                        onPressed: () {
+                          HkSnack.show(
+                            context,
+                            '공유 카드 생성은 Phase 2에서 제공.',
+                            mood: MascotMood.neutral,
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      );
     } finally {
       timeCtrl.dispose();
       roundsCtrl.dispose();
@@ -336,9 +358,11 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
       }
 
       final notes = StringBuffer();
-      notes.writeln(_scaled
-          ? '[SCALED] HYPHEN 기록 — ${widget.wod.postDate}'
-          : '[RX] HYPHEN 기록 — ${widget.wod.postDate}');
+      notes.writeln(
+        _scaled
+            ? '[SCALED] HYPHEN 기록 — ${widget.wod.postDate}'
+            : '[RX] HYPHEN 기록 — ${widget.wod.postDate}',
+      );
       if (rounds != null) notes.writeln('Rounds: $rounds');
       if (extraReps != null) notes.writeln('Extra reps: $extraReps');
       notes.writeln('---');
@@ -350,9 +374,9 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
           'time_cap_sec': widget.wod.timeCapSec,
           'rounds': rounds ?? widget.wod.rounds,
           'notes': notes.toString().substring(
-                0,
-                notes.length > 500 ? 500 : notes.length,
-              ),
+            0,
+            notes.length > 500 ? 500 : notes.length,
+          ),
           'items': const [],
         },
         'plan': {
@@ -370,8 +394,7 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
         final gs = context.read<GymState>();
         final gym = gs.membership.gym;
         final gymRepo = context.read<GymRepository>();
-        if (gym != null &&
-            (gs.isOwner || gs.membership.isApprovedMember)) {
+        if (gym != null && (gs.isOwner || gs.membership.isApprovedMember)) {
           await gymRepo.submitWodResult(
             gymId: gym.id,
             wodId: widget.wod.id,
@@ -479,131 +502,144 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
       },
       child: Scaffold(
         appBar: HkAppBar(title: wodTypeLabel(widget.wod.wodType)),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(HyphenTokens.sp4),
-          child: Column(
-            children: [
-              // WOD 내용
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(HyphenTokens.sp4),
-                decoration: BoxDecoration(
-                  color: HyphenTokens.surface,
-                  borderRadius: BorderRadius.circular(HyphenTokens.r3),
-                  border: Border.all(color: HyphenTokens.border),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(_modeLabel(_mode),
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(HyphenTokens.sp4),
+            child: Column(
+              children: [
+                // WOD 내용
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(HyphenTokens.sp4),
+                  decoration: BoxDecoration(
+                    color: HyphenTokens.surface,
+                    borderRadius: BorderRadius.circular(HyphenTokens.r3),
+                    border: Border.all(color: HyphenTokens.border),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _modeLabel(_mode),
                         style: HyphenTokens.sectionLabel.copyWith(
                           color: HyphenTokens.accent,
-                        )),
-                    const SizedBox(height: HyphenTokens.sp2),
-                    Text(widget.wod.content, style: HyphenTokens.body),
-                    if (widget.wod.roundsData.isNotEmpty) ...[
+                        ),
+                      ),
                       const SizedBox(height: HyphenTokens.sp2),
-                      ...widget.wod.roundsData.asMap().entries.map((e) {
-                        final i = e.key;
-                        final r = e.value;
-                        return Padding(
-                          padding:
-                              const EdgeInsets.only(top: HyphenTokens.sp1),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                r.label.isEmpty
-                                    ? 'ROUND ${i + 1}'
-                                    : r.label.toUpperCase(),
-                                style: HyphenTokens.micro.copyWith(
-                                  color: HyphenTokens.accent,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: 1.2,
-                                ),
-                              ),
-                              Text(r.content,
-                                  style: HyphenTokens.caption),
-                              if (r.timeCapSec != null)
+                      Text(widget.wod.content, style: HyphenTokens.body),
+                      if (widget.wod.roundsData.isNotEmpty) ...[
+                        const SizedBox(height: HyphenTokens.sp2),
+                        ...widget.wod.roundsData.asMap().entries.map((e) {
+                          final i = e.key;
+                          final r = e.value;
+                          return Padding(
+                            padding: const EdgeInsets.only(
+                              top: HyphenTokens.sp1,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                                 Text(
-                                  'cap ${r.timeCapSec! ~/ 60}:${(r.timeCapSec! % 60).toString().padLeft(2, '0')}',
+                                  r.label.isEmpty
+                                      ? 'ROUND ${i + 1}'
+                                      : r.label.toUpperCase(),
                                   style: HyphenTokens.micro.copyWith(
-                                      color: HyphenTokens.muted),
+                                    color: HyphenTokens.accent,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 1.2,
+                                  ),
                                 ),
-                            ],
-                          ),
-                        );
-                      }),
-                    ],
-                    if (widget.wod.scaleGuide != null &&
-                        widget.wod.scaleGuide!.isNotEmpty) ...[
-                      const SizedBox(height: HyphenTokens.sp3),
-                      Text('스케일',
+                                Text(r.content, style: HyphenTokens.caption),
+                                if (r.timeCapSec != null)
+                                  Text(
+                                    'cap ${r.timeCapSec! ~/ 60}:${(r.timeCapSec! % 60).toString().padLeft(2, '0')}',
+                                    style: HyphenTokens.micro.copyWith(
+                                      color: HyphenTokens.muted,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          );
+                        }),
+                      ],
+                      if (widget.wod.scaleGuide != null &&
+                          widget.wod.scaleGuide!.isNotEmpty) ...[
+                        const SizedBox(height: HyphenTokens.sp3),
+                        Text(
+                          '스케일',
                           style: HyphenTokens.micro.copyWith(
                             color: HyphenTokens.muted,
                             fontWeight: FontWeight.w700,
                             letterSpacing: 1.2,
-                          )),
-                      const SizedBox(height: 2),
-                      Text(widget.wod.scaleGuide!,
-                          style: HyphenTokens.caption),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          widget.wod.scaleGuide!,
+                          style: HyphenTokens.caption,
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
-              ),
-              const Spacer(),
-              // 타이머 표시
-              Text(
-                _formatMMSS(_displaySec),
-                style: HyphenTokens.display.copyWith(
-                  fontFeatures: HyphenTokens.tabular,
+                const Spacer(),
+                // 타이머 표시
+                Text(
+                  _formatMMSS(_displaySec),
+                  style: HyphenTokens.display.copyWith(
+                    fontFeatures: HyphenTokens.tabular,
+                  ),
                 ),
-              ),
-              const SizedBox(height: HyphenTokens.sp1),
-              Text(_subLabel(),
+                const SizedBox(height: HyphenTokens.sp1),
+                Text(
+                  _subLabel(),
                   style: HyphenTokens.caption.copyWith(
                     color: HyphenTokens.muted,
-                  )),
-              const Spacer(),
-              // 컨트롤 버튼
-              Row(
-                children: [
-                  Expanded(
-                    child: HkButton.secondary('초기화', onPressed: _reset),
                   ),
-                  const SizedBox(width: HyphenTokens.sp3),
-                  Expanded(
-                    flex: 2,
-                    // QA B-PF-5: _start/_resume 동일 함수였음. 단일 호출로 정리.
-                    // 라벨만 시작/재개로 분기.
-                    child: _running
-                        ? HkButton.primary('일시정지', onPressed: _pause)
-                        : HkButton.primary(_elapsedSec == 0 ? '시작' : '재개',
-                            onPressed: _start),
-                  ),
-                  const SizedBox(width: HyphenTokens.sp3),
-                  Expanded(
-                    child: HkButton.primary('완료',
-                        onPressed: _elapsedSec == 0 ? null : _complete),
-                  ),
-                ],
-              ),
-              const SizedBox(height: HyphenTokens.sp2),
-              Text(
-                _mode == _TimerMode.amrap
-                    ? 'AMRAP · 카운트다운 종료 시 자동 기록 전환'
-                    : _mode == _TimerMode.emom
-                        ? 'EMOM · 매 분 Haptic 알림'
-                        : 'For Time · 스톱워치 · Done 누르면 기록 저장',
-                style: HyphenTokens.caption,
-                textAlign: TextAlign.center,
-              ),
-            ],
+                ),
+                const Spacer(),
+                // 컨트롤 버튼
+                Row(
+                  children: [
+                    Expanded(
+                      child: HkButton.secondary('초기화', onPressed: _reset),
+                    ),
+                    const SizedBox(width: HyphenTokens.sp3),
+                    Expanded(
+                      flex: 2,
+                      // QA B-PF-5: _start/_resume 동일 함수였음. 단일 호출로 정리.
+                      // 라벨만 시작/재개로 분기.
+                      child: _running
+                          ? HkButton.primary('일시정지', onPressed: _pause)
+                          : HkButton.primary(
+                              _elapsedSec == 0 ? '시작' : '재개',
+                              onPressed: _start,
+                            ),
+                    ),
+                    const SizedBox(width: HyphenTokens.sp3),
+                    Expanded(
+                      child: HkButton.primary(
+                        '완료',
+                        onPressed: _elapsedSec == 0 ? null : _complete,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: HyphenTokens.sp2),
+                Text(
+                  _mode == _TimerMode.amrap
+                      ? 'AMRAP · 카운트다운 종료 시 자동 기록 전환'
+                      : _mode == _TimerMode.emom
+                      ? 'EMOM · 매 분 Haptic 알림'
+                      : 'For Time · 스톱워치 · Done 누르면 기록 저장',
+                  style: HyphenTokens.caption,
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           ),
         ),
       ),
-    ),
     );
   }
 

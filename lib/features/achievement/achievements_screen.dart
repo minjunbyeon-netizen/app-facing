@@ -90,8 +90,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     final filtered = _filter == 'ALL'
         ? all
         : all.where((c) => _category(c.code) == _filter).toList();
-    final unlockedCount =
-        all.where((c) => state.isUnlockedInUi(c.code)).length;
+    final unlockedCount = all.where((c) => state.isUnlockedInUi(c.code)).length;
     final totalCount = all.length;
 
     // featured: 명시 선택 → 없으면 첫 잠금해제 → 없으면 첫 카탈로그.
@@ -137,83 +136,77 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
       ),
       body: SafeArea(
         child: isLoading
-            ? const Center(
-                child: SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: CircularProgressIndicator(
-                      strokeWidth: 2, color: HyphenTokens.muted),
+            ? const HkLoading()
+            : hasError
+            ? Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(HyphenTokens.sp5),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const HkSectionLabel('업적 로딩 실패'),
+                      const SizedBox(height: HyphenTokens.sp2),
+                      Text(state.error!, style: HyphenTokens.caption),
+                      const SizedBox(height: HyphenTokens.sp3),
+                      HkButton.secondary(
+                        '다시 시도',
+                        onPressed: () => state.load(),
+                      ),
+                    ],
+                  ),
                 ),
               )
-            : hasError
-                ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(HyphenTokens.sp5),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Text('업적 로딩 실패',
-                              style: HyphenTokens.sectionLabel),
-                          const SizedBox(height: HyphenTokens.sp2),
-                          Text(state.error!, style: HyphenTokens.caption),
-                          const SizedBox(height: HyphenTokens.sp3),
-                          HkButton.secondary('다시 시도',
-                              onPressed: () => state.load()),
-                        ],
-                      ),
-                    ),
-                  )
-                : Column(
-          children: [
-            _StatsHeader(unlocked: unlockedCount, total: totalCount),
-            _FilterRow(
-              current: _filter,
-              filters: _filters,
-              onTap: (v) {
-                Haptic.selection();
-                setState(() => _filter = v);
-              },
-            ),
-            const Divider(height: 1, color: HyphenTokens.border),
-            Expanded(
-              child: filtered.isEmpty
-                  ? const Center(
-                      child: Text('아직 업적 없음.',
-                          style: HyphenTokens.caption),
-                    )
-                  : Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Expanded(
-                          flex: 5,
-                          child: featured.code.isEmpty
-                              ? const SizedBox.shrink()
-                              : _FeaturedPanel(
-                                  catalog: featured,
-                                  unlock: snap.unlocked[featured.code],
-                                  unlockedInUi:
-                                      state.isUnlockedInUi(featured.code),
+            : Column(
+                children: [
+                  _StatsHeader(unlocked: unlockedCount, total: totalCount),
+                  _FilterRow(
+                    current: _filter,
+                    filters: _filters,
+                    onTap: (v) {
+                      Haptic.selection();
+                      setState(() => _filter = v);
+                    },
+                  ),
+                  const Divider(height: 1, color: HyphenTokens.border),
+                  Expanded(
+                    child: filtered.isEmpty
+                        ? const HkEmptyState(title: '아직 업적 없음')
+                        : Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Expanded(
+                                flex: 5,
+                                child: featured.code.isEmpty
+                                    ? const SizedBox.shrink()
+                                    : _FeaturedPanel(
+                                        catalog: featured,
+                                        unlock: snap.unlocked[featured.code],
+                                        unlockedInUi: state.isUnlockedInUi(
+                                          featured.code,
+                                        ),
+                                      ),
+                              ),
+                              const VerticalDivider(
+                                width: 1,
+                                color: HyphenTokens.border,
+                              ),
+                              Expanded(
+                                flex: 7,
+                                child: _Grid(
+                                  items: filtered,
+                                  state: state,
+                                  featuredCode: featured.code,
+                                  onTap: (code) {
+                                    Haptic.light();
+                                    setState(() => _featuredCode = code);
+                                  },
                                 ),
-                        ),
-                        const VerticalDivider(
-                            width: 1, color: HyphenTokens.border),
-                        Expanded(
-                          flex: 7,
-                          child: _Grid(
-                            items: filtered,
-                            state: state,
-                            featuredCode: featured.code,
-                            onTap: (code) {
-                              Haptic.light();
-                              setState(() => _featuredCode = code);
-                            },
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
-                    ),
-            ),
-          ],
-        ),
+                  ),
+                ],
+              ),
       ),
     );
   }
@@ -243,8 +236,10 @@ class _StatsHeader extends StatelessWidget {
             children: [
               Text('$unlocked', style: HyphenTokens.display),
               const SizedBox(width: HyphenTokens.sp1),
-              Text('/ $total',
-                  style: HyphenTokens.h3.copyWith(color: HyphenTokens.muted)),
+              Text(
+                '/ $total',
+                style: HyphenTokens.h3.copyWith(color: HyphenTokens.muted),
+              ),
               const Spacer(),
               // 진척률은 성과·경고 강조 대상 아님 → muted (실기기 QA).
               Text(
@@ -257,17 +252,19 @@ class _StatsHeader extends StatelessWidget {
             ],
           ),
           const SizedBox(height: HyphenTokens.sp1),
-          Text('달성', style: HyphenTokens.sectionLabel),
+          HkSectionLabel('달성'),
           const SizedBox(height: HyphenTokens.sp2),
           ClipRRect(
             borderRadius: BorderRadius.circular(HyphenTokens.r1),
-            child: Stack(children: [
-              Container(height: 4, color: HyphenTokens.border),
-              FractionallySizedBox(
-                widthFactor: pct,
-                child: Container(height: 4, color: HyphenTokens.accent),
-              ),
-            ]),
+            child: Stack(
+              children: [
+                Container(height: 4, color: HyphenTokens.border),
+                FractionallySizedBox(
+                  widthFactor: pct,
+                  child: Container(height: 4, color: HyphenTokens.accent),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -372,8 +369,8 @@ class _FeaturedPanel extends StatelessWidget {
             isHidden
                 ? '· · · 조건 비공개. 해금 후 공개.'
                 : (unlockedInUi
-                    ? catalog.description
-                    : AchievementCard.lockedHint(catalog)),
+                      ? catalog.description
+                      : AchievementCard.lockedHint(catalog)),
             style: HyphenTokens.caption,
           ),
           const Spacer(),
@@ -382,8 +379,11 @@ class _FeaturedPanel extends StatelessWidget {
             const SizedBox(height: HyphenTokens.sp2),
             Row(
               children: [
-                const Icon(Icons.check_circle,
-                    size: 14, color: HyphenTokens.success),
+                const Icon(
+                  Icons.check_circle,
+                  size: 14,
+                  color: HyphenTokens.success,
+                ),
                 const SizedBox(width: HyphenTokens.sp1),
                 // 좁은 좌측 패널에서 가로 오버플로우 나던 자리 — Expanded 로 고정.
                 Expanded(
@@ -407,10 +407,12 @@ class _FeaturedPanel extends StatelessWidget {
           ] else ...[
             const Divider(height: 1, color: HyphenTokens.border),
             const SizedBox(height: HyphenTokens.sp2),
-            Text('미달성',
-                style: HyphenTokens.microLabel.copyWith(
-                  fontWeight: FontWeight.w800,
-                )),
+            Text(
+              '미달성',
+              style: HyphenTokens.microLabel.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+            ),
           ],
         ],
       ),
@@ -510,8 +512,11 @@ class _GridCell extends StatelessWidget {
                     const Positioned(
                       right: 4,
                       top: 4,
-                      child: Icon(Icons.check_circle,
-                          size: 14, color: HyphenTokens.success),
+                      child: Icon(
+                        Icons.check_circle,
+                        size: 14,
+                        color: HyphenTokens.success,
+                      ),
                     ),
                 ],
               ),
@@ -542,4 +547,3 @@ class _GridCell extends StatelessWidget {
     );
   }
 }
-

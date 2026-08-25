@@ -32,40 +32,42 @@ class MembershipStatusView extends StatelessWidget {
   });
 
   const MembershipStatusView.none({super.key})
-      : kind = MembershipStatusKind.none,
-        gymName = null,
-        onRecheck = null,
-        checking = false,
-        onSignOut = null;
+    : kind = MembershipStatusKind.none,
+      gymName = null,
+      onRecheck = null,
+      checking = false,
+      onSignOut = null;
 
-  const MembershipStatusView.pending(
-      {super.key,
-      this.gymName,
-      this.onRecheck,
-      this.checking = false,
-      this.onSignOut})
-      : kind = MembershipStatusKind.pending;
+  const MembershipStatusView.pending({
+    super.key,
+    this.gymName,
+    this.onRecheck,
+    this.checking = false,
+    this.onSignOut,
+  }) : kind = MembershipStatusKind.pending;
 
   const MembershipStatusView.rejected({super.key, this.gymName})
-      : kind = MembershipStatusKind.rejected,
-        onRecheck = null,
-        checking = false,
-        onSignOut = null;
+    : kind = MembershipStatusKind.rejected,
+      onRecheck = null,
+      checking = false,
+      onSignOut = null;
 
   String get _title => switch (kind) {
-        MembershipStatusKind.none => '체육관 미가입',
-        MembershipStatusKind.pending => '승인 대기중입니다',
-        MembershipStatusKind.rejected => '가입이 승인되지 않았습니다',
-      };
+    MembershipStatusKind.none => '체육관 미가입',
+    MembershipStatusKind.pending => '승인 대기중입니다',
+    MembershipStatusKind.rejected => '가입이 승인되지 않았습니다',
+  };
 
   String get _body {
     final g = (gymName ?? '').isNotEmpty ? '$gymName ' : '';
     return switch (kind) {
       // v2.6·v2.7: 가입은 로그인 화면의 '회원 가입 신청' 한 길뿐이다.
-      MembershipStatusKind.none => '로그인 화면의 [회원 가입 신청] 으로 신청하면 '
-          '코치가 승인한 뒤 이용할 수 있습니다.',
-      MembershipStatusKind.pending => '$g가입 신청이 코치에게 전달됐습니다.\n'
-          '코치가 승인하면 수업 내용·수업 예약이 열립니다.',
+      MembershipStatusKind.none =>
+        '로그인 화면의 [회원 가입 신청] 으로 신청하면 '
+            '코치가 승인한 뒤 이용할 수 있습니다.',
+      MembershipStatusKind.pending =>
+        '$g가입 신청이 코치에게 전달됐습니다.\n'
+            '코치가 승인하면 수업 내용·수업 예약이 열립니다.',
       // v2.6: 체육관이 하나뿐이라 "다른 체육관" 은 없다 — 코치에게 묻는 것이 유일한 다음 행동.
       MembershipStatusKind.rejected => '$g코치에게 문의해 주세요.',
     };
@@ -82,8 +84,11 @@ class MembershipStatusView extends StatelessWidget {
           children: [
             Text(_title, style: HyphenTokens.h3, textAlign: TextAlign.center),
             const SizedBox(height: HyphenTokens.sp3),
-            Text(_body,
-                style: HyphenTokens.caption, textAlign: TextAlign.center),
+            Text(
+              _body,
+              style: HyphenTokens.caption,
+              textAlign: TextAlign.center,
+            ),
             if (kind == MembershipStatusKind.pending && onRecheck != null) ...[
               const SizedBox(height: HyphenTokens.sp6),
               checking

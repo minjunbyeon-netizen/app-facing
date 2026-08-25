@@ -48,6 +48,7 @@ class _PanelBScreenState extends State<PanelBScreen> {
   // 폰을 바꾸면 착용이 풀렸다.
   /// /go 7 (B2): 누적 공유 횟수 (PB_PHOTO_FINISH 등 signal).
   int _shareCount = 0;
+
   /// v3.12 (2026-08-23): 1RM 보드에서 뽑은 상위 등급 신호 2종.
   /// 서버가 이미 동작별 최고 무게를 집계해 주므로 앱은 최대값·종수만 센다.
   /// 체육관 미가입이면 호출 자체가 403 이라 0 으로 남는다 (해금 안 됨).
@@ -58,7 +59,9 @@ class _PanelBScreenState extends State<PanelBScreen> {
   void initState() {
     super.initState();
     final api = context.read<ApiClient>();
-    _historyFuture = retainError(HistoryRepository(api).listWodHistory(limit: 500));
+    _historyFuture = retainError(
+      HistoryRepository(api).listWodHistory(limit: 500),
+    );
     _loadShareCount();
     _loadStrengthBoard();
   }
@@ -139,8 +142,9 @@ class _PanelBScreenState extends State<PanelBScreen> {
     // /go Phase 3: 코치 노트 송신/수신 카운트 — InboxState 가 bind 된 상태에서만 의미.
     // 미바인드(no-gym/pending/rejected) 시 0 → PB_TEACHER/PB_STUDENT 잠금 유지.
     final coachNotesSent = inbox.outbox.length;
-    final coachNotesReceived =
-        inbox.inbox.items.where((n) => n.kind == 'note').length;
+    final coachNotesReceived = inbox.inbox.items
+        .where((n) => n.kind == 'note')
+        .length;
 
     // v1.21 프로필 완성도: bodyWeightKg + 5+ benchmarks.
     final profileComplete =
@@ -185,8 +189,11 @@ class _PanelBScreenState extends State<PanelBScreen> {
     final today = appClock.now().toLocal();
     final todayKey = DateTime(today.year, today.month, today.day);
     final mostRecent = sorted.first.createdAt.toLocal();
-    final mostRecentKey =
-        DateTime(mostRecent.year, mostRecent.month, mostRecent.day);
+    final mostRecentKey = DateTime(
+      mostRecent.year,
+      mostRecent.month,
+      mostRecent.day,
+    );
     final daysSinceLast = todayKey.difference(mostRecentKey).inDays;
     if (daysSinceLast > 1) return 0;
 
@@ -219,16 +226,7 @@ class _PanelBScreenState extends State<PanelBScreen> {
           future: _historyFuture,
           builder: (ctx, snap) {
             if (snap.connectionState != ConnectionState.done) {
-              return const Center(
-                child: SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: HyphenTokens.muted,
-                  ),
-                ),
-              );
+              return const HkLoading();
             }
             // /go Tier 3: hasError 분기.
             if (snap.hasError) {
@@ -238,19 +236,24 @@ class _PanelBScreenState extends State<PanelBScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text('칭호 로딩 실패',
-                          style: HyphenTokens.sectionLabel),
+                      const HkSectionLabel('칭호 로딩 실패'),
                       const SizedBox(height: HyphenTokens.sp2),
-                      const Text('네트워크 확인 후 다시 시도.',
-                          style: HyphenTokens.caption),
+                      const Text(
+                        '네트워크 확인 후 다시 시도.',
+                        style: HyphenTokens.caption,
+                      ),
                       const SizedBox(height: HyphenTokens.sp3),
-                      HkButton.secondary('다시 시도', onPressed: () {
-                        setState(() {
-                          final api = context.read<ApiClient>();
-                          _historyFuture = retainError(HistoryRepository(api)
-                              .listWodHistory(limit: 500));
-                        });
-                      }),
+                      HkButton.secondary(
+                        '다시 시도',
+                        onPressed: () {
+                          setState(() {
+                            final api = context.read<ApiClient>();
+                            _historyFuture = retainError(
+                              HistoryRepository(api).listWodHistory(limit: 500),
+                            );
+                          });
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -264,27 +267,26 @@ class _PanelBScreenState extends State<PanelBScreen> {
             return ListView(
               padding: const EdgeInsets.all(HyphenTokens.sp4),
               children: [
-                _Header(
-                  unlocked: unlocked.length,
-                  total: kPanelBTitles.length,
-                ),
+                _Header(unlocked: unlocked.length, total: kPanelBTitles.length),
                 const SizedBox(height: HyphenTokens.sp4),
                 // /go Tier 3: 착용 안내.
-                const Text('칭호', style: HyphenTokens.sectionLabel),
+                const HkSectionLabel('칭호'),
                 const SizedBox(height: 2),
                 const Text(
                   '해금된 칭호를 탭하면 내 정보 이름 아래에 표시됩니다. 다시 탭하면 해제.',
                   style: HyphenTokens.caption,
                 ),
                 const SizedBox(height: HyphenTokens.sp2),
-                ...sorted.map((t) => _TitleCard(
-                      title: t,
-                      unlocked: unlocked.contains(t.code),
-                      worn: context.watch<GoalsState>().wornTitle == t.code,
-                      onTap: unlocked.contains(t.code)
-                          ? () => _toggleWorn(t.code)
-                          : null,
-                    )),
+                ...sorted.map(
+                  (t) => _TitleCard(
+                    title: t,
+                    unlocked: unlocked.contains(t.code),
+                    worn: context.watch<GoalsState>().wornTitle == t.code,
+                    onTap: unlocked.contains(t.code)
+                        ? () => _toggleWorn(t.code)
+                        : null,
+                  ),
+                ),
               ],
             );
           },
@@ -311,8 +313,10 @@ class _Header extends StatelessWidget {
           children: [
             Text('$unlocked', style: HyphenTokens.display),
             const SizedBox(width: HyphenTokens.sp1),
-            Text('/ $total',
-                style: HyphenTokens.h3.copyWith(color: HyphenTokens.muted)),
+            Text(
+              '/ $total',
+              style: HyphenTokens.h3.copyWith(color: HyphenTokens.muted),
+            ),
             const Spacer(),
             Text(
               '${(pct * 100).toInt()}%',
@@ -324,17 +328,19 @@ class _Header extends StatelessWidget {
           ],
         ),
         const SizedBox(height: HyphenTokens.sp1),
-        Text('달성', style: HyphenTokens.sectionLabel),
+        HkSectionLabel('달성'),
         const SizedBox(height: HyphenTokens.sp2),
         ClipRRect(
           borderRadius: BorderRadius.circular(HyphenTokens.r1),
-          child: Stack(children: [
-            Container(height: 4, color: HyphenTokens.border),
-            FractionallySizedBox(
-              widthFactor: pct,
-              child: Container(height: 4, color: HyphenTokens.accent),
-            ),
-          ]),
+          child: Stack(
+            children: [
+              Container(height: 4, color: HyphenTokens.border),
+              FractionallySizedBox(
+                widthFactor: pct,
+                child: Container(height: 4, color: HyphenTokens.accent),
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -344,8 +350,10 @@ class _Header extends StatelessWidget {
 class _TitleCard extends StatelessWidget {
   final PanelBTitle title;
   final bool unlocked;
+
   /// /go Tier 3: 현재 착용 중 여부.
   final bool worn;
+
   /// /go Tier 3: 탭 콜백 — 해금된 경우만 non-null. unlocked=false → null (비활성).
   final VoidCallback? onTap;
   const _TitleCard({
@@ -355,10 +363,11 @@ class _TitleCard extends StatelessWidget {
     this.onTap,
   });
 
-
   @override
   Widget build(BuildContext context) {
-    final color = unlocked ? RarityPalette.of(title.rarity).light : HyphenTokens.border;
+    final color = unlocked
+        ? RarityPalette.of(title.rarity).light
+        : HyphenTokens.border;
     return Padding(
       padding: const EdgeInsets.only(bottom: HyphenTokens.sp2),
       child: Material(
@@ -380,20 +389,17 @@ class _TitleCard extends StatelessWidget {
               border: Border(
                 left: BorderSide(color: color, width: worn ? 4 : 3),
                 top: BorderSide(
-                    color: worn
-                        ? HyphenTokens.accent
-                        : HyphenTokens.border,
-                    width: 1),
+                  color: worn ? HyphenTokens.accent : HyphenTokens.border,
+                  width: 1,
+                ),
                 right: BorderSide(
-                    color: worn
-                        ? HyphenTokens.accent
-                        : HyphenTokens.border,
-                    width: 1),
+                  color: worn ? HyphenTokens.accent : HyphenTokens.border,
+                  width: 1,
+                ),
                 bottom: BorderSide(
-                    color: worn
-                        ? HyphenTokens.accent
-                        : HyphenTokens.border,
-                    width: 1),
+                  color: worn ? HyphenTokens.accent : HyphenTokens.border,
+                  width: 1,
+                ),
               ),
               borderRadius: BorderRadius.circular(HyphenTokens.r2),
             ),
@@ -428,11 +434,14 @@ class _TitleCard extends StatelessWidget {
                           if (worn) ...[
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 2),
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: HyphenTokens.accent,
                                 borderRadius: BorderRadius.circular(
-                                    HyphenTokens.r1),
+                                  HyphenTokens.r1,
+                                ),
                               ),
                               child: Text(
                                 'WORN',
@@ -467,15 +476,11 @@ class _TitleCard extends StatelessWidget {
                 Icon(
                   worn
                       ? Icons.star
-                      : (unlocked
-                          ? Icons.check_circle
-                          : Icons.lock_outline),
+                      : (unlocked ? Icons.check_circle : Icons.lock_outline),
                   size: 18,
                   color: worn
                       ? HyphenTokens.accent
-                      : (unlocked
-                          ? HyphenTokens.success
-                          : HyphenTokens.muted),
+                      : (unlocked ? HyphenTokens.success : HyphenTokens.muted),
                 ),
               ],
             ),
@@ -486,11 +491,10 @@ class _TitleCard extends StatelessWidget {
   }
 }
 
-
 /// 외부에서 호출 가능한 navigation helper.
 void openPanelB(BuildContext context) {
   Haptic.light();
-  Navigator.of(context).push(
-    MaterialPageRoute(builder: (_) => const PanelBScreen()),
-  );
+  Navigator.of(
+    context,
+  ).push(MaterialPageRoute(builder: (_) => const PanelBScreen()));
 }

@@ -84,18 +84,13 @@ class _ChallengeSectionState extends State<ChallengeSection> {
             const SizedBox(height: HyphenTokens.sp3),
             const HkSectionLabel('도전'),
             const SizedBox(height: HyphenTokens.sp1),
-            Container(
-              decoration: BoxDecoration(
-                color: HyphenTokens.surface,
-                border: Border.all(color: HyphenTokens.border),
-                borderRadius: BorderRadius.circular(HyphenTokens.r3),
-              ),
+            HkCard(
+              padding: EdgeInsets.zero,
               child: Column(
                 children: [
                   for (var i = 0; i < rules.length; i++) ...[
                     if (i > 0)
-                      const Divider(
-                          height: 1, color: HyphenTokens.border),
+                      const Divider(height: 1, color: HyphenTokens.border),
                     _ChallengeRow(
                       rule: rules[i],
                       onLog: () => _openLogSheet(rules[i]),
@@ -155,10 +150,11 @@ class _LogSheetState extends State<_LogSheet> {
       Navigator.of(context).pop();
       final granted = res.grantedRules.isNotEmpty;
       widget.messenger.info(
-          res.status == 'approved'
-              ? (granted ? '인증 완료 · 조건 충족 — 보상 지급' : '인증 완료')
-              : '인증 접수 — 코치 승인 대기',
-          mood: MascotMood.happy);
+        res.status == 'approved'
+            ? (granted ? '인증 완료 · 조건 충족 — 보상 지급' : '인증 완료')
+            : '인증 접수 — 코치 승인 대기',
+        mood: MascotMood.happy,
+      );
       // 즉시 지급(자동 인정)이면 업적 해금 diff → 토스트·컨페티.
       if (granted) {
         widget.achState.check(throttle: false);
@@ -188,8 +184,7 @@ class _LogSheetState extends State<_LogSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('${widget.rule.label} — 인증하기',
-              style: HyphenTokens.sectionLabel),
+          HkSectionLabel('${widget.rule.label} — 인증하기'),
           const SizedBox(height: HyphenTokens.sp1),
           Text(widget.rule.sentence, style: HyphenTokens.caption),
           const SizedBox(height: HyphenTokens.sp3),
@@ -272,10 +267,7 @@ class _ChallengeRow extends StatelessWidget {
             Row(
               children: [
                 if (status.isNotEmpty)
-                  Expanded(
-                    child:
-                        Text(status, style: HyphenTokens.caption),
-                  )
+                  Expanded(child: Text(status, style: HyphenTokens.caption))
                 else
                   const Spacer(),
                 if (rule.canLog && !done)

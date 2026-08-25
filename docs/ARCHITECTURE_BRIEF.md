@@ -503,6 +503,29 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > - 회귀 게이트: 골든 54장 재생성 (member_07·08·state_07·08 은 주간보드로 재촬영) ·
 >   앱 194건 · ssot_lint 7패턴.
 
+> **D49 (2026-08-25 사용자 지시) — 부품 인라인 6건 통일: 정본이 있는데 안 쓰던 곳을 전부 갈아끼움.**
+>
+> D48 뒤 "작은 것 6건" — 판단은 없고 양만 많은 갈아끼우기.
+> - **섹션 라벨 77곳 → `HkSectionLabel`** (`Text('X', style: sectionLabel)` 직접 지정 26파일).
+>   `.copyWith` 변형 3곳만 남김 (색·굵기를 바꾸는 자리).
+> - **스피너 13곳 → `HkLoading`** — 크기 18/20/22·색 muted/primary/accent 가 섞여 있었다.
+>   22×22 stroke 2 muted 한 규격.
+> - **빈 상태 8곳 → `HkEmptyState`** (업적·계약·가입 신청·수업 기록·기록 상세·그룹 ×2·노트).
+>   폼 안 부연 문구 4곳(주간보드 "등록된 수업 없음"·내 정보 "체육관 없음"·노트 작성 "동작 없음")은
+>   화면 상태가 아니라 줄 안 메모라 그대로.
+> - **통계 타일 → `HkStatTile`**: 코치 예약 현황 `_CounterCard` (h1 숫자·자체 카드) →
+>   명단 시트·홈 마일스톤과 같은 타일. `_ProgressStat`(홈)은 이미 HkListRow 위의 진행바,
+>   `_StatsHeader`(업적)는 히어로 숫자 — 타일이 아니라 그대로.
+> - **날짜·시각 함수 7파일 → `core/time_format.dart`** (`ymd`·`hhmm`·`hhmmIso`·`mdDot`·`mdHm`·`mmss`).
+>   `history_detail._formatDate`(ISO→`yyyy.MM.dd HH:mm`) 1개만 잔존 — 다음 표기 추가 때 흡수.
+> - **카드 크롬 → `HkCard`**: 정식 크롬(surface + border + r3) 38곳 중 Container 인자가
+>   margin/padding/child 뿐인 2곳만 자동 치환. 나머지 36곳은 `clipBehavior`·`width`·
+>   `alignment`·색 테두리 등이 붙어 있어 HkCard 시그니처 밖 — **보고만** (HkCard 에
+>   `clipBehavior`/`borderColor` 를 열어 주는 결정이 먼저).
+> - 게이트 추가 (`ssot_lint_test`): `CircularProgressIndicator(` · `style: sectionLabel[,)]` ·
+>   `String _fmt/_hhmm/_ymd/_dateShort…(` 3패턴 → 총 10패턴.
+> - 회귀: 골든 54장 재생성 · 앱 194건.
+
 > **D31 (2026-08-12) — 명단에서 출석 체크 + 대기 순번 정정.**
 >
 > - **대기 순번**: `class_waitlist_promotions.promoted_position` 은 "줄 설 때" 번호라

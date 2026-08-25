@@ -52,44 +52,53 @@ class GymState extends ChangeNotifier {
 
   void _bindSse() {
     if (sse == null) return;
-    _sseSub = sse!.events.listen((ev) {
-      final hit = _reloadTriggers.contains(ev.type);
-      debugPrint('[GymState] sse event=${ev.type} reload=${hit ? "YES" : "skip"}');
-      if (hit) {
-        // ⚠ 승인 전 상태는 **이벤트를 받은 즉시** 찍어야 한다. 1초 디바운스 뒤에
-        // 읽으면 그 사이 화면 진입 등 다른 경로의 loadMine 이 이미 approved 로
-        // 바꿔 놓아서, "대기→승인" 전이를 놓친다 (실측에서 알림이 안 뜬 원인).
-        final wasApproved = _membership.isApprovedMember;
-        _debounceReload?.cancel();
-        _debounceReload = Timer(const Duration(seconds: 1), () {
-          debugPrint('[GymState] reload trigger → loadMine()');
-          loadMine().then((_) {
-            debugPrint('[GymState] reload done');
-            // 2026-08-13 — 대기 → 승인 으로 바뀐 순간 회원에게 알림.
-            // 이벤트를 그대로 믿지 않고 **내 상태가 실제로 바뀐 것**만 알린다
-            // (같은 박스의 다른 사람 승인 이벤트도 같은 채널로 오기 때문).
-            debugPrint('[GymState] decided? type=${ev.type} '
-                'was=$wasApproved now=${_membership.isApprovedMember}');
-            if (ev.type == 'member.decided' &&
-                !wasApproved &&
-                _membership.isApprovedMember) {
-              debugPrint('[GymState] 가입 승인 감지 → 알림');
-              NotificationService.instance.showFromSseEvent(
-                eventType: 'member.decided',
-                payload: {
-                  'member_id': _membership.gym?.id,
-                  'status': 'approved',
-                },
-              );
-            }
-          }).catchError((e) {
-            debugPrint('[GymState] reload failed: $e');
+    _sseSub = sse!.events.listen(
+      (ev) {
+        final hit = _reloadTriggers.contains(ev.type);
+        debugPrint(
+          '[GymState] sse event=${ev.type} reload=${hit ? "YES" : "skip"}',
+        );
+        if (hit) {
+          // ⚠ 승인 전 상태는 **이벤트를 받은 즉시** 찍어야 한다. 1초 디바운스 뒤에
+          // 읽으면 그 사이 화면 진입 등 다른 경로의 loadMine 이 이미 approved 로
+          // 바꿔 놓아서, "대기→승인" 전이를 놓친다 (실측에서 알림이 안 뜬 원인).
+          final wasApproved = _membership.isApprovedMember;
+          _debounceReload?.cancel();
+          _debounceReload = Timer(const Duration(seconds: 1), () {
+            debugPrint('[GymState] reload trigger → loadMine()');
+            loadMine()
+                .then((_) {
+                  debugPrint('[GymState] reload done');
+                  // 2026-08-13 — 대기 → 승인 으로 바뀐 순간 회원에게 알림.
+                  // 이벤트를 그대로 믿지 않고 **내 상태가 실제로 바뀐 것**만 알린다
+                  // (같은 박스의 다른 사람 승인 이벤트도 같은 채널로 오기 때문).
+                  debugPrint(
+                    '[GymState] decided? type=${ev.type} '
+                    'was=$wasApproved now=${_membership.isApprovedMember}',
+                  );
+                  if (ev.type == 'member.decided' &&
+                      !wasApproved &&
+                      _membership.isApprovedMember) {
+                    debugPrint('[GymState] 가입 승인 감지 → 알림');
+                    NotificationService.instance.showFromSseEvent(
+                      eventType: 'member.decided',
+                      payload: {
+                        'member_id': _membership.gym?.id,
+                        'status': 'approved',
+                      },
+                    );
+                  }
+                })
+                .catchError((e) {
+                  debugPrint('[GymState] reload failed: $e');
+                });
           });
-        });
-      }
-    }, onError: (e) {
-      debugPrint('[GymState] sse error: $e');
-    });
+        }
+      },
+      onError: (e) {
+        debugPrint('[GymState] sse error: $e');
+      },
+    );
   }
 
   @override
@@ -110,13 +119,17 @@ class GymState extends ChangeNotifier {
   String? _error;
 
   GymMembership get membership => _membership;
+
   /// v1.21: 박스 전체 기간 WOD (kbox 스타일 날짜 그룹용).
   List<GymWodPost> get wods => _wods;
+
   /// 오늘 날짜 매치 — 기존 호출처 호환.
   List<GymWodPost> get todayWods =>
       _wods.where((w) => w.postDate == todayIso).toList();
+
   /// v1.16.2 — 박스 코치 목록 (BoxProfileScreen 에서 사용).
   List<CoachProfile> get coaches => _coaches;
+
   /// v1.16.2 — 본인 회원권 (가장 최근 active 우선).
   List<Membership> get myMemberships => _myMemberships;
   Membership? get currentMembership {
@@ -137,10 +150,10 @@ class GymState extends ChangeNotifier {
     }
     return actives.first;
   }
+
   /// v1.16.2 — 본인 락커.
   List<Locker> get myLockers => _myLockers;
-  Locker? get myLocker =>
-      _myLockers.isNotEmpty ? _myLockers.first : null;
+  Locker? get myLocker => _myLockers.isNotEmpty ? _myLockers.first : null;
   bool get isLoading => _loading;
   String? get error => _error;
 
@@ -200,10 +213,7 @@ class GymState extends ChangeNotifier {
     }
   }
 
-  Future<bool> createGym({
-    required String name,
-    String location = '',
-  }) async {
+  Future<bool> createGym({required String name, String location = ''}) async {
     // v1.19 차수 5 (B-ST-3): 시작 시 _error 초기화로 stale error 표시 방지.
     _error = null;
     try {

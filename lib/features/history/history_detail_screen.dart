@@ -7,6 +7,7 @@ import '../../core/theme.dart';
 import '../gym/wod_type_label.dart';
 import 'history_repository.dart';
 import '../../widgets/hkit.dart';
+import '../../core/time_format.dart';
 
 class HistoryDetailScreen extends StatefulWidget {
   final int recordId;
@@ -34,7 +35,9 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
         future: _future,
         builder: (ctx, snap) {
           if (snap.connectionState != ConnectionState.done) {
-            return const Center(child: Text('불러오는 중', style: HyphenTokens.body));
+            return const Center(
+              child: Text('불러오는 중', style: HyphenTokens.body),
+            );
           }
           if (snap.hasError) {
             // /go 전수조사: 원본 exception toString 노출 차단.
@@ -48,10 +51,7 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
           // QA B-FB-4: snap.data null 방어.
           final d = snap.data;
           if (d == null) {
-            return const Padding(
-              padding: EdgeInsets.all(HyphenTokens.sp4),
-              child: Text('History 데이터 없음.', style: HyphenTokens.body),
-            );
+            return const HkEmptyState(title: '기록 데이터 없음');
           }
           final wodRaw = d['wod'];
           if (wodRaw is! Map<String, dynamic>) {
@@ -67,26 +67,31 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
           return ListView(
             padding: const EdgeInsets.all(HyphenTokens.sp4),
             children: [
-              Text(wodTypeLabel((wod['wod_type'] ?? '').toString()),
-                  style: HyphenTokens.h3),
+              Text(
+                wodTypeLabel((wod['wod_type'] ?? '').toString()),
+                style: HyphenTokens.h3,
+              ),
               const SizedBox(height: HyphenTokens.sp1),
-              Text(_formatDate(wod['created_at']?.toString()),
-                  style: HyphenTokens.caption),
+              Text(
+                _formatDate(wod['created_at']?.toString()),
+                style: HyphenTokens.caption,
+              ),
               const SizedBox(height: HyphenTokens.sp4),
               if (plan != null) ...[
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.baseline,
                   textBaseline: TextBaseline.alphabetic,
                   children: [
-                    Text(_fmtTime(plan['estimated_total_sec']),
-                        style: HyphenTokens.display),
+                    Text(
+                      mmss(plan['estimated_total_sec']),
+                      style: HyphenTokens.display,
+                    ),
                     const SizedBox(width: HyphenTokens.sp2),
                     const Text('예상', style: HyphenTokens.caption),
                   ],
                 ),
                 if (plan['grade'] != null)
-                  Text('Grade ${plan['grade']}',
-                      style: HyphenTokens.caption),
+                  Text('Grade ${plan['grade']}', style: HyphenTokens.caption),
                 const SizedBox(height: HyphenTokens.sp5),
                 ...((plan['segments'] as List? ?? const []))
                     .whereType<Map<String, dynamic>>()
@@ -96,7 +101,7 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
               // 숨김(v1.27) 후 plan 없는 기록이 기본값이라 없는 기능 언급이었다.
               // plan 있는 구 기록의 세그먼트 렌더는 보존 (숨김 = 코드 보존).
               const SizedBox(height: HyphenTokens.sp5),
-              const Text('항목', style: HyphenTokens.sectionLabel),
+              const HkSectionLabel('항목'),
               const SizedBox(height: HyphenTokens.sp2),
               ...((wod['items'] as List? ?? const []))
                   .whereType<Map<String, dynamic>>()
@@ -136,20 +141,25 @@ class _SegmentCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text((seg['movement_slug'] ?? '').toString(),
-                  style: HyphenTokens.h3),
-              Text(_fmtTime(seg['estimated_sec']), style: HyphenTokens.lead),
+              Text(
+                (seg['movement_slug'] ?? '').toString(),
+                style: HyphenTokens.h3,
+              ),
+              Text(mmss(seg['estimated_sec']), style: HyphenTokens.lead),
             ],
           ),
           const SizedBox(height: HyphenTokens.sp3),
-          if (splits.isNotEmpty)
-            Text(splits.join('-'), style: HyphenTokens.h1),
+          if (splits.isNotEmpty) Text(splits.join('-'), style: HyphenTokens.h1),
           if (seg['target_pace_sec_per_500m'] != null)
-            Text('${seg['target_pace_sec_per_500m']}s / 500m',
-                style: HyphenTokens.h3),
+            Text(
+              '${seg['target_pace_sec_per_500m']}s / 500m',
+              style: HyphenTokens.h3,
+            ),
           const SizedBox(height: HyphenTokens.sp2),
-          Text((seg['rationale_ko'] ?? '').toString(),
-              style: HyphenTokens.caption),
+          Text(
+            (seg['rationale_ko'] ?? '').toString(),
+            style: HyphenTokens.caption,
+          ),
         ],
       ),
     );
@@ -162,7 +172,8 @@ class _ItemLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final name = (it['movement_name_en'] ?? it['movement_slug'] ?? '').toString();
+    final name = (it['movement_name_en'] ?? it['movement_slug'] ?? '')
+        .toString();
     final reps = it['reps'];
     final dist = it['distance_m'];
     final load = it['load_value'];
@@ -176,21 +187,16 @@ class _ItemLine extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-              child: Text(name,
-                  style: HyphenTokens.body
-                      .copyWith(fontWeight: FontWeight.w700))),
+            child: Text(
+              name,
+              style: HyphenTokens.body.copyWith(fontWeight: FontWeight.w700),
+            ),
+          ),
           Text(parts.join(' · '), style: HyphenTokens.caption),
         ],
       ),
     );
   }
-}
-
-String _fmtTime(dynamic sec) {
-  if (sec is! num) return '-';
-  final m = sec.toInt() ~/ 60;
-  final s = sec.toInt() % 60;
-  return '$m:${s.toString().padLeft(2, '0')}';
 }
 
 String _formatDate(String? iso) {

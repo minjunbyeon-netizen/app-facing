@@ -57,7 +57,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('업적'), findsOneWidget); // AppBar title
-      expect(find.text('아직 업적 없음.'), findsOneWidget);
+      expect(find.text('아직 업적 없음'), findsOneWidget); // v3.26 HkEmptyState
     });
 
     testWidgets('AppException 에러 → "업적 로딩 실패" + Retry', (tester) async {

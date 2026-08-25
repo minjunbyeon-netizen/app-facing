@@ -92,9 +92,11 @@ class _BoxWodScreenState extends State<BoxWodScreen> {
                     icon: const Icon(Icons.people_outline),
                     onPressed: () {
                       Haptic.light();
-                      Navigator.of(context).push(MaterialPageRoute(
-                        builder: (_) => const MemberApprovalsScreen(),
-                      ));
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const MemberApprovalsScreen(),
+                        ),
+                      );
                     },
                   ),
               ],
@@ -196,12 +198,18 @@ class _AnnouncementsAccordion extends StatelessWidget {
         child: ExpansionTile(
           initiallyExpanded: false,
           tilePadding: const EdgeInsets.symmetric(
-              horizontal: HyphenTokens.sp3, vertical: 2),
+            horizontal: HyphenTokens.sp3,
+            vertical: 2,
+          ),
           childrenPadding: const EdgeInsets.fromLTRB(
-              HyphenTokens.sp3, 0, HyphenTokens.sp3, HyphenTokens.sp3),
+            HyphenTokens.sp3,
+            0,
+            HyphenTokens.sp3,
+            HyphenTokens.sp3,
+          ),
           collapsedIconColor: HyphenTokens.muted,
           iconColor: HyphenTokens.muted,
-          title: const Text('공지', style: HyphenTokens.sectionLabel),
+          title: const HkSectionLabel('공지'),
           subtitle: Padding(
             padding: const EdgeInsets.only(top: 2),
             child: Text(
@@ -211,9 +219,7 @@ class _AnnouncementsAccordion extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          children: [
-            for (final a in top) AnnouncementRow(item: a),
-          ],
+          children: [for (final a in top) AnnouncementRow(item: a)],
         ),
       ),
     );
@@ -238,7 +244,7 @@ class _GymInfoAccordion extends StatelessWidget {
         childrenPadding: EdgeInsets.zero,
         collapsedIconColor: HyphenTokens.muted,
         iconColor: HyphenTokens.muted,
-        title: const Text('체육관 정보', style: HyphenTokens.sectionLabel),
+        title: const HkSectionLabel('체육관 정보'),
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 2),
           child: Text(
@@ -256,4 +262,3 @@ class _GymInfoAccordion extends StatelessWidget {
     );
   }
 }
-

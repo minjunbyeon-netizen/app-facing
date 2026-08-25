@@ -8,8 +8,7 @@ import '../../models/class_session.dart';
 import '../../models/gym.dart';
 import '../../widgets/hkit.dart';
 import '../classes/classes_repository.dart';
-import '../classes/class_flows.dart'
-    show cancelClassFlow, reserveClassFlow;
+import '../classes/class_flows.dart' show cancelClassFlow, reserveClassFlow;
 import 'gym_state.dart';
 import 'wod_row.dart';
 import 'wod_type_label.dart';
@@ -94,7 +93,8 @@ class _WeekBoardState extends State<WeekBoard> {
     setState(() {
       _weekStart = next;
       // 이번 주로 돌아오면 오늘, 다른 주면 월요일부터 본다.
-      final isThisWeek = !_today.isBefore(next) &&
+      final isThisWeek =
+          !_today.isBefore(next) &&
           _today.isBefore(next.add(const Duration(days: 7)));
       _selected = isThisWeek ? _today.weekday - 1 : 0;
     });
@@ -107,7 +107,6 @@ class _WeekBoardState extends State<WeekBoard> {
     // 열린 날을 다시 누르면 접는다 — 7줄만 남아 한 주 전체가 한눈에 들어온다.
     setState(() => _selected = _selected == i ? -1 : i);
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -148,11 +147,12 @@ class _WeekBoardState extends State<WeekBoard> {
                   isToday: _weekStart.add(Duration(days: i)) == _today,
                   isSelected: _selected == i,
                   isLast: i == 6,
-                  wods: wodsByDate[ymd(_weekStart.add(Duration(days: i)))] ??
+                  wods:
+                      wodsByDate[ymd(_weekStart.add(Duration(days: i)))] ??
                       const [],
                   classes:
                       classesByDate[ymd(_weekStart.add(Duration(days: i)))] ??
-                          const [],
+                      const [],
                   // 이전 결과를 들고 있는 동안은 로딩 취급하지 않는다 (깜빡임 방지).
                   classesLoading: _classesLoading && _classes.isEmpty,
                   classesError: _classesError,
@@ -170,8 +170,11 @@ class _WeekBoardState extends State<WeekBoard> {
                   isOwner: widget.isOwner,
                   onOpenRoster: (c) {
                     Haptic.light();
-                    showClassRosterSheet(context, c.id,
-                        onChanged: _loadClasses);
+                    showClassRosterSheet(
+                      context,
+                      c.id,
+                      onChanged: _loadClasses,
+                    );
                   },
                 ),
             ],
@@ -183,7 +186,8 @@ class _WeekBoardState extends State<WeekBoard> {
 
   Widget _weekHeader() {
     final end = _weekStart.add(const Duration(days: 6));
-    final isThisWeek = !_today.isBefore(_weekStart) &&
+    final isThisWeek =
+        !_today.isBefore(_weekStart) &&
         _today.isBefore(_weekStart.add(const Duration(days: 7)));
     String md(DateTime d) => '${d.month}.${d.day}';
     return Row(
@@ -194,7 +198,9 @@ class _WeekBoardState extends State<WeekBoard> {
           color: HyphenTokens.fgSecondary,
           tooltip: '이전 주',
           constraints: const BoxConstraints(
-              minWidth: HyphenTokens.touchMin, minHeight: HyphenTokens.touchMin),
+            minWidth: HyphenTokens.touchMin,
+            minHeight: HyphenTokens.touchMin,
+          ),
         ),
         Expanded(
           child: Row(
@@ -222,7 +228,9 @@ class _WeekBoardState extends State<WeekBoard> {
           color: HyphenTokens.fgSecondary,
           tooltip: '다음 주',
           constraints: const BoxConstraints(
-              minWidth: HyphenTokens.touchMin, minHeight: HyphenTokens.touchMin),
+            minWidth: HyphenTokens.touchMin,
+            minHeight: HyphenTokens.touchMin,
+          ),
         ),
       ],
     );
@@ -293,7 +301,8 @@ class _DayTile extends StatelessWidget {
         border: isLast
             ? null
             : const Border(
-                bottom: BorderSide(color: HyphenTokens.border, width: 1)),
+                bottom: BorderSide(color: HyphenTokens.border, width: 1),
+              ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -366,10 +375,10 @@ class _DayTile extends StatelessWidget {
                 children: [
                   // v3.0 (2026-08-14): 게시물 면 = '수업 내용', 시간표 면 = '수업 시간'
                   // — '수업' 단독 표기가 두 면 중 어느 쪽인지 안 읽히던 것을 분리.
-                  const Text('수업 내용', style: HyphenTokens.sectionLabel),
+                  const HkSectionLabel('수업 내용'),
                   _wodBlock(),
                   const SizedBox(height: HyphenTokens.sp3),
-                  const Text('수업 시간', style: HyphenTokens.sectionLabel),
+                  const HkSectionLabel('수업 시간'),
                   _classBlock(),
                 ],
               ),
@@ -389,7 +398,8 @@ class _DayTile extends StatelessWidget {
         ),
       );
     }
-    final dateLabel = '${date.month.toString().padLeft(2, '0')}'
+    final dateLabel =
+        '${date.month.toString().padLeft(2, '0')}'
         '.${date.day.toString().padLeft(2, '0')}';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

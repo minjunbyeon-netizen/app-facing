@@ -95,6 +95,8 @@
 | `ClassLine` (classes/) | 수업 한 줄 유일 규격 (v3.25) — `.coach`(인원+명단) / `.member`(예약 배지). 코치 예약 현황·주간보드 공용 |
 | `MembershipStatusView` (gym/) | 미가입·승인 대기·거절 화면 한 벌 (v3.25) — 셸 게이트·수업 탭 공용 |
 | `AnnouncementRow` (announcements/) | 공지 한 줄 (v3.25) — 홈·수업 탭 아코디언 공용, `bodyMaxLines` 만 다름 |
+| 날짜·시각 표기 | `core/time_format.dart` 한 곳 — `ymd`·`hhmm`·`hhmmIso`·`mdDot`·`mdHm`·`mmss`. 화면별 `_fmt` 금지 (v3.26, `ssot_lint_test`) |
+| 스피너 · 섹션 라벨 · 빈 상태 · 통계 타일 | 각각 `HkLoading`·`HkSectionLabel`·`HkEmptyState`·`HkStatTile` **만** (v3.26 전수 치환 — 인라인 CircularProgressIndicator·sectionLabel 직접 지정은 게이트가 막는다) |
 | 입력칸 | 모양은 `theme.dart inputDecorationTheme` 한 벌 (테두리·에러·안내 글꼴). 화면은 `InputDecoration(hintText:)` 만 — 화면별 `_deco()` 금지 (v3.24, `test/ssot_lint_test.dart`) |
 | `TierBadge` | 티어 표기 별도 정본 |
 

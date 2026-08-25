@@ -23,7 +23,7 @@ class PrivacyScreen extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.all(HyphenTokens.sp4),
           children: [
-            const Text('저장하는 데이터', style: HyphenTokens.sectionLabel),
+            const HkSectionLabel('저장하는 데이터'),
             const SizedBox(height: HyphenTokens.sp2),
             const _Bullet('기기 식별값 — 이 기기에서 만들고, 서버에는 알아볼 수 없게 바꾼 값만 보냅니다'),
             const _Bullet('이름·전화번호 — 회원 가입 신청 시 입력 (서버 보관, 체육관 코치에게 제공)'),
@@ -40,14 +40,14 @@ class PrivacyScreen extends StatelessWidget {
             const _Bullet('목표: 주간·월간 횟수 · PR 목표 · 시즌 목표 (이 기기·서버 보관)'),
             const SizedBox(height: HyphenTokens.sp4),
 
-            const Text('수집하지 않는 것', style: HyphenTokens.sectionLabel),
+            const HkSectionLabel('수집하지 않는 것'),
             const SizedBox(height: HyphenTokens.sp2),
             const _Bullet('위치 정보 · 연락처 · 마이크'),
             const _Bullet('카메라 — 앱 권한 없음. 수집하지 않습니다'),
             const _Bullet('소셜 계정의 친구목록·메시지 (프로필 식별자만 수신)'),
             const SizedBox(height: HyphenTokens.sp4),
 
-            const Text('사용 목적', style: HyphenTokens.sectionLabel),
+            const HkSectionLabel('사용 목적'),
             const SizedBox(height: HyphenTokens.sp2),
             const Text(
               '프로필·수업 기록은 본인 변화를 보여 주는 용도로만 씁니다. '
@@ -60,7 +60,7 @@ class PrivacyScreen extends StatelessWidget {
             ),
             const SizedBox(height: HyphenTokens.sp4),
 
-            const Text('보관 기간', style: HyphenTokens.sectionLabel),
+            const HkSectionLabel('보관 기간'),
             const SizedBox(height: HyphenTokens.sp2),
             const Text(
               '탈퇴 시 본인 기록은 일괄 삭제. 단, 서명 완료된 전자계약서는 '
@@ -70,7 +70,7 @@ class PrivacyScreen extends StatelessWidget {
             ),
             const SizedBox(height: HyphenTokens.sp4),
 
-            const Text('이용자 권리', style: HyphenTokens.sectionLabel),
+            const HkSectionLabel('이용자 권리'),
             const SizedBox(height: HyphenTokens.sp2),
             // v3.11 (2026-08-23): 'Sign out'·'Reset data' 는 앱 어디에도 없는
             // 이름이었다 — 실물 버튼은 내 정보의 '로그아웃'·'데이터 초기화' 다.
@@ -80,8 +80,11 @@ class PrivacyScreen extends StatelessWidget {
             const _Bullet('계정 탈퇴 = 서버·로컬 모든 데이터 영구 삭제 (아래 버튼)'),
             const SizedBox(height: HyphenTokens.sp5),
 
-            HkButton.secondary('계정 삭제',
-                danger: true, onPressed: () => _confirmDelete(context)),
+            HkButton.secondary(
+              '계정 삭제',
+              danger: true,
+              onPressed: () => _confirmDelete(context),
+            ),
             const SizedBox(height: HyphenTokens.sp3),
             const Text(
               '탈퇴 시 서버에 저장된 내 기록 일괄 삭제. 복구 불가.',
@@ -89,14 +92,15 @@ class PrivacyScreen extends StatelessWidget {
             ),
             const SizedBox(height: HyphenTokens.sp5),
 
-            const Text('최종 갱신', style: HyphenTokens.sectionLabel),
+            const HkSectionLabel('최종 갱신'),
             const SizedBox(height: HyphenTokens.sp2),
             // 본문을 고치면 이 날짜도 같은 커밋에서 함께 고친다 (§0-B).
             // 법적 고지의 갱신일이 실제 내용과 어긋나면 고지 자체가 신뢰를 잃는다.
             const Text(
-                '2026-08-23 · 표기 정정 (앱에 없는 버튼 이름 교체, 내부 용어를 '
-                '이용자 용어로) + 목표 저장 위치 반영. 정식 출시 시 법무 검토.',
-                style: HyphenTokens.caption),
+              '2026-08-23 · 표기 정정 (앱에 없는 버튼 이름 교체, 내부 용어를 '
+              '이용자 용어로) + 목표 저장 위치 반영. 정식 출시 시 법무 검토.',
+              style: HyphenTokens.caption,
+            ),
           ],
         ),
       ),
@@ -107,7 +111,8 @@ class PrivacyScreen extends StatelessWidget {
     final ok = await HkDialog.confirm(
       context,
       title: '계정 삭제',
-      message: '서버·로컬 모든 데이터가 영구 삭제됩니다.\n'
+      message:
+          '서버·로컬 모든 데이터가 영구 삭제됩니다.\n'
           '복구 불가. 계속하시겠습니까?',
       confirmLabel: '삭제',
       danger: true,
@@ -147,8 +152,7 @@ class _Bullet extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('·  ',
-              style: TextStyle(color: HyphenTokens.accent)),
+          const Text('·  ', style: TextStyle(color: HyphenTokens.accent)),
           Expanded(child: Text(text, style: HyphenTokens.body)),
         ],
       ),

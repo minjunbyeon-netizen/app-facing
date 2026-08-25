@@ -85,20 +85,22 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() => _freezeUse = dt);
     });
     // Attend 탭과 동일 소스의 실제 출석 — 실패·미가입이면 milestone 숨김.
-    _gymRepo.listMyAttendances().then((map) {
-      if (!mounted) return;
-      setState(() => _attendDays = map.keys.toSet());
-    }).catchError((_) {
-      if (!mounted) return;
-      setState(() => _attendDays = null);
-    });
+    _gymRepo
+        .listMyAttendances()
+        .then((map) {
+          if (!mounted) return;
+          setState(() => _attendDays = map.keys.toSet());
+        })
+        .catchError((_) {
+          if (!mounted) return;
+          setState(() => _attendDays = null);
+        });
     // 진입·새로고침마다 업적 자동 체크 (초기 진입만 10분 스로틀).
     // v3.3 (2026-08-20 사용자 지시): 새 해금이 있으면 홈에서 토스트 + 컨페티
     // 캐논 축하 (리워드 규칙 해금은 서버 훅에서 일어나 diff 로 감지된다).
-    context
-        .read<AchievementState>()
-        .check(throttle: checkThrottle)
-        .then((newly) {
+    context.read<AchievementState>().check(throttle: checkThrottle).then((
+      newly,
+    ) {
       if (!mounted || newly.isEmpty) return;
       UnlockToast.showAll(context, newly);
     });
@@ -112,7 +114,10 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: widget.embedded
           ? null
           : const HkAppBar(
-              title: '홈', implyLeading: false, actions: [InboxBellAction()]),
+              title: '홈',
+              implyLeading: false,
+              actions: [InboxBellAction()],
+            ),
       body: Column(
         children: [
           const OfflineBanner(),
@@ -126,8 +131,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   }
                   if (snap.hasError) {
                     final e = snap.error;
-                    final msg =
-                        e is AppException ? e.messageKo : 'Load failed.';
+                    final msg = e is AppException
+                        ? e.messageKo
+                        : 'Load failed.';
                     return HkErrorState(message: msg, onRetry: _reload);
                   }
                   final records = snap.data ?? const [];
@@ -173,8 +179,7 @@ class _NoticeAccordion extends StatelessWidget {
     final top = items.take(3).toList();
     final latest = top.first;
     final hasUnread = state.unreadCount > 0;
-    final latestPreview =
-        latest.title.isNotEmpty ? latest.title : latest.body;
+    final latestPreview = latest.title.isNotEmpty ? latest.title : latest.body;
 
     return Container(
       margin: const EdgeInsets.only(bottom: HyphenTokens.sp4),
@@ -189,14 +194,20 @@ class _NoticeAccordion extends StatelessWidget {
         child: ExpansionTile(
           initiallyExpanded: false,
           tilePadding: const EdgeInsets.symmetric(
-              horizontal: HyphenTokens.sp3, vertical: 2),
+            horizontal: HyphenTokens.sp3,
+            vertical: 2,
+          ),
           childrenPadding: const EdgeInsets.fromLTRB(
-              HyphenTokens.sp3, 0, HyphenTokens.sp3, HyphenTokens.sp3),
+            HyphenTokens.sp3,
+            0,
+            HyphenTokens.sp3,
+            HyphenTokens.sp3,
+          ),
           collapsedIconColor: HyphenTokens.muted,
           iconColor: HyphenTokens.muted,
           title: Row(
             children: [
-              const Text('공지', style: HyphenTokens.sectionLabel),
+              const HkSectionLabel('공지'),
               if (hasUnread) ...[
                 const SizedBox(width: HyphenTokens.sp2),
                 Container(
@@ -245,12 +256,10 @@ class _GamificationBody extends StatelessWidget {
 
   /// 전체 기록에서 고유 일자 집합 (date 기준).
   Set<DateTime> _uniqueDays() {
-    return records
-        .map((r) {
-          final d = r.createdAt.toLocal();
-          return DateTime(d.year, d.month, d.day);
-        })
-        .toSet();
+    return records.map((r) {
+      final d = r.createdAt.toLocal();
+      return DateTime(d.year, d.month, d.day);
+    }).toSet();
   }
 
   /// 현재 streak — 오늘(또는 가장 최근 세션일)부터 연속된 일수.
@@ -326,21 +335,23 @@ class _GamificationBody extends StatelessWidget {
             // QA 2026-06-11: WOD 계산 기록이 아닌 실제 출석(Attend 탭 동일
             // 소스)으로 표기 — 두 화면 수치 불일치 해소. 미가입·로드 실패 시 숨김.
             if (attendDays != null)
-              Builder(builder: (context) {
-                final attendThisMonth = attendDays!
-                    .where((d) => d.year == now.year && d.month == now.month)
-                    .length;
-                return _ProgressStat(
-                  title: '출석',
-                  subtitle: '이번 달 $attendThisMonth / $daysElapsed일',
-                  value: daysElapsed > 0
-                      ? (attendThisMonth / daysElapsed).clamp(0.0, 1.0)
-                      : 0.0,
-                  trailing: daysElapsed > 0
-                      ? '${(attendThisMonth / daysElapsed * 100).round()}%'
-                      : '0%',
-                );
-              }),
+              Builder(
+                builder: (context) {
+                  final attendThisMonth = attendDays!
+                      .where((d) => d.year == now.year && d.month == now.month)
+                      .length;
+                  return _ProgressStat(
+                    title: '출석',
+                    subtitle: '이번 달 $attendThisMonth / $daysElapsed일',
+                    value: daysElapsed > 0
+                        ? (attendThisMonth / daysElapsed).clamp(0.0, 1.0)
+                        : 0.0,
+                    trailing: daysElapsed > 0
+                        ? '${(attendThisMonth / daysElapsed * 100).round()}%'
+                        : '0%',
+                  );
+                },
+              ),
             _ProgressStat(
               title: '세션',
               subtitle: '누적 $totalLifetime회 → $nextMilestone 목표',
@@ -353,8 +364,10 @@ class _GamificationBody extends StatelessWidget {
               title: '업적',
               subtitle: '해금한 업적',
               value: achState.snapshot.visibleCount > 0
-                  ? (unlockedCount / achState.snapshot.visibleCount)
-                      .clamp(0.0, 1.0)
+                  ? (unlockedCount / achState.snapshot.visibleCount).clamp(
+                      0.0,
+                      1.0,
+                    )
                   : 0.0,
               trailing: '$unlockedCount / ${achState.snapshot.visibleCount}',
             ),

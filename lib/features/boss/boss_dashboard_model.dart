@@ -19,20 +19,23 @@ class DashboardData {
   });
 
   factory DashboardData.fromJson(Map<String, dynamic> j) => DashboardData(
-        today: j['today']?.toString() ?? '',
-        todayReservations: DashboardCount.fromJson(
-            j['today_reservations'] as Map<String, dynamic>? ?? {}),
-        todayAttendances: DashboardCount.fromJson(
-            j['today_attendances'] as Map<String, dynamic>? ?? {}),
-        newMembersThisWeek: DashboardCount.fromJson(
-            j['new_members_this_week'] as Map<String, dynamic>? ?? {}),
-        todayClasses: (j['today_classes'] as List? ?? [])
-            .map((e) => TodayClass.fromJson(e as Map<String, dynamic>))
-            .toList(),
-        expiringSoon: (j['expiring_soon'] as List? ?? [])
-            .map((e) => ExpiringMember.fromJson(e as Map<String, dynamic>))
-            .toList(),
-      );
+    today: j['today']?.toString() ?? '',
+    todayReservations: DashboardCount.fromJson(
+      j['today_reservations'] as Map<String, dynamic>? ?? {},
+    ),
+    todayAttendances: DashboardCount.fromJson(
+      j['today_attendances'] as Map<String, dynamic>? ?? {},
+    ),
+    newMembersThisWeek: DashboardCount.fromJson(
+      j['new_members_this_week'] as Map<String, dynamic>? ?? {},
+    ),
+    todayClasses: (j['today_classes'] as List? ?? [])
+        .map((e) => TodayClass.fromJson(e as Map<String, dynamic>))
+        .toList(),
+    expiringSoon: (j['expiring_soon'] as List? ?? [])
+        .map((e) => ExpiringMember.fromJson(e as Map<String, dynamic>))
+        .toList(),
+  );
 }
 
 class DashboardCount {
@@ -42,11 +45,11 @@ class DashboardCount {
   const DashboardCount({required this.count, required this.members});
 
   factory DashboardCount.fromJson(Map<String, dynamic> j) => DashboardCount(
-        count: (j['count'] as num?)?.toInt() ?? 0,
-        members: (j['members'] as List? ?? [])
-            .map((e) => MemberSnippet.fromJson(e as Map<String, dynamic>))
-            .toList(),
-      );
+    count: (j['count'] as num?)?.toInt() ?? 0,
+    members: (j['members'] as List? ?? [])
+        .map((e) => MemberSnippet.fromJson(e as Map<String, dynamic>))
+        .toList(),
+  );
 }
 
 class MemberSnippet {
@@ -54,14 +57,17 @@ class MemberSnippet {
   final String name;
   final String? profilePhotoUrl;
 
-  const MemberSnippet(
-      {required this.id, required this.name, this.profilePhotoUrl});
+  const MemberSnippet({
+    required this.id,
+    required this.name,
+    this.profilePhotoUrl,
+  });
 
   factory MemberSnippet.fromJson(Map<String, dynamic> j) => MemberSnippet(
-        id: (j['id'] as num?)?.toInt() ?? 0,
-        name: j['name']?.toString() ?? '',
-        profilePhotoUrl: j['profile_photo_url']?.toString(),
-      );
+    id: (j['id'] as num?)?.toInt() ?? 0,
+    name: j['name']?.toString() ?? '',
+    profilePhotoUrl: j['profile_photo_url']?.toString(),
+  );
 }
 
 class TodayClass {
@@ -88,18 +94,16 @@ class TodayClass {
   });
 
   factory TodayClass.fromJson(Map<String, dynamic> j) => TodayClass(
-        id: (j['id'] as num?)?.toInt() ?? 0,
-        title: j['title']?.toString() ?? '수업',
-        startAt: j['start_at']?.toString() ?? '',
-        endAt: j['end_at']?.toString() ?? '',
-        reserved: (j['reserved'] as num?)?.toInt() ?? 0,
-        capacity: (j['capacity'] as num?)?.toInt(),
-        coaches: (j['coaches'] as List? ?? [])
-            .map((e) => e.toString())
-            .toList(),
-        room: j['room']?.toString(),
-        status: j['status']?.toString() ?? 'scheduled',
-      );
+    id: (j['id'] as num?)?.toInt() ?? 0,
+    title: j['title']?.toString() ?? '수업',
+    startAt: j['start_at']?.toString() ?? '',
+    endAt: j['end_at']?.toString() ?? '',
+    reserved: (j['reserved'] as num?)?.toInt() ?? 0,
+    capacity: (j['capacity'] as num?)?.toInt(),
+    coaches: (j['coaches'] as List? ?? []).map((e) => e.toString()).toList(),
+    room: j['room']?.toString(),
+    status: j['status']?.toString() ?? 'scheduled',
+  );
 }
 
 class ExpiringMember {
@@ -116,9 +120,9 @@ class ExpiringMember {
   });
 
   factory ExpiringMember.fromJson(Map<String, dynamic> j) => ExpiringMember(
-        memberId: (j['member_id'] as num?)?.toInt() ?? 0,
-        name: j['name']?.toString() ?? '',
-        dDay: (j['d_day'] as num?)?.toInt() ?? 0,
-        endDate: j['end_date']?.toString() ?? '',
-      );
+    memberId: (j['member_id'] as num?)?.toInt() ?? 0,
+    name: j['name']?.toString() ?? '',
+    dDay: (j['d_day'] as num?)?.toInt() ?? 0,
+    endDate: j['end_date']?.toString() ?? '',
+  );
 }

@@ -294,8 +294,11 @@ class HyphenPictogram {
   /// 숨김 업적이면서 아직 안 딴 것 — 자물쇠로 덮는다.
   static const String hiddenIcon = 'lock';
 
-  static String iconNameFor(String code,
-      {bool hiddenLocked = false, String? override}) {
+  static String iconNameFor(
+    String code, {
+    bool hiddenLocked = false,
+    String? override,
+  }) {
     if (hiddenLocked) return hiddenIcon;
     // 코치가 PC 업적 설정에서 고른 이름이 최우선. 팩에 없는 이름이면 무시한다.
     if (override != null && override.isNotEmpty && hasIcon(override)) {
@@ -310,8 +313,11 @@ class HyphenPictogram {
   }
 
   /// SvgPicture.asset 에 그대로 넣을 경로.
-  static String assetFor(String code,
-          {bool hiddenLocked = false, String? override}) =>
+  static String assetFor(
+    String code, {
+    bool hiddenLocked = false,
+    String? override,
+  }) =>
       '$basePath${iconNameFor(code, hiddenLocked: hiddenLocked, override: override)}.svg';
 
   /// 코치가 PC 에서 고른 이름이 있으면 그걸 쓴다 (코드 매핑보다 우선).

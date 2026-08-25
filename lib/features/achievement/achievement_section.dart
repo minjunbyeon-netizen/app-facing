@@ -9,14 +9,13 @@ import 'achievement_card.dart';
 import 'achievement_state.dart';
 import 'achievements_screen.dart';
 import 'hyphen_pictogram.dart';
+import '../../core/time_format.dart';
 
 /// 업적 섹션 — 최근 해금 최대 5줄 표 (v1.30: 색 타일 3열 그리드 → 한 줄 한 항목).
 /// 5개 초과 시 마지막 줄이 "그 외 N개" → 전체 보기.
 /// Locked 항목은 이 섹션에서 제거 → AchievementsScreen 전용.
 class AchievementSection extends StatelessWidget {
   const AchievementSection({super.key});
-
-
 
   void _showDetail(
     BuildContext context,
@@ -36,9 +35,9 @@ class AchievementSection extends StatelessWidget {
 
   void _goAll(BuildContext context) {
     Haptic.light();
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => const AchievementsScreen(),
-    ));
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const AchievementsScreen()));
   }
 
   @override
@@ -49,23 +48,23 @@ class AchievementSection extends StatelessWidget {
     final unlockedCount = snap.unlockedCount;
 
     // 최근 해금 순 정렬
-    final unlockedList = snap.catalog
-        .where((c) => snap.isUnlocked(c.code))
-        .toList()
-      ..sort((a, b) {
-        final ua = snap.unlocked[a.code]?.unlockedAt;
-        final ub = snap.unlocked[b.code]?.unlockedAt;
-        if (ua == null && ub == null) return 0;
-        if (ua == null) return 1;
-        if (ub == null) return -1;
-        return ub.compareTo(ua);
-      });
+    final unlockedList =
+        snap.catalog.where((c) => snap.isUnlocked(c.code)).toList()
+          ..sort((a, b) {
+            final ua = snap.unlocked[a.code]?.unlockedAt;
+            final ub = snap.unlocked[b.code]?.unlockedAt;
+            if (ua == null && ub == null) return 0;
+            if (ua == null) return 1;
+            if (ub == null) return -1;
+            return ub.compareTo(ua);
+          });
 
     // 5줄 고정: 초과분은 마지막 "그 외 N개" 줄로 접는다.
     const int kMax = 5;
     final bool hasOverflow = unlockedList.length > kMax;
-    final displayItems =
-        hasOverflow ? unlockedList.take(kMax).toList() : unlockedList;
+    final displayItems = hasOverflow
+        ? unlockedList.take(kMax).toList()
+        : unlockedList;
     final overflowCount = unlockedCount - kMax;
 
     return Column(
@@ -148,8 +147,11 @@ class _EmptyState extends StatelessWidget {
         ),
         child: Row(
           children: [
-            const Icon(Icons.military_tech_outlined,
-                size: 18, color: HyphenTokens.muted),
+            const Icon(
+              Icons.military_tech_outlined,
+              size: 18,
+              color: HyphenTokens.muted,
+            ),
             const SizedBox(width: HyphenTokens.sp2),
             const Expanded(
               child: Text(
@@ -231,18 +233,23 @@ class _DetailSheet extends StatelessWidget {
                           fontWeight: FontWeight.w800,
                         ),
                       ),
-                      if (AchievementCard.koreanTitle(catalog.code)
-                          .isNotEmpty) ...[
+                      if (AchievementCard.koreanTitle(
+                        catalog.code,
+                      ).isNotEmpty) ...[
                         const SizedBox(height: 2),
-                        Text(AchievementCard.koreanTitle(catalog.code),
-                            style: HyphenTokens.caption),
+                        Text(
+                          AchievementCard.koreanTitle(catalog.code),
+                          style: HyphenTokens.caption,
+                        ),
                       ],
                     ],
                   ),
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: HyphenTokens.sp2, vertical: 4),
+                    horizontal: HyphenTokens.sp2,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: rarityColor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(HyphenTokens.r1),
@@ -268,8 +275,10 @@ class _DetailSheet extends StatelessWidget {
             if (isUnlocked) ...[
               const SizedBox(height: HyphenTokens.sp3),
               Text(
-                '${_fmt(unlock!.unlockedAt)} 해금',
-                style: HyphenTokens.caption.copyWith(color: HyphenTokens.accent),
+                '${ymd(unlock!.unlockedAt.toLocal())} 해금',
+                style: HyphenTokens.caption.copyWith(
+                  color: HyphenTokens.accent,
+                ),
               ),
             ],
             const SizedBox(height: HyphenTokens.sp2),
@@ -280,11 +289,4 @@ class _DetailSheet extends StatelessWidget {
   }
 
   String _hint() => AchievementCard.lockedHint(catalog);
-
-  String _fmt(DateTime d) {
-    final l = d.toLocal();
-    return '${l.year}-'
-        '${l.month.toString().padLeft(2, '0')}-'
-        '${l.day.toString().padLeft(2, '0')}';
-  }
 }

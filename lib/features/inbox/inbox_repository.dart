@@ -29,13 +29,16 @@ class InboxRepository {
     final raw = (itemsRaw is List ? itemsRaw : const []);
     return raw
         .whereType<Map<String, dynamic>>()
-        .map((j) => OutboxNote(
-              note: CoachNote.fromJson(j),
-              stats: j['stats'] is Map
-                  ? NoteOutboxStats.fromJson(
-                      Map<String, dynamic>.from(j['stats'] as Map))
-                  : const NoteOutboxStats(total: 0, read: 0, completed: 0),
-            ))
+        .map(
+          (j) => OutboxNote(
+            note: CoachNote.fromJson(j),
+            stats: j['stats'] is Map
+                ? NoteOutboxStats.fromJson(
+                    Map<String, dynamic>.from(j['stats'] as Map),
+                  )
+                : const NoteOutboxStats(total: 0, read: 0, completed: 0),
+          ),
+        )
         .toList();
   }
 
@@ -106,10 +109,10 @@ class InboxRepository {
       api.post('/api/v1/gym/notes/$noteId/complete', {
         if (actual.isNotEmpty) 'actual': actual.map((a) => a.toJson()).toList(),
       });
-  Future<void> decline(int noteId, {String? reason}) =>
-      api.post('/api/v1/gym/notes/$noteId/decline', {
-        if (reason != null && reason.isNotEmpty) 'reason': reason,
-      });
+  Future<void> decline(int noteId, {String? reason}) => api.post(
+    '/api/v1/gym/notes/$noteId/decline',
+    {if (reason != null && reason.isNotEmpty) 'reason': reason},
+  );
   Future<void> askCoach(int noteId, String body) =>
       api.post('/api/v1/gym/notes/$noteId/ask', {'body': body});
 
@@ -120,12 +123,11 @@ class InboxRepository {
     String? displayName,
     String? avatarColor,
     String? injuryNotes,
-  }) =>
-      api.post('/api/v1/profile/info', {
-        'display_name': ?displayName,
-        'avatar_color': ?avatarColor,
-        'injury_notes': ?injuryNotes,
-      });
+  }) => api.post('/api/v1/profile/info', {
+    'display_name': ?displayName,
+    'avatar_color': ?avatarColor,
+    'injury_notes': ?injuryNotes,
+  });
 
   // ---- Gym invite code ----
   Future<String?> getInviteCode(int gymId) async {
@@ -134,8 +136,10 @@ class InboxRepository {
   }
 
   Future<String?> regenerateInviteCode(int gymId) async {
-    final data =
-        await api.post('/api/v1/gym/$gymId/invite-code/regenerate', const {});
+    final data = await api.post(
+      '/api/v1/gym/$gymId/invite-code/regenerate',
+      const {},
+    );
     return data['invite_code']?.toString();
   }
 
@@ -179,10 +183,9 @@ class InboxRepository {
     required int groupId,
     required String memberHash,
   }) async {
-    await api.post(
-      '/api/v1/gym/$gymId/groups/$groupId/members',
-      {'member_hash': memberHash},
-    );
+    await api.post('/api/v1/gym/$gymId/groups/$groupId/members', {
+      'member_hash': memberHash,
+    });
   }
 
   Future<void> removeGroupMember({

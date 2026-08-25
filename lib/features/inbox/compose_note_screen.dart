@@ -79,162 +79,179 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
     bool? ok;
     try {
       ok = await HkSheet.show<bool>(
-      context,
-      builder: (ctx) => StatefulBuilder(builder: (innerCtx, setSheet) {
-        return Padding(
-          padding: EdgeInsets.only(
-            left: HyphenTokens.sp4,
-            right: HyphenTokens.sp4,
-            top: HyphenTokens.sp4,
-            bottom: MediaQuery.of(ctx).viewInsets.bottom + HyphenTokens.sp4,
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Text('동작 추가', style: HyphenTokens.sectionLabel),
-                const SizedBox(height: HyphenTokens.sp2),
-                TextField(
-                  controller: movementCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Movement (slug)',
-                    hintText: 'back-squat / clean / run',
-                  ),
-                ),
-                const SizedBox(height: HyphenTokens.sp2),
-                // v1.19 페르소나 P1-17: Substitute 옵션.
-                TextField(
-                  controller: altCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Substitute (선택, 부상자용)',
-                    hintText: '예: dumbbell-thruster',
-                  ),
-                ),
-                const SizedBox(height: HyphenTokens.sp2),
-                Row(children: [
-                  Expanded(
-                    child: TextField(
-                      controller: setsCtrl,
-                      decoration: const InputDecoration(labelText: 'Sets'),
-                      keyboardType: TextInputType.number,
-                    ),
-                  ),
-                  const SizedBox(width: HyphenTokens.sp2),
-                  Expanded(
-                    child: TextField(
-                      controller: repsCtrl,
-                      decoration: const InputDecoration(labelText: 'Reps'),
-                      keyboardType: TextInputType.number,
-                    ),
-                  ),
-                ]),
-                const SizedBox(height: HyphenTokens.sp3),
-                // v1.19 페르소나 P0-3: Load 단위 picker.
-                Text('중량 단위', style: HyphenTokens.sectionLabel),
-                const SizedBox(height: HyphenTokens.sp1),
-                Wrap(
-                  spacing: HyphenTokens.sp1,
-                  runSpacing: HyphenTokens.sp1,
+        context,
+        builder: (ctx) => StatefulBuilder(
+          builder: (innerCtx, setSheet) {
+            return Padding(
+              padding: EdgeInsets.only(
+                left: HyphenTokens.sp4,
+                right: HyphenTokens.sp4,
+                top: HyphenTokens.sp4,
+                bottom: MediaQuery.of(ctx).viewInsets.bottom + HyphenTokens.sp4,
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    for (final u in const [
-                      ('pct_1rm', '%1RM'),
-                      ('rpe', 'RPE'),
-                      ('kg', 'kg'),
-                      ('lb', 'lb'),
-                      ('sec_per_500m', 'sec/500m'),
-                      ('feel', 'feel'),
-                    ])
-                      HkBadge(
-                        u.$2,
-                        color: HyphenTokens.fg,
-                        selected: unit == u.$1,
-                        onTap: () => setSheet(() => unit = u.$1),
+                    const HkSectionLabel('동작 추가'),
+                    const SizedBox(height: HyphenTokens.sp2),
+                    TextField(
+                      controller: movementCtrl,
+                      decoration: const InputDecoration(
+                        labelText: 'Movement (slug)',
+                        hintText: 'back-squat / clean / run',
                       ),
+                    ),
+                    const SizedBox(height: HyphenTokens.sp2),
+                    // v1.19 페르소나 P1-17: Substitute 옵션.
+                    TextField(
+                      controller: altCtrl,
+                      decoration: const InputDecoration(
+                        labelText: 'Substitute (선택, 부상자용)',
+                        hintText: '예: dumbbell-thruster',
+                      ),
+                    ),
+                    const SizedBox(height: HyphenTokens.sp2),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: setsCtrl,
+                            decoration: const InputDecoration(
+                              labelText: 'Sets',
+                            ),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                        const SizedBox(width: HyphenTokens.sp2),
+                        Expanded(
+                          child: TextField(
+                            controller: repsCtrl,
+                            decoration: const InputDecoration(
+                              labelText: 'Reps',
+                            ),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: HyphenTokens.sp3),
+                    // v1.19 페르소나 P0-3: Load 단위 picker.
+                    HkSectionLabel('중량 단위'),
+                    const SizedBox(height: HyphenTokens.sp1),
+                    Wrap(
+                      spacing: HyphenTokens.sp1,
+                      runSpacing: HyphenTokens.sp1,
+                      children: [
+                        for (final u in const [
+                          ('pct_1rm', '%1RM'),
+                          ('rpe', 'RPE'),
+                          ('kg', 'kg'),
+                          ('lb', 'lb'),
+                          ('sec_per_500m', 'sec/500m'),
+                          ('feel', 'feel'),
+                        ])
+                          HkBadge(
+                            u.$2,
+                            color: HyphenTokens.fg,
+                            selected: unit == u.$1,
+                            onTap: () => setSheet(() => unit = u.$1),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: HyphenTokens.sp2),
+                    TextField(
+                      controller: loadCtrl,
+                      decoration: InputDecoration(
+                        labelText: _loadHint(unit),
+                        hintText: _loadHint(unit),
+                      ),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                    ),
+                    const SizedBox(height: HyphenTokens.sp2),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: restCtrl,
+                            decoration: const InputDecoration(
+                              labelText: 'Rest (s)',
+                            ),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                        const SizedBox(width: HyphenTokens.sp2),
+                        Expanded(
+                          child: TextField(
+                            controller: tempoCtrl,
+                            decoration: const InputDecoration(
+                              labelText: 'Tempo',
+                              hintText: '3-1-1-0',
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: HyphenTokens.sp2),
+                        Expanded(
+                          child: TextField(
+                            controller: timecapCtrl,
+                            decoration: const InputDecoration(
+                              labelText: 'Time cap (s)',
+                            ),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: HyphenTokens.sp2),
+                    TextField(
+                      controller: noteCtrl,
+                      decoration: const InputDecoration(labelText: 'Note (선택)'),
+                      maxLength: 100,
+                    ),
+                    const SizedBox(height: HyphenTokens.sp3),
+                    HkButton.primary(
+                      '추가',
+                      onPressed: () => Navigator.of(ctx).pop(true),
+                    ),
                   ],
                 ),
-                const SizedBox(height: HyphenTokens.sp2),
-                TextField(
-                  controller: loadCtrl,
-                  decoration: InputDecoration(
-                    labelText: _loadHint(unit),
-                    hintText: _loadHint(unit),
-                  ),
-                  keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true),
-                ),
-                const SizedBox(height: HyphenTokens.sp2),
-                Row(children: [
-                  Expanded(
-                    child: TextField(
-                      controller: restCtrl,
-                      decoration:
-                          const InputDecoration(labelText: 'Rest (s)'),
-                      keyboardType: TextInputType.number,
-                    ),
-                  ),
-                  const SizedBox(width: HyphenTokens.sp2),
-                  Expanded(
-                    child: TextField(
-                      controller: tempoCtrl,
-                      decoration: const InputDecoration(
-                        labelText: 'Tempo',
-                        hintText: '3-1-1-0',
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: HyphenTokens.sp2),
-                  Expanded(
-                    child: TextField(
-                      controller: timecapCtrl,
-                      decoration:
-                          const InputDecoration(labelText: 'Time cap (s)'),
-                      keyboardType: TextInputType.number,
-                    ),
-                  ),
-                ]),
-                const SizedBox(height: HyphenTokens.sp2),
-                TextField(
-                  controller: noteCtrl,
-                  decoration: const InputDecoration(labelText: 'Note (선택)'),
-                  maxLength: 100,
-                ),
-                const SizedBox(height: HyphenTokens.sp3),
-                HkButton.primary('추가',
-                    onPressed: () => Navigator.of(ctx).pop(true)),
-              ],
-            ),
+              ),
+            );
+          },
+        ),
+      );
+      if (ok != true) return;
+      final slug = movementCtrl.text.trim();
+      if (slug.isEmpty) return;
+      setState(() {
+        _items.add(
+          AssignmentItem(
+            movementSlug: slug,
+            alternateMovement: altCtrl.text.trim().isEmpty
+                ? null
+                : altCtrl.text.trim(),
+            sets: int.tryParse(setsCtrl.text.trim()),
+            reps: int.tryParse(repsCtrl.text.trim()),
+            loadValue: () {
+              final raw = double.tryParse(loadCtrl.text.trim());
+              if (raw == null) return null;
+              // pct_1rm 입력 50 → 0.5 자동 변환.
+              if (unit == 'pct_1rm' && raw > 1.5) return raw / 100;
+              return raw;
+            }(),
+            unit: unit,
+            restSec: int.tryParse(restCtrl.text.trim()),
+            tempoPattern: tempoCtrl.text.trim().isEmpty
+                ? null
+                : tempoCtrl.text.trim(),
+            timeCapSec: int.tryParse(timecapCtrl.text.trim()),
+            note: noteCtrl.text.trim().isEmpty ? null : noteCtrl.text.trim(),
           ),
         );
-      }),
-    );
-    if (ok != true) return;
-    final slug = movementCtrl.text.trim();
-    if (slug.isEmpty) return;
-    setState(() {
-      _items.add(AssignmentItem(
-        movementSlug: slug,
-        alternateMovement: altCtrl.text.trim().isEmpty
-            ? null
-            : altCtrl.text.trim(),
-        sets: int.tryParse(setsCtrl.text.trim()),
-        reps: int.tryParse(repsCtrl.text.trim()),
-        loadValue: () {
-          final raw = double.tryParse(loadCtrl.text.trim());
-          if (raw == null) return null;
-          // pct_1rm 입력 50 → 0.5 자동 변환.
-          if (unit == 'pct_1rm' && raw > 1.5) return raw / 100;
-          return raw;
-        }(),
-        unit: unit,
-        restSec: int.tryParse(restCtrl.text.trim()),
-        tempoPattern: tempoCtrl.text.trim().isEmpty
-            ? null
-            : tempoCtrl.text.trim(),
-        timeCapSec: int.tryParse(timecapCtrl.text.trim()),
-        note: noteCtrl.text.trim().isEmpty ? null : noteCtrl.text.trim(),
-      ));
-    });
+      });
     } finally {
       movementCtrl.dispose();
       altCtrl.dispose();
@@ -313,24 +330,24 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
     Haptic.medium();
     try {
       await context.read<InboxRepository>().postNote(
-            gymId: gym.id,
-            targetType: _targetType,
-            targetId: targetId,
-            kind: _kind,
-            title: _titleCtrl.text.trim(),
-            body: body,
-            rationale: _rationaleCtrl.text.trim().isEmpty
-                ? null
-                : _rationaleCtrl.text.trim(),
-            structured: _kind == 'assignment' ? _items : const [],
-            dueDate: _dueCtrl.text.trim().isEmpty ? null : _dueCtrl.text.trim(),
-            dueStart: _dueStartCtrl.text.trim().isEmpty
-                ? null
-                : _dueStartCtrl.text.trim(),
-            dueEnd: _dueEndCtrl.text.trim().isEmpty
-                ? null
-                : _dueEndCtrl.text.trim(),
-          );
+        gymId: gym.id,
+        targetType: _targetType,
+        targetId: targetId,
+        kind: _kind,
+        title: _titleCtrl.text.trim(),
+        body: body,
+        rationale: _rationaleCtrl.text.trim().isEmpty
+            ? null
+            : _rationaleCtrl.text.trim(),
+        structured: _kind == 'assignment' ? _items : const [],
+        dueDate: _dueCtrl.text.trim().isEmpty ? null : _dueCtrl.text.trim(),
+        dueStart: _dueStartCtrl.text.trim().isEmpty
+            ? null
+            : _dueStartCtrl.text.trim(),
+        dueEnd: _dueEndCtrl.text.trim().isEmpty
+            ? null
+            : _dueEndCtrl.text.trim(),
+      );
       if (!mounted) return;
       Navigator.of(context).pop(true);
     } on AppException catch (e) {
@@ -356,7 +373,7 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('대상', style: HyphenTokens.sectionLabel),
+              const HkSectionLabel('대상'),
               const SizedBox(height: HyphenTokens.sp2),
               Wrap(
                 spacing: HyphenTokens.sp2,
@@ -381,7 +398,7 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                 ),
               if (_targetType == 'group') _buildGroupPicker(),
               const SizedBox(height: HyphenTokens.sp4),
-              const Text('종류', style: HyphenTokens.sectionLabel),
+              const HkSectionLabel('종류'),
               const SizedBox(height: HyphenTokens.sp2),
               Wrap(
                 spacing: HyphenTokens.sp2,
@@ -419,7 +436,9 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
               TextField(
                 controller: _rationaleCtrl,
                 decoration: InputDecoration(
-                  labelText: _kind == 'assignment' ? 'Why this · 권장' : 'Why this · 선택',
+                  labelText: _kind == 'assignment'
+                      ? 'Why this · 권장'
+                      : 'Why this · 선택',
                   hintText: '예: 지난 Fran 4R grip 풀림 → unbroken 회복',
                 ),
                 maxLines: 3,
@@ -429,39 +448,42 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                 const SizedBox(height: HyphenTokens.sp4),
                 Row(
                   children: [
-                    const Expanded(
-                      child: Text('처방',
-                          style: HyphenTokens.sectionLabel),
+                    const Expanded(child: HkSectionLabel('처방')),
+                    HkButton.tertiary(
+                      '추가',
+                      icon: Icons.add,
+                      onPressed: _addItem,
                     ),
-                    HkButton.tertiary('추가',
-                        icon: Icons.add, onPressed: _addItem),
                   ],
                 ),
                 if (_items.isEmpty)
                   const Padding(
-                    padding: EdgeInsets.symmetric(
-                        vertical: HyphenTokens.sp2),
-                    child: Text('동작 없음. 자유 텍스트 쪽지로도 발송 가능.',
-                        style: HyphenTokens.caption),
+                    padding: EdgeInsets.symmetric(vertical: HyphenTokens.sp2),
+                    child: Text(
+                      '동작 없음. 자유 텍스트 쪽지로도 발송 가능.',
+                      style: HyphenTokens.caption,
+                    ),
                   )
                 else
                   for (int i = 0; i < _items.length; i++)
                     Padding(
                       padding: const EdgeInsets.symmetric(
-                          vertical: HyphenTokens.sp1),
+                        vertical: HyphenTokens.sp1,
+                      ),
                       child: Container(
                         decoration: BoxDecoration(
                           color: HyphenTokens.surface,
                           border: Border.all(color: HyphenTokens.border),
-                          borderRadius:
-                              BorderRadius.circular(HyphenTokens.r2),
+                          borderRadius: BorderRadius.circular(HyphenTokens.r2),
                         ),
                         padding: const EdgeInsets.all(HyphenTokens.sp3),
                         child: Row(
                           children: [
                             Expanded(
-                              child: Text(_items[i].displayLine(),
-                                  style: HyphenTokens.body),
+                              child: Text(
+                                _items[i].displayLine(),
+                                style: HyphenTokens.body,
+                              ),
                             ),
                             IconButton(
                               icon: const Icon(Icons.close, size: 16),
@@ -481,25 +503,27 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
                 ),
                 const SizedBox(height: HyphenTokens.sp2),
                 // v1.19 페르소나 P2-26 (M6 이): 윈도우형 due (이번 주 내 1회).
-                Row(children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _dueStartCtrl,
-                      decoration: const InputDecoration(
-                        labelText: 'Due start (선택)',
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _dueStartCtrl,
+                        decoration: const InputDecoration(
+                          labelText: 'Due start (선택)',
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: HyphenTokens.sp2),
-                  Expanded(
-                    child: TextField(
-                      controller: _dueEndCtrl,
-                      decoration: const InputDecoration(
-                        labelText: 'Due end (선택)',
+                    const SizedBox(width: HyphenTokens.sp2),
+                    Expanded(
+                      child: TextField(
+                        controller: _dueEndCtrl,
+                        decoration: const InputDecoration(
+                          labelText: 'Due end (선택)',
+                        ),
                       ),
                     ),
-                  ),
-                ]),
+                  ],
+                ),
               ],
               const SizedBox(height: HyphenTokens.sp5),
               _sending
@@ -535,21 +559,21 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
         final groups = snap.data ?? const [];
         if (groups.isEmpty) {
           return Padding(
-            padding:
-                const EdgeInsets.symmetric(vertical: HyphenTokens.sp2),
+            padding: const EdgeInsets.symmetric(vertical: HyphenTokens.sp2),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('그룹 없음. 먼저 그룹 생성 필요.',
-                    style: HyphenTokens.caption),
+                const HkEmptyState(title: '그룹 없음', caption: '먼저 그룹을 만들어 주세요.'),
                 const SizedBox(height: HyphenTokens.sp2),
                 // QA B-NAV-1: 작성 화면을 닫는 대신 GroupManagement 화면 push.
-                HkButton.secondary('그룹 관리',
-                    onPressed: () => Navigator.of(ctx).push(
-                          MaterialPageRoute(
-                            builder: (_) => const GroupManagementScreen(),
-                          ),
-                        )),
+                HkButton.secondary(
+                  '그룹 관리',
+                  onPressed: () => Navigator.of(ctx).push(
+                    MaterialPageRoute(
+                      builder: (_) => const GroupManagementScreen(),
+                    ),
+                  ),
+                ),
               ],
             ),
           );

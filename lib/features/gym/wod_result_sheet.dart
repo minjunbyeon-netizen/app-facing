@@ -188,10 +188,10 @@ class _WodResultSheetState extends State<WodResultSheet> {
   }
 
   static String _kindLabel(_RecordKind k) => switch (k) {
-        _RecordKind.time => '시간',
-        _RecordKind.rounds => '라운드',
-        _RecordKind.weight => '무게',
-      };
+    _RecordKind.time => '시간',
+    _RecordKind.rounds => '라운드',
+    _RecordKind.weight => '무게',
+  };
 
   @override
   void dispose() {
@@ -266,8 +266,9 @@ class _WodResultSheetState extends State<WodResultSheet> {
     final navigator = Navigator.of(context);
 
     // v3.15 — 칩이 정한 종류의 값만 주 기록으로 나간다.
-    final timeSec =
-        _kind == _RecordKind.time ? _parseTime(_timeCtrl.text) : null;
+    final timeSec = _kind == _RecordKind.time
+        ? _parseTime(_timeCtrl.text)
+        : null;
     final rounds = _kind == _RecordKind.rounds
         ? int.tryParse(_roundsCtrl.text.trim())
         : null;
@@ -280,9 +281,11 @@ class _WodResultSheetState extends State<WodResultSheet> {
     String? movement;
     if (_kind == _RecordKind.weight) {
       weightKg = double.tryParse(
-          (_isStrength ? _stWeightCtrl : _liftWeightCtrl).text.trim());
+        (_isStrength ? _stWeightCtrl : _liftWeightCtrl).text.trim(),
+      );
       weightReps = int.tryParse(
-          (_isStrength ? _stRepsCtrl : _liftRepsCtrl).text.trim());
+        (_isStrength ? _stRepsCtrl : _liftRepsCtrl).text.trim(),
+      );
       // strength 게시물은 게시물 자체가 리프트 그룹 — 이름 없이도 묶인다.
       final name = _liftNameCtrl.text.trim();
       if (!_isStrength && name.isNotEmpty) movement = name;
@@ -301,8 +304,8 @@ class _WodResultSheetState extends State<WodResultSheet> {
     final anyScaled = _isStrength
         ? false
         : _structured
-            ? _moves.any((m) => m.scaled)
-            : _fallbackScaled;
+        ? _moves.any((m) => m.scaled)
+        : _fallbackScaled;
     final scale = anyScaled ? 'scaled' : 'rx';
 
     final notesParts = <String>[];
@@ -314,23 +317,25 @@ class _WodResultSheetState extends State<WodResultSheet> {
       final weightKg = double.tryParse(_weightCtrl.text.trim());
       if (weightKg != null && weightKg > 0) notesParts.add('${weightKg}kg');
     }
-    if (_notesCtrl.text.trim().isNotEmpty) notesParts.add(_notesCtrl.text.trim());
+    if (_notesCtrl.text.trim().isNotEmpty) {
+      notesParts.add(_notesCtrl.text.trim());
+    }
     final notes = notesParts.join(' · ');
 
     try {
       // 1) 결과 제출.
       final res = await repo.submitWodResult(
-            gymId: gym.id,
-            wodId: widget.wod.id,
-            timeSec: timeSec,
-            rounds: rounds,
-            extraReps: extra,
-            weightKg: weightKg,
-            weightReps: weightReps,
-            movement: movement,
-            scaleLevel: scale,
-            notes: notes,
-          );
+        gymId: gym.id,
+        wodId: widget.wod.id,
+        timeSec: timeSec,
+        rounds: rounds,
+        extraReps: extra,
+        weightKg: weightKg,
+        weightReps: weightReps,
+        movement: movement,
+        scaleLevel: scale,
+        notes: notes,
+      );
       // 2) Attendance 캘린더 트리거 — history/wod minimal record.
       // HistoryRepository는 Provider 미등록이라 ApiClient로 직접 인스턴스화.
       try {
@@ -338,7 +343,8 @@ class _WodResultSheetState extends State<WodResultSheet> {
         await hist.saveWodHistory({
           'wod': {
             'wod_type': widget.wod.wodType,
-            'notes': '수업 #${widget.wod.id} · ${widget.wod.content.split('\n').first}',
+            'notes':
+                '수업 #${widget.wod.id} · ${widget.wod.content.split('\n').first}',
           },
           'plan': {
             'formula_version': 'manual',
@@ -387,8 +393,9 @@ class _WodResultSheetState extends State<WodResultSheet> {
       child: Container(
         decoration: const BoxDecoration(
           color: HyphenTokens.surface,
-          borderRadius:
-              BorderRadius.vertical(top: Radius.circular(HyphenTokens.r3)),
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(HyphenTokens.r3),
+          ),
         ),
         padding: const EdgeInsets.fromLTRB(
           HyphenTokens.sp4,
@@ -403,18 +410,21 @@ class _WodResultSheetState extends State<WodResultSheet> {
             children: [
               Row(
                 children: [
-                  Text(wodTypeLabel(widget.wod.wodType),
-                      style: HyphenTokens.sectionLabel.copyWith(
-                        color: HyphenTokens.accent,
-                      )),
+                  Text(
+                    wodTypeLabel(widget.wod.wodType),
+                    style: HyphenTokens.sectionLabel.copyWith(
+                      color: HyphenTokens.accent,
+                    ),
+                  ),
                   const SizedBox(width: HyphenTokens.sp2),
-                  const Text('· 완료 기록', style: HyphenTokens.sectionLabel),
+                  const HkSectionLabel('· 완료 기록'),
                   const Spacer(),
                   IconButton(
                     icon: const Icon(Icons.close, size: 20),
                     color: HyphenTokens.muted,
-                    onPressed:
-                        _saving ? null : () => Navigator.of(context).pop(),
+                    onPressed: _saving
+                        ? null
+                        : () => Navigator.of(context).pop(),
                   ),
                 ],
               ),
@@ -429,7 +439,7 @@ class _WodResultSheetState extends State<WodResultSheet> {
               const SizedBox(height: HyphenTokens.sp4),
 
               // ── 내 결과 (칩이 정한 종류의 최소 입력 — v3.15) ──
-              const Text('내 결과', style: HyphenTokens.sectionLabel),
+              const HkSectionLabel('내 결과'),
               const SizedBox(height: HyphenTokens.sp1),
               // 기록 종류 칩 — 게시물 타입은 기본값만 정하고 최종 선택은 회원.
               // custom(수업) 게시물에서 시간·무게 기록일 곳이 없던 갭의 입구.
@@ -441,8 +451,7 @@ class _WodResultSheetState extends State<WodResultSheet> {
                       _kindLabel(k),
                       color: HyphenTokens.fg,
                       selected: _kind == k,
-                      onTap:
-                          _saving ? null : () => setState(() => _kind = k),
+                      onTap: _saving ? null : () => setState(() => _kind = k),
                     ),
                 ],
               ),
@@ -451,8 +460,9 @@ class _WodResultSheetState extends State<WodResultSheet> {
               if (widget.wod.myResult != null) ...[
                 Text(
                   '이미 저장한 기록이 있습니다 — 저장하면 새 값으로 바뀝니다.',
-                  style: HyphenTokens.caption
-                      .copyWith(color: HyphenTokens.warning),
+                  style: HyphenTokens.caption.copyWith(
+                    color: HyphenTokens.warning,
+                  ),
                 ),
                 const SizedBox(height: HyphenTokens.sp2),
               ],
@@ -479,10 +489,12 @@ class _WodResultSheetState extends State<WodResultSheet> {
                     Expanded(
                       flex: 2,
                       child: TextField(
-                        controller:
-                            _isStrength ? _stWeightCtrl : _liftWeightCtrl,
+                        controller: _isStrength
+                            ? _stWeightCtrl
+                            : _liftWeightCtrl,
                         keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true),
+                          decimal: true,
+                        ),
                         decoration: const InputDecoration(
                           labelText: '오늘 최고 무게 (kg)',
                           hintText: '예: 100',
@@ -540,10 +552,12 @@ class _WodResultSheetState extends State<WodResultSheet> {
               // 무게 칩이 주 기록일 때는 중복이라 숨긴다 (v3.15).
               if (_kind != _RecordKind.weight && !_isStrength) ...[
                 const SizedBox(height: HyphenTokens.sp4),
-                const Text('무게 기록 (선택)', style: HyphenTokens.sectionLabel),
+                const HkSectionLabel('무게 기록 (선택)'),
                 const SizedBox(height: HyphenTokens.sp1),
-                Text('오늘 리프트를 했으면 적어 주세요 — 최고 기록과 PR 에 반영됩니다.',
-                    style: HyphenTokens.caption),
+                Text(
+                  '오늘 리프트를 했으면 적어 주세요 — 최고 기록과 PR 에 반영됩니다.',
+                  style: HyphenTokens.caption,
+                ),
                 const SizedBox(height: HyphenTokens.sp2),
                 ..._liftNameSuggestions(),
                 TextField(
@@ -562,7 +576,8 @@ class _WodResultSheetState extends State<WodResultSheet> {
                       child: TextField(
                         controller: _liftWeightCtrl,
                         keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true),
+                          decimal: true,
+                        ),
                         decoration: const InputDecoration(
                           labelText: '오늘 최고 무게 (kg)',
                           hintText: '예: 100',
@@ -587,16 +602,17 @@ class _WodResultSheetState extends State<WodResultSheet> {
 
               // ── 동작별 난도 (게시물에서 그대로) — strength 는 난도 없음 ──
               if (_structured && !_isStrength) ...[
-                const Text('동작별 난도', style: HyphenTokens.sectionLabel),
+                const HkSectionLabel('동작별 난도'),
                 const SizedBox(height: HyphenTokens.sp1),
-                for (final e in _moves) _MovementRow(
-                  entry: e,
-                  enabled: !_saving,
-                  onChanged: () => setState(() {}),
-                ),
+                for (final e in _moves)
+                  _MovementRow(
+                    entry: e,
+                    enabled: !_saving,
+                    onChanged: () => setState(() {}),
+                  ),
               ] else if (!_isStrength) ...[
                 // 자유 서술 게시물 — 전체 1선택 (코치 무게는 본문에 이미 있음).
-                const Text('난도', style: HyphenTokens.sectionLabel),
+                const HkSectionLabel('난도'),
                 const SizedBox(height: HyphenTokens.sp1),
                 Wrap(
                   spacing: HyphenTokens.sp2,
@@ -623,8 +639,9 @@ class _WodResultSheetState extends State<WodResultSheet> {
                   const SizedBox(height: HyphenTokens.sp2),
                   TextField(
                     controller: _weightCtrl,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     decoration: const InputDecoration(
                       labelText: '내 무게 (kg · 선택)',
                       hintText: '예: 40',
@@ -644,16 +661,22 @@ class _WodResultSheetState extends State<WodResultSheet> {
               ),
               if (_error != null) ...[
                 const SizedBox(height: HyphenTokens.sp2),
-                Text(_error!,
-                    style: HyphenTokens.caption
-                        .copyWith(color: HyphenTokens.warning)),
+                Text(
+                  _error!,
+                  style: HyphenTokens.caption.copyWith(
+                    color: HyphenTokens.warning,
+                  ),
+                ),
               ],
               const SizedBox(height: HyphenTokens.sp4),
               // 버튼은 '저장' 하나 — 출석 동반 처리는 아래 한 줄로 고지 (GLOSSARY §3).
               _saving
                   ? const HkLoading()
-                  : HkButton.primary('저장',
-                      icon: Icons.check, onPressed: _submit),
+                  : HkButton.primary(
+                      '저장',
+                      icon: Icons.check,
+                      onPressed: _submit,
+                    ),
               const SizedBox(height: HyphenTokens.sp2),
               const Text(
                 '저장하면 오늘 출석도 함께 기록됩니다.',
@@ -683,10 +706,7 @@ class _MovementRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final it = entry.item;
-    final title = [
-      if (it.reps.isNotEmpty) it.reps,
-      it.name,
-    ].join(' ');
+    final title = [if (it.reps.isNotEmpty) it.reps, it.name].join(' ');
     return Container(
       margin: const EdgeInsets.only(bottom: HyphenTokens.sp2),
       padding: const EdgeInsets.all(HyphenTokens.sp3),
@@ -746,8 +766,9 @@ class _MovementRow extends StatelessWidget {
             TextField(
               controller: entry.weightCtrl,
               enabled: enabled,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               decoration: InputDecoration(
                 labelText: '내 무게 (kg)',
                 hintText: '코치 설정 ${it.loadValue}${it.loadUnit}',

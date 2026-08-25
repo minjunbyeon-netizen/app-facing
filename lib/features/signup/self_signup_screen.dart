@@ -109,21 +109,18 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
       final birth = _birthCtrl.text.trim();
       final sports = _sportsCtrl.text.trim();
       final injury = _injuryCtrl.text.trim();
-      final res = await api.post(
-        '/api/v1/member/gyms/$gymId/self-signup',
-        {
-          'login_id': loginId,
-          'password': _pwCtrl.text,
-          'name': _nameCtrl.text.trim(),
-          if (phone.isNotEmpty) 'phone': phone,
-          if (birth.isNotEmpty) 'birth_date': birth,
-          if (_gender != null) 'gender': _gender,
-          if (_bandIndex != null)
-            'experience_years': Tier.bands[_bandIndex!].years,
-          if (sports.isNotEmpty) 'sports_history': sports,
-          if (injury.isNotEmpty) 'safety_note': injury,
-        },
-      );
+      final res = await api.post('/api/v1/member/gyms/$gymId/self-signup', {
+        'login_id': loginId,
+        'password': _pwCtrl.text,
+        'name': _nameCtrl.text.trim(),
+        if (phone.isNotEmpty) 'phone': phone,
+        if (birth.isNotEmpty) 'birth_date': birth,
+        if (_gender != null) 'gender': _gender,
+        if (_bandIndex != null)
+          'experience_years': Tier.bands[_bandIndex!].years,
+        if (sports.isNotEmpty) 'sports_history': sports,
+        if (injury.isNotEmpty) 'safety_note': injury,
+      });
       if (!mounted) return;
       final status = (res['status'] ?? 'pending') as String;
       final duplicate = res['duplicate'] == true;
@@ -134,9 +131,7 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
       if (!mounted) return;
 
       if (duplicate) {
-        _toast(status == 'pending'
-            ? '이미 승인 대기 중입니다.'
-            : '이미 가입된 회원입니다.');
+        _toast(status == 'pending' ? '이미 승인 대기 중입니다.' : '이미 가입된 회원입니다.');
         _goNext(profile);
       } else if (status == 'pending') {
         _showApprovalDialog(_kBrandGymName, profile);
@@ -187,8 +182,12 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
       appBar: const HkAppBar(title: '가입 신청'),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(HyphenTokens.sp5,
-              HyphenTokens.sp4, HyphenTokens.sp5, HyphenTokens.sp5),
+          padding: const EdgeInsets.fromLTRB(
+            HyphenTokens.sp5,
+            HyphenTokens.sp4,
+            HyphenTokens.sp5,
+            HyphenTokens.sp5,
+          ),
           child: Form(
             key: _formKey,
             // v3.3 (2026-08-21 사용자 지시 "유효성 검사·자동 하이픈으로 돕기"):
@@ -302,11 +301,14 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                     children: [
                       const Text('내 레벨', style: HyphenTokens.caption),
                       const SizedBox(width: HyphenTokens.sp2),
-                      Builder(builder: (_) {
-                        final t = Tier.fromExperienceYears(
-                            Tier.bands[_bandIndex!].years);
-                        return HkBadge(t.memberLevelLabel, color: t.color);
-                      }),
+                      Builder(
+                        builder: (_) {
+                          final t = Tier.fromExperienceYears(
+                            Tier.bands[_bandIndex!].years,
+                          );
+                          return HkBadge(t.memberLevelLabel, color: t.color);
+                        },
+                      ),
                     ],
                   ),
                 ],
@@ -318,7 +320,9 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                 TextFormField(
                   controller: _sportsCtrl,
                   style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
-                  decoration: const InputDecoration(hintText: '예: 축구 5년, 웨이트 2년 · 없으면 비워 두세요'),
+                  decoration: const InputDecoration(
+                    hintText: '예: 축구 5년, 웨이트 2년 · 없으면 비워 두세요',
+                  ),
                   textInputAction: TextInputAction.next,
                   maxLength: 200,
                 ),
@@ -330,8 +334,11 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                   controller: _injuryCtrl,
                   style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
                   // 코치가 수업 전에 보는 값이라 무엇을 적어야 하는지 예를 준다.
-                  decoration: const InputDecoration(hintText: '예: 오른쪽 어깨 부상 · 오버헤드 동작 주의\n'
-                      '없으면 비워 두세요'),
+                  decoration: const InputDecoration(
+                    hintText:
+                        '예: 오른쪽 어깨 부상 · 오버헤드 동작 주의\n'
+                        '없으면 비워 두세요',
+                  ),
                   textInputAction: TextInputAction.next,
                   maxLines: 3,
                   maxLength: 200,
@@ -349,7 +356,8 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                   textInputAction: TextInputAction.next,
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(
-                        RegExp(r'[A-Za-z0-9._-]')),
+                      RegExp(r'[A-Za-z0-9._-]'),
+                    ),
                   ],
                   validator: (v) {
                     final t = (v ?? '').trim();
@@ -364,15 +372,15 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                 TextFormField(
                   controller: _pwCtrl,
                   style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
-                  decoration: InputDecoration(hintText: '비밀번호', 
+                  decoration: InputDecoration(
+                    hintText: '비밀번호',
                     suffixIcon: IconButton(
                       icon: Icon(
                         _pwVisible ? Icons.visibility_off : Icons.visibility,
                         color: HyphenTokens.muted,
                         size: 20,
                       ),
-                      onPressed: () =>
-                          setState(() => _pwVisible = !_pwVisible),
+                      onPressed: () => setState(() => _pwVisible = !_pwVisible),
                     ),
                   ),
                   obscureText: !_pwVisible,
@@ -388,8 +396,7 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                   obscureText: !_pwVisible,
                   textInputAction: TextInputAction.done,
                   onFieldSubmitted: (_) => _submit(),
-                  validator: (v) =>
-                      v != _pwCtrl.text ? '비밀번호가 서로 다릅니다.' : null,
+                  validator: (v) => v != _pwCtrl.text ? '비밀번호가 서로 다릅니다.' : null,
                 ),
 
                 const SizedBox(height: HyphenTokens.sp6),

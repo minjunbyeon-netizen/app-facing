@@ -148,16 +148,12 @@ class GymRepository {
     if (ptBookable != null) body['pt_bookable'] = ptBookable;
     if (displayOrder != null) body['display_order'] = displayOrder;
     if (offDays != null) body['off_days'] = offDays;
-    final data = await api.patch(
-      '/api/v1/gyms/$gymId/coaches/$coachId',
-      body,
-    );
+    final data = await api.patch('/api/v1/gyms/$gymId/coaches/$coachId', body);
     return CoachProfile.fromJson(data);
   }
 
   Future<List<String>> getCoachOffDays(int gymId, int coachId) async {
-    final data =
-        await api.get('/api/v1/gyms/$gymId/coaches/$coachId/off-days');
+    final data = await api.get('/api/v1/gyms/$gymId/coaches/$coachId/off-days');
     final raw = data['off_days'];
     if (raw is List) {
       return raw.map((e) => e.toString()).toList();
@@ -176,10 +172,7 @@ class GymRepository {
 
   Future<List<Locker>> listMyLockers() async {
     final data = await api.getList('/api/v1/member/me/locker');
-    return data
-        .whereType<Map<String, dynamic>>()
-        .map(Locker.fromJson)
-        .toList();
+    return data.whereType<Map<String, dynamic>>().map(Locker.fromJson).toList();
   }
 
   Future<CoachProfile> createCoach({
@@ -190,13 +183,10 @@ class GymRepository {
     // 코치 '프로필'(공개 소개 카드) 생성. 코치 '계정' 생성
     // (POST /api/v1/admin/gyms/<id>/coaches) 과는 다른 엔드포인트다 —
     // 2026-08-12 백엔드에서 두 기능의 URL 충돌을 풀며 이쪽이 /api/v1/gyms/ 로 이동.
-    final data = await api.post(
-      '/api/v1/gyms/$gymId/coaches',
-      {
-        'coach_user_id': coachUserId,
-        'name': name,
-      },
-    );
+    final data = await api.post('/api/v1/gyms/$gymId/coaches', {
+      'coach_user_id': coachUserId,
+      'name': name,
+    });
     return CoachProfile.fromJson(data);
   }
 
@@ -217,19 +207,16 @@ class GymRepository {
     required int memberId,
     required String action, // approve | reject
   }) async {
-    final data = await api.patch(
-      '/api/v1/gyms/$gymId/members/$memberId',
-      {'action': action},
-    );
+    final data = await api.patch('/api/v1/gyms/$gymId/members/$memberId', {
+      'action': action,
+    });
     return (data['status'] ?? '').toString();
   }
 
   // ---- v1.16 Sprint 16: 박스 내 리더보드 + 댓글 ----
 
   Future<List<GymWodResult>> listWodResults(int gymId, int wodId) async {
-    final list = await api.getList(
-      '/api/v1/gyms/$gymId/wods/$wodId/results',
-    );
+    final list = await api.getList('/api/v1/gyms/$gymId/wods/$wodId/results');
     return list
         .whereType<Map<String, dynamic>>()
         .map(GymWodResult.fromJson)
@@ -241,7 +228,7 @@ class GymRepository {
   /// 첫 기록이면 null (계산은 전부 백엔드 — 앱 계산 0 원칙).
   /// (구 points_awarded 첫 제출 100P 는 2026-08-24 서버와 함께 폐기.)
   Future<({int resultId, bool isPr, String? comparisonMessage})>
-      submitWodResult({
+  submitWodResult({
     required int gymId,
     required int wodId,
     int? timeSec,
@@ -275,15 +262,16 @@ class GymRepository {
 
   /// Q3 (v3.4) — 이 수업과 같은 비교 그룹의 내 과거 기록 (라벨 서버 완성).
   Future<({String kind, List<WodMyHistoryItem> items})> wodMyHistory(
-      int gymId, int wodId) async {
-    final data =
-        await api.get('/api/v1/gyms/$gymId/wods/$wodId/my-history');
+    int gymId,
+    int wodId,
+  ) async {
+    final data = await api.get('/api/v1/gyms/$gymId/wods/$wodId/my-history');
     final raw = data['items'];
     final items = (raw is List)
         ? raw
-            .whereType<Map<String, dynamic>>()
-            .map(WodMyHistoryItem.fromJson)
-            .toList()
+              .whereType<Map<String, dynamic>>()
+              .map(WodMyHistoryItem.fromJson)
+              .toList()
         : <WodMyHistoryItem>[];
     return (kind: (data['kind'] ?? '').toString(), items: items);
   }
@@ -308,25 +296,21 @@ class GymRepository {
 
   /// P3 — [인증하기]: custom 행동 인증 (1일 1회 — 중복은 409 AppException).
   Future<({String status, List<int> grantedRules})> logRewardAction(
-      int ruleId, {String note = ''}) async {
-    final data =
-        await api.post('/api/v1/member/reward-rules/$ruleId/log', {
+    int ruleId, {
+    String note = '',
+  }) async {
+    final data = await api.post('/api/v1/member/reward-rules/$ruleId/log', {
       'note': note,
     });
     final raw = data['granted_rules'];
     final granted = (raw is List)
         ? raw.whereType<num>().map((e) => e.toInt()).toList()
         : <int>[];
-    return (
-      status: (data['status'] ?? '').toString(),
-      grantedRules: granted,
-    );
+    return (status: (data['status'] ?? '').toString(), grantedRules: granted);
   }
 
   Future<List<GymWodComment>> listWodComments(int gymId, int wodId) async {
-    final list = await api.getList(
-      '/api/v1/gyms/$gymId/wods/$wodId/comments',
-    );
+    final list = await api.getList('/api/v1/gyms/$gymId/wods/$wodId/comments');
     return list
         .whereType<Map<String, dynamic>>()
         .map(GymWodComment.fromJson)
@@ -338,10 +322,9 @@ class GymRepository {
     required int wodId,
     required String body,
   }) async {
-    final data = await api.post(
-      '/api/v1/gyms/$gymId/wods/$wodId/comments',
-      {'body': body},
-    );
+    final data = await api.post('/api/v1/gyms/$gymId/wods/$wodId/comments', {
+      'body': body,
+    });
     return (data['comment_id'] as num).toInt();
   }
 
@@ -350,9 +333,7 @@ class GymRepository {
     required int wodId,
     required int commentId,
   }) async {
-    await api.delete(
-      '/api/v1/gyms/$gymId/wods/$wodId/comments/$commentId',
-    );
+    await api.delete('/api/v1/gyms/$gymId/wods/$wodId/comments/$commentId');
   }
 
   // ---- v1.16 Sprint 15: 공지·메시지 (v1.19 P2 마케팅 피드 강화) ----
@@ -461,9 +442,7 @@ class GymRepository {
   // ---- v1.16 Sprint 17: Coach Feedback ----
 
   Future<List<CoachFeedback>> listCoachFeedback(int gymId, int wodId) async {
-    final list = await api.getList(
-      '/api/v1/gyms/$gymId/wods/$wodId/feedback',
-    );
+    final list = await api.getList('/api/v1/gyms/$gymId/wods/$wodId/feedback');
     return list
         .whereType<Map<String, dynamic>>()
         .map(CoachFeedback.fromJson)
@@ -476,10 +455,10 @@ class GymRepository {
     required String memberHash,
     required String body,
   }) async {
-    final data = await api.post(
-      '/api/v1/gyms/$gymId/wods/$wodId/feedback',
-      {'member_hash': memberHash, 'body': body},
-    );
+    final data = await api.post('/api/v1/gyms/$gymId/wods/$wodId/feedback', {
+      'member_hash': memberHash,
+      'body': body,
+    });
     return (data['feedback_id'] as num).toInt();
   }
 
@@ -488,8 +467,7 @@ class GymRepository {
     required int wodId,
     required int feedbackId,
   }) async {
-    await api
-        .delete('/api/v1/gyms/$gymId/wods/$wodId/feedback/$feedbackId');
+    await api.delete('/api/v1/gyms/$gymId/wods/$wodId/feedback/$feedbackId');
   }
 
   // ---- v1.16 Sprint 17: Member Requests ----

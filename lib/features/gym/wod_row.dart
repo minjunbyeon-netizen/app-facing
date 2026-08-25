@@ -38,7 +38,9 @@ class LockedWodBanner extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 4),
       padding: const EdgeInsets.symmetric(
-          vertical: HyphenTokens.sp3, horizontal: HyphenTokens.sp3),
+        vertical: HyphenTokens.sp3,
+        horizontal: HyphenTokens.sp3,
+      ),
       decoration: BoxDecoration(
         color: HyphenTokens.surface,
         border: Border.all(color: HyphenTokens.border),
@@ -46,11 +48,7 @@ class LockedWodBanner extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Container(
-            width: 3,
-            height: 36,
-            color: HyphenTokens.warning,
-          ),
+          Container(width: 3, height: 36, color: HyphenTokens.warning),
           const SizedBox(width: HyphenTokens.sp3),
           Expanded(
             child: Column(
@@ -59,8 +57,9 @@ class LockedWodBanner extends StatelessWidget {
                 if (showDate) ...[
                   Text(
                     dateLabel,
-                    style: HyphenTokens.microLabel
-                        .copyWith(color: HyphenTokens.muted),
+                    style: HyphenTokens.microLabel.copyWith(
+                      color: HyphenTokens.muted,
+                    ),
                   ),
                   const SizedBox(height: 2),
                 ],
@@ -83,11 +82,7 @@ class LockedWodBanner extends StatelessWidget {
               ],
             ),
           ),
-          const Icon(
-            Icons.lock,
-            size: 16,
-            color: HyphenTokens.warning,
-          ),
+          const Icon(Icons.lock, size: 16, color: HyphenTokens.warning),
         ],
       ),
     );
@@ -136,10 +131,12 @@ class _WodRowState extends State<WodRow> {
   }
 
   Widget _dot() => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6),
-        child: Text('·',
-            style: HyphenTokens.caption.copyWith(color: HyphenTokens.muted)),
-      );
+    padding: const EdgeInsets.symmetric(horizontal: 6),
+    child: Text(
+      '·',
+      style: HyphenTokens.caption.copyWith(color: HyphenTokens.muted),
+    ),
+  );
 
   /// 라벨(좌) + 값(우) 한 줄. 라벨 폭 72 는 'A. METCON'·'VERSIONS' 를 못 담아
   /// 두 줄로 쪼개졌다 — 세로로 흐트러진 라벨은 그 자체로 오류처럼 보인다.
@@ -169,9 +166,9 @@ class _WodRowState extends State<WodRow> {
 
   void _openDetail(BuildContext context) {
     Haptic.light();
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => WodDetailScreen(wod: widget.wod),
-    ));
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => WodDetailScreen(wod: widget.wod)));
   }
 
   void _openMsgSheet(BuildContext context) {
@@ -181,10 +178,7 @@ class _WodRowState extends State<WodRow> {
     Haptic.light();
     HkSheet.show(
       context,
-      builder: (_) => _MsgCoachSheet(
-        gymId: gymId,
-        wod: widget.wod,
-      ),
+      builder: (_) => _MsgCoachSheet(gymId: gymId, wod: widget.wod),
     );
   }
 
@@ -241,8 +235,9 @@ class _WodRowState extends State<WodRow> {
                   Text(
                     wodTypeLabel(wod.wodType),
                     style: HyphenTokens.sectionLabel.copyWith(
-                      color:
-                          isMinimal ? HyphenTokens.muted : HyphenTokens.accent,
+                      color: isMinimal
+                          ? HyphenTokens.muted
+                          : HyphenTokens.accent,
                     ),
                   ),
                   if (wod.timeCapSec != null) ...[
@@ -286,8 +281,9 @@ class _WodRowState extends State<WodRow> {
                   ...wod.roundsData.asMap().entries.map((e) {
                     final i = e.key;
                     final r = e.value;
-                    final label =
-                        r.label.isEmpty ? 'R${i + 1}' : r.label.toUpperCase();
+                    final label = r.label.isEmpty
+                        ? 'R${i + 1}'
+                        : r.label.toUpperCase();
                     return _kv(
                       label,
                       Column(
@@ -424,8 +420,12 @@ class _MsgCoachSheetState extends State<_MsgCoachSheet> {
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     return Padding(
-      padding: EdgeInsets.fromLTRB(HyphenTokens.sp4, HyphenTokens.sp4,
-          HyphenTokens.sp4, HyphenTokens.sp4 + bottomInset),
+      padding: EdgeInsets.fromLTRB(
+        HyphenTokens.sp4,
+        HyphenTokens.sp4,
+        HyphenTokens.sp4,
+        HyphenTokens.sp4 + bottomInset,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -441,7 +441,7 @@ class _MsgCoachSheetState extends State<_MsgCoachSheet> {
             ),
           ),
           const SizedBox(height: HyphenTokens.sp4),
-          const Text('코치에게 메시지', style: HyphenTokens.sectionLabel),
+          const HkSectionLabel('코치에게 메시지'),
           const SizedBox(height: 4),
           Text(
             '${wodTypeLabel(widget.wod.wodType)} · ${widget.wod.postDate}',

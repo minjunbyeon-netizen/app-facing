@@ -10,21 +10,21 @@ class AchievementCard extends StatelessWidget {
   final AchievementCatalog catalog;
   final AchievementUnlock? unlock; // null이면 미해금
 
-  const AchievementCard({
-    super.key,
-    required this.catalog,
-    this.unlock,
-  });
-
+  const AchievementCard({super.key, required this.catalog, this.unlock});
 
   @override
   Widget build(BuildContext context) {
     final unlocked = unlock != null;
-    final color = unlocked ? RarityPalette.of(catalog.rarity).light : HyphenTokens.border;
+    final color = unlocked
+        ? RarityPalette.of(catalog.rarity).light
+        : HyphenTokens.border;
     return Container(
       margin: const EdgeInsets.only(bottom: HyphenTokens.sp3),
       padding: const EdgeInsets.fromLTRB(
-        HyphenTokens.sp4, HyphenTokens.sp3, HyphenTokens.sp4, HyphenTokens.sp3,
+        HyphenTokens.sp4,
+        HyphenTokens.sp3,
+        HyphenTokens.sp4,
+        HyphenTokens.sp3,
       ),
       decoration: BoxDecoration(
         color: HyphenTokens.surface,
@@ -50,16 +50,16 @@ class AchievementCard extends StatelessWidget {
                           ? catalog.name
                           : koreanTitle(catalog.code),
                       style: HyphenTokens.h3.copyWith(
-                        color:
-                            unlocked ? HyphenTokens.fg : HyphenTokens.muted,
+                        color: unlocked ? HyphenTokens.fg : HyphenTokens.muted,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
                     Text(
                       catalog.name,
                       style: HyphenTokens.caption.copyWith(
-                        color:
-                            unlocked ? HyphenTokens.muted : HyphenTokens.muted,
+                        color: unlocked
+                            ? HyphenTokens.muted
+                            : HyphenTokens.muted,
                       ),
                     ),
                   ],

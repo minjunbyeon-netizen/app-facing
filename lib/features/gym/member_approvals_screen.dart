@@ -18,6 +18,7 @@ import '../../widgets/coach_badge.dart';
 import '../../widgets/hkit.dart';
 import 'gym_repository.dart';
 import 'gym_state.dart';
+import '../../core/time_format.dart';
 
 class MemberApprovalsScreen extends StatefulWidget {
   const MemberApprovalsScreen({super.key});
@@ -50,9 +51,9 @@ class _MemberApprovalsScreenState extends State<MemberApprovalsScreen> {
   Future<void> _decide(GymMember m, String action) async {
     Haptic.medium();
     final ok = await context.read<GymState>().decideMember(
-          memberId: m.id,
-          action: action,
-        );
+      memberId: m.id,
+      action: action,
+    );
     if (!mounted) return;
     if (ok) {
       _reload();
@@ -60,7 +61,6 @@ class _MemberApprovalsScreenState extends State<MemberApprovalsScreen> {
       HkSnack.error(context, context.read<GymState>().error ?? '처리 실패');
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -76,21 +76,16 @@ class _MemberApprovalsScreenState extends State<MemberApprovalsScreen> {
       ),
       body: SafeArea(
         child: gym == null
-            ? const Center(
-                child: Text('체육관 정보 없음.', style: HyphenTokens.caption))
+            ? const HkEmptyState(title: '체육관 정보 없음')
             : FutureBuilder<List<GymMember>>(
                 future: _future,
                 builder: (ctx, snap) {
                   if (snap.connectionState != ConnectionState.done) {
-                    return const Center(
-                      child: CircularProgressIndicator(
-                          color: HyphenTokens.muted, strokeWidth: 2),
-                    );
+                    return const HkLoading();
                   }
                   if (snap.hasError) {
                     final e = snap.error;
-                    final msg =
-                        e is AppException ? e.messageKo : '로딩 실패';
+                    final msg = e is AppException ? e.messageKo : '로딩 실패';
                     return Padding(
                       padding: const EdgeInsets.all(HyphenTokens.sp4),
                       child: Text(msg, style: HyphenTokens.body),
@@ -107,19 +102,22 @@ class _MemberApprovalsScreenState extends State<MemberApprovalsScreen> {
                   return ListView(
                     padding: const EdgeInsets.all(HyphenTokens.sp4),
                     children: [
-                      Text(gym.name,
-                          style: HyphenTokens.h3.copyWith(
-                            fontWeight: FontWeight.w800,
-                          )),
+                      Text(
+                        gym.name,
+                        style: HyphenTokens.h3.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
                       const SizedBox(height: HyphenTokens.sp3),
-                      Text('승인 대기 (${pending.length})',
-                          style: HyphenTokens.sectionLabel),
+                      HkSectionLabel('승인 대기 (${pending.length})'),
                       const SizedBox(height: HyphenTokens.sp2),
-                      ...pending.map((m) => _PendingRow(
-                            member: m,
-                            onApprove: () => _decide(m, 'approve'),
-                            onReject: () => _decide(m, 'reject'),
-                          )),
+                      ...pending.map(
+                        (m) => _PendingRow(
+                          member: m,
+                          onApprove: () => _decide(m, 'approve'),
+                          onReject: () => _decide(m, 'reject'),
+                        ),
+                      ),
                     ],
                   );
                 },
@@ -150,12 +148,16 @@ class _PendingRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(member.displayName,
-                    style: HyphenTokens.body.copyWith(
-                      fontWeight: FontWeight.w700,
-                    )),
-                Text(_dateShort(member.requestedAt),
-                    style: HyphenTokens.caption),
+                Text(
+                  member.displayName,
+                  style: HyphenTokens.body.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                Text(
+                  ymd(member.requestedAt),
+                  style: HyphenTokens.caption,
+                ),
                 if ((member.phone ?? '').isNotEmpty)
                   Text(member.phone!, style: HyphenTokens.caption),
               ],
@@ -167,10 +169,4 @@ class _PendingRow extends StatelessWidget {
       ),
     );
   }
-}
-
-String _dateShort(DateTime? d) {
-  if (d == null) return '-';
-  return '${d.year}-${d.month.toString().padLeft(2, '0')}-'
-      '${d.day.toString().padLeft(2, '0')}';
 }

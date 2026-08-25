@@ -52,8 +52,8 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
       _bandIndex = y < 1
           ? 0
           : y < 3
-              ? 1
-              : 2;
+          ? 1
+          : 2;
     }
     _prefill();
   }
@@ -95,9 +95,9 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
   Future<void> _onDone() async {
     final years = _kExpBands[_bandIndex!].years;
     context.read<ProfileState>().setBasic(
-          gender: _gender,
-          experienceYears: years,
-        );
+      gender: _gender,
+      experienceYears: years,
+    );
     setState(() {
       _saving = true;
       _error = null;
@@ -133,10 +133,7 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
             // 2026-08-21 사용자 지시: 캐릭터는 **스낵바에만**. 온보딩용 그림은
             // 나중에 따로 받기로 해서 여기 슬롯은 걷었다. 되살릴 때는
             // HyphenMascot 에 온보딩용 mood 를 추가하고 그 그림을 물린다.
-            const Text(
-              '코치가 회원 명단에서 보는 정보입니다.',
-              style: HyphenTokens.caption,
-            ),
+            const Text('코치가 회원 명단에서 보는 정보입니다.', style: HyphenTokens.caption),
             const SizedBox(height: HyphenTokens.sp4),
             TextField(
               controller: _nameCtrl,
@@ -226,19 +223,25 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
                 children: [
                   const Text('내 레벨', style: HyphenTokens.caption),
                   const SizedBox(width: HyphenTokens.sp2),
-                  Builder(builder: (_) {
-                    final t = Tier.fromExperienceYears(
-                        _kExpBands[_bandIndex!].years);
-                    return HkBadge(t.memberLevelLabel, color: t.color);
-                  }),
+                  Builder(
+                    builder: (_) {
+                      final t = Tier.fromExperienceYears(
+                        _kExpBands[_bandIndex!].years,
+                      );
+                      return HkBadge(t.memberLevelLabel, color: t.color);
+                    },
+                  ),
                 ],
               ),
             ],
             if (_error != null) ...[
               const SizedBox(height: HyphenTokens.sp3),
-              Text(_error!,
-                  style:
-                      HyphenTokens.caption.copyWith(color: HyphenTokens.warning)),
+              Text(
+                _error!,
+                style: HyphenTokens.caption.copyWith(
+                  color: HyphenTokens.warning,
+                ),
+              ),
             ],
             const SizedBox(height: HyphenTokens.sp6),
             HkButton.primary(

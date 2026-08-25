@@ -46,28 +46,28 @@ class RosterEntry {
   bool get markable => !isWaitlist && !orphan && reservationId != null;
 
   RosterEntry withStatus(String next) => RosterEntry(
-        kind: kind,
-        memberId: memberId,
-        name: name,
-        status: next,
-        orphan: orphan,
-        phone: phone,
-        reservationId: reservationId,
-        position: position,
-        promotedFromWaitlist: promotedFromWaitlist,
-      );
+    kind: kind,
+    memberId: memberId,
+    name: name,
+    status: next,
+    orphan: orphan,
+    phone: phone,
+    reservationId: reservationId,
+    position: position,
+    promotedFromWaitlist: promotedFromWaitlist,
+  );
 
   factory RosterEntry.fromJson(Map<String, dynamic> j) => RosterEntry(
-        kind: j['kind']?.toString() ?? 'reservation',
-        memberId: (j['member_id'] as num?)?.toInt() ?? 0,
-        name: j['name']?.toString() ?? '이름 미등록',
-        phone: j['phone']?.toString(),
-        reservationId: (j['reservation_id'] as num?)?.toInt(),
-        status: j['status']?.toString() ?? 'confirmed',
-        orphan: j['orphan'] == true,
-        position: (j['position'] as num?)?.toInt(),
-        promotedFromWaitlist: j['promoted_from_waitlist'] == true,
-      );
+    kind: j['kind']?.toString() ?? 'reservation',
+    memberId: (j['member_id'] as num?)?.toInt() ?? 0,
+    name: j['name']?.toString() ?? '이름 미등록',
+    phone: j['phone']?.toString(),
+    reservationId: (j['reservation_id'] as num?)?.toInt(),
+    status: j['status']?.toString() ?? 'confirmed',
+    orphan: j['orphan'] == true,
+    position: (j['position'] as num?)?.toInt(),
+    promotedFromWaitlist: j['promoted_from_waitlist'] == true,
+  );
 }
 
 class ClassRoster {
@@ -105,19 +105,19 @@ class ClassRoster {
   List<RosterEntry> get waitlist => items.where((e) => e.isWaitlist).toList();
 
   factory ClassRoster.fromJson(Map<String, dynamic> j) => ClassRoster(
-        classSessionId: (j['class_session_id'] as num?)?.toInt() ?? 0,
-        title: j['title']?.toString() ?? '수업',
-        startAt: j['start_at']?.toString() ?? '',
-        room: j['room']?.toString(),
-        coachUserId: j['coach_user_id']?.toString(),
-        capacity: (j['capacity'] as num?)?.toInt(),
-        durationMinutes: (j['duration_minutes'] as num?)?.toInt(),
-        track: j['track']?.toString(),
-        confirmedCount: (j['confirmed_count'] as num?)?.toInt() ?? 0,
-        waitlistCount: (j['waitlist_count'] as num?)?.toInt() ?? 0,
-        items: (j['items'] as List? ?? [])
-            .whereType<Map>()
-            .map((e) => RosterEntry.fromJson(Map<String, dynamic>.from(e)))
-            .toList(),
-      );
+    classSessionId: (j['class_session_id'] as num?)?.toInt() ?? 0,
+    title: j['title']?.toString() ?? '수업',
+    startAt: j['start_at']?.toString() ?? '',
+    room: j['room']?.toString(),
+    coachUserId: j['coach_user_id']?.toString(),
+    capacity: (j['capacity'] as num?)?.toInt(),
+    durationMinutes: (j['duration_minutes'] as num?)?.toInt(),
+    track: j['track']?.toString(),
+    confirmedCount: (j['confirmed_count'] as num?)?.toInt() ?? 0,
+    waitlistCount: (j['waitlist_count'] as num?)?.toInt() ?? 0,
+    items: (j['items'] as List? ?? [])
+        .whereType<Map>()
+        .map((e) => RosterEntry.fromJson(Map<String, dynamic>.from(e)))
+        .toList(),
+  );
 }

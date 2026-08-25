@@ -13,7 +13,7 @@ enum SocialRole {
   boss,
   coach,
   member,
-  solo;
+  solo,
 
   /// 폰 shell 모드 매핑. boss 는 별도 경로라 null.
 }
@@ -107,17 +107,25 @@ class RealSocialAuthService implements SocialAuthService {
   const RealSocialAuthService(this._api);
 
   /// google id_token 발급용 server(web) client id. 미지정 시 빈 문자열.
-  static const String _googleServerClientId =
-      String.fromEnvironment('GOOGLE_SERVER_CLIENT_ID');
+  static const String _googleServerClientId = String.fromEnvironment(
+    'GOOGLE_SERVER_CLIENT_ID',
+  );
 
   // 네이버 키 — 빌드 시 --dart-define 으로 주입 (안드로이드 manifest 설정 불필요).
-  static const String _naverClientId = String.fromEnvironment('NAVER_CLIENT_ID');
-  static const String _naverClientSecret =
-      String.fromEnvironment('NAVER_CLIENT_SECRET');
-  static const String _naverClientName =
-      String.fromEnvironment('NAVER_CLIENT_NAME', defaultValue: 'HYPHEN');
-  static const String _naverUrlScheme =
-      String.fromEnvironment('NAVER_URL_SCHEME', defaultValue: 'facing');
+  static const String _naverClientId = String.fromEnvironment(
+    'NAVER_CLIENT_ID',
+  );
+  static const String _naverClientSecret = String.fromEnvironment(
+    'NAVER_CLIENT_SECRET',
+  );
+  static const String _naverClientName = String.fromEnvironment(
+    'NAVER_CLIENT_NAME',
+    defaultValue: 'HYPHEN',
+  );
+  static const String _naverUrlScheme = String.fromEnvironment(
+    'NAVER_URL_SCHEME',
+    defaultValue: 'facing',
+  );
 
   @override
   Future<SocialAuthResult> signIn(SocialProvider provider) async {
@@ -146,17 +154,18 @@ class RealSocialAuthService implements SocialAuthService {
   }
 
   SocialRole _roleFromString(String? r) => switch (r) {
-        'boss' => SocialRole.boss,
-        'coach' => SocialRole.coach,
-        'member' => SocialRole.member,
-        _ => SocialRole.solo,
-      };
+    'boss' => SocialRole.boss,
+    'coach' => SocialRole.coach,
+    'member' => SocialRole.member,
+    _ => SocialRole.solo,
+  };
 
   Future<String> _googleToken() async {
     final google = GoogleSignIn(
       scopes: const ['email'],
-      serverClientId:
-          _googleServerClientId.isEmpty ? null : _googleServerClientId,
+      serverClientId: _googleServerClientId.isEmpty
+          ? null
+          : _googleServerClientId,
     );
     final account = await google.signIn();
     if (account == null) {
@@ -203,7 +212,9 @@ class RealSocialAuthService implements SocialAuthService {
     await completer.future.timeout(
       const Duration(seconds: 120),
       onTimeout: () => throw const SocialAuthException(
-          'Naver login timeout. Retry.', 'TIMEOUT'),
+        'Naver login timeout. Retry.',
+        'TIMEOUT',
+      ),
     );
     final accessToken = await NaverLoginSDK.getAccessToken();
     if (accessToken.isEmpty) {
@@ -215,9 +226,12 @@ class RealSocialAuthService implements SocialAuthService {
 
 /// 실 OAuth 활성 스위치. 키·네이티브 설정 완료 후 빌드 플래그 한 줄로 전환.
 ///   flutter run --dart-define=USE_REAL_AUTH=true
-const bool kUseRealSocialAuth =
-    bool.fromEnvironment('USE_REAL_AUTH', defaultValue: false);
+const bool kUseRealSocialAuth = bool.fromEnvironment(
+  'USE_REAL_AUTH',
+  defaultValue: false,
+);
 
 /// 화면이 호출하는 단일 진입점. 플래그에 따라 stub ↔ real 자동 선택.
-SocialAuthService resolveSocialAuthService(ApiClient api) =>
-    kUseRealSocialAuth ? RealSocialAuthService(api) : const StubSocialAuthService();
+SocialAuthService resolveSocialAuthService(ApiClient api) => kUseRealSocialAuth
+    ? RealSocialAuthService(api)
+    : const StubSocialAuthService();

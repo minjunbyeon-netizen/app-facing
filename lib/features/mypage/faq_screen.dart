@@ -88,20 +88,25 @@ class FaqScreen extends StatelessWidget {
           itemBuilder: (_, i) {
             final item = _kFaqs[i];
             return Theme(
-              data: Theme.of(context)
-                  .copyWith(dividerColor: Colors.transparent),
+              data: Theme.of(
+                context,
+              ).copyWith(dividerColor: Colors.transparent),
               child: ExpansionTile(
-                tilePadding:
-                    const EdgeInsets.symmetric(vertical: HyphenTokens.sp1),
+                tilePadding: const EdgeInsets.symmetric(
+                  vertical: HyphenTokens.sp1,
+                ),
                 childrenPadding: const EdgeInsets.only(
-                    bottom: HyphenTokens.sp3, right: HyphenTokens.sp2),
-                title: Text(item.q,
-                    style: HyphenTokens.body
-                        .copyWith(fontWeight: FontWeight.w700)),
+                  bottom: HyphenTokens.sp3,
+                  right: HyphenTokens.sp2,
+                ),
+                title: Text(
+                  item.q,
+                  style: HyphenTokens.body.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
                 expandedCrossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(item.a, style: HyphenTokens.caption),
-                ],
+                children: [Text(item.a, style: HyphenTokens.caption)],
               ),
             );
           },

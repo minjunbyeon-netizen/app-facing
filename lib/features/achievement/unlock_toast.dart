@@ -13,7 +13,6 @@ import 'hyphen_pictogram.dart';
 class UnlockToast {
   UnlockToast._();
 
-
   /// 여러 해금 건을 순차로 showSnackBar.
   static Future<void> showAll(
     BuildContext context,
@@ -32,52 +31,50 @@ class UnlockToast {
       // unawaited — toast 와 동시 진행.
       Haptic.achievementUnlock(emphasize: isEmphasize);
       ConfettiOverlay.burst(context, rarity: u.rarity);
-      messenger.showSnackBar(SnackBar(
-        // 노출 2초 (2026-08-20 사용자 지정).
-        duration: const Duration(seconds: 2),
-        backgroundColor: HyphenTokens.surface,
-        behavior: SnackBarBehavior.floating,
-        // 2026-08-21 — M3 기본 그림자가 스낵바 밖에 검은 띠로 찍힌다 (HkSnack 과
-        // 같은 처치). 이 앱은 면+테두리로 층을 표현한다.
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(HyphenTokens.r2),
-          side: BorderSide(color: color, width: 2),
-        ),
-        content: Row(
-          children: [
-            // 2026-08-21 — 캐릭터 슬롯. 축하 마스코트가 준비되면 그걸 쓰고,
-            // 아직이면 기존 트로피 배지를 그대로 쓴다 (경로 판단은 SSOT 한 곳).
-            // 2026-08-21 — 캐릭터가 우선이다 (사용자: 스낵바에는 캐릭터).
-            // 캐릭터가 없을 때만 그 업적의 픽토그램 배지로 떨어진다.
-            if (HyphenMascot.has(MascotMood.happy))
-              const HyphenMascot(mood: MascotMood.happy, size: 32)
-            else
-              AchievementBadge(
-                code: u.code,
-                rarity: u.rarity,
-                size: 32,
-              ),
-            const SizedBox(width: HyphenTokens.sp3),
-            Expanded(
-              child: Text(
-                // v1.19+ "Earned." 간결화. 영문 마침표 1개.
-                '${u.name} Earned.',
-                style: HyphenTokens.body.copyWith(
-                  fontWeight: FontWeight.w700,
+      messenger.showSnackBar(
+        SnackBar(
+          // 노출 2초 (2026-08-20 사용자 지정).
+          duration: const Duration(seconds: 2),
+          backgroundColor: HyphenTokens.surface,
+          behavior: SnackBarBehavior.floating,
+          // 2026-08-21 — M3 기본 그림자가 스낵바 밖에 검은 띠로 찍힌다 (HkSnack 과
+          // 같은 처치). 이 앱은 면+테두리로 층을 표현한다.
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(HyphenTokens.r2),
+            side: BorderSide(color: color, width: 2),
+          ),
+          content: Row(
+            children: [
+              // 2026-08-21 — 캐릭터 슬롯. 축하 마스코트가 준비되면 그걸 쓰고,
+              // 아직이면 기존 트로피 배지를 그대로 쓴다 (경로 판단은 SSOT 한 곳).
+              // 2026-08-21 — 캐릭터가 우선이다 (사용자: 스낵바에는 캐릭터).
+              // 캐릭터가 없을 때만 그 업적의 픽토그램 배지로 떨어진다.
+              if (HyphenMascot.has(MascotMood.happy))
+                const HyphenMascot(mood: MascotMood.happy, size: 32)
+              else
+                AchievementBadge(code: u.code, rarity: u.rarity, size: 32),
+              const SizedBox(width: HyphenTokens.sp3),
+              Expanded(
+                child: Text(
+                  // v1.19+ "Earned." 간결화. 영문 마침표 1개.
+                  '${u.name} Earned.',
+                  style: HyphenTokens.body.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
-            ),
-            Text(
-              u.rarity.toUpperCase(),
-              style: HyphenTokens.micro.copyWith(
-                color: color,
-                fontWeight: FontWeight.w800,
+              Text(
+                u.rarity.toUpperCase(),
+                style: HyphenTokens.micro.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ));
+      );
       if (i < unlocks.length - 1) {
         await Future.delayed(const Duration(milliseconds: 500));
       }

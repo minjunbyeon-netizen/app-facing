@@ -16,6 +16,7 @@ import '../wod_session/wod_session_screen.dart';
 import 'gym_repository.dart';
 import 'gym_state.dart';
 import 'wod_type_label.dart';
+import '../../core/time_format.dart';
 
 enum _ScaleLevel { rx, scaled, beginner }
 
@@ -75,88 +76,92 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
     // QA B-GYM-2: 모달 닫힌 후 controller dispose 보장.
     try {
       await HkSheet.show<void>(
-      context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setSheet) => Padding(
-        padding: EdgeInsets.only(
-          left: HyphenTokens.sp4,
-          right: HyphenTokens.sp4,
-          top: HyphenTokens.sp4,
-          bottom: MediaQuery.of(ctx).viewInsets.bottom + HyphenTokens.sp4,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text('코치에게 요청',
-                style: HyphenTokens.sectionLabel),
-            const SizedBox(height: HyphenTokens.sp1),
-            const Text(
-              '이 수업 내용 관련 조정·대체 요청. 예: "어깨 수술 이력 있어 Thruster 대체 부탁".',
-              style: HyphenTokens.caption,
+        context,
+        builder: (ctx) => StatefulBuilder(
+          builder: (ctx, setSheet) => Padding(
+            padding: EdgeInsets.only(
+              left: HyphenTokens.sp4,
+              right: HyphenTokens.sp4,
+              top: HyphenTokens.sp4,
+              bottom: MediaQuery.of(ctx).viewInsets.bottom + HyphenTokens.sp4,
             ),
-            const SizedBox(height: HyphenTokens.sp3),
-            TextField(
-              controller: subjectCtrl,
-              decoration: const InputDecoration(labelText: '제목'),
-              maxLength: 120,
-            ),
-            TextField(
-              controller: bodyCtrl,
-              decoration: const InputDecoration(
-                labelText: '내용',
-                hintText: '상황·원하는 대체 동작·비고',
-              ),
-              maxLines: 5,
-              maxLength: 2000,
-            ),
-            if (sheetError != null) ...[
-              Text(
-                sheetError!,
-                style:
-                    HyphenTokens.caption.copyWith(color: HyphenTokens.warning),
-              ),
-              const SizedBox(height: HyphenTokens.sp1),
-            ],
-            const SizedBox(height: HyphenTokens.sp3),
-            HkButton.primary(
-              '보내기',
-              onPressed: () async {
-                final body = bodyCtrl.text.trim();
-                if (body.isEmpty) {
-                  setSheet(() => sheetError = '내용을 입력해 주세요.');
-                  return;
-                }
-                final gs = context.read<GymState>();
-                final gym = gs.membership.gym;
-                if (gym == null) return;
-                try {
-                  await context.read<GymRepository>().sendMemberRequest(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const HkSectionLabel('코치에게 요청'),
+                const SizedBox(height: HyphenTokens.sp1),
+                const Text(
+                  '이 수업 내용 관련 조정·대체 요청. 예: "어깨 수술 이력 있어 Thruster 대체 부탁".',
+                  style: HyphenTokens.caption,
+                ),
+                const SizedBox(height: HyphenTokens.sp3),
+                TextField(
+                  controller: subjectCtrl,
+                  decoration: const InputDecoration(labelText: '제목'),
+                  maxLength: 120,
+                ),
+                TextField(
+                  controller: bodyCtrl,
+                  decoration: const InputDecoration(
+                    labelText: '내용',
+                    hintText: '상황·원하는 대체 동작·비고',
+                  ),
+                  maxLines: 5,
+                  maxLength: 2000,
+                ),
+                if (sheetError != null) ...[
+                  Text(
+                    sheetError!,
+                    style: HyphenTokens.caption.copyWith(
+                      color: HyphenTokens.warning,
+                    ),
+                  ),
+                  const SizedBox(height: HyphenTokens.sp1),
+                ],
+                const SizedBox(height: HyphenTokens.sp3),
+                HkButton.primary(
+                  '보내기',
+                  onPressed: () async {
+                    final body = bodyCtrl.text.trim();
+                    if (body.isEmpty) {
+                      setSheet(() => sheetError = '내용을 입력해 주세요.');
+                      return;
+                    }
+                    final gs = context.read<GymState>();
+                    final gym = gs.membership.gym;
+                    if (gym == null) return;
+                    try {
+                      await context.read<GymRepository>().sendMemberRequest(
                         gymId: gym.id,
                         subject: subjectCtrl.text.trim(),
                         body: body,
                         wodPostId: widget.wod.id,
                       );
-                  if (!ctx.mounted) return;
-                  Navigator.of(ctx).pop();
-                  // QA A-11: 부모 context는 ctx.mounted로는 보호 불가. ScaffoldMessenger를 ctx 기준으로 사용.
-                  HkSnack.show(ctx, '건의 전송. 코치 응답 대기.', mood: MascotMood.happy);
-                } on AppException catch (e) {
-                  if (!ctx.mounted) return;
-                  HkSnack.error(ctx, '실패: ${e.messageKo}');
-                } catch (e) {
-                  // /go Tier 3: generic catch.
-                  debugPrint('[WodDetail._sendRequest] $e');
-                  if (!ctx.mounted) return;
-                  HkSnack.error(ctx, '전송 실패. 다시 시도.');
-                }
-              },
+                      if (!ctx.mounted) return;
+                      Navigator.of(ctx).pop();
+                      // QA A-11: 부모 context는 ctx.mounted로는 보호 불가. ScaffoldMessenger를 ctx 기준으로 사용.
+                      HkSnack.show(
+                        ctx,
+                        '건의 전송. 코치 응답 대기.',
+                        mood: MascotMood.happy,
+                      );
+                    } on AppException catch (e) {
+                      if (!ctx.mounted) return;
+                      HkSnack.error(ctx, '실패: ${e.messageKo}');
+                    } catch (e) {
+                      // /go Tier 3: generic catch.
+                      debugPrint('[WodDetail._sendRequest] $e');
+                      if (!ctx.mounted) return;
+                      HkSnack.error(ctx, '전송 실패. 다시 시도.');
+                    }
+                  },
+                ),
+              ],
             ),
-          ],
+          ),
         ),
-        ),
-      ),
-    );
+      );
     } finally {
       subjectCtrl.dispose();
       bodyCtrl.dispose();
@@ -177,10 +182,10 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
     Haptic.medium();
     try {
       await context.read<GymRepository>().postWodComment(
-            gymId: gym.id,
-            wodId: widget.wod.id,
-            body: body,
-          );
+        gymId: gym.id,
+        wodId: widget.wod.id,
+        body: body,
+      );
       _commentCtrl.clear();
       _reload();
     } on AppException catch (e) {
@@ -211,9 +216,9 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
 
   void _startSession() {
     Haptic.medium();
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => WodSessionScreen(wod: widget.wod),
-    ));
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => WodSessionScreen(wod: widget.wod)),
+    );
   }
 
   Future<void> _openVideo(String url) async {
@@ -232,30 +237,33 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
     if (rounds.isEmpty) return const [];
     final widgets = <Widget>[const SizedBox(height: HyphenTokens.sp3)];
     for (final r in rounds) {
-      widgets.add(Container(
-        margin: const EdgeInsets.only(bottom: HyphenTokens.sp2),
-        padding: const EdgeInsets.all(HyphenTokens.sp3),
-        decoration: BoxDecoration(
-          color: HyphenTokens.surface,
-          borderRadius: BorderRadius.circular(HyphenTokens.r3),
-          border: Border.all(color: HyphenTokens.border),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (r.label.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(bottom: HyphenTokens.sp2),
-                child: Text(r.label.toUpperCase(),
-                    style: HyphenTokens.sectionLabel),
-              ),
-            ...r.movements.map((m) => _MovementRow(
+      widgets.add(
+        Container(
+          margin: const EdgeInsets.only(bottom: HyphenTokens.sp2),
+          padding: const EdgeInsets.all(HyphenTokens.sp3),
+          decoration: BoxDecoration(
+            color: HyphenTokens.surface,
+            borderRadius: BorderRadius.circular(HyphenTokens.r3),
+            border: Border.all(color: HyphenTokens.border),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (r.label.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: HyphenTokens.sp2),
+                  child: HkSectionLabel(r.label),
+                ),
+              ...r.movements.map(
+                (m) => _MovementRow(
                   movement: m,
                   onVideo: m.hasVideo ? () => _openVideo(m.videoUrl) : null,
-                )),
-          ],
+                ),
+              ),
+            ],
+          ),
         ),
-      ));
+      );
     }
     return widgets;
   }
@@ -263,7 +271,8 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final wod = widget.wod;
-    final hasScaled = wod.scaledVersion != null && wod.scaledVersion!.isNotEmpty;
+    final hasScaled =
+        wod.scaledVersion != null && wod.scaledVersion!.isNotEmpty;
     final hasBeginner =
         wod.beginnerVersion != null && wod.beginnerVersion!.isNotEmpty;
     final isOwner = context.watch<GymState>().isOwner;
@@ -283,14 +292,17 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
             if (hasScaled || hasBeginner)
               SegmentedButton<_ScaleLevel>(
                 segments: [
-                  const ButtonSegment(
-                      value: _ScaleLevel.rx, label: Text('RX')),
+                  const ButtonSegment(value: _ScaleLevel.rx, label: Text('RX')),
                   if (hasScaled)
                     const ButtonSegment(
-                        value: _ScaleLevel.scaled, label: Text('Scaled')),
+                      value: _ScaleLevel.scaled,
+                      label: Text('Scaled'),
+                    ),
                   if (hasBeginner)
                     const ButtonSegment(
-                        value: _ScaleLevel.beginner, label: Text('Beginner')),
+                      value: _ScaleLevel.beginner,
+                      label: Text('Beginner'),
+                    ),
                 ],
                 selected: {_level},
                 onSelectionChanged: (s) {
@@ -311,10 +323,12 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(_levelLabel(),
-                      style: HyphenTokens.sectionLabel.copyWith(
-                        color: HyphenTokens.accent,
-                      )),
+                  Text(
+                    _levelLabel(),
+                    style: HyphenTokens.sectionLabel.copyWith(
+                      color: HyphenTokens.accent,
+                    ),
+                  ),
                   const SizedBox(height: HyphenTokens.sp2),
                   Text(_displayContent(), style: HyphenTokens.body),
                 ],
@@ -328,44 +342,47 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
             // 무의미하고, 세션 화면이 For Time 스톱워치로 돌아 시간 기록을
             // 저장해 버린다 — 진입 자체를 숨긴다 (기록은 완료 표시 시트가 정본).
             if (wod.wodType.toLowerCase() != 'strength') ...[
-              HkButton.primary('타이머 시작',
-                  icon: Icons.play_arrow, onPressed: _startSession),
+              HkButton.primary(
+                '타이머 시작',
+                icon: Icons.play_arrow,
+                onPressed: _startSession,
+              ),
               const SizedBox(height: HyphenTokens.sp3),
             ],
             // v1.16 Sprint 17: 멤버 건의 버튼.
-            Builder(builder: (ctx) {
-              final gs = ctx.watch<GymState>();
-              if (gs.isOwner) return const SizedBox.shrink();
-              // QA (2026-06-11): 물음표(help) 아이콘 → 전송 아이콘 (의미 일치).
-              return HkButton.secondary('코치에게 요청',
-                  icon: Icons.send_outlined, onPressed: _sendRequest);
-            }),
+            Builder(
+              builder: (ctx) {
+                final gs = ctx.watch<GymState>();
+                if (gs.isOwner) return const SizedBox.shrink();
+                // QA (2026-06-11): 물음표(help) 아이콘 → 전송 아이콘 (의미 일치).
+                return HkButton.secondary(
+                  '코치에게 요청',
+                  icon: Icons.send_outlined,
+                  onPressed: _sendRequest,
+                );
+              },
+            ),
             const SizedBox(height: HyphenTokens.sp5),
 
             // v1.16 Sprint 17: 코치 피드백.
-            const Text('코치 피드백', style: HyphenTokens.sectionLabel),
+            const HkSectionLabel('코치 피드백'),
             const SizedBox(height: HyphenTokens.sp2),
             FutureBuilder<List<CoachFeedback>>(
               future: _feedbackFuture,
               builder: (ctx, snap) {
                 final list = snap.data ?? const <CoachFeedback>[];
                 if (list.isEmpty) {
-                  return const Text(
-                    '아직 피드백 없음.',
-                    style: HyphenTokens.caption,
-                  );
+                  return const Text('아직 피드백 없음.', style: HyphenTokens.caption);
                 }
                 return Column(
-                  children: list
-                      .map((f) => _FeedbackCard(fb: f))
-                      .toList(),
+                  children: list.map((f) => _FeedbackCard(fb: f)).toList(),
                 );
               },
             ),
             const SizedBox(height: HyphenTokens.sp5),
 
             // Leaderboard
-            const Text('리더보드', style: HyphenTokens.sectionLabel),
+            const HkSectionLabel('리더보드'),
             const SizedBox(height: HyphenTokens.sp2),
             FutureBuilder<List<GymWodResult>>(
               future: _resultsFuture,
@@ -374,29 +391,18 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
                 if (snap.connectionState != ConnectionState.done) {
                   return const Padding(
                     padding: EdgeInsets.all(HyphenTokens.sp3),
-                    child: Center(
-                      child: CircularProgressIndicator(
-                          color: HyphenTokens.muted, strokeWidth: 2),
-                    ),
+                    child: HkLoading(),
                   );
                 }
                 // QA (2026-06-11): V9 해소 — 영문 헤드 + 한글 캡션 수직 스택 (V10).
                 if (list.isEmpty) {
-                  return const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('아직 기록 없음.', style: HyphenTokens.body),
-                      SizedBox(height: 2),
-                      Text(
-                        '타이머 완료 시 첫 기록 자동 제출.',
-                        style: HyphenTokens.caption,
-                      ),
-                    ],
+                  return const HkEmptyState(
+                    title: '아직 기록 없음',
+                    caption: '타이머 완료 시 첫 기록 자동 제출.',
                   );
                 }
                 return Column(
-                  children:
-                      list.map((r) => _ResultRow(result: r)).toList(),
+                  children: list.map((r) => _ResultRow(result: r)).toList(),
                 );
               },
             ),
@@ -404,7 +410,7 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
 
             // Q3 (v3.4 승인): 같은 수업(벤치마크·리프트)의 내 과거 기록 —
             // "전과 비교해 발전했는가"를 저장 순간 스낵바 밖에서도 보여준다.
-            const Text('내 이전 기록', style: HyphenTokens.sectionLabel),
+            const HkSectionLabel('내 이전 기록'),
             const SizedBox(height: HyphenTokens.sp2),
             FutureBuilder<({String kind, List<WodMyHistoryItem> items})>(
               future: _historyFuture,
@@ -424,7 +430,7 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
             const SizedBox(height: HyphenTokens.sp5),
 
             // Comments
-            const Text('댓글', style: HyphenTokens.sectionLabel),
+            const HkSectionLabel('댓글'),
             const SizedBox(height: HyphenTokens.sp2),
             FutureBuilder<List<GymWodComment>>(
               future: _commentsFuture,
@@ -433,15 +439,11 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
                 if (snap.connectionState != ConnectionState.done) {
                   return const Padding(
                     padding: EdgeInsets.all(HyphenTokens.sp3),
-                    child: Center(
-                      child: CircularProgressIndicator(
-                          color: HyphenTokens.muted, strokeWidth: 2),
-                    ),
+                    child: HkLoading(),
                   );
                 }
                 if (list.isEmpty) {
-                  return const Text('첫 댓글 작성.',
-                      style: HyphenTokens.caption);
+                  return const Text('첫 댓글 작성.', style: HyphenTokens.caption);
                 }
                 return Column(
                   children: list.map((c) => _CommentRow(comment: c)).toList(),
@@ -541,11 +543,13 @@ class _ResultRow extends StatelessWidget {
               ],
             ),
           ),
-          Text(result.display,
-              style: HyphenTokens.h3.copyWith(
-                fontFeatures: HyphenTokens.tabular,
-                fontWeight: FontWeight.w800,
-              )),
+          Text(
+            result.display,
+            style: HyphenTokens.h3.copyWith(
+              fontFeatures: HyphenTokens.tabular,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
         ],
       ),
     );
@@ -589,7 +593,7 @@ class _FeedbackCard extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                _fmt(fb.updatedAt),
+                mdHm(fb.updatedAt.toLocal()),
                 style: HyphenTokens.micro.copyWith(color: HyphenTokens.muted),
               ),
             ],
@@ -599,12 +603,6 @@ class _FeedbackCard extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  String _fmt(DateTime d) {
-    final l = d.toLocal();
-    return '${l.month.toString().padLeft(2, '0')}/${l.day.toString().padLeft(2, '0')} '
-        '${l.hour.toString().padLeft(2, '0')}:${l.minute.toString().padLeft(2, '0')}';
   }
 }
 
@@ -640,7 +638,7 @@ class _CommentRow extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                _fmt(comment.createdAt),
+                mdHm(comment.createdAt.toLocal()),
                 style: HyphenTokens.micro.copyWith(color: HyphenTokens.muted),
               ),
             ],
@@ -650,12 +648,6 @@ class _CommentRow extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  String _fmt(DateTime d) {
-    final l = d.toLocal();
-    return '${l.month.toString().padLeft(2, '0')}/${l.day.toString().padLeft(2, '0')} '
-        '${l.hour.toString().padLeft(2, '0')}:${l.minute.toString().padLeft(2, '0')}';
   }
 }
 
@@ -697,12 +689,18 @@ class _MovementRow extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.play_circle_outline,
-                        size: 18, color: HyphenTokens.muted),
+                    const Icon(
+                      Icons.play_circle_outline,
+                      size: 18,
+                      color: HyphenTokens.muted,
+                    ),
                     const SizedBox(width: 2),
-                    Text('데모',
-                        style: HyphenTokens.micro
-                            .copyWith(color: HyphenTokens.muted)),
+                    Text(
+                      '데모',
+                      style: HyphenTokens.micro.copyWith(
+                        color: HyphenTokens.muted,
+                      ),
+                    ),
                   ],
                 ),
               ),

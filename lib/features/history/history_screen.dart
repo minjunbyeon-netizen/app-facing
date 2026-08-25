@@ -20,6 +20,7 @@ class HistoryScreen extends StatefulWidget {
 class _HistoryScreenState extends State<HistoryScreen> {
   late final HistoryRepository _repo;
   Future<List<WodHistoryItem>>? _wodFuture;
+
   /// /go Tier 3: WOD 세션 종료 시 자동 reload — attendance_screen 패턴 동일.
   WodSessionBus? _bus;
 
@@ -79,7 +80,8 @@ class _WodTab extends StatelessWidget {
         if (rows.isEmpty) {
           return const HkEmptyState(
             title: '수업 기록 없음',
-            caption: '수업 기록 저장 시 자동 표시.\n'
+            caption:
+                '수업 기록 저장 시 자동 표시.\n'
                 '결과·일시 전부 보존.',
           );
         }
@@ -90,34 +92,45 @@ class _WodTab extends StatelessWidget {
           itemBuilder: (_, i) {
             final r = rows[i];
             return InkWell(
-              onTap: () => Navigator.of(context)
-                  .pushNamed('/history/detail', arguments: r.id),
+              onTap: () => Navigator.of(
+                context,
+              ).pushNamed('/history/detail', arguments: r.id),
               child: Padding(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: HyphenTokens.sp4,
-                    vertical: HyphenTokens.sp3),
+                  horizontal: HyphenTokens.sp4,
+                  vertical: HyphenTokens.sp3,
+                ),
                 child: Row(
                   children: [
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(wodTypeLabel(r.wodType),
-                              style: HyphenTokens.body.copyWith(
-                                fontWeight: FontWeight.w800,
-                              )),
+                          Text(
+                            wodTypeLabel(r.wodType),
+                            style: HyphenTokens.body.copyWith(
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
                           const SizedBox(height: 2),
-                          Text(_formatDate(r.createdAt),
-                              style: HyphenTokens.caption),
+                          Text(
+                            _formatDate(r.createdAt),
+                            style: HyphenTokens.caption,
+                          ),
                         ],
                       ),
                     ),
-                    Text(r.estimatedTotalDisplay,
-                        style: HyphenTokens.h3.copyWith(
-                          fontFeatures: HyphenTokens.tabular,
-                        )),
-                    const Icon(Icons.chevron_right,
-                        color: HyphenTokens.muted, size: 20),
+                    Text(
+                      r.estimatedTotalDisplay,
+                      style: HyphenTokens.h3.copyWith(
+                        fontFeatures: HyphenTokens.tabular,
+                      ),
+                    ),
+                    const Icon(
+                      Icons.chevron_right,
+                      color: HyphenTokens.muted,
+                      size: 20,
+                    ),
                   ],
                 ),
               ),

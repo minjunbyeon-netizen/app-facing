@@ -109,8 +109,10 @@ class _LoginScreenState extends State<LoginScreen> {
         }
         // 이 기기의 신원을 로그인한 회원으로 교체.
         await DeviceIdService.adopt(deviceId);
-        await auth.signIn('member_id',
-            displayName: data['name']?.toString() ?? loginId);
+        await auth.signIn(
+          'member_id',
+          displayName: data['name']?.toString() ?? loginId,
+        );
 
         // 체육관 소속·프로필 미리 불러오기 (실패해도 진입은 막지 않는다).
         try {
@@ -132,7 +134,9 @@ class _LoginScreenState extends State<LoginScreen> {
       // 회원: 승인 대기든 활성이든 홈으로. 온보딩(성별·경력)은 가입 직후 한 번만
       // 묻는다 — 로그인한 사람을 다시 붙잡아 두지 않는다 (v2.3).
       navigator.pushNamedAndRemoveUntil(
-          isCoach ? '/boss/dashboard' : '/shell', (_) => false);
+        isCoach ? '/boss/dashboard' : '/shell',
+        (_) => false,
+      );
     } on AppException catch (e) {
       setState(() => _error = e.messageKo);
     } catch (_) {
@@ -151,7 +155,9 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(
-              horizontal: HyphenTokens.sp5, vertical: HyphenTokens.sp4),
+            horizontal: HyphenTokens.sp5,
+            vertical: HyphenTokens.sp4,
+          ),
           child: Form(
             key: _formKey,
             child: Column(
@@ -162,8 +168,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 Text('로그인', style: HyphenTokens.h1),
                 const SizedBox(height: HyphenTokens.sp1),
                 // 역할을 고르게 하지 않는다. 어느 화면으로 갈지는 서버가 판정한다.
-                Text('체육관에서 받은 아이디로 로그인합니다.',
-                    style: HyphenTokens.caption),
+                Text('체육관에서 받은 아이디로 로그인합니다.', style: HyphenTokens.caption),
                 const SizedBox(height: HyphenTokens.sp6),
 
                 HkSectionLabel('아이디'),
@@ -175,9 +180,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   textInputAction: TextInputAction.next,
                   autocorrect: false,
                   enableSuggestions: false,
-                  validator: (v) => (v == null || v.trim().isEmpty)
-                      ? '아이디를 입력해 주세요.'
-                      : null,
+                  validator: (v) =>
+                      (v == null || v.trim().isEmpty) ? '아이디를 입력해 주세요.' : null,
                 ),
                 const SizedBox(height: HyphenTokens.sp3),
 
@@ -186,15 +190,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 TextFormField(
                   controller: _pwCtrl,
                   style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
-                  decoration: InputDecoration(hintText: '비밀번호', 
+                  decoration: InputDecoration(
+                    hintText: '비밀번호',
                     suffixIcon: IconButton(
                       icon: Icon(
                         _pwVisible ? Icons.visibility_off : Icons.visibility,
                         color: HyphenTokens.muted,
                         size: 20,
                       ),
-                      onPressed: () =>
-                          setState(() => _pwVisible = !_pwVisible),
+                      onPressed: () => setState(() => _pwVisible = !_pwVisible),
                     ),
                   ),
                   obscureText: !_pwVisible,

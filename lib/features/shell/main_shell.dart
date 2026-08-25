@@ -74,11 +74,7 @@ class _MainShellState extends State<MainShell> {
   // v3.0 (2026-08-14 사용자 지시): 크로스핏장이 아니므로 표기를 일반 용어로 —
   // 홈 · 수업 · 내 정보. 내부 심볼·라우트는 유지 (표기만 교체).
   static const List<_TabDef> _tabs = [
-    _TabDef(
-      icon: Icons.home_outlined,
-      selectedIcon: Icons.home,
-      label: '홈',
-    ),
+    _TabDef(icon: Icons.home_outlined, selectedIcon: Icons.home, label: '홈'),
     _TabDef(
       icon: Icons.list_alt_outlined,
       selectedIcon: Icons.list_alt,
@@ -139,8 +135,11 @@ class _MainShellState extends State<MainShell> {
             now.difference(_lastBackPress!).inSeconds >= 2) {
           _lastBackPress = now;
           ScaffoldMessenger.of(context).clearSnackBars();
-          HkSnack.show(context, '한 번 더 누르면 앱이 종료됩니다.',
-              mood: MascotMood.neutral);
+          HkSnack.show(
+            context,
+            '한 번 더 누르면 앱이 종료됩니다.',
+            mood: MascotMood.neutral,
+          );
           return;
         }
         SystemNavigator.pop();
@@ -171,13 +170,15 @@ class _MainShellState extends State<MainShell> {
                 // 새 공지(WOD 보드 상단 아코디언)만 표시.
                 icon: _IconWithDot(
                   icon: _tabs[i].icon,
-                  showDot: i == 1 &&
+                  showDot:
+                      i == 1 &&
                       context.watch<AnnouncementsState>().unreadCount > 0,
                   color: HyphenTokens.muted,
                 ),
                 selectedIcon: _IconWithDot(
                   icon: _tabs[i].selectedIcon,
-                  showDot: i == 1 &&
+                  showDot:
+                      i == 1 &&
                       context.watch<AnnouncementsState>().unreadCount > 0,
                   color: HyphenTokens.primary,
                 ),

@@ -82,9 +82,10 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
     final actuals = await _openCompleteModal(n);
     if (!mounted) return;
     if (actuals == null) return; // 취소
-    final ok = await context
-        .read<InboxState>()
-        .complete(widget.noteId, actual: actuals);
+    final ok = await context.read<InboxState>().complete(
+      widget.noteId,
+      actual: actuals,
+    );
     if (!mounted) return;
     if (ok) {
       _toast('Completed.');
@@ -102,8 +103,10 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
       _toast('거절 사유 1개 이상 선택 필요.');
       return;
     }
-    final ok =
-        await context.read<InboxState>().decline(widget.noteId, reason: reason);
+    final ok = await context.read<InboxState>().decline(
+      widget.noteId,
+      reason: reason,
+    );
     if (!mounted) return;
     if (ok) {
       _toast('Declined.');
@@ -151,10 +154,9 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text('실제 기록', style: HyphenTokens.sectionLabel),
+            const HkSectionLabel('실제 기록'),
             const SizedBox(height: HyphenTokens.sp1),
-            Text('세트별 실제 무게·횟수·RPE 기록 (선택).',
-                style: HyphenTokens.caption),
+            Text('세트별 실제 무게·횟수·RPE 기록 (선택).', style: HyphenTokens.caption),
             const SizedBox(height: HyphenTokens.sp3),
             for (int i = 0; i < totalSets; i++)
               Padding(
@@ -163,10 +165,12 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                   children: [
                     SizedBox(
                       width: 36,
-                      child: Text('SET ${i + 1}',
-                          style: HyphenTokens.micro.copyWith(
-                            fontWeight: FontWeight.w800,
-                          )),
+                      child: Text(
+                        'SET ${i + 1}',
+                        style: HyphenTokens.micro.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
                     ),
                     Expanded(
                       child: TextField(
@@ -217,21 +221,25 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                   final reps = int.tryParse(c.reps.text.trim());
                   final rpe = double.tryParse(c.rpe.text.trim());
                   if (load != null || reps != null || rpe != null) {
-                    list.add(ActualSet(
-                      setIndex: idx,
-                      actualLoad: load,
-                      actualReps: reps,
-                      rpe: rpe,
-                    ));
+                    list.add(
+                      ActualSet(
+                        setIndex: idx,
+                        actualLoad: load,
+                        actualReps: reps,
+                        rpe: rpe,
+                      ),
+                    );
                   }
                 });
                 Navigator.of(ctx).pop(list);
               },
             ),
             const SizedBox(height: HyphenTokens.sp1),
-            HkButton.tertiary('기록 생략',
-                neutral: true,
-                onPressed: () => Navigator.of(ctx).pop(<ActualSet>[])),
+            HkButton.tertiary(
+              '기록 생략',
+              neutral: true,
+              onPressed: () => Navigator.of(ctx).pop(<ActualSet>[]),
+            ),
           ],
         ),
       ),
@@ -249,79 +257,81 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
     final injuryNotes = context.read<ProfileState>().injuryNotes;
     final result = await HkSheet.show<String?>(
       context,
-      builder: (ctx) => StatefulBuilder(builder: (innerCtx, setSheet) {
-        return Padding(
-          padding: EdgeInsets.only(
-            left: HyphenTokens.sp4,
-            right: HyphenTokens.sp4,
-            top: HyphenTokens.sp4,
-            bottom: MediaQuery.of(ctx).viewInsets.bottom + HyphenTokens.sp4,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text('거절 사유', style: HyphenTokens.sectionLabel),
-              const SizedBox(height: HyphenTokens.sp1),
-              Text('이유를 알려주면 코치가 다음 처방 조정.',
-                  style: HyphenTokens.caption),
-              const SizedBox(height: HyphenTokens.sp3),
-              Wrap(
-                spacing: HyphenTokens.sp2,
-                runSpacing: HyphenTokens.sp2,
-                children: [
-                  // QA B-IN-13: V8 위반 — chip 라벨 영문 단독.
-                  for (final r in const [
-                    'INJURY',
-                    'CONDITION',
-                    'TIME',
-                    'SUBSTITUTE',
-                  ])
-                    HkBadge(
-                      r,
-                      color: HyphenTokens.fg,
-                      selected: selectedReason == r,
-                      onTap: () {
-                        setSheet(() {
-                          selectedReason = r;
-                          if (r == 'INJURY' &&
-                              injuryNotes != null &&
-                              injuryNotes.isNotEmpty &&
-                              freeCtrl.text.isEmpty) {
-                            freeCtrl.text = injuryNotes;
-                          }
-                        });
-                      },
-                    ),
-                ],
-              ),
-              const SizedBox(height: HyphenTokens.sp3),
-              TextField(
-                controller: freeCtrl,
-                decoration: const InputDecoration(
-                  labelText: '추가 설명 (선택)',
+      builder: (ctx) => StatefulBuilder(
+        builder: (innerCtx, setSheet) {
+          return Padding(
+            padding: EdgeInsets.only(
+              left: HyphenTokens.sp4,
+              right: HyphenTokens.sp4,
+              top: HyphenTokens.sp4,
+              bottom: MediaQuery.of(ctx).viewInsets.bottom + HyphenTokens.sp4,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const HkSectionLabel('거절 사유'),
+                const SizedBox(height: HyphenTokens.sp1),
+                Text('이유를 알려주면 코치가 다음 처방 조정.', style: HyphenTokens.caption),
+                const SizedBox(height: HyphenTokens.sp3),
+                Wrap(
+                  spacing: HyphenTokens.sp2,
+                  runSpacing: HyphenTokens.sp2,
+                  children: [
+                    // QA B-IN-13: V8 위반 — chip 라벨 영문 단독.
+                    for (final r in const [
+                      'INJURY',
+                      'CONDITION',
+                      'TIME',
+                      'SUBSTITUTE',
+                    ])
+                      HkBadge(
+                        r,
+                        color: HyphenTokens.fg,
+                        selected: selectedReason == r,
+                        onTap: () {
+                          setSheet(() {
+                            selectedReason = r;
+                            if (r == 'INJURY' &&
+                                injuryNotes != null &&
+                                injuryNotes.isNotEmpty &&
+                                freeCtrl.text.isEmpty) {
+                              freeCtrl.text = injuryNotes;
+                            }
+                          });
+                        },
+                      ),
+                  ],
                 ),
-                maxLines: 3,
-                maxLength: 300,
-              ),
-              const SizedBox(height: HyphenTokens.sp3),
-              HkButton.primary(
-                '거절',
-                danger: true,
-                onPressed: () {
-                  final parts = <String>[];
-                  if (selectedReason != null) parts.add(selectedReason!);
-                  final free = freeCtrl.text.trim();
-                  if (free.isNotEmpty) parts.add(free);
-                  Navigator.of(ctx).pop(parts.join(' · '));
-                },
-              ),
-              HkButton.tertiary('취소',
-                  neutral: true, onPressed: () => Navigator.of(ctx).pop(null)),
-            ],
-          ),
-        );
-      }),
+                const SizedBox(height: HyphenTokens.sp3),
+                TextField(
+                  controller: freeCtrl,
+                  decoration: const InputDecoration(labelText: '추가 설명 (선택)'),
+                  maxLines: 3,
+                  maxLength: 300,
+                ),
+                const SizedBox(height: HyphenTokens.sp3),
+                HkButton.primary(
+                  '거절',
+                  danger: true,
+                  onPressed: () {
+                    final parts = <String>[];
+                    if (selectedReason != null) parts.add(selectedReason!);
+                    final free = freeCtrl.text.trim();
+                    if (free.isNotEmpty) parts.add(free);
+                    Navigator.of(ctx).pop(parts.join(' · '));
+                  },
+                ),
+                HkButton.tertiary(
+                  '취소',
+                  neutral: true,
+                  onPressed: () => Navigator.of(ctx).pop(null),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
     freeCtrl.dispose();
     return result;
@@ -342,20 +352,15 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text('코치에게 질문', style: HyphenTokens.sectionLabel),
+            const HkSectionLabel('코치에게 질문'),
             const SizedBox(height: HyphenTokens.sp1),
-            Text('거절 대신 질문 한 줄. 코치에게 바로 갑니다.',
-                style: HyphenTokens.caption),
+            Text('거절 대신 질문 한 줄. 코치에게 바로 갑니다.', style: HyphenTokens.caption),
             const SizedBox(height: HyphenTokens.sp2),
             // 빠른 템플릿 chip.
             Wrap(
               spacing: HyphenTokens.sp1,
               children: [
-                for (final t in const [
-                  '무게 낮춰도 되나요?',
-                  '동작 대체 가능?',
-                  '날짜 조정 부탁',
-                ])
+                for (final t in const ['무게 낮춰도 되나요?', '동작 대체 가능?', '날짜 조정 부탁'])
                   HkBadge(
                     t,
                     color: HyphenTokens.fg,
@@ -370,17 +375,20 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
             const SizedBox(height: HyphenTokens.sp2),
             TextField(
               controller: ctrl,
-              decoration: const InputDecoration(
-                labelText: '질문 내용',
-              ),
+              decoration: const InputDecoration(labelText: '질문 내용'),
               maxLines: 4,
               maxLength: 500,
             ),
             const SizedBox(height: HyphenTokens.sp3),
-            HkButton.primary('보내기',
-                onPressed: () => Navigator.of(ctx).pop(ctrl.text)),
-            HkButton.tertiary('취소',
-                neutral: true, onPressed: () => Navigator.of(ctx).pop(null)),
+            HkButton.primary(
+              '보내기',
+              onPressed: () => Navigator.of(ctx).pop(ctrl.text),
+            ),
+            HkButton.tertiary(
+              '취소',
+              neutral: true,
+              onPressed: () => Navigator.of(ctx).pop(null),
+            ),
           ],
         ),
       ),
@@ -395,36 +403,32 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
       appBar: const HkAppBar(title: '노트'),
       body: SafeArea(
         child: _loading
-            ? const Center(
-                child: CircularProgressIndicator(
-                  color: HyphenTokens.muted, strokeWidth: 2),
-              )
+            ? const HkLoading()
             : _error != null
-                ? Padding(
-                    padding: const EdgeInsets.all(HyphenTokens.sp4),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text(_error!, style: HyphenTokens.body),
-                        const SizedBox(height: HyphenTokens.sp3),
-                        HkButton.secondary('다시 시도', onPressed: () {
-                          setState(() {
-                            _loading = true;
-                            _error = null;
-                          });
-                          _load();
-                        }),
-                      ],
+            ? Padding(
+                padding: const EdgeInsets.all(HyphenTokens.sp4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(_error!, style: HyphenTokens.body),
+                    const SizedBox(height: HyphenTokens.sp3),
+                    HkButton.secondary(
+                      '다시 시도',
+                      onPressed: () {
+                        setState(() {
+                          _loading = true;
+                          _error = null;
+                        });
+                        _load();
+                      },
                     ),
-                  )
-                : _note != null
-                    // QA B-INB-5: _note null 시 강제 unwrap 크래시 방지.
-                    ? _buildBody(_note!)
-                    : const Padding(
-                        padding: EdgeInsets.all(HyphenTokens.sp4),
-                        child: Text('노트를 열 수 없음.',
-                            style: HyphenTokens.caption),
-                      ),
+                  ],
+                ),
+              )
+            : _note != null
+            // QA B-INB-5: _note null 시 강제 unwrap 크래시 방지.
+            ? _buildBody(_note!)
+            : const HkEmptyState(title: '노트를 열 수 없음'),
       ),
     );
   }
@@ -459,9 +463,12 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                       ),
                     ),
                     const SizedBox(height: 2),
-                    Text(n.displayLabel(),
-                        style: HyphenTokens.h3
-                            .copyWith(fontWeight: FontWeight.w800)),
+                    Text(
+                      n.displayLabel(),
+                      style: HyphenTokens.h3.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -488,8 +495,10 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
           ),
           const SizedBox(height: HyphenTokens.sp4),
           if (n.title.isNotEmpty)
-            Text(n.title,
-                style: HyphenTokens.h3.copyWith(fontWeight: FontWeight.w800)),
+            Text(
+              n.title,
+              style: HyphenTokens.h3.copyWith(fontWeight: FontWeight.w800),
+            ),
           const SizedBox(height: HyphenTokens.sp2),
           // v1.19 페르소나 P0-4 (M1 송): WHY 섹션 — 본문 위 고정.
           if (n.rationale != null && n.rationale!.isNotEmpty) ...[
@@ -506,46 +515,43 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Container(width: 3, color: HyphenTokens.accent),
-                    Expanded(child: Padding(
-                      padding: const EdgeInsets.all(HyphenTokens.sp3),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('이유', style: HyphenTokens.sectionLabel),
-                          const SizedBox(height: 4),
-                          Text(n.rationale!, style: HyphenTokens.body),
-                        ],
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(HyphenTokens.sp3),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            HkSectionLabel('이유'),
+                            const SizedBox(height: 4),
+                            Text(n.rationale!, style: HyphenTokens.body),
+                          ],
+                        ),
                       ),
-                    )),
+                    ),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: HyphenTokens.sp3),
           ],
-          if (n.body.isNotEmpty)
-            Text(n.body, style: HyphenTokens.lead),
+          if (n.body.isNotEmpty) Text(n.body, style: HyphenTokens.lead),
           if (n.dueDate != null && n.dueDate!.isNotEmpty) ...[
             const SizedBox(height: HyphenTokens.sp4),
-            Text('기한', style: HyphenTokens.sectionLabel),
+            HkSectionLabel('기한'),
             const SizedBox(height: 2),
             Text(n.dueDate!, style: HyphenTokens.body),
           ],
           if (n.dueStart != null && n.dueEnd != null) ...[
             const SizedBox(height: HyphenTokens.sp1),
-            Text(
-              '${n.dueStart} ~ ${n.dueEnd}',
-              style: HyphenTokens.caption,
-            ),
+            Text('${n.dueStart} ~ ${n.dueEnd}', style: HyphenTokens.caption),
           ],
           if (n.structured.isNotEmpty) ...[
             const SizedBox(height: HyphenTokens.sp4),
-            Text('처방', style: HyphenTokens.sectionLabel),
+            HkSectionLabel('처방'),
             const SizedBox(height: HyphenTokens.sp2),
             for (final it in n.structured)
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: HyphenTokens.sp1),
+                padding: const EdgeInsets.symmetric(vertical: HyphenTokens.sp1),
                 child: Container(
                   padding: const EdgeInsets.all(HyphenTokens.sp3),
                   decoration: BoxDecoration(
@@ -556,9 +562,12 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(it.displayLine(),
-                          style: HyphenTokens.body.copyWith(
-                              fontWeight: FontWeight.w700)),
+                      Text(
+                        it.displayLine(),
+                        style: HyphenTokens.body.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                       if (it.alternateMovement != null &&
                           it.alternateMovement!.isNotEmpty)
                         Padding(
@@ -583,7 +592,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
           // 액션 결과(actual / decline_reason) 표시.
           if (n.my?.actual.isNotEmpty == true) ...[
             const SizedBox(height: HyphenTokens.sp4),
-            Text('기록됨', style: HyphenTokens.sectionLabel),
+            HkSectionLabel('기록됨'),
             const SizedBox(height: HyphenTokens.sp1),
             for (final a in n.my!.actual)
               Padding(
@@ -600,7 +609,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
           if (n.my?.declineReason != null &&
               n.my!.declineReason!.isNotEmpty) ...[
             const SizedBox(height: HyphenTokens.sp4),
-            Text('거절 사유', style: HyphenTokens.sectionLabel),
+            HkSectionLabel('거절 사유'),
             const SizedBox(height: 2),
             Text(n.my!.declineReason!, style: HyphenTokens.body),
           ],
@@ -643,9 +652,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
       if (n.isAuto) return const SizedBox.shrink(); // 자동 칭찬은 답장 불필요.
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          HkButton.secondary('코치에게 질문', onPressed: _ask),
-        ],
+        children: [HkButton.secondary('코치에게 질문', onPressed: _ask)],
       );
     }
     final isAccepted = status == 'accepted';
@@ -659,8 +666,10 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
           HkButton.primary('수락', onPressed: _accept),
         const SizedBox(height: HyphenTokens.sp2),
         // v1.19 페르소나 P1-15: Accept/Decline 사이 Ask Coach.
-        HkButton.secondary(isAsked ? '질문함 · 다시 질문' : '코치에게 질문',
-            onPressed: _ask),
+        HkButton.secondary(
+          isAsked ? '질문함 · 다시 질문' : '코치에게 질문',
+          onPressed: _ask,
+        ),
         const SizedBox(height: HyphenTokens.sp2),
         HkButton.tertiary('거절', neutral: true, onPressed: _decline),
       ],
@@ -690,8 +699,7 @@ class _RecipientsList extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('RECIPIENTS · ${items.length}',
-              style: HyphenTokens.sectionLabel),
+          HkSectionLabel('RECIPIENTS · ${items.length}'),
           const SizedBox(height: HyphenTokens.sp2),
           for (final r in items)
             Padding(
@@ -706,9 +714,12 @@ class _RecipientsList extends StatelessWidget {
                   ),
                   const SizedBox(width: HyphenTokens.sp2),
                   Expanded(
-                    child: Text(r.displayLabel(),
-                        style: HyphenTokens.body.copyWith(
-                            fontWeight: FontWeight.w700)),
+                    child: Text(
+                      r.displayLabel(),
+                      style: HyphenTokens.body.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ),
                   Text(
                     r.status.toUpperCase(),

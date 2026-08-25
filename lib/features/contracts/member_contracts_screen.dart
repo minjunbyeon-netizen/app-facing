@@ -35,22 +35,22 @@ class ContractSummary {
   });
 
   factory ContractSummary.fromJson(Map<String, dynamic> j) => ContractSummary(
-        id: (j['id'] as num).toInt(),
-        status: (j['status'] ?? '') as String,
-        templateName: (j['template_name'] ?? '') as String,
-        createdAt: j['created_at'] as String?,
-        signedAt: j['signed_at'] as String?,
-      );
+    id: (j['id'] as num).toInt(),
+    status: (j['status'] ?? '') as String,
+    templateName: (j['template_name'] ?? '') as String,
+    createdAt: j['created_at'] as String?,
+    signedAt: j['signed_at'] as String?,
+  );
 
   /// 상태 라벨 — 한글 기본 (v3.0 카피 정책, 2026-08-24 구 V8 영문 라벨 교체).
   String get statusLabel => switch (status) {
-        'signed' => '서명 완료',
-        'sent' || 'viewed' => '서명 대기',
-        'draft' => '작성 중',
-        'cancelled' => '취소',
-        'expired' => '만료',
-        _ => status,
-      };
+    'signed' => '서명 완료',
+    'sent' || 'viewed' => '서명 대기',
+    'draft' => '작성 중',
+    'cancelled' => '취소',
+    'expired' => '만료',
+    _ => status,
+  };
 
   bool get signable => status == 'sent' || status == 'viewed';
 }
@@ -71,8 +71,9 @@ class ContractRepository {
       _api.get('/api/v1/member/contracts/$id');
 
   Future<Map<String, dynamic>> sign(int id, String signatureBase64) =>
-      _api.post('/api/v1/member/contracts/$id/sign',
-          {'signature_image_base64': signatureBase64});
+      _api.post('/api/v1/member/contracts/$id/sign', {
+        'signature_image_base64': signatureBase64,
+      });
 }
 
 // ──────────────────────────────────────────────────────────────────
@@ -110,23 +111,16 @@ class _MemberContractsScreenState extends State<MemberContractsScreen> {
           future: _future,
           builder: (context, snap) {
             if (snap.connectionState != ConnectionState.done) {
-              return const Center(child: CircularProgressIndicator());
+              return const HkLoading();
             }
             if (snap.hasError) {
               return HkErrorState(message: '불러오기 실패', onRetry: _reload);
             }
             final rows = snap.data ?? const [];
             if (rows.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('계약 없음', style: HyphenTokens.h3),
-                    const SizedBox(height: HyphenTokens.sp2),
-                    Text('체육관이 계약서를 발급하면 여기에 표시.',
-                        style: HyphenTokens.caption),
-                  ],
-                ),
+              return const HkEmptyState(
+                title: '계약 없음',
+                caption: '체육관이 계약서를 발급하면 여기에 표시.',
               );
             }
             return ListView.separated(
@@ -138,9 +132,11 @@ class _MemberContractsScreenState extends State<MemberContractsScreen> {
                 final c = rows[i];
                 return InkWell(
                   onTap: () async {
-                    await Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => ContractDetailScreen(contractId: c.id),
-                    ));
+                    await Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => ContractDetailScreen(contractId: c.id),
+                      ),
+                    );
                     _reload(); // 서명 후 상태 갱신
                   },
                   child: Container(
@@ -160,8 +156,9 @@ class _MemberContractsScreenState extends State<MemberContractsScreen> {
                                 c.templateName.isEmpty
                                     ? '계약서 #${c.id}'
                                     : c.templateName,
-                                style: HyphenTokens.body
-                                    .copyWith(fontWeight: FontWeight.w700),
+                                style: HyphenTokens.body.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
                               const SizedBox(height: 2),
                               Text(
@@ -171,10 +168,12 @@ class _MemberContractsScreenState extends State<MemberContractsScreen> {
                             ],
                           ),
                         ),
-                        HkBadge(c.statusLabel,
-                            color: c.signable
-                                ? HyphenTokens.primary
-                                : HyphenTokens.muted),
+                        HkBadge(
+                          c.statusLabel,
+                          color: c.signable
+                              ? HyphenTokens.primary
+                              : HyphenTokens.muted,
+                        ),
                       ],
                     ),
                   ),
@@ -187,7 +186,6 @@ class _MemberContractsScreenState extends State<MemberContractsScreen> {
     );
   }
 }
-
 
 // ──────────────────────────────────────────────────────────────────
 // 상세 + 서명
@@ -206,21 +204,25 @@ class _ContractDetailScreenState extends State<ContractDetailScreen> {
   @override
   void initState() {
     super.initState();
-    _future = ContractRepository(context.read<ApiClient>())
-        .detail(widget.contractId);
+    _future = ContractRepository(
+      context.read<ApiClient>(),
+    ).detail(widget.contractId);
   }
 
   void _reload() {
     setState(() {
-      _future = ContractRepository(context.read<ApiClient>())
-          .detail(widget.contractId);
+      _future = ContractRepository(
+        context.read<ApiClient>(),
+      ).detail(widget.contractId);
     });
   }
 
   Future<void> _openSignPad() async {
-    final signed = await Navigator.of(context).push<bool>(MaterialPageRoute(
-      builder: (_) => SignaturePadScreen(contractId: widget.contractId),
-    ));
+    final signed = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => SignaturePadScreen(contractId: widget.contractId),
+      ),
+    );
     if (signed == true) _reload();
   }
 
@@ -234,7 +236,7 @@ class _ContractDetailScreenState extends State<ContractDetailScreen> {
           future: _future,
           builder: (context, snap) {
             if (snap.connectionState != ConnectionState.done) {
-              return const Center(child: CircularProgressIndicator());
+              return const HkLoading();
             }
             if (snap.hasError) {
               return HkErrorState(message: '불러오기 실패', onRetry: _reload);
@@ -257,8 +259,10 @@ class _ContractDetailScreenState extends State<ContractDetailScreen> {
                   child: ListView(
                     padding: const EdgeInsets.all(HyphenTokens.sp4),
                     children: [
-                      Text((d['template_name'] ?? '') as String,
-                          style: HyphenTokens.h2),
+                      Text(
+                        (d['template_name'] ?? '') as String,
+                        style: HyphenTokens.h2,
+                      ),
                       const SizedBox(height: HyphenTokens.sp2),
                       HkBadge(
                         switch (status) {
@@ -273,10 +277,9 @@ class _ContractDetailScreenState extends State<ContractDetailScreen> {
                             : HyphenTokens.muted,
                       ),
                       // 서명 전 본문 열람 (2026-08-24 갭 해소 — 서버 렌더 텍스트).
-                      if (((d['body_text'] as String?) ?? '')
-                          .isNotEmpty) ...[
+                      if (((d['body_text'] as String?) ?? '').isNotEmpty) ...[
                         const SizedBox(height: HyphenTokens.sp4),
-                        const Text('본문', style: HyphenTokens.sectionLabel),
+                        const HkSectionLabel('본문'),
                         const SizedBox(height: HyphenTokens.sp2),
                         Container(
                           width: double.infinity,
@@ -284,37 +287,45 @@ class _ContractDetailScreenState extends State<ContractDetailScreen> {
                           decoration: BoxDecoration(
                             color: HyphenTokens.surface,
                             border: Border.all(color: HyphenTokens.border),
-                            borderRadius:
-                                BorderRadius.circular(HyphenTokens.r2),
+                            borderRadius: BorderRadius.circular(
+                              HyphenTokens.r2,
+                            ),
                           ),
-                          child: Text((d['body_text'] as String?) ?? '',
-                              style: HyphenTokens.caption),
+                          child: Text(
+                            (d['body_text'] as String?) ?? '',
+                            style: HyphenTokens.caption,
+                          ),
                         ),
                       ],
                       const SizedBox(height: HyphenTokens.sp4),
-                      const Text('내용', style: HyphenTokens.sectionLabel),
+                      const HkSectionLabel('내용'),
                       const SizedBox(height: HyphenTokens.sp2),
-                      ...entries.map((e) => Padding(
-                            padding: const EdgeInsets.only(
-                                bottom: HyphenTokens.sp2),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                SizedBox(
-                                  width: 120,
-                                  child: Text(
-                                    varLabels[e.key]?.toString() ??
-                                        e.key.toString().replaceAll('_', ' '),
-                                    style: HyphenTokens.caption,
-                                  ),
+                      ...entries.map(
+                        (e) => Padding(
+                          padding: const EdgeInsets.only(
+                            bottom: HyphenTokens.sp2,
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                width: 120,
+                                child: Text(
+                                  varLabels[e.key]?.toString() ??
+                                      e.key.toString().replaceAll('_', ' '),
+                                  style: HyphenTokens.caption,
                                 ),
-                                Expanded(
-                                  child: Text('${e.value ?? ''}',
-                                      style: HyphenTokens.body),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  '${e.value ?? ''}',
+                                  style: HyphenTokens.body,
                                 ),
-                              ],
-                            ),
-                          )),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                       if (d['signed_at'] != null) ...[
                         const SizedBox(height: HyphenTokens.sp3),
                         Text(
@@ -355,8 +366,7 @@ class _SignaturePadScreenState extends State<SignaturePadScreen> {
   bool _submitting = false;
   final GlobalKey _padKey = GlobalKey();
 
-  bool get _hasSignature =>
-      _strokes.any((s) => s.length > 1);
+  bool get _hasSignature => _strokes.any((s) => s.length > 1);
 
   void _start(Offset p) => setState(() => _strokes.add([p]));
   void _extend(Offset p) => setState(() => _strokes.last.add(p));
@@ -380,9 +390,10 @@ class _SignaturePadScreenState extends State<SignaturePadScreen> {
       }
       canvas.drawPath(path, paint);
     }
-    final img = await recorder
-        .endRecording()
-        .toImage(size.width.round(), size.height.round());
+    final img = await recorder.endRecording().toImage(
+      size.width.round(),
+      size.height.round(),
+    );
     final bytes = await img.toByteData(format: ui.ImageByteFormat.png);
     return base64Encode(bytes!.buffer.asUint8List());
   }
@@ -418,8 +429,10 @@ class _SignaturePadScreenState extends State<SignaturePadScreen> {
       appBar: HkAppBar(
         title: '서명',
         actions: [
-          HkButton.tertiary('지우기',
-              onPressed: _submitting ? null : () => setState(_strokes.clear)),
+          HkButton.tertiary(
+            '지우기',
+            onPressed: _submitting ? null : () => setState(_strokes.clear),
+          ),
         ],
       ),
       body: SafeArea(
@@ -427,13 +440,16 @@ class _SignaturePadScreenState extends State<SignaturePadScreen> {
           children: [
             Padding(
               padding: const EdgeInsets.all(HyphenTokens.sp4),
-              child: Text('아래 영역에 서명. 전자서명법 제3조에 따라 효력 발생.',
-                  style: HyphenTokens.caption),
+              child: Text(
+                '아래 영역에 서명. 전자서명법 제3조에 따라 효력 발생.',
+                style: HyphenTokens.caption,
+              ),
             ),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: HyphenTokens.sp4),
+                  horizontal: HyphenTokens.sp4,
+                ),
                 child: Container(
                   key: _padKey,
                   decoration: BoxDecoration(
@@ -459,8 +475,10 @@ class _SignaturePadScreenState extends State<SignaturePadScreen> {
               padding: const EdgeInsets.all(HyphenTokens.sp4),
               child: _submitting
                   ? const HkLoading()
-                  : HkButton.primary('제출',
-                      onPressed: _hasSignature ? _submit : null),
+                  : HkButton.primary(
+                      '제출',
+                      onPressed: _hasSignature ? _submit : null,
+                    ),
             ),
           ],
         ),

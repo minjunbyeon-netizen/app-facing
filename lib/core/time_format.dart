@@ -21,3 +21,13 @@ String ymd(DateTime d) => '${d.year}-${_two(d.month)}-${_two(d.day)}';
 
 /// `08.25`
 String mdDot(DateTime d) => '${_two(d.month)}.${_two(d.day)}';
+
+/// `08/25 19:05`
+String mdHm(DateTime d) => '${_two(d.month)}/${_two(d.day)} ${hhmm(d)}';
+
+/// 초 → `m:ss` (기록 시간). 숫자가 아니면 `-`.
+String mmss(dynamic sec) {
+  if (sec is! num) return '-';
+  final t = sec.toInt();
+  return '${t ~/ 60}:${_two(t % 60)}';
+}

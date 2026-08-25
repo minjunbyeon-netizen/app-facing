@@ -6,38 +6,38 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 /// ApiClient 의 BossAuthInterceptor 가 매 요청에 Cookie 헤더 주입.
 class BossAuthState extends ChangeNotifier {
   static const _store = FlutterSecureStorage();
-  static const _kLoginId   = 'boss_login_id';
-  static const _kName      = 'boss_name';
-  static const _kRole      = 'boss_role';
-  static const _kGymId     = 'boss_gym_id';
-  static const _kGymName   = 'boss_gym_name';
-  static const _kCsrf      = 'boss_csrf_token';
-  static const _kCookie    = 'boss_session_cookie';
+  static const _kLoginId = 'boss_login_id';
+  static const _kName = 'boss_name';
+  static const _kRole = 'boss_role';
+  static const _kGymId = 'boss_gym_id';
+  static const _kGymName = 'boss_gym_name';
+  static const _kCsrf = 'boss_csrf_token';
+  static const _kCookie = 'boss_session_cookie';
 
   bool _loggedIn = false;
   String? _loginId;
   String? _name;
   String? _role;
-  int?    _gymId;
+  int? _gymId;
   String? _gymName;
   String? _csrfToken;
   String? _sessionCookie; // "session=xxxx" raw header value
 
-  bool get isLoggedIn     => _loggedIn;
-  String? get loginId     => _loginId;
-  String? get name        => _name;
-  String? get role        => _role;
-  int?    get gymId       => _gymId;
-  String? get gymName     => _gymName;
-  String? get csrfToken   => _csrfToken;
+  bool get isLoggedIn => _loggedIn;
+  String? get loginId => _loginId;
+  String? get name => _name;
+  String? get role => _role;
+  int? get gymId => _gymId;
+  String? get gymName => _gymName;
+  String? get csrfToken => _csrfToken;
   String? get sessionCookie => _sessionCookie;
 
   Future<void> load() async {
     _loginId = await _store.read(key: _kLoginId);
-    _name    = await _store.read(key: _kName);
-    _role    = await _store.read(key: _kRole);
+    _name = await _store.read(key: _kName);
+    _role = await _store.read(key: _kRole);
     final gid = await _store.read(key: _kGymId);
-    _gymId   = gid == null ? null : int.tryParse(gid);
+    _gymId = gid == null ? null : int.tryParse(gid);
     _gymName = await _store.read(key: _kGymName);
     _csrfToken = await _store.read(key: _kCsrf);
     _sessionCookie = await _store.read(key: _kCookie);
@@ -64,12 +64,12 @@ class BossAuthState extends ChangeNotifier {
     _loggedIn = true;
     await Future.wait([
       _store.write(key: _kLoginId, value: loginId),
-      _store.write(key: _kName,    value: name),
-      _store.write(key: _kRole,    value: role),
-      _store.write(key: _kGymId,   value: gymId.toString()),
+      _store.write(key: _kName, value: name),
+      _store.write(key: _kRole, value: role),
+      _store.write(key: _kGymId, value: gymId.toString()),
       _store.write(key: _kGymName, value: gymName),
-      _store.write(key: _kCsrf,    value: csrfToken),
-      _store.write(key: _kCookie,  value: sessionCookie),
+      _store.write(key: _kCsrf, value: csrfToken),
+      _store.write(key: _kCookie, value: sessionCookie),
     ]);
     notifyListeners();
   }

@@ -27,9 +27,7 @@ class ConfettiOverlay {
     final overlay = Overlay.maybeOf(context);
     if (overlay == null) return;
     HapticFeedback.heavyImpact();
-    final entry = OverlayEntry(
-      builder: (ctx) => _ConfettiAnim(rarity: rarity),
-    );
+    final entry = OverlayEntry(builder: (ctx) => _ConfettiAnim(rarity: rarity));
     overlay.insert(entry);
     await Future.delayed(const Duration(milliseconds: 2000));
     entry.remove();
@@ -85,7 +83,6 @@ class _ConfettiAnimState extends State<_ConfettiAnim>
     _ctrl.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -167,11 +164,7 @@ class _ConfettiPainter extends CustomPainter {
       switch (p.kind) {
         case 0: // square
           canvas.drawRect(
-            Rect.fromCenter(
-              center: Offset.zero,
-              width: p.size,
-              height: p.size,
-            ),
+            Rect.fromCenter(center: Offset.zero, width: p.size, height: p.size),
             paint,
           );
           break;
@@ -181,11 +174,7 @@ class _ConfettiPainter extends CustomPainter {
         case 2: // line
           paint.strokeWidth = 2;
           paint.style = PaintingStyle.stroke;
-          canvas.drawLine(
-            Offset(-p.size, 0),
-            Offset(p.size, 0),
-            paint,
-          );
+          canvas.drawLine(Offset(-p.size, 0), Offset(p.size, 0), paint);
           break;
       }
       canvas.restore();

@@ -58,14 +58,23 @@ class ClassLine extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.baseline,
         textBaseline: TextBaseline.alphabetic,
         children: [
-          Text('$reserved',
-              style: HyphenTokens.h3.copyWith(
-                  color: HyphenTokens.fg, fontFeatures: HyphenTokens.tabular)),
-          Text(capacity != null ? ' / $capacity명' : '명',
-              style: HyphenTokens.micro),
+          Text(
+            '$reserved',
+            style: HyphenTokens.h3.copyWith(
+              color: HyphenTokens.fg,
+              fontFeatures: HyphenTokens.tabular,
+            ),
+          ),
+          Text(
+            capacity != null ? ' / $capacity명' : '명',
+            style: HyphenTokens.micro,
+          ),
           const SizedBox(width: HyphenTokens.sp1),
-          const Icon(Icons.chevron_right,
-              size: 18, color: HyphenTokens.mutedStrong),
+          const Icon(
+            Icons.chevron_right,
+            size: 18,
+            color: HyphenTokens.mutedStrong,
+          ),
         ],
       ),
     );
@@ -99,11 +108,13 @@ class ClassLine extends StatelessWidget {
       subtitle: subtitle,
       subtitleColor: isFull ? HyphenTokens.warning : null,
       muted: isCancelled,
-      trailing: _memberAction(session,
-          isPastDay: isPastDay,
-          isOver: isOver,
-          onReserve: onReserve,
-          onCancel: onCancel),
+      trailing: _memberAction(
+        session,
+        isPastDay: isPastDay,
+        isOver: isOver,
+        onReserve: onReserve,
+        onCancel: onCancel,
+      ),
     );
   }
 
@@ -122,9 +133,7 @@ class ClassLine extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           HkBadge(
-            session.isWaitlisted
-                ? '대기 ${session.myWaitlistPosition}'
-                : '예약됨',
+            session.isWaitlisted ? '대기 ${session.myWaitlistPosition}' : '예약됨',
             color: session.isWaitlisted
                 ? HyphenTokens.warning
                 : HyphenTokens.success,
@@ -139,8 +148,8 @@ class ClassLine extends StatelessWidget {
     if (isPastDay || isOver) {
       return const HkBadge('종료', color: HyphenTokens.muted);
     }
-    final blocked = session.isFull &&
-        session.waitlistCount >= session.waitlistCapacity;
+    final blocked =
+        session.isFull && session.waitlistCount >= session.waitlistCapacity;
     if (blocked) return const HkBadge('마감', color: HyphenTokens.muted);
     return HkBadge(
       session.isFull ? '대기' : '예약',
@@ -179,8 +188,10 @@ class ClassLine extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: HyphenTokens.body
-                      .copyWith(fontWeight: FontWeight.w600, color: fg),
+                  style: HyphenTokens.body.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: fg,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -188,8 +199,9 @@ class ClassLine extends StatelessWidget {
                   const SizedBox(height: 1),
                   Text(
                     subtitle,
-                    style: HyphenTokens.caption
-                        .copyWith(color: subtitleColor ?? HyphenTokens.muted),
+                    style: HyphenTokens.caption.copyWith(
+                      color: subtitleColor ?? HyphenTokens.muted,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),

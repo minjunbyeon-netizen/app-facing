@@ -59,8 +59,11 @@ class _GoalsScreenState extends State<GoalsScreen> {
     // DateTime.weekday: 1=Mon..7=Sun. weekday%7: Sun→0 → 이번주 시작.
     final now = appClock.now();
     final weekStart = now.subtract(Duration(days: now.weekday % 7));
-    final weekStartDate =
-        DateTime(weekStart.year, weekStart.month, weekStart.day);
+    final weekStartDate = DateTime(
+      weekStart.year,
+      weekStart.month,
+      weekStart.day,
+    );
     return list
         .where((w) => w.createdAt.toLocal().isAfter(weekStartDate))
         .length;
@@ -90,7 +93,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
               padding: const EdgeInsets.all(HyphenTokens.sp4),
               children: [
                 // Weekly
-                const Text('이번 주', style: HyphenTokens.sectionLabel),
+                const HkSectionLabel('이번 주'),
                 const SizedBox(height: HyphenTokens.sp2),
                 _ProgressRow(
                   label: '세션',
@@ -110,7 +113,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                 const SizedBox(height: HyphenTokens.sp5),
 
                 // Monthly
-                const Text('이번 달', style: HyphenTokens.sectionLabel),
+                const HkSectionLabel('이번 달'),
                 const SizedBox(height: HyphenTokens.sp2),
                 _ProgressRow(
                   label: '세션',
@@ -130,7 +133,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                 const SizedBox(height: HyphenTokens.sp5),
 
                 // PR Goals
-                const Text('PR 목표', style: HyphenTokens.sectionLabel),
+                const HkSectionLabel('PR 목표'),
                 const SizedBox(height: HyphenTokens.sp2),
                 _PrGoalRow(
                   label: 'Fran',
@@ -153,7 +156,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                 // (README §제거된 기능 대장).
 
                 // Season goal
-                const Text('시즌 목표', style: HyphenTokens.sectionLabel),
+                const HkSectionLabel('시즌 목표'),
                 const SizedBox(height: HyphenTokens.sp2),
                 _SeasonGoalField(
                   initial: goals.seasonGoal,
@@ -195,24 +198,30 @@ class _GoalsScreenState extends State<GoalsScreen> {
         keyboardType: TextInputType.datetime,
       ),
       actions: (ctx) => [
-        HkButton.tertiary('취소',
-            neutral: true, onPressed: () => Navigator.pop(ctx)),
-        HkButton.tertiary('저장', onPressed: () {
-          final m = RegExp(r'^(\d+):(\d{1,2})$').firstMatch(ctrl.text);
-          if (m != null) {
-            final sec =
-                int.parse(m.group(1)!) * 60 + int.parse(m.group(2)!);
-            goals.setFranPrSec(sec).then((_) => goals.sync());
-          }
-          Navigator.pop(ctx);
-        }),
+        HkButton.tertiary(
+          '취소',
+          neutral: true,
+          onPressed: () => Navigator.pop(ctx),
+        ),
+        HkButton.tertiary(
+          '저장',
+          onPressed: () {
+            final m = RegExp(r'^(\d+):(\d{1,2})$').firstMatch(ctrl.text);
+            if (m != null) {
+              final sec = int.parse(m.group(1)!) * 60 + int.parse(m.group(2)!);
+              goals.setFranPrSec(sec).then((_) => goals.sync());
+            }
+            Navigator.pop(ctx);
+          },
+        ),
       ],
     ).whenComplete(ctrl.dispose);
   }
 
   void _editBackSquat(BuildContext context, GoalsState goals) {
     final ctrl = TextEditingController(
-        text: goals.backSquatKg == 0 ? '' : '${goals.backSquatKg.toInt()}');
+      text: goals.backSquatKg == 0 ? '' : '${goals.backSquatKg.toInt()}',
+    );
     HkDialog.custom<void>(
       context,
       title: 'Back Squat Target (kg)',
@@ -223,13 +232,19 @@ class _GoalsScreenState extends State<GoalsScreen> {
         decoration: const InputDecoration(hintText: '140'),
       ),
       actions: (ctx) => [
-        HkButton.tertiary('취소',
-            neutral: true, onPressed: () => Navigator.pop(ctx)),
-        HkButton.tertiary('저장', onPressed: () {
-          final v = double.tryParse(ctrl.text);
-          if (v != null) goals.setBackSquatKg(v).then((_) => goals.sync());
-          Navigator.pop(ctx);
-        }),
+        HkButton.tertiary(
+          '취소',
+          neutral: true,
+          onPressed: () => Navigator.pop(ctx),
+        ),
+        HkButton.tertiary(
+          '저장',
+          onPressed: () {
+            final v = double.tryParse(ctrl.text);
+            if (v != null) goals.setBackSquatKg(v).then((_) => goals.sync());
+            Navigator.pop(ctx);
+          },
+        ),
       ],
     ).whenComplete(ctrl.dispose);
   }
@@ -296,6 +311,7 @@ class _TargetSlider extends StatelessWidget {
   final double min;
   final double max;
   final void Function(double) onChanged;
+
   /// 드래그를 놓는 순간 1회. 서버 저장은 여기서만 한다 — onChanged 는
   /// 드래그 내내 수십 번 불려 그대로 보내면 요청 폭주다.
   final void Function(double)? onChangeEnd;
@@ -347,14 +363,19 @@ class _PrGoalRow extends StatelessWidget {
         child: Row(
           children: [
             Expanded(child: Text(label, style: HyphenTokens.body)),
-            Text(valueLabel,
-                style: HyphenTokens.body.copyWith(
-                  fontWeight: FontWeight.w700,
-                  fontFeatures: HyphenTokens.tabular,
-                )),
+            Text(
+              valueLabel,
+              style: HyphenTokens.body.copyWith(
+                fontWeight: FontWeight.w700,
+                fontFeatures: HyphenTokens.tabular,
+              ),
+            ),
             const SizedBox(width: HyphenTokens.sp2),
-            const Icon(Icons.chevron_right,
-                color: HyphenTokens.muted, size: 18),
+            const Icon(
+              Icons.chevron_right,
+              color: HyphenTokens.muted,
+              size: 18,
+            ),
           ],
         ),
       ),

@@ -97,7 +97,7 @@ class _SplashScreenState extends State<SplashScreen>
   /// 등급(Tier) 유무로 온보딩에 붙잡아 두던 분기도 뺐다. 성별·경력은 가입
   /// 직후 한 번만 묻고, 이미 로그인한 사람은 언제나 홈으로 들어간다.
   void _onStart() {
-    final auth     = context.read<AuthState>();
+    final auth = context.read<AuthState>();
     final bossAuth = context.read<BossAuthState>();
     Haptic.medium();
     // PHASE5 §1.1: 사장 자동 로그인 우선
@@ -105,8 +105,9 @@ class _SplashScreenState extends State<SplashScreen>
       Navigator.of(context).pushReplacementNamed('/boss/dashboard');
       return;
     }
-    Navigator.of(context)
-        .pushReplacementNamed(auth.isSignedIn ? '/shell' : '/signup');
+    Navigator.of(
+      context,
+    ).pushReplacementNamed(auth.isSignedIn ? '/shell' : '/signup');
   }
 
   Widget _fadeOnly(int slot, Widget child) =>

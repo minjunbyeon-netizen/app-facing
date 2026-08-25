@@ -17,12 +17,9 @@ class EditProfileScreen extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.all(HyphenTokens.sp4),
           children: const [
-            Text('수정 영역', style: HyphenTokens.sectionLabel),
+            HkSectionLabel('수정 영역'),
             SizedBox(height: HyphenTokens.sp1),
-            Text(
-              '편집할 영역 선택. 입력값은 저장 시 즉시 반영.',
-              style: HyphenTokens.caption,
-            ),
+            Text('편집할 영역 선택. 입력값은 저장 시 즉시 반영.', style: HyphenTokens.caption),
             SizedBox(height: HyphenTokens.sp4),
             // v2.6 (2026-08-13): 부제가 실제 화면과 달랐다 — 기본 정보는
             // v2.3 에서 성별·경력 둘만 남았는데 체중·키·나이를 약속하고 있었다.
@@ -54,13 +51,9 @@ class _AreaCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return HkCard(
+      padding: EdgeInsets.zero,
       margin: const EdgeInsets.only(bottom: HyphenTokens.sp3),
-      decoration: BoxDecoration(
-        color: HyphenTokens.surface,
-        border: Border.all(color: HyphenTokens.border),
-        borderRadius: BorderRadius.circular(HyphenTokens.r3),
-      ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -83,8 +76,11 @@ class _AreaCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                const Icon(Icons.chevron_right,
-                    color: HyphenTokens.muted, size: 20),
+                const Icon(
+                  Icons.chevron_right,
+                  color: HyphenTokens.muted,
+                  size: 20,
+                ),
               ],
             ),
           ),

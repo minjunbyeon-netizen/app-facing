@@ -7,6 +7,7 @@ import '../../core/theme.dart';
 import '../../widgets/hkit.dart';
 import 'boss_api_client.dart';
 import 'class_roster_model.dart';
+import '../../core/time_format.dart';
 
 /// D29 (2026-08-12) — 수업 카드 탭 시 뜨는 예약자 명단 시트.
 ///
@@ -29,15 +30,16 @@ import 'class_roster_model.dart';
 /// [onChanged] — 출석 상태를 하나라도 바꾼 채로 시트가 닫히면 1회 호출된다.
 /// 대시보드의 '오늘 출석' 숫자가 바뀌므로 호출부에서 다시 불러오라는 신호다.
 /// (시트 pop 반환값을 안 쓰는 이유: 스와이프로 내리면 null 이라 신호가 샌다.)
-Future<void> showClassRosterSheet(BuildContext context, int classId,
-    {VoidCallback? onChanged}) async {
+Future<void> showClassRosterSheet(
+  BuildContext context,
+  int classId, {
+  VoidCallback? onChanged,
+}) async {
   var dirty = false;
   await HkSheet.show<void>(
     context,
-    builder: (_) => _ClassRosterSheet(
-      classId: classId,
-      onDirty: () => dirty = true,
-    ),
+    builder: (_) =>
+        _ClassRosterSheet(classId: classId, onDirty: () => dirty = true),
   );
   if (dirty) onChanged?.call();
 }
@@ -117,11 +119,12 @@ class _Loaded extends StatefulWidget {
   /// 명단 재조회 신호.
   final VoidCallback onReload;
 
-  const _Loaded(
-      {super.key,
-      required this.roster,
-      required this.onDirty,
-      required this.onReload});
+  const _Loaded({
+    super.key,
+    required this.roster,
+    required this.onDirty,
+    required this.onReload,
+  });
 
   @override
   State<_Loaded> createState() => _LoadedState();
@@ -153,9 +156,10 @@ class _LoadedState extends State<_Loaded> {
     });
 
     try {
-      await context
-          .read<BossApiClient>()
-          .patch('/api/v1/admin/reservations/$id/status', {'status': next});
+      await context.read<BossApiClient>().patch(
+        '/api/v1/admin/reservations/$id/status',
+        {'status': next},
+      );
       widget.onDirty();
     } catch (err) {
       if (!mounted) return;
@@ -180,12 +184,14 @@ class _LoadedState extends State<_Loaded> {
       padding: const EdgeInsets.all(HyphenTokens.sp4),
       shrinkWrap: true,
       children: [
-        Text(roster.title,
-            style: HyphenTokens.h3.copyWith(color: HyphenTokens.fg)),
+        Text(
+          roster.title,
+          style: HyphenTokens.h3.copyWith(color: HyphenTokens.fg),
+        ),
         const SizedBox(height: 4),
         Text(
           [
-            _hhmm(roster.startAt),
+            hhmmIso(roster.startAt),
             if (roster.room != null && roster.room!.isNotEmpty) roster.room!,
             if (roster.coachUserId != null && roster.coachUserId!.isNotEmpty)
               roster.coachUserId!,
@@ -210,10 +216,7 @@ class _LoadedState extends State<_Loaded> {
             ),
             const SizedBox(width: HyphenTokens.sp2),
             Expanded(
-              child: HkStatTile(
-                label: '대기',
-                value: '${roster.waitlistCount}',
-              ),
+              child: HkStatTile(label: '대기', value: '${roster.waitlistCount}'),
             ),
           ],
         ),
@@ -236,14 +239,6 @@ class _LoadedState extends State<_Loaded> {
         const SizedBox(height: HyphenTokens.sp4),
       ],
     );
-  }
-
-  /// '2026-08-12T19:00:00' → '19:00'. 파싱 실패 시 원문 유지.
-  static String _hhmm(String iso) {
-    final t = DateTime.tryParse(iso);
-    if (t == null) return iso;
-    return '${t.hour.toString().padLeft(2, '0')}:'
-        '${t.minute.toString().padLeft(2, '0')}';
   }
 }
 

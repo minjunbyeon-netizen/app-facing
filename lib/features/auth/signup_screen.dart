@@ -87,8 +87,9 @@ class _SignupScreenState extends State<SignupScreen> {
     var done = profile.hasGrade;
     if (!done) {
       try {
-        final data =
-            await context.read<ApiClient>().get('/api/v1/member/me/profile');
+        final data = await context.read<ApiClient>().get(
+          '/api/v1/member/me/profile',
+        );
         done = ProfileState.onboardingDoneFrom(data);
       } catch (_) {}
     }
@@ -113,105 +114,117 @@ class _SignupScreenState extends State<SignupScreen> {
         // 작은 화면에서는 minHeight 가 콘텐츠보다 작아져 기존 스크롤 동작 유지.
         child: LayoutBuilder(
           builder: (context, constraints) => SingleChildScrollView(
-          padding: const EdgeInsets.all(HyphenTokens.sp5),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: (constraints.maxHeight - HyphenTokens.sp5 * 2)
-                  .clamp(0.0, double.infinity),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // v3.19 (2026-08-25 사용자 지시): 진입 화면에서도 BrandLogo 제거.
-                // 로고는 스플래시·전면 로딩에만 남는다 — 로그인 흐름의 화면은
-                // 전부 로고 없이 간다 (DESIGN-SSOT §6).
-                // 자리는 그대로 — HkEntryLogoGap 이 버튼 스택을 스플래시 로고와
-                // 같은 높이에 고정한다 (v3.3 "로고 위치 고정" 의도 유지).
-                const HkEntryLogoGap(),
+            padding: const EdgeInsets.all(HyphenTokens.sp5),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: (constraints.maxHeight - HyphenTokens.sp5 * 2).clamp(
+                  0.0,
+                  double.infinity,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // v3.19 (2026-08-25 사용자 지시): 진입 화면에서도 BrandLogo 제거.
+                  // 로고는 스플래시·전면 로딩에만 남는다 — 로그인 흐름의 화면은
+                  // 전부 로고 없이 간다 (DESIGN-SSOT §6).
+                  // 자리는 그대로 — HkEntryLogoGap 이 버튼 스택을 스플래시 로고와
+                  // 같은 높이에 고정한다 (v3.3 "로고 위치 고정" 의도 유지).
+                  const HkEntryLogoGap(),
 
-                // v1.33: 소셜 로그인 블록 — 실 OAuth 키 확보 전까지 숨김.
-                if (_kShowSocialLogin) ...[
-                  // 네이버 (실서비스 1순위 — 실 로그인 배선: RealSocialAuthService)
-                  HkSocialButton(
-                    label: '네이버 아이디로 로그인',
-                    background: _naverGreen,
-                    foreground: Colors.white,
-                    markText: 'N',
-                    onPressed:
-                        _busy ? null : () => _signIn(SocialProvider.naver),
+                  // v1.33: 소셜 로그인 블록 — 실 OAuth 키 확보 전까지 숨김.
+                  if (_kShowSocialLogin) ...[
+                    // 네이버 (실서비스 1순위 — 실 로그인 배선: RealSocialAuthService)
+                    HkSocialButton(
+                      label: '네이버 아이디로 로그인',
+                      background: _naverGreen,
+                      foreground: Colors.white,
+                      markText: 'N',
+                      onPressed: _busy
+                          ? null
+                          : () => _signIn(SocialProvider.naver),
+                    ),
+                    const SizedBox(height: HyphenTokens.sp3),
+
+                    // 구글
+                    HkSocialButton(
+                      label: '구글로 시작',
+                      background: _googleSurface,
+                      foreground: Colors.black,
+                      markText: 'G',
+                      markColor: _googleBlue,
+                      onPressed: _busy
+                          ? null
+                          : () => _signIn(SocialProvider.google),
+                    ),
+                    const SizedBox(height: HyphenTokens.sp5),
+                  ],
+
+                  // 주 CTA — 아이디를 받은 사람 전원(회원·코치)의 단일 진입로.
+                  // v3.19: '아이디로 로그인' → '로그인'. 역할을 고르는 자리가
+                  // 없어졌으니 수식어도 뺀다 (backend api/auth_login.py).
+                  HkButton.primary(
+                    '로그인',
+                    onPressed: _busy
+                        ? null
+                        : () {
+                            Haptic.light();
+                            Navigator.of(context).pushNamed('/login');
+                          },
                   ),
                   const SizedBox(height: HyphenTokens.sp3),
 
-                  // 구글
-                  HkSocialButton(
-                    label: '구글로 시작',
-                    background: _googleSurface,
-                    foreground: Colors.black,
-                    markText: 'G',
-                    markColor: _googleBlue,
-                    onPressed:
-                        _busy ? null : () => _signIn(SocialProvider.google),
+                  // v1.33 — 아직 아이디가 없는 신규 방문자. 박스 선택 → 실명·전화 →
+                  // 가입 신청(pending) → 사장 승인 → 회원 활성.
+                  // A-4 (2026-06-10): /signup/self 고아 라우트 해소 이력 유지.
+                  // v2.3: 그냥 '가입 신청' 이면 무엇에 신청하는지가 없어 뜻이
+                  // 통하지 않았다. 실제 동작(체육관을 골라 등록을 신청)을 라벨에 넣는다.
+                  HkButton.secondary(
+                    '회원 가입 신청',
+                    onPressed: _busy
+                        ? null
+                        : () {
+                            Haptic.light();
+                            Navigator.of(context).pushNamed('/signup/self');
+                          },
                   ),
-                  const SizedBox(height: HyphenTokens.sp5),
+
+                  // v2.7 (2026-08-13 사용자 지시) — '가입 코드 입력' 삭제.
+                  // 코드로 기기를 잇는 길과 신청서로 들어오는 길이 갈려 있어서,
+                  // 코드로 들어온 회원은 아이디·비밀번호를 만들 자리가 없었다.
+                  // 가입은 위 '회원 가입 신청' 하나로만 한다.
+                  const SizedBox(height: HyphenTokens.sp3),
+                  // P0-1 (2026-06-10): placeholder 다이얼로그 → 본문 화면으로 교체.
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      HkButton.tertiary(
+                        '이용약관',
+                        neutral: true,
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const TermsScreen(),
+                          ),
+                        ),
+                      ),
+                      const Text(
+                        ' · ',
+                        style: TextStyle(color: HyphenTokens.muted),
+                      ),
+                      HkButton.tertiary(
+                        '개인정보처리방침',
+                        neutral: true,
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const PrivacyScreen(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
-
-                // 주 CTA — 아이디를 받은 사람 전원(회원·코치)의 단일 진입로.
-                // v3.19: '아이디로 로그인' → '로그인'. 역할을 고르는 자리가
-                // 없어졌으니 수식어도 뺀다 (backend api/auth_login.py).
-                HkButton.primary(
-                  '로그인',
-                  onPressed: _busy
-                      ? null
-                      : () {
-                          Haptic.light();
-                          Navigator.of(context).pushNamed('/login');
-                        },
-                ),
-                const SizedBox(height: HyphenTokens.sp3),
-
-                // v1.33 — 아직 아이디가 없는 신규 방문자. 박스 선택 → 실명·전화 →
-                // 가입 신청(pending) → 사장 승인 → 회원 활성.
-                // A-4 (2026-06-10): /signup/self 고아 라우트 해소 이력 유지.
-                // v2.3: 그냥 '가입 신청' 이면 무엇에 신청하는지가 없어 뜻이
-                // 통하지 않았다. 실제 동작(체육관을 골라 등록을 신청)을 라벨에 넣는다.
-                HkButton.secondary(
-                  '회원 가입 신청',
-                  onPressed: _busy
-                      ? null
-                      : () {
-                          Haptic.light();
-                          Navigator.of(context).pushNamed('/signup/self');
-                        },
-                ),
-                // v2.7 (2026-08-13 사용자 지시) — '가입 코드 입력' 삭제.
-                // 코드로 기기를 잇는 길과 신청서로 들어오는 길이 갈려 있어서,
-                // 코드로 들어온 회원은 아이디·비밀번호를 만들 자리가 없었다.
-                // 가입은 위 '회원 가입 신청' 하나로만 한다.
-
-                const SizedBox(height: HyphenTokens.sp3),
-                // P0-1 (2026-06-10): placeholder 다이얼로그 → 본문 화면으로 교체.
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    HkButton.tertiary('이용약관',
-                        neutral: true,
-                        onPressed: () => Navigator.of(context).push(
-                              MaterialPageRoute(
-                                  builder: (_) => const TermsScreen()),
-                            )),
-                    const Text(' · ',
-                        style: TextStyle(color: HyphenTokens.muted)),
-                    HkButton.tertiary('개인정보처리방침',
-                        neutral: true,
-                        onPressed: () => Navigator.of(context).push(
-                              MaterialPageRoute(
-                                  builder: (_) => const PrivacyScreen()),
-                            )),
-                  ],
-                ),
-              ],
+              ),
             ),
-          ),
           ),
         ),
       ),

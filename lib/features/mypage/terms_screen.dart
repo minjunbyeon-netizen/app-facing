@@ -17,7 +17,7 @@ class TermsScreen extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.all(HyphenTokens.sp4),
           children: const [
-            Text('1. 서비스', style: HyphenTokens.sectionLabel),
+            HkSectionLabel('1. 서비스'),
             SizedBox(height: HyphenTokens.sp2),
             Text(
               // v3.2 (2026-08-20): QR 출석·페이싱 계산은 없는 기능 — 출석은
@@ -29,7 +29,7 @@ class TermsScreen extends StatelessWidget {
             ),
             SizedBox(height: HyphenTokens.sp4),
 
-            Text('2. 계정·가입·탈퇴', style: HyphenTokens.sectionLabel),
+            HkSectionLabel('2. 계정·가입·탈퇴'),
             SizedBox(height: HyphenTokens.sp2),
             _Bullet('가입은 소셜 로그인(네이버·구글) 또는 회원 가입 신청으로 합니다.'),
             _Bullet('회원 가입 신청의 승인·거절 권한은 해당 체육관 코치에게 있습니다.'),
@@ -37,7 +37,7 @@ class TermsScreen extends StatelessWidget {
             _Bullet('타인 명의 도용, 허위 정보 가입 시 이용이 제한될 수 있습니다.'),
             SizedBox(height: HyphenTokens.sp4),
 
-            Text('3. 체육관·회원·HYPHEN 의 관계', style: HyphenTokens.sectionLabel),
+            HkSectionLabel('3. 체육관·회원·HYPHEN 의 관계'),
             SizedBox(height: HyphenTokens.sp2),
             Text(
               'HYPHEN 은 체육관과 회원을 연결하는 도구를 제공하는 플랫폼이며, '
@@ -48,28 +48,30 @@ class TermsScreen extends StatelessWidget {
             ),
             SizedBox(height: HyphenTokens.sp4),
 
-            Text('4. 전자계약', style: HyphenTokens.sectionLabel),
+            HkSectionLabel('4. 전자계약'),
             SizedBox(height: HyphenTokens.sp2),
             _Bullet('앱 내 서명은 전자서명법 제3조에 따라 서면 서명과 같은 효력을 가집니다.'),
             _Bullet('서명 완료된 계약서는 위·변조 방지를 위해 수정이 잠깁니다.'),
             _Bullet('서명 전 계약 내용(기간·금액·환불 조건)을 반드시 확인하십시오.'),
             SizedBox(height: HyphenTokens.sp4),
 
-            Text('5. 포인트·기록', style: HyphenTokens.sectionLabel),
+            HkSectionLabel('5. 포인트·기록'),
             SizedBox(height: HyphenTokens.sp2),
             _Bullet('포인트 적립·사용 기준은 각 체육관이 정하며 체육관별로 다를 수 있습니다.'),
-            _Bullet('레벨·업적·수업 기록 통계는 입력 기록 기반 표시로, '
-                '트레이닝 처방·의료 판단의 근거가 아닙니다.'),
+            _Bullet(
+              '레벨·업적·수업 기록 통계는 입력 기록 기반 표시로, '
+              '트레이닝 처방·의료 판단의 근거가 아닙니다.',
+            ),
             SizedBox(height: HyphenTokens.sp4),
 
-            Text('6. 금지행위', style: HyphenTokens.sectionLabel),
+            HkSectionLabel('6. 금지행위'),
             SizedBox(height: HyphenTokens.sp2),
             _Bullet('타인 계정 도용 (대리 출석 포함)'),
             _Bullet('서비스의 비정상적 이용 (자동화 도구, 취약점 악용)'),
             _Bullet('다른 회원·코치에 대한 욕설·괴롭힘 (쪽지·댓글 포함)'),
             SizedBox(height: HyphenTokens.sp4),
 
-            Text('7. 책임의 한계', style: HyphenTokens.sectionLabel),
+            HkSectionLabel('7. 책임의 한계'),
             SizedBox(height: HyphenTokens.sp2),
             Text(
               '트레이닝 중 발생한 부상, 체육관과 회원 간 분쟁, 체육관의 폐업·운영 중단에 대해 '
@@ -80,7 +82,7 @@ class TermsScreen extends StatelessWidget {
             ),
             SizedBox(height: HyphenTokens.sp4),
 
-            Text('8. 분쟁·관할', style: HyphenTokens.sectionLabel),
+            HkSectionLabel('8. 분쟁·관할'),
             SizedBox(height: HyphenTokens.sp2),
             Text(
               '본 약관은 대한민국 법률을 따릅니다. 분쟁은 우선 고객센터(카카오톡 상담)를 '
@@ -89,10 +91,12 @@ class TermsScreen extends StatelessWidget {
             ),
             SizedBox(height: HyphenTokens.sp5),
 
-            Text('최종 갱신', style: HyphenTokens.sectionLabel),
+            HkSectionLabel('최종 갱신'),
             SizedBox(height: HyphenTokens.sp2),
-            Text('2026-08-20 · 제공 기능 현행화. 베타 운영 기준, 개정 시 앱 내 공지.',
-                style: HyphenTokens.caption),
+            Text(
+              '2026-08-20 · 제공 기능 현행화. 베타 운영 기준, 개정 시 앱 내 공지.',
+              style: HyphenTokens.caption,
+            ),
           ],
         ),
       ),

@@ -39,21 +39,36 @@ class _BossDashboardScreenState extends State<BossDashboardScreen> {
   }
 
   Future<void> _load() async {
-    setState(() { _loading = true; _error = null; });
-    final api  = context.read<BossApiClient>();
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    final api = context.read<BossApiClient>();
     final auth = context.read<BossAuthState>();
     final gymId = auth.gymId;
     if (gymId == null) {
-      setState(() { _loading = false; _error = '체육관 정보 없음.'; });
+      setState(() {
+        _loading = false;
+        _error = '체육관 정보 없음.';
+      });
       return;
     }
     try {
       final j = await api.get('/api/v1/admin/gyms/$gymId/dashboard');
-      setState(() { _data = DashboardData.fromJson(j); _loading = false; });
+      setState(() {
+        _data = DashboardData.fromJson(j);
+        _loading = false;
+      });
     } on AppException catch (e) {
-      setState(() { _loading = false; _error = e.messageKo; });
+      setState(() {
+        _loading = false;
+        _error = e.messageKo;
+      });
     } catch (e) {
-      setState(() { _loading = false; _error = '데이터 로드 실패.'; });
+      setState(() {
+        _loading = false;
+        _error = '데이터 로드 실패.';
+      });
     }
   }
 
@@ -62,7 +77,7 @@ class _BossDashboardScreenState extends State<BossDashboardScreen> {
 
   Future<void> _logout() async {
     Haptic.medium();
-    final api  = context.read<BossApiClient>();
+    final api = context.read<BossApiClient>();
     final auth = context.read<BossAuthState>();
     try {
       await api.post('/api/v1/admin/logout', {});
@@ -79,16 +94,14 @@ class _BossDashboardScreenState extends State<BossDashboardScreen> {
       backgroundColor: HyphenTokens.bg,
       appBar: widget.embedded ? null : _buildAppBar(context, auth),
       body: _loading
-          ? const Center(
-              child: CircularProgressIndicator(
-                  strokeWidth: 2, color: HyphenTokens.primary))
+          ? const HkLoading()
           : _error != null
-              ? HkErrorState(message: _error!, onRetry: _load)
-              : RefreshIndicator(
-                  onRefresh: _load,
-                  color: HyphenTokens.primary,
-                  child: _Body(data: _data!, onRefresh: _load),
-                ),
+          ? HkErrorState(message: _error!, onRetry: _load)
+          : RefreshIndicator(
+              onRefresh: _load,
+              color: HyphenTokens.primary,
+              child: _Body(data: _data!, onRefresh: _load),
+            ),
       // v3.1 (2026-08-14 사용자 설계): 가짜 하단탭(_BottomNav — onTap 전부 빈
       // 함수) 삭제. 실제 탭은 CoachShell(v3.3 — 예약 현황·수업 2탭)이
       // 담당하고 이 화면은 예약 현황 탭으로 임베드된다.
@@ -125,7 +138,9 @@ class _Body extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.symmetric(
-          horizontal: HyphenTokens.sp4, vertical: HyphenTokens.sp4),
+        horizontal: HyphenTokens.sp4,
+        vertical: HyphenTokens.sp4,
+      ),
       children: [
         // 날짜 헤더
         Text(
@@ -135,18 +150,30 @@ class _Body extends StatelessWidget {
         const SizedBox(height: HyphenTokens.sp3),
 
         // ─── 오늘 현황 3 카운터 ───────────────────────────────────────
-        Text('오늘', style: HyphenTokens.sectionLabel),
+        HkSectionLabel('오늘'),
         const SizedBox(height: HyphenTokens.sp2),
         Row(
           children: [
-            _CounterCard(label: '예약',
-                count: data.todayReservations.count),
+            Expanded(
+              child: HkStatTile(
+                label: '예약',
+                value: '${data.todayReservations.count}',
+              ),
+            ),
             const SizedBox(width: HyphenTokens.sp2),
-            _CounterCard(label: '출석',
-                count: data.todayAttendances.count),
+            Expanded(
+              child: HkStatTile(
+                label: '출석',
+                value: '${data.todayAttendances.count}',
+              ),
+            ),
             const SizedBox(width: HyphenTokens.sp2),
-            _CounterCard(label: '주간 신규',
-                count: data.newMembersThisWeek.count),
+            Expanded(
+              child: HkStatTile(
+                label: '주간 신규',
+                value: '${data.newMembersThisWeek.count}',
+              ),
+            ),
           ],
         ),
         const SizedBox(height: HyphenTokens.sp5),
@@ -160,9 +187,7 @@ class _Body extends StatelessWidget {
           onPressed: () {
             Haptic.light();
             Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => const MemberApprovalsScreen(),
-              ),
+              MaterialPageRoute(builder: (_) => const MemberApprovalsScreen()),
             );
           },
         ),
@@ -171,7 +196,7 @@ class _Body extends StatelessWidget {
         // ─── 오늘의 수업 ──────────────────────────────────────────────
         // v2.2: 'TODAY'S CLASSES.' → 한글 (v1.29 한글 기본, 도메인 고정어 아님).
         // v3.21: '수업 등록' 버튼 삭제 — 수업 만들기는 PC 몫.
-        Text('오늘 수업', style: HyphenTokens.sectionLabel),
+        HkSectionLabel('오늘 수업'),
         const SizedBox(height: HyphenTokens.sp2),
         if (data.todayClasses.isEmpty)
           const HkEmptyState(title: '오늘 수업 없음')
@@ -179,17 +204,19 @@ class _Body extends StatelessWidget {
           // v3.25: 회원 주간보드와 같은 ClassLine — 한 수업을 두 모양으로 그리지 않는다.
           // onChanged: 명단에서 출석을 찍으면 위쪽 '오늘 출석' 숫자가 달라진다 (D31).
           // D29: 탭 → 예약자 명단 시트 (예약 "수"만 보이고 "누가" 를 볼 곳이 없었다).
-          ...data.todayClasses.map((c) => ClassLine.coach(
-                timeLabel: '${hhmmIso(c.startAt)} – ${hhmmIso(c.endAt)}',
-                title: c.title,
-                subtitle: c.coaches.join(', '),
-                reserved: c.reserved,
-                capacity: c.capacity,
-                onTap: () {
-                  Haptic.light();
-                  showClassRosterSheet(context, c.id, onChanged: onRefresh);
-                },
-              )),
+          ...data.todayClasses.map(
+            (c) => ClassLine.coach(
+              timeLabel: '${hhmmIso(c.startAt)} – ${hhmmIso(c.endAt)}',
+              title: c.title,
+              subtitle: c.coaches.join(', '),
+              reserved: c.reserved,
+              capacity: c.capacity,
+              onTap: () {
+                Haptic.light();
+                showClassRosterSheet(context, c.id, onChanged: onRefresh);
+              },
+            ),
+          ),
         const SizedBox(height: HyphenTokens.sp5),
 
         // v3.21: '만료 임박' 섹션 삭제 — 회원권은 PC 에서 본다
@@ -201,42 +228,7 @@ class _Body extends StatelessWidget {
 
 // ─── 서브 위젯 ──────────────────────────────────────────────────────────────
 
-class _CounterCard extends StatelessWidget {
-  final String label;
-  final int count;
-  const _CounterCard({required this.label, required this.count});
-
-  @override
-  // v2.2: ① 모서리 r3 — 이 화면 카드만 각져 있어 앱 안에서 혼자 다른 물건처럼
-  // 보였다. ② 라벨을 숫자 위로 — 명단 시트·HkStatTile 은 '라벨 위/값 아래'인데
-  // 여기만 뒤집혀 있어 같은 통계 타일이 두 형태였다 (H6).
-  @override
-  Widget build(BuildContext context) => Expanded(
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-              vertical: HyphenTokens.sp3, horizontal: HyphenTokens.sp2),
-          decoration: BoxDecoration(
-            color: HyphenTokens.surface,
-            border: Border.all(color: HyphenTokens.border),
-            borderRadius: BorderRadius.circular(HyphenTokens.r3),
-          ),
-          child: Column(
-            children: [
-              Text(
-                label.toUpperCase(),
-                style: HyphenTokens.sectionLabel,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: HyphenTokens.sp1),
-              Text(
-                count.toString(),
-                style: HyphenTokens.h1.copyWith(color: HyphenTokens.fg),
-              ),
-            ],
-          ),
-        ),
-      );
-}
+// (구 _CounterCard 는 v3.26 에서 HkStatTile 로 — 명단 시트·홈과 같은 타일.)
 
 // v2.2: 자체 GestureDetector + 각진 색면을 HkButton.primary 로 교체 (H7).
 // 앱의 다른 모든 주 버튼은 r4 둥근 52 인데 이 하나만 각진 면이라 화면에서
@@ -246,4 +238,3 @@ class _CounterCard extends StatelessWidget {
 
 // (구 _ClassCard·_hhmm·_EmptyCard·_ErrorView 는 v3.25 에서 정본으로 —
 //  ClassLine.coach · core/time_format.hhmmIso · HkEmptyState · HkErrorState.)
-

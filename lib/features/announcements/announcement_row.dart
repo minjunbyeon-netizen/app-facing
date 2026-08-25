@@ -25,14 +25,19 @@ class AnnouncementRow extends StatelessWidget {
           Row(
             children: [
               if (item.pinned) ...[
-                const Icon(Icons.push_pin_outlined,
-                    size: 14, color: HyphenTokens.muted),
+                const Icon(
+                  Icons.push_pin_outlined,
+                  size: 14,
+                  color: HyphenTokens.muted,
+                ),
                 const SizedBox(width: 4),
               ],
               Expanded(
                 child: Text(
                   item.title.isNotEmpty ? item.title : '공지',
-                  style: HyphenTokens.body.copyWith(fontWeight: FontWeight.w700),
+                  style: HyphenTokens.body.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),

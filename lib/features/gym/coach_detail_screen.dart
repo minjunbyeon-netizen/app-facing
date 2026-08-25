@@ -22,8 +22,7 @@ class CoachDetailScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         children: [
           _PhotoHeader(coach: coach),
-          if (coach.career != null)
-            _Card(title: '경력', body: coach.career!),
+          if (coach.career != null) _Card(title: '경력', body: coach.career!),
           if (coach.certifications != null)
             _Card(title: '자격증', body: coach.certifications!),
           if (coach.specialty != null)
@@ -37,8 +36,7 @@ class CoachDetailScreen extends StatelessWidget {
           // 커밋에서 이 한 줄을 되살린다 (_PtBookCard 는 보존).
           if (coach.offDays.isNotEmpty)
             _Card(title: '휴무', body: coach.offDays.join(' · ')),
-          if (coach.snsUrl != null)
-            _LinkCard(title: 'SNS', url: coach.snsUrl!),
+          if (coach.snsUrl != null) _LinkCard(title: 'SNS', url: coach.snsUrl!),
         ],
       ),
     );
@@ -74,13 +72,14 @@ class _PhotoHeader extends StatelessWidget {
                 : null,
           ),
           const SizedBox(height: 12),
-          Text(coach.name,
-              style: HyphenTokens.h2.copyWith(color: HyphenTokens.fg)),
+          Text(
+            coach.name,
+            style: HyphenTokens.h2.copyWith(color: HyphenTokens.fg),
+          ),
           if (coach.specialty != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(coach.specialty!,
-                  style: HyphenTokens.caption),
+              child: Text(coach.specialty!, style: HyphenTokens.caption),
             ),
         ],
       ),
@@ -106,10 +105,9 @@ class _Card extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: HyphenTokens.sectionLabel),
+          HkSectionLabel(title),
           const SizedBox(height: 8),
-          Text(body,
-              style: HyphenTokens.body.copyWith(color: HyphenTokens.fg)),
+          Text(body, style: HyphenTokens.body.copyWith(color: HyphenTokens.fg)),
         ],
       ),
     );
@@ -137,11 +135,12 @@ class _LinkCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: HyphenTokens.sectionLabel),
+                HkSectionLabel(title),
                 const SizedBox(height: 8),
-                Text(url,
-                    style: HyphenTokens.body
-                        .copyWith(color: HyphenTokens.fg)),
+                Text(
+                  url,
+                  style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
+                ),
               ],
             ),
           ),
@@ -170,12 +169,15 @@ class _PtBookCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('PT (1:1)', style: HyphenTokens.sectionLabel),
+          HkSectionLabel('PT (1:1)'),
           const SizedBox(height: 12),
-          HkButton.primary('PT 예약', onPressed: () {
-            // TODO(v1.16.2): PT 예약 흐름 연결 (별도 작업)
-            HkSnack.show(context, 'PT 예약 — 준비 중.', mood: MascotMood.neutral);
-          }),
+          HkButton.primary(
+            'PT 예약',
+            onPressed: () {
+              // TODO(v1.16.2): PT 예약 흐름 연결 (별도 작업)
+              HkSnack.show(context, 'PT 예약 — 준비 중.', mood: MascotMood.neutral);
+            },
+          ),
         ],
       ),
     );

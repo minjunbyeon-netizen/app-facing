@@ -48,9 +48,9 @@ class CoachDossierTile extends StatelessWidget {
     return InkWell(
       onTap: () async {
         Haptic.light();
-        await Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) => NoteDetailScreen(noteId: note.id),
-        ));
+        await Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => NoteDetailScreen(noteId: note.id)),
+        );
         if (context.mounted) {
           await context.read<InboxState>().refresh();
         }
@@ -72,7 +72,11 @@ class CoachDossierTile extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(HyphenTokens.sp3),
                   child: _buildBody(
-                      stripeColor, dueLabel, senderLabel, isUnread),
+                    stripeColor,
+                    dueLabel,
+                    senderLabel,
+                    isUnread,
+                  ),
                 ),
               ),
             ],
@@ -106,13 +110,9 @@ class CoachDossierTile extends StatelessWidget {
                   Text(
                     note.isAuto
                         ? 'AUTO'
-                        : (note.kind == 'assignment'
-                            ? 'ASSIGNMENT'
-                            : 'NOTE'),
+                        : (note.kind == 'assignment' ? 'ASSIGNMENT' : 'NOTE'),
                     style: HyphenTokens.microLabel.copyWith(
-                      color: note.isAuto
-                          ? HyphenTokens.success
-                          : stripeColor,
+                      color: note.isAuto ? HyphenTokens.success : stripeColor,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -125,10 +125,7 @@ class CoachDossierTile extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  Text(
-                    _agoLabel(note.createdAt),
-                    style: HyphenTokens.micro,
-                  ),
+                  Text(_agoLabel(note.createdAt), style: HyphenTokens.micro),
                 ],
               ),
               if (note.title.isNotEmpty) ...[
@@ -136,8 +133,7 @@ class CoachDossierTile extends StatelessWidget {
                 Text(
                   note.title,
                   style: HyphenTokens.body.copyWith(
-                    fontWeight:
-                        isUnread ? FontWeight.w800 : FontWeight.w700,
+                    fontWeight: isUnread ? FontWeight.w800 : FontWeight.w700,
                     color: HyphenTokens.fg,
                   ),
                   maxLines: 1,
@@ -149,9 +145,7 @@ class CoachDossierTile extends StatelessWidget {
                 Text(
                   note.body,
                   style: HyphenTokens.caption.copyWith(
-                    color: isUnread
-                        ? HyphenTokens.fg
-                        : HyphenTokens.muted,
+                    color: isUnread ? HyphenTokens.fg : HyphenTokens.muted,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -168,11 +162,8 @@ class CoachDossierTile extends StatelessWidget {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          border: Border.all(
-                            color: dueLabel.color,
-                          ),
-                          borderRadius:
-                              BorderRadius.circular(HyphenTokens.r1),
+                          border: Border.all(color: dueLabel.color),
+                          borderRadius: BorderRadius.circular(HyphenTokens.r1),
                         ),
                         child: Text(
                           dueLabel.text,
@@ -268,19 +259,17 @@ class _ChatBubble extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: HyphenTokens.sp3),
       child: Column(
-        crossAxisAlignment:
-            mine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        crossAxisAlignment: mine
+            ? CrossAxisAlignment.end
+            : CrossAxisAlignment.start,
         children: [
           if (!mine)
             Padding(
               padding: const EdgeInsets.only(bottom: 3, left: 4),
               child: Text(
-                msg.isAuto
-                    ? 'AUTO'
-                    : (msg.senderName ?? 'COACH').toUpperCase(),
+                msg.isAuto ? 'AUTO' : (msg.senderName ?? 'COACH').toUpperCase(),
                 style: HyphenTokens.microLabel.copyWith(
-                  color:
-                      msg.isAuto ? HyphenTokens.success : HyphenTokens.muted,
+                  color: msg.isAuto ? HyphenTokens.success : HyphenTokens.muted,
                 ),
               ),
             ),
@@ -299,12 +288,13 @@ class _ChatBubble extends StatelessWidget {
                   topLeft: const Radius.circular(HyphenTokens.r3),
                   topRight: const Radius.circular(HyphenTokens.r3),
                   bottomLeft: Radius.circular(
-                      mine ? HyphenTokens.r3 : HyphenTokens.r1),
+                    mine ? HyphenTokens.r3 : HyphenTokens.r1,
+                  ),
                   bottomRight: Radius.circular(
-                      mine ? HyphenTokens.r1 : HyphenTokens.r3),
+                    mine ? HyphenTokens.r1 : HyphenTokens.r3,
+                  ),
                 ),
-                border:
-                    mine ? null : Border.all(color: HyphenTokens.border),
+                border: mine ? null : Border.all(color: HyphenTokens.border),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -361,14 +351,17 @@ class _PinnedAnnouncement extends StatelessWidget {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.fromLTRB(
-          HyphenTokens.sp4, HyphenTokens.sp3, HyphenTokens.sp4, 0),
+        HyphenTokens.sp4,
+        HyphenTokens.sp3,
+        HyphenTokens.sp4,
+        0,
+      ),
       padding: const EdgeInsets.all(HyphenTokens.sp3),
       decoration: BoxDecoration(
         color: HyphenTokens.surface,
         borderRadius: BorderRadius.circular(HyphenTokens.r2),
         border: Border.all(
-          color:
-              latest.isUrgent ? HyphenTokens.accent : HyphenTokens.border,
+          color: latest.isUrgent ? HyphenTokens.accent : HyphenTokens.border,
         ),
       ),
       child: Column(
@@ -460,18 +453,12 @@ class _ChatInputBar extends StatelessWidget {
             HyphenTokens.sp2 + 2,
           ),
           suffixIcon: sending
-              ? const Padding(
-                  padding: EdgeInsets.all(12),
-                  child: SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(
-                        color: HyphenTokens.accent, strokeWidth: 2),
-                  ),
-                )
+              ? const HkLoading()
               : IconButton(
-                  icon: const Icon(Icons.arrow_upward,
-                      color: HyphenTokens.accent),
+                  icon: const Icon(
+                    Icons.arrow_upward,
+                    color: HyphenTokens.accent,
+                  ),
                   onPressed: onSend,
                 ),
         ),
@@ -549,10 +536,14 @@ class MessagingFeed extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(
-              HyphenTokens.sp4, 0, HyphenTokens.sp4, HyphenTokens.sp2),
+            HyphenTokens.sp4,
+            0,
+            HyphenTokens.sp4,
+            HyphenTokens.sp2,
+          ),
           child: Row(
             children: [
-              const Text('메시지', style: HyphenTokens.sectionLabel),
+              const HkSectionLabel('메시지'),
               const Spacer(),
               if (gymId != null) ..._actions(context, gs, isCoach, gymId),
             ],
@@ -560,10 +551,13 @@ class MessagingFeed extends StatelessWidget {
         ),
         if (gymId == null)
           const Padding(
-            padding: EdgeInsets.fromLTRB(HyphenTokens.sp4, HyphenTokens.sp2,
-                HyphenTokens.sp4, HyphenTokens.sp4),
-            child: Text('가입 승인 후 코치 쪽지·공지 사용 가능.',
-                style: HyphenTokens.caption),
+            padding: EdgeInsets.fromLTRB(
+              HyphenTokens.sp4,
+              HyphenTokens.sp2,
+              HyphenTokens.sp4,
+              HyphenTokens.sp4,
+            ),
+            child: Text('가입 승인 후 코치 쪽지·공지 사용 가능.', style: HyphenTokens.caption),
           )
         else ...[
           Consumer<AnnouncementsState>(
@@ -573,8 +567,7 @@ class MessagingFeed extends StatelessWidget {
           ),
           _EmbeddedThreadList(
             gymId: gymId,
-            emptyHint:
-                isCoach ? '회원 쪽지 도착 시 표시.' : '코치 쪽지 도착 시 표시.',
+            emptyHint: isCoach ? '회원 쪽지 도착 시 표시.' : '코치 쪽지 도착 시 표시.',
           ),
         ],
       ],
@@ -582,7 +575,11 @@ class MessagingFeed extends StatelessWidget {
   }
 
   List<Widget> _actions(
-      BuildContext context, GymState gs, bool isCoach, int gymId) {
+    BuildContext context,
+    GymState gs,
+    bool isCoach,
+    int gymId,
+  ) {
     if (isCoach) {
       return [
         _FeedAction(
@@ -590,9 +587,9 @@ class MessagingFeed extends StatelessWidget {
           label: '그룹',
           onTap: () {
             Haptic.light();
-            Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => const GroupManagementScreen(),
-            ));
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const GroupManagementScreen()),
+            );
           },
         ),
         const SizedBox(width: HyphenTokens.sp2),
@@ -623,15 +620,17 @@ class MessagingFeed extends StatelessWidget {
           final coachName = gs.coaches.isNotEmpty
               ? gs.coaches.first.name
               : ((gymv.profile?.coachName ?? '').trim().isNotEmpty
-                  ? gymv.profile!.coachName!.trim()
-                  : '코치');
-          Navigator.of(context).push(MaterialPageRoute(
-            builder: (_) => ChatThreadScreen(
-              gymId: gymv.id,
-              peerHash: gymv.ownerHash!,
-              peerName: coachName,
+                    ? gymv.profile!.coachName!.trim()
+                    : '코치');
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => ChatThreadScreen(
+                gymId: gymv.id,
+                peerHash: gymv.ownerHash!,
+                peerName: coachName,
+              ),
             ),
-          ));
+          );
         },
       ),
     ];
@@ -642,8 +641,11 @@ class _FeedAction extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
-  const _FeedAction(
-      {required this.icon, required this.label, required this.onTap});
+  const _FeedAction({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -652,15 +654,18 @@ class _FeedAction extends StatelessWidget {
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(
-            horizontal: HyphenTokens.sp2, vertical: HyphenTokens.sp1),
+          horizontal: HyphenTokens.sp2,
+          vertical: HyphenTokens.sp1,
+        ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, size: 16, color: HyphenTokens.accent),
             const SizedBox(width: 4),
-            Text(label,
-                style:
-                    HyphenTokens.micro.copyWith(color: HyphenTokens.accent)),
+            Text(
+              label,
+              style: HyphenTokens.micro.copyWith(color: HyphenTokens.accent),
+            ),
           ],
         ),
       ),
@@ -713,21 +718,18 @@ class _EmbeddedThreadListState extends State<_EmbeddedThreadList> {
         if (snap.connectionState != ConnectionState.done) {
           return const Padding(
             padding: EdgeInsets.all(HyphenTokens.sp5),
-            child: Center(
-              child: SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                    color: HyphenTokens.muted, strokeWidth: 2),
-              ),
-            ),
+            child: HkLoading(),
           );
         }
         final threads = snap.data ?? const <CoachThread>[];
         if (threads.isEmpty) {
           return Padding(
-            padding: const EdgeInsets.fromLTRB(HyphenTokens.sp4,
-                HyphenTokens.sp2, HyphenTokens.sp4, HyphenTokens.sp4),
+            padding: const EdgeInsets.fromLTRB(
+              HyphenTokens.sp4,
+              HyphenTokens.sp2,
+              HyphenTokens.sp4,
+              HyphenTokens.sp4,
+            ),
             child: Text(widget.emptyHint, style: HyphenTokens.caption),
           );
         }
@@ -771,20 +773,24 @@ class _ThreadRow extends StatelessWidget {
     final name = raw.isNotEmpty
         ? raw
         : (thread.peerHash.isNotEmpty
-            ? thread.peerHash.substring(
-                0, thread.peerHash.length < 6 ? thread.peerHash.length : 6)
-            : 'MEMBER');
+              ? thread.peerHash.substring(
+                  0,
+                  thread.peerHash.length < 6 ? thread.peerHash.length : 6,
+                )
+              : 'MEMBER');
     final unread = thread.unread > 0;
     return InkWell(
       onTap: () async {
         Haptic.light();
-        await Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) => ChatThreadScreen(
-            gymId: gymId,
-            peerHash: thread.peerHash,
-            peerName: name,
+        await Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => ChatThreadScreen(
+              gymId: gymId,
+              peerHash: thread.peerHash,
+              peerName: name,
+            ),
           ),
-        ));
+        );
         onReturn();
       },
       child: Padding(
@@ -817,8 +823,10 @@ class _ThreadRow extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      Text(_shortTime(thread.lastAt),
-                          style: HyphenTokens.micro),
+                      Text(
+                        _shortTime(thread.lastAt),
+                        style: HyphenTokens.micro,
+                      ),
                     ],
                   ),
                   const SizedBox(height: 2),
@@ -957,10 +965,7 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
                 future: _future,
                 builder: (ctx, snap) {
                   if (snap.connectionState != ConnectionState.done) {
-                    return const Center(
-                      child: CircularProgressIndicator(
-                          color: HyphenTokens.muted, strokeWidth: 2),
-                    );
+                    return const HkLoading();
                   }
                   final msgs = snap.data ?? const <ChatMessage>[];
                   if (msgs.isEmpty) {
@@ -969,8 +974,7 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
                       children: const [
                         SizedBox(height: 100),
                         Center(
-                          child: Text('첫 쪽지 작성.',
-                              style: HyphenTokens.caption),
+                          child: Text('첫 쪽지 작성.', style: HyphenTokens.caption),
                         ),
                       ],
                     );

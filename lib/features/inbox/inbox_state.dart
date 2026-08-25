@@ -23,6 +23,7 @@ class InboxState extends ChangeNotifier {
   bool get isLoading => _loading;
   String? get error => _error;
   int get unreadCount => _inbox.unreadCount;
+
   /// v1.21: GymState 변경 시 bind 재시도용 — 외부에서 현재 바인딩 ID 확인.
   int? get boundGymId => _gymId;
 
@@ -105,17 +106,23 @@ class InboxState extends ChangeNotifier {
       _runAction('수락', () => repo.accept(noteId), noteId, 'accepted');
 
   Future<bool> complete(int noteId, {List<ActualSet> actual = const []}) =>
-      _runAction('완료 기록',
-          () => repo.complete(noteId, actual: actual), noteId, 'completed');
+      _runAction(
+        '완료 기록',
+        () => repo.complete(noteId, actual: actual),
+        noteId,
+        'completed',
+      );
 
-  Future<bool> decline(int noteId, {String? reason}) =>
-      _runAction('거절',
-          () => repo.decline(noteId, reason: reason), noteId, 'declined');
+  Future<bool> decline(int noteId, {String? reason}) => _runAction(
+    '거절',
+    () => repo.decline(noteId, reason: reason),
+    noteId,
+    'declined',
+  );
 
   /// v1.19 페르소나 P1-15 (M2 신입 정): Ask Coach.
   Future<bool> askCoach(int noteId, String body) =>
-      _runAction('질문 전송',
-          () => repo.askCoach(noteId, body), noteId, 'asked');
+      _runAction('질문 전송', () => repo.askCoach(noteId, body), noteId, 'asked');
 
   /// 낙관적 갱신: 서버 200 후 _inbox 내 해당 note의 my.status 교체.
   void _localStatusUpdate(int noteId, String newStatus) {
@@ -123,40 +130,42 @@ class InboxState extends ChangeNotifier {
     var unread = 0;
     for (final n in _inbox.items) {
       if (n.id == noteId && n.my != null) {
-        updated.add(CoachNote(
-          id: n.id,
-          gymId: n.gymId,
-          senderHash: n.senderHash,
-          senderShort: n.senderShort,
-          senderName: n.senderName,
-          senderColor: n.senderColor,
-          targetType: n.targetType,
-          targetId: n.targetId,
-          kind: n.kind,
-          title: n.title,
-          body: n.body,
-          rationale: n.rationale,
-          structured: n.structured,
-          dueDate: n.dueDate,
-          dueStart: n.dueStart,
-          dueEnd: n.dueEnd,
-          voiceMemoPath: n.voiceMemoPath,
-          autoKind: n.autoKind,
-          createdAt: n.createdAt,
-          my: RecipientStatus(
-            status: newStatus,
-            readAt: n.my!.readAt ?? appClock.now(),
-            acceptedAt: newStatus == 'accepted'
-                ? appClock.now()
-                : n.my!.acceptedAt,
-            completedAt: newStatus == 'completed'
-                ? appClock.now()
-                : n.my!.completedAt,
-            declineReason: n.my!.declineReason,
-            actual: n.my!.actual,
+        updated.add(
+          CoachNote(
+            id: n.id,
+            gymId: n.gymId,
+            senderHash: n.senderHash,
+            senderShort: n.senderShort,
+            senderName: n.senderName,
+            senderColor: n.senderColor,
+            targetType: n.targetType,
+            targetId: n.targetId,
+            kind: n.kind,
+            title: n.title,
+            body: n.body,
+            rationale: n.rationale,
+            structured: n.structured,
+            dueDate: n.dueDate,
+            dueStart: n.dueStart,
+            dueEnd: n.dueEnd,
+            voiceMemoPath: n.voiceMemoPath,
+            autoKind: n.autoKind,
+            createdAt: n.createdAt,
+            my: RecipientStatus(
+              status: newStatus,
+              readAt: n.my!.readAt ?? appClock.now(),
+              acceptedAt: newStatus == 'accepted'
+                  ? appClock.now()
+                  : n.my!.acceptedAt,
+              completedAt: newStatus == 'completed'
+                  ? appClock.now()
+                  : n.my!.completedAt,
+              declineReason: n.my!.declineReason,
+              actual: n.my!.actual,
+            ),
+            recipients: n.recipients,
           ),
-          recipients: n.recipients,
-        ));
+        );
       } else {
         updated.add(n);
       }

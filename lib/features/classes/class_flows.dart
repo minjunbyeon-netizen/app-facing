@@ -26,8 +26,9 @@ Future<bool> reserveClassFlow(
     final result = await repo.reserve(c.id);
     final status = (result['status'] ?? '').toString();
     messenger.info(
-        status == 'waitlisted' ? '대기열 ${result['position']}번 등록.' : '예약 완료.',
-        mood: MascotMood.happy);
+      status == 'waitlisted' ? '대기열 ${result['position']}번 등록.' : '예약 완료.',
+      mood: MascotMood.happy,
+    );
     return true;
   } on AppException catch (e) {
     messenger.fail(e.messageKo);

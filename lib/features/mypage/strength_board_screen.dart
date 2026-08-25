@@ -99,8 +99,9 @@ class _BoardRow extends StatelessWidget {
               children: [
                 Text(
                   entry.movement,
-                  style:
-                      HyphenTokens.body.copyWith(fontWeight: FontWeight.w600),
+                  style: HyphenTokens.body.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 2),
                 Text(sub, style: HyphenTokens.caption),
