@@ -11,6 +11,8 @@ import 'boss_api_client.dart';
 import 'boss_auth_state.dart';
 import 'boss_dashboard_model.dart';
 import 'class_roster_sheet.dart';
+import '../classes/class_line.dart';
+import '../../core/time_format.dart';
 
 // PHASE5 §1.2 — 사장 폰 Dashboard.
 // GET /api/v1/admin/gyms/{gym_id}/dashboard → 오늘 운영 데이터.
@@ -81,7 +83,7 @@ class _BossDashboardScreenState extends State<BossDashboardScreen> {
               child: CircularProgressIndicator(
                   strokeWidth: 2, color: HyphenTokens.primary))
           : _error != null
-              ? _ErrorView(message: _error!, onRetry: _load)
+              ? HkErrorState(message: _error!, onRetry: _load)
               : RefreshIndicator(
                   onRefresh: _load,
                   color: HyphenTokens.primary,
@@ -172,11 +174,22 @@ class _Body extends StatelessWidget {
         Text('오늘 수업', style: HyphenTokens.sectionLabel),
         const SizedBox(height: HyphenTokens.sp2),
         if (data.todayClasses.isEmpty)
-          _EmptyCard(message: '오늘 수업 없음.')
+          const HkEmptyState(title: '오늘 수업 없음')
         else
+          // v3.25: 회원 주간보드와 같은 ClassLine — 한 수업을 두 모양으로 그리지 않는다.
           // onChanged: 명단에서 출석을 찍으면 위쪽 '오늘 출석' 숫자가 달라진다 (D31).
-          ...data.todayClasses.map(
-              (c) => _ClassCard(cls: c, onChanged: onRefresh)),
+          // D29: 탭 → 예약자 명단 시트 (예약 "수"만 보이고 "누가" 를 볼 곳이 없었다).
+          ...data.todayClasses.map((c) => ClassLine.coach(
+                timeLabel: '${hhmmIso(c.startAt)} – ${hhmmIso(c.endAt)}',
+                title: c.title,
+                subtitle: c.coaches.join(', '),
+                reserved: c.reserved,
+                capacity: c.capacity,
+                onTap: () {
+                  Haptic.light();
+                  showClassRosterSheet(context, c.id, onChanged: onRefresh);
+                },
+              )),
         const SizedBox(height: HyphenTokens.sp5),
 
         // v3.21: '만료 임박' 섹션 삭제 — 회원권은 PC 에서 본다
@@ -231,124 +244,6 @@ class _CounterCard extends StatelessWidget {
 // (구 '구현 예정' 스낵바는 v3.3 에서 CoachDashboardScreen push 로 실배선 —
 //  회원 현황 탭이 사라지면서 이 버튼이 가입 승인 진입점이 됐다.)
 
-class _ClassCard extends StatelessWidget {
-  final TodayClass cls;
-
-  /// 명단에서 출석을 바꾼 채 시트가 닫혔을 때 — 대시보드 재조회.
-  final VoidCallback? onChanged;
-  const _ClassCard({required this.cls, this.onChanged});
-
-  // D29 (2026-08-12): 카드 탭 → 예약자 명단 시트. 그동안 예약 "수"만 보이고
-  // "누가" 를 볼 곳이 없었다 — 코치 핵심 동선이라 여기서 한 번 탭으로 연다.
-  @override
-  Widget build(BuildContext context) => InkWell(
-        onTap: () {
-          Haptic.light();
-          showClassRosterSheet(context, cls.id, onChanged: onChanged);
-        },
-        child: Container(
-          margin: const EdgeInsets.only(bottom: HyphenTokens.sp2),
-          padding: const EdgeInsets.all(HyphenTokens.sp3),
-          decoration: BoxDecoration(
-            color: HyphenTokens.surface,
-            border: Border.all(color: HyphenTokens.border),
-            borderRadius: BorderRadius.circular(HyphenTokens.r3),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(cls.title, style: HyphenTokens.lead.copyWith(
-                        color: HyphenTokens.fg, fontWeight: FontWeight.w700)),
-                    const SizedBox(height: 4),
-                    // v2.2 (H2): DB 원문(2026-08-12T19:00:00)이 그대로 나와
-                    // 두 줄을 잡아먹었다. 오늘 수업 목록이라 날짜는 이미 위에
-                    // 있으므로 시:분만 남긴다 — '19:00 – 20:00 · 박준서'.
-                    Text(
-                      '${_hhmm(cls.startAt)} – ${_hhmm(cls.endAt)}'
-                      '${cls.coaches.isNotEmpty ? '  ·  ${cls.coaches.join(", ")}' : ''}',
-                      style: HyphenTokens.caption,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: HyphenTokens.sp3),
-              // v2.2: '8' 과 '/ 12명' 이 위아래로 쪼개져 한 값이 두 덩이로
-              // 보였다 — 한 줄로 붙인다.
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
-                  Text(
-                    cls.reserved.toString(),
-                    style: HyphenTokens.h2.copyWith(color: HyphenTokens.fg),
-                  ),
-                  Text(
-                    cls.capacity != null ? ' / ${cls.capacity}명' : '명',
-                    style: HyphenTokens.micro,
-                  ),
-                ],
-              ),
-              const SizedBox(width: HyphenTokens.sp1),
-              const Icon(Icons.chevron_right,
-                  size: 18, color: HyphenTokens.mutedStrong),
-            ],
-          ),
-        ),
-      );
-}
-
-/// ISO 시각에서 `HH:MM` 만. 파싱 실패하면 원문을 그대로 돌려준다
-/// (형식이 바뀌어도 화면이 비지 않게).
-String _hhmm(String iso) {
-  final t = DateTime.tryParse(iso);
-  if (t == null) return iso;
-  return '${t.hour.toString().padLeft(2, '0')}:'
-      '${t.minute.toString().padLeft(2, '0')}';
-}
-
-
-class _EmptyCard extends StatelessWidget {
-  final String message;
-  const _EmptyCard({required this.message});
-
-  @override
-  Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.all(HyphenTokens.sp4),
-        decoration: BoxDecoration(
-          color: HyphenTokens.surface,
-          border: Border.all(color: HyphenTokens.border),
-          borderRadius: BorderRadius.circular(HyphenTokens.r3),
-        ),
-        alignment: Alignment.center,
-        child: Text(message, style: HyphenTokens.caption),
-      );
-}
-
-class _ErrorView extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
-  const _ErrorView({required this.message, required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) => Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(message,
-                style: HyphenTokens.caption.copyWith(color: HyphenTokens.danger)),
-            const SizedBox(height: HyphenTokens.sp3),
-            GestureDetector(
-              onTap: onRetry,
-              child: Text('다시 시도',
-                  style: HyphenTokens.body.copyWith(
-                      color: HyphenTokens.primary,
-                      decoration: TextDecoration.underline)),
-            ),
-          ],
-        ),
-      );
-}
+// (구 _ClassCard·_hhmm·_EmptyCard·_ErrorView 는 v3.25 에서 정본으로 —
+//  ClassLine.coach · core/time_format.hhmmIso · HkEmptyState · HkErrorState.)
 

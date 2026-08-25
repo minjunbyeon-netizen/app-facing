@@ -8,7 +8,7 @@ import 'package:hyphen_app/core/quotes.dart';
 import 'package:hyphen_app/features/achievement/achievements_screen.dart';
 import 'package:hyphen_app/features/auth/auth_state.dart';
 import 'package:hyphen_app/features/auth/login_screen.dart';
-import 'package:hyphen_app/features/classes/classes_screen.dart';
+import 'package:hyphen_app/features/gym/box_wod_screen.dart';
 import 'package:hyphen_app/features/contracts/member_contracts_screen.dart';
 import 'package:hyphen_app/features/goals/goals_screen.dart';
 import 'package:hyphen_app/features/gym/gym_repository.dart';
@@ -38,7 +38,7 @@ void main() {
     quoteRandom = Random(7);
   });
 
-  // ── 회원: 수업 예약 화면 (내 정보 탭 '수업' 버튼 → /classes) ──
+  // ── 회원: 수업 예약 — 수업 탭 주간보드 (v3.25: /classes 별도 화면 삭제) ──
   testWidgets('member: classes reserve list', (tester) async {
     phone(tester);
     SharedPreferences.setMockInitialValues(signedInPrefs());
@@ -50,7 +50,7 @@ void main() {
         auth: await signedInAuth(),
         profile: rxProfile(),
         gym: gym,
-        home: const ClassesScreen()));
+        home: const BoxWodScreen()));
     await capture(tester, 'member_07_classes');
   });
 
@@ -69,7 +69,7 @@ void main() {
         auth: await signedInAuth(),
         profile: rxProfile(),
         gym: gym,
-        home: const ClassesScreen()));
+        home: const BoxWodScreen()));
     await capture(tester, 'member_08_classes_reserved');
   });
 

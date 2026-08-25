@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
-import '../../models/announcement.dart';
 import '../../models/gym.dart';
 import '../../widgets/coach_badge.dart';
 import '../../widgets/hkit.dart';
@@ -13,6 +12,8 @@ import '../../widgets/inbox_bell.dart';
 import 'member_approvals_screen.dart';
 import 'gym_state.dart';
 import 'week_board.dart';
+import 'membership_status_view.dart';
+import '../announcements/announcement_row.dart';
 
 /// v1.15.3: WOD 탭 진입점. GymState 상태 따라 4분기 렌더.
 class BoxWodScreen extends StatefulWidget {
@@ -42,11 +43,18 @@ class _BoxWodScreenState extends State<BoxWodScreen> {
     if (gs.isLoading && !gs.hasGym) {
       body = const HkLoading();
     } else if (!gs.hasGym) {
-      body = const _NoGymEmpty();
+      // v3.25: 미가입·대기·거절 화면은 MembershipStatusView 한 벌 (셸 게이트와 동일).
+      body = const MembershipStatusView.none();
     } else if (gs.membership.isPending) {
-      body = _PendingState(gym: gs.membership.gym!);
+      body = MembershipStatusView.pending(
+        gymName: gs.membership.gym!.name,
+        onRecheck: () {
+          Haptic.light();
+          gs.loadMine();
+        },
+      );
     } else if (gs.membership.isRejected) {
-      body = _RejectedState(gym: gs.membership.gym!);
+      body = MembershipStatusView.rejected(gymName: gs.membership.gym!.name);
     } else {
       // owner or approved member
       body = _WodList(key: _listKey, gymState: gs);
@@ -100,111 +108,8 @@ class _BoxWodScreenState extends State<BoxWodScreen> {
   }
 }
 
-// _Centered 삭제 — HkLoading(widgets/hkit.dart)으로 대체 (v1.27 UI SSOT).
-
-class _NoGymEmpty extends StatelessWidget {
-  const _NoGymEmpty();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(HyphenTokens.sp5),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // v2.2 (H4): 빈 상태 제목이 12px 회색 sectionLabel 이라 히스토리 쪽
-          // 빈 상태(h3 굵게)와 규격이 달랐다 — 같은 앱에서 "없음" 화면이 두
-          // 종류로 보였다 (링코 F7). HkEmptyState 와 같은 h3 + caption 으로 통일.
-          const Text(
-            '체육관 미가입',
-            style: HyphenTokens.h3,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: HyphenTokens.sp2),
-          const Text(
-            '가입 승인 시 수업 내용 공개.',
-            style: HyphenTokens.caption,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: HyphenTokens.sp5),
-          // v2.6 (2026-08-13): '박스 찾기'·'박스 만들기(코치)' 삭제 — 1인 샵 전용이라
-          // 찾을 목록도, 만들 두 번째 박스도 없다.
-          // v2.7 (같은 날 사용자 지시): '가입 코드 입력' 도 삭제. 코드로 연결하면
-          // 그 회원의 아이디·비밀번호를 언제 만드는지가 불분명했다. 가입은
-          // **로그인 화면의 '회원 가입 신청' 한 길**뿐이다.
-          const Text(
-            '로그인 화면의 [회원 가입 신청] 으로 신청하면 '
-            '코치가 승인한 뒤 이용할 수 있습니다.',
-            style: HyphenTokens.caption,
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// v3.2 (2026-08-20 사용자 지시): 구 체육관 개설 시트(_showCreateGymSheet)
-// 삭제 — 개설은 PC 웹 admin 전용 (README §제거된 기능 대장).
-
-class _PendingState extends StatelessWidget {
-  final GymSummary gym;
-  const _PendingState({required this.gym});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(HyphenTokens.sp5),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Text('승인 대기', style: HyphenTokens.sectionLabel),
-          const SizedBox(height: HyphenTokens.sp2),
-          Text(gym.name,
-              style: HyphenTokens.h3.copyWith(fontWeight: FontWeight.w800)),
-          const SizedBox(height: HyphenTokens.sp2),
-          const Text(
-            '코치 승인 대기 중. 승인되면 수업 내용 표시.',
-            style: HyphenTokens.caption,
-          ),
-          const SizedBox(height: HyphenTokens.sp5),
-          HkButton.secondary('새로고침', onPressed: () {
-            Haptic.light();
-            context.read<GymState>().loadMine();
-          }),
-        ],
-      ),
-    );
-  }
-}
-
-class _RejectedState extends StatelessWidget {
-  final GymSummary gym;
-  const _RejectedState({required this.gym});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(HyphenTokens.sp5),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Text('거절됨', style: HyphenTokens.sectionLabel),
-          const SizedBox(height: HyphenTokens.sp2),
-          Text(gym.name, style: HyphenTokens.h3),
-          const SizedBox(height: HyphenTokens.sp2),
-          // v2.6: 박스가 하나뿐이라 "다른 박스" 는 존재하지 않는다.
-          // 거절 사유는 코치에게 직접 묻는 것이 유일한 다음 행동이다.
-          const Text('가입이 승인되지 않았습니다. 코치에게 문의해 주세요.',
-              style: HyphenTokens.caption),
-        ],
-      ),
-    );
-  }
-}
+// (구 _NoGymEmpty·_PendingState·_RejectedState 는 v3.25 에서
+//  gym/membership_status_view.dart 로 통합 — 셸 게이트와 같은 화면.)
 
 /// v2.4 (2026-08-12 사용자 지시): 주간 아코디언 하나로 통일.
 /// 오늘·예정·지난 3섹션 + 하단 수업 목록을 따로 쌓던 구조를 걷고, 그 주 월~일
@@ -240,53 +145,20 @@ class _WodListState extends State<_WodList> {
           // WOD 없음' 으로 읽혀 코치가 안 올린 것처럼 보인다. 실패는 실패라고
           // 먼저 말한다 (2026-08-12).
           if (widget.gymState.error != null) ...[
-            _LoadErrorBanner(
-              message: widget.gymState.error!,
-              onRetry: refreshAll,
-            ),
+            HkInlineError(widget.gymState.error!, onRetry: refreshAll),
             const SizedBox(height: HyphenTokens.sp2),
           ],
           WeekBoard(
             key: ValueKey('week-$_tick'),
             gymState: widget.gymState,
+            // v3.25: 코치는 예약 버튼 대신 인원+명단 — 예약 현황 탭과 같은 줄.
+            isOwner: widget.gymState.isOwner,
           ),
           // 박스 정보·공지는 맨 아래 (자주 보는 것이 아니다 — 접힌 줄로 유지).
           const SizedBox(height: HyphenTokens.sp3),
           const Divider(height: 1, color: HyphenTokens.border, thickness: 1),
           _GymInfoAccordion(gym: gym),
           const _AnnouncementsAccordion(),
-        ],
-      ),
-    );
-  }
-}
-
-/// WOD 불러오기 실패 — 한 줄 배너 + 다시 시도.
-class _LoadErrorBanner extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
-  const _LoadErrorBanner({required this.message, required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(left: HyphenTokens.sp3),
-      decoration: BoxDecoration(
-        color: HyphenTokens.surface,
-        border: Border.all(color: HyphenTokens.warning),
-        borderRadius: BorderRadius.circular(HyphenTokens.r2),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              message,
-              style: HyphenTokens.caption.copyWith(color: HyphenTokens.warning),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          HkButton.tertiary('다시 시도', neutral: true, onPressed: onRetry),
         ],
       ),
     );
@@ -340,58 +212,9 @@ class _AnnouncementsAccordion extends StatelessWidget {
             ),
           ),
           children: [
-            for (final a in top) _AnnouncementRow(item: a),
+            for (final a in top) AnnouncementRow(item: a),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _AnnouncementRow extends StatelessWidget {
-  final GymAnnouncement item;
-  const _AnnouncementRow({required this.item});
-
-  @override
-  Widget build(BuildContext context) {
-    final d = item.createdAt.toLocal();
-    final dateLabel =
-        '${d.month.toString().padLeft(2, '0')}.${d.day.toString().padLeft(2, '0')}';
-    return Padding(
-      padding: const EdgeInsets.only(bottom: HyphenTokens.sp3),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              if (item.pinned) ...[
-                const Icon(Icons.push_pin_outlined,
-                    size: 14, color: HyphenTokens.muted),
-                const SizedBox(width: 4),
-              ],
-              Expanded(
-                child: Text(
-                  item.title.isNotEmpty ? item.title : '공지',
-                  style: HyphenTokens.body
-                      .copyWith(fontWeight: FontWeight.w700),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              const SizedBox(width: HyphenTokens.sp2),
-              Text(dateLabel, style: HyphenTokens.micro),
-            ],
-          ),
-          if (item.body.isNotEmpty) ...[
-            const SizedBox(height: 2),
-            Text(
-              item.body,
-              style: HyphenTokens.caption,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ],
       ),
     );
   }

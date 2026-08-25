@@ -379,15 +379,7 @@ class _MyBoxSection extends StatelessWidget {
                 ));
               }),
             ],
-            // 클래스 일정 진입 (회원·owner 모두). PC 사장이 등록한 클래스를 본다.
-            if (gs.membership.isApprovedMember || gs.isOwner) ...[
-              const SizedBox(height: HyphenTokens.sp2),
-              HkButton.secondary('수업', icon: Icons.event_outlined,
-                  onPressed: () {
-                Haptic.light();
-                Navigator.of(context).pushNamed('/classes');
-              }),
-            ],
+            // v3.25: '수업' 버튼 삭제 — 예약은 수업 탭 주간보드 한 곳 (대장 19).
             // v2.6 (2026-08-13 사용자 지시): '박스 변경' 삭제. 1인 샵 전용이라
             // 옮겨 갈 다른 박스가 없다. 탈퇴가 필요하면 코치에게 말하는 쪽이 맞다.
             // (leaveGym·_confirmLeave 코드는 보존 — 진입점만 끊었다)

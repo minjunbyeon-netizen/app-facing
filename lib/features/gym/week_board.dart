@@ -8,12 +8,15 @@ import '../../models/class_session.dart';
 import '../../models/gym.dart';
 import '../../widgets/hkit.dart';
 import '../classes/classes_repository.dart';
-import '../classes/classes_screen.dart'
+import '../classes/class_flows.dart'
     show cancelClassFlow, reserveClassFlow;
 import 'gym_state.dart';
 import 'wod_row.dart';
 import 'wod_type_label.dart';
 import '../../core/app_clock.dart';
+import '../classes/class_line.dart';
+import '../boss/class_roster_sheet.dart';
+import '../../core/time_format.dart';
 
 /// v2.4 (2026-08-12 사용자 지시): WOD 탭 = **그 주 월~일 아코디언**.
 ///
@@ -23,7 +26,10 @@ import '../../core/app_clock.dart';
 /// 예약 버튼이 붙어 "보고 → 바로 예약"이 한 화면에서 끝난다.
 class WeekBoard extends StatefulWidget {
   final GymState gymState;
-  const WeekBoard({super.key, required this.gymState});
+
+  /// 코치 시점 — 수업 줄 우측이 예약 배지 대신 인원+명단 진입 (v3.25).
+  final bool isOwner;
+  const WeekBoard({super.key, required this.gymState, this.isOwner = false});
 
   @override
   State<WeekBoard> createState() => _WeekBoardState();
@@ -102,8 +108,6 @@ class _WeekBoardState extends State<WeekBoard> {
     setState(() => _selected = _selected == i ? -1 : i);
   }
 
-  String _ymd(DateTime d) =>
-      '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
   @override
   Widget build(BuildContext context) {
@@ -117,7 +121,7 @@ class _WeekBoardState extends State<WeekBoard> {
     for (final c in _classes) {
       // 내 예약이 없는 취소 수업은 노이즈 — 목록에서 제외 (v1.26 규칙 유지).
       if (c.isCancelled && c.myReservation == null) continue;
-      classesByDate.putIfAbsent(_ymd(c.startAt.toLocal()), () => []).add(c);
+      classesByDate.putIfAbsent(ymd(c.startAt.toLocal()), () => []).add(c);
     }
     for (final list in classesByDate.values) {
       list.sort((a, b) => a.startAt.compareTo(b.startAt));
@@ -144,10 +148,10 @@ class _WeekBoardState extends State<WeekBoard> {
                   isToday: _weekStart.add(Duration(days: i)) == _today,
                   isSelected: _selected == i,
                   isLast: i == 6,
-                  wods: wodsByDate[_ymd(_weekStart.add(Duration(days: i)))] ??
+                  wods: wodsByDate[ymd(_weekStart.add(Duration(days: i)))] ??
                       const [],
                   classes:
-                      classesByDate[_ymd(_weekStart.add(Duration(days: i)))] ??
+                      classesByDate[ymd(_weekStart.add(Duration(days: i)))] ??
                           const [],
                   // 이전 결과를 들고 있는 동안은 로딩 취급하지 않는다 (깜빡임 방지).
                   classesLoading: _classesLoading && _classes.isEmpty,
@@ -163,6 +167,12 @@ class _WeekBoardState extends State<WeekBoard> {
                     if (ok && mounted) _loadClasses();
                   },
                   onRetryClasses: _loadClasses,
+                  isOwner: widget.isOwner,
+                  onOpenRoster: (c) {
+                    Haptic.light();
+                    showClassRosterSheet(context, c.id,
+                        onChanged: _loadClasses);
+                  },
                 ),
             ],
           ),
@@ -235,6 +245,8 @@ class _DayTile extends StatelessWidget {
   final Future<void> Function(ClassSessionDto) onReserve;
   final Future<void> Function(ClassSessionDto) onCancel;
   final VoidCallback onRetryClasses;
+  final bool isOwner;
+  final void Function(ClassSessionDto) onOpenRoster;
 
   const _DayTile({
     required this.date,
@@ -251,6 +263,8 @@ class _DayTile extends StatelessWidget {
     required this.onReserve,
     required this.onCancel,
     required this.onRetryClasses,
+    required this.isOwner,
+    required this.onOpenRoster,
   });
 
   bool get _isFuture => date.isAfter(today);
@@ -408,15 +422,7 @@ class _DayTile extends StatelessWidget {
     if (classesError) {
       return Padding(
         padding: const EdgeInsets.only(top: HyphenTokens.sp2),
-        child: Row(
-          children: [
-            const Expanded(
-              child: Text('수업 불러오기 실패.', style: HyphenTokens.caption),
-            ),
-            HkButton.tertiary('다시 시도',
-                neutral: true, onPressed: onRetryClasses),
-          ],
-        ),
+        child: HkInlineError('수업 불러오기 실패.', onRetry: onRetryClasses),
       );
     }
     if (classesLoading) {
@@ -435,139 +441,28 @@ class _DayTile extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (final c in classes)
-          _ClassLine(
-            session: c,
-            isPastDay: _isPast,
-            onReserve: () => onReserve(c),
-            onCancel: () => onCancel(c),
-          ),
+          isOwner
+              ? ClassLine.coach(
+                  timeLabel: hhmm(c.startAt.toLocal()),
+                  title: c.title,
+                  subtitle: [
+                    if ((c.room ?? '').isNotEmpty) c.room!,
+                    if (c.waitlistCount > 0) '대기 ${c.waitlistCount}',
+                  ].join(' · '),
+                  reserved: c.reservedCount,
+                  capacity: c.capacity,
+                  muted: c.isCancelled,
+                  onTap: () => onOpenRoster(c),
+                )
+              : ClassLine.member(
+                  session: c,
+                  isPastDay: _isPast,
+                  onReserve: () => onReserve(c),
+                  onCancel: () => onCancel(c),
+                ),
       ],
     );
   }
 }
 
-/// 수업 한 줄 — 시각 · 이름/정원 · 예약 버튼. 카드가 아니라 줄이라 한 화면에
-/// 하루치가 다 들어온다 (v2.4 — 카드 형태는 두 개만 보여도 화면이 찼다).
-class _ClassLine extends StatelessWidget {
-  final ClassSessionDto session;
-  final bool isPastDay;
-  final VoidCallback onReserve;
-  final VoidCallback onCancel;
-
-  const _ClassLine({
-    required this.session,
-    required this.isPastDay,
-    required this.onReserve,
-    required this.onCancel,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final l = session.startAt.toLocal();
-    final hh = l.hour.toString().padLeft(2, '0');
-    final mm = l.minute.toString().padLeft(2, '0');
-    final isCancelled = session.isCancelled;
-    final isReserved = session.isReserved;
-    final isWaitlisted = session.isWaitlisted;
-    final isFull = session.isFull;
-    final isOver = l.isBefore(appClock.now());
-    final waitlistFull = session.waitlistCount >= session.waitlistCapacity;
-
-    // '8/12' 가 날짜(8월 12일)로 읽혔다 — 앞에 '정원' 을 붙여 인원임을 못 박는다.
-    final capText = '정원 ${session.reservedCount}/${session.capacity}';
-
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: HyphenTokens.sp2),
-      decoration: const BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: HyphenTokens.border, width: 1),
-        ),
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 46,
-            child: Text(
-              '$hh:$mm',
-              style: HyphenTokens.body.copyWith(
-                fontWeight: FontWeight.w700,
-                fontFeatures: HyphenTokens.tabular,
-                color: isCancelled ? HyphenTokens.muted : HyphenTokens.fg,
-              ),
-            ),
-          ),
-          const SizedBox(width: HyphenTokens.sp2),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  session.title,
-                  style: HyphenTokens.body.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: isCancelled ? HyphenTokens.muted : HyphenTokens.fg,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 1),
-                Text(
-                  [
-                    capText,
-                    if (session.waitlistCount > 0)
-                      '대기 ${session.waitlistCount}',
-                    if ((session.room ?? '').isNotEmpty) session.room!,
-                  ].join(' · '),
-                  style: HyphenTokens.caption.copyWith(
-                    color: isFull ? HyphenTokens.warning : HyphenTokens.muted,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: HyphenTokens.sp2),
-          _action(isCancelled, isReserved, isWaitlisted, isFull, isOver,
-              waitlistFull),
-        ],
-      ),
-    );
-  }
-
-  /// 우측 조작 슬롯 — 전부 **배지 한 규격**.
-  /// v2.5 (2026-08-12 사용자 지시): 예약 버튼이 '예약됨' 배지보다 훨씬 커서
-  /// 같은 줄 안에서 층이 졌다. HkBadge 는 onTap 을 주면 그대로 조작 컨트롤이
-  /// 되고(터치 48 은 안쪽에서 확보), 표시·조작이 시각적으로 같은 크기가 된다.
-  Widget _action(bool isCancelled, bool isReserved, bool isWaitlisted,
-      bool isFull, bool isOver, bool waitlistFull) {
-    if (isCancelled) {
-      return const HkBadge('취소됨', color: HyphenTokens.muted);
-    }
-    if (isReserved || isWaitlisted) {
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          HkBadge(
-            isWaitlisted ? '대기 ${session.myWaitlistPosition}' : '예약됨',
-            color: isWaitlisted ? HyphenTokens.warning : HyphenTokens.success,
-          ),
-          if (!isOver) ...[
-            const SizedBox(width: HyphenTokens.sp2),
-            HkBadge('취소', color: HyphenTokens.muted, onTap: onCancel),
-          ],
-        ],
-      );
-    }
-    if (isPastDay || isOver) {
-      return const HkBadge('종료', color: HyphenTokens.muted);
-    }
-    final blocked = isFull && waitlistFull;
-    if (blocked) return const HkBadge('마감', color: HyphenTokens.muted);
-    return HkBadge(
-      isFull ? '대기' : '예약',
-      color: isFull ? HyphenTokens.warning : HyphenTokens.accent,
-      onTap: onReserve,
-    );
-  }
-}
+// (구 _ClassLine 은 v3.25 에서 classes/class_line.dart 로 — 코치 카드와 한 벌.)

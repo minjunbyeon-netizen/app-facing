@@ -113,7 +113,7 @@ class _MemberContractsScreenState extends State<MemberContractsScreen> {
               return const Center(child: CircularProgressIndicator());
             }
             if (snap.hasError) {
-              return _ErrorRetry(onRetry: _reload);
+              return HkErrorState(message: '불러오기 실패', onRetry: _reload);
             }
             final rows = snap.data ?? const [];
             if (rows.isEmpty) {
@@ -188,24 +188,6 @@ class _MemberContractsScreenState extends State<MemberContractsScreen> {
   }
 }
 
-class _ErrorRetry extends StatelessWidget {
-  final VoidCallback onRetry;
-  const _ErrorRetry({required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text('불러오기 실패', style: HyphenTokens.h3),
-          const SizedBox(height: HyphenTokens.sp3),
-          HkButton.tertiary('다시 시도', onPressed: onRetry),
-        ],
-      ),
-    );
-  }
-}
 
 // ──────────────────────────────────────────────────────────────────
 // 상세 + 서명
@@ -255,7 +237,7 @@ class _ContractDetailScreenState extends State<ContractDetailScreen> {
               return const Center(child: CircularProgressIndicator());
             }
             if (snap.hasError) {
-              return _ErrorRetry(onRetry: _reload);
+              return HkErrorState(message: '불러오기 실패', onRetry: _reload);
             }
             final d = snap.data ?? const {};
             final status = (d['status'] ?? '') as String;

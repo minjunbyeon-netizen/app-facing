@@ -478,6 +478,31 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 >   ×N — 토큰으로 올리면 테마가 부풀어 art asset 으로 취급. `avatar.dart` hex 6개
 >   (이니셜 배경 해시 팔레트)·`grain_overlay.dart` 1개 동일.
 
+> **D48 (2026-08-25 사용자 지시) — 구조 이원화 6건 통일: 같은 정보를 두 화면이 다르게 그리지 않는다.**
+>
+> D47 뒤 "앱 UI 따로 있는 부분 전수조사" → 12건 중 **구조가 갈라진 6건**을 먼저.
+> - **하단 탭바 2벌 → `HkTabBar`** (hkit): 회원 셸·코치 셸이 테마·구분선·SafeArea 까지
+>   복사해 들고 있었다. 셸은 destinations 만 준다. `ssot_lint_test` 에 `NavigationBar(` 금지 추가.
+> - **승인 대기 화면 2벌 → `MembershipStatusView`** (gym/membership_status_view.dart):
+>   셸 입구 게이트(`_PendingGate`)와 수업 탭 안 미가입/대기/거절 3종이 같은 상태를 두
+>   문구·두 골격으로. none/pending/rejected 한 위젯 — 게이트는 `onRecheck`·`onSignOut` 만 더 준다.
+> - **회원 수업 예약 UI 2벌 → 주간보드 하나**: `/classes` 별도 화면(카드형) 삭제
+>   (README §제거된 기능 대장 19). 예약·취소 흐름은 `classes/class_flows.dart`.
+> - **코치 수업 카드 2벌 → `ClassLine`** (classes/class_line.dart): 예약 현황 탭 카드와
+>   주간보드 줄이 같은 수업을 다른 모양으로. 골격 하나 + 우측 슬롯만 시점별 —
+>   `ClassLine.coach`(인원 + 명단 진입) / `ClassLine.member`(예약·대기·취소 배지).
+>   **코치가 수업 탭에서도 인원+명단을 본다** — 회원용 예약 배지가 코치에게 보이던
+>   문제가 같이 닫혔다 (WeekBoard `isOwner`).
+> - **공지 행 2벌 → `AnnouncementRow`** (announcements/announcement_row.dart): 홈·수업 탭
+>   아코디언이 본문 줄 수만 다른 복사본. `bodyMaxLines` 인자.
+> - **에러 뷰 4벌 → HKit**: 코치 대시보드 `_ErrorView`·계약 `_ErrorRetry` → `HkErrorState`,
+>   수업 탭 `_LoadErrorBanner`·주간보드 수업 에러 줄 → `HkInlineError(onRetry:)`.
+>   `HkErrorState` 안의 원시 OutlinedButton 도 HkButton 으로.
+> - 곁가지: `core/time_format.dart` 신설 (hhmm·hhmmIso·ymd·mdDot) — 이번에 손댄
+>   파일의 날짜 헬퍼만 이관, 나머지 7개 파일은 "작은 것" 단계에서.
+> - 회귀 게이트: 골든 54장 재생성 (member_07·08·state_07·08 은 주간보드로 재촬영) ·
+>   앱 194건 · ssot_lint 7패턴.
+
 > **D31 (2026-08-12) — 명단에서 출석 체크 + 대기 순번 정정.**
 >
 > - **대기 순번**: `class_waitlist_promotions.promoted_position` 은 "줄 설 때" 번호라

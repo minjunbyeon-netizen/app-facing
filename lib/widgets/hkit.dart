@@ -22,6 +22,7 @@ import '../core/exception.dart';
 import '../core/theme.dart';
 import 'brand_logo.dart';
 import 'mascot.dart';
+import '../core/appkit.gen.dart';
 
 /// 버튼 위계 3단 — **누르는 것의 유일 규격** (v2.2 · 2026-08-12 가시성 개편 지시).
 ///
@@ -616,7 +617,7 @@ class HkErrorState extends StatelessWidget {
             Text(message,
                 style: HyphenTokens.body, textAlign: TextAlign.center),
             const SizedBox(height: HyphenTokens.sp3),
-            OutlinedButton(onPressed: onRetry, child: const Text('다시 시도')),
+            HkButton.secondary('다시 시도', onPressed: onRetry),
           ],
         ),
       ),
@@ -1004,20 +1005,90 @@ class HkSheet {
 /// 전면 에러는 [HkErrorState], 스낵은 [HkSnack.error] — 셋은 자리가 다르다.
 class HkInlineError extends StatelessWidget {
   final String message;
-  const HkInlineError(this.message, {super.key});
+
+  /// 있으면 우측에 '다시 시도' — 목록 위 한 줄 배너로 쓸 때 (v3.25).
+  final VoidCallback? onRetry;
+  const HkInlineError(this.message, {super.key, this.onRetry});
 
   @override
   Widget build(BuildContext context) {
+    final text = Text(message,
+        style: HyphenTokens.caption.copyWith(color: HyphenTokens.danger),
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis);
     return Container(
-      padding: const EdgeInsets.symmetric(
-          horizontal: HyphenTokens.sp3, vertical: HyphenTokens.sp2),
+      padding: EdgeInsets.symmetric(
+          horizontal: HyphenTokens.sp3,
+          vertical: onRetry == null ? HyphenTokens.sp2 : 0),
       decoration: BoxDecoration(
         color: HyphenTokens.danger.withValues(alpha: 0.12),
         border: Border.all(color: HyphenTokens.danger.withValues(alpha: 0.4)),
         borderRadius: BorderRadius.circular(HyphenTokens.r2),
       ),
-      child: Text(message,
-          style: HyphenTokens.caption.copyWith(color: HyphenTokens.danger)),
+      child: onRetry == null
+          ? text
+          : Row(
+              children: [
+                Expanded(child: text),
+                HkButton.tertiary('다시 시도',
+                    neutral: true, onPressed: onRetry),
+              ],
+            ),
+    );
+  }
+}
+
+/// 하단 탭바 정본 — 회원 셸·코치 셸이 같은 것을 쓴다 (v3.25 · 두 벌 → 하나).
+/// 테마(색·인디케이터·라벨)·상단 구분선·SafeArea 까지 여기.
+class HkTabBar extends StatelessWidget {
+  final int selectedIndex;
+  final ValueChanged<int> onSelected;
+  final List<NavigationDestination> destinations;
+
+  const HkTabBar({
+    super.key,
+    required this.selectedIndex,
+    required this.onSelected,
+    required this.destinations,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return NavigationBarTheme(
+      data: NavigationBarThemeData(
+        backgroundColor: HyphenTokens.bg,
+        surfaceTintColor: Colors.transparent,
+        indicatorColor: HyphenTokens.accent.withValues(alpha: 0.18),
+        indicatorShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(HyphenTokens.r2),
+        ),
+        // v2.2: 켜진 탭을 브랜드색으로 — 인디케이터 면 하나로만 구분되면 흐리다.
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          final selected = states.contains(WidgetState.selected);
+          return HyphenTokens.micro.copyWith(
+            color: selected ? HyphenTokens.primary : HyphenTokens.muted,
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+            letterSpacing: 0.1,
+          );
+        }),
+      ),
+      child: SafeArea(
+        top: false,
+        child: DecoratedBox(
+          decoration: const BoxDecoration(
+            border: Border(
+              top: BorderSide(color: HyphenTokens.border, width: 1),
+            ),
+          ),
+          child: NavigationBar(
+            selectedIndex: selectedIndex,
+            onDestinationSelected: onSelected,
+            height: AppKit.tabbarH,
+            labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+            destinations: destinations,
+          ),
+        ),
+      ),
     );
   }
 }

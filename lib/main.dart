@@ -36,7 +36,6 @@ import 'features/shell/main_shell.dart';
 import 'features/boss/boss_auth_state.dart';
 import 'features/boss/boss_api_client.dart';
 import 'features/shell/coach_shell.dart';
-import 'features/classes/classes_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -202,8 +201,8 @@ class HyphenApp extends StatelessWidget {
           '/boss/dashboard': (_) => const CoachShell(),
           // v3.22 (2026-08-25): '/boss/settings' 라우트·BossSettingsScreen 삭제 —
           // 알림·예약 한도는 PC, 자동 가입 승인은 기능 폐기 (README §제거된 기능 대장 18).
-          // PHASE4 §1.1: 회원 폰 클래스 일정·예약
-          '/classes': (_) => const ClassesScreen(),
+          // v3.25 (2026-08-25): '/classes' 별도 예약 화면 삭제 — 회원이 예약하는
+          // 자리는 수업 탭 주간보드 하나 (README §제거된 기능 대장 19).
         },
         onGenerateRoute: (settings) {
           if (settings.name == '/history/detail') {

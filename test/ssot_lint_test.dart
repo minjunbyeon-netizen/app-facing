@@ -14,6 +14,7 @@ const List<(String, String)> _forbidden = [
   (r'(?<![A-Za-z_])AppBar\(', '상단바는 HkAppBar 만 (widgets/hkit.dart)'),
   (r'AlertDialog\(', '다이얼로그는 HkDialog.confirm/info/custom 만'),
   (r'showModalBottomSheet', '바텀시트는 HkSheet.show 만'),
+  (r'(?<![A-Za-z_])NavigationBar\(', '하단 탭바는 HkTabBar 만 — 셸 두 벌 금지'),
   (r'InputDecoration _\w+\(', '입력칸 스타일은 테마 한 벌 — 화면별 _deco 금지'),
   (r'OutlineInputBorder\(', '입력칸 테두리는 theme.dart inputDecorationTheme 만'),
   (r'danger\.withValues\(alpha: ?0\.12\)', '인라인 에러 박스 금지 — HkInlineError'),

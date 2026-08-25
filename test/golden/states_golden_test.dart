@@ -8,7 +8,7 @@ import 'package:hyphen_app/core/goals_state.dart';
 import 'package:hyphen_app/core/quotes.dart';
 import 'package:hyphen_app/features/auth/auth_state.dart';
 import 'package:hyphen_app/features/auth/login_screen.dart';
-import 'package:hyphen_app/features/classes/classes_screen.dart';
+import 'package:hyphen_app/features/gym/box_wod_screen.dart';
 import 'package:hyphen_app/features/gym/gym_repository.dart';
 import 'package:hyphen_app/features/gym/gym_state.dart';
 import 'package:hyphen_app/features/history/history_screen.dart';
@@ -124,7 +124,7 @@ void main() {
         auth: await signedInAuth(),
         profile: rxProfile(),
         gym: gym,
-        home: const ClassesScreen()));
+        home: const BoxWodScreen()));
     await capture(tester, 'state_07_class_ended');
   });
 
@@ -144,7 +144,7 @@ void main() {
         auth: await signedInAuth(),
         profile: rxProfile(),
         gym: gym,
-        home: const ClassesScreen()));
+        home: const BoxWodScreen()));
     await tester.pumpAndSettle();
     await tester.tap(find.text('취소'));
     await tester.pumpAndSettle();

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/appkit.gen.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../announcements/announcements_state.dart';
@@ -155,40 +154,11 @@ class _CoachShellState extends State<CoachShell> {
       // 새로고침 버튼은 뺐다 — 예약 현황·수업 둘 다 당겨서 새로고침이 있다.
       appBar: _appBar(context),
       body: IndexedStack(index: _index, children: pages),
-      bottomNavigationBar: NavigationBarTheme(
-        data: NavigationBarThemeData(
-          backgroundColor: HyphenTokens.bg,
-          surfaceTintColor: Colors.transparent,
-          indicatorColor: HyphenTokens.accent.withValues(alpha: 0.18),
-          indicatorShape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(HyphenTokens.r2),
-          ),
-          labelTextStyle: WidgetStateProperty.resolveWith((states) {
-            final selected = states.contains(WidgetState.selected);
-            return HyphenTokens.micro.copyWith(
-              color: selected ? HyphenTokens.primary : HyphenTokens.muted,
-              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-              letterSpacing: 0.1,
-            );
-          }),
-        ),
-        child: SafeArea(
-          top: false,
-          child: DecoratedBox(
-            decoration: const BoxDecoration(
-              border: Border(
-                top: BorderSide(color: HyphenTokens.border, width: 1),
-              ),
-            ),
-            child: NavigationBar(
-              selectedIndex: _index,
-              onDestinationSelected: _onTap,
-              height: AppKit.tabbarH,
-              labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-              destinations: _destinations,
-            ),
-          ),
-        ),
+      // v3.25: 탭바는 HkTabBar 하나 — 회원 셸과 같은 물건.
+      bottomNavigationBar: HkTabBar(
+        selectedIndex: _index,
+        onSelected: _onTap,
+        destinations: _destinations,
       ),
     );
   }

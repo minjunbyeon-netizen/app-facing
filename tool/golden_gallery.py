@@ -52,7 +52,7 @@ SECTIONS = [
         ("member_06b_result_sheet_strength", "결과 시트 Strength 분기 — 최고 무게(kg)+reps 입력 (v3.4 발전 측정)"),
     ]),
     ("회원 심화", "회원 심화 — 셸에서 한 단계 더 (2026-08-19 전 화면 확장)", [
-        ("member_07_classes", "수업 예약 — 예약 · 대기 신청 · 마감 (내 정보 '수업' 버튼)"),
+        ("member_07_classes", "수업 예약 — 주간보드 안 예약 · 대기 신청 · 마감 (v3.25: 별도 화면 삭제)"),
         ("member_08_classes_reserved", "수업 예약 — 예약 확정 상태 (취소 진입)"),
         ("member_09_wod_detail", "수업 상세 — RX·Scaled·Beginner 탭 + 라운드 + 내 이전 기록 (v3.4)"),
         ("member_10_coach_ask_sheet", "코치에게 질문 시트 — 오늘 행 '메시지'"),

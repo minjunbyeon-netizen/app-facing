@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/appkit.gen.dart';
 import '../../core/haptic.dart';
 import '../../core/shell_nav_bus.dart';
 import '../../core/theme.dart';
@@ -19,6 +18,7 @@ import '../mypage/mypage_screen.dart';
 import '../../core/app_clock.dart';
 import '../../core/role_labels.dart';
 import '../../widgets/inbox_bell.dart';
+import '../gym/membership_status_view.dart';
 
 /// v1.27 (2026-07-28 사용자 지시): 3기둥 집중 — Home(게이미피케이션) · WOD(보드) ·
 /// Profile 만 노출. 구 Attend·Rehab 탭·페이싱 계산 진입점은 숨김을 거쳐
@@ -160,64 +160,30 @@ class _MainShellState extends State<MainShell> {
           actions: const [InboxBellAction()],
         ),
         body: IndexedStack(index: _index, children: _pages),
-        bottomNavigationBar: NavigationBarTheme(
-          data: NavigationBarThemeData(
-            backgroundColor: HyphenTokens.bg,
-            surfaceTintColor: Colors.transparent,
-            indicatorColor: HyphenTokens.accent.withValues(alpha: 0.18),
-            indicatorShape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(HyphenTokens.r2),
-            ),
-            // v2.2: 켜진 탭을 브랜드색으로. 그전엔 아이콘·라벨이 둘 다 검정이라
-            // 연분홍 인디케이터 면 하나로만 구분돼 어느 탭인지 흐렸다.
-            labelTextStyle: WidgetStateProperty.resolveWith((states) {
-              final selected = states.contains(WidgetState.selected);
-              return HyphenTokens.micro.copyWith(
-                color: selected ? HyphenTokens.primary : HyphenTokens.muted,
-                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                letterSpacing: 0.1,
-              );
-            }),
-          ),
-          child: SafeArea(
-            top: false,
-            child: DecoratedBox(
-              decoration: const BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: HyphenTokens.border, width: 1),
+        // v3.25: 탭바는 HkTabBar 하나 — 코치 셸과 같은 물건.
+        bottomNavigationBar: HkTabBar(
+          selectedIndex: _index,
+          onSelected: _onTap,
+          destinations: [
+            for (int i = 0; i < _tabs.length; i++)
+              NavigationDestination(
+                // v1.26: 쪽지 미읽음 dot 은 종(벨)이 담당, 탭 dot 은
+                // 새 공지(WOD 보드 상단 아코디언)만 표시.
+                icon: _IconWithDot(
+                  icon: _tabs[i].icon,
+                  showDot: i == 1 &&
+                      context.watch<AnnouncementsState>().unreadCount > 0,
+                  color: HyphenTokens.muted,
                 ),
+                selectedIcon: _IconWithDot(
+                  icon: _tabs[i].selectedIcon,
+                  showDot: i == 1 &&
+                      context.watch<AnnouncementsState>().unreadCount > 0,
+                  color: HyphenTokens.primary,
+                ),
+                label: _tabs[i].label,
               ),
-              child: NavigationBar(
-                selectedIndex: _index,
-                onDestinationSelected: _onTap,
-                height: AppKit.tabbarH,
-                labelBehavior:
-                    NavigationDestinationLabelBehavior.alwaysShow,
-                destinations: [
-                  for (int i = 0; i < _tabs.length; i++)
-                    NavigationDestination(
-                      // v1.26: 쪽지 미읽음 dot 은 종(벨)이 담당, 탭 dot 은
-                      // 새 공지(WOD 보드 상단 아코디언)만 표시.
-                      icon: _IconWithDot(
-                        icon: _tabs[i].icon,
-                        showDot: i == 1 &&
-                            context.watch<AnnouncementsState>().unreadCount >
-                                0,
-                        color: HyphenTokens.muted,
-                      ),
-                      selectedIcon: _IconWithDot(
-                        icon: _tabs[i].selectedIcon,
-                        showDot: i == 1 &&
-                            context.watch<AnnouncementsState>().unreadCount >
-                                0,
-                        color: HyphenTokens.primary,
-                      ),
-                      label: _tabs[i].label,
-                    ),
-                ],
-              ),
-            ),
-          ),
+          ],
         ),
       ),
     );
@@ -260,36 +226,15 @@ class _PendingGateState extends State<_PendingGate> {
 
   @override
   Widget build(BuildContext context) {
+    // v3.25: 문구·골격은 MembershipStatusView 한 벌 (수업 탭 안 대기 화면과 동일).
     return Scaffold(
       backgroundColor: HyphenTokens.bg,
       body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(HyphenTokens.sp6),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  '승인 대기중입니다',
-                  style: HyphenTokens.h3,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: HyphenTokens.sp3),
-                const Text(
-                  '가입 신청이 코치에게 전달됐습니다.\n'
-                  '코치가 승인하면 수업 내용·수업 예약이 열립니다.',
-                  style: HyphenTokens.caption,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: HyphenTokens.sp6),
-                _checking
-                    ? const HkLoading()
-                    : HkButton.primary('승인됐는지 확인', onPressed: _recheck),
-                const SizedBox(height: HyphenTokens.sp3),
-                HkButton.tertiary('로그아웃', neutral: true, onPressed: _signOut),
-              ],
-            ),
-          ),
+        child: MembershipStatusView.pending(
+          gymName: context.watch<GymState>().membership.gym?.name,
+          onRecheck: _recheck,
+          checking: _checking,
+          onSignOut: _signOut,
         ),
       ),
     );

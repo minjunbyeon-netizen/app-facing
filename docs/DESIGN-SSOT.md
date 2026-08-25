@@ -90,7 +90,11 @@
 | `HkAppBar` / `.identity` | **상단바 유일 규격** (v3.24) — push 화면은 제목(+actions), 셸은 체육관명+역할 두 줄. 화면에서 `AppBar(` 직접 금지 |
 | `HkDialog.confirm/info/custom` | **다이얼로그 유일 규격** (v3.24) — 모양은 dialogTheme(r4), 버튼은 HkButton. 위험 확정은 `danger: true` |
 | `HkSheet.show` | **바텀시트 유일 규격** (v3.24) — 모양은 bottomSheetTheme(상단 r5), 항상 스크롤 제어 |
-| `HkInlineError` | 폼 안 인라인 에러 박스 (로그인 실패 등). 전면 = HkErrorState, 스낵 = HkSnack.error |
+| `HkInlineError` | 폼 안 인라인 에러 박스 (로그인 실패 등) · `onRetry` 주면 목록 위 한 줄 배너. 전면 = HkErrorState, 스낵 = HkSnack.error |
+| `HkTabBar` | **하단 탭바 유일 규격** (v3.25) — 회원 셸·코치 셸 공용. 셸은 destinations 만 준다 |
+| `ClassLine` (classes/) | 수업 한 줄 유일 규격 (v3.25) — `.coach`(인원+명단) / `.member`(예약 배지). 코치 예약 현황·주간보드 공용 |
+| `MembershipStatusView` (gym/) | 미가입·승인 대기·거절 화면 한 벌 (v3.25) — 셸 게이트·수업 탭 공용 |
+| `AnnouncementRow` (announcements/) | 공지 한 줄 (v3.25) — 홈·수업 탭 아코디언 공용, `bodyMaxLines` 만 다름 |
 | 입력칸 | 모양은 `theme.dart inputDecorationTheme` 한 벌 (테두리·에러·안내 글꼴). 화면은 `InputDecoration(hintText:)` 만 — 화면별 `_deco()` 금지 (v3.24, `test/ssot_lint_test.dart`) |
 | `TierBadge` | 티어 표기 별도 정본 |
 

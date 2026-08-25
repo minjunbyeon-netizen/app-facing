@@ -19,10 +19,10 @@ import '../gym/gym_repository.dart';
 import '../history/history_models.dart';
 import 'challenge_section.dart';
 import '../history/history_repository.dart';
-import '../../models/announcement.dart';
 import '../announcements/announcements_state.dart';
 import '../profile/profile_state.dart';
 import '../../core/app_clock.dart';
+import '../announcements/announcement_row.dart';
 
 /// v1.23 (2026-06-02) 재배치 Phase 3: Attend 의 게이미피케이션을 Home 으로 이관.
 /// Home = LEVEL(캐릭터 진화) + ACHIEVEMENTS(업적 그리드) + MILESTONES(3종 진행바).
@@ -220,7 +220,7 @@ class _NoticeAccordion extends StatelessWidget {
             ),
           ),
           children: [
-            for (final a in top) _HomeAnnouncementRow(item: a),
+            for (final a in top) AnnouncementRow(bodyMaxLines: 2, item: a),
           ],
         ),
       ),
@@ -229,55 +229,6 @@ class _NoticeAccordion extends StatelessWidget {
 }
 
 /// 홈 공지 행 — box_wod_screen._AnnouncementRow 와 같은 문법 (핀·제목·날짜·본문).
-class _HomeAnnouncementRow extends StatelessWidget {
-  final GymAnnouncement item;
-  const _HomeAnnouncementRow({required this.item});
-
-  @override
-  Widget build(BuildContext context) {
-    final d = item.createdAt.toLocal();
-    final dateLabel =
-        '${d.month.toString().padLeft(2, '0')}.${d.day.toString().padLeft(2, '0')}';
-    return Padding(
-      padding: const EdgeInsets.only(bottom: HyphenTokens.sp3),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              if (item.pinned) ...[
-                const Icon(Icons.push_pin_outlined,
-                    size: 14, color: HyphenTokens.muted),
-                const SizedBox(width: 4),
-              ],
-              Expanded(
-                child: Text(
-                  item.title.isNotEmpty ? item.title : '공지',
-                  style: HyphenTokens.body
-                      .copyWith(fontWeight: FontWeight.w700),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              const SizedBox(width: HyphenTokens.sp2),
-              Text(dateLabel, style: HyphenTokens.micro),
-            ],
-          ),
-          if (item.body.isNotEmpty) ...[
-            const SizedBox(height: 2),
-            Text(
-              item.body,
-              style: HyphenTokens.caption,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
 class _GamificationBody extends StatelessWidget {
   final List<WodHistoryItem> records;
 

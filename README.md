@@ -124,4 +124,10 @@ samples, guidance on mobile development, and a full API reference.
       `models/gym_profile.auto_approve_joins` 는 휴면 컬럼으로만 존치.
       공식 HYPHEN HQ 체육관 즉시 승인(데모용 `OFFICIAL_GYM_NAME` 분기)은 별개라 유지.
     폰 코치 AppBar 에 남는 것은 로그아웃 하나.
-
+19. **회원 별도 수업 예약 화면 `/classes` (v3.25 · 2026-08-25 사용자 지시 "따로 있는 것
+    전부 통일")** — `lib/features/classes/classes_screen.dart`(ClassesScreen·
+    ClassesSection·`_ClassCard`) + `/classes` 라우트 + 내 정보 탭 '수업' 버튼.
+    수업 탭 주간보드 안에서 예약이 끝나는데 내 정보 → 수업 으로 들어가는 두 번째
+    예약 화면이 카드 모양으로 따로 있었다. 예약·취소 흐름 함수만
+    `classes/class_flows.dart` 로 남기고 화면은 삭제. 골든 4장(member_07·08·state_07·08)은
+    주간보드(BoxWodScreen)로 재촬영 — 같은 fake 를 소비하므로 상태 변형은 그대로.
