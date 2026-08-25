@@ -173,6 +173,57 @@ class HkSectionLabel extends StatelessWidget {
       Text(text.toUpperCase(), style: HyphenTokens.sectionLabel);
 }
 
+/// 체크 줄 — 체크박스 + 라벨 한 줄 (v3.18 · 2026-08-25 로그인 '아이디 기억하기').
+///
+/// Material [Checkbox] 는 원형 리플·둥근 모서리라 이 앱의 사각 규격과 어긋난다.
+/// 그래서 배지(HkBadge)와 같은 r1 사각 + 1px 보더로 직접 그린다. 터치 영역은
+/// 라벨까지 포함해 48 이상 (글로벌 모바일 룰). 새 체크 variant 신설 금지 —
+/// 다른 화면에 체크가 필요하면 이걸 쓴다 (§3 코드·클래스 SSOT).
+class HkCheckRow extends StatelessWidget {
+  final bool value;
+  final String label;
+  final ValueChanged<bool> onChanged;
+  const HkCheckRow({
+    super.key,
+    required this.value,
+    required this.label,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () => onChanged(!value),
+      child: Container(
+        constraints: const BoxConstraints(minHeight: HyphenTokens.touchMin),
+        alignment: Alignment.centerLeft,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 20,
+              height: 20,
+              decoration: BoxDecoration(
+                color: value ? HyphenTokens.primary : HyphenTokens.surface,
+                border: Border.all(
+                    color: value ? HyphenTokens.primary : HyphenTokens.border),
+                borderRadius: BorderRadius.circular(HyphenTokens.r1),
+              ),
+              child: value
+                  ? const Icon(Icons.check,
+                      size: 14, color: HyphenTokens.onColor)
+                  : null,
+            ),
+            const SizedBox(width: HyphenTokens.sp2),
+            Text(label,
+                style: HyphenTokens.caption.copyWith(color: HyphenTokens.fg)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// 표준 카드 — surface + 1px border + r3.
 class HkCard extends StatelessWidget {
   final Widget child;

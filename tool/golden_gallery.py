@@ -99,6 +99,8 @@ SECTIONS = [
          "종료 수업 카드 — 버튼 숨김 + '종료' 배지 (CLASS_ENDED 게이트 UX)"),
         ("state_08_waitlist_cancel_dialog",
          "대기 취소 다이얼로그 — 대기자 이탈 경로 (G30 픽스)"),
+        ("state_09_login_remembered",
+         "로그인 — 기억한 아이디 채워진 상태 ('아이디 기억하기 30일', 2026-08-25)"),
     ]),
 ]
 

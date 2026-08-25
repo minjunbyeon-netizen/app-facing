@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
+import '../../core/remembered_login.dart';
 import '../../core/theme.dart';
 import '../../widgets/brand_logo.dart';
 import '../../widgets/hkit.dart';
@@ -27,7 +28,21 @@ class _BossLoginScreenState extends State<BossLoginScreen> {
   final _pwCtrl  = TextEditingController();
   bool _busy    = false;
   bool _pwVisible = false;
+  bool _remember = false;
   String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    // 30일 안에 로그인한 적이 있으면 아이디를 채워 둔다 (비밀번호는 저장 안 함).
+    RememberedLogin.load(RememberedLogin.coach).then((id) {
+      if (!mounted || id == null) return;
+      setState(() {
+        _idCtrl.text = id;
+        _remember = true;
+      });
+    });
+  }
 
   @override
   void dispose() {
@@ -59,6 +74,13 @@ class _BossLoginScreenState extends State<BossLoginScreen> {
         csrfToken:     data['csrf_token']?.toString() ?? '',
         sessionCookie: cookie,
       );
+
+      if (_remember) {
+        await RememberedLogin.save(
+            RememberedLogin.coach, _idCtrl.text.trim());
+      } else {
+        await RememberedLogin.clear(RememberedLogin.coach);
+      }
 
       if (!mounted) return;
       Haptic.heavy();
@@ -144,6 +166,17 @@ class _BossLoginScreenState extends State<BossLoginScreen> {
                   onFieldSubmitted: (_) => _login(),
                   validator: (v) =>
                       (v == null || v.isEmpty) ? '비밀번호를 입력해 주세요.' : null,
+                ),
+
+                // ─── 아이디 기억 (2026-08-25 사용자 요청) ──────────────
+                const SizedBox(height: HyphenTokens.sp1),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: HkCheckRow(
+                    value: _remember,
+                    label: '아이디 기억하기 (${RememberedLogin.days}일)',
+                    onChanged: (v) => setState(() => _remember = v),
+                  ),
                 ),
 
                 // ─── 에러 메시지 ──────────────────────────────────────

@@ -3,12 +3,16 @@ import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:hyphen_app/core/app_clock.dart';
 import 'package:hyphen_app/core/goals_state.dart';
 import 'package:hyphen_app/core/quotes.dart';
+import 'package:hyphen_app/features/auth/auth_state.dart';
+import 'package:hyphen_app/features/auth/member_login_screen.dart';
 import 'package:hyphen_app/features/classes/classes_screen.dart';
 import 'package:hyphen_app/features/gym/gym_repository.dart';
 import 'package:hyphen_app/features/gym/gym_state.dart';
 import 'package:hyphen_app/features/history/history_screen.dart';
+import 'package:hyphen_app/features/profile/profile_state.dart';
 import 'package:hyphen_app/features/home/home_screen.dart';
 import 'package:hyphen_app/features/shell/main_shell.dart';
 
@@ -149,6 +153,31 @@ void main() {
   });
 
   _wornTitleGoldens();
+  _rememberedLoginGolden();
+}
+
+// ── v3.18 (2026-08-25) 아이디 기억하기 ──
+// 30일 안에 로그인한 적이 있으면 아이디가 채워진 채 열린다 (비밀번호는 저장 X).
+// 체크가 켜진 상태를 고정해 둔다 — 빈 로그인 화면은 boss_01·common_08 이 이미 있다.
+void _rememberedLoginGolden() {
+  testWidgets('state: login remembered id', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues({
+      'remembered_login_id_member': 'seojun',
+      'remembered_login_until_member':
+          appClock.now().add(const Duration(days: 30)).millisecondsSinceEpoch,
+    });
+    final api = FakeApi(memberWorld());
+    await tester.pumpWidget(harness(
+      api: api,
+      auth: AuthState(),
+      profile: ProfileState(),
+      home: const MemberLoginScreen(),
+    ));
+    await tester.pumpAndSettle();
+    expect(find.text('아이디 기억하기 (30일)'), findsOneWidget);
+    await capture(tester, 'state_09_login_remembered');
+  });
 }
 
 // ── v3.12 (2026-08-23) 착용 칭호 ──
