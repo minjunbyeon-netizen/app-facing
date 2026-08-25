@@ -46,29 +46,14 @@ Future<bool> cancelClassFlow(
   final l = c.startAt.toLocal();
   final when = '${l.month}/${l.day} '
       '${l.hour.toString().padLeft(2, '0')}:${l.minute.toString().padLeft(2, '0')}';
-  final ok = await showDialog<bool>(
-    context: context,
-    builder: (ctx) => AlertDialog(
-      backgroundColor: HyphenTokens.surfaceOverlay,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(HyphenTokens.r4),
-      ),
-      title: Text(isWaitlistCancel ? '대기를 취소할까요?' : '예약을 취소할까요?'),
-      content: Text('${c.title} · $when', style: HyphenTokens.caption),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(ctx, false),
-          child: const Text('유지'),
-        ),
-        TextButton(
-          style: TextButton.styleFrom(foregroundColor: HyphenTokens.accent),
-          onPressed: () => Navigator.pop(ctx, true),
-          child: const Text('취소'),
-        ),
-      ],
-    ),
+  final ok = await HkDialog.confirm(
+    context,
+    title: isWaitlistCancel ? '대기를 취소할까요?' : '예약을 취소할까요?',
+    message: '${c.title} · $when',
+    cancelLabel: '유지',
+    confirmLabel: '취소',
   );
-  if (ok != true || !context.mounted) return false;
+  if (!ok || !context.mounted) return false;
   Haptic.medium();
   final messenger = HkSnack.of(context);
   try {

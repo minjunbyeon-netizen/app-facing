@@ -840,3 +840,189 @@ class HkSnack {
         danger: true);
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// v3.24 (2026-08-25 사용자 지시 "인라인·이원화 전부 통일") — 아래 4종은
+// 화면마다 흩어져 있던 것을 HKit 으로 끌어올린 정본이다. 화면 코드에서
+// AppBar( · AlertDialog( · showModalBottomSheet( · 에러 박스 Container 를
+// 직접 쓰면 §3 코드·클래스 SSOT 위반 — 여기 것을 쓴다.
+// ─────────────────────────────────────────────────────────────────────────
+
+/// 상단바 정본. 모양은 테마(appBarTheme)가, **무엇을 싣는지**는 여기가 정한다.
+///
+/// - [HkAppBar] — 밀어 넣은(push) 화면: 뒤로가기 + 제목 (+ 선택 actions).
+/// - [HkAppBar.identity] — 셸 상단바: 체육관명 + 역할 두 줄. 회원 셸·코치 셸이
+///   같은 것을 쓴다 — 탭이 바뀌어도 상단바는 안 바뀐다 (브리프 D46·D47).
+class HkAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final String? title;
+  final String? identityName;
+  final String? identityRole;
+  final List<Widget>? actions;
+  final bool implyLeading;
+
+  const HkAppBar(
+      {super.key,
+      required String this.title,
+      this.actions,
+      this.implyLeading = true})
+      : identityName = null,
+        identityRole = null;
+
+  const HkAppBar.identity(
+      {super.key, required String name, required String role, this.actions})
+      : title = null,
+        identityName = name,
+        identityRole = role,
+        implyLeading = false;
+
+  @override
+  Size get preferredSize => const Size.fromHeight(HyphenTokens.appBarH);
+
+  @override
+  Widget build(BuildContext context) {
+    if (identityName != null) {
+      return AppBar(
+        automaticallyImplyLeading: false,
+        centerTitle: true,
+        title: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(identityName!,
+                style: HyphenTokens.h3.copyWith(color: HyphenTokens.fg)),
+            Text(identityRole!,
+                style:
+                    HyphenTokens.micro.copyWith(color: HyphenTokens.primary)),
+          ],
+        ),
+        actions: actions,
+      );
+    }
+    return AppBar(
+      automaticallyImplyLeading: implyLeading,
+      title: Text(title!),
+      actions: actions,
+    );
+  }
+}
+
+/// 다이얼로그 정본 — 모양은 테마(dialogTheme), 버튼은 [HkButton] 만.
+///
+/// 확인형은 [confirm] (되돌릴 수 없는 동작은 `danger: true`), 알림형은 [info],
+/// 입력칸 등 자유 내용은 [custom]. 화면에서 AlertDialog 를 직접 만들지 않는다.
+class HkDialog {
+  HkDialog._();
+
+  static const EdgeInsets _actionsPad = EdgeInsets.fromLTRB(
+      HyphenTokens.sp3, 0, HyphenTokens.sp3, HyphenTokens.sp3);
+
+  /// 취소/확정 두 버튼. 확정이면 true.
+  static Future<bool> confirm(
+    BuildContext context, {
+    required String title,
+    String? message,
+    String confirmLabel = '확인',
+    String cancelLabel = '취소',
+    bool danger = false,
+  }) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: message == null ? null : Text(message),
+        actionsPadding: _actionsPad,
+        actions: [
+          HkButton.tertiary(cancelLabel,
+              neutral: true, onPressed: () => Navigator.pop(ctx, false)),
+          danger
+              ? HkButton.primary(confirmLabel,
+                  expand: false,
+                  danger: true,
+                  onPressed: () => Navigator.pop(ctx, true))
+              : HkButton.tertiary(confirmLabel,
+                  onPressed: () => Navigator.pop(ctx, true)),
+        ],
+      ),
+    );
+    return ok == true;
+  }
+
+  /// 확인 버튼 하나.
+  static Future<void> info(
+    BuildContext context, {
+    required String title,
+    required String message,
+    String label = '확인',
+  }) {
+    return showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actionsPadding: _actionsPad,
+        actions: [
+          HkButton.tertiary(label, onPressed: () => Navigator.pop(ctx)),
+        ],
+      ),
+    );
+  }
+
+  /// 자유 내용 (입력칸 등). actions 는 [HkButton] 으로 만든다.
+  static Future<T?> custom<T>(
+    BuildContext context, {
+    required String title,
+    required Widget content,
+    required List<Widget> Function(BuildContext ctx) actions,
+  }) {
+    return showDialog<T>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: content,
+        actionsPadding: _actionsPad,
+        actions: actions(ctx),
+      ),
+    );
+  }
+}
+
+/// 바텀시트 정본 — 모양은 테마(bottomSheetTheme). 항상 isScrollControlled.
+/// 시트 안에서 자기 배경을 그리는 위젯(WodResultSheet)만 `transparent: true`.
+class HkSheet {
+  HkSheet._();
+
+  static Future<T?> show<T>(
+    BuildContext context, {
+    required WidgetBuilder builder,
+    bool transparent = false,
+  }) {
+    return showModalBottomSheet<T>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: transparent ? Colors.transparent : null,
+      builder: builder,
+    );
+  }
+}
+
+/// 폼 안 인라인 에러 박스 (로그인 실패 등 — 화면을 갈아엎지 않고 그 자리에 알림).
+/// 전면 에러는 [HkErrorState], 스낵은 [HkSnack.error] — 셋은 자리가 다르다.
+class HkInlineError extends StatelessWidget {
+  final String message;
+  const HkInlineError(this.message, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+          horizontal: HyphenTokens.sp3, vertical: HyphenTokens.sp2),
+      decoration: BoxDecoration(
+        color: HyphenTokens.danger.withValues(alpha: 0.12),
+        border: Border.all(color: HyphenTokens.danger.withValues(alpha: 0.4)),
+        borderRadius: BorderRadius.circular(HyphenTokens.r2),
+      ),
+      child: Text(message,
+          style: HyphenTokens.caption.copyWith(color: HyphenTokens.danger)),
+    );
+  }
+}
+

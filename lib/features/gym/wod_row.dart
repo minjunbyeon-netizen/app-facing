@@ -179,14 +179,8 @@ class _WodRowState extends State<WodRow> {
     final gymId = gs.membership.gym?.id;
     if (gymId == null) return;
     Haptic.light();
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: HyphenTokens.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius:
-            BorderRadius.vertical(top: Radius.circular(HyphenTokens.r3)),
-      ),
+    HkSheet.show(
+      context,
       builder: (_) => _MsgCoachSheet(
         gymId: gymId,
         wod: widget.wod,
@@ -199,10 +193,9 @@ class _WodRowState extends State<WodRow> {
   /// 배지(week_board 카드·이 행 둘 다)의 원천이 GymState.wods 라 여기 한 곳이면 된다.
   Future<void> _openResultSheet(BuildContext context) async {
     Haptic.medium();
-    final saved = await showModalBottomSheet<bool>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+    final saved = await HkSheet.show<bool>(
+      context,
+      transparent: true,
       builder: (_) => WodResultSheet(wod: widget.wod),
     );
     if (saved == true && context.mounted) {

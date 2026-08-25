@@ -156,26 +156,13 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
   }
 
   void _showApprovalDialog(String gymName, ProfileState profile) {
-    showDialog<void>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: HyphenTokens.surface,
-        title: const Text('가입 신청 완료'),
-        content: Text(
-          '$gymName 에 가입을 신청했습니다.\n코치 승인 후 아이디로 로그인할 수 있습니다.',
-          style: const TextStyle(height: 1.5),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              _goNext(profile);
-            },
-            child: const Text('확인'),
-          ),
-        ],
-      ),
-    );
+    HkDialog.info(
+      context,
+      title: '가입 신청 완료',
+      message: '$gymName 에 가입을 신청했습니다.\n코치 승인 후 아이디로 로그인할 수 있습니다.',
+    ).then((_) {
+      if (mounted) _goNext(profile);
+    });
   }
 
   /// 가입 직후 목적지.

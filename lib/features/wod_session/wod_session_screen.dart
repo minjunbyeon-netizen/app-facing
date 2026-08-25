@@ -167,14 +167,8 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
     final repsCtrl = TextEditingController();
     // QA B-COR-2: 모달 닫힌 후 controller dispose 보장.
     try {
-      await showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: HyphenTokens.surface,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius:
-            BorderRadius.vertical(top: Radius.circular(HyphenTokens.r4)),
-      ),
+      await HkSheet.show<void>(
+      context,
       builder: (sheetCtx) {
         return StatefulBuilder(builder: (innerCtx, setSheet) {
         return Padding(
@@ -462,29 +456,14 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
   Future<bool> _confirmExitIfRunning() async {
     if (!_running && _elapsedSec == 0) return true;
     if (_completed) return true;
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: HyphenTokens.surfaceOverlay,
-        title: const Text('세션 진행 중'),
-        content: const Text(
-          '타이머 기록을 저장하지 않고 종료하면 소실됩니다.\n계속 종료하시겠습니까?',
-          style: HyphenTokens.caption,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('계속'),
-          ),
-          TextButton(
-            style: TextButton.styleFrom(foregroundColor: HyphenTokens.accent),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('종료'),
-          ),
-        ],
-      ),
+    return HkDialog.confirm(
+      context,
+      title: '세션 진행 중',
+      message: '타이머 기록을 저장하지 않고 종료하면 소실됩니다.\n계속 종료하시겠습니까?',
+      cancelLabel: '계속',
+      confirmLabel: '종료',
+      danger: true,
     );
-    return ok == true;
   }
 
   @override

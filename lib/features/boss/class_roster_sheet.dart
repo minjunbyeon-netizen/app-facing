@@ -32,10 +32,8 @@ import 'class_roster_model.dart';
 Future<void> showClassRosterSheet(BuildContext context, int classId,
     {VoidCallback? onChanged}) async {
   var dirty = false;
-  await showModalBottomSheet<void>(
-    context: context,
-    backgroundColor: HyphenTokens.bg,
-    isScrollControlled: true,
+  await HkSheet.show<void>(
+    context,
     builder: (_) => _ClassRosterSheet(
       classId: classId,
       onDirty: () => dirty = true,

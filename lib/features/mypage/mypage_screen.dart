@@ -292,33 +292,15 @@ class _MyBoxSection extends StatelessWidget {
   // ignore: unused_element
   Future<void> _confirmLeave(BuildContext context, GymState gs) async {
     final gymName = gs.membership.gym?.name ?? '체육관';
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (dialogCtx) => AlertDialog(
-        backgroundColor: HyphenTokens.surfaceOverlay,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(HyphenTokens.r5),
-        ),
-        title: const Text('체육관을 탈퇴할까요?'),
-        content: Text(
-          '$gymName 에서 탈퇴합니다.\n'
+    final ok = await HkDialog.confirm(
+      context,
+      title: '체육관을 탈퇴할까요?',
+      message: '$gymName 에서 탈퇴합니다.\n'
           '다시 들어오려면 가입 신청을 넣고 코치 승인을 받아야 합니다.',
-          style: HyphenTokens.caption,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogCtx, false),
-            child: const Text('취소'),
-          ),
-          TextButton(
-            style: TextButton.styleFrom(foregroundColor: HyphenTokens.accent),
-            onPressed: () => Navigator.pop(dialogCtx, true),
-            child: const Text('탈퇴'),
-          ),
-        ],
-      ),
+      confirmLabel: '탈퇴',
+      danger: true,
     );
-    if (ok != true) return;
+    if (!ok) return;
     if (!context.mounted) return;
     final success = await gs.leaveGym();
     if (!context.mounted) return;
@@ -574,35 +556,17 @@ class _ActionsSection extends StatelessWidget {
   }
 
   Future<void> _confirmReset(BuildContext context) async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (dialogCtx) => AlertDialog(
-        backgroundColor: HyphenTokens.surfaceOverlay,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(HyphenTokens.r5),
-        ),
-        title: const Text('데이터를 초기화할까요?'),
-        // v3.2 (2026-08-20): 등급·벤치마크는 소멸한 항목 — 실동작은
-        // prefs.clear() (이 기기 한정). 서버 기록은 남는다.
-        content: const Text(
-          '이 기기에 저장된 프로필·목표·설정을 전부 삭제합니다.\n'
+    // v3.2 (2026-08-20): 등급·벤치마크는 소멸한 항목 — 실동작은
+    // prefs.clear() (이 기기 한정). 서버 기록은 남는다.
+    final ok = await HkDialog.confirm(
+      context,
+      title: '데이터를 초기화할까요?',
+      message: '이 기기에 저장된 프로필·목표·설정을 전부 삭제합니다.\n'
           '되돌릴 수 없습니다.',
-          style: HyphenTokens.caption,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogCtx, false),
-            child: const Text('취소'),
-          ),
-          TextButton(
-            style: TextButton.styleFrom(foregroundColor: HyphenTokens.accent),
-            onPressed: () => Navigator.pop(dialogCtx, true),
-            child: const Text('초기화'),
-          ),
-        ],
-      ),
+      confirmLabel: '초기화',
+      danger: true,
     );
-    if (ok != true) return;
+    if (!ok) return;
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
     if (!context.mounted) return;
@@ -610,35 +574,15 @@ class _ActionsSection extends StatelessWidget {
   }
 
   Future<void> _confirmSignOut(BuildContext context) async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (dialogCtx) => AlertDialog(
-        backgroundColor: HyphenTokens.surfaceOverlay,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(HyphenTokens.r5),
-        ),
-        title: const Text('로그아웃'),
-        content: const Text(
-          // V9: 영문 명사 + 한글 조사 혼용("provider로") 제거.
-          '로그아웃해도 프로필·기록은 이 기기에 그대로 유지됩니다.\n'
+    final ok = await HkDialog.confirm(
+      context,
+      title: '로그아웃',
+      message: '로그아웃해도 프로필·기록은 이 기기에 그대로 유지됩니다.\n'
           '같은 계정으로 다시 로그인하면 모든 데이터가 복구됩니다.\n'
           '계정 삭제는 내 정보 → 개인정보처리방침 → 계정 삭제.',
-          style: HyphenTokens.caption,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogCtx, false),
-            child: const Text('취소'),
-          ),
-          TextButton(
-            style: TextButton.styleFrom(foregroundColor: HyphenTokens.fgSecondary),
-            onPressed: () => Navigator.pop(dialogCtx, true),
-            child: const Text('로그아웃'),
-          ),
-        ],
-      ),
+      confirmLabel: '로그아웃',
     );
-    if (ok != true) return;
+    if (!ok) return;
     if (!context.mounted) return;
     await context.read<AuthState>().signOut();
     if (!context.mounted) return;

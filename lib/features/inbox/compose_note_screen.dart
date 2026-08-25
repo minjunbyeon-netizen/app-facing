@@ -78,15 +78,8 @@ class _ComposeNoteScreenState extends State<ComposeNoteScreen> {
     String unit = 'pct_1rm';
     bool? ok;
     try {
-      ok = await showModalBottomSheet<bool>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: HyphenTokens.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(HyphenTokens.r4),
-        ),
-      ),
+      ok = await HkSheet.show<bool>(
+      context,
       builder: (ctx) => StatefulBuilder(builder: (innerCtx, setSheet) {
         return Padding(
           padding: EdgeInsets.only(

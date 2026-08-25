@@ -58,14 +58,8 @@ class _ChallengeSectionState extends State<ChallengeSection> {
     // 컨트롤러는 _LogSheet(State) 가 소유 — 종전엔 시트 pop 직후 finally 로
     // dispose 해, 퇴장 애니메이션 중인 TextField 가 죽은 컨트롤러를 물고
     // 프레임워크 단정('_dependents.isEmpty')으로 크래시했다 (2026-08-24 실기).
-    await showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: HyphenTokens.surface,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius:
-            BorderRadius.vertical(top: Radius.circular(HyphenTokens.r4)),
-      ),
+    await HkSheet.show<void>(
+      context,
       builder: (ctx) => _LogSheet(
         rule: r,
         repo: repo,

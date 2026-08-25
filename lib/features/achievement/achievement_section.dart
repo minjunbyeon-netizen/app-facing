@@ -24,12 +24,8 @@ class AchievementSection extends StatelessWidget {
     AchievementUnlock? unlock,
   ) {
     Haptic.light();
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: HyphenTokens.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(HyphenTokens.r3)),
-      ),
+    HkSheet.show(
+      context,
       builder: (_) => _DetailSheet(
         catalog: catalog,
         unlock: unlock,

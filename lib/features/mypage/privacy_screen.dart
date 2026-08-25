@@ -110,33 +110,15 @@ class PrivacyScreen extends StatelessWidget {
   }
 
   Future<void> _confirmDelete(BuildContext context) async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: HyphenTokens.surfaceOverlay,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(HyphenTokens.r5),
-        ),
-        title: const Text('계정 삭제'),
-        content: const Text(
-          '서버·로컬 모든 데이터가 영구 삭제됩니다.\n'
+    final ok = await HkDialog.confirm(
+      context,
+      title: '계정 삭제',
+      message: '서버·로컬 모든 데이터가 영구 삭제됩니다.\n'
           '복구 불가. 계속하시겠습니까?',
-          style: HyphenTokens.caption,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('취소'),
-          ),
-          TextButton(
-            style: TextButton.styleFrom(foregroundColor: HyphenTokens.error),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('삭제'),
-          ),
-        ],
-      ),
+      confirmLabel: '삭제',
+      danger: true,
     );
-    if (ok != true) return;
+    if (!ok) return;
     if (!context.mounted) return;
     Haptic.heavy();
 

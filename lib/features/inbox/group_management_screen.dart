@@ -63,14 +63,8 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
       return;
     }
     try {
-      final ok = await showModalBottomSheet<bool>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: HyphenTokens.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius:
-            BorderRadius.vertical(top: Radius.circular(HyphenTokens.r4)),
-      ),
+      final ok = await HkSheet.show<bool>(
+      context,
       builder: (ctx) => StatefulBuilder(builder: (innerCtx, setSheet) {
         return Padding(
           padding: EdgeInsets.only(
@@ -239,14 +233,8 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
       return;
     }
     try {
-      final ok = await showModalBottomSheet<bool>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: HyphenTokens.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius:
-            BorderRadius.vertical(top: Radius.circular(HyphenTokens.r4)),
-      ),
+      final ok = await HkSheet.show<bool>(
+      context,
       builder: (ctx) => Padding(
         padding: EdgeInsets.only(
           left: HyphenTokens.sp4,

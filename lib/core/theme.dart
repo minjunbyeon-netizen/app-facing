@@ -490,6 +490,37 @@ class HyphenTheme {
         borderRadius: BorderRadius.circular(HyphenTokens.r3),
         borderSide: const BorderSide(color: HyphenTokens.borderStrong),
       ),
+      // v3.24 (2026-08-25 SSOT 통일): 에러 상태도 테마가 갖는다 — 로그인·가입
+      // 화면이 각자 _inputDeco 를 들고 있던 이유가 이 셋의 부재였다.
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(HyphenTokens.r3),
+        borderSide: const BorderSide(color: HyphenTokens.danger),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(HyphenTokens.r3),
+        borderSide: const BorderSide(color: HyphenTokens.danger, width: 2),
+      ),
+      errorStyle: HyphenTokens.micro.copyWith(color: HyphenTokens.danger),
+    ),
+    // v3.24: 다이얼로그·바텀시트 모양은 여기 한 곳 — 화면마다 backgroundColor·
+    // shape 를 인라인으로 적던 것(11+13곳) 을 전부 걷어냈다. 호출은 HkDialog·HkSheet.
+    dialogTheme: DialogThemeData(
+      backgroundColor: HyphenTokens.surface,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(HyphenTokens.r4),
+      ),
+      titleTextStyle: HyphenTokens.h3.copyWith(color: HyphenTokens.fg),
+      contentTextStyle: HyphenTokens.caption,
+    ),
+    bottomSheetTheme: const BottomSheetThemeData(
+      backgroundColor: HyphenTokens.surface,
+      surfaceTintColor: Colors.transparent,
+      // DESIGN-SSOT §모서리: r5(28) 시트.
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(HyphenTokens.r5)),
+      ),
+      showDragHandle: false,
     ),
     cardTheme: CardThemeData(
       color: HyphenTokens.surface,

@@ -74,14 +74,8 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
     String? sheetError;
     // QA B-GYM-2: 모달 닫힌 후 controller dispose 보장.
     try {
-      await showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: HyphenTokens.surface,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius:
-            BorderRadius.vertical(top: Radius.circular(HyphenTokens.r4)),
-      ),
+      await HkSheet.show<void>(
+      context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheet) => Padding(
         padding: EdgeInsets.only(

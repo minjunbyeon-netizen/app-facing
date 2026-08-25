@@ -138,14 +138,8 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
     for (int i = 0; i < totalSets; i++) {
       controllers[i] = _ActualCtrls();
     }
-    final result = await showModalBottomSheet<List<ActualSet>?>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: HyphenTokens.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius:
-            BorderRadius.vertical(top: Radius.circular(HyphenTokens.r4)),
-      ),
+    final result = await HkSheet.show<List<ActualSet>?>(
+      context,
       builder: (ctx) => Padding(
         padding: EdgeInsets.only(
           left: HyphenTokens.sp4,
@@ -254,14 +248,8 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
     final freeCtrl = TextEditingController();
     // v1.19 페르소나 P0-6: 회원이 거절 사유 선택 가능. P1-17: '부상' 선택 시 의료 메모 prefill.
     final injuryNotes = context.read<ProfileState>().injuryNotes;
-    final result = await showModalBottomSheet<String?>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: HyphenTokens.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius:
-            BorderRadius.vertical(top: Radius.circular(HyphenTokens.r4)),
-      ),
+    final result = await HkSheet.show<String?>(
+      context,
       builder: (ctx) => StatefulBuilder(builder: (innerCtx, setSheet) {
         return Padding(
           padding: EdgeInsets.only(
@@ -343,14 +331,8 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
 
   Future<String?> _openAskModal() async {
     final ctrl = TextEditingController();
-    final result = await showModalBottomSheet<String?>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: HyphenTokens.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius:
-            BorderRadius.vertical(top: Radius.circular(HyphenTokens.r4)),
-      ),
+    final result = await HkSheet.show<String?>(
+      context,
       builder: (ctx) => Padding(
         padding: EdgeInsets.only(
           left: HyphenTokens.sp4,

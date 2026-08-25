@@ -9,6 +9,7 @@ import '../../core/theme.dart';
 import '../history/history_models.dart';
 import '../history/history_repository.dart';
 import '../../core/app_clock.dart';
+import '../../widgets/hkit.dart';
 
 class GoalsScreen extends StatefulWidget {
   const GoalsScreen({super.key});
@@ -181,71 +182,55 @@ class _GoalsScreenState extends State<GoalsScreen> {
   void _editFran(BuildContext context, GoalsState goals) {
     // QA B-ML-8: ctrl dispose 보장.
     final ctrl = TextEditingController(text: goals.franPrDisplay);
-    showDialog<void>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: HyphenTokens.surfaceOverlay,
-        title: const Text('Fran PR 목표'),
-        content: TextField(
-          controller: ctrl,
-          autofocus: true,
-          decoration: const InputDecoration(
-            hintText: '2:00 (분:초)',
-            labelText: 'Target Time',
-          ),
-          keyboardType: TextInputType.datetime,
+    HkDialog.custom<void>(
+      context,
+      title: 'Fran PR 목표',
+      content: TextField(
+        controller: ctrl,
+        autofocus: true,
+        decoration: const InputDecoration(
+          hintText: '2:00 (분:초)',
+          labelText: 'Target Time',
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('취소'),
-          ),
-          TextButton(
-            onPressed: () {
-              final m = RegExp(r'^(\d+):(\d{1,2})$').firstMatch(ctrl.text);
-              if (m != null) {
-                final sec =
-                    int.parse(m.group(1)!) * 60 + int.parse(m.group(2)!);
-                goals.setFranPrSec(sec).then((_) => goals.sync());
-              }
-              Navigator.pop(ctx);
-            },
-            child: const Text('저장'),
-          ),
-        ],
+        keyboardType: TextInputType.datetime,
       ),
+      actions: (ctx) => [
+        HkButton.tertiary('취소',
+            neutral: true, onPressed: () => Navigator.pop(ctx)),
+        HkButton.tertiary('저장', onPressed: () {
+          final m = RegExp(r'^(\d+):(\d{1,2})$').firstMatch(ctrl.text);
+          if (m != null) {
+            final sec =
+                int.parse(m.group(1)!) * 60 + int.parse(m.group(2)!);
+            goals.setFranPrSec(sec).then((_) => goals.sync());
+          }
+          Navigator.pop(ctx);
+        }),
+      ],
     ).whenComplete(ctrl.dispose);
   }
 
   void _editBackSquat(BuildContext context, GoalsState goals) {
     final ctrl = TextEditingController(
         text: goals.backSquatKg == 0 ? '' : '${goals.backSquatKg.toInt()}');
-    showDialog<void>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: HyphenTokens.surfaceOverlay,
-        title: const Text('Back Squat Target (kg)'),
-        content: TextField(
-          controller: ctrl,
-          autofocus: true,
-          keyboardType: TextInputType.number,
-          decoration: const InputDecoration(hintText: '140'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('취소'),
-          ),
-          TextButton(
-            onPressed: () {
-              final v = double.tryParse(ctrl.text);
-              if (v != null) goals.setBackSquatKg(v).then((_) => goals.sync());
-              Navigator.pop(ctx);
-            },
-            child: const Text('저장'),
-          ),
-        ],
+    HkDialog.custom<void>(
+      context,
+      title: 'Back Squat Target (kg)',
+      content: TextField(
+        controller: ctrl,
+        autofocus: true,
+        keyboardType: TextInputType.number,
+        decoration: const InputDecoration(hintText: '140'),
       ),
+      actions: (ctx) => [
+        HkButton.tertiary('취소',
+            neutral: true, onPressed: () => Navigator.pop(ctx)),
+        HkButton.tertiary('저장', onPressed: () {
+          final v = double.tryParse(ctrl.text);
+          if (v != null) goals.setBackSquatKg(v).then((_) => goals.sync());
+          Navigator.pop(ctx);
+        }),
+      ],
     ).whenComplete(ctrl.dispose);
   }
 }
