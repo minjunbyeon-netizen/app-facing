@@ -98,6 +98,11 @@ class _LoginScreenState extends State<LoginScreen> {
           sessionCookie: result['session_cookie'] as String? ?? '',
         );
       } else {
+        // 창구가 하나가 되면서 같은 폰에서 코치 → 회원 전환이 흔해졌다.
+        // 코치 세션(secure storage)을 안 지우면 main.dart 의 staffPush 리스너가
+        // 계속 살아 회원이 스태프 알림을 받는다 — 회원으로 들어올 땐 먼저 끊는다.
+        if (bossAuth.isLoggedIn) await bossAuth.clear();
+
         final deviceId = data['device_id']?.toString() ?? '';
         if (deviceId.isEmpty) {
           throw AppException('로그인 응답이 올바르지 않습니다.', code: 'NO_DEVICE_ID');
