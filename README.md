@@ -69,3 +69,11 @@ samples, guidance on mobile development, and a full API reference.
     0 인 고아였다 (earn_rate 자동 적립·redeem_unit 검증·만료 처리 전부 미구현).
     DB 표는 존치. 같은 날 WOD 첫 기록 100P 하드코딩(api/gym.py `WOD_RESULT_POINTS`)도
     폐기 — 포인트 지급은 리워드 규칙 엔진(자동) + PC 수동 지급 프리셋 두 경로로 정리.
+15. **코치 전용 로그인 화면 + '코치 로그인' 진입 (v3.19 · 2026-08-25 사용자 지시
+    "로그인 창구는 하나")** — `lib/features/boss/boss_login_screen.dart`(BossLoginScreen)
+    + `/boss/login` 라우트 + 진입 화면(`signup_screen.dart`)의 '코치 로그인' 줄
+    (`_kShowBossEntry`) + 골든 `boss_01_login`. 사람이 자기 역할을 골라 들어가는
+    구조 자체를 폐기 — 아이디·비밀번호만 받고 코치/회원 판정은 **서버**가 한다
+    (`POST /api/v1/auth/login` → `kind`). 로그인 화면 하나 = `login_screen.dart`
+    (구 `member_login_screen.dart`, 골든 `common_08_login`). 백엔드 구 창구 2개
+    (`/api/v1/admin/login`·`/api/v1/auth/member-login`)는 관리자 웹·구 APK 때문에 유지.

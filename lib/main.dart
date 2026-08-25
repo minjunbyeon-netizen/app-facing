@@ -23,7 +23,7 @@ import 'features/history/history_screen.dart';
 import 'features/achievement/achievement_repository.dart';
 import 'features/achievement/achievement_state.dart';
 import 'features/auth/auth_state.dart';
-import 'features/auth/member_login_screen.dart';
+import 'features/auth/login_screen.dart';
 import 'features/auth/signup_screen.dart';
 import 'features/signup/self_signup_screen.dart';
 import 'features/gym/gym_repository.dart';
@@ -35,7 +35,6 @@ import 'features/mypage/mypage_screen.dart';
 import 'features/shell/main_shell.dart';
 import 'features/boss/boss_auth_state.dart';
 import 'features/boss/boss_api_client.dart';
-import 'features/boss/boss_login_screen.dart';
 import 'features/shell/coach_shell.dart';
 import 'features/boss/settings_screen.dart';
 import 'features/classes/classes_screen.dart';
@@ -187,14 +186,16 @@ class HyphenApp extends StatelessWidget {
           // 코드까지 삭제 — 목록·복원 좌표 = README.md §제거된 기능 대장.
           // PHASE5 Sprint1 F4 — 신규 회원 체육관 선택 + 자동 가입 신청
           '/signup/self': (_) => const SelfSignupScreen(),
-          // 회원 아이디·비밀번호 로그인 (backend api/member_auth.py)
-          '/login/member': (_) => const MemberLoginScreen(),
+          // 로그인 창구는 하나 (v3.19 · backend api/auth_login.py) —
+          // 계정이 코치인지 회원인지는 서버가 판정해 kind 로 내려준다.
+          '/login': (_) => const LoginScreen(),
           '/home': (_) => const HomeScreen(),
           '/shell': (_) => const MainShell(),
           '/mypage': (_) => const MyPageScreen(),
           '/history': (_) => const HistoryScreen(),
-          // PHASE5 §1.1·§1.2: 사장 폰 로그인·대시보드
-          '/boss/login': (_) => const BossLoginScreen(),
+          // v3.19 (2026-08-25 사용자 지시): '/boss/login' 라우트·BossLoginScreen 삭제 —
+          // 역할별 입구를 없앴다. 코치도 '/login' 으로 들어와 서버 판정으로 갈린다
+          // (README.md §제거된 기능 대장).
           // v3.2 (2026-08-20): '/auth/link-staff'(직원 계정 연결) 라우트·화면 삭제 —
           // 어떤 UI 도 밀어주지 않던 죽은 진입 (README §제거된 기능 대장, BRIEF D37).
           // v3.3 (2026-08-18 사용자 지시) — 코치 앱 = 간단 2탭 셸

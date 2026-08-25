@@ -7,7 +7,7 @@ import 'package:hyphen_app/core/app_clock.dart';
 import 'package:hyphen_app/core/goals_state.dart';
 import 'package:hyphen_app/core/quotes.dart';
 import 'package:hyphen_app/features/auth/auth_state.dart';
-import 'package:hyphen_app/features/auth/member_login_screen.dart';
+import 'package:hyphen_app/features/auth/login_screen.dart';
 import 'package:hyphen_app/features/classes/classes_screen.dart';
 import 'package:hyphen_app/features/gym/gym_repository.dart';
 import 'package:hyphen_app/features/gym/gym_state.dart';
@@ -163,8 +163,8 @@ void _rememberedLoginGolden() {
   testWidgets('state: login remembered id', (tester) async {
     phone(tester);
     SharedPreferences.setMockInitialValues({
-      'remembered_login_id_member': 'seojun',
-      'remembered_login_until_member':
+      'remembered_login_id': 'seojun',
+      'remembered_login_until':
           appClock.now().add(const Duration(days: 30)).millisecondsSinceEpoch,
     });
     final api = FakeApi(memberWorld());
@@ -172,7 +172,7 @@ void _rememberedLoginGolden() {
       api: api,
       auth: AuthState(),
       profile: ProfileState(),
-      home: const MemberLoginScreen(),
+      home: const LoginScreen(),
     ));
     await tester.pumpAndSettle();
     expect(find.text('아이디 기억하기 (30일)'), findsOneWidget);

@@ -317,7 +317,8 @@ R5. **하드코드 fontSize 금지.** 모든 텍스트 크기는 `HyphenTokens` 
 
 | 위치 | 카피 |
 |---|---|
-| Splash / 로그인 / 전면 로딩 | **HYPHEN 로고** (BrandLogo 기본 폭 220) — 전면 로딩은 FkLoadingScreen |
+| Splash / 진입 / 전면 로딩 | **HYPHEN 로고** (BrandLogo 기본 폭 220) — 전면 로딩은 FkLoadingScreen |
+| 로그인 화면 | **로고 없음** (v3.19 사용자 지시) — 제목 '로그인' + 아이디/비밀번호. 역할 선택 없음 (코치·회원 판정은 서버) |
 | 로그인 버튼 | "네이버 아이디로 로그인" (1순위) · "구글로 시작" — FkSocialButton |
 | 로그인 진행 | FkLoadingScreen(caption: '로그인 중') |
 | 셸 3탭 | 홈 · 수업 · 내 정보 (v3.0 — 크로스핏 표기 철수) |
@@ -367,11 +368,13 @@ python tool/golden_gallery.py               # 단일 HTML 갤러리 (build/golde
 가짜 백엔드(`test/golden/fakes.dart` — ApiClient implements, 네트워크 0)로 실물 픽셀 렌더
 (갤S22 급 360×780·2x). 폰트는 `test/flutter_test_config.dart` 가 FontManifest 전체
 (Pretendard·MaterialIcons)를 로드. 참조 아키텍처: `apps/writeplz-app` 골든스탠다드.
-현재 **61장** (2026-08-25 실측 — 8/21 "45장" 서술 이후 v3.4~v3.18 증가분 포함.
-prefix 집계: member 25 · boss 9 · state 9 · common 5 · coach 3 · snack 3 ·
-splash 3 · ach 2 · hist 1 · onb 1. 2026-08-25 신규 3장 = member_22 전자계약
-상세(항목 이름 한글화) · boss_09 코치 설정 '요금제' 탭(금액·기간·종류 한글 표기)
-· state_09 로그인 '아이디 기억하기' 채워진 상태.
+현재 **60장** (2026-08-25 실측 — 8/21 "45장" 서술 이후 v3.4~v3.19 증감 포함.
+prefix 집계: member 25 · state 9 · boss 8 · common 5 · coach 3 · snack 3 ·
+splash 3 · ach 2 · hist 1 · onb 1. 2026-08-25 로그인 창구 통합(v3.19) 증감 =
+`boss_01_login` 삭제(코치 전용 로그인 화면 폐기) · `common_08_member_login`
+→ `common_08_login` 개명(로고 없는 통합 로그인). 같은 날 신규 3장 = member_22
+전자계약 상세(항목 이름 한글화) · boss_09 코치 설정 '요금제' 탭(금액·기간·종류
+한글 표기) · state_09 로그인 '아이디 기억하기' 채워진 상태.
 2026-08-24 신규 3장 = state_07 종료 수업 카드 · boss_08 코치 설정 '예약'
 탭(하루 예약 한도) · state_08 대기 취소 다이얼로그(G30) — 브리프 D41.
 장별 상세 목록 정본 = `tool/golden_gallery.py` SECTIONS).

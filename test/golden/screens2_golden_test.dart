@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hyphen_app/core/quotes.dart';
 import 'package:hyphen_app/features/achievement/achievements_screen.dart';
 import 'package:hyphen_app/features/auth/auth_state.dart';
-import 'package:hyphen_app/features/auth/member_login_screen.dart';
+import 'package:hyphen_app/features/auth/login_screen.dart';
 import 'package:hyphen_app/features/boss/boss_dashboard_screen.dart';
 import 'package:hyphen_app/features/boss/settings_screen.dart';
 import 'package:hyphen_app/features/classes/classes_screen.dart';
@@ -342,7 +342,9 @@ void main() {
   });
 
   // ── 공통: 회원 아이디 로그인 (로그인 화면 '아이디로 로그인') ──
-  testWidgets('common: member id login', (tester) async {
+  // v3.19 (2026-08-25) 창구 통합 — 회원·코치가 같은 화면으로 들어온다.
+  // 로고 없음 + 제목 '로그인' + 역할 선택 없음이 이 캡처의 요점.
+  testWidgets('common: login', (tester) async {
     phone(tester);
     SharedPreferences.setMockInitialValues({});
     final api = FakeApi(memberWorld());
@@ -350,8 +352,8 @@ void main() {
         api: api,
         auth: AuthState(),
         profile: ProfileState(),
-        home: const MemberLoginScreen()));
-    await capture(tester, 'common_08_member_login');
+        home: const LoginScreen()));
+    await capture(tester, 'common_08_login');
   });
 
   // ── 코치 셸 3탭 (v3.4) — 예약 현황 · 수업 · 쪽지 ──

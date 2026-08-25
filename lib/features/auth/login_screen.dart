@@ -1,32 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/device_id.dart';
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/remembered_login.dart';
 import '../../core/theme.dart';
-import '../../widgets/brand_logo.dart';
 import '../../widgets/hkit.dart';
-import 'boss_api_client.dart';
-import 'boss_auth_state.dart';
+import '../boss/boss_api_client.dart';
+import '../boss/boss_auth_state.dart';
+import '../gym/gym_state.dart';
+import '../profile/profile_state.dart';
+import 'auth_state.dart';
 
-/// PHASE5 §1.1 — 스태프(코치·매니저·사장) 폰 로그인 화면.
-/// 2026-08-12: 코치=사장 권한 확정 (사용자 결정). 백엔드 admin_login 은 role 무제한이고
-/// dashboard 는 @require_role(["boss","coach"]) 라 코치도 원래 들어왔으나, 화면 라벨이
-/// '사장'이라 코치가 자기 입구를 못 찾던 문제를 라벨로만 해소 (라우트 /boss/login 은 유지).
-/// ID/PW → POST /api/v1/admin/login → BossAuthState 저장 → /boss/dashboard
-class BossLoginScreen extends StatefulWidget {
-  const BossLoginScreen({super.key});
+/// 로그인 — **창구는 하나다** (v3.19 · 2026-08-25 사용자 지시).
+///
+/// 사람이 '회원 로그인 / 코치 로그인' 을 골라 들어가는 구조 자체를 없앴다.
+/// 아이디·비밀번호만 받고 계정 유형 판정은 **서버**가 한다:
+/// `POST /api/v1/auth/login` 이 `kind: coach|member` 를 내려주고, 이 화면은
+/// 그 값만 보고 코치 셸(`/boss/dashboard`) 과 회원 셸(`/shell`) 로 가른다.
+///
+/// - 코치: 응답의 세션 쿠키·CSRF 를 [BossAuthState] 에 저장 (구 BossLoginScreen 몫).
+/// - 회원: 응답의 device_id 를 [DeviceIdService.adopt] 로 채택 — 이후 모든 회원
+///   API 는 종전대로 X-Device-Id 헤더로 동작한다. 폰이 바뀌어도 같은 기록으로 들어온다.
+///
+/// 사용자 지시로 이 화면에는 브랜드 로고를 넣지 않는다 (스플래시·진입 화면과 구분).
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
 
   @override
-  State<BossLoginScreen> createState() => _BossLoginScreenState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _BossLoginScreenState extends State<BossLoginScreen> {
+class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _idCtrl  = TextEditingController();
-  final _pwCtrl  = TextEditingController();
-  bool _busy    = false;
+  final _idCtrl = TextEditingController();
+  final _pwCtrl = TextEditingController();
+  bool _busy = false;
   bool _pwVisible = false;
   bool _remember = false;
   String? _error;
@@ -35,7 +45,7 @@ class _BossLoginScreenState extends State<BossLoginScreen> {
   void initState() {
     super.initState();
     // 30일 안에 로그인한 적이 있으면 아이디를 채워 둔다 (비밀번호는 저장 안 함).
-    RememberedLogin.load(RememberedLogin.coach).then((id) {
+    RememberedLogin.load().then((id) {
       if (!mounted || id == null) return;
       setState(() {
         _idCtrl.text = id;
@@ -53,46 +63,77 @@ class _BossLoginScreenState extends State<BossLoginScreen> {
 
   Future<void> _login() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    setState(() { _busy = true; _error = null; });
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
     Haptic.medium();
 
-    final api   = context.read<BossApiClient>();
-    final auth  = context.read<BossAuthState>();
+    final loginId = _idCtrl.text.trim();
+    final bossApi = context.read<BossApiClient>();
+    final bossAuth = context.read<BossAuthState>();
+    final auth = context.read<AuthState>();
+    final profile = context.read<ProfileState>();
+    final navigator = Navigator.of(context);
+    GymState? gymState;
+    try {
+      gymState = context.read<GymState>();
+    } catch (_) {}
 
     try {
-      final result = await api.login(_idCtrl.text.trim(), _pwCtrl.text);
-      final data   = result['data'] as Map<String, dynamic>;
-      final cookie = result['session_cookie'] as String? ?? '';
+      final result = await bossApi.unifiedLogin(loginId, _pwCtrl.text);
+      final data = result['data'] as Map<String, dynamic>;
+      // 판정은 서버가 한다. 앱은 kind 만 보고 갈라 준다.
+      final isCoach = data['kind']?.toString() == 'coach';
 
-      final gym = data['active_gym'] as Map<String, dynamic>? ?? {};
-      await auth.save(
-        loginId:       data['login_id']?.toString() ?? '',
-        name:          data['name']?.toString()     ?? '',
-        role:          data['role']?.toString()     ?? 'boss',
-        gymId:         (gym['gym_id'] as num?)?.toInt() ?? 0,
-        gymName:       gym['gym_name']?.toString()  ?? '',
-        csrfToken:     data['csrf_token']?.toString() ?? '',
-        sessionCookie: cookie,
-      );
+      if (isCoach) {
+        final gym = data['active_gym'] as Map<String, dynamic>? ?? {};
+        await bossAuth.save(
+          loginId: data['login_id']?.toString() ?? loginId,
+          name: data['name']?.toString() ?? '',
+          role: data['role']?.toString() ?? 'coach',
+          gymId: (gym['gym_id'] as num?)?.toInt() ?? 0,
+          gymName: gym['gym_name']?.toString() ?? '',
+          csrfToken: data['csrf_token']?.toString() ?? '',
+          sessionCookie: result['session_cookie'] as String? ?? '',
+        );
+      } else {
+        final deviceId = data['device_id']?.toString() ?? '';
+        if (deviceId.isEmpty) {
+          throw AppException('로그인 응답이 올바르지 않습니다.', code: 'NO_DEVICE_ID');
+        }
+        // 이 기기의 신원을 로그인한 회원으로 교체.
+        await DeviceIdService.adopt(deviceId);
+        await auth.signIn('member_id',
+            displayName: data['name']?.toString() ?? loginId);
+
+        // 체육관 소속·프로필 미리 불러오기 (실패해도 진입은 막지 않는다).
+        try {
+          await gymState?.loadMine();
+        } catch (_) {}
+        try {
+          await profile.load();
+        } catch (_) {}
+      }
 
       if (_remember) {
-        await RememberedLogin.save(
-            RememberedLogin.coach, _idCtrl.text.trim());
+        await RememberedLogin.save(loginId);
       } else {
-        await RememberedLogin.clear(RememberedLogin.coach);
+        await RememberedLogin.clear();
       }
 
       if (!mounted) return;
       Haptic.heavy();
-      Navigator.of(context).pushNamedAndRemoveUntil(
-        '/boss/dashboard', (_) => false,
-      );
+      // 회원: 승인 대기든 활성이든 홈으로. 온보딩(성별·경력)은 가입 직후 한 번만
+      // 묻는다 — 로그인한 사람을 다시 붙잡아 두지 않는다 (v2.3).
+      navigator.pushNamedAndRemoveUntil(
+          isCoach ? '/boss/dashboard' : '/shell', (_) => false);
     } on AppException catch (e) {
-      setState(() { _error = e.messageKo; });
-    } catch (e) {
-      setState(() { _error = '연결 실패. 백엔드 재시도.'; });
+      setState(() => _error = e.messageKo);
+    } catch (_) {
+      setState(() => _error = '연결 실패. 잠시 후 다시 시도해 주세요.');
     } finally {
-      if (mounted) setState(() { _busy = false; });
+      if (mounted) setState(() => _busy = false);
     }
   }
 
@@ -117,40 +158,36 @@ class _BossLoginScreenState extends State<BossLoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: HyphenTokens.sp3),
-                // ─── 헤더 (v1.29: 로그인 화면 통일 — BrandLogo 220, DESIGN-SSOT §6) ───
-                const Center(child: BrandLogo()),
                 const SizedBox(height: HyphenTokens.sp5),
-                Text('코치 로그인', style: HyphenTokens.h1),
+                // v3.19 사용자 지시 — 이 화면에 브랜드 로고를 넣지 않는다.
+                Text('로그인', style: HyphenTokens.h1),
                 const SizedBox(height: HyphenTokens.sp1),
-                Text(
-                  'PC 어드민과 동일 계정으로 로그인.',
-                  style: HyphenTokens.caption,
-                ),
+                // 역할을 고르게 하지 않는다. 어느 화면으로 갈지는 서버가 판정한다.
+                Text('체육관에서 받은 아이디로 로그인합니다.',
+                    style: HyphenTokens.caption),
                 const SizedBox(height: HyphenTokens.sp6),
 
-                // ─── ID 필드 ─────────────────────────────────────────
-                _FieldLabel('아이디'),
+                HkSectionLabel('아이디'),
                 const SizedBox(height: HyphenTokens.sp1),
                 TextFormField(
                   controller: _idCtrl,
                   style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
-                  // 힌트가 옛 데모 계정(boss_seongsu)이라 실계정으로 오인됨 (2026-08-18)
-                  decoration: _inputDeco('coach'),
+                  decoration: _inputDeco('아이디'),
                   textInputAction: TextInputAction.next,
                   autocorrect: false,
-                  validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? '아이디를 입력해 주세요.' : null,
+                  enableSuggestions: false,
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? '아이디를 입력해 주세요.'
+                      : null,
                 ),
                 const SizedBox(height: HyphenTokens.sp3),
 
-                // ─── PW 필드 ─────────────────────────────────────────
-                _FieldLabel('비밀번호'),
+                HkSectionLabel('비밀번호'),
                 const SizedBox(height: HyphenTokens.sp1),
                 TextFormField(
                   controller: _pwCtrl,
                   style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
-                  decoration: _inputDeco('••••').copyWith(
+                  decoration: _inputDeco('비밀번호').copyWith(
                     suffixIcon: IconButton(
                       icon: Icon(
                         _pwVisible ? Icons.visibility_off : Icons.visibility,
@@ -168,7 +205,7 @@ class _BossLoginScreenState extends State<BossLoginScreen> {
                       (v == null || v.isEmpty) ? '비밀번호를 입력해 주세요.' : null,
                 ),
 
-                // ─── 아이디 기억 (2026-08-25 사용자 요청) ──────────────
+                // 아이디 기억 (2026-08-25 사용자 요청) — 비밀번호는 저장 안 함.
                 const SizedBox(height: HyphenTokens.sp1),
                 Align(
                   alignment: Alignment.centerLeft,
@@ -179,7 +216,6 @@ class _BossLoginScreenState extends State<BossLoginScreen> {
                   ),
                 ),
 
-                // ─── 에러 메시지 ──────────────────────────────────────
                 if (_error != null) ...[
                   const SizedBox(height: HyphenTokens.sp3),
                   Container(
@@ -187,9 +223,9 @@ class _BossLoginScreenState extends State<BossLoginScreen> {
                         horizontal: HyphenTokens.sp3,
                         vertical: HyphenTokens.sp2),
                     decoration: BoxDecoration(
-                      color: HyphenTokens.danger.withValues(alpha:0.12),
+                      color: HyphenTokens.danger.withValues(alpha: 0.12),
                       border: Border.all(
-                          color: HyphenTokens.danger.withValues(alpha:0.4)),
+                          color: HyphenTokens.danger.withValues(alpha: 0.4)),
                     ),
                     child: Text(
                       _error!,
@@ -200,8 +236,6 @@ class _BossLoginScreenState extends State<BossLoginScreen> {
                 ],
 
                 const SizedBox(height: HyphenTokens.sp6),
-
-                // ─── 로그인 버튼 (v1.29: 테마 ElevatedButton = CTA 유일 규격) ───
                 _busy
                     ? const HkLoading()
                     : ElevatedButton(
@@ -227,8 +261,7 @@ class _BossLoginScreenState extends State<BossLoginScreen> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(HyphenTokens.r2),
-          borderSide:
-              const BorderSide(color: HyphenTokens.primary, width: 1.5),
+          borderSide: const BorderSide(color: HyphenTokens.primary, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(HyphenTokens.r2),
@@ -236,18 +269,8 @@ class _BossLoginScreenState extends State<BossLoginScreen> {
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(HyphenTokens.r2),
-          borderSide:
-              const BorderSide(color: HyphenTokens.danger, width: 1.5),
+          borderSide: const BorderSide(color: HyphenTokens.danger, width: 1.5),
         ),
         errorStyle: HyphenTokens.micro.copyWith(color: HyphenTokens.danger),
       );
 }
-
-class _FieldLabel extends StatelessWidget {
-  final String text;
-  const _FieldLabel(this.text);
-  @override
-  Widget build(BuildContext context) => HkSectionLabel(text);
-}
-
-// v1.29: _PrimaryButton 폐기 — CTA 는 테마 ElevatedButton 유일 규격 (DESIGN-SSOT §5).

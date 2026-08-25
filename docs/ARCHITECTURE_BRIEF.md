@@ -342,6 +342,31 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > - 회귀 게이트: 서버 `tests/test_reservation_policy.py`(11)·`tests/test_class_settings.py`(8),
 >   골든 `state_07_class_ended`·`boss_08_settings_reservation`·`state_08_waitlist_cancel_dialog`.
 
+> **D42 (2026-08-25 사용자 지시) — 로그인 창구는 하나. 역할 판정은 서버가 한다.**
+>
+> 종전엔 진입 화면에서 사람이 '아이디로 로그인(회원)' 과 '코치 로그인' 중 하나를
+> 골라 들어갔다. 자기 역할을 사용자가 고르는 구조 자체를 폐기한다.
+> - **신규 `POST /api/v1/auth/login {login_id, password}`** (`api/auth_login.py`) —
+>   서버가 `gym_managers` → `member_credentials` 순으로 조회해 `kind: coach|member`
+>   와 각자의 payload 를 함께 내려준다. 같은 아이디가 양쪽에 있으면 **비밀번호가
+>   맞는 쪽**이 이긴다 (스태프 쪽 불일치여도 회원 표를 한 번 더 본다).
+>   판정 몸통은 구 창구와 공유 — `admin.authenticate_manager()` ·
+>   `member_auth.authenticate_member()` 로 뽑아 두 벌이 되지 않게 했다 (§0-B).
+> - **구 창구 2개는 유지**: `/api/v1/admin/login`(관리자 웹) ·
+>   `/api/v1/auth/member-login`(이미 배포된 APK). 앱 신버전은 통합 창구만 쓴다.
+> - **rate limit 2겹**: IP 20회/5분(체육관 공용 공유기) + **계정 5회/5분**
+>   (구 admin/login 수준 유지 — 창구가 넓어진 만큼 계정 축을 새로 조인다).
+>   Flask-Limiter 기본 429 는 HTML 이라 앱이 파싱하다 죽어 `app.py` 에
+>   JSON 429 핸들러(`RATE_LIMITED`)를 붙였다.
+> - **앱**: `login_screen.dart`(구 `member_login_screen.dart`) 한 화면 —
+>   **브랜드 로고 없음**(사용자 지시) · 역할 선택 UI 없음 · `kind` 로
+>   `/boss/dashboard` ↔ `/shell` 분기. `BossLoginScreen`·`/boss/login` 삭제
+>   (README §제거된 기능 대장 15). '아이디 기억하기' 저장 칸도 회원/코치 2칸 →
+>   1칸 (구 값은 첫 로드 때 흡수).
+> - 회귀 게이트: 서버 `tests/test_unified_login.py`(8) · 앱
+>   `test/remembered_login_test.dart`(8) · 골든 `common_08_login`(로고 없는 통합
+>   로그인)·`common_05_signup`(코치 줄 사라진 진입)·`state_09_login_remembered`.
+
 > **D31 (2026-08-12) — 명단에서 출석 체크 + 대기 순번 정정.**
 >
 > - **대기 순번**: `class_waitlist_promotions.promoted_position` 은 "줄 설 때" 번호라
@@ -731,7 +756,8 @@ retention 정의 = "코호트(가입 월) 의 N개월 후 시점에 attendance �
 | POST | `/api/v1/auth/logout` | 세션 | D26 로그아웃 |
 | GET | `/api/v1/auth/me` | 세션 | D26 본인 정보 + role + 소속 박스 |
 | POST | `/api/v1/auth/link-staff` | 세션 + login_id/PW | D26 전환기 — 기존 코치/사장 계정을 소셜계정에 link → role 자동 boss/coach (설계 §4.1) |
-| POST | `/api/v1/admin/login` | ID/PW → 세션 쿠키 | 사장 로그인 (D26 전환기 fallback) |
+| POST | `/api/v1/auth/login` | ID/PW (+X-Device-Id) | **D42 통합 로그인 — 창구는 하나.** 서버가 `kind: coach\|member` 판정 후 각자 payload 반환. 앱(폰)의 유일한 로그인 경로 |
+| POST | `/api/v1/admin/login` | ID/PW → 세션 쿠키 | 코치 로그인 — **관리자 웹 전용** (D42 이후 앱은 `/auth/login` 사용) |
 | POST | `/api/v1/admin/logout` | 세션 | 로그아웃 |
 | GET | `/api/v1/admin/me` | 세션 | 본인 정보 + 박스 목록 (다중 박스) |
 | GET | `/api/v1/admin/gyms/{id}/members` | 세션 (boss) | 회원 DB 풀 리스트 |

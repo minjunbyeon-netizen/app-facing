@@ -8,7 +8,6 @@ import 'package:hyphen_app/core/quotes.dart';
 import 'package:hyphen_app/features/boss/boss_dashboard_screen.dart';
 import 'package:hyphen_app/features/auth/auth_state.dart';
 import 'package:hyphen_app/features/auth/signup_screen.dart';
-import 'package:hyphen_app/features/boss/boss_login_screen.dart';
 import 'package:hyphen_app/features/gym/gym_repository.dart';
 import 'package:hyphen_app/features/gym/gym_state.dart';
 import 'package:hyphen_app/features/history/history_screen.dart';
@@ -337,16 +336,7 @@ void main() {
   });
 
   // ── 사장 로그인 ──
-  testWidgets('boss: login', (tester) async {
-    phone(tester);
-    SharedPreferences.setMockInitialValues({});
-    final api = FakeApi(memberWorld());
-    await tester.pumpWidget(harness(
-        api: api,
-        auth: AuthState(),
-        profile: ProfileState(),
-        home: const BossLoginScreen()));
-    await capture(tester, 'boss_01_login');
-  });
+  // v3.19 (2026-08-25): 'boss: login' 캡처 삭제 — 코치 전용 로그인 화면이
+  // 없어졌다. 로그인은 common_08_login 한 장으로 통합 (README §제거된 기능 대장).
 }
 

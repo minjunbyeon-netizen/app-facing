@@ -33,10 +33,9 @@ class _SignupScreenState extends State<SignupScreen> {
   // false. 실 OAuth 키 확보 후 true 한 줄로 원복.
   static const bool _kShowSocialLogin = false;
 
-  // v2.3 (2026-08-12): 코치 주 창구 = PC 라 진입 줄을 내렸었다.
-  // v3.1 (2026-08-14 사용자 설계): 원복 — 코치는 PC(디테일)와 앱(간단 셸:
-  // v3.3 예약 현황·수업 2탭) 둘 다 쓴다. 진입 → /boss/login → CoachShell.
-  static const bool _kShowBossEntry = true;
+  // v3.19 (2026-08-25 사용자 지시): '코치 로그인' 별도 진입 삭제 (_kShowBossEntry 폐기).
+  // 창구는 하나다 — 코치도 아래 '로그인' 으로 들어오고, 코치인지 회원인지는
+  // 서버가 판정해 화면을 가른다 (backend api/auth_login.py).
 
   // D26: stub ↔ real 자동 선택 (USE_REAL_AUTH 플래그). 실 OAuth 는 ApiClient 의존
   // 이라 const 불가 — _signIn 에서 context 로 ApiClient 받아 resolve.
@@ -78,8 +77,8 @@ class _SignupScreenState extends State<SignupScreen> {
     ProfileState profile,
   ) async {
     if (role == SocialRole.boss) {
-      // 사장: 실 OAuth 시 서버 세션 수립 후 대시보드. stub 전환기엔 ID/PW fallback.
-      navigator.pushNamed('/boss/login');
+      // 코치: 실 OAuth 시 서버 세션 수립 후 대시보드. stub 전환기엔 통합 ID/PW 창구로.
+      navigator.pushNamed('/login');
       return;
     }
     // 온보딩 완료 판정 (2026-08-19 서버 영속화): 로컬 등급이 있으면 그대로
@@ -164,17 +163,17 @@ class _SignupScreenState extends State<SignupScreen> {
                   const SizedBox(height: HyphenTokens.sp5),
                 ],
 
-                // 2026-08-12 주 CTA — 이미 아이디를 받은 회원의 진입로.
-                // 서버가 login_id ↔ device_id 를 이어 주므로 폰이 바뀌어도
-                // 같은 회원 기록으로 들어온다 (backend api/member_auth.py).
+                // 주 CTA — 아이디를 받은 사람 전원(회원·코치)의 단일 진입로.
+                // v3.19: '아이디로 로그인' → '로그인'. 역할을 고르는 자리가
+                // 없어졌으니 수식어도 뺀다 (backend api/auth_login.py).
                 ElevatedButton(
                   onPressed: _busy
                       ? null
                       : () {
                           Haptic.light();
-                          Navigator.of(context).pushNamed('/login/member');
+                          Navigator.of(context).pushNamed('/login');
                         },
-                  child: const Text('아이디로 로그인'),
+                  child: const Text('로그인'),
                 ),
                 const SizedBox(height: HyphenTokens.sp3),
 
@@ -228,37 +227,6 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: HyphenTokens.sp1),
-                // D26 전환기: 사장 ID/PW 진입 (실 OAuth 활성 시 제거).
-                // BossLoginScreen → BossAuthState.save() → main.dart listener 가
-                // staffPush.start() 트리거 (가입 신청 SSE 알림 수신).
-                // v2.2 (H9): 사장·코치가 들어오는 유일한 입구인데 화면 맨 아래
-                // 흐린 회색 한 줄이라 약관 링크와 구분되지 않았다. 구분선으로
-                // 약관 묶음과 떼고 본문색 + w600 으로 올린다. 내부 표기였던
-                // '(전환기)' 는 사용자에게 뜻이 없어 뺀다 (3면 대전제 ①·③ —
-                // 사장·코치는 PC 가 주지만 폰으로도 들어온다).
-                if (_kShowBossEntry) ...[
-                  const SizedBox(height: HyphenTokens.sp2),
-                  const Divider(height: 1, color: HyphenTokens.border),
-                  Center(
-                    child: TextButton(
-                      onPressed: _busy
-                          ? null
-                          : () =>
-                              Navigator.of(context).pushNamed('/boss/login'),
-                      style: TextButton.styleFrom(
-                        foregroundColor: HyphenTokens.fg,
-                        minimumSize: const Size(0, HyphenTokens.touchMin),
-                      ),
-                      child: Text(
-                        '코치 로그인',
-                        style: HyphenTokens.body
-                            .copyWith(fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: HyphenTokens.sp2),
-                ],
               ],
             ),
           ),

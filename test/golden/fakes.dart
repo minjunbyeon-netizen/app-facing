@@ -154,6 +154,11 @@ class FakeBossApi implements BossApiClient {
   Future<Map<String, dynamic>> login(String loginId, String password) =>
       _respond('/api/v1/admin/login');
 
+  // v3.19 로그인 창구 통합 — 앱이 실제로 부르는 창구는 이쪽 하나다.
+  @override
+  Future<Map<String, dynamic>> unifiedLogin(String loginId, String password) =>
+      _respond('/api/v1/auth/login');
+
   @override
   Future<Map<String, dynamic>> get(String path) => _respond(path);
 

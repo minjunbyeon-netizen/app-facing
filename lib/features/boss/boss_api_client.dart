@@ -35,14 +35,34 @@ class BossApiClient {
     return BossApiClient._(dio);
   }
 
+  /// POST /api/v1/auth/login — **통합 로그인** (2026-08-25 사용자 지시: 창구는 하나).
+  ///
+  /// 아이디·비밀번호만 보내면 서버가 코치인지 회원인지 판정해 `kind` 로 알려준다.
+  /// 회원 로그인까지 이 클라이언트가 맡는 이유는 하나다 — 코치로 판정났을 때
+  /// 세션 쿠키를 받아 둬야 하는데, Set-Cookie 를 다루는 클라이언트가 여기뿐이다
+  /// (회원 API 는 X-Device-Id 헤더만 쓴다). 새 변형을 만들지 않고 재사용한다 (§3).
+  ///
+  /// 반환: `{'data': {...kind 포함...}, 'session_cookie': '...'}`
+  /// (회원이면 session_cookie 는 빈 문자열일 수 있다 — 쓰지 않는다.)
+  Future<Map<String, dynamic>> unifiedLogin(
+      String loginId, String password) async {
+    return _loginTo('/api/v1/auth/login', loginId, password);
+  }
+
   /// POST /api/v1/admin/login — 쿠키 세션 획득.
   /// v1.17 — X-Device-Id 헤더 동봉. 백엔드가 GymManager.device_hash 자동 등록 →
   /// staff SSE (/api/v1/staff/me/events) 페어링 완료 상태로 들어감.
   Future<Map<String, dynamic>> login(String loginId, String password) async {
+    return _loginTo('/api/v1/admin/login', loginId, password);
+  }
+
+  /// 두 로그인 창구가 공유하는 몸통 — 요청·쿠키 추출·에러 매핑 한 벌 (§0-B).
+  Future<Map<String, dynamic>> _loginTo(
+      String path, String loginId, String password) async {
     try {
       final deviceId = await DeviceIdService.get();
       final res = await _dio.post(
-        '/api/v1/admin/login',
+        path,
         data: {'login_id': loginId, 'password': password},
         options: Options(headers: {
           'Content-Type': 'application/json',
