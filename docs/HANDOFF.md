@@ -24,7 +24,7 @@
 4. [ ] **정합 S4** 쪽지 발신자 'facing' — 코치 쪽지 sender_hash 가 HQ 시드 `seeds/seed_hq_gym.py:22 OFFICIAL_HQ_OWNER_HASH="facing_official_owner_…"`.
    `api/coach_note.py:128 _profile_display` 가 프로필 없으면 해시 조각을 이름으로 씀 → 코치는 GymManager.name 으로 표시. 프로드 gym 2 owner_hash 확인.
 5. [ ] 수정 후: 앱 `flutter test` · 서버 `python -m pytest tests` · 골든 갱신 시 `--update-goldens` + `python tool/golden_gallery.py` · 서버 `railway up`(services/hyphen) ·
-   에뮬 재주행(아래 절차) · 보고서 아티팩트 같은 URL 로 재발행(`C:devprojecthyphen-journey-2026-08-26build_report.py` 재사용 (shots.json 은 캡처 PNG 에서 재생성)).
+   에뮬 재주행(아래 절차) · 보고서 아티팩트 같은 URL 로 재발행(`C:/dev/project/hyphen-journey-2026-08-26/build_report.py` 재사용 (shots.json 은 캡처 PNG 에서 재생성)).
 
 ## 보고만 (지시 없으면 손대지 않음)
 - S5 회원권 없는 회원도 예약·대기 가능 (`api/classes.py:520` 예약 POST 에 회원권 게이트 없음) — 정책 결정 필요
