@@ -9,11 +9,18 @@
   - 에뮬 실주행 (member3 = 승인→3회권 발급→예약 2건→늦은 취소 1회 면제·2회째 차감→내 정보 "1회 남음" 즉시 갱신) — 캡처 `membership/20~42`, PC `pc_04~06`.
   - 갤S22 릴리즈 APK(prod URL, c15e455) 17:52 설치 (무선 adb 192.168.1.101:5555). 화면 미확인.
 
+- [x] **18:08~18:22 사용자 지시 "PC 에뮬레이터로 — 코치거 줬다가 회원권 삭제·수정·권한·기능수정 체크"** (컨텍스트 경고 뒤 "더 가자" 로 계속):
+  COACH/1234(role coach) PC 로그인 → 횟수 수정(3→5→4→5→6)·즉시 해지·재발급·요금제 수정/삭제(비활성)/복구 전부 OK.
+  수정 3건: 서버 `ae06234` 즉시 해지 환불 잔여 횟수 비례(+테스트, 258 passed) · 웹 `97ece22` 미리보기 동일 ·
+  앱 `GymState._reloadTriggers` +membership.updated/paused/resumed · 내 정보 해지/만료 표기. 브리프 D57 추가 문단.
+  '회원권 삭제' 기능은 없음 — 해지만 (설계). 캡처 `membership/43~51`. 에뮬 `INSTALL_FAILED_INSUFFICIENT_STORAGE`
+  가 "첫 빌드 누락" 의 정체 — `adb uninstall` 후 설치, `dumpsys package … lastUpdateTime` 으로 확인.
+
 ## 진행중
 - [ ] 없음.
 
 ## 대기 (사용자 마지막 지시 18:00 "2 하고 PC 에뮬레이터로 너가 테스트" — 컨텍스트 경고로 미착수)
-- [ ] **프로드 gym 2(HYPHEN HYBRID GYM) 에 "이벤트 3회권 · 30일 · 3회 · 9,900원" 요금제 등록** — PC 웹
+- [ ] (사용자가 18:08 지시로 'PC 에뮬레이터' 로컬 검증으로 대체 — 프로드 등록은 지시 없음) **프로드 gym 2(HYPHEN HYBRID GYM) 에 "이벤트 3회권 · 30일 · 3회 · 9,900원" 요금제 등록** — PC 웹
   https://web-facing-admin-production-dca4.up.railway.app/settings/plans (계정은 프로드 코치 계정 — 로컬 admin/1234 아님, 메모리 `project-real-gym-data` 참조).
   실회원 데이터 오염 금지: 테스트 회원은 새로 가입 신청한 계정만 쓰고 끝나면 삭제.
 - [ ] **에뮬레이터로 프로드 검증** — 디버그 APK 를 prod URL 로 빌드: `flutter build apk --debug --dart-define=API_BASE_URL=https://service-facing-production.up.railway.app` → 에뮬 재설치 → 가입 신청 → PC 승인 → 3회권 발급 → 예약 → (20분 안 수업은 PC 수업 관리에서 만들기) 늦은 취소 면제/차감 → 내 정보 잔여. 끝나면 테스트 회원·수업·요금제 정리 여부 보고.

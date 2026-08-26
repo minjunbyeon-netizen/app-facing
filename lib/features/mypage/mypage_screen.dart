@@ -587,7 +587,12 @@ class _MembershipSection extends StatelessWidget {
     if (ms == null && lk == null) return const SizedBox.shrink();
 
     final parts = <String>[];
-    if (ms != null) {
+    if (ms != null && !ms.isActive) {
+      // D57 PC 실주행 (2026-08-26): 해지된 회원권이 "3회 남음" 으로 남아 보이던 갭 —
+      // active 가 아니면 잔여·기한 대신 상태 한 단어. (활성권이 하나라도 있으면
+      // currentMembership 이 그쪽을 고르므로 여기는 전부 비활성일 때만 온다.)
+      parts.add(ms.status == 'expired' ? '만료됨' : '해지됨');
+    } else if (ms != null) {
       final days = ms.daysUntilExpiry;
       // D57 횟수권 — 잔여 횟수가 먼저, 기한은 뒤에.
       if (ms.isSessionPass) {
@@ -672,8 +677,18 @@ class _MembershipCard extends StatelessWidget {
                   ),
               ],
             ),
+            // 비활성(해지·환불·만료) 회원권 — 예약에 못 쓴다는 한 줄.
+            if (!ms.isActive) ...[
+              const SizedBox(height: 6),
+              Text(
+                ms.status == 'expired'
+                    ? '만료된 회원권 — 예약에 쓸 수 없습니다.'
+                    : '해지된 회원권 — 예약에 쓸 수 없습니다.',
+                style: HyphenTokens.caption.copyWith(color: HyphenTokens.danger),
+              ),
+            ],
             // D57 (2026-08-26) 횟수권 — 면제 잔여 (노쇼·늦은 취소 각 1회).
-            if (ms.isSessionPass) ...[
+            if (ms.isSessionPass && ms.isActive) ...[
               const SizedBox(height: 6),
               Text(
                 '노쇼 면제 ${ms.freeNoShowLeft}회 · 늦은 취소 면제 ${ms.freeLateCancelLeft}회 남음',

@@ -35,6 +35,11 @@ class GymState extends ChangeNotifier {
     'membership.extended',
     'membership.cancelled',
     'membership.cancel_scheduled',
+    // D57 (2026-08-26 PC·에뮬 실주행): PC 에서 횟수·기간을 고치거나 정지/해제해도
+    // 폰이 재시작 전까지 옛 잔여를 보이던 갭 — 서버가 이미 쏘던 세 이벤트를 듣는다.
+    'membership.updated',
+    'membership.paused',
+    'membership.resumed',
     'wod.posted',
     // 결함 수정 6 (2026-08-20): 규칙 생성·수정·삭제·인증 처리 → 도전 카드
     // 자동 갱신 (ChallengeSection 이 GymState notify 를 듣는다).
