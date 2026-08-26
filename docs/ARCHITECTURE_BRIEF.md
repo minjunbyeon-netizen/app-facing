@@ -31,7 +31,7 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 
 **흡수 7 모듈 (linko.my 추격)**:
 1. §1.1 예약 시스템 (Class Reservation) — **P0** 1주
-2. §1.2 카카오 알림톡 알림 자동화 — **P0** 3일 + NHN 사전심사 1주
+2. §1.2 카카오 알림톡 알림 자동화 — **P0** 3일 + NHN 사전심사 1주 (→ **2026-08-26 D60 폐기** — 알림은 앱 쪽지로 통일, `api/notifications/note.py`)
 3. §1.3 전자계약 (e-Sign, PDF, audit hash) — **P0** 1주
 4. §1.4 다지점 그룹 (gym_group + RLS) — P1 2주
 5. §1.5 Toss 빌링키 자동결제 + 재시도 + grace period — **P0** 1주
@@ -563,6 +563,31 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 >   owner 해시 규칙)이 종전처럼 받는다. 그룹·숙제 서버 API 는 PC 용으로 존치.
 > - 회귀: 골든 `coach_01`(주간) 재생성 · `coach_02` 삭제 · `coach_04_new_note_members` 신규 ·
 >   `coach_03` 재생성(그룹 버튼 없음).
+
+> **D60 (2026-08-26 사용자 지시 — PC 웹 개편 6건 + "카카오 알림톡 필요 없음, 앱 쪽지로. 야간 발송 금지 없애고 보내는 시간은 오후 3시로 통일. 각 알림마다 뭐가 발송되는지 보여라") — 알림 = 앱 쪽지 하나 · PC 사이드바/공지·일정/케어/수업/알림 설정 개편.**
+>
+> - **알림 채널 = 회원 앱 쪽지 하나** (카카오 알림톡·NHN 폐기 — `_archive/dead-2026-08-26/`). 정본 =
+>   `services/hyphen/api/notifications/note.py`: `NOTE_TEMPLATES`(expiry·payment·reservation·cancel — 키 =
+>   설정 토글 키) · `send_member_note()` (발신 = `admin._staff_device_hash` owner 해시 → 회원 `device_hash`,
+>   `GymCoachNote kind='note'` + Recipient + SSE `note.new` + AuditLog `note.auto`) · `describe_templates()` ·
+>   `SEND_HOUR = 15`. 발송 4지점(해지·수업 취소·결제 입력·만료)이 전부 이 함수 하나.
+> - **발송 시각**: 만료 안내(D-7·D-3·D-0)는 매일 **15:00 KST** 잡 하나(`daily_expiry_notify_15`, AuditLog 로
+>   같은 날 멱등). 결제·수업 취소·해지는 **사건 즉시** — "뭐든지 오후 3시" 를 수업 취소 통보에까지 적용하면
+>   다음날 3시에 알리게 되어 무의미하므로 일일 배치에만 적용 (Claude 판단, 사용자 재결정 가능).
+>   야간 발송 금지(quiet_start/quiet_end) 개념 삭제 — 설정 키·검증·UI 전부 제거.
+> - **설정 API** `notification-settings` GET/PATCH 응답에 `send_hour`·`templates[{key,label,when,title,body}]`
+>   동봉 — PC 알림 설정 화면이 항목마다 **실제 발송 문구**를 보여 준다 (사용자 "뭐가 발송되는지 알아야 토글을
+>   켠다"). `alimtalk-logs` → `notification-logs` (note.auto 최근 7일).
+> - **PC 웹 (web/facing-admin)**: 사이드바 = '일정 달력'+'공지사항' → **'공지 · 일정'** 한 화면
+>   (`/announcements` = 월 달력 막대 + 공지 표 + 모달, 막대 클릭 = 같은 화면 수정 모달, `/calendar` 는 302) ·
+>   '처음 시작하기' 링크 삭제(라우트 존치) · 푸터 = 로그아웃만(문의하기 카카오톡·평일 10–18시·v1.0 베타 삭제) ·
+>   케어 필요 = 카드 그리드 → **표 2개**(케어 필요·만료 임박, 긴급 행 좌측 rail) · 수업 안내 매주 시간표 =
+>   규칙당 **요일 스트립 7칸 + 시각** 한 줄, '+ 시간'·× 삭제, 편집은 '수정' 모달 안 "매주 시간표" 섹션
+>   (요일 칩·시각·행 추가/삭제, 저장 시 규칙 diff → POST/PATCH/DELETE) · 수업 관리 시간 축 = 수업 있는 시간
+>   **앞 1시간 ~ 끝나는 시각**만, 2시간 이상 빈 구간은 접힌 행("12:00 ~ 16:00 비어 있음 · 펼치기"), 수업 없는
+>   주는 06~20.
+> - 앱(폰) 변경 0 — 자동 쪽지는 기존 쪽지함에 코치 발신으로 도착. 골든 변경 없음.
+> - 검증: 백엔드 pytest 270 passed · PC 6화면 playwright 실클릭(코치 로그인) · design lint 인라인 8→7.
 
 > **D59 (2026-08-26 사용자 선택 "옵션 1" — 인계장 대기 1번) — 폰 코치 셸 세션 만료 시 로그인 화면 자동 이동.**
 >
@@ -1264,7 +1289,7 @@ retention 정의 = "코호트(가입 월) 의 N개월 후 시점에 attendance �
 | 1 | `class_session` | Week 1 | §1.1 예약 | 예 |
 | 2 | `class_reservation` | Week 1 | §1.1 예약 | 예 |
 | 3 | `class_waitlist_promotion` | Week 1 | §1.1 예약 대기열 audit | 예 |
-| 4 | `notification_template` | Week 3 | §1.2 카카오 알림톡 | 예 |
+| 4 | `notification_template` | Week 3 | §1.2 카카오 알림톡 (D60 폐기 — 템플릿은 `note.py NOTE_TEMPLATES` 코드 상수, 표 없음) | 예 |
 | 5 | `notification_dispatch` | Week 3 | §1.2 발송 이력 | 예 |
 | 6 | `contract_template` | Week 1 | §1.3 전자계약 템플릿 | 예 |
 | 7 | `contract_instance` | Week 1 | §1.3 서명 인스턴스 | 예 |
@@ -1295,7 +1320,7 @@ retention 정의 = "코호트(가입 월) 의 N개월 후 시점에 attendance �
 | 모듈 | 신규 엔드포인트 수 | 비고 |
 |---|---|---|
 | §1.1 예약 | 6 | POST·GET·DELETE·noshow·SSE 이벤트 |
-| §1.2 알림톡 | 2 | dispatch·이력 |
+| §1.2 알림톡 (D60 → 앱 쪽지) | 2 | dispatch·이력 |
 | §1.3 전자계약 | 4 | draft·sign-link·sign·pdf |
 | §1.4 다지점 | 4 | group dashboard·gym-switcher·share·cross-gym 출석 |
 | §1.5 빌링키 | 5 | key 발급·삭제·schedule·retry·APScheduler |
