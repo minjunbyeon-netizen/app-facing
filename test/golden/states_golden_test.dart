@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -16,6 +17,7 @@ import 'package:hyphen_app/features/history/history_screen.dart';
 import 'package:hyphen_app/features/profile/profile_state.dart';
 import 'package:hyphen_app/features/home/home_screen.dart';
 import 'package:hyphen_app/features/shell/coach_shell.dart';
+import 'package:hyphen_app/features/signup/self_signup_screen.dart';
 import 'package:hyphen_app/features/shell/main_shell.dart';
 
 import 'fakes.dart';
@@ -289,6 +291,28 @@ void _rememberedLoginGolden() {
     expect(find.text('로그아웃하면 이 기기와 코치 연결이 끊깁니다.\n'
         '다시 로그인하면 그대로 이어집니다.'), findsOneWidget);
     await capture(tester, 'state_12_coach_logout_dialog');
+  });
+
+  // ── 가입 폼 BACK — 입력이 있으면 '작성을 그만둘까요?' (S6 · 2026-08-26) ──
+  testWidgets('state: signup back dialog', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues({});
+    final api = FakeApi(memberWorld());
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: AuthState(),
+        profile: ProfileState(),
+        home: const SelfSignupScreen(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextFormField).first, '김서준');
+    await tester.pumpAndSettle();
+    Navigator.of(tester.element(find.byType(Scaffold))).maybePop();
+    await tester.pumpAndSettle();
+    expect(find.text('작성을 그만둘까요?'), findsOneWidget);
+    await capture(tester, 'state_13_signup_back_dialog');
   });
 }
 

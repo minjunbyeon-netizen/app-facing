@@ -6,6 +6,7 @@
 //   DELETE /api/v1/member/reservations/{id}
 
 import '../core/app_clock.dart';
+import '../core/time_format.dart';
 
 class ClassSessionDto {
   final int id;
@@ -63,7 +64,8 @@ class ClassSessionDto {
   factory ClassSessionDto.fromJson(Map<String, dynamic> j) => ClassSessionDto(
         id: (j['id'] as num).toInt(),
         gymId: (j['gym_id'] as num?)?.toInt() ?? 0,
-        startAt: DateTime.parse(j['start_at'] as String),
+        // S7: naive 시각은 KST 로 고정 — 기기 시간대와 무관하게 '시작 지남' 판정.
+        startAt: parseServerTime(j['start_at'] as String),
         durationMinutes: (j['duration_minutes'] as num?)?.toInt() ?? 60,
         title: (j['title'] ?? '수업').toString(),
         description: j['description']?.toString(),
@@ -135,7 +137,7 @@ class MyReservationItem {
       kind: (j['kind'] ?? 'reservation').toString(),
       id: ((isWl ? j['waitlist_id'] : j['reservation_id']) as num).toInt(),
       classSessionId: (j['class_session_id'] as num).toInt(),
-      startAt: DateTime.parse(j['start_at'] as String),
+      startAt: parseServerTime(j['start_at'] as String),
       durationMinutes: (j['duration_minutes'] as num?)?.toInt() ?? 60,
       title: (j['title'] ?? '수업').toString(),
       room: j['room']?.toString(),

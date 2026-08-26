@@ -30,6 +30,8 @@ import '../profile/profile_state.dart';
 /// 백엔드: POST /api/v1/member/gyms/`<gid>`/self-signup
 ///   body {login_id, password} · header X-Device-Id
 ///   → status='pending' 으로 신청 + MemberCredential 생성 (승인 후 바로 로그인)
+// S9 (2026-08-26 사용자 결정): 이 앱은 HYPHEN 체육관 1곳 전용 — 가입 대상 고정은 의도.
+// 다른 체육관을 받게 되면 그때 선택 UI 를 (숨긴 채) 살린다. 지금은 손대지 않는다.
 const String _kBrandGymName = 'HYPHEN';
 const int _kFallbackGymId = 2;
 
@@ -183,8 +185,48 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
     HkSnack.error(context, msg);
   }
 
+  /// 입력한 칸이 하나라도 있는가 — BACK 확인의 기준 (S6).
+  bool get _dirty => [
+        _nameCtrl,
+        _birthCtrl,
+        _phoneCtrl,
+        _sportsCtrl,
+        _injuryCtrl,
+        _idCtrl,
+        _pwCtrl,
+        _pw2Ctrl,
+      ].any((c) => c.text.trim().isNotEmpty);
+
+  /// S6 (2026-08-26 사용자 지시): 뒤로가기 한 번에 폼 전체가 사라지던 것 —
+  /// 입력이 있으면 한 번 묻는다. 비어 있으면 그대로 나간다.
+  Future<void> _onBack(bool didPop, Object? _) async {
+    if (didPop || _submitting) return;
+    final nav = Navigator.of(context);
+    if (!_dirty) {
+      nav.pop();
+      return;
+    }
+    final ok = await HkDialog.confirm(
+      context,
+      title: '작성을 그만둘까요?',
+      message: '입력한 내용이 사라집니다.',
+      cancelLabel: '계속 작성',
+      confirmLabel: '나가기',
+      danger: true,
+    );
+    if (ok && mounted) nav.pop();
+  }
+
   @override
   Widget build(BuildContext context) {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: _onBack,
+      child: _body(context),
+    );
+  }
+
+  Widget _body(BuildContext context) {
     return Scaffold(
       backgroundColor: HyphenTokens.bg,
       appBar: const HkAppBar(title: '가입 신청'),

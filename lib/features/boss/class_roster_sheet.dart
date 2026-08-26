@@ -142,7 +142,8 @@ class _LoadedState extends State<_Loaded> {
   /// S3 (2026-08-26 에뮬 실주행): 시작 전 수업에도 출석·노쇼가 찍혔다. 서버
   /// (`CLASS_NOT_STARTED` 409)와 같은 기준 — 시작 시각 전엔 배지를 잠근다.
   bool get _notStarted {
-    final startAt = DateTime.tryParse(widget.roster.startAt);
+    // S7: KST 고정 파싱 — 기기 시계가 UTC 여도 서버(KST)와 같은 판정.
+    final startAt = tryParseServerTime(widget.roster.startAt);
     return startAt != null && appClock.now().isBefore(startAt);
   }
 

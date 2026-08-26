@@ -12,8 +12,28 @@ String hhmm(DateTime d) => '${_two(d.hour)}:${_two(d.minute)}';
 /// ISO 문자열에서 `HH:MM` 만. 파싱 실패하면 원문을 그대로 돌려준다
 /// (형식이 바뀌어도 화면이 비지 않게).
 String hhmmIso(String iso) {
-  final t = DateTime.tryParse(iso);
-  return t == null ? iso : hhmm(t);
+  final t = tryParseServerTime(iso);
+  return t == null ? iso : hhmm(t.toLocal());
+}
+
+/// 서버 시각 파싱 — S7 (2026-08-26). 서버(SQLite)는 KST 벽시계를 오프셋 없이
+/// 내려준다('2026-08-26T20:00:00'). `DateTime.parse` 는 이것을 **기기 시간대**로
+/// 읽어서, 기기 시계가 UTC 면 20:00 KST 수업이 9시간 뒤로 밀려 시작이 지난 뒤에도
+/// '예약' 이 살아 있었다(에뮬 1차 S7). 오프셋이 없으면 +09:00 을 붙여 같은
+/// 순간(instant)으로 고정하고, 이미 오프셋/Z 가 있으면(Postgres 프로드) 그대로.
+/// 화면 표시는 호출부가 `.toLocal()` 로 — KST 폰에서는 종전과 픽셀 동일.
+DateTime parseServerTime(String iso) {
+  final s = iso.trim();
+  final hasOffset = RegExp(r'(Z|[+-]\d{2}:?\d{2})$').hasMatch(s);
+  return DateTime.parse(hasOffset ? s : '$s+09:00');
+}
+
+DateTime? tryParseServerTime(String iso) {
+  try {
+    return parseServerTime(iso);
+  } catch (_) {
+    return null;
+  }
 }
 
 /// `2026-08-25`

@@ -372,9 +372,10 @@ python tool/golden_gallery.py               # 단일 HTML 갤러리 (build/golde
 가짜 백엔드(`test/golden/fakes.dart` — ApiClient implements, 네트워크 0)로 실물 픽셀 렌더
 (갤S22 급 360×780·2x). 폰트는 `test/flutter_test_config.dart` 가 FontManifest 전체
 (Pretendard·MaterialIcons)를 로드. 참조 아키텍처: `apps/writeplz-app` 골든스탠다드.
-현재 **57장** (2026-08-26 실측 — 8/21 "45장" 서술 이후 v3.4~v3.28 증감 포함.
-prefix 집계: member 25 · state 12 · common 5 · splash 3 · snack 3 · coach 3 ·
-ach 2 · boss 2 · hist 1 · onb 1. 2026-08-26 S5·S10 = state_11 '회원권 필요' 배지 ·
+현재 **58장** (2026-08-26 실측 — 8/21 "45장" 서술 이후 v3.4~v3.28 증감 포함.
+prefix 집계: member 25 · state 13 · common 5 · splash 3 · snack 3 · coach 3 ·
+ach 2 · boss 2 · hist 1 · onb 1. 2026-08-26 S6 = state_13 가입 폼 BACK 다이얼로그 신규.
+2026-08-26 S5·S10 = state_11 '회원권 필요' 배지 ·
 state_12 코치 로그아웃 다이얼로그 신규 (boss_03·state_10 은 명단 코치 이름 재생성).
 2026-08-26 S3 = state_10 시작 전 명단 잠금 신규 ·
 boss_03 fake 를 시작 지난 수업(09:00)으로 이동. v3.28 = coach_02(수업 탭) 삭제 · coach_04(새 쪽지
