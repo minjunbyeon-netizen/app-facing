@@ -562,8 +562,8 @@ class _ActionsSection extends StatelessWidget {
       context,
       title: '로그아웃',
       message:
-          '로그아웃해도 프로필·기록은 이 기기에 그대로 유지됩니다.\n'
-          '같은 계정으로 다시 로그인하면 모든 데이터가 복구됩니다.\n'
+          '로그아웃하면 이 기기와 회원 연결이 끊깁니다.\n'
+          '같은 아이디로 다시 로그인하면 기록이 그대로 이어집니다.\n'
           '계정 삭제는 내 정보 → 개인정보처리방침 → 계정 삭제.',
       confirmLabel: '로그아웃',
     );
