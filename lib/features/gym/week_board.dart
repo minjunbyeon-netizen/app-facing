@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
 import '../../core/haptic.dart';
+import '../../core/sse_client.dart';
 import '../../core/theme.dart';
 import '../../models/class_session.dart';
 import '../../models/gym.dart';
@@ -41,6 +44,21 @@ class _WeekBoardState extends State<WeekBoard> {
   List<ClassSessionDto> _classes = const [];
   bool _classesLoading = false;
   bool _classesError = false;
+  StreamSubscription<SseEvent>? _sseSub;
+
+  /// D58 (2026-08-26 PC·에뮬 실주행): 코치가 회원권을 해지·정지·수정해 서버가 예약을
+  /// 지웠는데(revoke_uncovered_reservations) 보드는 '예약됨' 을 그대로 보였다.
+  /// GymState 는 회원권·수업 내용만 다시 받으므로 수업 목록은 여기서 직접 듣는다.
+  static const _classReloadEvents = <String>{
+    'member_reservation_cancelled',
+    'class_cancelled',
+    'member_promoted_from_waitlist',
+    'membership.cancelled',
+    'membership.paused',
+    'membership.resumed',
+    'membership.updated',
+    'membership.issued',
+  };
 
   @override
   void initState() {
@@ -51,6 +69,15 @@ class _WeekBoardState extends State<WeekBoard> {
     _weekStart = _today.subtract(Duration(days: _today.weekday - 1));
     _selected = _today.weekday - 1;
     _loadClasses();
+    _sseSub = widget.gymState.sse?.events.listen((ev) {
+      if (_classReloadEvents.contains(ev.type) && mounted) _loadClasses();
+    });
+  }
+
+  @override
+  void dispose() {
+    _sseSub?.cancel();
+    super.dispose();
   }
 
   /// 이 주 전체(월 00:00 ~ 다음 월 00:00) 한 번에 받아 날짜별로 나눈다.

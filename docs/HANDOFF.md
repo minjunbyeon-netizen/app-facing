@@ -16,8 +16,15 @@
   '회원권 삭제' 기능은 없음 — 해지만 (설계). 캡처 `membership/43~51`. 에뮬 `INSTALL_FAILED_INSUFFICIENT_STORAGE`
   가 "첫 빌드 누락" 의 정체 — `adb uninstall` 후 설치, `dumpsys package … lastUpdateTime` 으로 확인.
 
+- [x] **19:54 사용자 지시 D58 — "해지·일시정지·만료되면 그 권으로 예약된 건 사라지게" + "예약은 매일 전날 오전 11시부터 (보기는 언제든지)"**:
+  서버 `190d091` `revoke_uncovered_reservations`(해지·정지·수정 훅 + 매시 스윕) · `booking_open_hour`(기존 체육관 11) · BOOKING_NOT_OPEN · 265 passed(+7).
+  웹 `7fca203`·`0a3f0fa` 예약 설정 '예약 오픈 시각' 셀렉트 · revoked 토스트 · 미리보기 문구. 앱 `f1d0523` '오픈 전' 배지 · 골든 60 (state_15).
+  에뮬 실주행: 금 28 '오픈 전' → 탭 "예약은 8/27 11:00 부터 가능합니다." · 21:34 예약 → 코치 즉시 해지 → 서버 예약 소멸(환불 9,900 = 소멸 뒤 6/6)
+  · **발견**: 보드가 SSE 로 수업 목록을 다시 안 받아 '예약됨' 잔상 → `WeekBoard` SSE 구독 추가(커밋 전, 검증 중). 캡처 `membership/60~66`.
+  브리프 D58 · GLOSSARY 오픈 전/오픈 · 이름사전 +1 · 갭대장 24차. 프로드 `railway up` 완료(20:03 부팅).
+
 ## 진행중
-- [ ] 없음.
+- [ ] WeekBoard SSE 재조회(`lib/features/gym/week_board.dart _classReloadEvents`) — analyze·test·에뮬 재검증·커밋·릴리즈 APK(갤S22 adb 끊김) 남음.
 
 ## 대기 (사용자 마지막 지시 18:00 "2 하고 PC 에뮬레이터로 너가 테스트" — 컨텍스트 경고로 미착수)
 - [ ] (사용자가 18:08 지시로 'PC 에뮬레이터' 로컬 검증으로 대체 — 프로드 등록은 지시 없음) **프로드 gym 2(HYPHEN HYBRID GYM) 에 "이벤트 3회권 · 30일 · 3회 · 9,900원" 요금제 등록** — PC 웹
