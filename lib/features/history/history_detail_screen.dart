@@ -202,7 +202,7 @@ class _ItemLine extends StatelessWidget {
 String _formatDate(String? iso) {
   if (iso == null) return '';
   try {
-    final dt = DateTime.parse(iso).toLocal();
+    final dt = parseServerTime(iso).toLocal();
     String two(int n) => n.toString().padLeft(2, '0');
     return '${dt.year}-${two(dt.month)}-${two(dt.day)} '
         '${two(dt.hour)}:${two(dt.minute)}';

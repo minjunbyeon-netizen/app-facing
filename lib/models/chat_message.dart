@@ -1,5 +1,6 @@
 // v1.25: 회원↔코치 양방향 대화 메시지.
 // GET /api/v1/gym/<id>/messages 의 항목 1개. direction=out → 내가 보낸 것.
+import '../core/time_format.dart';
 
 class ChatMessage {
   final int id;
@@ -41,7 +42,7 @@ class ChatMessage {
       senderColor: j['sender_color']?.toString(),
       autoKind: j['auto_kind']?.toString(),
       createdAt:
-          DateTime.tryParse((j['created_at'] ?? '').toString())?.toLocal() ??
+          tryParseServerTime((j['created_at'] ?? '').toString())?.toLocal() ??
               DateTime.fromMillisecondsSinceEpoch(0),
       status: my is Map ? my['status']?.toString() : null,
     );
@@ -72,7 +73,7 @@ class CoachThread {
         peerColor: j['peer_color']?.toString(),
         lastBody: (j['last_body'] ?? '').toString(),
         lastAt:
-            DateTime.tryParse((j['last_at'] ?? '').toString())?.toLocal() ??
+            tryParseServerTime((j['last_at'] ?? '').toString())?.toLocal() ??
                 DateTime.fromMillisecondsSinceEpoch(0),
         unread: (j['unread'] as num?)?.toInt() ?? 0,
       );

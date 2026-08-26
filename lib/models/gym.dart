@@ -1,6 +1,7 @@
 // v1.15.3: 박스/코치 WOD 피드 DTO.
 
 import '../core/app_clock.dart';
+import '../core/time_format.dart';
 
 class GymSummary {
   final int id;
@@ -211,7 +212,7 @@ class MemberProfile {
         emergencyContact: _s(j['emergency_contact']),
         updatedAt: j['updated_at'] == null
             ? null
-            : DateTime.tryParse(j['updated_at'].toString()),
+            : tryParseServerTime(j['updated_at'].toString())?.toLocal(),
       );
 
   static String? _s(dynamic v) {
@@ -281,13 +282,13 @@ class GymMember {
         deviceHashPrefix: (j['device_hash_prefix'] ?? '').toString(),
         deviceHashFull: j['device_hash']?.toString(),
         status: (j['status'] ?? '').toString(),
-        requestedAt: DateTime.parse(j['requested_at'] as String),
+        requestedAt: parseServerTime(j['requested_at'] as String).toLocal(),
         decidedAt: j['decided_at'] == null
             ? null
-            : DateTime.parse(j['decided_at'] as String),
+            : parseServerTime(j['decided_at'] as String).toLocal(),
         lastWodAt: j['last_wod_at'] == null
             ? null
-            : DateTime.parse(j['last_wod_at'] as String),
+            : parseServerTime(j['last_wod_at'] as String).toLocal(),
         totalSessions: ((j['total_sessions'] ?? 0) as num).toInt(),
         streakDays: ((j['streak_days'] ?? 0) as num).toInt(),
         name: _s(j['name']),
@@ -478,7 +479,7 @@ class GymWodPost {
       myResult: (j['my_result'] is Map<String, dynamic>)
           ? GymMyResult.fromJson(j['my_result'] as Map<String, dynamic>)
           : null,
-      createdAt: DateTime.parse(j['created_at'] as String),
+      createdAt: parseServerTime(j['created_at'] as String).toLocal(),
       locked: j['locked'] == true,
       scoreHint: j['score_hint']?.toString(),
       movementSuggestions: (j['movement_suggestions'] is List)
@@ -555,7 +556,7 @@ class GymWodResult {
         weightReps: (j['weight_reps'] as num?)?.toInt(),
         scaleLevel: (j['scale_level'] ?? 'rx').toString(),
         notes: (j['notes'] ?? '').toString(),
-        createdAt: DateTime.parse(j['created_at'] as String),
+        createdAt: parseServerTime(j['created_at'] as String).toLocal(),
       );
 }
 
@@ -580,7 +581,7 @@ class GymWodComment {
         authorPrefix: (j['author_prefix'] ?? '').toString(),
         isMine: j['is_mine'] == true,
         body: (j['body'] ?? '').toString(),
-        createdAt: DateTime.parse(j['created_at'] as String),
+        createdAt: parseServerTime(j['created_at'] as String).toLocal(),
       );
 }
 

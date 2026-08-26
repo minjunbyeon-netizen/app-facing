@@ -1,4 +1,5 @@
 // v1.16: Achievement DTO.
+import '../core/time_format.dart';
 
 class AchievementCatalog {
   final String code;
@@ -49,7 +50,7 @@ class AchievementUnlock {
   factory AchievementUnlock.fromJson(Map<String, dynamic> j) =>
       AchievementUnlock(
         code: (j['code'] ?? '').toString(),
-        unlockedAt: DateTime.parse(j['unlocked_at'] as String),
+        unlockedAt: parseServerTime(j['unlocked_at'] as String).toLocal(),
         context: j['context'] is Map<String, dynamic>
             ? Map<String, dynamic>.from(j['context'] as Map)
             : const {},

@@ -1,3 +1,4 @@
+import '../../core/time_format.dart';
 /// History 도메인 모델 -- 백엔드 /api/v1/history/* 응답 DTO.
 class WodHistoryItem {
   final int id;
@@ -30,7 +31,7 @@ class WodHistoryItem {
       timeCapSec: (j['time_cap_sec'] as num?)?.toInt(),
       rounds: (j['rounds'] as num?)?.toInt(),
       notes: (j['notes'] ?? '').toString(),
-      createdAt: DateTime.parse(j['created_at'] as String),
+      createdAt: parseServerTime(j['created_at'] as String).toLocal(),
       estimatedTotalSec: (plan?['estimated_total_sec'] as num?)?.toInt(),
       grade: plan?['grade']?.toString(),
       formulaVersion: plan?['formula_version']?.toString(),

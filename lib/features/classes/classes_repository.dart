@@ -12,8 +12,8 @@ class ClassesRepository {
     DateTime? to,
   }) async {
     final qs = <String, String>{};
-    if (from != null) qs['from'] = from.toIso8601String();
-    if (to != null) qs['to'] = to.toIso8601String();
+    if (from != null) qs['from'] = from.toUtc().toIso8601String();
+    if (to != null) qs['to'] = to.toUtc().toIso8601String();
     final path = qs.isEmpty
         ? '/api/v1/member/classes'
         : '/api/v1/member/classes?${qs.entries.map((e) => '${e.key}=${Uri.encodeComponent(e.value)}').join('&')}';

@@ -60,8 +60,8 @@ class _CoachWeekClassesState extends State<CoachWeekClasses> {
     });
     try {
       final api = context.read<BossApiClient>();
-      final from = _weekStart.toIso8601String();
-      final to = _weekStart.add(const Duration(days: 7)).toIso8601String();
+      final from = _weekStart.toUtc().toIso8601String();
+      final to = _weekStart.add(const Duration(days: 7)).toUtc().toIso8601String();
       final raw = await api.getList(
         '/api/v1/admin/gyms/${widget.gymId}/classes?from=$from&to=$to',
       );

@@ -1,4 +1,5 @@
 // v1.16 Sprint 17: CoachFeedback + MemberRequest DTO.
+import '../core/time_format.dart';
 
 class CoachFeedback {
   final int id;
@@ -22,8 +23,8 @@ class CoachFeedback {
         memberHashPrefix: (j['member_hash_prefix'] ?? '').toString(),
         isMine: j['is_mine'] == true,
         body: (j['body'] ?? '').toString(),
-        createdAt: DateTime.parse(j['created_at'] as String),
-        updatedAt: DateTime.parse(j['updated_at'] as String),
+        createdAt: parseServerTime(j['created_at'] as String).toLocal(),
+        updatedAt: parseServerTime(j['updated_at'] as String).toLocal(),
       );
 }
 
@@ -64,9 +65,9 @@ class MemberRequest {
         body: (j['body'] ?? '').toString(),
         status: (j['status'] ?? 'open').toString(),
         coachResponse: j['coach_response']?.toString(),
-        createdAt: DateTime.parse(j['created_at'] as String),
+        createdAt: parseServerTime(j['created_at'] as String).toLocal(),
         respondedAt: j['responded_at'] == null
             ? null
-            : DateTime.parse(j['responded_at'] as String),
+            : parseServerTime(j['responded_at'] as String).toLocal(),
       );
 }

@@ -563,6 +563,33 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > - 회귀: 골든 `coach_01`(주간) 재생성 · `coach_02` 삭제 · `coach_04_new_note_members` 신규 ·
 >   `coach_03` 재생성(그룹 버튼 없음).
 
+> **D55 (2026-08-26 사용자 결정 "다른곳처럼 (표준대로) 우리도 저렇게 할까?" → 예) — 시간대 표준 채택: 저장·전송 = 오프셋 포함 순간 · 표시만 시간대 변환 · '하루' = 체육관 시간대.**
+>
+> - **1단계 서버 직렬화 한 곳** — `api/_time.py` 신설. 응답 순간값 datetime `.isoformat()` 94줄
+>   (+ DB datetime→날짜 유도 8곳 `kst_date`)을 `iso()` 로 — naive(SQLite)=KST 벽시계로 읽어 `+09:00`
+>   을 붙이고, aware(Postgres)는 KST 로 변환. SQLite·Postgres 가 같은 문자열을 내린다. 날짜
+>   컬럼(String(10)) 62줄은 시간대 무관이라 그대로. 클라이언트 ISO 입력 6경로(수업 생성 · 목록
+>   from/to 2벌 · 공지 start/end 2벌)는 `parse_client_time` 한 곳(Z·오프셋·없음 전부 KST).
+>   `date.today()` 9곳 → `kst_today()`(Railway UTC 컨테이너의 한국 저녁 하루 밀림). 파일마다 있던
+>   `KST`·`_now`·`_kst_today`·`_kst_wall`·`_as_kst`·`_to_kst_naive`·`_parse_to_kst_naive` 를 이 모듈
+>   하나로 (§0-B rename — 이름사전 도메인 14). 스트릭 계산의 `now_utc`(실은 KST) 이름·축 정정.
+> - **2단계 앱 파서 통일** — 서버 순간값 `DateTime.parse/tryParse` 26곳(업적·공지·쪽지·피드백·
+>   체육관·기록·채팅)을 `parseServerTime(...).toLocal()` 로. 표시 직전 `.toLocal()` 이라 KST 폰은
+>   픽셀 동일(골든 58 무변화), UTC 기기도 같은 순간을 그린다. 전송은 수업 목록 `from/to` 를
+>   `toUtc().toIso8601String()`(Z) 으로 — 오프셋 포함. 날짜 전용(회원권·락커 기간·로컬 저장값) 17곳은
+>   대상 아님.
+> - **3단계 테스트 시계** — `tests/*.py` naive `datetime.now()` 17곳 → `datetime.now(KST)` (UTC CI 에서
+>   서버 `now_kst` 와 어긋나지 않게). `_today_class_or_skip` 자정 skip 은 시간대와 무관(2시간 뒤가
+>   내일이 되는 문제)이라 유지.
+> - **4단계 체육관 시간대 자리** — `gyms.timezone` String(40) default 'Asia/Seoul' + idempotent
+>   ADD COLUMN. `_time.py` `tz_of·date_in·day_bounds_wall·gym_tz·gym_today·gym_date`(캐시 없음
+>   §2-A-5). 하루 예약 한도는 `func.date` 대신 체육관 하루 `[lo, hi)` 범위, 회원권 게이트는
+>   `gym_date`, PC 관리자 '오늘' 23곳은 `_gym_today()`(세션 체육관). PC 설정 화면은 보류(HYPHEN
+>   1곳 — 값 고정). **남은 경계**: `func.date(...)` 13곳(admin 9 · classes 3 · gym 1 — 출석 통계·
+>   오늘 수업 집계)은 저장 벽시계(KST) 축 — 체육관이 KST 라 지금은 동일, 다른 시간대 체육관이
+>   생기면 `day_bounds_wall` 범위로 전환 (갭대장 21차).
+> - 회귀: 서버 247 passed(+10 `tests/test_time_std.py`) · 앱 198 · 골든 58 무변화.
+
 > **D54 (2026-08-26 사용자 지시 "s6 하고, s7 시각이 지나면 안보이게, s9 는 당연한 것") — 가입 폼 BACK 확인 · 서버 시각 KST 고정 · HYPHEN 전용 앱 확정.**
 >
 > - **S6** — 가입 신청 폼(`self_signup_screen.dart`)을 `PopScope(canPop:false)` 로 감싸 입력이

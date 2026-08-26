@@ -16,12 +16,13 @@ String hhmmIso(String iso) {
   return t == null ? iso : hhmm(t.toLocal());
 }
 
-/// 서버 시각 파싱 — S7 (2026-08-26). 서버(SQLite)는 KST 벽시계를 오프셋 없이
-/// 내려준다('2026-08-26T20:00:00'). `DateTime.parse` 는 이것을 **기기 시간대**로
-/// 읽어서, 기기 시계가 UTC 면 20:00 KST 수업이 9시간 뒤로 밀려 시작이 지난 뒤에도
-/// '예약' 이 살아 있었다(에뮬 1차 S7). 오프셋이 없으면 +09:00 을 붙여 같은
-/// 순간(instant)으로 고정하고, 이미 오프셋/Z 가 있으면(Postgres 프로드) 그대로.
-/// 화면 표시는 호출부가 `.toLocal()` 로 — KST 폰에서는 종전과 픽셀 동일.
+/// 서버 순간값 파싱 — 폰 쪽 정본 (S7 · D55 2026-08-26).
+/// 표준: 서버는 순간값을 항상 오프셋 포함(`2026-08-26T20:00:00+09:00`, `api/_time.py iso`)
+/// 으로 내리고, 폰은 표시 직전에만 `.toLocal()` 로 기기 시간대로 바꾼다.
+/// 오프셋이 없는 옛 형식(SQLite naive, D55 이전 서버)은 +09:00 을 붙여 같은 순간으로
+/// 고정한다 — `DateTime.parse` 가 이를 기기 시간대로 읽으면 UTC 기기에서 20:00 KST 수업이
+/// 9시간 밀려 시작이 지난 뒤에도 '예약' 이 살아 있었다(에뮬 1차 S7).
+/// 날짜 전용 값(`YYYY-MM-DD` 회원권·락커 기간)은 시간대 무관 — 이 함수 대상이 아니다.
 DateTime parseServerTime(String iso) {
   final s = iso.trim();
   final hasOffset = RegExp(r'(Z|[+-]\d{2}:?\d{2})$').hasMatch(s);

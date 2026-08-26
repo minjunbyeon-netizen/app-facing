@@ -1,6 +1,7 @@
 // v1.18 Sprint 19: Coach Note + Recipient + structured Assignment items.
 
 import '../core/app_clock.dart';
+import '../core/time_format.dart';
 
 class CoachNote {
   final int id;
@@ -100,7 +101,7 @@ class CoachNote {
       voiceMemoPath: j['voice_memo_path']?.toString(),
       autoKind: j['auto_kind']?.toString(),
       createdAt: j['created_at'] is String
-          ? DateTime.tryParse(j['created_at'] as String) ??
+          ? tryParseServerTime(j['created_at'] as String)?.toLocal() ??
               appClock.now().toUtc()
           : appClock.now().toUtc(),
       my: j['my'] is Map
@@ -269,11 +270,11 @@ class RecipientStatus {
     }
     return RecipientStatus(
       status: (j['status'] ?? 'sent').toString(),
-      readAt: j['read_at'] is String ? DateTime.parse(j['read_at']) : null,
+      readAt: j['read_at'] is String ? parseServerTime(j['read_at']).toLocal() : null,
       acceptedAt:
-          j['accepted_at'] is String ? DateTime.parse(j['accepted_at']) : null,
+          j['accepted_at'] is String ? parseServerTime(j['accepted_at']).toLocal() : null,
       completedAt:
-          j['completed_at'] is String ? DateTime.parse(j['completed_at']) : null,
+          j['completed_at'] is String ? parseServerTime(j['completed_at']).toLocal() : null,
       declineReason: j['decline_reason']?.toString(),
       actual: actuals,
     );
@@ -343,9 +344,9 @@ class RecipientSummary {
         name: j['name']?.toString(),
         color: j['color']?.toString(),
         status: (j['status'] ?? 'sent').toString(),
-        readAt: j['read_at'] is String ? DateTime.parse(j['read_at']) : null,
+        readAt: j['read_at'] is String ? parseServerTime(j['read_at']).toLocal() : null,
         completedAt:
-            j['completed_at'] is String ? DateTime.parse(j['completed_at']) : null,
+            j['completed_at'] is String ? parseServerTime(j['completed_at']).toLocal() : null,
         declineReason: j['decline_reason']?.toString(),
       );
 }

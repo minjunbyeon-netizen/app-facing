@@ -1,6 +1,7 @@
 // v1.19 P2: 마케팅 피드 강화 — 이미지·CTA·기간·핀고정·카테고리.
 
 import '../core/app_clock.dart';
+import '../core/time_format.dart';
 
 /// 공지 카테고리.
 enum AnnouncementCategory {
@@ -100,17 +101,17 @@ class GymAnnouncement {
         ctaLabel: j['cta_label'] as String?,
         ctaUrl: j['cta_url'] as String?,
         startAt: j['start_at'] != null
-            ? DateTime.tryParse(j['start_at'] as String)
+            ? tryParseServerTime(j['start_at'] as String)?.toLocal()
             : null,
         endAt: j['end_at'] != null
-            ? DateTime.tryParse(j['end_at'] as String)
+            ? tryParseServerTime(j['end_at'] as String)?.toLocal()
             : null,
         pinned: j['pinned'] == true,
         category: AnnouncementCategory.fromString(j['category'] as String?),
         visibleTo: (j['visible_to'] ?? 'all').toString(),
-        createdAt: DateTime.parse(j['created_at'] as String),
+        createdAt: parseServerTime(j['created_at'] as String).toLocal(),
         updatedAt: j['updated_at'] != null
-            ? DateTime.tryParse(j['updated_at'] as String)
+            ? tryParseServerTime(j['updated_at'] as String)?.toLocal()
             : null,
       );
 }
