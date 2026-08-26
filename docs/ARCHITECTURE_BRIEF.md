@@ -564,6 +564,41 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > - 회귀: 골든 `coach_01`(주간) 재생성 · `coach_02` 삭제 · `coach_04_new_note_members` 신규 ·
 >   `coach_03` 재생성(그룹 버튼 없음).
 
+> **D57 (2026-08-26 사용자 지시 "횟수권도 있으면 좋겠는데 … 3회 9,900 이벤트 할 계획" + 차감 규칙 "1회 노쇼·20분 전 취소 노패널티, 2회 노쇼부터 차감, 20분 이후 취소도 1회는 노패널티 2회부터 차감") — 횟수권(세션권) 신설.**
+>
+> 회원권은 기간제 하나뿐이었다 (`gym_membership_plans`/`gym_plan` 에 `session_based` 유형만 휴면). 3면 같이 집행.
+> - **자료**: `gym_memberships.session_total` (NULL = 기간제) · `class_reservations.membership_id`(어느
+>   횟수권에서 나온 예약인지) · `late_cancel`(취소 시각이 시작 20분 전을 지났는가) ·
+>   `session_charged`(지금 1회를 점유하는가). 요금제는 기존 `gym_plan.session_count` 를 PC 어댑터
+>   (`/admin/gyms/<id>/membership-plans` GET/POST/PATCH) 가 드디어 노출·저장 — 횟수가 있으면
+>   `plan_type='session_based'`, `duration_days` 는 **사용 기한**. 마이그레이션 `_migrate_session_pass_columns`
+>   (`_migrate_class_tables` 의 표 재생성 **뒤**에 — 앞에 두면 새 컬럼이 같이 지워진다).
+> - **규칙 (정본 `api/_membership.py`)**: 유효 = S5 와 동일(수업일 기준 active 기간·정지 창 밖).
+>   기간제가 유효하면 횟수 안 깎음. 횟수권만 있으면 잔여 ≥ 1 인 권(만료 임박 순)에 붙이고
+>   예약 확정 순간 1회 점유 → 잔여 0 이면 **예약·대기 신청 모두** 409 `SESSIONS_EXHAUSTED`
+>   "회원권 횟수를 모두 사용했습니다." (유효권 자체가 없으면 종전 `MEMBERSHIP_REQUIRED`).
+>   점유는 `recompute_session_charges` 가 **회원권 단위로 시간순 재계산** — 예약중·출석 = 점유 ·
+>   제때 취소(시작 20분 전까지, `LATE_CANCEL_MINUTES=20`) = 해제 · 노쇼 = 회원권별 첫 1회 무료,
+>   2회째부터 점유 · 늦은 취소 = 노쇼와 **별도 카운터**로 첫 1회 무료, 2회째부터 점유 ·
+>   체육관 사정 취소(`admin_cancel_class`) = 해제·늦은 취소 아님. 코치가 출결을 되돌리면 다시
+>   세므로 카운터 드리프트 없음 (예: 첫 노쇼를 출석으로 고치면 둘째 노쇼가 무료가 된다).
+>   대기열 승격(`_promote_waitlist`)도 잔여를 재검사해 0 이면 건너뛴다.
+> - **응답**: `/member/me/memberships`·PC 이력 GET 에 `session_total·session_used·session_remaining·
+>   no_show_count·late_cancel_count·free_no_show_left·free_late_cancel_left` 동봉 (기간제는 null/0).
+>   회원 취소 DELETE 응답에 `late_cancel·session_charged·message` — 문구("… 1회 차감" / "… 이번은
+>   차감 없음")는 서버가 정본, 폰은 그대로 스낵바.
+> - **PC**: 회원권 설정 표·모달에 '횟수 (회) — 비우면 기간제' 칸(+ 차감 규칙 한 줄 안내) ·
+>   발급 모달은 종류를 고르면 횟수 자동 · 이력 표 종류 아래 "1/3회 사용 · 잔여 2회 · 노쇼 면제 1회 ·
+>   늦은 취소 면제 1회" · 수정 모달 횟수 칸 · 회원 리스트 회원권 칸 "잔여 2회 / 3회".
+> - **폰**: `Membership.isSessionPass/sessionProgress` + `coversDay` 가 잔여 0 이면 false → 주간보드
+>   '회원권 필요' 배지 재사용(신규 배지 없음). 내 정보 요약 "2회 남음 · 27일 후 만료", 카드 막대 =
+>   사용 횟수 비율("1회 사용 / 2회 남음") + "노쇼 면제 1회 · 늦은 취소 면제 1회 남음". 취소 다이얼로그는
+>   시작 20분 전을 지났으면 "횟수권은 1회 차감될 수 있습니다" 한 줄(`kLateCancelMinutes` = 서버 상수 거울).
+> - 회귀: 서버 `tests/test_session_pass.py` 10건(점유·소진·제때/늦은 취소·노쇼 무료 1회·자가 치유·
+>   기간제 우선·대기 신청 차단·승격 skip·수업 취소 해제·폰/PC 응답·발급/수정) — 257 passed 1 skipped.
+>   앱 199 · 골든 59 (`state_14_mypage_session_pass` 신규, 기존 58 무변화).
+> - 보고만: PC 발급 모달에서 종류를 고른 뒤 시작일을 바꾸면 종료일이 재계산되지 않음 (D57 이전부터).
+
 > **D56 (2026-08-26 사용자 지시 "전부 한국이야 걱정하지마. 이거 확실히 못박아놔") — 전 체육관 = 한국, 시간대 KST 하나로 확정. 3면 대전제 4번.**
 >
 > - D55 4단계의 `gyms.timezone` 은 'Asia/Seoul' **한 값만** 가진다. 서버 `api/_time.py tz_of` 는
@@ -899,7 +934,7 @@ GET /api/v1/member/events → 회원 폰 구독 (또는 30초 poll fallback)
 |---|---|---|
 | `gym_managers` | 운영자(코치) 계정 — 다중 박스 OK | gym_id, login_id, password_hash, role (boss/manager/coach — 셋 다 같은 '코치'), name, phone, device_hash, hired_at, left_at |
 | `gym_member_profiles` | 사장 회원 DB | gym_id, member_id (FK), name, gender, birth_date, phone, level, preferred_time_slot, preferred_coach_gender, safety_note, note |
-| `gym_memberships` | 회원권 관리 | member_id, plan_name, start_date, end_date, price, status (active/expired/refunded), refund_amount, refunded_at |
+| `gym_memberships` | 회원권 관리 | member_id, plan_name, start_date, end_date, price, status (active/expired/refunded), refund_amount, refunded_at, **session_total** (D57 횟수권 — NULL=기간제; 사용 횟수는 `class_reservations.session_charged` 집계) |
 | `gym_lockers` | 락커 관리 | gym_id, locker_no, member_id, start_date, end_date |
 | `contract_instances` | 전자계약 (정본 — 구 `gym_contracts` 는 D40 에서 DROP) | template_id, gym_id, member_id, status, variables, pdf_path, signed_pdf_path, signed_at, signature_* |
 | `gym_attendances` | 통계용 | member_id, gym_id, checked_at, source (qr/manual) |

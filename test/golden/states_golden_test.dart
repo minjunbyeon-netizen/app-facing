@@ -259,6 +259,35 @@ void _rememberedLoginGolden() {
     await capture(tester, 'state_11_class_membership_required');
   });
 
+  // ── 횟수권 — 내 정보 회원권 카드 잔여·면제 표시 (D57 · 2026-08-26) ──
+  testWidgets('state: mypage session pass', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi({
+      ...memberWorld(),
+      '/api/v1/member/me/memberships': memberMembershipsSessionPass(),
+    });
+    final gym = GymState(GymRepository(api), sse: FakeSse());
+    await gym.loadMine();
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        gym: gym,
+        home: const MainShell(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tapTab(tester, '내 정보');
+    expect(find.textContaining('2회 남음'), findsWidgets);
+    // 아코디언을 펼쳐 카드(사용/잔여 막대 · 면제 잔여)까지 보이게.
+    await tester.tap(find.text('회원권').first);
+    await tester.pumpAndSettle();
+    expect(find.textContaining('노쇼 면제 1회'), findsOneWidget);
+    await capture(tester, 'state_14_mypage_session_pass');
+  });
+
   // ── 코치 로그아웃 확인 다이얼로그 (S10 · 2026-08-26) ──
   testWidgets('state: coach logout dialog', (tester) async {
     phone(tester);

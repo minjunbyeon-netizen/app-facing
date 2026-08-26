@@ -667,6 +667,31 @@ List<Map<String, dynamic>> memberMemberships() {
   ];
 }
 
+/// 횟수권 1건 — D57 내 정보 카드 '2회 남음'·면제 잔여 골든용 (state_14).
+/// 서버 session_summary 필드를 그대로 흉내 (3회 중 1회 사용).
+List<Map<String, dynamic>> memberMembershipsSessionPass() {
+  final now = appClock.now();
+  return [
+    {
+      'id': 3,
+      'gym_id': 1,
+      'member_id': 7,
+      'plan_name': '이벤트 3회권',
+      'start_date': _ymd(now.subtract(const Duration(days: 3))),
+      'end_date': _ymd(now.add(const Duration(days: 27))),
+      'price': 9900,
+      'status': 'active',
+      'session_total': 3,
+      'session_used': 1,
+      'session_remaining': 2,
+      'no_show_count': 0,
+      'late_cancel_count': 0,
+      'free_no_show_left': 1,
+      'free_late_cancel_left': 1,
+    },
+  ];
+}
+
 /// 만료된 회원권만 1건 — S5 '회원권 필요' 배지 골든용 (state_11).
 List<Map<String, dynamic>> memberMembershipsExpired() {
   final now = appClock.now();

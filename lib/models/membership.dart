@@ -14,6 +14,12 @@ class Membership {
   final String status; // active / expired / refunded / scheduled / ...
   final String? pauseStart; // 'YYYY-MM-DD' — 일시정지 창 (2026-08-24 갭 해소)
   final String? pauseEnd;
+  // D57 (2026-08-26) 횟수권 — 서버 session_summary 거울. 기간제는 전부 null/0.
+  final int? sessionTotal;
+  final int? sessionUsed;
+  final int? sessionRemaining;
+  final int freeNoShowLeft;
+  final int freeLateCancelLeft;
 
   const Membership({
     required this.id,
@@ -26,6 +32,11 @@ class Membership {
     this.status = 'active',
     this.pauseStart,
     this.pauseEnd,
+    this.sessionTotal,
+    this.sessionUsed,
+    this.sessionRemaining,
+    this.freeNoShowLeft = 0,
+    this.freeLateCancelLeft = 0,
   });
 
   factory Membership.fromJson(Map<String, dynamic> j) => Membership(
@@ -39,7 +50,23 @@ class Membership {
         status: (j['status'] ?? 'active').toString(),
         pauseStart: j['pause_start']?.toString(),
         pauseEnd: j['pause_end']?.toString(),
+        sessionTotal: (j['session_total'] as num?)?.toInt(),
+        sessionUsed: (j['session_used'] as num?)?.toInt(),
+        sessionRemaining: (j['session_remaining'] as num?)?.toInt(),
+        freeNoShowLeft: (j['free_no_show_left'] as num?)?.toInt() ?? 0,
+        freeLateCancelLeft: (j['free_late_cancel_left'] as num?)?.toInt() ?? 0,
       );
+
+  /// 횟수권인가 (session_total 이 있음). 기간제는 false.
+  bool get isSessionPass => sessionTotal != null;
+
+  /// 횟수권 사용 비율 0.0~1.0 — 카드 진행 막대용.
+  double get sessionProgress {
+    final t = sessionTotal;
+    if (t == null || t <= 0) return 0;
+    final u = sessionUsed ?? 0;
+    return (u / t).clamp(0, 1).toDouble();
+  }
 
   /// 만료까지 남은 일수. end_date 가 없으면 null.
   /// 음수면 이미 만료.
@@ -100,6 +127,8 @@ class Membership {
   /// 수업은 잡히고, 이번 달 권으로 만료 뒤 수업은 안 잡힌다.
   bool coversDay(DateTime day) {
     if (!isActive || startDate == null || endDate == null) return false;
+    // D57 — 횟수권은 잔여가 있어야 그날 수업을 잡을 수 있다 (서버 SESSIONS_EXHAUSTED 거울).
+    if (isSessionPass && (sessionRemaining ?? 0) <= 0) return false;
     try {
       final d = DateTime(day.year, day.month, day.day);
       final s = DateTime.parse(startDate!);

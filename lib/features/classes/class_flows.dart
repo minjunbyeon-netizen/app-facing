@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/app_clock.dart';
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/time_format.dart';
@@ -9,6 +10,10 @@ import '../../widgets/mascot.dart';
 import 'classes_repository.dart';
 
 /// 수업 예약·취소 흐름 — 화면 밖 함수 두 개.
+///
+/// 서버 `api/_membership.py LATE_CANCEL_MINUTES` 와 같은 값 — 다이얼로그 경고
+/// 문구용 (판정 정본은 서버).
+const int kLateCancelMinutes = 20;
 ///
 /// v2.4 (2026-08-12): 예약 로직이 두 벌이 되면 정책이 갈라진다 (§3 코드 SSOT).
 /// v3.25 (2026-08-25): 구 `/classes` 화면(classes_screen.dart)을 지우면서 이 둘만
@@ -49,10 +54,18 @@ Future<bool> cancelClassFlow(
   if (!isWaitlistCancel && (res == null || !c.isReserved)) return false;
   final l = c.startAt.toLocal();
   final when = '${l.month}/${l.day} ${hhmm(l)}';
+  // D57 (2026-08-26): 시작 20분 전을 지난 취소는 횟수권에서 차감될 수 있다
+  // (회원권마다 1회 면제). 정확한 차감 여부는 서버가 취소 응답 문구로 알린다.
+  final late = !isWaitlistCancel &&
+      !appClock.now().isBefore(
+        c.startAt.subtract(const Duration(minutes: kLateCancelMinutes)),
+      );
   final ok = await HkDialog.confirm(
     context,
     title: isWaitlistCancel ? '대기를 취소할까요?' : '예약을 취소할까요?',
-    message: '${c.title} · $when',
+    message: late
+        ? '${c.title} · $when\n수업 20분 전이 지났습니다 — 횟수권은 1회 차감될 수 있습니다.'
+        : '${c.title} · $when',
     cancelLabel: '유지',
     confirmLabel: '취소',
   );
@@ -64,8 +77,14 @@ Future<bool> cancelClassFlow(
       await repo.cancelWaitlist(c.id);
       messenger.info('대기 취소.', mood: MascotMood.happy);
     } else {
-      await repo.cancel(res!.reservationId);
-      messenger.info('예약 취소.', mood: MascotMood.happy);
+      final result = await repo.cancel(res!.reservationId);
+      final msg = (result['message'] ?? '').toString();
+      final charged = result['session_charged'] == true;
+      // 차감된 취소는 실패가 아니라 상태 안내 — 담담한 얼굴.
+      messenger.info(
+        msg.isEmpty ? '예약 취소.' : msg,
+        mood: charged ? MascotMood.neutral : MascotMood.happy,
+      );
     }
     return true;
   } on AppException catch (e) {

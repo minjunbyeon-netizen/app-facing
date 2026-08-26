@@ -589,12 +589,16 @@ class _MembershipSection extends StatelessWidget {
     final parts = <String>[];
     if (ms != null) {
       final days = ms.daysUntilExpiry;
+      // D57 횟수권 — 잔여 횟수가 먼저, 기한은 뒤에.
+      if (ms.isSessionPass) {
+        parts.add('${ms.sessionRemaining ?? 0}회 남음');
+      }
       if (days == null) {
         parts.add('기간 정보 없음');
       } else if (days < 0) {
         parts.add('만료됨');
       } else {
-        parts.add('$days일 남음');
+        parts.add(ms.isSessionPass ? '$days일 후 만료' : '$days일 남음');
       }
       if (ms.isPausedNow) parts.add('일시정지 중');
     }
@@ -624,7 +628,8 @@ class _MembershipCard extends StatelessWidget {
     final ms = context.watch<GymState>().currentMembership;
     if (ms == null) return const SizedBox.shrink();
     final days = ms.daysUntilExpiry;
-    final progress = ms.progress ?? 0;
+    // D57 횟수권 — 막대는 사용 횟수 비율, 기간제는 기간 경과 비율.
+    final progress = ms.isSessionPass ? ms.sessionProgress : (ms.progress ?? 0);
     final isExpiringSoon = days != null && days <= 14 && days >= 0;
     final isExpired = days != null && days < 0;
     Color accentColor;
@@ -667,6 +672,14 @@ class _MembershipCard extends StatelessWidget {
                   ),
               ],
             ),
+            // D57 (2026-08-26) 횟수권 — 면제 잔여 (노쇼·늦은 취소 각 1회).
+            if (ms.isSessionPass) ...[
+              const SizedBox(height: 6),
+              Text(
+                '노쇼 면제 ${ms.freeNoShowLeft}회 · 늦은 취소 면제 ${ms.freeLateCancelLeft}회 남음',
+                style: HyphenTokens.caption,
+              ),
+            ],
             // 일시정지 상태 (2026-08-24 갭 해소 — PC 만 알던 정지 창 표시).
             if (ms.isPausedNow || ms.isPauseScheduled) ...[
               const SizedBox(height: 8),
@@ -716,12 +729,16 @@ class _MembershipCard extends StatelessWidget {
             Row(
               children: [
                 Text(
-                  '${(progress * 100).toStringAsFixed(0)}% 사용',
+                  ms.isSessionPass
+                      ? '${ms.sessionUsed ?? 0}회 사용'
+                      : '${(progress * 100).toStringAsFixed(0)}% 사용',
                   style: HyphenTokens.caption,
                 ),
                 const Spacer(),
                 Text(
-                  '${((1 - progress) * 100).toStringAsFixed(0)}% 남음',
+                  ms.isSessionPass
+                      ? '${ms.sessionRemaining ?? 0}회 남음'
+                      : '${((1 - progress) * 100).toStringAsFixed(0)}% 남음',
                   style: HyphenTokens.caption.copyWith(color: accentColor),
                 ),
               ],

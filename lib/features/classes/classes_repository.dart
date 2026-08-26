@@ -48,8 +48,10 @@ class ClassesRepository {
   }
 
   /// 본인 예약 취소. 백엔드가 waitlist 1번 자동 승격.
-  Future<void> cancel(int reservationId) async {
-    await _api.delete('/api/v1/member/reservations/$reservationId');
+  /// 응답: {cancelled, late_cancel, session_charged, message} — D57 횟수권
+  /// 취소 문구(차감 여부)는 서버가 정본이라 스낵바가 그대로 보여준다.
+  Future<Map<String, dynamic>> cancel(int reservationId) async {
+    return await _api.delete('/api/v1/member/reservations/$reservationId');
   }
 
   /// 본인 대기열 이탈 (G30, 2026-08-24). 대기자는 예약 행이 없어 cancel()

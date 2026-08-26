@@ -158,11 +158,17 @@ class _WeekBoardState extends State<WeekBoard> {
                   onTap: () => _select(i),
                   onReserve: (c) async {
                     final ok = await reserveClassFlow(context, _repo, c);
-                    if (ok && mounted) _loadClasses();
+                    if (ok && mounted) {
+                      _loadClasses();
+                      gs.refreshMemberships(); // D57 횟수권 잔여 갱신
+                    }
                   },
                   onCancel: (c) async {
                     final ok = await cancelClassFlow(context, _repo, c);
-                    if (ok && mounted) _loadClasses();
+                    if (ok && mounted) {
+                      _loadClasses();
+                      gs.refreshMemberships(); // D57 횟수권 잔여 갱신
+                    }
                   },
                   onRetryClasses: _loadClasses,
                 ),
