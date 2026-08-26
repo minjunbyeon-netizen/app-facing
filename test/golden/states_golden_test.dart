@@ -259,6 +259,34 @@ void _rememberedLoginGolden() {
     await capture(tester, 'state_11_class_membership_required');
   });
 
+  // ── 예약 오픈 전 — 모레 수업 배지가 '오픈 전' (D58 · 2026-08-26 전날 11시 오픈) ──
+  testWidgets('state: classes booking not open', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi({
+      ...memberWorld(),
+      '/api/v1/member/classes': memberClassesBookingNotOpen(),
+    });
+    final gym = GymState(GymRepository(api), sse: FakeSse());
+    await gym.loadMine();
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        gym: gym,
+        home: const BoxWodScreen(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    // 모레 날짜 행을 펼친다 — 요일 헤더 텍스트는 날짜에 따라 달라 AWAKE 수업이 든 날을 찾는다.
+    final dayAfter = appClock.now().add(const Duration(days: 2));
+    await tester.tap(find.text('${dayAfter.day}').first);
+    await tester.pumpAndSettle();
+    expect(find.text('오픈 전'), findsOneWidget);
+    await capture(tester, 'state_15_class_booking_not_open');
+  });
+
   // ── 횟수권 — 내 정보 회원권 카드 잔여·면제 표시 (D57 · 2026-08-26) ──
   testWidgets('state: mypage session pass', (tester) async {
     phone(tester);

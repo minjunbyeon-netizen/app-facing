@@ -158,6 +158,11 @@ class ClassLine extends StatelessWidget {
     if (!membershipOk) {
       return HkBadge('회원권 필요', color: HyphenTokens.muted, onTap: onReserve);
     }
+    // D58 (2026-08-26): 예약 오픈(전날 N시) 전이면 '오픈 전'. 탭은 서버로 보내
+    // 409 BOOKING_NOT_OPEN 문구("예약은 8/27 11:00 부터 가능합니다.")를 스낵바로.
+    if (session.isBookingNotOpen) {
+      return HkBadge('오픈 전', color: HyphenTokens.muted, onTap: onReserve);
+    }
     final blocked =
         session.isFull && session.waitlistCount >= session.waitlistCapacity;
     if (blocked) return const HkBadge('마감', color: HyphenTokens.muted);

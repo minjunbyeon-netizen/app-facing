@@ -26,6 +26,8 @@ class ClassSessionDto {
   final String? color; // 캘린더 칩 hex — 파싱만, UI 미사용 (토큰 정책)
   final MyReservationDto? myReservation;
   final int? myWaitlistPosition;
+  // D58 (2026-08-26) — 예약이 열리는 순간 (서버 booking_open_at). null = 제한 없음.
+  final DateTime? bookingOpenAt;
 
   const ClassSessionDto({
     required this.id,
@@ -45,7 +47,12 @@ class ClassSessionDto {
     this.color,
     this.myReservation,
     this.myWaitlistPosition,
+    this.bookingOpenAt,
   });
+
+  /// 아직 예약이 안 열렸는가 — 서버 BOOKING_NOT_OPEN 의 표시용 거울 (정본은 서버).
+  bool get isBookingNotOpen =>
+      bookingOpenAt != null && appClock.now().isBefore(bookingOpenAt!);
 
   bool get isOpen => status == 'open';
   bool get isCancelled => status == 'cancelled';
@@ -82,6 +89,9 @@ class ClassSessionDto {
             ? MyReservationDto.fromJson(j['my_reservation'] as Map<String, dynamic>)
             : null,
         myWaitlistPosition: (j['my_waitlist_position'] as num?)?.toInt(),
+        bookingOpenAt: j['booking_open_at'] is String
+            ? parseServerTime(j['booking_open_at'] as String)
+            : null,
       );
 }
 

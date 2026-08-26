@@ -692,6 +692,34 @@ List<Map<String, dynamic>> memberMembershipsSessionPass() {
   ];
 }
 
+/// 예약 오픈 전 수업 — D58 '오픈 전' 배지 골든용 (state_15). 모레 수업, 오픈 = 내일 11:00.
+List<Map<String, dynamic>> memberClassesBookingNotOpen() {
+  final now = appClock.now();
+  final dayAfter = _ymd(now.add(const Duration(days: 2)));
+  final tomorrow = _ymd(now.add(const Duration(days: 1)));
+  return [
+    ...memberClasses(),
+    {
+      'id': 104,
+      'gym_id': 1,
+      'start_at': '${dayAfter}T06:00:00',
+      'duration_minutes': 60,
+      'title': 'AWAKE',
+      'description': null,
+      'room': null,
+      'coach_user_id': 11,
+      'capacity': 12,
+      'waitlist_capacity': 4,
+      'reserved_count': 0,
+      'waitlist_count': 0,
+      'status': 'open',
+      'my_reservation': null,
+      'my_waitlist_position': null,
+      'booking_open_at': '${tomorrow}T11:00:00',
+    },
+  ];
+}
+
 /// 만료된 회원권만 1건 — S5 '회원권 필요' 배지 골든용 (state_11).
 List<Map<String, dynamic>> memberMembershipsExpired() {
   final now = appClock.now();

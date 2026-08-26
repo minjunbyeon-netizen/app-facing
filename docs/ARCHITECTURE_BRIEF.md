@@ -564,6 +564,28 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > - 회귀: 골든 `coach_01`(주간) 재생성 · `coach_02` 삭제 · `coach_04_new_note_members` 신규 ·
 >   `coach_03` 재생성(그룹 버튼 없음).
 
+> **D58 (2026-08-26 사용자 지시 "해지·일시정지·만료되면 그 권으로 예약된 건 사라지게" + "예약은 매일 전날 오전 11시부터 — 보기는 언제든지, 월요일 수업은 일요일 11시부터 일괄") — 회원권 무효 시 예약 소멸 + 예약 오픈 시각.**
+>
+> - **예약 소멸 (`classes.revoke_uncovered_reservations`)**: 회원의 **앞으로의** confirmed 예약·미승격 대기 각각을
+>   예약 게이트와 같은 `pick_membership`(자기 행 점유 제외)로 다시 판정 — 그날을 덮는 유효권이 없으면 취소
+>   (`late_cancel=False`, 횟수 점유 해제) + 빈자리 대기열 승격 + SSE `member_reservation_cancelled`. 호출처 =
+>   즉시 해지(`admin_cancel_membership` — **환불은 소멸 뒤 잔여로**: 체육관이 지운 예약 몫은 돌려준다) ·
+>   정지(`admin_pause_membership_v2`) · 수정(`admin_edit_membership` — 기간 단축·횟수 축소) · 자연 만료는
+>   `sweep_uncovered_reservations` (expiry_scheduler 매시 :05 + 부팅 직후, 멱등). 기간 만료 시 해지는 만료일까지
+>   유효하므로 즉시 소멸 없음(만료 뒤 스윕). 응답 `revoked: [{reservation_id, class_session_id, title, start_at}]`,
+>   PC 토스트 "예약 N건 자동 취소".
+> - **예약 오픈 시각 (`gym_class_settings.booking_open_hour`)**: 수업 **전날** 이 시 정각에 그날 수업 예약·대기 신청이
+>   일괄로 열린다 (`classes.booking_open_at` = 수업일−1 의 hour:00, 체육관 시간대). 전이면 409 `BOOKING_NOT_OPEN`
+>   "예약은 8/27 11:00 부터 가능합니다." — 신규·재활성·대기 신청 세 진입로, 승격은 예외(이미 열린 수업의 빈자리).
+>   NULL/행 없음 = 제한 없음(테스트·신규 체육관). 마이그레이션 `_migrate_booking_open_hour` 가 기존 체육관 행을
+>   11 로 채우고 행 없는 체육관엔 행을 만든다. PC 예약 설정 "예약 오픈 시각" 셀렉트(제한 없음 / 전날 00~23시,
+>   새 행 기본 11). 목록 응답 `booking_open_at` 동봉 → 폰 `ClassSessionDto.isBookingNotOpen` → 주간보드 배지
+>   **'오픈 전'**(탭하면 서버 문구 스낵바 — 정책 문구는 서버 하나). 보기는 종전대로 언제나.
+> - 회귀: 서버 `tests/test_booking_window_revoke.py` 7건 (오픈 전 차단·대기 신청 차단·목록 open_at·NULL 해제·
+>   즉시 해지 소멸+환불 3/3·정지 창 안만 소멸·기간 단축 소멸+승격·스윕 멱등) + 기존 환불 테스트 기대값 갱신 —
+>   265 passed 1 skipped. `test_reservation_policy._set_limit` 은 오픈 시각 None 고정(시각 비의존). 앱 199+1 ·
+>   골든 60 (`state_15_class_booking_not_open` 신규).
+
 > **D57 (2026-08-26 사용자 지시 "횟수권도 있으면 좋겠는데 … 3회 9,900 이벤트 할 계획" + 차감 규칙 "1회 노쇼·20분 전 취소 노패널티, 2회 노쇼부터 차감, 20분 이후 취소도 1회는 노패널티 2회부터 차감") — 횟수권(세션권) 신설.**
 >
 > 회원권은 기간제 하나뿐이었다 (`gym_membership_plans`/`gym_plan` 에 `session_based` 유형만 휴면). 3면 같이 집행.
