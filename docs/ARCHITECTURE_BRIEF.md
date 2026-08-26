@@ -563,6 +563,38 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > - 회귀: 골든 `coach_01`(주간) 재생성 · `coach_02` 삭제 · `coach_04_new_note_members` 신규 ·
 >   `coach_03` 재생성(그룹 버튼 없음).
 
+> **D52 (2026-08-26 사용자 지시 "1 하고 다시보고") — 에뮬 실주행 갭 4건 수정 (S1~S4).**
+>
+> 8/26 로컬 서버 + 에뮬레이터 회원·코치 1바퀴 실주행(캡처 37장)에서 나온 갭 중
+> 사용자가 고른 4건. 정책 결정이 필요한 S5~S10 은 보고만 (README 인계 archive).
+> - **S1 치명 — 로그아웃 뒤 같은 폰 가입 신청이 기존 승인 회원에 붙음.**
+>   앱: `DeviceIdService.reset()` 신설 — 회원 `AuthState.signOut()`·코치
+>   `CoachShell._logout` 이 이 기기의 device_id 를 새 UUID 로 되돌린다 (로그인은
+>   서버가 내려주는 값을 `adopt` 하므로 기록은 그대로 이어짐). 로그아웃 3경로
+>   (내 정보·승인 대기 셸·계정 삭제)와 코치 로그아웃이 `GymState.resetLocal()` 로
+>   옛 소속 캐시도 비운다.
+>   서버: `POST /member/gyms/<gid>/self-signup` 의 같은 기기 중복 분기가 **다른
+>   아이디**의 자격증명이 이미 이 기기에 묶여 있으면
+>   `DEVICE_BOUND_TO_OTHER_ACCOUNT`(409) — 종전엔 기존 회원 행에 새 아이디·
+>   비밀번호를 덮어써 승인·회원권이 남에게 넘어갔다. 같은 아이디 재신청·
+>   자격증명 없는 기기 전용 회원은 그대로 통과.
+> - **S2 — 회원 주간 목록 `reserved_count` 가 confirmed 만 셈** →
+>   `confirmed+attended` (정원 판정·대기 승격과 같은 기준). 코치가 출석을 찍을수록
+>   회원 화면 예약 숫자가 줄던 결함.
+> - **S3 — 수업 시작 전 출석 체크 통과** → `PATCH /admin/reservations/<id>/status`
+>   가 attended·no_show 를 시작 시각 전엔 `CLASS_NOT_STARTED`(409). confirmed
+>   (되돌리기)는 언제든. 폰 명단 시트는 같은 기준(`appClock`)으로 배지를 잠그고
+>   '출석 체크는 수업 시작 후' 한 줄. (종료 컷오프 CLASS_ENDED 와 짝 — 예약은
+>   종료까지, 출석은 시작부터.)
+> - **S4 — 쪽지 발신자 'facing'**: 코치 쪽지는 체육관 공용 owner_hash 로 나가는데
+>   그 해시엔 프로필이 없어 해시 조각이 이름으로 떴다. `coach_note._profile_display`
+>   폴백 = 체육관 대표 스태프(boss 우선·재직) 이름 → 없으면 체육관 이름.
+>   해시 값에 무관하므로 프로드 gym 2 owner_hash 를 손대지 않는다.
+> - 회귀 게이트: 서버 `tests/test_reservation_policy.py` +3 ·
+>   `tests/test_member_detail_linkage.py` +1 · `tests/test_coach_note_sender_display.py`(4 신규)
+>   — 228 passed 1 skipped. 골든 `boss_03_class_roster`(시작 지난 수업으로 fake 이동) ·
+>   `state_10_roster_before_start` 신규.
+
 > **D31 (2026-08-12) — 명단에서 출석 체크 + 대기 순번 정정.**
 >
 > - **대기 순번**: `class_waitlist_promotions.promoted_position` 은 "줄 설 때" 번호라

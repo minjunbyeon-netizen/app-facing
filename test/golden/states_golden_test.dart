@@ -8,6 +8,7 @@ import 'package:hyphen_app/core/goals_state.dart';
 import 'package:hyphen_app/core/quotes.dart';
 import 'package:hyphen_app/features/auth/auth_state.dart';
 import 'package:hyphen_app/features/auth/login_screen.dart';
+import 'package:hyphen_app/features/boss/boss_dashboard_screen.dart';
 import 'package:hyphen_app/features/gym/box_wod_screen.dart';
 import 'package:hyphen_app/features/gym/gym_repository.dart';
 import 'package:hyphen_app/features/gym/gym_state.dart';
@@ -180,6 +181,34 @@ void main() {
 // 30일 안에 로그인한 적이 있으면 아이디가 채워진 채 열린다 (비밀번호는 저장 X).
 // 체크가 켜진 상태를 고정해 둔다 — 빈 로그인 화면은 boss_01·common_08 이 이미 있다.
 void _rememberedLoginGolden() {
+  // ── 수업 시작 전 명단 — 출석·노쇼 배지 잠금 (S3 픽스, 2026-08-26) ──
+  // 서버 CLASS_NOT_STARTED 409 와 짝. 시작 전엔 상태 라벨만 보이고 안내 한 줄.
+  testWidgets('state: class roster before start', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues({});
+    final api = FakeApi(memberWorld());
+    final bossApi = FakeBossApi({
+      '/api/v1/admin/gyms/1/dashboard': bossDashboard(),
+      '/api/v1/admin/gyms/1/classes': memberClasses(),
+      '/api/v1/admin/classes/101/reservations': classRosterUpcoming(),
+    });
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: AuthState(),
+        profile: ProfileState(),
+        bossAuth: FakeBossAuth(),
+        bossApi: bossApi,
+        home: const BossDashboardScreen(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('WOD Class').first);
+    await tester.pumpAndSettle();
+    expect(find.text('출석 체크는 수업 시작 후'), findsOneWidget);
+    await capture(tester, 'state_10_roster_before_start');
+  });
+
   testWidgets('state: login remembered id', (tester) async {
     phone(tester);
     SharedPreferences.setMockInitialValues({

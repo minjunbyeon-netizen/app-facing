@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/device_id.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../boss/boss_api_client.dart';
@@ -91,7 +92,11 @@ class _CoachShellState extends State<CoachShell> {
       await api.post('/api/v1/admin/logout', {});
     } catch (_) {}
     await auth.clear();
+    // S1 (2026-08-26): 코치도 로그아웃하면 이 기기의 신원을 새로 시작한다 —
+    // 같은 폰에서 이어지는 회원 가입 신청이 스태프 페어링 기기로 붙지 않게.
+    await DeviceIdService.reset();
     if (!mounted) return;
+    context.read<GymState>().resetLocal();
     navigator.pushNamedAndRemoveUntil('/splash', (_) => false);
   }
 

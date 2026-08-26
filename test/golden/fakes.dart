@@ -1039,10 +1039,17 @@ const pacingPlanFran = {
 /// (마스킹 SSOT = 백엔드 _mask_pii · scope members_name_full).
 /// 고아 예약(회원 행 삭제 + 예약 잔존) 1건 포함 — 실DB 에 존재하는 상태다.
 /// 대기 position 은 저장값이 아니라 백엔드가 매번 다시 센 현재 순번 (D31).
+// S3 (2026-08-26): 출석 배지는 시작 후에만 — 기본 명단은 시작이 지난 수업
+// (테스트 시각 10:30 기준 09:00). 시작 전 잠금 상태는 [classRosterUpcoming].
+Map<String, dynamic> classRosterUpcoming() => {
+  ...classRoster(),
+  'start_at': '2026-08-12T19:00:00',
+};
+
 Map<String, dynamic> classRoster() => {
   'class_session_id': 101,
   'title': 'WOD Class',
-  'start_at': '2026-08-12T19:00:00',
+  'start_at': '2026-08-12T09:00:00',
   'room': 'Main Floor',
   'coach_user_id': 'coach_park',
   'capacity': 12,

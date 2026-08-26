@@ -39,6 +39,22 @@ class DeviceIdService {
     _inFlight = null;
   }
 
+  /// 이 기기의 신원을 버리고 새 UUID 로 시작한다 — 로그아웃 전용.
+  ///
+  /// S1 (2026-08-26 에뮬 실주행): [adopt] 만 있고 되돌리는 길이 없어, 회원이
+  /// 로그아웃한 뒤 같은 폰에서 낸 가입 신청이 X-Device-Id 로 기존 승인 회원
+  /// 행에 붙었다 (서버는 같은 기기 = 같은 회원으로 본다). 로그아웃은 "이 기기는
+  /// 더 이상 그 회원이 아니다" 이므로 신원도 같이 끊는다. 다시 로그인하면
+  /// 서버가 내려주는 device_id 를 [adopt] 해 기록이 그대로 이어진다.
+  static Future<String> reset() async {
+    final prefs = await SharedPreferences.getInstance();
+    final id = const Uuid().v4();
+    await prefs.setString(_key, id);
+    _cached = id;
+    _inFlight = null;
+    return id;
+  }
+
   /// 캐시된 device_id (없으면 null). 동기 조회 — 로딩 후 사용.
   static String? get cached => _cached;
 }

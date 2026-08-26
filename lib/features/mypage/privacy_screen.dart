@@ -11,6 +11,7 @@ import '../../core/api_client.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../auth/auth_state.dart';
+import '../gym/gym_state.dart';
 
 class PrivacyScreen extends StatelessWidget {
   const PrivacyScreen({super.key});
@@ -137,6 +138,7 @@ class PrivacyScreen extends StatelessWidget {
     if (!context.mounted) return;
     await context.read<AuthState>().signOut();
     if (!context.mounted) return;
+    context.read<GymState>().resetLocal();
     Navigator.of(context).pushNamedAndRemoveUntil('/splash', (_) => false);
   }
 }

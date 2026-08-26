@@ -166,6 +166,21 @@ class GymState extends ChangeNotifier {
     return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
   }
 
+  /// 로그아웃 시 이 기기의 소속 캐시를 비운다 (서버 호출 없음).
+  ///
+  /// S1 (2026-08-26): 로그아웃 뒤 device_id 가 바뀌어도 여기 남은 옛 회원의
+  /// 소속·수업·회원권이 그대로면, 새로 가입 신청한 사람이 셸에 들어섰을 때
+  /// 남의 승인 상태로 보인다. 다음 [loadMine] 이 새 신원으로 다시 채운다.
+  void resetLocal() {
+    _membership = GymMembership.empty;
+    _wods = const [];
+    _coaches = const [];
+    _myMemberships = const [];
+    _myLockers = const [];
+    _error = null;
+    notifyListeners();
+  }
+
   Future<void> loadMine() async {
     _loading = true;
     _error = null;

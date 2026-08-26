@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/app_clock.dart';
+import '../../core/device_id.dart';
 
 /// v1.16: 데모 회원가입 상태.
 /// 실제 OAuth 통신은 Phase 2 — MVP는 Naver/Kakao 버튼 탭 시 provider 기록만.
@@ -54,6 +55,9 @@ class AuthState extends ChangeNotifier {
     await prefs.remove(_kProvider);
     await prefs.remove(_kDisplayName);
     await prefs.remove(_kSignedAt);
+    // S1 (2026-08-26): 로그아웃 = 이 기기의 회원 신원도 끊는다. 안 끊으면 다음
+    // 가입 신청이 같은 X-Device-Id 로 나가 기존 회원 행에 붙는다.
+    await DeviceIdService.reset();
     notifyListeners();
   }
 

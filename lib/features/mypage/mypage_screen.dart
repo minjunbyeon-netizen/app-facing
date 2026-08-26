@@ -571,6 +571,7 @@ class _ActionsSection extends StatelessWidget {
     if (!context.mounted) return;
     await context.read<AuthState>().signOut();
     if (!context.mounted) return;
+    context.read<GymState>().resetLocal();
     Navigator.of(context).pushNamedAndRemoveUntil('/signup', (_) => false);
   }
 }

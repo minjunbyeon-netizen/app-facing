@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/app_clock.dart';
 import '../../core/futures.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
@@ -138,13 +139,20 @@ class _LoadedState extends State<_Loaded> {
   /// PATCH 진행 중인 예약 id — 같은 행 연타를 막는다.
   final Set<int> _busy = {};
 
+  /// S3 (2026-08-26 에뮬 실주행): 시작 전 수업에도 출석·노쇼가 찍혔다. 서버
+  /// (`CLASS_NOT_STARTED` 409)와 같은 기준 — 시작 시각 전엔 배지를 잠근다.
+  bool get _notStarted {
+    final startAt = DateTime.tryParse(widget.roster.startAt);
+    return startAt != null && appClock.now().isBefore(startAt);
+  }
+
   // v3.21 (2026-08-25 사용자 지시): 수업 수정·수업 취소 삭제 — 수업을 만들고
   // 고치고 없애는 건 PC 몫이다. 폰 명단에 남는 동작은 출석·노쇼 체크뿐
   // (README §제거된 기능 대장 17).
 
   Future<void> _mark(RosterEntry e, String next) async {
     final id = e.reservationId;
-    if (id == null || _busy.contains(id)) return;
+    if (id == null || _busy.contains(id) || _notStarted) return;
     final idx = _items.indexOf(e);
     if (idx < 0) return;
 
@@ -179,6 +187,7 @@ class _LoadedState extends State<_Loaded> {
     // 예약 인원은 서버 값 그대로 (출석 표시는 상태만 바꿔 인원수가 안 변한다).
     // 출석 수는 방금 찍은 것까지 즉시 반영돼야 하므로 사본에서 다시 센다.
     final attended = reservations.where((e) => e.status == 'attended').length;
+    final locked = _notStarted;
 
     return ListView(
       padding: const EdgeInsets.all(HyphenTokens.sp4),
@@ -198,6 +207,13 @@ class _LoadedState extends State<_Loaded> {
           ].join('  ·  '),
           style: HyphenTokens.caption,
         ),
+        if (locked) ...[
+          const SizedBox(height: 4),
+          Text(
+            '출석 체크는 수업 시작 후',
+            style: HyphenTokens.caption.copyWith(color: HyphenTokens.warning),
+          ),
+        ],
         const SizedBox(height: HyphenTokens.sp4),
 
         Row(
@@ -227,13 +243,17 @@ class _LoadedState extends State<_Loaded> {
         if (reservations.isEmpty)
           const HkEmptyState(title: '예약자 없음')
         else
-          ...reservations.map((e) => _EntryRow(entry: e, onMark: _mark)),
+          ...reservations.map(
+            (e) => _EntryRow(entry: e, onMark: _mark, locked: locked),
+          ),
 
         if (waitlist.isNotEmpty) ...[
           const SizedBox(height: HyphenTokens.sp5),
           const HkSectionLabel('대기자'),
           const SizedBox(height: HyphenTokens.sp2),
-          ...waitlist.map((e) => _EntryRow(entry: e, onMark: _mark)),
+          ...waitlist.map(
+            (e) => _EntryRow(entry: e, onMark: _mark, locked: locked),
+          ),
         ],
 
         const SizedBox(height: HyphenTokens.sp4),
@@ -247,12 +267,19 @@ class _EntryRow extends StatelessWidget {
 
   /// (행, 새 상태) — 출석 체크. 대기자·고아 행에는 배지가 붙지 않는다.
   final void Function(RosterEntry, String) onMark;
-  const _EntryRow({required this.entry, required this.onMark});
+
+  /// 수업 시작 전 — 배지 대신 상태 라벨만 (S3).
+  final bool locked;
+  const _EntryRow({
+    required this.entry,
+    required this.onMark,
+    this.locked = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     // 찍을 수 없는 행(대기자·탈퇴 회원)은 종전대로 상태 글자만 보여준다.
-    if (!entry.markable) {
+    if (!entry.markable || locked) {
       return HkListRow(
         title: entry.name,
         subtitle: entry.phone,

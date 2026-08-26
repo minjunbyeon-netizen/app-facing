@@ -222,6 +222,7 @@ class _PendingGateState extends State<_PendingGate> {
   Future<void> _signOut() async {
     await context.read<AuthState>().signOut();
     if (!mounted) return;
+    context.read<GymState>().resetLocal();
     Navigator.of(context).pushNamedAndRemoveUntil('/splash', (_) => false);
   }
 
