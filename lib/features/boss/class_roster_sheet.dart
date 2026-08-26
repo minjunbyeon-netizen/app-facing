@@ -202,8 +202,7 @@ class _LoadedState extends State<_Loaded> {
           [
             hhmmIso(roster.startAt),
             if (roster.room != null && roster.room!.isNotEmpty) roster.room!,
-            if (roster.coachUserId != null && roster.coachUserId!.isNotEmpty)
-              roster.coachUserId!,
+            if (roster.coachDisplay != null) roster.coachDisplay!,
           ].join('  ·  '),
           style: HyphenTokens.caption,
         ),

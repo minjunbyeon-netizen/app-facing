@@ -76,6 +76,10 @@ class ClassRoster {
   final String startAt;
   final String? room;
   final String? coachUserId;
+
+  /// S10 (2026-08-26) — gym_managers.name. coach_user_id 는 로그인 아이디라
+  /// ('admin') 머리에 그대로 띄우면 이름이 아니다. 없으면 아이디로 폴백.
+  final String? coachName;
   final int? capacity;
 
   /// G24 2차 (2026-08-19) — 수정 시트 프리필용. 명단 응답에 백엔드가 같이 준다.
@@ -95,10 +99,19 @@ class ClassRoster {
     required this.items,
     this.room,
     this.coachUserId,
+    this.coachName,
     this.capacity,
     this.durationMinutes,
     this.track,
   });
+
+  /// 머리에 띄울 코치 표기 — 이름 우선, 없으면 아이디, 둘 다 없으면 null.
+  String? get coachDisplay {
+    final n = coachName?.trim();
+    if (n != null && n.isNotEmpty) return n;
+    final id = coachUserId?.trim();
+    return (id != null && id.isNotEmpty) ? id : null;
+  }
 
   List<RosterEntry> get reservations =>
       items.where((e) => !e.isWaitlist).toList();
@@ -110,6 +123,7 @@ class ClassRoster {
     startAt: j['start_at']?.toString() ?? '',
     room: j['room']?.toString(),
     coachUserId: j['coach_user_id']?.toString(),
+    coachName: j['coach_name']?.toString(),
     capacity: (j['capacity'] as num?)?.toInt(),
     durationMinutes: (j['duration_minutes'] as num?)?.toInt(),
     track: j['track']?.toString(),

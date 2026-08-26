@@ -12,7 +12,7 @@ import '../../widgets/hkit.dart';
 /// 수업 카드(`_ClassCard`)와 회원 주간보드의 수업 줄(`_ClassLine`)이 같은 수업을
 /// 다른 모양으로 그리던 것을 하나로. 골격은 같고 우측 슬롯만 시점에 따라 다르다:
 /// - [ClassLine.coach] — 예약 인원 + 명단 진입 (탭 → 예약자 명단 시트)
-/// - [ClassLine.member] — 예약/대기/취소/종료/마감 배지 한 규격
+/// - [ClassLine.member] — 예약/대기/취소/종료/마감/회원권 필요 배지 한 규격
 class ClassLine extends StatelessWidget {
   final String timeLabel;
   final String title;
@@ -90,6 +90,7 @@ class ClassLine extends StatelessWidget {
     required bool isPastDay,
     required VoidCallback onReserve,
     required VoidCallback onCancel,
+    bool membershipOk = true,
   }) {
     final l = session.startAt.toLocal();
     final isCancelled = session.isCancelled;
@@ -112,6 +113,7 @@ class ClassLine extends StatelessWidget {
         session,
         isPastDay: isPastDay,
         isOver: isOver,
+        membershipOk: membershipOk,
         onReserve: onReserve,
         onCancel: onCancel,
       ),
@@ -122,6 +124,7 @@ class ClassLine extends StatelessWidget {
     ClassSessionDto session, {
     required bool isPastDay,
     required bool isOver,
+    required bool membershipOk,
     required VoidCallback onReserve,
     required VoidCallback onCancel,
   }) {
@@ -147,6 +150,13 @@ class ClassLine extends StatelessWidget {
     }
     if (isPastDay || isOver) {
       return const HkBadge('종료', color: HyphenTokens.muted);
+    }
+    // S5 (2026-08-26 사용자 결정 "회원권 없으면 예약·대기 당연히 안 된다"):
+    // 그날 유효한 회원권이 없으면 예약·대기 대신 '회원권 필요'. 탭은 그대로
+    // 서버로 보내 409 MEMBERSHIP_REQUIRED 문구를 스낵바로 받는다 — 정책 문구
+    // 정본은 서버 하나 (앱에 같은 문장을 두 번 적지 않는다).
+    if (!membershipOk) {
+      return HkBadge('회원권 필요', color: HyphenTokens.muted, onTap: onReserve);
     }
     final blocked =
         session.isFull && session.waitlistCount >= session.waitlistCapacity;

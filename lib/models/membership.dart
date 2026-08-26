@@ -93,6 +93,32 @@ class Membership {
     }
   }
 
+  /// 그날 이 회원권으로 수업을 잡을 수 있는가 — S5 (2026-08-26) 서버
+  /// `classes._membership_blocked` 와 같은 규칙: status active ·
+  /// start_date ≤ 날 ≤ end_date · 정지 창(pause_start ≤ 날 < pause_end) 밖.
+  /// 기준은 '오늘' 이 아니라 **수업일** — 미리 결제한 다음 달 권으로 다음 달
+  /// 수업은 잡히고, 이번 달 권으로 만료 뒤 수업은 안 잡힌다.
+  bool coversDay(DateTime day) {
+    if (!isActive || startDate == null || endDate == null) return false;
+    try {
+      final d = DateTime(day.year, day.month, day.day);
+      final s = DateTime.parse(startDate!);
+      final e = DateTime.parse(endDate!);
+      if (d.isBefore(DateTime(s.year, s.month, s.day))) return false;
+      if (d.isAfter(DateTime(e.year, e.month, e.day))) return false;
+      if (pauseStart != null && pauseEnd != null) {
+        final ps = DateTime.parse(pauseStart!);
+        final pe = DateTime.parse(pauseEnd!);
+        final paused = !d.isBefore(DateTime(ps.year, ps.month, ps.day)) &&
+            d.isBefore(DateTime(pe.year, pe.month, pe.day));
+        if (paused) return false;
+      }
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// 정지가 예약돼 있고 아직 시작 전인가.
   bool get isPauseScheduled {
     if (pauseStart == null || pauseEnd == null) return false;

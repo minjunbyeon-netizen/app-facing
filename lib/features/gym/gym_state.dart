@@ -114,6 +114,9 @@ class GymState extends ChangeNotifier {
   List<CoachProfile> _coaches = const [];
   // v1.16.2 — 본인 회원권·락커. 폰 MyPage 카드용.
   List<Membership> _myMemberships = const [];
+  // S5: 목록을 실제로 받았는지 — 못 받은 상태(수업 내용 로드 실패 등)에서
+  // 빈 목록을 '회원권 없음' 으로 읽으면 주간보드 전체가 '회원권 필요' 가 된다.
+  bool _membershipsLoaded = false;
   List<Locker> _myLockers = const [];
   bool _loading = false;
   String? _error;
@@ -151,6 +154,14 @@ class GymState extends ChangeNotifier {
     return actives.first;
   }
 
+  /// 그날 수업을 잡을 수 있는 회원권이 한 장이라도 있는가 (S5 · 2026-08-26).
+  /// 서버 게이트(MEMBERSHIP_REQUIRED)의 표시용 거울 — 정책은 서버가 정본이고
+  /// 여기는 예약 배지를 '회원권 필요' 로 바꿔 그리는 데만 쓴다.
+  /// 목록을 아직 못 받았으면 true — 모르는 상태를 '없음' 으로 그리지 않는다
+  /// (탭하면 서버가 어차피 판정한다).
+  bool hasMembershipOn(DateTime day) =>
+      !_membershipsLoaded || _myMemberships.any((m) => m.coversDay(day));
+
   /// v1.16.2 — 본인 락커.
   List<Locker> get myLockers => _myLockers;
   Locker? get myLocker => _myLockers.isNotEmpty ? _myLockers.first : null;
@@ -176,6 +187,7 @@ class GymState extends ChangeNotifier {
     _wods = const [];
     _coaches = const [];
     _myMemberships = const [];
+    _membershipsLoaded = false;
     _myLockers = const [];
     _error = null;
     notifyListeners();
@@ -201,9 +213,11 @@ class GymState extends ChangeNotifier {
         // v1.16.2 — 본인 회원권·락커 (실패해도 다른 결과는 유지)
         try {
           _myMemberships = await repo.listMyMemberships();
+          _membershipsLoaded = true;
         } catch (e) {
           debugPrint('[GymState] listMyMemberships failed: $e');
           _myMemberships = const [];
+          _membershipsLoaded = false;
         }
         try {
           _myLockers = await repo.listMyLockers();
@@ -215,6 +229,7 @@ class GymState extends ChangeNotifier {
         _wods = const [];
         _coaches = const [];
         _myMemberships = const [];
+        _membershipsLoaded = false;
         _myLockers = const [];
       }
     } on AppException catch (e) {

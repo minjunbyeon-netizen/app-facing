@@ -563,6 +563,39 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > - 회귀: 골든 `coach_01`(주간) 재생성 · `coach_02` 삭제 · `coach_04_new_note_members` 신규 ·
 >   `coach_03` 재생성(그룹 버튼 없음).
 
+> **D53 (2026-08-26 사용자 결정 "회원권 없으면 예약·대기 당연히 안 된다. 2번은 하고") — 회원권 게이트 (S5) + 문구·코치 UX (S8·S10).**
+>
+> D52 에서 보고만 했던 S5·S8·S10 을 사용자 결정으로 집행. S6·S7·S9·S11 은 계속 보고만.
+> - **S5 회원권 게이트 (차단, 무료 제공 없음)** — 서버 `classes._membership_blocked`
+>   한 곳: `_daily_limit_blocked` 와 같은 자리에서 신규 confirmed · 취소 후 재활성 ·
+>   대기 신청 세 진입로 + `_promote_waitlist` 승격 재검사가 전부 지난다.
+>   유효 = `gym_memberships.status='active'` · `start_date ≤ 수업일 ≤ end_date` ·
+>   수업일이 정지 창(`pause_start ≤ 날 < pause_end`, admin.py `is_paused` 와 같은 배타
+>   경계) 밖. 아니면 `MEMBERSHIP_REQUIRED`(409) "유효한 회원권이 없어 예약할 수
+>   없습니다." **기준일 = 수업 시작일(KST)** ('오늘' 이 아님 — 하루 한도와 같은 축.
+>   미리 결제한 다음 달 권으로 다음 달 수업은 잡히고, 이번 달 권으로 만료 뒤 수업은
+>   막힌다). 회원권을 한 장도 안 준 승인 회원(에뮬 member 계정)이 예약·대기·승격을
+>   전부 통과하던 갭.
+>   폰: `Membership.coversDay` + `GymState.hasMembershipOn(day)` 가 같은 규칙의
+>   표시용 거울 — 주간보드 `ClassLine.member` 가 그날 유효권이 없으면 예약·대기 대신
+>   **'회원권 필요'** 배지(탭하면 서버 409 문구를 스낵바로 — 정책 문구는 서버 하나).
+>   목록을 아직 못 받은 상태(`_membershipsLoaded=false`)는 '없음' 으로 그리지 않는다.
+> - **S8 서버 노출 문구 금지어** — `api/*.py` 문자열 리터럴 117줄 '박스'→'체육관'
+>   (인계장의 8곳은 표본이었고 실제는 11개 파일 — `_err(...)`·`"error":`·엑셀 컬럼
+>   '박스명'). 주석·docstring·내부 식별자(인박스 등)는 그대로. 회귀 테스트는 응답
+>   문구를 단언하지 않아 무영향.
+> - **S10 코치 UX 2건** — (a) 코치 셸 로그아웃이 확인 없이 기기 페어링을 풀던 것 →
+>   `HkDialog.confirm`(회원 `_confirmSignOut` 과 같은 골격, 문구 '이 기기와 코치 연결이
+>   끊깁니다'). (b) 명단 시트 머리의 코치가 login_id('admin') 로 뜨던 것 → 서버
+>   `admin_list_class_reservations` 가 `coach_name`(gym_managers.name, login_id 매칭)
+>   동봉, 폰 `ClassRoster.coachDisplay` = 이름 → 아이디 폴백.
+> - 회귀 게이트: 서버 `tests/test_reservation_policy.py` +8 (회원권 없음·오늘 만료·
+>   미래 시작·비active·정지일·대기 신청·재활성·승격 skip) — 237 passed 1 skipped.
+>   기존 예약 테스트 회원은 헬퍼가 ±60일 active 권을 기본 발급. 골든
+>   `state_11_class_membership_required` · `state_12_coach_logout_dialog` 신규,
+>   `boss_03`·`state_10` 재생성(코치 이름). 57장.
+> - 이름사전 +2 행 (MEMBERSHIP_REQUIRED · coach_name) · 갭대장 19차.
+
 > **D52 (2026-08-26 사용자 지시 "1 하고 다시보고") — 에뮬 실주행 갭 4건 수정 (S1~S4).**
 >
 > 8/26 로컬 서버 + 에뮬레이터 회원·코치 1바퀴 실주행(캡처 37장)에서 나온 갭 중

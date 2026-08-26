@@ -94,6 +94,10 @@ SECTIONS = [
          "로그인 — 기억한 아이디 채워진 상태 ('아이디 기억하기 30일', 2026-08-25)"),
         ("state_10_roster_before_start",
          "수업 시작 전 명단 — 출석·노쇼 배지 잠금 + 안내 (S3 픽스, 2026-08-26)"),
+        ("state_11_class_membership_required",
+         "회원권 없음 — 예약 배지가 '회원권 필요' (S5 MEMBERSHIP_REQUIRED 게이트, 2026-08-26)"),
+        ("state_12_coach_logout_dialog",
+         "코치 로그아웃 확인 다이얼로그 — 회원 로그아웃과 같은 골격 (S10, 2026-08-26)"),
     ]),
 ]
 

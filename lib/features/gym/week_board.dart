@@ -150,6 +150,11 @@ class _WeekBoardState extends State<WeekBoard> {
                   classesLoading: _classesLoading && _classes.isEmpty,
                   classesError: _classesError,
                   today: _today,
+                  // S5 (2026-08-26): 그날 유효한 회원권이 없으면 예약 배지가
+                  // '회원권 필요' 로 바뀐다 (서버 MEMBERSHIP_REQUIRED 의 거울).
+                  membershipOk: gs.hasMembershipOn(
+                    _weekStart.add(Duration(days: i)),
+                  ),
                   onTap: () => _select(i),
                   onReserve: (c) async {
                     final ok = await reserveClassFlow(context, _repo, c);
@@ -233,6 +238,7 @@ class _DayTile extends StatelessWidget {
   final bool classesLoading;
   final bool classesError;
   final DateTime today;
+  final bool membershipOk;
   final VoidCallback onTap;
   final Future<void> Function(ClassSessionDto) onReserve;
   final Future<void> Function(ClassSessionDto) onCancel;
@@ -249,6 +255,7 @@ class _DayTile extends StatelessWidget {
     required this.classesLoading,
     required this.classesError,
     required this.today,
+    required this.membershipOk,
     required this.onTap,
     required this.onReserve,
     required this.onCancel,
@@ -434,6 +441,7 @@ class _DayTile extends StatelessWidget {
           ClassLine.member(
             session: c,
             isPastDay: _isPast,
+            membershipOk: membershipOk,
             onReserve: () => onReserve(c),
             onCancel: () => onCancel(c),
           ),

@@ -15,6 +15,7 @@ import 'package:hyphen_app/features/gym/gym_state.dart';
 import 'package:hyphen_app/features/history/history_screen.dart';
 import 'package:hyphen_app/features/profile/profile_state.dart';
 import 'package:hyphen_app/features/home/home_screen.dart';
+import 'package:hyphen_app/features/shell/coach_shell.dart';
 import 'package:hyphen_app/features/shell/main_shell.dart';
 
 import 'fakes.dart';
@@ -230,6 +231,64 @@ void _rememberedLoginGolden() {
     await tester.pumpAndSettle();
     expect(find.text('아이디 기억하기 (30일)'), findsOneWidget);
     await capture(tester, 'state_09_login_remembered');
+  });
+
+  // ── 회원권 없음 — 예약 배지가 '회원권 필요' (S5 · 2026-08-26 MEMBERSHIP_REQUIRED) ──
+  testWidgets('state: classes membership required', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi({
+      ...memberWorld(),
+      '/api/v1/member/me/memberships': memberMembershipsExpired(),
+    });
+    final gym = GymState(GymRepository(api), sse: FakeSse());
+    await gym.loadMine();
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        gym: gym,
+        home: const BoxWodScreen(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('회원권 필요'), findsWidgets);
+    await capture(tester, 'state_11_class_membership_required');
+  });
+
+  // ── 코치 로그아웃 확인 다이얼로그 (S10 · 2026-08-26) ──
+  testWidgets('state: coach logout dialog', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi({
+      ...memberWorld(),
+      '/api/v1/gyms/mine': {...gymsMine, 'role': 'owner'},
+      '/api/v1/gyms/1/members': gymMembersList(),
+    });
+    final bossApi = FakeBossApi({
+      '/api/v1/admin/gyms/1/dashboard': bossDashboard(),
+      '/api/v1/admin/gyms/1/classes': memberClasses(),
+    });
+    final gym = GymState(GymRepository(api), sse: FakeSse());
+    await gym.loadMine();
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        gym: gym,
+        bossAuth: FakeBossAuth(),
+        bossApi: bossApi,
+        home: const CoachShell(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('로그아웃'));
+    await tester.pumpAndSettle();
+    expect(find.text('로그아웃하면 이 기기와 코치 연결이 끊깁니다.\n'
+        '다시 로그인하면 그대로 이어집니다.'), findsOneWidget);
+    await capture(tester, 'state_12_coach_logout_dialog');
   });
 }
 

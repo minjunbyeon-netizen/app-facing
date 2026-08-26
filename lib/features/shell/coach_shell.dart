@@ -84,6 +84,17 @@ class _CoachShellState extends State<CoachShell> {
   }
 
   Future<void> _logout() async {
+    // S10 (2026-08-26): 회원 로그아웃(mypage `_confirmSignOut`)과 같은 골격 —
+    // 상단바 아이콘 한 번에 기기 페어링이 풀리던 것을 확인 한 단계로 막는다.
+    final ok = await HkDialog.confirm(
+      context,
+      title: '로그아웃',
+      message:
+          '로그아웃하면 이 기기와 코치 연결이 끊깁니다.\n'
+          '다시 로그인하면 그대로 이어집니다.',
+      confirmLabel: '로그아웃',
+    );
+    if (!ok || !mounted) return;
     Haptic.medium();
     final api = context.read<BossApiClient>();
     final auth = context.read<BossAuthState>();

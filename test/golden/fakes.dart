@@ -667,6 +667,23 @@ List<Map<String, dynamic>> memberMemberships() {
   ];
 }
 
+/// 만료된 회원권만 1건 — S5 '회원권 필요' 배지 골든용 (state_11).
+List<Map<String, dynamic>> memberMembershipsExpired() {
+  final now = appClock.now();
+  return [
+    {
+      'id': 1,
+      'gym_id': 1,
+      'member_id': 7,
+      'plan_name': '1개월 무제한',
+      'start_date': _ymd(now.subtract(const Duration(days: 40))),
+      'end_date': _ymd(now.subtract(const Duration(days: 10))),
+      'price': 130000,
+      'status': 'expired',
+    },
+  ];
+}
+
 /// /api/v1/achievements — 업적 카탈로그 + 해금 2건.
 /// v3.2 (2026-08-20): 백엔드 카탈로그 대수술(달성 불가 Engine 계열 삭제 +
 /// icon·points·repeat_kind 필드 신설)에 맞춰 실시드 코드로 교체.
@@ -1052,6 +1069,7 @@ Map<String, dynamic> classRoster() => {
   'start_at': '2026-08-12T09:00:00',
   'room': 'Main Floor',
   'coach_user_id': 'coach_park',
+  'coach_name': '박지훈', // S10 — 머리에 아이디 대신 이름
   'capacity': 12,
   // G24 2차 — 수정 시트 프리필용 (백엔드 admin_list_class_reservations 동봉).
   'duration_minutes': 60,
