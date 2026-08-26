@@ -10,6 +10,7 @@ import '../../core/theme.dart';
 import '../../core/tier.dart';
 import '../../widgets/hkit.dart';
 import '../auth/auth_state.dart';
+import '../gym/gym_state.dart';
 import '../profile/profile_state.dart';
 
 /// 회원 가입 신청 — 이름·연락처 + 아이디 + 비밀번호(2회).
@@ -128,6 +129,13 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
       // 가입 신청 성공 = 이 기기의 신원 확정. AuthState 를 세워 두지 않으면
       // 다음 실행 때 splash 가 !isSignedIn 을 보고 로그인 화면으로 되돌린다.
       await auth.signIn('self', displayName: _nameCtrl.text.trim());
+      if (!mounted) return;
+      // S1 후속 (2026-08-26): 신청 직후 소속을 다시 읽어야 셸이 '승인 대기' 를
+      // 그린다. 안 읽으면 (로그아웃으로 비운) 빈 소속 그대로라 '체육관 미가입'
+      // 이 떠서 방금 신청한 사람에게 다시 신청하라고 말한다.
+      try {
+        await context.read<GymState>().loadMine();
+      } catch (_) {}
       if (!mounted) return;
 
       if (duplicate) {
