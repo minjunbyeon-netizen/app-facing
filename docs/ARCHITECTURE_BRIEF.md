@@ -564,6 +564,28 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > - 회귀: 골든 `coach_01`(주간) 재생성 · `coach_02` 삭제 · `coach_04_new_note_members` 신규 ·
 >   `coach_03` 재생성(그룹 버튼 없음).
 
+> **D59 (2026-08-26 사용자 선택 "옵션 1" — 인계장 대기 1번) — 폰 코치 셸 세션 만료 시 로그인 화면 자동 이동.**
+>
+> - 증상: 코치 셸(예약 현황·쪽지)에서 서버 세션이 만료되면 `require_staff` 의 401 UNAUTHORIZED
+>   가 `HkErrorState('로그인이 필요합니다.' / 다시 시도)` 로만 떠서 갇혔다 — 우상단 로그아웃
+>   아이콘을 눌러야만 나갈 수 있었다.
+> - 처리 (폰 3곳, 백엔드·PC 변경 0):
+>   1. `BossApiClient._checkSession` — 인증 요청 응답이 `401 + code UNAUTHORIZED` 면
+>      `BossAuthState.expire()` (저장 로그인 삭제 + notify). `_unwrap`·`getList` 공통 — 어느
+>      코치 API 든 한 곳. 로그인 창구(`_loginTo`, INVALID_LOGIN)는 이 길을 타지 않는다.
+>   2. `CoachShell` — `BossAuthState` 리스너: 로그인이 풀리면 다음 프레임에 로그아웃과 같은
+>      뒷정리(`DeviceIdService.reset` · `GymState.resetLocal`, S1) 뒤 `/signup` 위에 `/login`
+>      을 얹는다. 로그아웃 버튼 경로는 `_leaving` 빗장으로 이중 이동 방지. `main.dart` 의
+>      기존 리스너가 스태프 SSE 를 멈춘다.
+>   3. `LoginScreen` — 라우트 인자 `{argNotice: noticeSessionExpired}` 를 에러 줄
+>      (`HkInlineError`) 자리에 한 번 띄운다: "로그인이 만료되었습니다. 다시 로그인해 주세요."
+>      다음 로그인 시도에서 사라진다.
+> - 골든: `state_16_coach_session_expired` (states 2부 — 대시보드 401 → 로그인 화면 + 사유).
+>   하네스 `routes` 주입구 신설 (화면이 스스로 라우트를 넘어가는 상태 캡처용) ·
+>   `FakeBossApi.unauthorizedPaths` · `FakeBossAuth.loggedIn` 가변.
+> - 안 한 것: 회원 API(X-Device-Id)에는 세션이 없어 해당 없음. 코치 쪽지 탭·가입 신청은
+>   기기 페어링(gym_manager_devices)이라 세션 만료와 무관 — 대시보드·주간 수업·명단이 대상.
+
 > **D58 (2026-08-26 사용자 지시 "해지·일시정지·만료되면 그 권으로 예약된 건 사라지게" + "예약은 매일 전날 오전 11시부터 — 보기는 언제든지, 월요일 수업은 일요일 11시부터 일괄") — 회원권 무효 시 예약 소멸 + 예약 오픈 시각.**
 >
 > - **예약 소멸 (`classes.revoke_uncovered_reservations`)**: 회원의 **앞으로의** confirmed 예약·미승격 대기 각각을

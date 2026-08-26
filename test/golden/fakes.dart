@@ -113,8 +113,25 @@ class OfflineConnectivity extends ConnectivityState {
 
 /// 사장 로그인 완료 상태 — flutter_secure_storage 플러그인 없이 getter 만 대체.
 class FakeBossAuth extends BossAuthState {
+  /// D59 세션 만료 골든 — expire()/clear() 가 이 값을 내린다 (secure storage 없이).
+  bool loggedIn = true;
+
   @override
-  bool get isLoggedIn => true;
+  bool get isLoggedIn => loggedIn;
+
+  @override
+  Future<void> expire() async {
+    if (!loggedIn) return;
+    loggedIn = false;
+    notifyListeners();
+  }
+
+  @override
+  Future<void> clear() async {
+    loggedIn = false;
+    notifyListeners();
+  }
+
   @override
   String? get loginId => 'boss01';
   @override
@@ -137,9 +154,30 @@ class FakeBossApi implements BossApiClient {
   final Map<String, dynamic> responses;
   final Set<String> errorPaths;
 
-  FakeBossApi(this.responses, {this.errorPaths = const {}});
+  /// D59 — 이 경로는 서버 세션 만료(401 UNAUTHORIZED)처럼 군다: 실물
+  /// BossApiClient._checkSession 과 같이 auth.expire() 뒤 예외.
+  final Set<String> unauthorizedPaths;
+  BossAuthState? _auth;
+
+  FakeBossApi(
+    this.responses, {
+    this.errorPaths = const {},
+    this.unauthorizedPaths = const {},
+  });
+
+  Future<void> _checkSession(String path) async {
+    if (unauthorizedPaths.any(path.startsWith)) {
+      // 실물은 네트워크 왕복 뒤에 온다 — initState 의 build 중에 notify 하지
+      // 않도록 한 틱 양보.
+      await Future<void>.delayed(Duration.zero);
+      await _auth?.expire();
+      throw AppException('로그인이 필요합니다.',
+          code: 'UNAUTHORIZED', statusCode: 401);
+    }
+  }
 
   Future<Map<String, dynamic>> _respond(String path) async {
+    await _checkSession(path);
     if (errorPaths.any(path.startsWith)) {
       throw AppException('백엔드 OFF · 재시도', code: 'NETWORK');
     }
@@ -152,7 +190,9 @@ class FakeBossApi implements BossApiClient {
   }
 
   @override
-  void bindAuth(BossAuthState state) {}
+  void bindAuth(BossAuthState state) {
+    _auth = state;
+  }
 
   @override
   Future<Map<String, dynamic>> login(String loginId, String password) =>
@@ -169,6 +209,7 @@ class FakeBossApi implements BossApiClient {
   // v3.28 주간 수업 목록 — 경로 prefix 로 찾아 List 그대로 (쿼리스트링 무시).
   @override
   Future<List<dynamic>> getList(String path) async {
+    await _checkSession(path);
     if (errorPaths.any(path.startsWith)) {
       throw AppException('백엔드 OFF · 재시도', code: 'NETWORK');
     }

@@ -47,6 +47,10 @@ Widget harness({
 
   /// v3.12 — 착용 칭호가 붙은 프로필을 찍기 위한 주입구.
   GoalsState? goals,
+
+  /// D59 — 화면이 스스로 다른 라우트로 넘어가는 상태(세션 만료 → 로그인)를
+  /// 찍을 때 실물 화면을 꽂는다. 안 넘기면 종전처럼 전 라우트가 빈 스텁.
+  Map<String, WidgetBuilder>? routes,
   required Widget home,
 }) {
   final gymState = gym ?? GymState(GymRepository(api), sse: FakeSse());
@@ -96,6 +100,7 @@ Widget harness({
         GlobalCupertinoLocalizations.delegate,
       ],
       home: home,
+      routes: routes ?? const {},
       // 캡처 후 화면이 다른 라우트로 넘어가도 죽지 않게 전 라우트 스텁.
       onGenerateRoute: (settings) => MaterialPageRoute(
         settings: settings,

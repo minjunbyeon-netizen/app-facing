@@ -9,6 +9,7 @@ import 'package:hyphen_app/core/goals_state.dart';
 import 'package:hyphen_app/core/quotes.dart';
 import 'package:hyphen_app/features/auth/auth_state.dart';
 import 'package:hyphen_app/features/auth/login_screen.dart';
+import 'package:hyphen_app/features/auth/signup_screen.dart';
 import 'package:hyphen_app/features/boss/boss_dashboard_screen.dart';
 import 'package:hyphen_app/features/gym/box_wod_screen.dart';
 import 'package:hyphen_app/features/gym/gym_repository.dart';
@@ -348,6 +349,46 @@ void _rememberedLoginGolden() {
     expect(find.text('로그아웃하면 이 기기와 코치 연결이 끊깁니다.\n'
         '다시 로그인하면 그대로 이어집니다.'), findsOneWidget);
     await capture(tester, 'state_12_coach_logout_dialog');
+  });
+
+  // ── 코치 세션 만료 → 로그인 화면 자동 이동 (D59 · 2026-08-26) ──
+  // 예약 현황 탭이 401 UNAUTHORIZED 를 받으면 에러 상태에 갇히지 않고
+  // 진입 화면 위 로그인 화면으로 넘어가며 사유 한 줄을 띄운다.
+  testWidgets('state: coach session expired', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi({
+      ...memberWorld(),
+      '/api/v1/gyms/mine': {...gymsMine, 'role': 'owner'},
+      '/api/v1/gyms/1/members': gymMembersList(),
+    });
+    final bossAuth = FakeBossAuth();
+    final bossApi = FakeBossApi(
+      {'/api/v1/admin/gyms/1/classes': memberClasses()},
+      unauthorizedPaths: {'/api/v1/admin/gyms/1/dashboard'},
+    )..bindAuth(bossAuth);
+    final gym = GymState(GymRepository(api), sse: FakeSse());
+    await gym.loadMine();
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        gym: gym,
+        bossAuth: bossAuth,
+        bossApi: bossApi,
+        routes: {
+          '/signup': (_) => const SignupScreen(),
+          '/login': (_) => const LoginScreen(),
+        },
+        home: const CoachShell(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(bossAuth.isLoggedIn, isFalse);
+    expect(find.byType(LoginScreen), findsOneWidget);
+    expect(find.text(LoginScreen.noticeSessionExpired), findsOneWidget);
+    await capture(tester, 'state_16_coach_session_expired');
   });
 
   // ── 가입 폼 BACK — 입력이 있으면 '작성을 그만둘까요?' (S6 · 2026-08-26) ──

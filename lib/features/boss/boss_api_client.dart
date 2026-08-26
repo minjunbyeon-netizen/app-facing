@@ -113,6 +113,7 @@ class BossApiClient {
   Future<List<dynamic>> getList(String path) async {
     try {
       final res = await _dio.get(path, options: _authOpts());
+      await _checkSession(res);
       final data = res.data;
       if (data is Map && data['ok'] == true && data['data'] is List) {
         return List<dynamic>.from(data['data'] as List);
@@ -188,7 +189,21 @@ class BossApiClient {
     return Options(headers: headers);
   }
 
-  Map<String, dynamic> _unwrap(Response res) {
+  /// 세션 만료 감지 (D59 · 2026-08-26) — 인증 요청이 401 UNAUTHORIZED 로 돌아오면
+  /// (backend `admin.require_staff`) 저장된 코치 로그인을 지운다. 화면은 이 예외를
+  /// 종전처럼 받되, [BossAuthState] 리스너(CoachShell)가 로그인 화면으로 보낸다.
+  /// 로그인 창구(`_loginTo`)는 이 길을 타지 않으므로 INVALID_LOGIN 과 섞이지 않는다.
+  /// validateStatus < 500 이라 401 은 예외가 아닌 정상 응답으로 들어온다.
+  Future<void> _checkSession(Response res) async {
+    if (res.statusCode != 401) return;
+    final data = res.data;
+    if (data is Map && data['code'] == 'UNAUTHORIZED') {
+      await _authState?.expire();
+    }
+  }
+
+  Future<Map<String, dynamic>> _unwrap(Response res) async {
+    await _checkSession(res);
     final data = res.data;
     if (data is! Map) {
       throw AppException('응답 형식 오류', code: 'PROTOCOL');

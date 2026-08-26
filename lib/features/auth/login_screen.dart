@@ -28,6 +28,11 @@ import 'auth_state.dart';
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
+  /// 라우트 인자 키 — 이 화면에 온 사유를 한 줄 띄울 때 (`{argNotice: 문구}`).
+  /// D59 (2026-08-26): 코치 세션 만료 → CoachShell 이 이 인자로 보낸다.
+  static const String argNotice = 'notice';
+  static const String noticeSessionExpired = '로그인이 만료되었습니다. 다시 로그인해 주세요.';
+
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
@@ -40,6 +45,20 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _pwVisible = false;
   bool _remember = false;
   String? _error;
+  bool _noticeApplied = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // 라우트 인자로 온 사유(세션 만료 등)는 에러 줄 자리에 한 번만 띄운다 —
+    // 다음 로그인 시도에서 _error 가 비워지며 같이 사라진다.
+    if (_noticeApplied) return;
+    _noticeApplied = true;
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args is Map && args[LoginScreen.argNotice] is String) {
+      _error = args[LoginScreen.argNotice] as String;
+    }
+  }
 
   @override
   void initState() {

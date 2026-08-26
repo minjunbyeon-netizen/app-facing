@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/device_id.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
+import '../auth/login_screen.dart';
 import '../boss/boss_api_client.dart';
 import '../boss/boss_auth_state.dart';
 import '../boss/boss_dashboard_screen.dart';
@@ -37,6 +38,11 @@ class CoachShell extends StatefulWidget {
 class _CoachShellState extends State<CoachShell> {
   int _index = 0;
 
+  /// 셸을 떠나는 중 — 로그아웃 버튼이 auth.clear() 를 부를 때 아래 만료 리스너가
+  /// 한 번 더 화면을 갈아치우지 않게 하는 빗장.
+  bool _leaving = false;
+  BossAuthState? _auth;
+
   static const List<NavigationDestination> _destinations = [
     NavigationDestination(
       icon: Icon(Icons.event_note_outlined),
@@ -60,6 +66,41 @@ class _CoachShellState extends State<CoachShell> {
       if (!mounted) return;
       context.read<GymState>().loadMine();
     });
+    // D59 (2026-08-26): 서버 세션이 만료되면 BossApiClient 가 401 을 받고
+    // BossAuthState.expire() 로 로그인을 지운다. 셸은 그 신호만 듣고 로그인
+    // 화면으로 보낸다 — 종전에는 '로그인이 필요합니다 / 다시 시도' 에러 상태에
+    // 갇혀 로그아웃 아이콘을 눌러야만 나갈 수 있었다.
+    _auth = context.read<BossAuthState>()..addListener(_onAuthChanged);
+  }
+
+  @override
+  void dispose() {
+    _auth?.removeListener(_onAuthChanged);
+    super.dispose();
+  }
+
+  void _onAuthChanged() {
+    if (_leaving || !mounted) return;
+    if (_auth?.isLoggedIn ?? true) return;
+    _leaving = true;
+    // notifyListeners 안에서 라우트를 바꾸지 않는다 — 다음 프레임에.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _leaveExpired());
+  }
+
+  /// 세션 만료 이탈 — 로그아웃과 같은 뒷정리(기기 신원 초기화·소속 캐시 비움,
+  /// S1) 뒤 진입 화면 위에 로그인 화면을 얹고 사유를 한 줄 보여 준다.
+  /// 서버 로그아웃 호출은 없다 — 이미 죽은 세션이다.
+  Future<void> _leaveExpired() async {
+    if (!mounted) return;
+    final navigator = Navigator.of(context);
+    final gymState = context.read<GymState>();
+    await DeviceIdService.reset();
+    gymState.resetLocal();
+    navigator.pushNamedAndRemoveUntil('/signup', (_) => false);
+    navigator.pushNamed(
+      '/login',
+      arguments: {LoginScreen.argNotice: LoginScreen.noticeSessionExpired},
+    );
   }
 
   /// 셸 단일 상단바 — 세 탭 어디서나 같은 모양.
@@ -96,6 +137,7 @@ class _CoachShellState extends State<CoachShell> {
     );
     if (!ok || !mounted) return;
     Haptic.medium();
+    _leaving = true;
     final api = context.read<BossApiClient>();
     final auth = context.read<BossAuthState>();
     final navigator = Navigator.of(context);

@@ -74,6 +74,15 @@ class BossAuthState extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// 서버 세션 만료 (D59 · 2026-08-26) — 코치 API 가 401 UNAUTHORIZED 를 받으면
+  /// [BossApiClient] 가 여기를 부른다. 저장된 로그인은 지우고(clear) 리스너에게
+  /// 알린다 → CoachShell 이 로그인 화면으로 보내고, main.dart 가 스태프 SSE 를 멈춘다.
+  /// 이미 로그아웃 상태면 아무 일도 하지 않는다 (로그아웃 직후 401 중복 방지).
+  Future<void> expire() async {
+    if (!_loggedIn) return;
+    await clear();
+  }
+
   Future<void> clear() async {
     _loggedIn = false;
     _loginId = _name = _role = _gymName = _csrfToken = _sessionCookie = null;
