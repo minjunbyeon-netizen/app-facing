@@ -23,8 +23,12 @@
   · **발견**: 보드가 SSE 로 수업 목록을 다시 안 받아 '예약됨' 잔상 → `WeekBoard` SSE 구독 추가(커밋 전, 검증 중). 캡처 `membership/60~66`.
   브리프 D58 · GLOSSARY 오픈 전/오픈 · 이름사전 +1 · 갭대장 24차. 프로드 `railway up` 완료(20:03 부팅).
 
+  → WeekBoard SSE 재조회 `f2796e4` 커밋 — 에뮬 재검증(21:34 예약 → 코치 해지 → 보드 즉시 '회원권 필요') 통과. 캡처 `membership/67~75`.
+- [x] **20:15 사용자 지시 "에뮬레이터 안에 싹 지우고 우리꺼 설치해"** — `emulator -avd Medium_Phone_API_36.1 -wipe-data` (저장공간 560MB→4.9GB 확보), KST 설정,
+  디버그 APK(로컬 5060) 설치·member3 로그인 상태. 갤S22 릴리즈 APK(20:16 빌드, D58 포함) 는 무선 adb 끊김으로 미설치 — `/연결` 뒤 `adb install -r build/app/outputs/flutter-apk/app-release.apk`.
+
 ## 진행중
-- [ ] WeekBoard SSE 재조회(`lib/features/gym/week_board.dart _classReloadEvents`) — analyze·test·에뮬 재검증·커밋·릴리즈 APK(갤S22 adb 끊김) 남음.
+- [ ] 없음.
 
 ## 대기 (사용자 마지막 지시 18:00 "2 하고 PC 에뮬레이터로 너가 테스트" — 컨텍스트 경고로 미착수)
 - [ ] (사용자가 18:08 지시로 'PC 에뮬레이터' 로컬 검증으로 대체 — 프로드 등록은 지시 없음) **프로드 gym 2(HYPHEN HYBRID GYM) 에 "이벤트 3회권 · 30일 · 3회 · 9,900원" 요금제 등록** — PC 웹
