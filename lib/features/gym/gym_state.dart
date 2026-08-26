@@ -197,10 +197,12 @@ class GymState extends ChangeNotifier {
   /// 바뀌므로 주간보드 '회원권 필요' 거울과 내 정보 카드가 앱 재시작 없이 따라가야
   /// 한다. 실패해도 기존 목록을 유지한다 (모르는 상태를 '없음' 으로 그리지 않는다).
   Future<void> refreshMemberships() async {
+    debugPrint('[GymState] refreshMemberships gym=${_membership.gym?.id}');
     if (_membership.gym == null) return;
     try {
       _myMemberships = await repo.listMyMemberships();
       _membershipsLoaded = true;
+      debugPrint('[GymState] refreshMemberships ok n=${_myMemberships.length}');
       notifyListeners();
     } catch (e) {
       debugPrint('[GymState] refreshMemberships failed: $e');
