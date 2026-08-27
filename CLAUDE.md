@@ -355,8 +355,8 @@ R5. **하드코드 fontSize 금지.** 모든 텍스트 크기는 `HyphenTokens` 
 | 위치 | 카피 |
 |---|---|
 | Splash / 전면 로딩 | **HYPHEN 로고** (BrandLogo 기본 폭 220) — 전면 로딩은 FkLoadingScreen. 로고가 남는 자리는 이 둘뿐 |
-| 진입 화면 | **로고 없음** (v3.19 사용자 지시) — 로그인 · 회원 가입 신청 버튼 + 약관 |
-| 로그인 화면 | **로고 없음** (v3.19 사용자 지시) — 제목 '로그인' + 아이디/비밀번호. 역할 선택 없음 (코치·회원 판정은 서버) |
+| 진입 화면 | **없음** — v3.31(2026-08-27 사용자 승인, D66)에서 갈림길 화면 삭제. 스플래시 다음이 곧바로 로그인 |
+| 로그인 화면 (= 앱 첫 화면) | **로고 없음** (v3.19 사용자 지시) — 제목 '로그인' + 아이디/비밀번호 + '아이디 기억하기 (30일)' + [로그인]. 그 아래 작은 줄로 '회원 가입 신청'(→ 가입 신청서), 맨 밑에 이용약관 · 개인정보처리방침. 역할 선택 없음 (코치·회원 판정은 서버) |
 | 로그인 버튼 | "네이버 아이디로 로그인" (1순위) · "구글로 시작" — FkSocialButton |
 | 로그인 진행 | FkLoadingScreen(caption: '로그인 중') |
 | 셸 3탭 | 홈 · 수업 · 내 정보 (v3.0 — 크로스핏 표기 철수) |
@@ -409,11 +409,14 @@ python tool/golden_gallery.py               # 단일 HTML 갤러리 (build/golde
 가짜 백엔드(`test/golden/fakes.dart` — ApiClient implements, 네트워크 0)로 실물 픽셀 렌더
 (갤S22 급 360×780·2x). 폰트는 `test/flutter_test_config.dart` 가 FontManifest 전체
 (Pretendard·MaterialIcons)를 로드. 참조 아키텍처: `apps/writeplz-app` 골든스탠다드.
-현재 **61장** (2026-08-26 실측 — 8/21 "45장" 서술 이후 v3.4~v3.28 증감 포함.
+현재 **58장** (2026-08-27 실측 — v3.31 로그인 통합·내 정보 정리로 3장 감소:
+common_05_signup(진입 갈림길) · member_16_goals · member_17_faq 삭제, common_08_login·
+member_05_profile_menu_open·state_16 재생성. 아래는 그 이전 이력.
+구 61장 이력: 2026-08-26 실측 — 8/21 "45장" 서술 이후 v3.4~v3.28 증감 포함.
 D57 횟수권 = state_14 내 정보 회원권 카드 신규 · D58 예약 오픈 전 = state_15 신규 ·
 D59 코치 세션 만료 = state_16 로그인 화면 자동 이동 신규 (하네스 `routes` 주입구).
-prefix 집계: member 25 · state 14 · common 5 · splash 3 · snack 3 · coach 3 ·
-ach 2 · boss 2 · hist 1 · onb 1. 2026-08-26 S6 = state_13 가입 폼 BACK 다이얼로그 신규.
+prefix 집계(2026-08-27): member 23 · state 16 · common 4 · splash 3 · snack 3 ·
+coach 3 · ach 2 · boss 2 · hist 1 · onb 1. 2026-08-26 S6 = state_13 가입 폼 BACK 다이얼로그 신규.
 2026-08-26 S5·S10 = state_11 '회원권 필요' 배지 ·
 state_12 코치 로그아웃 다이얼로그 신규 (boss_03·state_10 은 명단 코치 이름 재생성).
 2026-08-26 S3 = state_10 시작 전 명단 잠금 신규 ·

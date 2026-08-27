@@ -448,8 +448,8 @@ class _ActionsSection extends StatelessWidget {
                     title: '히스토리',
                     onTap: () => Navigator.of(context).pushNamed('/history'),
                   ),
-                  // v3.29 (2026-08-27 사용자 지시): '목표' 행 삭제 — 화면 코드
-                  // (lib/features/goals/)까지 제거 (README §제거된 기능 대장 23).
+                  // v3.31 (2026-08-27 사용자 지시): '목표' 행 삭제 — 화면 코드
+                  // (lib/features/goals/)까지 제거 (README §제거된 기능 대장 32).
                   // 서버 목표 API·DB 는 그대로 둔다 — 착용 칭호가 같은 GoalsState 를 쓴다.
                   // Q3 (v3.4 2026-08-20 승인) — 리프트별 역대 최고 무게 (1RM 보드).
                   HkListRow(
@@ -469,9 +469,9 @@ class _ActionsSection extends StatelessWidget {
                   //    회원 레벨은 경력 3단(SCALED/RXD/ELITE)이라 RX+·Games 는 없는 등급이다.
                   // 화면 파일은 v3.2(2026-08-20)에서 코드까지 삭제
                   // (README §제거된 기능 대장 — 복원은 git log).
-                  // v3.29 (2026-08-27 사용자 지시): 'FAQ'·'고객지원' 행 삭제 —
+                  // v3.31 (2026-08-27 사용자 지시): 'FAQ'·'고객지원' 행 삭제 —
                   // FAQ 는 화면 코드(faq_screen.dart)까지 제거, 고객지원은
-                  // 카카오톡 채널 링크뿐이라 행만 제거 (README §제거된 기능 대장 24·25).
+                  // 카카오톡 채널 링크뿐이라 행만 제거 (README §제거된 기능 대장 33·34).
                   // v2.6 (2026-08-12 사용자 지시): '직원 계정 연결' 행 삭제 — 코치가
                   // 곧 본인 한 명이라 연결할 직원이 없다 (BRIEF D37). 화면·라우트는
                   // v3.2(2026-08-20)에서 코드까지 삭제 (README §제거된 기능 대장).
@@ -492,8 +492,8 @@ class _ActionsSection extends StatelessWidget {
                   ),
                 ],
               ),
-              // v3.29 (2026-08-27 사용자 지시): '데이터 초기화' 버튼·확인
-              // 다이얼로그(_confirmReset) 삭제 (README §제거된 기능 대장 26).
+              // v3.31 (2026-08-27 사용자 지시): '데이터 초기화' 버튼·확인
+              // 다이얼로그(_confirmReset) 삭제 (README §제거된 기능 대장 35).
             ],
           ),
           // v2.2 (2026-08-12 사용자 지시): DEBUG 블록 전면 삭제.
@@ -519,7 +519,7 @@ class _ActionsSection extends StatelessWidget {
     await context.read<AuthState>().signOut();
     if (!context.mounted) return;
     context.read<GymState>().resetLocal();
-    // v3.29: 진입 화면이 곧 로그인 화면이다 ('/signup' 갈림길 폐지).
+    // v3.31: 진입 화면이 곧 로그인 화면이다 ('/signup' 갈림길 폐지).
     Navigator.of(context).pushNamedAndRemoveUntil('/login', (_) => false);
   }
 }

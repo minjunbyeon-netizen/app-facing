@@ -90,7 +90,7 @@ class _CoachShellState extends State<CoachShell> {
   /// 세션 만료 이탈 — 로그아웃과 같은 뒷정리(기기 신원 초기화·소속 캐시 비움,
   /// S1) 뒤 로그인 화면으로 보내고 사유를 한 줄 보여 준다.
   /// 서버 로그아웃 호출은 없다 — 이미 죽은 세션이다.
-  /// v3.29 (2026-08-27): 갈림길 화면('/signup') 폐지로 2단 push 를 1단으로.
+  /// v3.31 (2026-08-27): 갈림길 화면('/signup') 폐지로 2단 push 를 1단으로.
   Future<void> _leaveExpired() async {
     if (!mounted) return;
     final navigator = Navigator.of(context);

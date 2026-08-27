@@ -564,6 +564,38 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > - 회귀: 골든 `coach_01`(주간) 재생성 · `coach_02` 삭제 · `coach_04_new_note_members` 신규 ·
 >   `coach_03` 재생성(그룹 버튼 없음).
 
+> **D66 (2026-08-27 사용자 승인 "로그인 화면 하나로 합치는 것이 맞습니다. 앱을 열면 바로 아이디·비밀번호가 나오고, 그 아래에 '회원 가입 신청' 을 작은 줄로 두면 됩니다" + 후속 지시 "내정보 메뉴에서, FAQ, 목표, 고객지원, 데이터 초기화, 버튼 삭제 및 안에 내용까지 삭제") — 앱 첫 화면 = 로그인 · 내 정보 메뉴 4건 삭제 (앱만).**
+>
+> **(1) 로그인 통합 — 갈림길 화면 폐지.** 앱을 열면 스플래시 다음이 곧바로 로그인이다.
+> - 삭제: `lib/features/auth/signup_screen.dart`(SignupScreen) + `/signup` 라우트 + 골든
+>   `common_05_signup`. 소셜 로그인이 v1.33 에서 내려가고(`_kShowSocialLogin=false`) 코치 입구도
+>   D42(v3.19)에서 없어져, 남은 건 [로그인]·[회원 가입 신청] 두 버튼과 약관 링크뿐인 껍데기였다.
+>   위쪽 `HkEntryLogoGap` 자리가 로고 없이 비어 있던 문제도 화면과 함께 사라진다.
+> - 이동: '회원 가입 신청'(→ `/signup/self`)은 로그인 화면 **버튼 아래 작은 줄**(HkButton.tertiary)로,
+>   이용약관·개인정보처리방침 두 링크는 그 아래로. 법적 고지라 위치만 옮기고 목적지는 그대로
+>   (`TermsScreen`·`PrivacyScreen`). 가입 신청 흐름(`SelfSignupScreen`)은 손대지 않았다.
+> - 진입점 전환 3곳: 스플래시 미로그인(`splash_screen._onStart`) · 회원 로그아웃
+>   (`mypage._confirmSignOut`) · 코치 세션 만료(`coach_shell._leaveExpired`, D59). 특히 D59 는
+>   `/signup` 위에 `/login` 을 얹던 2단 push 였는데, 인자를 실은 `pushNamedAndRemoveUntil` 1단으로
+>   합쳤다 (만료 안내 문구는 그대로 뜬다 — 골든 `state_16` 재생성).
+> - **`social_auth_service.dart` 는 존치** — 실 OAuth(네이버·구글) 복구용 자산이고, 되살릴 때는
+>   로그인 화면에 `HkSocialButton` 두 줄을 얹는다. 지금은 앱 안 참조 0건 (유일 소비처가 SignupScreen 이었다).
+> - 창구는 여전히 하나다 (D42): 로그인 화면에 브랜드 로고 없음 · 역할 선택 없음 · 코치/회원 판정은 서버 `kind`.
+>
+> **(2) 내 정보 메뉴 4건 삭제 (앱 화면만).**
+> - **목표** 행 + `lib/features/goals/goals_screen.dart` · **FAQ** 행 + `mypage/faq_screen.dart` ·
+>   **고객지원** 행(카카오톡 채널 `launchUrl` — 화면 없음, 행만) · **데이터 초기화** 버튼 +
+>   `_confirmReset`(`prefs.clear()` → `/splash`). 골든 `member_16_goals`·`member_17_faq` 삭제,
+>   `member_05_profile_menu_open` 재생성 (남은 메뉴 = 전자계약서·히스토리·최고 기록·개인정보처리방침·이용약관).
+> - **서버는 그대로** — 목표 API(`/api/v1/member/me/goals` 계열)·DB 는 손대지 않았다.
+>   `core/goals_state.dart`(GoalsState) 도 존치: 착용 칭호(`wornTitle`)를 같은 상태가 들고 있어
+>   내 정보 이름 밑 배지와 업적 화면이 계속 쓴다. 사라진 것은 **목표를 편집하던 화면**뿐이다.
+> - D65 가 존치로 못 박았던 '목표' 는 이 지시로 **앱 메뉴에서만** 뒤집힌다 (서버·DB 존치라 D65 의
+>   "데이터 손실 0" 원칙과 충돌하지 않는다). 재제안 금지 대상은 나머지 5종 그대로.
+>
+> - 회귀: `flutter analyze` 0 · `flutter test` **198** (골든 테스트 3개 삭제로 201→198) ·
+>   골든 **61 → 58장** · 갤러리·`tool/golden_gallery.py` SECTIONS 갱신 · 실기(갤S22) 릴리즈 APK 확인.
+
 > **D65 (2026-08-27 사용자 "아니 놔둬, 지금있는것까지는 괜찮아") — 4기둥 밖 잔여 기능 6종 존치 확정.**
 >
 > - D64 가 "아직 결정 안 한 4기둥 밖 덩어리" 로 올렸던 **락커 · 통계 · 결제/환불 · WOD 소셜

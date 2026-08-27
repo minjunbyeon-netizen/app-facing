@@ -327,9 +327,9 @@ void main() {
     await capture(tester, 'member_22_contract_detail');
   });
 
-  // v3.29 (2026-08-27 사용자 지시): '목표'(member_16_goals)·
+  // v3.31 (2026-08-27 사용자 지시): '목표'(member_16_goals)·
   // 'FAQ'(member_17_faq) 골든 삭제 — 내 정보 메뉴에서 행과 화면 코드를 함께
-  // 제거했다 (README §제거된 기능 대장 23·24).
+  // 제거했다 (README §제거된 기능 대장 32·33).
 
   // ── 회원: 이용약관 (내 정보 메뉴) ──
   testWidgets('member: terms', (tester) async {

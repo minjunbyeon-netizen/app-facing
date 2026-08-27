@@ -189,4 +189,27 @@ samples, guidance on mobile development, and a full API reference.
     `services/marketing_dashboard.py` · `services/cohort.py` · `services/receipt_pdf.py`.
     marketing_dashboard 는 참조 0건, cohort 는 marketing_dashboard 만 import 하던
     죽은 쌍이었다. 4기둥 밖(매출·cohort 잔존율·이탈 위험·영수증 PDF).
+31. **진입 갈림길 화면 (v3.31 · 2026-08-27 사용자 승인 "로그인 화면 하나로 합치는 것이
+    맞습니다") — 브리프 D66(1)** — `lib/features/auth/signup_screen.dart`(SignupScreen) +
+    `/signup` 라우트 + 골든 `common_05_signup`. 소셜 로그인은 v1.33 에서 내려갔고
+    (`_kShowSocialLogin=false`) 코치 입구는 대장 15(v3.19)에서 사라져, [로그인]·[회원 가입
+    신청] 두 버튼과 약관 링크만 남은 껍데기였다. 앱을 열면 곧바로 로그인 화면(`login_screen.dart`,
+    골든 `common_08_login`)이고, '회원 가입 신청'(→ `/signup/self`)은 그 아래 작은 줄,
+    약관·개인정보처리방침 링크는 그 밑으로 옮겼다. 진입점 전환 3곳 = 스플래시 미로그인 ·
+    회원 로그아웃 · 코치 세션 만료(D59 — 2단 push 를 1단으로). **`social_auth_service.dart`
+    는 남긴다** — 실 OAuth 복구용 자산 (되살릴 때 로그인 화면에 `HkSocialButton` 을 얹는다).
+32. **내 정보 '목표' (v3.31 · 2026-08-27 사용자 지시) — 브리프 D66(2)** —
+    `lib/features/goals/goals_screen.dart`(GoalsScreen) + 메뉴 행 + 골든 `member_16_goals`.
+    **서버 목표 API·DB 는 존치**하고 `core/goals_state.dart`(GoalsState)도 남긴다 —
+    착용 칭호(`wornTitle`)를 같은 상태가 들고 있어 내 정보 배지·업적 화면이 계속 쓴다.
+    사라진 것은 목표를 편집하던 화면뿐.
+33. **내 정보 'FAQ' (v3.31 · 2026-08-27 사용자 지시)** — `lib/features/mypage/faq_screen.dart`
+    (FaqScreen, 시드 10문답) + 메뉴 행 + 골든 `member_17_faq`.
+34. **내 정보 '고객지원' (v3.31 · 2026-08-27 사용자 지시)** — 카카오톡 채널 1:1 채팅
+    `launchUrl('http://pf.kakao.com/_kxbxanX/chat')` 행. 화면은 원래 없어 행만 삭제
+    (mypage 의 `url_launcher` import 도 함께 정리 — 앱 안 다른 사용처는 `wod_detail_screen` 하나).
+35. **내 정보 '데이터 초기화' (v3.31 · 2026-08-27 사용자 지시)** — danger 버튼 +
+    `MyPageScreen._confirmReset`(확인 다이얼로그 → `prefs.clear()` → `/splash`).
+    `shared_preferences` import 도 이 파일에서 함께 정리. 서버 기록은 원래 지우지 않던 기능.
+
 
