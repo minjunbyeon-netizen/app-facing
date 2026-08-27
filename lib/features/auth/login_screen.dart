@@ -176,7 +176,10 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: HyphenTokens.bg,
       // 제목 없는 상단바 — 뒤로가기만. 제목 '로그인' 은 본문 h1 이 갖는다 (R1).
-      appBar: const HkAppBar(),
+      // v3.32 (2026-08-27 사용자 지시): 이 화면이 앱의 첫 화면이 되면서(D66 로그인 통합)
+      // 돌아갈 데가 없을 땐 화살표 없는 빈 띠만 남았다 — 그 경우 상단바를 아예 안 단다.
+      // 가입 신청에서 되돌아오거나 세션 만료로 밀려왔을 땐 pop 대상이 있어 그대로 나온다.
+      appBar: Navigator.canPop(context) ? const HkAppBar() : null,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(
