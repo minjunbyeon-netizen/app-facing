@@ -132,6 +132,20 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
     navigator.pushNamedAndRemoveUntil('/shell', (_) => false);
   }
 
+  /// 고른 경력 구간이 어느 레벨이 되는지 한 줄. 자리는 [HkPreviewSlot] 이
+  /// 고르기 전부터 잡고 있고, 여기서는 내용만 만든다.
+  Widget _levelPreview() {
+    final t = Tier.fromExperienceYears(_kExpBands[_bandIndex!].years);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Text('내 레벨', style: HyphenTokens.caption),
+        const SizedBox(width: HyphenTokens.sp2),
+        HkBadge(t.memberLevelLabel, color: t.color),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -156,20 +170,28 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
             // v2.6: 숫자만 치면 하이픈이 알아서 들어간다. 8자리를 다 채우기
             // 전에는 오류를 띄우지 않는다 (타이핑 도중 빨간 글씨는 방해다).
             TextField(
+              key: OnboardingBasicScreen.kBirthField,
               controller: _birthCtrl,
               keyboardType: TextInputType.number,
               inputFormatters: [BirthDateInputFormatter()],
               onChanged: (_) => setState(() {}),
+              // helperText 공백 한 칸 = 에러 문구 줄을 **항상 예약**한다
+              // (공간 예약 — DESIGN-SSOT §레이아웃 안정성). 8자리를 다 채운
+              // 순간 오류가 떠도 전화 칸·성별 섹션이 밀리지 않는다.
+              // helper·error 의 글꼴 높이는 theme.dart 가 같게 맞춰 둔다.
               decoration: InputDecoration(
                 labelText: '생년월일 (선택)',
                 hintText: '1995-01-01',
                 errorText: birthDateError(_birthCtrl.text),
+                helperText: ' ',
+                errorMaxLines: 1,
               ),
             ),
-            const SizedBox(height: HyphenTokens.sp3),
+            const SizedBox(height: HyphenTokens.sp2),
             // v2.6: 생년월일과 같은 이유로 하이픈을 자동으로 넣는다 —
             // 코치 명단의 번호 표기를 한 가지로 고정한다.
             TextField(
+              key: OnboardingBasicScreen.kPhoneField,
               controller: _phoneCtrl,
               keyboardType: TextInputType.phone,
               inputFormatters: [PhoneInputFormatter()],
@@ -183,6 +205,7 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
             const HkSectionLabel('성별'),
             const SizedBox(height: HyphenTokens.sp2),
             Row(
+              key: OnboardingBasicScreen.kGender,
               children: [
                 HkBadge(
                   '남',
@@ -210,6 +233,7 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
             const HkSectionLabel('운동 경력'),
             const SizedBox(height: HyphenTokens.sp2),
             Wrap(
+              key: OnboardingBasicScreen.kBands,
               spacing: HyphenTokens.sp2,
               runSpacing: HyphenTokens.sp2,
               children: [
@@ -228,35 +252,20 @@ class _OnboardingBasicScreenState extends State<OnboardingBasicScreen> {
             // v2.6 (BRIEF D36): 레벨은 경력 하나로 정해진다. 고른 구간이 어느
             // 레벨이 되는지 그 자리에서 보여준다 — 나중에 코치 화면에서 처음
             // 보게 되면 "왜 내가 스케일이냐"가 된다.
-            if (_bandIndex != null) ...[
-              const SizedBox(height: HyphenTokens.sp3),
-              Row(
-                children: [
-                  const Text('내 레벨', style: HyphenTokens.caption),
-                  const SizedBox(width: HyphenTokens.sp2),
-                  Builder(
-                    builder: (_) {
-                      final t = Tier.fromExperienceYears(
-                        _kExpBands[_bandIndex!].years,
-                      );
-                      return HkBadge(t.memberLevelLabel, color: t.color);
-                    },
-                  ),
-                ],
-              ),
-            ],
-            if (_error != null) ...[
-              const SizedBox(height: HyphenTokens.sp3),
-              Text(
-                _error!,
-                style: HyphenTokens.caption.copyWith(
-                  color: HyphenTokens.warning,
-                ),
-              ),
-            ],
-            const SizedBox(height: HyphenTokens.sp6),
+            // v3.33: 자리는 **고르기 전부터** 잡아 둔다 (공간 예약) — 전엔
+            // 뱃지를 고르는 순간 블록이 생겨 아래 버튼이 통째로 밀렸다.
+            const SizedBox(height: HyphenTokens.sp2),
+            HkPreviewSlot(
+              placeholder: '경력을 고르면 레벨이 표시됩니다.',
+              child: _bandIndex == null ? null : _levelPreview(),
+            ),
+            // 저장 실패 안내도 같은 이유로 자리를 미리 잡는다.
+            const SizedBox(height: HyphenTokens.sp2),
+            HkNoticeSlot(_error),
+            const SizedBox(height: HyphenTokens.sp3),
             HkButton.primary(
               _saving ? '저장 중' : '시작하기',
+              key: OnboardingBasicScreen.kSubmit,
               onPressed: _canContinue
                   ? () {
                       Haptic.light();

@@ -117,6 +117,12 @@ class _MainShellState extends State<MainShell> {
     if (currentGymId != null && inboxState.boundGymId != currentGymId) {
       Future.microtask(() => inboxState.bind(currentGymId));
     }
+    // v3.34 (2026-08-27 · DESIGN-SSOT §레이아웃 안정성): 이 바인딩은 build 중에
+    // 시작할 수 없어 **첫 프레임이 그려진 뒤** 공지를 물어 온다. 즉 홈은 공지가
+    // 없는 상태로 한 번 그려지고 곧바로 공지가 도착한다 — 예전엔 그 순간 공지
+    // 카드가 새로 생기며 홈 전체가 아래로 밀렸다. 지금은 홈의 공지 자리가 늘
+    // 예약돼 있어(home_screen `_NoticeAccordion`) 부제 문구만 바뀐다.
+    // 늦게 도착하는 것 자체는 정상이므로 여기서 흐름을 바꾸지 않는다.
     if (currentGymId != null && annState.boundGymId != currentGymId) {
       final repo = context.read<GymRepository>();
       Future.microtask(() => annState.bind(repo, currentGymId));

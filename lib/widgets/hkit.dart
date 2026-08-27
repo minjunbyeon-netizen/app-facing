@@ -763,7 +763,11 @@ class HkBackBar extends StatelessWidget {
 class HkNoticeSlot extends StatelessWidget {
   /// null 이면 빈 자리만 남긴다.
   final String? message;
-  const HkNoticeSlot(this.message, {super.key});
+
+  /// 있으면 배너 우측에 '다시 시도' — 목록 위 실패 배너로 쓸 때 (v3.34).
+  /// 자리 높이는 그대로다 (버튼이 붙어도 [HyphenTokens.noticeSlotH] 안).
+  final VoidCallback? onRetry;
+  const HkNoticeSlot(this.message, {super.key, this.onRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -773,8 +777,98 @@ class HkNoticeSlot extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (message != null) HkInlineError(message!),
+          if (message != null) HkInlineError(message!, onRetry: onRetry),
         ],
+      ),
+    );
+  }
+}
+
+/// 비동기 구역이 미리 잡아 두는 **예약된 자리** (공간 예약 / space reservation).
+///
+/// v3.34 (2026-08-27): 목록 구역을 `snap.data ?? []` 로 그리면 로딩 중에도
+/// '없음' 문구가 먼저 뜨고, 응답이 도착하는 순간 내용이 튀어나오며 그 아래가
+/// 통째로 밀린다. 한 화면에 그런 구역이 넷이면 도착 순서대로 네 번 밀린다.
+///
+/// 이 위젯은 셋을 **같은 자리**에 놓는다 — 로딩(스켈레톤) · 없음(문구) · 내용.
+/// **로딩과 없음은 반드시 구분한다**: 아직 모르는 것과 없는 것은 다른 사실이다.
+/// [minHeight] 는 그 구역의 한 줄 높이(평균 내용)로 잡는다 — 과하게 크면 빈
+/// 화면이 허전해지고, 작으면 도착할 때 밀린다.
+/// 규격·적용 대상 = DESIGN-SSOT §레이아웃 안정성.
+class HkSectionSlot extends StatelessWidget {
+  /// 항상 지키는 최소 높이. 내용이 이보다 길면 자연히 늘어난다.
+  final double minHeight;
+
+  /// 아직 도착하지 않았다 — 스켈레톤. ([child] 유무와 무관하게 우선한다.)
+  final bool loading;
+
+  /// 도착했는데 비어 있을 때의 한 줄 문구.
+  final String empty;
+
+  /// 도착한 내용. null 이면 [empty].
+  final Widget? child;
+
+  /// 스켈레톤 줄 수 — 그 구역의 한 줄 모양에 맞춘다.
+  final int skeletonRows;
+
+  const HkSectionSlot({
+    super.key,
+    required this.minHeight,
+    required this.loading,
+    required this.empty,
+    this.child,
+    this.skeletonRows = 1,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final Widget inner;
+    if (loading) {
+      inner = _skeleton();
+    } else if (child == null) {
+      inner = Align(
+        alignment: Alignment.topLeft,
+        child: Text(empty, style: HyphenTokens.caption),
+      );
+    } else {
+      inner = child!;
+    }
+    return ConstrainedBox(
+      constraints: BoxConstraints(minHeight: minHeight),
+      child: SizedBox(width: double.infinity, child: inner),
+    );
+  }
+
+  /// 정적 스켈레톤 — 반짝이는 애니메이션을 쓰지 않는다 (골든·pumpAndSettle 이
+  /// 영원히 안 끝난다. 움직임은 스피너 하나로 충분하다).
+  Widget _skeleton() {
+    final rows = skeletonRows < 1 ? 1 : skeletonRows;
+    final rowH = (minHeight - HyphenTokens.sp2 * (rows - 1)) / rows;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (var i = 0; i < rows; i++) ...[
+          if (i > 0) const SizedBox(height: HyphenTokens.sp2),
+          _HkSkeletonBar(height: rowH),
+        ],
+      ],
+    );
+  }
+}
+
+/// 스켈레톤 한 줄 — 내용이 들어올 면의 크기만 미리 보여 준다.
+class _HkSkeletonBar extends StatelessWidget {
+  final double height;
+  const _HkSkeletonBar({required this.height});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: height,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: HyphenTokens.surfaceAlt,
+        borderRadius: BorderRadius.circular(HyphenTokens.r2),
       ),
     );
   }
@@ -820,6 +914,106 @@ class HkPreviewSlot extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
       ),
+    );
+  }
+}
+
+/// 스켈레톤 행 — 로딩 중 **모양만** 보여 주는 회색 자리 (skeleton screen).
+///
+/// v3.34 (2026-08-27 · DESIGN-SSOT §레이아웃 안정성). 목록이 로딩 → 완료로 바뀌면
+/// 표가 한 줄에서 여러 줄로 커지며 그 아래를 통째로 밀어냈다. 이 행은 [HkListRow]
+/// 한 줄과 **같은 높이**([rowH])를 차지해, 데이터가 도착해도 표 높이가 그대로다.
+///
+/// 공간 예약(space reservation)과는 다른 기법이다 — 자리를 잡는 것은 부모가 하고,
+/// 이 위젯은 그 자리에 **무엇이 올지**를 미리 보여 준다. 둘을 같이 쓴다.
+/// 깜빡이는 애니메이션은 두지 않는다 (무한 애니메이션은 골든·접근성 양쪽에 손해).
+class HkSkeletonRow extends StatelessWidget {
+  /// [HkListRow] 한 줄의 자연 높이 — 상하 sp2(8+8) + 제목(15×1.5=22.5) + 2 +
+  /// 부제(13×1.45=18.85) = 59.35 → 60. 목록 자리는 이 값으로 예약한다.
+  static const double rowH = 60;
+
+  /// 좌측 배지(32) 자리를 함께 그릴지 — 업적 표처럼 아이콘이 붙는 목록용.
+  final bool leading;
+  const HkSkeletonRow({super.key, this.leading = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: rowH,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: HyphenTokens.sp3),
+        child: Row(
+          children: [
+            if (leading) ...[
+              const HkSkeletonBar(
+                width: 32,
+                height: 32,
+                radius: HyphenTokens.r2,
+              ),
+              const SizedBox(width: HyphenTokens.sp3),
+            ],
+            const Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                HkSkeletonBar(width: 116, height: 12),
+                SizedBox(height: HyphenTokens.sp2),
+                HkSkeletonBar(width: 172, height: 10),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 스켈레톤 조각 — 글자·배지가 앉을 자리를 나타내는 회색 막대. 면은 border 1색.
+class HkSkeletonBar extends StatelessWidget {
+  final double width;
+  final double height;
+  final double radius;
+  const HkSkeletonBar({
+    super.key,
+    required this.width,
+    required this.height,
+    this.radius = HyphenTokens.r1,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: HyphenTokens.border,
+        borderRadius: BorderRadius.circular(radius),
+      ),
+    );
+  }
+}
+
+/// 높이가 오락가락하는 영역의 **자리를 미리 잡아 두는 슬롯** (공간 예약 /
+/// space reservation).
+///
+/// [HkNoticeSlot] 이 안내 한 줄 전용 고정 높이라면, 이쪽은 내용을 가리지 않는
+/// 범용 자리다. 로딩 스피너 → 목록, 공지 없음 → 공지 배너, 버튼 묶음 → 상태
+/// 박스처럼 **상태에 따라 높이가 갈리는 곳**에 씌우면 아래 요소가 밀리지 않는다.
+/// 규격·적용 대상 = DESIGN-SSOT §레이아웃 안정성.
+///
+/// - [minHeight] 는 그 자리가 가질 수 있는 **가장 긴 경우**로 잡는다. 내용이
+///   그보다 짧아도 자리는 남고, 길면 그만큼만 늘어난다.
+/// - [child] 가 null 이면 빈 자리만 남긴다 (내용이 아직·영영 없을 때).
+class HkReservedSlot extends StatelessWidget {
+  final double minHeight;
+  final Widget? child;
+  const HkReservedSlot({super.key, required this.minHeight, this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: BoxConstraints(minHeight: minHeight),
+      child: SizedBox(width: double.infinity, child: child),
     );
   }
 }

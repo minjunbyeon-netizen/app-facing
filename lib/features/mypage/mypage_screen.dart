@@ -6,6 +6,7 @@ import '../../core/goals_state.dart';
 import '../../core/haptic.dart';
 import '../../core/role_labels.dart';
 import '../../core/titles_catalog.dart';
+import '../../models/membership.dart';
 import '../../core/shell_nav_bus.dart';
 import '../../core/theme.dart';
 import '../../widgets/hkit.dart';
@@ -32,6 +33,20 @@ class MyPageScreen extends StatelessWidget {
   final bool embedded;
 
   const MyPageScreen({super.key, this.embedded = false});
+
+  // ── 레이아웃 안정성 앵커 (v3.33 · 2026-08-27) ──────────────────────────────
+  // 상태(로딩·회원권 유무·일시정지)가 바뀌어도 y 가 움직이면 안 되는 자리들.
+  // 회귀 게이트가 이 키로 잰다 (test/golden/stability_mypage_test.dart).
+  // 이름을 바꾸면 그 테스트도 같이 바꾼다 (글로벌 §0-B 이름 일원화).
+  static const Key kMembership = Key('mypage-membership');
+  static const Key kMyGym = Key('mypage-mygym');
+  static const Key kPoints = Key('mypage-points');
+  static const Key kMenu = Key('mypage-menu');
+  static const Key kSignOut = Key('mypage-signout');
+
+  /// 회원권 카드 **안** — 상태 슬롯(비활성·면제·일시정지) 아래가 밀리는지 재는 자리.
+  static const Key kMembershipProgress = Key('mypage-membership-progress');
+  static const Key kMembershipDates = Key('mypage-membership-dates');
 
   @override
   Widget build(BuildContext context) {
@@ -156,7 +171,12 @@ class _IdentityCard extends StatelessWidget {
                         );
                       },
                     ),
-                    // v1.16.2 — 박스명 · 역할 라벨 (GymState 데이터 소스)
+                    // v1.16.2 — 체육관명 · 역할 / 위치 (GymState 데이터 소스).
+                    // v3.33 (2026-08-27): **두 줄 자리를 항상 예약**한다
+                    // (§레이아웃 안정성 · 공간 예약). loadMine() 전에는 gym 이
+                    // null 이라 두 줄이 통째로 없다가 응답이 오는 순간 신원
+                    // 카드가 두 줄만큼 커지며 그 아래 전부가 밀렸다. 값이 없는
+                    // 동안은 공백 한 칸으로 줄 높이만 남긴다.
                     Builder(
                       builder: (_) {
                         final gym = gs.membership.gym;
@@ -169,21 +189,12 @@ class _IdentityCard extends StatelessWidget {
                             gym.name,
                           if (roleLabel.isNotEmpty) roleLabel,
                         ].join(' · ');
-                        if (gymLine.isEmpty) return const SizedBox.shrink();
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 2),
-                          child: Text(gymLine, style: HyphenTokens.caption),
-                        );
-                      },
-                    ),
-                    // 위치 (gyms.location) — 있을 때만 한 줄 더
-                    Builder(
-                      builder: (_) {
-                        final loc = gs.membership.gym?.location ?? '';
-                        if (loc.isEmpty) return const SizedBox.shrink();
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 2),
-                          child: Text(loc, style: HyphenTokens.caption),
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _ReservedLine(gymLine),
+                            _ReservedLine(gym?.location ?? ''),
+                          ],
                         );
                       },
                     ),
@@ -210,6 +221,13 @@ class _IdentityCard extends StatelessWidget {
           ),
           // 코치가 남긴 메모가 실제로 있을 때만 카드를 낸다. (등록값만 있고
           // 메모가 없으면 제목만 남은 빈 카드가 돼 자리만 먹는다.)
+          //
+          // §레이아웃 안정성 **예외** (v3.33 · 사유를 여기 남긴다): 이 카드만은
+          // 자리를 예약하지 않는다. 높이가 메모 글자 수에 따라 한 줄~여러 줄로
+          // 변해 '가장 긴 경우'가 없고, 메모를 안 받은 대다수 회원에게 100px
+          // 가까운 빈 카드를 매번 깔게 된다. 대신 이 블록은 화면 **맨 위**
+          // 신원 카드 안에서 loadMine() 한 번에만 붙고, 그 뒤로는 SSE 로도
+          // 토글되지 않는다 (코치 메모 변경은 새 loadMine 을 타고 온다).
           if (mp != null &&
               ((mp.safetyNote ?? '').isNotEmpty ||
                   (mp.note ?? '').isNotEmpty)) ...[
@@ -247,6 +265,25 @@ class _IdentityCard extends StatelessWidget {
       ),
     );
   }
+}
+
+/// 값이 없어도 **한 줄 높이를 지키는** caption 한 줄 (§레이아웃 안정성 · 공간 예약).
+/// 비어 있으면 공백 한 칸을 그려 줄 높이만 남긴다 — 값이 늦게 도착해도
+/// 그 아래 요소의 y 가 움직이지 않는다.
+class _ReservedLine extends StatelessWidget {
+  final String text;
+  const _ReservedLine(this.text);
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(top: 2),
+    child: Text(
+      text.isEmpty ? ' ' : text,
+      style: HyphenTokens.caption,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    ),
+  );
 }
 
 class _ProfileRow extends StatelessWidget {
@@ -316,6 +353,7 @@ class _MyBoxSection extends StatelessWidget {
       _ => '-',
     };
     return Padding(
+      key: MyPageScreen.kMyGym,
       padding: const EdgeInsets.symmetric(horizontal: HyphenTokens.sp4),
       child: HkAccordion(
         title: '내 체육관',
@@ -335,34 +373,18 @@ class _MyBoxSection extends StatelessWidget {
               style: HyphenTokens.caption,
             ),
             // P1-5 (2026-06-10): 거절 상태 무안내 해소 — 멤버십이 조용히
-            // 사라지는 대신 사유 고지 + 다음 행동(다른 박스 검색) 제시.
-            if (gs.membership.status == 'rejected') ...[
-              const SizedBox(height: HyphenTokens.sp3),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(HyphenTokens.sp3),
-                decoration: BoxDecoration(
-                  color: HyphenTokens.accentSoft,
-                  borderRadius: BorderRadius.circular(HyphenTokens.r2),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '가입이 승인되지 않았습니다.',
-                      style: HyphenTokens.body.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: HyphenTokens.sp1),
-                    const Text(
-                      '체육관에 직접 문의 또는 다른 체육관 검색.',
-                      style: HyphenTokens.caption,
-                    ),
-                  ],
-                ),
-              ),
-            ],
+            // 사라지는 대신 사유 고지.
+            // v3.33 (2026-08-27): 인라인 배너 Container 를 **고정 높이 슬롯**
+            // 으로 바꿨다 (§레이아웃 안정성 · 공간 예약 · HkNoticeSlot 정본).
+            // 아코디언을 펼친 채 코치가 PC 에서 승인/거절을 바꾸면 SSE 로 이
+            // 블록이 생겼다 사라지며 그 아래가 통째로 밀렸다. 이제 자리는
+            // 늘 있고 문구만 갈린다.
+            const SizedBox(height: HyphenTokens.sp3),
+            HkNoticeSlot(
+              gs.membership.status == 'rejected'
+                  ? '가입이 승인되지 않았습니다. 체육관에 문의.'
+                  : null,
+            ),
             // v3.28: 코치 분기('가입 신청' 버튼) 제거 — 내 정보는 회원만 본다.
             // v3.25: '수업' 버튼 삭제 — 예약은 수업 탭 주간보드 한 곳 (대장 19).
             // v2.6 (2026-08-13 사용자 지시): '박스 변경' 삭제. 1인 샵 전용이라
@@ -413,6 +435,7 @@ class _ActionsSection extends StatelessWidget {
                     // 확인 다이얼로그가 이미 붙어 있다).
                     HkButton.secondary(
                       '로그아웃',
+                      key: MyPageScreen.kSignOut,
                       expand: false,
                       onPressed: () => _confirmSignOut(context),
                     ),
@@ -428,6 +451,7 @@ class _ActionsSection extends StatelessWidget {
           // 그대로, 접힘 상태에서 헤더 한 줄만 차지한다.
           const SizedBox(height: HyphenTokens.sp2),
           HkAccordion(
+            key: MyPageScreen.kMenu,
             title: '메뉴',
             children: [
               const SizedBox(height: HyphenTokens.sp2),
@@ -532,7 +556,32 @@ class _MembershipSection extends StatelessWidget {
     final gs = context.watch<GymState>();
     final ms = gs.currentMembership;
     final lk = gs.myLocker;
-    if (ms == null && lk == null) return const SizedBox.shrink();
+
+    // v3.33 (2026-08-27) — **아직 모르는 것(로딩)과 정말 없는 것(미보유)을
+    // 가른다** (§레이아웃 안정성 · 공간 예약). 둘 다 화면에서 지워 버리면
+    // loadMine() 이 끝나는 순간 섹션이 통째로 생겨나며 아래 전부가 밀렸다
+    // (로그인 화면이 미리 불러오므로 평소엔 안 보이지만, 느린 망·셸 재진입
+    // 에서 드러난다). 접힌 아코디언 헤더는 어느 경우에나 같은 높이라
+    // 이 자리 자체가 예약 자리 역할을 한다 — 헤더 한 줄은 늘 서 있다.
+    if (ms == null && lk == null) {
+      final loading = gs.isLoading;
+      return Padding(
+        key: MyPageScreen.kMembership,
+        padding: const EdgeInsets.symmetric(horizontal: HyphenTokens.sp4),
+        child: HkAccordion(
+          title: '회원권',
+          subtitle: loading ? '불러오는 중' : '회원권 없음',
+          children: [
+            const SizedBox(height: HyphenTokens.sp2),
+            if (loading)
+              const HkLoading()
+            else
+              const Text('등록된 회원권 없음.', style: HyphenTokens.caption),
+            const SizedBox(height: HyphenTokens.sp2),
+          ],
+        ),
+      );
+    }
 
     final parts = <String>[];
     if (ms != null && !ms.isActive) {
@@ -558,6 +607,7 @@ class _MembershipSection extends StatelessWidget {
     if (lk != null) parts.add('락커 ${lk.lockerNo}');
 
     return Padding(
+      key: MyPageScreen.kMembership,
       padding: const EdgeInsets.symmetric(horizontal: HyphenTokens.sp4),
       child: HkAccordion(
         title: '회원권',
@@ -625,46 +675,12 @@ class _MembershipCard extends StatelessWidget {
                   ),
               ],
             ),
-            // 비활성(해지·환불·만료) 회원권 — 예약에 못 쓴다는 한 줄.
-            if (!ms.isActive) ...[
-              const SizedBox(height: 6),
-              Text(
-                ms.status == 'expired'
-                    ? '만료된 회원권 — 예약에 쓸 수 없습니다.'
-                    : '해지된 회원권 — 예약에 쓸 수 없습니다.',
-                style: HyphenTokens.caption.copyWith(color: HyphenTokens.danger),
-              ),
-            ],
-            // D57 (2026-08-26) 횟수권 — 면제 잔여 (노쇼·늦은 취소 각 1회).
-            if (ms.isSessionPass && ms.isActive) ...[
-              const SizedBox(height: 6),
-              Text(
-                '노쇼 면제 ${ms.freeNoShowLeft}회 · 늦은 취소 면제 ${ms.freeLateCancelLeft}회 남음',
-                style: HyphenTokens.caption,
-              ),
-            ],
-            // 일시정지 상태 (2026-08-24 갭 해소 — PC 만 알던 정지 창 표시).
-            if (ms.isPausedNow || ms.isPauseScheduled) ...[
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  HkBadge(
-                    ms.isPausedNow ? '일시정지 중' : '일시정지 예정',
-                    color: HyphenTokens.warning,
-                  ),
-                  const SizedBox(width: HyphenTokens.sp2),
-                  Expanded(
-                    child: Text(
-                      '${ms.pauseStart ?? ''} ~ ${ms.pauseEnd ?? ''}',
-                      style: HyphenTokens.caption,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-            const SizedBox(height: 12),
+            // 상태 줄 — 비활성 안내 · 횟수권 면제 잔여 · 일시정지가
+            // **하나의 예약된 자리**를 나눠 쓴다 (§레이아웃 안정성).
+            _MembershipStatusSlot(ms),
             // 진행 막대 — 사용 비율 = progress, 남은 비율 = 1-progress
             TweenAnimationBuilder<double>(
+              key: MyPageScreen.kMembershipProgress,
               tween: Tween(begin: 0, end: progress.clamp(0, 1)),
               duration: const Duration(milliseconds: 600),
               curve: Curves.easeOutCubic,
@@ -712,6 +728,7 @@ class _MembershipCard extends StatelessWidget {
               _MembershipTimeline(start: start, end: end, accent: accentColor),
             const SizedBox(height: 6),
             Row(
+              key: MyPageScreen.kMembershipDates,
               children: [
                 Text(ms.startDate ?? '', style: HyphenTokens.caption),
                 const Spacer(),
@@ -720,6 +737,86 @@ class _MembershipCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// 회원권 카드 상태 줄 — **배너 3종이 하나의 예약된 자리를 나눠 쓴다**
+/// (v3.33 · 2026-08-27 · §레이아웃 안정성 · 공간 예약).
+///
+/// 전엔 (1) 비활성(해지·만료) 안내 (2) 횟수권 면제 잔여 (3) 일시정지 배너가
+/// 각각 `if (…) …[]` 로 쌓여 있었다. 코치가 PC 에서 상태를 바꾸면 SSE 로
+/// 화면이 열려 있는 동안 줄이 생겼다 사라지며 진행 막대·사용률·시작/종료일이
+/// 통째로 밀렸다.
+///
+/// **동시 표시 가능성 (코드 확인)**: (1) 은 `!isActive`, (2) 는 `isActive` 라
+/// 서로 배타적이다. 반면 (3) 은 status 를 보지 않고 정지 창
+/// (`pause_start ≤ 오늘 < pause_end`) 만 보므로 (1)+(3)·(2)+(3) 은 **같이 뜬다**
+/// (models/membership.dart isPausedNow·isPauseScheduled). 그래서 자리는
+/// 최악인 **두 줄**(배지 줄 + caption 줄) 기준으로 잡고, 안내·에러 예약 자리의
+/// 정본 높이 [HyphenTokens.noticeSlotH] 를 그대로 쓴다.
+///
+/// 내용이 0줄이어도 자리는 그대로 남는다 — 색을 지우거나 회색으로 내리지 않는다.
+class _MembershipStatusSlot extends StatelessWidget {
+  final Membership ms;
+  const _MembershipStatusSlot(this.ms);
+
+  @override
+  Widget build(BuildContext context) {
+    final lines = <Widget>[];
+    // 일시정지 상태 (2026-08-24 갭 해소 — PC 만 알던 정지 창 표시).
+    if (ms.isPausedNow || ms.isPauseScheduled) {
+      lines.add(
+        Row(
+          children: [
+            HkBadge(
+              ms.isPausedNow ? '일시정지 중' : '일시정지 예정',
+              color: HyphenTokens.warning,
+            ),
+            const SizedBox(width: HyphenTokens.sp2),
+            Expanded(
+              child: Text(
+                '${ms.pauseStart ?? ''} ~ ${ms.pauseEnd ?? ''}',
+                style: HyphenTokens.caption,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    if (!ms.isActive) {
+      // 비활성(해지·환불·만료) 회원권 — 예약에 못 쓴다는 한 줄.
+      lines.add(
+        Text(
+          ms.status == 'expired'
+              ? '만료된 회원권 — 예약에 쓸 수 없습니다.'
+              : '해지된 회원권 — 예약에 쓸 수 없습니다.',
+          style: HyphenTokens.caption.copyWith(color: HyphenTokens.danger),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      );
+    } else if (ms.isSessionPass) {
+      // D57 (2026-08-26) 횟수권 — 면제 잔여 (노쇼·늦은 취소 각 1회).
+      lines.add(
+        Text(
+          '노쇼 면제 ${ms.freeNoShowLeft}회 · 늦은 취소 면제 ${ms.freeLateCancelLeft}회 남음',
+          style: HyphenTokens.caption,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      );
+    }
+    return SizedBox(
+      height: HyphenTokens.noticeSlotH,
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: lines,
       ),
     );
   }
@@ -951,7 +1048,13 @@ class _LockerCard extends StatelessWidget {
 }
 
 /// B-5 (2026-06-10) — 회원 포인트 잔액 행.
-/// 박스 소속(approved)이 아니면 백엔드가 gym:null 을 주므로 행 자체를 숨긴다.
+///
+/// v3.33 (2026-08-27 · §레이아웃 안정성 · 공간 예약): 전엔 `_balance == null`
+/// 이면 `SizedBox.shrink()` 라, 응답이 오는 순간 카드가 통째로 생겨나며 바로
+/// 아래 '메뉴' 아코디언과 위쪽 로그아웃 줄 주변이 흔들렸다. 이제 **카드는
+/// 처음부터 서 있고 숫자만** 갈린다 — 값을 모르는 동안은 `--`.
+/// (서버는 미소속이어도 `balance: 0` 을 준다. `--` 가 남는 경우는 응답 전이거나
+///  네트워크가 끊긴 때뿐이다.)
 class _PointsBalanceRow extends StatefulWidget {
   const _PointsBalanceRow();
 
@@ -988,15 +1091,16 @@ class _PointsBalanceRowState extends State<_PointsBalanceRow> {
       final balance = (res['balance'] as num?)?.toInt();
       setState(() => _balance = balance);
     } catch (_) {
-      // 미소속·네트워크 실패 → 행 미표시 (조용히 숨김)
+      // 미소속·네트워크 실패 → 숫자는 '--' 로 남는다. 카드는 자리를 지킨다
+      // (§레이아웃 안정성 — 없어졌다 생기는 쪽이 더 나쁘다).
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final balance = _balance;
-    if (balance == null) return const SizedBox.shrink();
     return Padding(
+      key: MyPageScreen.kPoints,
       padding: const EdgeInsets.only(bottom: HyphenTokens.sp3),
       child: HkCard(
         padding: const EdgeInsets.symmetric(
@@ -1008,7 +1112,7 @@ class _PointsBalanceRowState extends State<_PointsBalanceRow> {
           children: [
             const Expanded(child: HkSectionLabel('포인트')),
             Text(
-              '$balance P',
+              balance == null ? '-- P' : '$balance P',
               style: HyphenTokens.h3.copyWith(color: HyphenTokens.primary),
             ),
           ],

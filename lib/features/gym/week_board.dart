@@ -30,6 +30,16 @@ class WeekBoard extends StatefulWidget {
 
   const WeekBoard({super.key, required this.gymState});
 
+  /// 레이아웃 안정성 앵커 (v3.34 · 2026-08-27) — 어느 날을 펼쳐도 그 아래
+  /// 요일 줄은 제자리에 있어야 한다 (0=월 … 6=일).
+  /// 회귀 게이트 = test/golden/stability_wod_test.dart.
+  static Key dayKey(int index) => ValueKey('week-day-$index');
+
+  /// 펼친 날의 '수업 시간' 구역이 미리 잡아 두는 자리 (공간 예약).
+  /// 값 = 수업 한 줄(ClassLine)의 실측 높이 — 로딩 스켈레톤·'없음' 문구·수업
+  /// 줄이 이 자리를 함께 쓴다 (DESIGN-SSOT §레이아웃 안정성).
+  static const double classSlotH = 56;
+
   @override
   State<WeekBoard> createState() => _WeekBoardState();
 }
@@ -162,6 +172,7 @@ class _WeekBoardState extends State<WeekBoard> {
             children: [
               for (var i = 0; i < 7; i++)
                 _DayTile(
+                  key: WeekBoard.dayKey(i),
                   date: _weekStart.add(Duration(days: i)),
                   weekdayLabel: _wk[i],
                   isToday: _weekStart.add(Duration(days: i)) == _today,
@@ -278,6 +289,7 @@ class _DayTile extends StatelessWidget {
   final VoidCallback onRetryClasses;
 
   const _DayTile({
+    super.key,
     required this.date,
     required this.weekdayLabel,
     required this.isToday,
@@ -448,37 +460,37 @@ class _DayTile extends StatelessWidget {
     );
   }
 
+  /// v3.34 (2026-08-27): 요일을 펼치면 스피너 자리(46) → 수업 목록으로 높이가
+  /// 바뀌며 그 아래 요일 줄들이 밀렸다. 이제 로딩·없음·목록이 같은 예약 자리를
+  /// 쓴다 (HkSectionSlot — DESIGN-SSOT §레이아웃 안정성).
+  /// `_loadClasses(keepPrevious: true)` 가 재조회 깜빡임을 막아 둔 것과 같은 뜻 —
+  /// 화면이 바뀌는 것은 내용이지 자리가 아니다.
   Widget _classBlock() {
-    if (classesError) {
-      return Padding(
-        padding: const EdgeInsets.only(top: HyphenTokens.sp2),
-        child: HkInlineError('수업 불러오기 실패.', onRetry: onRetryClasses),
-      );
-    }
-    if (classesLoading) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: HyphenTokens.sp3),
-        child: HkLoading(),
-      );
-    }
-    if (classes.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.only(top: HyphenTokens.sp1),
-        child: Text('등록된 수업 없음.', style: HyphenTokens.caption),
-      );
-    }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        for (final c in classes)
-          ClassLine.member(
-            session: c,
-            isPastDay: _isPast,
-            membershipOk: membershipOk,
-            onReserve: () => onReserve(c),
-            onCancel: () => onCancel(c),
-          ),
-      ],
+    final Widget? content = classesError
+        ? HkInlineError('수업 불러오기 실패.', onRetry: onRetryClasses)
+        : (classes.isEmpty
+              ? null
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (final c in classes)
+                      ClassLine.member(
+                        session: c,
+                        isPastDay: _isPast,
+                        membershipOk: membershipOk,
+                        onReserve: () => onReserve(c),
+                        onCancel: () => onCancel(c),
+                      ),
+                  ],
+                ));
+    return Padding(
+      padding: const EdgeInsets.only(top: HyphenTokens.sp1),
+      child: HkSectionSlot(
+        minHeight: WeekBoard.classSlotH,
+        loading: classesLoading && !classesError,
+        empty: '등록된 수업 없음.',
+        child: content,
+      ),
     );
   }
 }

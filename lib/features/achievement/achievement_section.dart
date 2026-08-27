@@ -11,10 +11,28 @@ import 'achievements_screen.dart';
 import 'hyphen_pictogram.dart';
 import '../../core/time_format.dart';
 
-/// 업적 섹션 — 최근 해금 최대 5줄 표 (v1.30: 색 타일 3열 그리드 → 한 줄 한 항목).
-/// 5개 초과 시 마지막 줄이 "그 외 N개" → 전체 보기.
+/// 업적 섹션 — 최근 해금 표 (v1.30: 색 타일 3열 그리드 → 한 줄 한 항목).
+/// 초과분은 마지막 줄이 "그 외 N개" → 전체 보기.
 /// Locked 항목은 이 섹션에서 제거 → AchievementsScreen 전용.
+///
+/// v3.34 (2026-08-27 · DESIGN-SSOT §레이아웃 안정성): **표 자리를 항상 지킨다.**
+/// 전엔 진입 직후 빈 상태 한 줄로 그려졌다가 업적이 도착하면 여러 줄 표로 커지며
+/// 아래(마일스톤·도전)를 통째로 밀어냈다. 이제 로딩·빈·데이터 세 상태가 모두
+/// [kBodyH] 만큼의 같은 자리를 차지하고, 로딩 중에는 그 자리에 스켈레톤
+/// ([HkSkeletonRow]) 을 깐다.
+///
+/// 자리를 [kRows] 줄로 못 박았으므로 **표시 줄 수도 같은 값으로 묶는다** — 그러지
+/// 않으면 해금이 늘어난 사람에게서 다시 밀림이 생긴다. 넘치는 개수는 종전대로
+/// 마지막 "그 외 N개" 줄이 받는다 (§7-A). 5줄이 아니라 3줄로 잡은 이유는, 예약한
+/// 자리는 업적이 하나도 없는 사람에게도 그대로 비어 있기 때문이다 — 다 보려면
+/// 헤더의 '전체 보기'.
 class AchievementSection extends StatelessWidget {
+  /// 상태와 무관하게 표가 지키는 줄 수.
+  static const int kRows = 3;
+
+  /// 예약 높이 — [kRows] 줄 + 그 사이 1px 구분선.
+  static const double kBodyH = kRows * HkSkeletonRow.rowH + (kRows - 1) * 1.0;
+
   const AchievementSection({super.key});
 
   void _showDetail(
@@ -46,6 +64,9 @@ class AchievementSection extends StatelessWidget {
     final snap = state.snapshot;
     final totalVisible = snap.visibleCount;
     final unlockedCount = snap.unlockedCount;
+    // 첫 로드가 끝나기 전 — 카탈로그 자체가 아직 없다. 이때만 스켈레톤을 깐다
+    // (이미 받아 둔 표를 새로고침할 때 회색으로 되돌리면 더 어지럽다).
+    final loading = state.isLoading && snap.catalog.isEmpty;
 
     // 최근 해금 순 정렬
     final unlockedList =
@@ -59,13 +80,11 @@ class AchievementSection extends StatelessWidget {
             return ub.compareTo(ua);
           });
 
-    // 5줄 고정: 초과분은 마지막 "그 외 N개" 줄로 접는다.
-    const int kMax = 5;
-    final bool hasOverflow = unlockedList.length > kMax;
-    final displayItems = hasOverflow
-        ? unlockedList.take(kMax).toList()
-        : unlockedList;
-    final overflowCount = unlockedCount - kMax;
+    // 예약한 자리(kRows 줄)를 넘지 않게 자른다. 넘치면 마지막 줄이 "그 외 N개".
+    final bool hasOverflow = unlockedList.length > kRows;
+    final int shown = hasOverflow ? kRows - 1 : unlockedList.length;
+    final displayItems = unlockedList.take(shown).toList();
+    final overflowCount = unlockedCount - shown;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -81,38 +100,58 @@ class AchievementSection extends StatelessWidget {
         ),
         const SizedBox(height: HyphenTokens.sp2),
 
-        if (unlockedList.isEmpty)
-          // 빈 상태 — 아직 해금 없음
-          _EmptyState(onTap: () => _goAll(context))
-        else
-          HkRowCard(
-            rows: [
-              for (final c in displayItems)
-                HkListRow(
-                  leadingWidget: AchievementBadge(
-                    code: c.code,
-                    rarity: c.rarity,
-                    icon: c.icon,
-                    size: 32,
-                    locked: snap.unlocked[c.code] == null,
-                    hidden: c.isHidden && snap.unlocked[c.code] == null,
-                  ),
-                  title: _rowTitle(c),
-                  subtitle: c.description,
-                  trailing: RarityPalette.of(c.rarity).ko,
-                  trailingColor: RarityPalette.of(c.rarity).light,
-                  onTap: () => _showDetail(context, c, snap.unlocked[c.code]),
-                ),
-              if (hasOverflow)
-                HkListRow(
-                  icon: Icons.more_horiz,
-                  title: '그 외 $overflowCount개',
-                  trailing: '전체 보기',
-                  trailingColor: HyphenTokens.accent,
-                  onTap: () => _goAll(context),
+        // 예약된 자리 — 세 상태가 같은 높이를 쓴다. minHeight 로 잡아 두어
+        // 글자 크기를 키운 기기에서도 넘치지 않고 늘어나기만 한다.
+        ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: kBodyH),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (loading)
+                const HkRowCard(
+                  rows: [
+                    HkSkeletonRow(leading: true),
+                    HkSkeletonRow(leading: true),
+                    HkSkeletonRow(leading: true),
+                  ],
+                )
+              else if (unlockedList.isEmpty)
+                // 빈 상태 — 아직 해금 없음. 예약한 자리를 그대로 채운다.
+                _EmptyState(onTap: () => _goAll(context))
+              else
+                HkRowCard(
+                  rows: [
+                    for (final c in displayItems)
+                      HkListRow(
+                        leadingWidget: AchievementBadge(
+                          code: c.code,
+                          rarity: c.rarity,
+                          icon: c.icon,
+                          size: 32,
+                          locked: snap.unlocked[c.code] == null,
+                          hidden: c.isHidden && snap.unlocked[c.code] == null,
+                        ),
+                        title: _rowTitle(c),
+                        subtitle: c.description,
+                        trailing: RarityPalette.of(c.rarity).ko,
+                        trailingColor: RarityPalette.of(c.rarity).light,
+                        onTap: () =>
+                            _showDetail(context, c, snap.unlocked[c.code]),
+                      ),
+                    if (hasOverflow)
+                      HkListRow(
+                        icon: Icons.more_horiz,
+                        title: '그 외 $overflowCount개',
+                        trailing: '전체 보기',
+                        trailingColor: HyphenTokens.accent,
+                        onTap: () => _goAll(context),
+                      ),
+                  ],
                 ),
             ],
           ),
+        ),
       ],
     );
   }
@@ -126,6 +165,8 @@ class AchievementSection extends StatelessWidget {
 
 // ─── 빈 상태 ─────────────────────────────────────────────────────────────────
 
+/// 빈 상태 — 예약한 자리([AchievementSection.kBodyH])를 그대로 채운다.
+/// 한 줄짜리 상자를 위에 붙이고 아래를 비워 두면 "덜 그려진 화면"으로 읽힌다.
 class _EmptyState extends StatelessWidget {
   final VoidCallback onTap;
   const _EmptyState({required this.onTap});
@@ -134,9 +175,8 @@ class _EmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      // v2.5 (2026-08-12 사용자 지시): 아이콘 + 두 줄 세로 스택이 120 을 먹었다.
-      // 한 줄로 눕혀 절반 이하로 (내용은 그대로).
       child: Container(
+        height: AchievementSection.kBodyH,
         padding: const EdgeInsets.symmetric(
           vertical: HyphenTokens.sp2,
           horizontal: HyphenTokens.sp3,
@@ -145,21 +185,25 @@ class _EmptyState extends StatelessWidget {
           border: Border.all(color: HyphenTokens.border, width: 0.8),
           borderRadius: BorderRadius.circular(HyphenTokens.r2),
         ),
-        child: Row(
+        child: const Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.military_tech_outlined,
               size: 18,
               color: HyphenTokens.muted,
             ),
-            const SizedBox(width: HyphenTokens.sp2),
-            const Expanded(
-              child: Text(
-                '아직 업적 없음. 수업 기록을 저장하면 해금됩니다.',
-                style: HyphenTokens.caption,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
+            SizedBox(height: HyphenTokens.sp2),
+            Text(
+              '아직 업적 없음',
+              style: HyphenTokens.body,
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: HyphenTokens.sp1),
+            Text(
+              '수업 기록을 저장하면 해금됩니다.',
+              style: HyphenTokens.caption,
+              textAlign: TextAlign.center,
             ),
           ],
         ),

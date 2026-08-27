@@ -21,6 +21,10 @@ class BoxWodScreen extends StatefulWidget {
 
   const BoxWodScreen({super.key, this.embedded = false});
 
+  /// 레이아웃 안정성 앵커 (v3.34 · 2026-08-27) — 상단 실패 배너가 떠도 이
+  /// 아래 묶음이 밀리면 안 된다. 회귀 게이트 = test/golden/stability_wod_test.dart.
+  static const Key kGymInfo = Key('wod-tab-gym-info');
+
   @override
   State<BoxWodScreen> createState() => _BoxWodScreenState();
 }
@@ -127,17 +131,20 @@ class _WodListState extends State<_WodList> {
         padding: const EdgeInsets.all(HyphenTokens.sp3),
         children: [
           // 불러오기가 실패한 날에도 요일 줄은 그려진다 — 그대로 두면 '게시된
-          // WOD 없음' 으로 읽혀 코치가 안 올린 것처럼 보인다. 실패는 실패라고
-          // 먼저 말한다 (2026-08-12).
-          if (widget.gymState.error != null) ...[
-            HkInlineError(widget.gymState.error!, onRetry: refreshAll),
-            const SizedBox(height: HyphenTokens.sp2),
-          ],
+          // 수업 내용 없음' 으로 읽혀 코치가 안 올린 것처럼 보인다. 실패는
+          // 실패라고 먼저 말한다 (2026-08-12).
+          //
+          // v3.34 (2026-08-27): 그 배너가 `if (error != null)` 로 생겼다
+          // 사라지면서 주간 보드·체육관 정보·공지가 통째로 밀렸다 — 앱의 기본
+          // 진입 탭이라 체감이 가장 큰 자리다. 이제 자리를 항상 잡아 두고
+          // **내용만** 갈아 끼운다 (HkNoticeSlot — DESIGN-SSOT §레이아웃 안정성).
+          // 말하는 내용·재시도 동선은 그대로다.
+          HkNoticeSlot(widget.gymState.error, onRetry: refreshAll),
           WeekBoard(key: ValueKey('week-$_tick'), gymState: widget.gymState),
-          // 박스 정보·공지는 맨 아래 (자주 보는 것이 아니다 — 접힌 줄로 유지).
+          // 체육관 정보·공지는 맨 아래 (자주 보는 것이 아니다 — 접힌 줄로 유지).
           const SizedBox(height: HyphenTokens.sp3),
           const Divider(height: 1, color: HyphenTokens.border, thickness: 1),
-          _GymInfoAccordion(gym: gym),
+          _GymInfoAccordion(gym: gym, key: BoxWodScreen.kGymInfo),
           const _AnnouncementsAccordion(),
         ],
       ),
@@ -204,7 +211,7 @@ class _AnnouncementsAccordion extends StatelessWidget {
 /// (v1.26: Notice 탭은 Rehab 탭으로 전환 — 공지는 위 _AnnouncementsAccordion 참조.)
 class _GymInfoAccordion extends StatelessWidget {
   final GymSummary gym;
-  const _GymInfoAccordion({required this.gym});
+  const _GymInfoAccordion({super.key, required this.gym});
 
   @override
   Widget build(BuildContext context) {

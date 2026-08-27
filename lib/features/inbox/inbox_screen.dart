@@ -513,6 +513,20 @@ class MessagingScreen extends StatelessWidget {
 /// 공지 + 코치/회원 대화목록 + 작성 진입을 한 덩어리로 묶은 임베드 위젯.
 /// Scaffold 없이 스크롤 부모(ListView) 안에 들어가도록 자체 스크롤을 쓰지 않는다.
 class MessagingFeed extends StatelessWidget {
+  // ── 레이아웃 안정성 앵커·자리 (v3.33 · 2026-08-27) ─────────────────────────
+  // 회귀 게이트 = test/golden/stability_coach_inbox_test.dart.
+
+  /// 공지 배너가 들어올 **예약된 자리** (공간 예약 / space reservation).
+  static const Key kAnnouncementSlot = Key('inbox-announcement-slot');
+
+  /// 밀리면 안 되는 것 — 그 바로 아래 대화 목록.
+  static const Key kThreadList = Key('inbox-thread-list');
+
+  /// 공지 카드의 **가장 긴 경우** 높이 (위 여백 + 라벨 줄 + 제목 1줄 + 본문 2줄).
+  /// 공지가 없어도 이만큼은 자리를 지킨다 — 최초 로딩이 끝나거나 SSE 로 새 공지가
+  /// 들어와도 대화 목록이 통째로 내려가지 않는다.
+  static const double announcementSlotH = 118;
+
   const MessagingFeed({super.key});
 
   @override
@@ -550,12 +564,20 @@ class MessagingFeed extends StatelessWidget {
             child: Text('가입 승인 후 코치 쪽지·공지 사용 가능.', style: HyphenTokens.caption),
           )
         else ...[
-          Consumer<AnnouncementsState>(
-            builder: (ctx, ann, _) => ann.items.isEmpty
-                ? const SizedBox.shrink()
-                : _PinnedAnnouncement(announcements: ann.items),
+          // 공지 자리 — 공지가 있든 없든 높이가 같다. 전엔 최초 로딩이 끝나는
+          // 순간·SSE 로 새 공지가 도착하는 순간 없던 배너가 생겨, 바로 아래
+          // 대화 목록이 통째로 밀렸다 (DESIGN-SSOT §레이아웃 안정성).
+          HkReservedSlot(
+            key: MessagingFeed.kAnnouncementSlot,
+            minHeight: MessagingFeed.announcementSlotH,
+            child: Consumer<AnnouncementsState>(
+              builder: (ctx, ann, _) => ann.items.isEmpty
+                  ? const SizedBox.shrink()
+                  : _PinnedAnnouncement(announcements: ann.items),
+            ),
           ),
           _EmbeddedThreadList(
+            key: MessagingFeed.kThreadList,
             gymId: gymId,
             emptyHint: isCoach ? '회원 쪽지 도착 시 표시.' : '코치 쪽지 도착 시 표시.',
           ),
@@ -658,7 +680,11 @@ class _FeedAction extends StatelessWidget {
 class _EmbeddedThreadList extends StatefulWidget {
   final int gymId;
   final String emptyHint;
-  const _EmbeddedThreadList({required this.gymId, required this.emptyHint});
+  const _EmbeddedThreadList({
+    super.key,
+    required this.gymId,
+    required this.emptyHint,
+  });
 
   @override
   State<_EmbeddedThreadList> createState() => _EmbeddedThreadListState();

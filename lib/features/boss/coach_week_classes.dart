@@ -21,6 +21,24 @@ import 'class_roster_sheet.dart';
 /// 데이터는 코치 세션 API(`GET /admin/gyms/<id>/classes?from&to`) — 회원 API 의
 /// 기기 폴백에 기대지 않는다.
 class CoachWeekClasses extends StatefulWidget {
+  // ── 레이아웃 안정성 앵커·자리 (v3.33 · 2026-08-27) ─────────────────────────
+  // 상태가 바뀌어도 y 가 움직이면 안 되는 요소들. 회귀 게이트가 이 키로 잰다
+  // (test/golden/stability_coach_inbox_test.dart). 이름을 바꾸면 그 테스트도
+  // 같이 바꾼다 (글로벌 §0-B 이름 일원화).
+  static const Key kWeekHeader = Key('coach-week-header');
+
+  /// 요일 행 — i = 0(월) ~ 6(일).
+  static Key dayRow(int i) => ValueKey('coach-week-day-$i');
+
+  /// 펼친 날의 내용이 들어오는 **예약된 자리**.
+  static const Key kDaySlot = Key('coach-week-day-slot');
+
+  /// 그 자리의 최소 높이. 로딩 스피너·'등록된 수업 없음'·수업 한 줄이 전부 같은
+  /// 높이가 되도록 **가장 긴 경우**로 잡았다 — 첫 진입에서 로딩이 명단으로
+  /// 바뀌는 순간 아래 요일 행이 밀리던 것을 막는다. 수업이 여럿이면 그만큼
+  /// 늘어난다 (명단 길이는 상태가 아니라 내용이다).
+  static const double daySlotMinH = 72;
+
   final int gymId;
 
   /// 명단에서 출석을 바꾼 채 시트가 닫혔을 때 — 대시보드 카운터 재조회.
@@ -138,6 +156,7 @@ class _CoachWeekClassesState extends State<CoachWeekClasses> {
               children: [
                 for (var i = 0; i < 7; i++)
                   _CoachDayRow(
+                    key: CoachWeekClasses.dayRow(i),
                     date: _weekStart.add(Duration(days: i)),
                     weekdayLabel: _wk[i],
                     isToday: _weekStart.add(Duration(days: i)) == _today,
@@ -166,6 +185,7 @@ class _CoachWeekClassesState extends State<CoachWeekClasses> {
         _today.isBefore(_weekStart.add(const Duration(days: 7)));
     String md(DateTime d) => '${d.month}.${d.day}';
     return Row(
+      key: CoachWeekClasses.kWeekHeader,
       children: [
         IconButton(
           onPressed: () => _shiftWeek(-1),
@@ -224,6 +244,7 @@ class _CoachDayRow extends StatelessWidget {
   final Future<void> Function(ClassSessionDto) onOpenRoster;
 
   const _CoachDayRow({
+    super.key,
     required this.date,
     required this.weekdayLabel,
     required this.isToday,
@@ -312,41 +333,53 @@ class _CoachDayRow extends StatelessWidget {
               ),
             ),
           ),
+          // 펼침 자리 — **미리 잡아 둔 자리**(공간 예약 / space reservation).
+          // 전엔 로딩 스피너와 명단·'수업 없음' 의 높이가 달라, 첫 응답이 도착하는
+          // 순간 아래 요일 행이 최대 6줄까지 통째로 밀렸다. 기본 선택이 '오늘'
+          // 이라 코치가 화면에 들어갈 때마다 겪던 밀림이다.
+          // 이제 로딩·수업 한 줄·빈 명단이 같은 높이다 (DESIGN-SSOT §레이아웃 안정성).
+          // 수업이 여럿이면 그만큼 늘어난다 — 명단 길이는 상태가 아니라 내용이다.
           if (isSelected)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                HyphenTokens.sp3,
-                0,
-                HyphenTokens.sp3,
-                HyphenTokens.sp2,
+            HkReservedSlot(
+              key: CoachWeekClasses.kDaySlot,
+              minHeight: CoachWeekClasses.daySlotMinH,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  HyphenTokens.sp3,
+                  0,
+                  HyphenTokens.sp3,
+                  HyphenTokens.sp2,
+                ),
+                child: loading
+                    ? const HkLoading()
+                    : classes.isEmpty
+                    ? const Padding(
+                        padding: EdgeInsets.only(top: HyphenTokens.sp1),
+                        child: Text(
+                          '등록된 수업 없음.',
+                          style: HyphenTokens.caption,
+                        ),
+                      )
+                    : Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          for (final c in classes)
+                            ClassLine.coach(
+                              timeLabel: hhmm(c.startAt.toLocal()),
+                              title: c.title,
+                              subtitle: [
+                                if ((c.room ?? '').isNotEmpty) c.room!,
+                                if (c.waitlistCount > 0)
+                                  '대기 ${c.waitlistCount}',
+                              ].join(' · '),
+                              reserved: c.reservedCount,
+                              capacity: c.capacity,
+                              onTap: () => onOpenRoster(c),
+                            ),
+                        ],
+                      ),
               ),
-              child: loading
-                  ? const Padding(
-                      padding: EdgeInsets.symmetric(vertical: HyphenTokens.sp3),
-                      child: HkLoading(),
-                    )
-                  : classes.isEmpty
-                  ? const Padding(
-                      padding: EdgeInsets.only(top: HyphenTokens.sp1),
-                      child: Text('등록된 수업 없음.', style: HyphenTokens.caption),
-                    )
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        for (final c in classes)
-                          ClassLine.coach(
-                            timeLabel: hhmm(c.startAt.toLocal()),
-                            title: c.title,
-                            subtitle: [
-                              if ((c.room ?? '').isNotEmpty) c.room!,
-                              if (c.waitlistCount > 0) '대기 ${c.waitlistCount}',
-                            ].join(' · '),
-                            reserved: c.reservedCount,
-                            capacity: c.capacity,
-                            onTap: () => onOpenRoster(c),
-                          ),
-                      ],
-                    ),
             ),
         ],
       ),

@@ -23,6 +23,27 @@ class WodDetailScreen extends StatefulWidget {
   final GymWodPost wod;
   const WodDetailScreen({super.key, required this.wod});
 
+  // ── 레이아웃 안정성 앵커 (v3.34 · 2026-08-27) ──────────────────────────────
+  // 네 구역이 각자 다른 시점에 도착해도 y 가 움직이면 안 되는 요소들.
+  // 회귀 게이트가 이 키로 잰다 (test/golden/stability_wod_test.dart).
+  // 이름을 바꾸면 그 테스트도 같이 바꾼다 (글로벌 §0-B 이름 일원화).
+  static const Key kFeedbackLabel = Key('wod-detail-feedback-label');
+  static const Key kLeaderboardLabel = Key('wod-detail-leaderboard-label');
+  static const Key kHistoryLabel = Key('wod-detail-history-label');
+  static const Key kCommentsLabel = Key('wod-detail-comments-label');
+  static const Key kCommentInput = Key('wod-detail-comment-input');
+
+  // ── 구역별 예약 높이 (공간 예약 — DESIGN-SSOT §레이아웃 안정성) ─────────────
+  // 값 = 그 구역 **한 줄**의 실측 높이. 로딩 스켈레톤·'없음' 문구·내용이 이
+  // 자리를 함께 쓴다. 한 줄로 잡은 이유: 넷을 두 줄씩 잡으면 다 비었을 때
+  // 화면 절반이 빈 칸이 된다 (스켈레톤은 내용보다 커지면 안 된다).
+  // 두 줄 이상 도착하는 구역은 그만큼 한 번 늘어난다 — 순차 도착 밀림(넷)이
+  // 한 번으로 줄어드는 것이 이 예약의 목적이다.
+  static const double slotFeedbackH = 76;
+  static const double slotLeaderboardH = 62;
+  static const double slotHistoryH = 46;
+  static const double slotCommentsH = 70;
+
   @override
   State<WodDetailScreen> createState() => _WodDetailScreenState();
 }
@@ -351,44 +372,64 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
             const SizedBox(height: HyphenTokens.sp5),
 
             // v1.16 Sprint 17: 코치 피드백.
-            const HkSectionLabel('코치 피드백'),
+            //
+            // 네 구역(피드백·리더보드·내 이전 기록·댓글)은 _reload() 에서 동시에
+            // 나가지만 도착은 제각각이다. 전에는 도착할 때마다 그 아래가 밀렸고,
+            // 피드백·이전 기록은 로딩 중에도 '없음' 을 먼저 보여 준 뒤 내용이
+            // 튀어나왔다 — 아직 모르는 것과 없는 것을 같은 화면으로 그린 탓이다.
+            // 이제 셋(로딩·없음·내용)이 HkSectionSlot 한 자리를 쓴다
+            // (DESIGN-SSOT §레이아웃 안정성). 부르는 것·시점은 그대로다.
+            const HkSectionLabel(
+              '코치 피드백',
+              key: WodDetailScreen.kFeedbackLabel,
+            ),
             const SizedBox(height: HyphenTokens.sp2),
             FutureBuilder<List<CoachFeedback>>(
               future: _feedbackFuture,
               builder: (ctx, snap) {
                 final list = snap.data ?? const <CoachFeedback>[];
-                if (list.isEmpty) {
-                  return const Text('아직 피드백 없음.', style: HyphenTokens.caption);
-                }
-                return Column(
-                  children: list.map((f) => _FeedbackCard(fb: f)).toList(),
+                return HkSectionSlot(
+                  minHeight: WodDetailScreen.slotFeedbackH,
+                  loading: snap.connectionState != ConnectionState.done,
+                  empty: snap.hasError ? '피드백 불러오기 실패.' : '아직 피드백 없음.',
+                  child: list.isEmpty
+                      ? null
+                      : Column(
+                          children: list
+                              .map((f) => _FeedbackCard(fb: f))
+                              .toList(),
+                        ),
                 );
               },
             ),
             const SizedBox(height: HyphenTokens.sp5),
 
             // Leaderboard
-            const HkSectionLabel('리더보드'),
+            const HkSectionLabel(
+              '리더보드',
+              key: WodDetailScreen.kLeaderboardLabel,
+            ),
             const SizedBox(height: HyphenTokens.sp2),
             FutureBuilder<List<GymWodResult>>(
               future: _resultsFuture,
               builder: (ctx, snap) {
                 final list = snap.data ?? const <GymWodResult>[];
-                if (snap.connectionState != ConnectionState.done) {
-                  return const Padding(
-                    padding: EdgeInsets.all(HyphenTokens.sp3),
-                    child: HkLoading(),
-                  );
-                }
-                // QA (2026-06-11): V9 해소 — 영문 헤드 + 한글 캡션 수직 스택 (V10).
-                if (list.isEmpty) {
-                  return const HkEmptyState(
-                    title: '아직 기록 없음',
-                    caption: '타이머 완료 시 첫 기록 자동 제출.',
-                  );
-                }
-                return Column(
-                  children: list.map((r) => _ResultRow(result: r)).toList(),
+                // 구 HkEmptyState(가운데 정렬 2줄, sp5 패딩)는 다른 세 구역의
+                // '없음' 한 줄보다 훨씬 커서 이 구역만 자리가 달랐다 — 네 구역
+                // 모두 같은 한 줄 문구로 맞춘다 (문구 뜻은 그대로).
+                return HkSectionSlot(
+                  minHeight: WodDetailScreen.slotLeaderboardH,
+                  loading: snap.connectionState != ConnectionState.done,
+                  empty: snap.hasError
+                      ? '기록 불러오기 실패.'
+                      : '아직 기록 없음. 타이머 완료 시 첫 기록 자동 제출.',
+                  child: list.isEmpty
+                      ? null
+                      : Column(
+                          children: list
+                              .map((r) => _ResultRow(result: r))
+                              .toList(),
+                        ),
                 );
               },
             ),
@@ -396,48 +437,57 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
 
             // Q3 (v3.4 승인): 같은 수업(벤치마크·리프트)의 내 과거 기록 —
             // "전과 비교해 발전했는가"를 저장 순간 스낵바 밖에서도 보여준다.
-            const HkSectionLabel('내 이전 기록'),
+            const HkSectionLabel(
+              '내 이전 기록',
+              key: WodDetailScreen.kHistoryLabel,
+            ),
             const SizedBox(height: HyphenTokens.sp2),
             FutureBuilder<({String kind, List<WodMyHistoryItem> items})>(
               future: _historyFuture,
               builder: (ctx, snap) {
                 final items = snap.data?.items ?? const <WodMyHistoryItem>[];
-                if (items.isEmpty) {
-                  return const Text(
-                    '같은 수업의 기록이 아직 없습니다.',
-                    style: HyphenTokens.caption,
-                  );
-                }
-                return Column(
-                  children: [for (final it in items) _HistoryRow(item: it)],
+                return HkSectionSlot(
+                  minHeight: WodDetailScreen.slotHistoryH,
+                  loading: snap.connectionState != ConnectionState.done,
+                  empty: snap.hasError
+                      ? '기록 불러오기 실패.'
+                      : '같은 수업의 기록이 아직 없습니다.',
+                  child: items.isEmpty
+                      ? null
+                      : Column(
+                          children: [
+                            for (final it in items) _HistoryRow(item: it),
+                          ],
+                        ),
                 );
               },
             ),
             const SizedBox(height: HyphenTokens.sp5),
 
             // Comments
-            const HkSectionLabel('댓글'),
+            const HkSectionLabel('댓글', key: WodDetailScreen.kCommentsLabel),
             const SizedBox(height: HyphenTokens.sp2),
             FutureBuilder<List<GymWodComment>>(
               future: _commentsFuture,
               builder: (ctx, snap) {
                 final list = snap.data ?? const <GymWodComment>[];
-                if (snap.connectionState != ConnectionState.done) {
-                  return const Padding(
-                    padding: EdgeInsets.all(HyphenTokens.sp3),
-                    child: HkLoading(),
-                  );
-                }
-                if (list.isEmpty) {
-                  return const Text('첫 댓글 작성.', style: HyphenTokens.caption);
-                }
-                return Column(
-                  children: list.map((c) => _CommentRow(comment: c)).toList(),
+                return HkSectionSlot(
+                  minHeight: WodDetailScreen.slotCommentsH,
+                  loading: snap.connectionState != ConnectionState.done,
+                  empty: snap.hasError ? '댓글 불러오기 실패.' : '첫 댓글 작성.',
+                  child: list.isEmpty
+                      ? null
+                      : Column(
+                          children: list
+                              .map((c) => _CommentRow(comment: c))
+                              .toList(),
+                        ),
                 );
               },
             ),
             const SizedBox(height: HyphenTokens.sp3),
             Row(
+              key: WodDetailScreen.kCommentInput,
               children: [
                 Expanded(
                   child: TextField(

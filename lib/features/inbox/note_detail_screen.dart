@@ -20,6 +20,22 @@ import 'inbox_repository.dart';
 import 'inbox_state.dart';
 
 class NoteDetailScreen extends StatefulWidget {
+  // ── 레이아웃 안정성 앵커·자리 (v3.33 · 2026-08-27) ─────────────────────────
+  // 회귀 게이트 = test/golden/stability_coach_inbox_test.dart.
+
+  /// 수락·완료·거절로 내용이 갈리는 **예약된 자리**.
+  static const Key kActions = Key('note-actions');
+
+  /// 밀리면 안 되는 것 — 그 아래 수신자 목록.
+  static const Key kRecipients = Key('note-recipients');
+
+  /// 처방(assignment) 액션의 가장 긴 경우 — 버튼 3줄 + 사이 여백 2칸.
+  static const double actionSlotTripleH =
+      HyphenTokens.buttonHCompact * 3 + HyphenTokens.sp2 * 2;
+
+  /// 일반 쪽지 액션의 가장 긴 경우 — 버튼 1줄.
+  static const double actionSlotSingleH = HyphenTokens.buttonHCompact;
+
   final int noteId;
   const NoteDetailScreen({super.key, required this.noteId});
 
@@ -607,18 +623,42 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
             Text(n.my!.declineReason!, style: HyphenTokens.body),
           ],
           const SizedBox(height: HyphenTokens.sp5),
-          if (n.my != null) _buildActions(n),
-          if (n.recipients.isNotEmpty) _RecipientsList(items: n.recipients),
+          // 액션 자리 — 수락·완료·거절로 내용이 버튼 묶음 ↔ 상태 박스로 바뀌어도
+          // 아래 수신자 목록이 밀리지 않게 높이를 먼저 잡아 둔다
+          // (DESIGN-SSOT §레이아웃 안정성).
+          if (n.my != null)
+            HkReservedSlot(
+              key: NoteDetailScreen.kActions,
+              minHeight: _actionSlotH(n),
+              child: _buildActions(n),
+            ),
+          if (n.recipients.isNotEmpty)
+            _RecipientsList(
+              key: NoteDetailScreen.kRecipients,
+              items: n.recipients,
+            ),
         ],
       ),
     );
   }
 
+  /// 액션 자리의 최소 높이 — 이 쪽지가 가질 수 있는 **가장 긴 경우**.
+  /// 종류(kind)는 쪽지 일생 동안 바뀌지 않으므로 상태가 어떻게 바뀌어도 이 값은
+  /// 그대로다. 자동 칭찬 쪽지는 액션이 영영 없어 자리도 잡지 않는다.
+  double _actionSlotH(CoachNote n) {
+    if (n.kind == 'note') {
+      return n.isAuto ? 0 : NoteDetailScreen.actionSlotSingleH;
+    }
+    return NoteDetailScreen.actionSlotTripleH;
+  }
+
   Widget _buildActions(CoachNote n) {
     final status = n.my!.status;
     if (status == 'completed' || status == 'declined') {
+      // 예약된 자리를 그대로 채운다 — 버튼이 사라진 만큼 빈 구멍을 남기지 않는다.
       return Container(
         width: double.infinity,
+        alignment: Alignment.center,
         padding: const EdgeInsets.all(HyphenTokens.sp3),
         decoration: BoxDecoration(
           border: Border.all(
@@ -683,7 +723,7 @@ class _ActualCtrls {
 
 class _RecipientsList extends StatelessWidget {
   final List<RecipientSummary> items;
-  const _RecipientsList({required this.items});
+  const _RecipientsList({super.key, required this.items});
 
   @override
   Widget build(BuildContext context) {
