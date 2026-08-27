@@ -1,0 +1,141 @@
+# iOS 빌드 — 이 PC(Windows) 에는 Xcode 가 없으므로 GitHub 의 macOS 러너로 대신 컴파일한다.
+# 저장소가 public 이라 macOS 러너 분수가 무료다 (2026-08-28 App Store 준비).
+#
+# job 1 `compile`  — 서명 없이 컴파일만. Apple 계정 없이도 돌아간다 → "iOS 프로젝트가 깨지지 않았다" 회귀 게이트.
+# job 2 `testflight` — 수동 실행(workflow_dispatch) 전용. App Store Connect API 키 4개가 Secrets 에 있어야 한다:
+#   ASC_KEY_ID · ASC_ISSUER_ID · ASC_KEY_P8_BASE64 (AuthKey_XXXX.p8 를 base64 한 값) · APPLE_TEAM_ID
+#   Xcode 클라우드 서명(-allowProvisioningUpdates + API 키)으로 인증서·프로파일을 자동 발급받아
+#   archive → App Store 용 ipa export → TestFlight 업로드(fastlane pilot) 까지 한 번에 간다.
+#   절차 정본 = docs/APPSTORE.md §B.
+name: ios
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'lib/**'
+      - 'ios/**'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - 'assets/**'
+      - '.github/workflows/ios.yml'
+  workflow_dispatch:
+    inputs:
+      upload_testflight:
+        description: 'TestFlight 업로드 (Secrets 4개 필요)'
+        type: boolean
+        default: false
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: '3.41.7'
+
+jobs:
+  compile:
+    name: compile (no codesign)
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter --version
+      - run: flutter pub get
+      - name: build iOS (release, no codesign)
+        run: flutter build ios --release --no-codesign --dart-define=API_BASE_URL=https://service-facing-production.up.railway.app
+      - name: bundle sanity
+        run: |
+          APP=build/ios/iphoneos/Runner.app
+          test -d "$APP"
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleDisplayName' "$APP/Info.plist"
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP/Info.plist"
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP/Info.plist"
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP/Info.plist"
+          # 운영 URL 이 실제로 박혔는지 (Android 검증과 같은 기준)
+          grep -c "service-facing-production.up.railway.app" "$APP/Frameworks/App.framework/App" || (echo "API_BASE_URL 미주입" && exit 1)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Runner.app-unsigned
+          path: build/ios/iphoneos/Runner.app
+          retention-days: 7
+
+  testflight:
+    name: archive + TestFlight
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.upload_testflight }}
+    needs: compile
+    runs-on: macos-15
+    timeout-minutes: 60
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - name: check secrets
+        run: |
+          for v in ASC_KEY_ID ASC_ISSUER_ID APPLE_TEAM_ID; do
+            [ -n "${!v}" ] || { echo "Secret $v 비어 있음 — docs/APPSTORE.md §B"; exit 1; }
+          done
+          [ -n "${{ secrets.ASC_KEY_P8_BASE64 }}" ] || { echo "Secret ASC_KEY_P8_BASE64 비어 있음"; exit 1; }
+      - name: write API key
+        run: |
+          mkdir -p ~/.private_keys
+          echo "${{ secrets.ASC_KEY_P8_BASE64 }}" | base64 --decode > ~/.private_keys/AuthKey_${ASC_KEY_ID}.p8
+          echo "KEY_PATH=$HOME/.private_keys/AuthKey_${ASC_KEY_ID}.p8" >> "$GITHUB_ENV"
+      - run: flutter pub get
+      - name: flutter build ios (no codesign, prepares pods + Generated.xcconfig)
+        run: flutter build ios --release --no-codesign --dart-define=API_BASE_URL=https://service-facing-production.up.railway.app
+      - name: xcodebuild archive (cloud signing)
+        run: |
+          xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath build/ios/Runner.xcarchive archive \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$KEY_PATH" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CODE_SIGN_STYLE=Automatic
+      - name: export ipa (app-store-connect)
+        run: |
+          cat > build/ios/ExportOptions.plist <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>teamID</key><string>${APPLE_TEAM_ID}</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>uploadSymbols</key><true/>
+            <key>destination</key><string>export</string>
+          </dict></plist>
+          EOF
+          xcodebuild -exportArchive -archivePath build/ios/Runner.xcarchive \
+            -exportOptionsPlist build/ios/ExportOptions.plist \
+            -exportPath build/ios/ipa \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$KEY_PATH" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+          ls -la build/ios/ipa
+      - name: upload to TestFlight (fastlane pilot)
+        run: |
+          IPA=$(ls build/ios/ipa/*.ipa | head -1)
+          fastlane pilot upload --ipa "$IPA" \
+            --api_key_path <(printf '{"key_id":"%s","issuer_id":"%s","key":"%s","in_house":false}' \
+              "$ASC_KEY_ID" "$ASC_ISSUER_ID" "$(sed 's/$/\\n/' "$KEY_PATH" | tr -d '\n')") \
+            --skip_waiting_for_build_processing true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hyphen-ipa
+          path: build/ios/ipa/*.ipa
+          retention-days: 14

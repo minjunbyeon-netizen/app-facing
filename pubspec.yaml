@@ -4,7 +4,7 @@ publish_to: 'none'
 # H-3 (2026-06-10): 론칭 버전. versionCode 3001 (구 0.1.17+3000 에서 단조 증가 유지).
 # 3002 (2026-08-13): 가입 코드 폐기 · 없는 기능 광고 제거 · 전화번호 자동 하이픈 반영.
 # 3004 (2026-08-13): 승인 전 앱 전체 차단 + 가입 신청서 확대(경력·종목·부상 이력).
-version: 1.0.0+3008
+version: 1.0.0+3009
 
 environment:
   sdk: ^3.11.5
@@ -34,9 +34,6 @@ dependencies:
   url_launcher: ^6.3.1
   # D26 소셜 로그인 (네이버·구글). 토큰은 백엔드 /api/v1/auth/social 서버검증.
   # 활성화: --dart-define=USE_REAL_AUTH=true (미지정 시 StubSocialAuthService).
-  # naver_login_sdk: 유지보수되는 패키지(키는 Dart initialize 로 주입 — 안드로이드 설정 0).
-  google_sign_in: ^6.2.1
-  naver_login_sdk: ^3.2.1
   # PHASE5: 사장 폰 로그인 — 쿠키 세션 관리 + 보안 토큰 저장
   dio_cookie_manager: ^3.1.1
   cookie_jar: ^4.0.8

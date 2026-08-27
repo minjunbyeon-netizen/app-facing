@@ -32,7 +32,15 @@ class NotificationService {
     if (_initialized) return;
     const androidInit =
         AndroidInitializationSettings('@mipmap/ic_launcher');
-    const initSettings = InitializationSettings(android: androidInit);
+    // iOS (2026-08-28 App Store 준비) — 권한은 requestPermission 에서 한 번에
+    // 묻는다 (초기화 시점 자동 팝업 금지: Apple 심사는 맥락 없는 권한 팝업을 지적).
+    const iosInit = DarwinInitializationSettings(
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
+    );
+    const initSettings =
+        InitializationSettings(android: androidInit, iOS: iosInit);
     await _plugin.initialize(initSettings);
 
     // Android 8+ 알림 채널 생성 (한 번만 — 시스템이 중복 무시).
@@ -63,17 +71,18 @@ class NotificationService {
     debugPrint('[NOTIF] initialized');
   }
 
-  /// 권한 요청. Android 13 이상에서만 dialog 띄움, 그 이하는 자동 grant.
+  /// 권한 요청. Android 13 이상·iOS 에서 dialog 띄움, 그 이하 Android 는 자동 grant.
   /// 거부되어도 앱 동작은 막지 않음 — 사용자가 나중에 설정에서 켤 수 있음.
+  /// (iOS 는 Podfile `PERMISSION_NOTIFICATIONS=1` 매크로가 켜져 있어야 실제 팝업이 뜬다.)
   Future<bool> requestPermission() async {
-    if (!Platform.isAndroid) return false;
+    if (!(Platform.isAndroid || Platform.isIOS)) return false;
     final status = await Permission.notification.request();
     debugPrint('[NOTIF] permission=$status');
     return status.isGranted;
   }
 
   Future<bool> isPermissionGranted() async {
-    if (!Platform.isAndroid) return false;
+    if (!(Platform.isAndroid || Platform.isIOS)) return false;
     return Permission.notification.isGranted;
   }
 
@@ -102,11 +111,17 @@ class NotificationService {
       styleInformation: BigTextStyleInformation(spec.body),
     );
 
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: false,
+      presentSound: true,
+    );
+
     await _plugin.show(
       spec.id,
       spec.title,
       spec.body,
-      NotificationDetails(android: androidDetails),
+      NotificationDetails(android: androidDetails, iOS: iosDetails),
       payload: eventType,
     );
     debugPrint('[NOTIF] show id=${spec.id} title=${spec.title}');
