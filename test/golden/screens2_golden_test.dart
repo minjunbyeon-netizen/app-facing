@@ -6,8 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:hyphen_app/core/quotes.dart';
 import 'package:hyphen_app/features/achievement/achievements_screen.dart';
-import 'package:hyphen_app/features/auth/auth_state.dart';
-import 'package:hyphen_app/features/auth/login_screen.dart';
 import 'package:hyphen_app/features/gym/box_wod_screen.dart';
 import 'package:hyphen_app/features/contracts/member_contracts_screen.dart';
 import 'package:hyphen_app/features/gym/gym_repository.dart';
@@ -17,12 +15,12 @@ import 'package:hyphen_app/features/mypage/edit_profile_screen.dart';
 import 'package:hyphen_app/features/mypage/strength_board_screen.dart';
 import 'package:hyphen_app/features/mypage/privacy_screen.dart';
 import 'package:hyphen_app/features/mypage/terms_screen.dart';
-import 'package:hyphen_app/features/profile/profile_state.dart';
 import 'package:hyphen_app/features/shell/coach_shell.dart';
 import 'package:hyphen_app/features/shell/main_shell.dart';
 
 import 'fakes.dart';
 import 'harness.dart';
+import 'login_states.dart';
 import 'screens_golden_test.dart' show rxProfile, signedInAuth, signedInPrefs;
 
 /// 전 화면 골든 2부 — 2026-08-19 "선택 가능한 모든 화면" 확장 (사용자 지시).
@@ -368,16 +366,8 @@ void main() {
   // 로고 없음 + 제목 '로그인' + 역할 선택 없음이 이 캡처의 요점.
   testWidgets('common: login', (tester) async {
     phone(tester);
-    SharedPreferences.setMockInitialValues({});
-    final api = FakeApi(memberWorld());
-    await tester.pumpWidget(
-      harness(
-        api: api,
-        auth: AuthState(),
-        profile: ProfileState(),
-        home: const LoginScreen(),
-      ),
-    );
+    // 절차 정본 = login_states.dart (골든·y 좌표 검사 공용).
+    await loginDefault(tester);
     await capture(tester, 'common_08_login');
   });
 

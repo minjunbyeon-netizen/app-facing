@@ -157,12 +157,23 @@ class FakeBossApi implements BossApiClient {
   /// D59 — 이 경로는 서버 세션 만료(401 UNAUTHORIZED)처럼 군다: 실물
   /// BossApiClient._checkSession 과 같이 auth.expire() 뒤 예외.
   final Set<String> unauthorizedPaths;
+
+  /// 경로 prefix → 그 경로가 낼 예외. errorPaths 는 문구가 '백엔드 OFF · 재시도'
+  /// 하나로 고정이라, 로그인 실패처럼 **실제 서버 문구를 픽셀로 찍어야 할 때** 쓴다.
+  final Map<String, AppException> failures;
+
+  /// 응답을 여기서 붙잡아 둔다 — '로딩 중' 상태를 캡처할 때 쓰는 문. 완료되지
+  /// 않는 Completer 를 넣으면 화면이 계속 busy 다 (타이머가 아니라 pending 미완료
+  /// future 라 테스트 종료를 막지 않는다).
+  final Future<void>? hold;
   BossAuthState? _auth;
 
   FakeBossApi(
     this.responses, {
     this.errorPaths = const {},
     this.unauthorizedPaths = const {},
+    this.failures = const {},
+    this.hold,
   });
 
   Future<void> _checkSession(String path) async {
@@ -178,6 +189,10 @@ class FakeBossApi implements BossApiClient {
 
   Future<Map<String, dynamic>> _respond(String path) async {
     await _checkSession(path);
+    if (hold != null) await hold;
+    for (final e in failures.entries) {
+      if (path.startsWith(e.key)) throw e.value;
+    }
     if (errorPaths.any(path.startsWith)) {
       throw AppException('백엔드 OFF · 재시도', code: 'NETWORK');
     }

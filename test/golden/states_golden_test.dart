@@ -22,6 +22,7 @@ import 'package:hyphen_app/features/shell/main_shell.dart';
 
 import 'fakes.dart';
 import 'harness.dart';
+import 'login_states.dart';
 import 'screens_golden_test.dart' show rxProfile, signedInAuth, signedInPrefs;
 
 /// 상태 변형 골든 — 빈·에러·오프라인·미가입 (본편은 screens_golden_test.dart).
@@ -212,27 +213,38 @@ void _rememberedLoginGolden() {
     await capture(tester, 'state_10_roster_before_start');
   });
 
+  // ── 로그인 상태 4종 (v3.33 · 2026-08-27 고정 레이아웃) ──────────────────
+  // 절차 정본 = login_states.dart — 같은 절차를 layout_stability_test.dart 가
+  // y 좌표로도 잰다. 이 넉 장은 "상태가 달라도 안 밀린다" 의 픽셀 증거다.
   testWidgets('state: login remembered id', (tester) async {
     phone(tester);
-    SharedPreferences.setMockInitialValues({
-      'remembered_login_id': 'seojun',
-      'remembered_login_until': appClock
-          .now()
-          .add(const Duration(days: 30))
-          .millisecondsSinceEpoch,
-    });
-    final api = FakeApi(memberWorld());
-    await tester.pumpWidget(
-      harness(
-        api: api,
-        auth: AuthState(),
-        profile: ProfileState(),
-        home: const LoginScreen(),
-      ),
-    );
-    await tester.pumpAndSettle();
+    await loginRemembered(tester);
     expect(find.text('아이디 기억하기 (30일)'), findsOneWidget);
     await capture(tester, 'state_09_login_remembered');
+  });
+
+  // ── 로그인 실패 — 예약된 안내 슬롯에 서버 문구가 들어온다 ──
+  testWidgets('state: login failed', (tester) async {
+    phone(tester);
+    await loginFailed(tester);
+    expect(find.text('아이디 또는 비밀번호가 올바르지 않습니다.'), findsOneWidget);
+    await capture(tester, 'state_17_login_error');
+  });
+
+  // ── 빈 칸 제출 — 두 입력칸 검증 에러가 **예약된 줄** 안에서만 뜬다 ──
+  testWidgets('state: login validation errors', (tester) async {
+    phone(tester);
+    await loginValidationErrors(tester);
+    expect(find.text('아이디를 입력해 주세요.'), findsOneWidget);
+    expect(find.text('비밀번호를 입력해 주세요.'), findsOneWidget);
+    await capture(tester, 'state_18_login_validation');
+  });
+
+  // ── 로딩 중 — 버튼을 치우지 않고 그 자리에서 스피너만 돈다 ──
+  testWidgets('state: login busy', (tester) async {
+    phone(tester);
+    await loginBusy(tester);
+    await capture(tester, 'state_19_login_busy');
   });
 
   // ── 회원권 없음 — 예약 배지가 '회원권 필요' (S5 · 2026-08-26 MEMBERSHIP_REQUIRED) ──

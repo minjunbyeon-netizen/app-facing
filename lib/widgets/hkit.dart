@@ -57,6 +57,14 @@ class HkButton extends StatelessWidget {
   /// fgSecondary(7.7:1) + w600 으로 "읽히되 앞서지 않게" 둔다.
   final bool neutral;
 
+  /// 처리 중 — **버튼을 스피너로 갈아 끼우지 않는다**. 자리(높이·폭)를 그대로 둔
+  /// 채 글자만 스피너로 바꾸고 눌리지 않게 한다 (v3.33 · 2026-08-27 사용자 지시
+  /// "변수가 생길 부분은 변수 자리를 미리 만들고"). 전엔 화면마다
+  /// `_busy ? HkLoading() : HkButton(...)` 로 갈아 끼워, 로딩이 시작되는 순간
+  /// 버튼 높이(36)와 스피너 높이(22)의 차이만큼 아래 요소가 통째로 밀렸다.
+  /// 규격 = DESIGN-SSOT §레이아웃 안정성.
+  final bool busy;
+
   const HkButton(
     this.label, {
     super.key,
@@ -66,6 +74,7 @@ class HkButton extends StatelessWidget {
     this.expand = true,
     this.neutral = false,
     this.danger = false,
+    this.busy = false,
   });
 
   const HkButton.primary(
@@ -75,6 +84,7 @@ class HkButton extends StatelessWidget {
     this.icon,
     this.expand = true,
     this.danger = false,
+    this.busy = false,
   }) : kind = HkButtonKind.primary,
        neutral = false;
 
@@ -85,6 +95,7 @@ class HkButton extends StatelessWidget {
     this.icon,
     this.expand = true,
     this.danger = false,
+    this.busy = false,
   }) : kind = HkButtonKind.secondary,
        neutral = false;
 
@@ -95,6 +106,7 @@ class HkButton extends StatelessWidget {
     this.icon,
     this.expand = false,
     this.neutral = false,
+    this.busy = false,
   }) : kind = HkButtonKind.tertiary,
        danger = false;
 
@@ -105,8 +117,15 @@ class HkButton extends StatelessWidget {
       Size(expand ? double.infinity : 0, _height),
     );
     final shrink = expand ? null : MaterialTapTargetSize.shrinkWrap;
+    final action = busy ? null : onPressed;
 
-    final child = icon == null
+    final Widget child = busy
+        ? HkLoading(
+            color: kind == HkButtonKind.primary
+                ? HyphenTokens.onColor
+                : HyphenTokens.primary,
+          )
+        : icon == null
         ? Text(label)
         : Row(
             mainAxisSize: MainAxisSize.min,
@@ -119,20 +138,25 @@ class HkButton extends StatelessWidget {
 
     switch (kind) {
       case HkButtonKind.primary:
+        // busy 는 눌리지 않지만 **비활성 회색으로 내리지 않는다** — 색까지 바뀌면
+        // 같은 자리에 있어도 "사라진 것"처럼 읽힌다. 면은 그대로, 글자만 스피너.
+        final WidgetStatePropertyAll<Color>? bg = danger
+            ? const WidgetStatePropertyAll<Color>(HyphenTokens.danger)
+            : busy
+            ? const WidgetStatePropertyAll<Color>(HyphenTokens.primary)
+            : null;
         return ElevatedButton(
-          onPressed: onPressed,
+          onPressed: action,
           style: ButtonStyle(
             minimumSize: size,
             tapTargetSize: shrink,
-            backgroundColor: danger
-                ? const WidgetStatePropertyAll<Color>(HyphenTokens.danger)
-                : null,
+            backgroundColor: bg,
           ),
           child: child,
         );
       case HkButtonKind.secondary:
         return OutlinedButton(
-          onPressed: onPressed,
+          onPressed: action,
           style: ButtonStyle(
             minimumSize: size,
             tapTargetSize: shrink,
@@ -143,13 +167,17 @@ class HkButton extends StatelessWidget {
                 ? const WidgetStatePropertyAll<BorderSide>(
                     BorderSide(color: HyphenTokens.danger),
                   )
+                : busy
+                ? const WidgetStatePropertyAll<BorderSide>(
+                    BorderSide(color: HyphenTokens.borderStrong),
+                  )
                 : null,
           ),
           child: child,
         );
       case HkButtonKind.tertiary:
         return TextButton(
-          onPressed: onPressed,
+          onPressed: action,
           style: ButtonStyle(
             minimumSize: size,
             tapTargetSize: shrink,
@@ -671,19 +699,82 @@ class HkErrorState extends StatelessWidget {
 }
 
 /// 로딩 스피너 — 22×22 stroke 2 muted 단일 규격.
+/// [color] 는 색 있는 면 위에 얹을 때만 (버튼 안 = onColor). 크기는 바꾸지 않는다.
 class HkLoading extends StatelessWidget {
-  const HkLoading({super.key});
+  final Color? color;
+  const HkLoading({super.key, this.color});
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: SizedBox(
         width: 22,
         height: 22,
         child: CircularProgressIndicator(
           strokeWidth: 2,
-          color: HyphenTokens.muted,
+          color: color ?? HyphenTokens.muted,
         ),
+      ),
+    );
+  }
+}
+
+/// 고정 높이 상단 띠 — **뒤로가기가 있든 없든 높이가 같다** (v3.33 · 2026-08-27
+/// 사용자 지시 "고정 같은 자리").
+///
+/// 전엔 화면이 `appBar: Navigator.canPop(context) ? HkAppBar() : null` 로
+/// 상단바 자체를 달았다 뗐다 했다 — 같은 화면인데 들어온 경로에 따라 본문 전체가
+/// [HyphenTokens.appBarH] 만큼 위아래로 뛰었다. 이제 띠는 항상 있고, **안에 든
+/// 화살표만** 조건부다. 구분선은 두지 않는다 (돌아갈 곳이 없을 때 빈 띠가
+/// '죽은 줄'로 보이던 이유).
+///
+/// 제목·actions 가 필요한 밀어 넣은 화면은 종전대로 [HkAppBar] 를 쓴다.
+class HkBackBar extends StatelessWidget {
+  /// 화살표를 눌렀을 때. 기본은 [Navigator.maybePop].
+  final VoidCallback? onBack;
+  const HkBackBar({super.key, this.onBack});
+
+  @override
+  Widget build(BuildContext context) {
+    final canPop = Navigator.canPop(context);
+    return SizedBox(
+      height: HyphenTokens.appBarH,
+      width: double.infinity,
+      child: canPop
+          ? Align(
+              alignment: Alignment.centerLeft,
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                tooltip: '뒤로',
+                onPressed: onBack ?? () => Navigator.maybePop(context),
+              ),
+            )
+          : null,
+    );
+  }
+}
+
+/// 안내·에러 한 줄이 들어올 **예약된 자리** (공간 예약 / space reservation).
+///
+/// v3.33 (2026-08-27 사용자 지시): `if (_error != null) ...[HkInlineError(...)]`
+/// 로 블록이 생겼다 사라지면 그 아래가 통째로 밀린다. 이 위젯은 메시지가 없어도
+/// [HyphenTokens.noticeSlotH] 만큼 자리를 지키고, 내용만 갈아 끼운다.
+/// 규격·적용 대상 = DESIGN-SSOT §레이아웃 안정성.
+class HkNoticeSlot extends StatelessWidget {
+  /// null 이면 빈 자리만 남긴다.
+  final String? message;
+  const HkNoticeSlot(this.message, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: HyphenTokens.noticeSlotH,
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (message != null) HkInlineError(message!),
+        ],
       ),
     );
   }

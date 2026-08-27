@@ -39,6 +39,16 @@ class LoginScreen extends StatefulWidget {
   static const String argNotice = 'notice';
   static const String noticeSessionExpired = '로그인이 만료되었습니다. 다시 로그인해 주세요.';
 
+  // ── 레이아웃 안정성 앵커 (v3.33 · 2026-08-27) ──────────────────────────────
+  // 상태가 바뀌어도 y 가 움직이면 안 되는 요소들. 회귀 게이트가 이 키로 잰다
+  // (test/golden/layout_stability_test.dart). 이름을 바꾸면 그 테스트도 같이
+  // 바꾼다 (글로벌 §0-B 이름 일원화).
+  static const Key kIdField = Key('login-id-field');
+  static const Key kPwField = Key('login-pw-field');
+  static const Key kSubmit = Key('login-submit');
+  static const Key kSignup = Key('login-signup');
+  static const Key kLegal = Key('login-legal');
+
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
@@ -175,134 +185,172 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: HyphenTokens.bg,
-      // 제목 없는 상단바 — 뒤로가기만. 제목 '로그인' 은 본문 h1 이 갖는다 (R1).
-      // v3.32 (2026-08-27 사용자 지시): 이 화면이 앱의 첫 화면이 되면서(D66 로그인 통합)
-      // 돌아갈 데가 없을 땐 화살표 없는 빈 띠만 남았다 — 그 경우 상단바를 아예 안 단다.
-      // 가입 신청에서 되돌아오거나 세션 만료로 밀려왔을 땐 pop 대상이 있어 그대로 나온다.
-      appBar: Navigator.canPop(context) ? const HkAppBar() : null,
+      // v3.33 (2026-08-27 사용자 지시 "네이버 로그인이나 다른 SaaS 처럼 통일된 화면"):
+      // 이 화면은 **레이아웃 안정성(layout stability)** 을 지키는 고정 레이아웃이다.
+      // 상태(안내·에러·검증 실패·로딩)가 어떻게 바뀌어도 아이디칸·비밀번호칸·
+      // 로그인 버튼·회원 가입 신청·약관의 y 좌표가 움직이지 않는다.
+      // 변하는 것은 전부 **미리 잡아 둔 자리**(공간 예약 / space reservation) 안에서만
+      // 바뀐다 — 규격 정본 = docs/DESIGN-SSOT.md §레이아웃 안정성.
+      // 회귀 게이트 = test/golden/layout_stability_test.dart (6 상태 y 동일성).
+      //
+      // Scaffold.appBar 를 쓰지 않는 이유: 상단바는 있고 없고가 곧 52px 밀림이다
+      // (구 `appBar: Navigator.canPop(context) ? HkAppBar() : null`). 띠는 항상
+      // 있고 화살표만 조건부인 HkBackBar 로 바꿨다.
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(
-            horizontal: HyphenTokens.sp5,
-            vertical: HyphenTokens.sp4,
-          ),
-          child: Form(
-            key: _formKey,
+        child: Center(
+          child: ConstrainedBox(
+            // SaaS 로그인처럼 좁은 폭 중앙 정렬 — 폰(360)에서는 무영향,
+            // 태블릿·큰 화면에서만 입력칸이 늘어지는 것을 막는다.
+            constraints: const BoxConstraints(maxWidth: HyphenTokens.formMaxW),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: HyphenTokens.sp5),
-                // v3.19 사용자 지시 — 이 화면에 브랜드 로고를 넣지 않는다.
-                Text('로그인', style: HyphenTokens.h1),
-                const SizedBox(height: HyphenTokens.sp1),
-                // 역할을 고르게 하지 않는다. 어느 화면으로 갈지는 서버가 판정한다.
-                Text('체육관에서 받은 아이디로 로그인합니다.', style: HyphenTokens.caption),
-                const SizedBox(height: HyphenTokens.sp6),
-
-                HkSectionLabel('아이디'),
-                const SizedBox(height: HyphenTokens.sp1),
-                TextFormField(
-                  controller: _idCtrl,
-                  style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
-                  decoration: const InputDecoration(hintText: '아이디'),
-                  textInputAction: TextInputAction.next,
-                  autocorrect: false,
-                  enableSuggestions: false,
-                  validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? '아이디를 입력해 주세요.' : null,
-                ),
-                const SizedBox(height: HyphenTokens.sp3),
-
-                HkSectionLabel('비밀번호'),
-                const SizedBox(height: HyphenTokens.sp1),
-                TextFormField(
-                  controller: _pwCtrl,
-                  style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
-                  decoration: InputDecoration(
-                    hintText: '비밀번호',
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _pwVisible ? Icons.visibility_off : Icons.visibility,
-                        color: HyphenTokens.muted,
-                        size: 20,
-                      ),
-                      onPressed: () => setState(() => _pwVisible = !_pwVisible),
-                    ),
-                  ),
-                  obscureText: !_pwVisible,
-                  textInputAction: TextInputAction.done,
-                  onFieldSubmitted: (_) => _login(),
-                  validator: (v) =>
-                      (v == null || v.isEmpty) ? '비밀번호를 입력해 주세요.' : null,
-                ),
-
-                // 아이디 기억 (2026-08-25 사용자 요청) — 비밀번호는 저장 안 함.
-                const SizedBox(height: HyphenTokens.sp1),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: HkCheckRow(
-                    value: _remember,
-                    label: '아이디 기억하기 (${RememberedLogin.days}일)',
-                    onChanged: (v) => setState(() => _remember = v),
-                  ),
-                ),
-
-                if (_error != null) ...[
-                  const SizedBox(height: HyphenTokens.sp3),
-                  HkInlineError(_error!),
-                ],
-
-                const SizedBox(height: HyphenTokens.sp6),
-                _busy
-                    ? const HkLoading()
-                    : HkButton.primary('로그인', onPressed: _login),
-
-                // v3.31 (2026-08-27 사용자 지시): 갈림길 화면을 없애고 이 화면
-                // 하나로 합쳤다. 아이디가 아직 없는 사람이 갈 길은 큰 버튼이
-                // 아니라 아래 한 줄로 둔다 — 주 동선은 로그인이다.
-                const SizedBox(height: HyphenTokens.sp2),
-                Center(
-                  child: HkButton.tertiary(
-                    '회원 가입 신청',
-                    onPressed: _busy
-                        ? null
-                        : () {
-                            Haptic.light();
-                            Navigator.of(context).pushNamed('/signup/self');
-                          },
-                  ),
-                ),
-
-                // 법적 고지 — 구 진입 화면에 있던 두 링크를 그대로 옮겨 왔다.
-                const SizedBox(height: HyphenTokens.sp3),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    HkButton.tertiary(
-                      '이용약관',
-                      neutral: true,
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const TermsScreen()),
-                      ),
-                    ),
-                    const Text(
-                      ' · ',
-                      style: TextStyle(color: HyphenTokens.muted),
-                    ),
-                    HkButton.tertiary(
-                      '개인정보처리방침',
-                      neutral: true,
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const PrivacyScreen(),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                const HkBackBar(),
+                Expanded(child: _form(context)),
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  /// 본문 — 작은 화면·키보드에서만 스크롤되고, 그 밖에는 위에서부터 고정이다.
+  Widget _form(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(
+        horizontal: HyphenTokens.sp5,
+        vertical: HyphenTokens.sp4,
+      ),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const SizedBox(height: HyphenTokens.sp5),
+            // v3.19 사용자 지시 — 이 화면에 브랜드 로고를 넣지 않는다.
+            Text('로그인', style: HyphenTokens.h1),
+            const SizedBox(height: HyphenTokens.sp1),
+            // 역할을 고르게 하지 않는다. 어느 화면으로 갈지는 서버가 판정한다.
+            Text('체육관에서 받은 아이디로 로그인합니다.', style: HyphenTokens.caption),
+            const SizedBox(height: HyphenTokens.sp3),
+
+            // 안내·에러 자리 — 세션 만료 안내(D59)와 로그인 실패가 같은 칸을 쓴다.
+            // 비어 있어도 자리를 지킨다.
+            HkNoticeSlot(_error),
+            const SizedBox(height: HyphenTokens.sp3),
+
+            HkSectionLabel('아이디'),
+            const SizedBox(height: HyphenTokens.sp1),
+            TextFormField(
+              key: LoginScreen.kIdField,
+              controller: _idCtrl,
+              style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
+              // helperText 공백 한 칸 = 에러 문구 줄을 **항상 예약**한다
+              // (Flutter 표준 공간 예약). 검증 에러가 떠도 아래가 밀리지 않는다.
+              // helper·error 의 글꼴 높이는 theme.dart 가 같게 맞춰 둔다.
+              decoration: const InputDecoration(
+                hintText: '아이디',
+                helperText: ' ',
+                errorMaxLines: 1,
+              ),
+              textInputAction: TextInputAction.next,
+              autocorrect: false,
+              enableSuggestions: false,
+              validator: (v) =>
+                  (v == null || v.trim().isEmpty) ? '아이디를 입력해 주세요.' : null,
+            ),
+            const SizedBox(height: HyphenTokens.sp2),
+
+            HkSectionLabel('비밀번호'),
+            const SizedBox(height: HyphenTokens.sp1),
+            TextFormField(
+              key: LoginScreen.kPwField,
+              controller: _pwCtrl,
+              style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
+              decoration: InputDecoration(
+                hintText: '비밀번호',
+                helperText: ' ',
+                errorMaxLines: 1,
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _pwVisible ? Icons.visibility_off : Icons.visibility,
+                    color: HyphenTokens.muted,
+                    size: 20,
+                  ),
+                  tooltip: _pwVisible ? '비밀번호 숨기기' : '비밀번호 보기',
+                  onPressed: () => setState(() => _pwVisible = !_pwVisible),
+                ),
+              ),
+              obscureText: !_pwVisible,
+              textInputAction: TextInputAction.done,
+              onFieldSubmitted: (_) => _login(),
+              validator: (v) =>
+                  (v == null || v.isEmpty) ? '비밀번호를 입력해 주세요.' : null,
+            ),
+
+            // 아이디 기억 (2026-08-25 사용자 요청) — 비밀번호는 저장 안 함.
+            Align(
+              alignment: Alignment.centerLeft,
+              child: HkCheckRow(
+                value: _remember,
+                label: '아이디 기억하기 (${RememberedLogin.days}일)',
+                onChanged: (v) => setState(() => _remember = v),
+              ),
+            ),
+
+            const SizedBox(height: HyphenTokens.sp5),
+            // 로딩은 버튼을 **치우지 않는다** — 같은 자리에서 스피너만 돈다.
+            HkButton.primary(
+              '로그인',
+              key: LoginScreen.kSubmit,
+              onPressed: _login,
+              busy: _busy,
+            ),
+
+            // v3.31 (2026-08-27 사용자 지시): 갈림길 화면을 없애고 이 화면
+            // 하나로 합쳤다. 아이디가 아직 없는 사람이 갈 길은 큰 버튼이
+            // 아니라 아래 한 줄로 둔다 — 주 동선은 로그인이다.
+            const SizedBox(height: HyphenTokens.sp2),
+            Center(
+              child: HkButton.tertiary(
+                '회원 가입 신청',
+                key: LoginScreen.kSignup,
+                onPressed: _busy
+                    ? null
+                    : () {
+                        Haptic.light();
+                        Navigator.of(context).pushNamed('/signup/self');
+                      },
+              ),
+            ),
+
+            // 법적 고지 — 구 진입 화면에 있던 두 링크를 그대로 옮겨 왔다.
+            const SizedBox(height: HyphenTokens.sp2),
+            Row(
+              key: LoginScreen.kLegal,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                HkButton.tertiary(
+                  '이용약관',
+                  neutral: true,
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const TermsScreen()),
+                  ),
+                ),
+                const Text(
+                  ' · ',
+                  style: TextStyle(color: HyphenTokens.muted),
+                ),
+                HkButton.tertiary(
+                  '개인정보처리방침',
+                  neutral: true,
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const PrivacyScreen()),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

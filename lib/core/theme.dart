@@ -314,6 +314,16 @@ class HyphenTokens {
   /// (appkit 마스터 값은 건드리지 않는다 — 다른 앱까지 따라 내려가면 안 된다.)
   static const double buttonHCompact = 36;
   static const double appBarH = AppKit.appBarH;
+
+  /// 폼 화면 콘텐츠 최대 폭 (v3.33 · 2026-08-27 사용자 지시 "SaaS 처럼 통일된 화면").
+  /// 폰 기준 폭 360 + 여유 60. 태블릿·큰 화면에서 입력칸이 화면 폭만큼
+  /// 늘어지지 않도록 이 폭에서 멈추고 가운데 정렬한다 (폰에서는 무영향).
+  static const double formMaxW = 420;
+
+  /// 안내·에러 한 줄이 들어올 **예약된 자리**의 높이 (공간 예약 / space reservation).
+  /// caption 2줄(13×1.45×2 = 37.7) + 상하 sp2(8+8) + 1px 보더 둘 = 55.7 → 56.
+  /// DESIGN-SSOT §레이아웃 안정성 — 값을 바꾸면 HkInlineError 규격도 같이 본다.
+  static const double noticeSlotH = 56;
 }
 
 class HyphenTheme {
@@ -501,6 +511,10 @@ class HyphenTheme {
         borderSide: const BorderSide(color: HyphenTokens.danger, width: 2),
       ),
       errorStyle: HyphenTokens.micro.copyWith(color: HyphenTokens.danger),
+      // v3.33 (2026-08-27): helper 줄과 error 줄의 **글자 크기·행간을 같게** 둔다.
+      // 화면이 `helperText: ' '` 로 에러 줄 자리를 미리 잡아 두는데(공간 예약),
+      // 두 style 의 높이가 다르면 에러가 뜨는 순간 그 차이만큼 아래가 밀린다.
+      helperStyle: HyphenTokens.micro.copyWith(color: HyphenTokens.muted),
     ),
     // v3.24: 다이얼로그·바텀시트 모양은 여기 한 곳 — 화면마다 backgroundColor·
     // shape 를 인라인으로 적던 것(11+13곳) 을 전부 걷어냈다. 호출은 HkDialog·HkSheet.
