@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/api_client.dart';
 import '../../core/goals_state.dart';
@@ -14,11 +12,9 @@ import '../../widgets/hkit.dart';
 import '../../widgets/inbox_bell.dart';
 import '../auth/auth_state.dart';
 import '../contracts/member_contracts_screen.dart';
-import '../goals/goals_screen.dart';
 import 'strength_board_screen.dart';
 import '../gym/gym_state.dart';
 import 'edit_profile_screen.dart';
-import 'faq_screen.dart';
 import 'privacy_screen.dart';
 import 'terms_screen.dart';
 import '../../core/app_clock.dart';
@@ -452,13 +448,9 @@ class _ActionsSection extends StatelessWidget {
                     title: '히스토리',
                     onTap: () => Navigator.of(context).pushNamed('/history'),
                   ),
-                  HkListRow(
-                    icon: Icons.flag_outlined,
-                    title: '목표',
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const GoalsScreen()),
-                    ),
-                  ),
+                  // v3.29 (2026-08-27 사용자 지시): '목표' 행 삭제 — 화면 코드
+                  // (lib/features/goals/)까지 제거 (README §제거된 기능 대장 23).
+                  // 서버 목표 API·DB 는 그대로 둔다 — 착용 칭호가 같은 GoalsState 를 쓴다.
                   // Q3 (v3.4 2026-08-20 승인) — 리프트별 역대 최고 무게 (1RM 보드).
                   HkListRow(
                     icon: Icons.fitness_center,
@@ -477,24 +469,9 @@ class _ActionsSection extends StatelessWidget {
                   //    회원 레벨은 경력 3단(SCALED/RXD/ELITE)이라 RX+·Games 는 없는 등급이다.
                   // 화면 파일은 v3.2(2026-08-20)에서 코드까지 삭제
                   // (README §제거된 기능 대장 — 복원은 git log).
-                  // P2-1 (2026-06-11) — FAQ (시드 10문답, 실문의 누적 시 증보).
-                  HkListRow(
-                    icon: Icons.help_outline,
-                    title: 'FAQ',
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const FaqScreen()),
-                    ),
-                  ),
-                  // P0-3 (2026-06-10) — 고객센터 단일 채널 (카카오톡 채널 1:1 채팅).
-                  HkListRow(
-                    icon: Icons.chat_bubble_outline,
-                    title: '고객지원',
-                    subtitle: '카카오톡 · 평일 10–18시 답변',
-                    onTap: () => launchUrl(
-                      Uri.parse('http://pf.kakao.com/_kxbxanX/chat'),
-                      mode: LaunchMode.externalApplication,
-                    ),
-                  ),
+                  // v3.29 (2026-08-27 사용자 지시): 'FAQ'·'고객지원' 행 삭제 —
+                  // FAQ 는 화면 코드(faq_screen.dart)까지 제거, 고객지원은
+                  // 카카오톡 채널 링크뿐이라 행만 제거 (README §제거된 기능 대장 24·25).
                   // v2.6 (2026-08-12 사용자 지시): '직원 계정 연결' 행 삭제 — 코치가
                   // 곧 본인 한 명이라 연결할 직원이 없다 (BRIEF D37). 화면·라우트는
                   // v3.2(2026-08-20)에서 코드까지 삭제 (README §제거된 기능 대장).
@@ -515,19 +492,8 @@ class _ActionsSection extends StatelessWidget {
                   ),
                 ],
               ),
-              // v2.2 (H3): 되돌릴 수 없는 동작이 일반 메뉴와 같은 빨강 글자
-              // 링크였다 — 링코 S17('서비스 탈퇴'가 일반 항목과 같은 비중)과
-              // 같은 문제. 테두리 있는 danger 버튼으로 올려 "동작"임을 알리고,
-              // 위 메뉴 카드와의 간격도 벌려 오조작을 줄인다.
-              const SizedBox(height: HyphenTokens.sp5),
-              Center(
-                child: HkButton.secondary(
-                  '데이터 초기화',
-                  danger: true,
-                  expand: false,
-                  onPressed: () => _confirmReset(context),
-                ),
-              ),
+              // v3.29 (2026-08-27 사용자 지시): '데이터 초기화' 버튼·확인
+              // 다이얼로그(_confirmReset) 삭제 (README §제거된 기능 대장 26).
             ],
           ),
           // v2.2 (2026-08-12 사용자 지시): DEBUG 블록 전면 삭제.
@@ -536,25 +502,6 @@ class _ActionsSection extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  Future<void> _confirmReset(BuildContext context) async {
-    // v3.2 (2026-08-20): 등급·벤치마크는 소멸한 항목 — 실동작은
-    // prefs.clear() (이 기기 한정). 서버 기록은 남는다.
-    final ok = await HkDialog.confirm(
-      context,
-      title: '데이터를 초기화할까요?',
-      message:
-          '이 기기에 저장된 프로필·목표·설정을 전부 삭제합니다.\n'
-          '되돌릴 수 없습니다.',
-      confirmLabel: '초기화',
-      danger: true,
-    );
-    if (!ok) return;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-    if (!context.mounted) return;
-    Navigator.of(context).pushNamedAndRemoveUntil('/splash', (_) => false);
   }
 
   Future<void> _confirmSignOut(BuildContext context) async {

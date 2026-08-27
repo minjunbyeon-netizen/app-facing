@@ -10,13 +10,11 @@ import 'package:hyphen_app/features/auth/auth_state.dart';
 import 'package:hyphen_app/features/auth/login_screen.dart';
 import 'package:hyphen_app/features/gym/box_wod_screen.dart';
 import 'package:hyphen_app/features/contracts/member_contracts_screen.dart';
-import 'package:hyphen_app/features/goals/goals_screen.dart';
 import 'package:hyphen_app/features/gym/gym_repository.dart';
 import 'package:hyphen_app/features/gym/gym_state.dart';
 import 'package:hyphen_app/features/inbox/inbox_screen.dart';
 import 'package:hyphen_app/features/mypage/edit_profile_screen.dart';
 import 'package:hyphen_app/features/mypage/strength_board_screen.dart';
-import 'package:hyphen_app/features/mypage/faq_screen.dart';
 import 'package:hyphen_app/features/mypage/privacy_screen.dart';
 import 'package:hyphen_app/features/mypage/terms_screen.dart';
 import 'package:hyphen_app/features/profile/profile_state.dart';
@@ -329,37 +327,9 @@ void main() {
     await capture(tester, 'member_22_contract_detail');
   });
 
-  // ── 회원: 목표 (내 정보 메뉴 '목표') ──
-  testWidgets('member: goals', (tester) async {
-    phone(tester);
-    SharedPreferences.setMockInitialValues(signedInPrefs());
-    final api = FakeApi(memberWorld());
-    await tester.pumpWidget(
-      harness(
-        api: api,
-        auth: await signedInAuth(),
-        profile: rxProfile(),
-        home: const GoalsScreen(),
-      ),
-    );
-    await capture(tester, 'member_16_goals');
-  });
-
-  // ── 회원: FAQ (내 정보 메뉴 'FAQ') ──
-  testWidgets('member: faq', (tester) async {
-    phone(tester);
-    SharedPreferences.setMockInitialValues(signedInPrefs());
-    final api = FakeApi(memberWorld());
-    await tester.pumpWidget(
-      harness(
-        api: api,
-        auth: await signedInAuth(),
-        profile: rxProfile(),
-        home: const FaqScreen(),
-      ),
-    );
-    await capture(tester, 'member_17_faq');
-  });
+  // v3.29 (2026-08-27 사용자 지시): '목표'(member_16_goals)·
+  // 'FAQ'(member_17_faq) 골든 삭제 — 내 정보 메뉴에서 행과 화면 코드를 함께
+  // 제거했다 (README §제거된 기능 대장 23·24).
 
   // ── 회원: 이용약관 (내 정보 메뉴) ──
   testWidgets('member: terms', (tester) async {
