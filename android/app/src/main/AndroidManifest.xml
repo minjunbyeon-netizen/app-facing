@@ -1,12 +1,12 @@
 ﻿<manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- INTERNET 권한. cleartext HTTP는 release에서 차단(기본값), debug 빌드만 src/debug/AndroidManifest.xml 에서 재허용 (LAN 백엔드용). -->
     <uses-permission android:name="android.permission.INTERNET" />
-    <!-- v1.17 濡쒖뺄 ?몄떆 (Firebase ?놁씠 SSE + Foreground Service) -->
+    <!-- 로컬 알림 (flutter_local_notifications). Firebase 없이 앱이 떠 있는 동안
+         SSE 로 받은 사건을 기기 알림으로 띄운다. 포그라운드 서비스는 쓰지 않는다
+         (2026-08-28 — flutter_foreground_task 는 코드에서 한 번도 호출된 적이 없어 제거). -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <!-- 수업 진행 화면이 꺼지지 않게 (wakelock_plus — wod_session_screen). -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <application
         android:label="HYPHEN"
         android:name="${applicationName}"
@@ -40,11 +40,7 @@
             android:name="flutterEmbedding"
             android:value="2" />
 
-        <!-- v1.17 濡쒖뺄 ?몄떆 ??flutter_foreground_task Foreground Service -->
-        <service
-            android:name="com.pravera.flutter_foreground_task.service.ForegroundService"
-            android:foregroundServiceType="dataSync"
-            android:exported="false" />
+        
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
