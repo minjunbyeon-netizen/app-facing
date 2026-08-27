@@ -12,7 +12,7 @@ class CoachBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const HkBadge('COACH', color: HyphenTokens.tierElite);
+    return const HkBadge('코치', color: HyphenTokens.tierElite);
   }
 }
 

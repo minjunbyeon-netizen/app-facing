@@ -457,7 +457,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'COACH',
+                      '코치',
                       style: HyphenTokens.microLabel.copyWith(
                         fontWeight: FontWeight.w800,
                       ),
@@ -483,8 +483,8 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
                 ),
                 child: Text(
                   n.isAuto
-                      ? 'AUTO'
-                      : (n.kind == 'assignment' ? 'ASSIGNMENT' : 'NOTE'),
+                      ? '자동'
+                      : (n.kind == 'assignment' ? '숙제' : '쪽지'),
                   style: HyphenTokens.microLabel.copyWith(
                     color: n.isAuto ? HyphenTokens.success : color,
                     fontWeight: FontWeight.w800,

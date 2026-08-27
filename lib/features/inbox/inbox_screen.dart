@@ -104,8 +104,8 @@ class CoachDossierTile extends StatelessWidget {
                 children: [
                   Text(
                     note.isAuto
-                        ? 'AUTO'
-                        : (note.kind == 'assignment' ? 'ASSIGNMENT' : 'NOTE'),
+                        ? '자동'
+                        : (note.kind == 'assignment' ? '숙제' : '쪽지'),
                     style: HyphenTokens.microLabel.copyWith(
                       color: note.isAuto ? HyphenTokens.success : stripeColor,
                       fontWeight: FontWeight.w800,
@@ -114,7 +114,7 @@ class CoachDossierTile extends StatelessWidget {
                   const SizedBox(width: HyphenTokens.sp2),
                   Flexible(
                     child: Text(
-                      'COACH · ${senderLabel.toUpperCase()}',
+                      '코치 · ${senderLabel.toUpperCase()}',
                       style: HyphenTokens.microLabel,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -360,7 +360,7 @@ class _PinnedAnnouncement extends StatelessWidget {
           Row(
             children: [
               Text(
-                'NOTICE',
+                '공지',
                 style: HyphenTokens.microLabel.copyWith(
                   color: latest.isUrgent
                       ? HyphenTokens.accent
