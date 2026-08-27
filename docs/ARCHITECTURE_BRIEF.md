@@ -564,6 +564,37 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > - 회귀: 골든 `coach_01`(주간) 재생성 · `coach_02` 삭제 · `coach_04_new_note_members` 신규 ·
 >   `coach_03` 재생성(그룹 버튼 없음).
 
+> **D64 (2026-08-27 — D63 과 같은 지시의 후속) — 4기둥을 3면 대전제 5번으로 승격 + 검증된 사문 코드 제거.**
+>
+> - **스코프 정본 승격**: 4기둥(공지사항·쪽지·수업 예약·수업 공개+업적)을 `apps/facing-app/CLAUDE.md
+>   §제품 스코프` 로 재작성하고, **3면 CLAUDE.md 공통 대전제에 5번 항목으로 추가**(구 3기둥 서술은
+>   "앱 셸 탭 축" 으로 격하·존치). 받침 목록(회원 명단·가입 승인 · 회원권 · 수업 종류/시간표 · 인증 ·
+>   업적/포인트 설정 · 출석 · 체육관 1곳 식별)을 명문화 — 지우면 기둥이 무너지므로 제거 금지.
+> - **감사 오탐 교훈 (§5 탐색 경제성)**: 4기둥 대조 감사가 "사문" 으로 지목한 것 중 **2건이 실제로는
+>   살아 있었다** — `openPanelB`(`achievements_screen.dart:133` 이 호출) · `services/leaderboard.py`
+>   (`api/admin.py`·`services/wod_compare.py` 가 import). 이후 **지우기 직전 호출처 재확인**을 규칙으로
+>   못박고(대전제 5번), 실제 제거는 상위가 직접 grep 으로 확인한 목록만 집행.
+> - **제거 집행 (참조 0 재확인분만)**: 앱 빈 폴더 3(`pacing_result`·`presets`·`wod_builder`) ·
+>   앱 죽은 repository 메서드 6(`GymRepository.search` · `updateProfileInfo`/`getProfileInfo` —
+>   **서버 라우트 자체가 없었음** · 초대코드 3종) · 백엔드 죽은 서비스 3(`cohort.py`·
+>   `marketing_dashboard.py`·`receipt_pdf.py`) · 쪽지 그룹 라우트 4(2개만 지우면 "그룹은 못 만드는데
+>   멤버는 추가 가능" 이 되므로 CRUD 전량) · 초대코드 라우트 3 + `_generate_invite_code` ·
+>   다중 체육관 전환 2면(`api/admin.py switch-gym` + PC `/api/proxy/switch-gym`).
+>   README §제거된 기능 대장 **24~30번** 등재.
+> - **지우지 않은 것 3건 (재확인에서 살아 있음이 드러남)**: `models/wod_session.py`(`wod_score` 의 FK
+>   대상 — 지웠으면 부팅이 깨짐) · `models/membership_plan.py`(G04 마이그레이션 회귀를 지키는
+>   테스트가 실사용) · `/gyms/search` 라우트(`sanity_check.py` 운영 점검 + persona E2E 헬퍼).
+>   또 `post_note` 의 `target_type='group'` 분기는 발송 라우트가 아직 써서 휴면 존치.
+> - **DB 는 건드리지 않았다** — 테이블 DROP 0건. `gym_groups`·`gym_group_members`·`gyms.invite_code`·
+>   `wod_session`·`gym_membership_plans` 전부 휴면. 사용자 데이터 손실 0 (D63 의 instagram 휴면과 동일 원칙).
+> - **아직 결정 안 한 4기둥 밖 덩어리 (보고만, 손대지 않음)**: 락커 · 통계 · 결제·환불 · WOD 소셜
+>   (리더보드·댓글·코치 피드백) · 목표/최고기록/히스토리 · 전자계약서(D27) · 케어 필요(D60) ·
+>   개인정보·약관(법적 의무라 존치 권고). 제거 시 없어지는 총량 추정 = PC 페이지 5·앱 화면 8·
+>   백엔드 라우트 약 40·테이블 약 20.
+> - 검증: 백엔드 pytest **291 passed, 1 skipped**(증감 0) · Flutter **201 통과**·analyze 0·골든 61장 무손상 ·
+>   PC design lint baseline 유지 · 백엔드 재부팅 `/health` 200·Traceback 0, 삭제 라우트 4종 404·존치 라우트 200 ·
+>   PC 3면 렌더·콘솔 0.
+
 > **D63 (2026-08-27 사용자 결정 "이건 코치와 회원 간의 공지사항·쪽지·수업 예약·수업 공개(+업적) 그게 끝이야. 여기에 위배되거나 필요없는 건 없애도 된다니까") — 체육관 프로필 인스타그램·로고 이미지 URL 제거 (3면).**
 >
 > - **판단 근거**: 두 칸은 4기둥(공지·쪽지·수업 예약·수업 공개 +업적) 어디에도 속하지 않고,

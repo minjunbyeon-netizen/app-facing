@@ -159,4 +159,34 @@ samples, guidance on mobile development, and a full API reference.
     (gym_repository.dart). 편집 화면(구 `gym_profile_edit_screen.dart`)이 진작 사라져
     `lib/` 전체 호출처 0건이던 죽은 배선. 체육관 프로필 편집 창구는 PC 코치 웹 하나다.
     서버 `PATCH /api/v1/gyms/<id>/profile` 은 PC 가 쓰므로 그대로 유지.
+24. **체육관 검색 배선 (v3.30 · 2026-08-27 사문 코드 정리)** — `GymRepository.search`
+    (`GET /api/v1/gyms/search` 래퍼). 검색 화면은 대장 7 에서 이미 지웠는데 래퍼만
+    남아 호출처 0건이었다. **서버 라우트는 존치** — `sanity_check.py:43` 과
+    `tests/test_personas_e2e.py:131`(gym_id 조회 헬퍼)이 아직 쓴다.
+25. **프로필 info 배선 (v3.30 · 2026-08-27)** — `InboxRepository.getProfileInfo`·
+    `updateProfileInfo`(`/api/v1/profile/info`). 호출처 0건인 데다 **서버에 그 라우트가
+    아예 없었다**(GET·POST 모두 미존재) — 눌렸으면 404 나던 죽은 배선. 프로필 편집 정본은
+    `/api/v1/member/profile` 계열. 골든 fake 스텁 1줄도 같이 삭제.
+26. **초대코드·코드 가입 (v3.30 · 2026-08-27)** — 앱 `InboxRepository.getInviteCode`·
+    `regenerateInviteCode`·`joinByCode` 3종 + 서버 라우트 3개
+    (`GET /api/v1/gym/<id>/invite-code` · `POST .../invite-code/regenerate` ·
+    `POST /api/v1/gym/join-by-code`) + 헬퍼 `_generate_invite_code`
+    (services/hyphen `api/coach_note.py`). 코드로 가입하는 화면이 폰·PC 어디에도 없어
+    양쪽 다 소비처 0건. DB 컬럼 `gyms.invite_code` 는 휴면 존치 (시드가 값을 넣는다).
+27. **쪽지 그룹 관리 라우트 4개 (v3.30 · 2026-08-27)** — 서버
+    `GET/POST /api/v1/gym/<id>/groups` · `POST/DELETE .../groups/<gid>/members`
+    (`api/coach_note.py`). 폰은 v3.28(대장 21)에 그룹 메서드를 뺐고 PC 웹은 처음부터
+    부른 적이 없다. 표(`gym_groups`·`gym_group_members`)와 `post_note` 의
+    `target_type="group"` 분기는 **휴면 존치** — 기존 행 대비. 새 그룹을 만들 창구는 없다.
+28. **다중 체육관 전환 (v3.30 · 2026-08-27)** — 서버 `POST /api/v1/admin/switch-gym`
+    (`api/admin.py`) + PC 프록시 `/api/proxy/switch-gym`(`web/facing-admin/app.py`).
+    스위처 UI 는 2026-08-13 에 사라졌고 남은 배선을 부르는 화면이 0건이었다.
+    `_layout.html` 의 "백엔드는 살아 있다" 주석도 현재 사실로 갱신.
+29. **빈 feature 폴더 3개 (v3.30 · 2026-08-27)** — `lib/features/pacing_result/` ·
+    `lib/features/presets/` · `lib/features/wod_builder/`. 엔진 화면 이동(대장 10) 뒤
+    파일 0개인 껍데기만 남아 있었다.
+30. **죽은 백엔드 서비스 모듈 3개 (v3.30 · 2026-08-27)** — services/hyphen
+    `services/marketing_dashboard.py` · `services/cohort.py` · `services/receipt_pdf.py`.
+    marketing_dashboard 는 참조 0건, cohort 는 marketing_dashboard 만 import 하던
+    죽은 쌍이었다. 4기둥 밖(매출·cohort 잔존율·이탈 위험·영수증 PDF).
 
