@@ -38,6 +38,19 @@ const int _kFallbackGymId = 2;
 class SelfSignupScreen extends StatefulWidget {
   const SelfSignupScreen({super.key});
 
+  // ── 레이아웃 안정성 앵커 (v3.33 · 2026-08-27) ──────────────────────────────
+  // 어느 칸에서 검증 에러가 떠도 y 가 움직이면 안 되는 요소들. 회귀 게이트가
+  // 이 키로 잰다 (test/golden/stability_signup_test.dart). 이름을 바꾸면 그
+  // 테스트도 같이 바꾼다 (글로벌 §0-B 이름 일원화).
+  static const Key kNameField = Key('signup-name-field');
+  static const Key kBirthField = Key('signup-birth-field');
+  static const Key kPhoneField = Key('signup-phone-field');
+  static const Key kIdField = Key('signup-id-field');
+  static const Key kPwField = Key('signup-pw-field');
+  static const Key kPw2Field = Key('signup-pw2-field');
+  static const Key kSubmit = Key('signup-submit');
+  static const Key kFooter = Key('signup-footer');
+
   @override
   State<SelfSignupScreen> createState() => _SelfSignupScreenState();
 }
@@ -226,6 +239,20 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
     );
   }
 
+  /// 고른 경력 구간이 어느 레벨이 되는지 한 줄. 자리는 [HkPreviewSlot] 이
+  /// 고르기 전부터 잡고 있고, 여기서는 내용만 만든다.
+  Widget _levelPreview() {
+    final t = Tier.fromExperienceYears(Tier.bands[_bandIndex!].years);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Text('내 레벨', style: HyphenTokens.caption),
+        const SizedBox(width: HyphenTokens.sp2),
+        HkBadge(t.memberLevelLabel, color: t.color),
+      ],
+    );
+  }
+
   Widget _body(BuildContext context) {
     return Scaffold(
       backgroundColor: HyphenTokens.bg,
@@ -252,28 +279,42 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                 const HkSectionLabel('이름'),
                 const SizedBox(height: HyphenTokens.sp1),
                 TextFormField(
+                  key: SelfSignupScreen.kNameField,
                   controller: _nameCtrl,
                   style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
-                  decoration: const InputDecoration(hintText: '코치에게 보일 이름'),
+                  // helperText 공백 한 칸 = 에러 문구 줄을 **항상 예약**한다
+                  // (공간 예약 — DESIGN-SSOT §레이아웃 안정성). 타이핑 도중
+                  // 검증(autovalidate)이 돌아도 아래 칸·버튼이 밀리지 않는다.
+                  // helper·error 의 글꼴 높이는 theme.dart 가 같게 맞춰 둔다.
+                  decoration: const InputDecoration(
+                    hintText: '코치에게 보일 이름',
+                    helperText: ' ',
+                    errorMaxLines: 1,
+                  ),
                   textInputAction: TextInputAction.next,
                   validator: (v) =>
                       (v ?? '').trim().isEmpty ? '이름을 입력해 주세요.' : null,
                 ),
-                const SizedBox(height: HyphenTokens.sp4),
+                const SizedBox(height: HyphenTokens.sp2),
 
                 const HkSectionLabel('생년월일'),
                 const SizedBox(height: HyphenTokens.sp1),
                 TextFormField(
+                  key: SelfSignupScreen.kBirthField,
                   controller: _birthCtrl,
                   style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
-                  decoration: const InputDecoration(hintText: '1995-01-01'),
+                  decoration: const InputDecoration(
+                    hintText: '1995-01-01',
+                    helperText: ' ',
+                    errorMaxLines: 1,
+                  ),
                   keyboardType: TextInputType.number,
                   textInputAction: TextInputAction.next,
                   // 숫자만 치면 하이픈이 알아서 들어간다 (input_formatters SSOT).
                   inputFormatters: [BirthDateInputFormatter()],
                   validator: (v) => birthDateError(v ?? ''),
                 ),
-                const SizedBox(height: HyphenTokens.sp4),
+                const SizedBox(height: HyphenTokens.sp2),
 
                 const HkSectionLabel('성별'),
                 const SizedBox(height: HyphenTokens.sp2),
@@ -305,9 +346,14 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                 const HkSectionLabel('연락처'),
                 const SizedBox(height: HyphenTokens.sp1),
                 TextFormField(
+                  key: SelfSignupScreen.kPhoneField,
                   controller: _phoneCtrl,
                   style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
-                  decoration: const InputDecoration(hintText: '010-1234-5678'),
+                  decoration: const InputDecoration(
+                    hintText: '010-1234-5678',
+                    helperText: ' ',
+                    errorMaxLines: 1,
+                  ),
                   keyboardType: TextInputType.phone,
                   textInputAction: TextInputAction.next,
                   inputFormatters: [PhoneInputFormatter()],
@@ -323,7 +369,7 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: HyphenTokens.sp4),
+                const SizedBox(height: HyphenTokens.sp2),
 
                 const HkSectionLabel('운동 경력'),
                 const SizedBox(height: HyphenTokens.sp2),
@@ -345,24 +391,14 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                 ),
                 // 고른 구간이 어느 레벨이 되는지 그 자리에서 보여준다 —
                 // 코치 화면에서 처음 보게 되면 "왜 내가 스케일이냐"가 된다 (D36).
-                if (_bandIndex != null) ...[
-                  const SizedBox(height: HyphenTokens.sp3),
-                  Row(
-                    children: [
-                      const Text('내 레벨', style: HyphenTokens.caption),
-                      const SizedBox(width: HyphenTokens.sp2),
-                      Builder(
-                        builder: (_) {
-                          final t = Tier.fromExperienceYears(
-                            Tier.bands[_bandIndex!].years,
-                          );
-                          return HkBadge(t.memberLevelLabel, color: t.color);
-                        },
-                      ),
-                    ],
-                  ),
-                ],
-                const SizedBox(height: HyphenTokens.sp4),
+                // v3.33: 자리는 **고르기 전부터** 잡아 둔다 (공간 예약). 전엔
+                // 뱃지를 고르는 순간 블록이 생겨 아래 칸이 통째로 밀렸다.
+                const SizedBox(height: HyphenTokens.sp2),
+                HkPreviewSlot(
+                  placeholder: '경력을 고르면 레벨이 표시됩니다.',
+                  child: _bandIndex == null ? null : _levelPreview(),
+                ),
+                const SizedBox(height: HyphenTokens.sp3),
 
                 // 구체 종목을 받는 칸이라 '해온 종목' 표기 유지 ('운동' 금지는 2026-08-14 해제).
                 const HkSectionLabel('해온 종목'),
@@ -398,9 +434,14 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                 const HkSectionLabel('아이디'),
                 const SizedBox(height: HyphenTokens.sp1),
                 TextFormField(
+                  key: SelfSignupScreen.kIdField,
                   controller: _idCtrl,
                   style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
-                  decoration: const InputDecoration(hintText: '로그인에 쓸 아이디'),
+                  decoration: const InputDecoration(
+                    hintText: '로그인에 쓸 아이디',
+                    helperText: ' ',
+                    errorMaxLines: 1,
+                  ),
                   autocorrect: false,
                   enableSuggestions: false,
                   textInputAction: TextInputAction.next,
@@ -415,15 +456,18 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: HyphenTokens.sp4),
+                const SizedBox(height: HyphenTokens.sp2),
 
                 const HkSectionLabel('비밀번호'),
                 const SizedBox(height: HyphenTokens.sp1),
                 TextFormField(
+                  key: SelfSignupScreen.kPwField,
                   controller: _pwCtrl,
                   style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
                   decoration: InputDecoration(
                     hintText: '비밀번호',
+                    helperText: ' ',
+                    errorMaxLines: 1,
                     suffixIcon: IconButton(
                       icon: Icon(
                         _pwVisible ? Icons.visibility_off : Icons.visibility,
@@ -438,24 +482,36 @@ class _SelfSignupScreenState extends State<SelfSignupScreen> {
                   validator: (v) =>
                       (v ?? '').length < 4 ? '비밀번호는 4자 이상 입력해 주세요.' : null,
                 ),
-                const SizedBox(height: HyphenTokens.sp3),
+                const SizedBox(height: HyphenTokens.sp1),
                 TextFormField(
+                  key: SelfSignupScreen.kPw2Field,
                   controller: _pw2Ctrl,
                   style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
-                  decoration: const InputDecoration(hintText: '비밀번호 확인'),
+                  decoration: const InputDecoration(
+                    hintText: '비밀번호 확인',
+                    helperText: ' ',
+                    errorMaxLines: 1,
+                  ),
                   obscureText: !_pwVisible,
                   textInputAction: TextInputAction.done,
                   onFieldSubmitted: (_) => _submit(),
                   validator: (v) => v != _pwCtrl.text ? '비밀번호가 서로 다릅니다.' : null,
                 ),
 
-                const SizedBox(height: HyphenTokens.sp6),
-                _submitting
-                    ? const HkLoading()
-                    : HkButton.primary('신청하기', onPressed: _submit),
+                const SizedBox(height: HyphenTokens.sp4),
+                // 로딩은 버튼을 **치우지 않는다** — 같은 자리에서 스피너만 돈다
+                // (DESIGN-SSOT §레이아웃 안정성 4번). 전엔 HkLoading 으로 갈아
+                // 끼워 버튼 높이(36)와 스피너 높이의 차이만큼 아래가 밀렸다.
+                HkButton.primary(
+                  '신청하기',
+                  key: SelfSignupScreen.kSubmit,
+                  onPressed: _submit,
+                  busy: _submitting,
+                ),
                 const SizedBox(height: HyphenTokens.sp3),
                 Text(
                   '코치가 승인하면 이 아이디로 로그인할 수 있습니다.',
+                  key: SelfSignupScreen.kFooter,
                   style: HyphenTokens.caption,
                   textAlign: TextAlign.center,
                 ),

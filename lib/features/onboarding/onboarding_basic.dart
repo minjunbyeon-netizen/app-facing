@@ -25,6 +25,17 @@ import '../profile/profile_state.dart';
 class OnboardingBasicScreen extends StatefulWidget {
   const OnboardingBasicScreen({super.key});
 
+  // ── 레이아웃 안정성 앵커 (v3.33 · 2026-08-27) ──────────────────────────────
+  // 생년월일 에러·경력 미리보기·저장 실패 안내 중 무엇이 떠도 y 가 움직이면
+  // 안 되는 요소들. 회귀 게이트가 이 키로 잰다
+  // (test/golden/stability_signup_test.dart). 이름을 바꾸면 그 테스트도 같이
+  // 바꾼다 (글로벌 §0-B 이름 일원화).
+  static const Key kBirthField = Key('onb-birth-field');
+  static const Key kPhoneField = Key('onb-phone-field');
+  static const Key kGender = Key('onb-gender');
+  static const Key kBands = Key('onb-bands');
+  static const Key kSubmit = Key('onb-submit');
+
   @override
   State<OnboardingBasicScreen> createState() => _OnboardingBasicScreenState();
 }

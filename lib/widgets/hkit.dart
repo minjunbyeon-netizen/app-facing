@@ -780,6 +780,50 @@ class HkNoticeSlot extends StatelessWidget {
   }
 }
 
+/// 고른 값에 따라 나타나는 **미리보기 한 줄**의 예약된 자리 (공간 예약).
+///
+/// v3.33 (2026-08-27): [HkNoticeSlot] 이 에러·안내 전용이라면 이쪽은 일반
+/// 미리보기용이다. `if (_x != null) ...[Row(...)]` 로 블록이 생겼다 사라지면
+/// 그 아래 섹션이 통째로 밀린다 — 아직 고르지 않았을 때는 [placeholder] 한 줄이
+/// 자리를 지키고, 고르면 [child] 로 갈아 끼운다. 바깥 높이는 어느 쪽이든 같다.
+/// 규격·적용 대상 = DESIGN-SSOT §레이아웃 안정성.
+class HkPreviewSlot extends StatelessWidget {
+  /// 보여 줄 내용. null 이면 [placeholder] 한 줄이 대신 선다.
+  final Widget? child;
+
+  /// 아직 고르지 않았을 때 그 자리에 서는 안내 한 줄.
+  final String placeholder;
+
+  /// 슬롯 높이 — 들어올 수 있는 것 중 **가장 높은 것**(배지 26.2)에 맞춘다.
+  final double height;
+
+  const HkPreviewSlot({
+    super.key,
+    this.child,
+    required this.placeholder,
+    this.height = HyphenTokens.sp6,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: height,
+      width: double.infinity,
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child:
+            child ??
+            Text(
+              placeholder,
+              style: HyphenTokens.caption,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+      ),
+    );
+  }
+}
+
 /// 진입 계열 화면(스플래시·로그인·전면 로딩)의 로고 위 고정 간격 (DESIGN-SSOT §6).
 ///
 /// v3.3 (2026-08-21 사용자 지시 "로고 위치 고정"): 스플래시는 로고를 세로 중앙에,
