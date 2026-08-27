@@ -930,6 +930,8 @@ class HkPreviewSlot extends StatelessWidget {
 class HkSkeletonRow extends StatelessWidget {
   /// [HkListRow] 한 줄의 자연 높이 — 상하 sp2(8+8) + 제목(15×1.5=22.5) + 2 +
   /// 부제(13×1.45=18.85) = 59.35 → 60. 목록 자리는 이 값으로 예약한다.
+  /// 앱이 글자 배율을 1.0 으로 고정하므로(main.dart `TextScaler.noScaling`)
+  /// 이 값은 기기와 무관하게 성립한다.
   static const double rowH = 60;
 
   /// 좌측 배지(32) 자리를 함께 그릴지 — 업적 표처럼 아이콘이 붙는 목록용.

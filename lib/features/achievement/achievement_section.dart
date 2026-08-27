@@ -102,8 +102,10 @@ class AchievementSection extends StatelessWidget {
         ),
         const SizedBox(height: HyphenTokens.sp2),
 
-        // 예약된 자리 — 세 상태가 같은 높이를 쓴다. minHeight 로 잡아 두어
-        // 글자 크기를 키운 기기에서도 넘치지 않고 늘어나기만 한다.
+        // 예약된 자리 — 세 상태가 같은 높이를 쓴다. 고정 높이가 아니라
+        // minHeight 인 이유는, 행 모양이 나중에 바뀌어 예약치를 넘더라도
+        // overflow 로 깨지지 않고 늘어나기만 하게 하려는 것이다
+        // (그때는 아래 stability_home_test 가 밀림을 잡아 준다).
         ConstrainedBox(
           constraints: const BoxConstraints(minHeight: kBodyH),
           child: Column(

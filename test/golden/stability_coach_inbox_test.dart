@@ -13,6 +13,7 @@ import 'package:hyphen_app/features/gym/gym_state.dart';
 import 'package:hyphen_app/features/inbox/inbox_screen.dart';
 import 'package:hyphen_app/features/inbox/note_detail_screen.dart';
 import 'package:hyphen_app/features/profile/profile_state.dart';
+import 'package:hyphen_app/widgets/hkit.dart';
 
 import 'fakes.dart';
 import 'harness.dart';
@@ -116,16 +117,47 @@ Future<void> _tapDay(WidgetTester tester, int i) async {
 
 // ── 쪽지함 ─────────────────────────────────────────────────────────────────
 
+/// 가장 긴 공지 — 제목 1줄(잘림) + 본문 2줄(잘림). 예약한 자리가 이보다
+/// 작으면 공지가 도착하는 순간 대화 목록이 밀린다.
+List<Map<String, dynamic>> _longAnnouncements() => [
+  {
+    'id': 9,
+    'title': '설 연휴 운영 시간 변경 및 수업 일정 조정 안내 (지점 공통 적용)',
+    'body':
+        '설 연휴 기간 오전 수업은 전 지점 휴강하고 저녁 수업만 운영합니다. '
+        '연휴 직후 첫 주는 예약이 몰리니 미리 잡아 두시고, 회원권 만료일이 '
+        '연휴에 걸린 경우 데스크로 문의해 주십시오.',
+    'priority': 'urgent',
+    'pinned': true,
+    'category': 'notice',
+    'visible_to': 'all',
+    'created_at': '2026-08-10T09:00:00',
+  },
+  {
+    'id': 10,
+    'title': '저녁 수업 신설',
+    'body': '저녁 8시 수업 추가.',
+    'priority': 'normal',
+    'pinned': false,
+    'category': 'notice',
+    'visible_to': 'all',
+    'created_at': '2026-08-11T09:00:00',
+  },
+];
+
 Future<void> _pumpInbox(
   WidgetTester tester, {
   required bool withAnnouncements,
   bool holdingThreads = false,
+  bool longAnnouncement = false,
 }) async {
   await _reset(tester);
   SharedPreferences.setMockInitialValues(signedInPrefs());
   final world = {
     ...memberWorld(),
-    if (withAnnouncements) '/api/v1/member/announcements': memberAnnouncements(),
+    if (withAnnouncements)
+      '/api/v1/member/announcements':
+          longAnnouncement ? _longAnnouncements() : memberAnnouncements(),
   };
   final api = FakeApi(
     world,
@@ -201,9 +233,20 @@ void main() {
     final table = await expectStableAnchorY(
       tester,
       states: {
-        '로딩 중': (t) => _pumpWeek(t, classes: const [], holding: true),
-        '명단 도착': (t) => _pumpWeek(t, classes: _wedOneClass()),
-        '빈 명단': (t) => _pumpWeek(t, classes: const []),
+        // 상태마다 '정말 그 상태인지' 를 먼저 못 박는다 — 트리 재사용으로
+        // 앞 상태가 그대로 남으면 y 검사가 통째로 헛돈다.
+        '로딩 중': (t) async {
+          await _pumpWeek(t, classes: const [], holding: true);
+          expect(find.byType(HkLoading), findsOneWidget);
+        },
+        '명단 도착': (t) async {
+          await _pumpWeek(t, classes: _wedOneClass());
+          expect(find.text('저녁 수업'), findsOneWidget);
+        },
+        '빈 명단': (t) async {
+          await _pumpWeek(t, classes: const []);
+          expect(find.text('등록된 수업 없음.'), findsOneWidget);
+        },
       },
       anchors: {
         '주간헤더': CoachWeekClasses.kWeekHeader,
@@ -228,11 +271,13 @@ void main() {
         '전부 접힘': (t) async {
           await _pumpWeek(t, classes: _wedOneClass());
           await _tapDay(t, _todayIndex); // 오늘(기본 펼침) 을 접는다
+          expect(find.text('저녁 수업'), findsNothing);
         },
         '마지막 요일 펼침': (t) async {
           await _pumpWeek(t, classes: _wedOneClass());
           await _tapDay(t, _todayIndex);
           await _tapDay(t, 6);
+          expect(find.text('등록된 수업 없음.'), findsOneWidget);
         },
       },
       anchors: {
@@ -253,10 +298,22 @@ void main() {
     final table = await expectStableAnchorY(
       tester,
       states: {
-        '로딩 중': (t) =>
-            _pumpInbox(t, withAnnouncements: false, holdingThreads: true),
-        '공지 없음': (t) => _pumpInbox(t, withAnnouncements: false),
-        '공지 있음': (t) => _pumpInbox(t, withAnnouncements: true),
+        '로딩 중': (t) async {
+          await _pumpInbox(t, withAnnouncements: false, holdingThreads: true);
+          expect(find.byType(HkLoading), findsOneWidget);
+        },
+        '공지 없음': (t) async {
+          await _pumpInbox(t, withAnnouncements: false);
+          expect(find.text('휴관 안내'), findsNothing);
+        },
+        '공지 있음': (t) async {
+          await _pumpInbox(t, withAnnouncements: true);
+          expect(find.text('휴관 안내'), findsOneWidget);
+        },
+        '공지 긴 본문': (t) async {
+          await _pumpInbox(t, withAnnouncements: true, longAnnouncement: true);
+          expect(find.text('+1'), findsOneWidget);
+        },
       },
       anchors: {
         '공지자리': MessagingFeed.kAnnouncementSlot,
@@ -279,9 +336,18 @@ void main() {
     final table = await expectStableAnchorY(
       tester,
       states: {
-        '수락 대기': (t) => _pumpNote(t, 'read'),
-        '수락함': (t) => _pumpNote(t, 'accepted'),
-        '완료': (t) => _pumpNote(t, 'completed'),
+        '수락 대기': (t) async {
+          await _pumpNote(t, 'read');
+          expect(find.text('수락'), findsOneWidget);
+        },
+        '수락함': (t) async {
+          await _pumpNote(t, 'accepted');
+          expect(find.text('완료'), findsOneWidget);
+        },
+        '완료': (t) async {
+          await _pumpNote(t, 'completed');
+          expect(find.text('Completed.'), findsOneWidget);
+        },
       },
       anchors: {
         '액션자리': NoteDetailScreen.kActions,

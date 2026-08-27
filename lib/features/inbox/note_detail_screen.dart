@@ -29,12 +29,15 @@ class NoteDetailScreen extends StatefulWidget {
   /// 밀리면 안 되는 것 — 그 아래 수신자 목록.
   static const Key kRecipients = Key('note-recipients');
 
-  /// 처방(assignment) 액션의 가장 긴 경우 — 버튼 3줄 + 사이 여백 2칸.
+  /// 처방(assignment) 액션의 가장 긴 경우 — 전체폭 버튼 2줄(터치 48 보장) +
+  /// 글자 버튼 1줄(컴팩트 36) + 사이 여백 2칸.
   static const double actionSlotTripleH =
-      HyphenTokens.buttonHCompact * 3 + HyphenTokens.sp2 * 2;
+      HyphenTokens.touchMin * 2 +
+      HyphenTokens.buttonHCompact +
+      HyphenTokens.sp2 * 2;
 
-  /// 일반 쪽지 액션의 가장 긴 경우 — 버튼 1줄.
-  static const double actionSlotSingleH = HyphenTokens.buttonHCompact;
+  /// 일반 쪽지 액션의 가장 긴 경우 — 전체폭 버튼 1줄.
+  static const double actionSlotSingleH = HyphenTokens.touchMin;
 
   final int noteId;
   const NoteDetailScreen({super.key, required this.noteId});

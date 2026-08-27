@@ -522,10 +522,12 @@ class MessagingFeed extends StatelessWidget {
   /// 밀리면 안 되는 것 — 그 바로 아래 대화 목록.
   static const Key kThreadList = Key('inbox-thread-list');
 
-  /// 공지 카드의 **가장 긴 경우** 높이 (위 여백 + 라벨 줄 + 제목 1줄 + 본문 2줄).
+  /// 공지 카드의 **가장 긴 경우** 높이 — 위 여백 + 라벨 줄 + 제목 1줄 + 본문 2줄
+  /// (제목·본문 모두 maxLines 로 잘려 이보다 커지지 않는다. 실측값 —
+  /// stability_coach_inbox_test 의 '공지 긴 본문' 이 지킨다).
   /// 공지가 없어도 이만큼은 자리를 지킨다 — 최초 로딩이 끝나거나 SSE 로 새 공지가
   /// 들어와도 대화 목록이 통째로 내려가지 않는다.
-  static const double announcementSlotH = 1;
+  static const double announcementSlotH = 123;
 
   const MessagingFeed({super.key});
 
