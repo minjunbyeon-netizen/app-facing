@@ -304,7 +304,7 @@ void main() {
         },
         '공지 없음': (t) async {
           await _pumpInbox(t, withAnnouncements: false);
-          expect(find.text('휴관 안내'), findsNothing);
+          expect(find.text('등록된 공지 없음.'), findsOneWidget);
         },
         '공지 있음': (t) async {
           await _pumpInbox(t, withAnnouncements: true);

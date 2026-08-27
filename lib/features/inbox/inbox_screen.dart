@@ -335,13 +335,14 @@ class _ChatBubble extends StatelessWidget {
 }
 
 /// 상단 핀 공지 — 최신 1건 요약. 새 소식 제일 위 노출.
+/// 목록이 비면 같은 카드 골격에 '등록된 공지 없음.' — 자리(높이)는 그대로다.
 class _PinnedAnnouncement extends StatelessWidget {
   final List<GymAnnouncement> announcements;
   const _PinnedAnnouncement({required this.announcements});
 
   @override
   Widget build(BuildContext context) {
-    final latest = announcements.first;
+    final latest = announcements.isEmpty ? null : announcements.first;
     final more = announcements.length - 1;
     return HkCard(
       padding: const EdgeInsets.all(HyphenTokens.sp3),
@@ -353,7 +354,9 @@ class _PinnedAnnouncement extends StatelessWidget {
       ),
       width: double.infinity,
       radius: HyphenTokens.r2,
-      borderColor: latest.isUrgent ? HyphenTokens.accent : HyphenTokens.border,
+      borderColor: latest?.isUrgent == true
+          ? HyphenTokens.accent
+          : HyphenTokens.border,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -362,7 +365,7 @@ class _PinnedAnnouncement extends StatelessWidget {
               Text(
                 '공지',
                 style: HyphenTokens.microLabel.copyWith(
-                  color: latest.isUrgent
+                  color: latest?.isUrgent == true
                       ? HyphenTokens.accent
                       : HyphenTokens.muted,
                 ),
@@ -374,23 +377,27 @@ class _PinnedAnnouncement extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 4),
-          if (latest.title.isNotEmpty)
-            Text(
-              latest.title,
-              style: HyphenTokens.body.copyWith(fontWeight: FontWeight.w700),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          if (latest.body.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 2),
-              child: Text(
-                latest.body,
-                style: HyphenTokens.caption,
-                maxLines: 2,
+          if (latest == null)
+            const Text('등록된 공지 없음.', style: HyphenTokens.caption)
+          else ...[
+            if (latest.title.isNotEmpty)
+              Text(
+                latest.title,
+                style: HyphenTokens.body.copyWith(fontWeight: FontWeight.w700),
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-            ),
+            if (latest.body.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Text(
+                  latest.body,
+                  style: HyphenTokens.caption,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+          ],
         ],
       ),
     );
@@ -573,9 +580,11 @@ class MessagingFeed extends StatelessWidget {
             key: MessagingFeed.kAnnouncementSlot,
             minHeight: MessagingFeed.announcementSlotH,
             child: Consumer<AnnouncementsState>(
-              builder: (ctx, ann, _) => ann.items.isEmpty
-                  ? const SizedBox.shrink()
-                  : _PinnedAnnouncement(announcements: ann.items),
+              // 비어 있어도 **빈 구멍이 아니라 빈 카드**를 둔다 — 자리만 남기고
+              // 아무것도 그리지 않으면 그 자리가 고장 난 여백으로 읽힌다
+              // (DESIGN-SSOT §레이아웃 안정성 "색이 사라지면 없어진 것으로 읽힌다").
+              builder: (ctx, ann, _) =>
+                  _PinnedAnnouncement(announcements: ann.items),
             ),
           ),
           _EmbeddedThreadList(

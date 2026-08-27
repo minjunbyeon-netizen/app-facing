@@ -5,10 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:hyphen_app/features/achievement/achievement_section.dart';
 import 'package:hyphen_app/features/gym/gym_repository.dart';
 import 'package:hyphen_app/features/gym/gym_state.dart';
 import 'package:hyphen_app/features/home/home_screen.dart';
 import 'package:hyphen_app/features/shell/main_shell.dart';
+import 'package:hyphen_app/widgets/hkit.dart';
 import 'package:hyphen_app/widgets/offline_banner.dart';
 
 import 'fakes.dart';
@@ -159,5 +161,20 @@ void main() {
       tester.getTopLeft(find.byKey(OfflineBanner.kBanner)).dy,
       lessThanOrEqualTo(offlineY),
     );
+  });
+
+  testWidgets('업적 표는 로딩 중 스켈레톤으로 자리를 채운다', (tester) async {
+    phone(tester);
+    await homeLoading(tester);
+    expect(
+      find.byType(HkSkeletonRow),
+      findsNWidgets(AchievementSection.kRows),
+      reason:
+          '로딩 중에는 예약한 자리를 스켈레톤이 채워야 합니다 — 빈 상태로 그렸다가 '
+          '데이터가 오면 표가 커지며 아래를 밀어냅니다.',
+    );
+
+    await homeLoaded(tester);
+    expect(find.byType(HkSkeletonRow), findsNothing);
   });
 }
