@@ -564,6 +564,29 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > - 회귀: 골든 `coach_01`(주간) 재생성 · `coach_02` 삭제 · `coach_04_new_note_members` 신규 ·
 >   `coach_03` 재생성(그룹 버튼 없음).
 
+> **D61 (2026-08-27 사용자 지시 — PC 웹 손질 6건: "공지·일정 조금 더 컴팩트하게 · 수업 안내 수정 모달 글자 잘림 · 체육관 프로필 다른 화면 같은 느낌 · 회원권/횟수권 라인 구분 · 포인트 설정 '프리셋' 엉뚱한 말 · 알림 문구 내가 수정할 수 있게") — 알림 문구 체육관별 덮어쓰기 + PC 5화면 정돈.**
+>
+> - **알림 문구 편집 (백엔드 `services/hyphen`)**: 기본 문구는 그대로 `note.py NOTE_TEMPLATES` 코드 상수,
+>   체육관별 덮어쓰기는 `gym_notification_settings.settings.templates` JSON
+>   (`{"payment":{"title","body"}, "expiry":{"title","variants":{"d7","d3","d0"}}, …}` — 필드 단위 부분 덮어쓰기,
+>   기본과 같거나 빈 값은 키째 삭제 = 되돌리기). 스키마 변경 없음. `render_note(…, gym_id=)` 가 덮어쓰기 우선,
+>   `send_member_note` 가 설정 1회 읽어 게이트+렌더 — 발송 4지점 자동 반영. `describe_templates(gym_id)` 응답에
+>   `variables[]`·`custom`·`default_title/body`·(expiry) `variants[{key,label,body,default_body,custom}]` 추가.
+>   PATCH `templates` 검증 = 제목 120자·본문 500자·허용 변수 외 `{x}` → 400 `INVALID_TEMPLATE`
+>   ("사용할 수 없는 변수: {x}. 사용 가능: …"). 라벨·발송 시점(`when`)은 편집 대상 아님. pytest 289.
+> - **PC 알림 설정**: 항목 카드 '문구 수정' → 카드 안 인라인 편집(제목·본문, 만료는 7일 전/3일 전/당일 3칸,
+>   변수 칩 클릭 = 커서 삽입, 저장·취소·기본 문구로) · 덮어쓴 항목 '수정됨' 배지. 새 CSS 0.
+> - **PC 정돈 5건**: 공지·일정 = 달력 셀 34→26·막대 32→24·표 셀 패딩 축소 + `.ann-stack`(달력+표가 뷰포트
+>   안에서 나눠 쓰고 표는 내부 스크롤) → 1440×900·1280×800 페이지 스크롤 0 · 수업 안내 수정/추가 모달 =
+>   `<input type=time>` 고정폭 112 → auto(min 120) — 한국어 로케일 "오전 06:00" 분 자리 잘림 해소 ·
+>   체육관 프로필 = `.page-narrow` + `.card p-16-20` 2장(기본 정보·이용 안내) + `.section-label`, 라벨 위 간격
+>   `--sp-3` (형제 설정 화면 골격) · 회원권 설정 = 표 하나 안 그룹 헤더 행 2개("회원권 · 기간제"/"횟수권",
+>   판정 `plan_type=='session_based' || session_count`), 횟수권 행 바탕 `color-mix(--border 40%, --bg)`,
+>   빈 그룹 한 줄 · 포인트 설정 = 노출 문구 "프리셋" → **"적립 항목"** (버튼·모달·빈 상태·미리보기·에러,
+>   회원 상세 적립 모달 라벨 "적립 규칙" 도 같은 말로 — JS 변수·API·PointRule 이름은 그대로).
+> - 앱(폰) 변경 0. 검증: 6 작업자 격리 chromium 실클릭(추가→수정→적립→삭제 · 문구 저장→400→되돌리기 · 실제 결제
+>   1건 등록 시 수정 문구로 쪽지 도착) · design lint 인라인 7·블록 10 유지.
+
 > **D60 (2026-08-26 사용자 지시 — PC 웹 개편 6건 + "카카오 알림톡 필요 없음, 앱 쪽지로. 야간 발송 금지 없애고 보내는 시간은 오후 3시로 통일. 각 알림마다 뭐가 발송되는지 보여라") — 알림 = 앱 쪽지 하나 · PC 사이드바/공지·일정/케어/수업/알림 설정 개편.**
 >
 > - **알림 채널 = 회원 앱 쪽지 하나** (카카오 알림톡·NHN 폐기 — `_archive/dead-2026-08-26/`). 정본 =
@@ -1289,7 +1312,7 @@ retention 정의 = "코호트(가입 월) 의 N개월 후 시점에 attendance �
 | 1 | `class_session` | Week 1 | §1.1 예약 | 예 |
 | 2 | `class_reservation` | Week 1 | §1.1 예약 | 예 |
 | 3 | `class_waitlist_promotion` | Week 1 | §1.1 예약 대기열 audit | 예 |
-| 4 | `notification_template` | Week 3 | §1.2 카카오 알림톡 (D60 폐기 — 템플릿은 `note.py NOTE_TEMPLATES` 코드 상수, 표 없음) | 예 |
+| 4 | `notification_template` | Week 3 | §1.2 카카오 알림톡 (D60 폐기 — 템플릿은 `note.py NOTE_TEMPLATES` 코드 상수, 표 없음. D61 체육관별 덮어쓰기는 `gym_notification_settings.settings.templates` JSON) | 예 |
 | 5 | `notification_dispatch` | Week 3 | §1.2 발송 이력 | 예 |
 | 6 | `contract_template` | Week 1 | §1.3 전자계약 템플릿 | 예 |
 | 7 | `contract_instance` | Week 1 | §1.3 서명 인스턴스 | 예 |
