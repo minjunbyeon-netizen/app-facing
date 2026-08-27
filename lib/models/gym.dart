@@ -47,8 +47,9 @@ class GymProfile {
   final String? coachBio;
   final String? classSchedule;
   final String? motto;
-  final String? instagram;
-  final String? logoUrl;
+  // 2026-08-27 — instagram·logoUrl 삭제. 4기둥(공지·쪽지·수업 예약·수업 공개)
+  // 밖이고, 앱에 이미지를 그리는 코드 자체가 없어(Image.network 0건) 코치가
+  // 채워도 아무 화면에도 안 나왔다. 서버 응답에서도 함께 사라졌다.
   // v1.16.2 (2026-05-24) — 박스 프로필 페이지 9 필드 확장
   final String? priceSummary;
   final String? paymentMethods;
@@ -66,8 +67,6 @@ class GymProfile {
     this.coachBio,
     this.classSchedule,
     this.motto,
-    this.instagram,
-    this.logoUrl,
     this.priceSummary,
     this.paymentMethods,
     this.receiptInfo,
@@ -95,8 +94,6 @@ class GymProfile {
         coachBio: _s(j['coach_bio']),
         classSchedule: _s(j['class_schedule']),
         motto: _s(j['motto']),
-        instagram: _s(j['instagram']),
-        logoUrl: _s(j['logo_url']),
         priceSummary: _s(j['price_summary']),
         paymentMethods: _s(j['payment_methods']),
         receiptInfo: _s(j['receipt_info']),

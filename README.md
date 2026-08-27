@@ -147,3 +147,16 @@ samples, guidance on mobile development, and a full API reference.
     전송 API 는 종전과 같은 `POST /gym/<id>/notes` individual·note — PC 쪽지함 연동 그대로.
     그룹·숙제(assignment) 서버 API 는 PC 용으로 유지.
 
+22. **체육관 프로필 인스타그램·로고 이미지 URL (v3.29 · 2026-08-27 사용자 결정
+    "이건 코치와 회원 간의 공지사항·쪽지·수업 예약·수업 공개(+업적) 그게 끝이야")** —
+    `models/gym.dart` 의 `GymProfile.instagram`·`logoUrl` 필드·생성자 인자·`fromJson` 파싱.
+    4기둥 밖이고 앱에 이미지를 그리는 코드 자체가 없어(`Image.network` 0건) 코치가 채워도
+    어느 화면에도 안 나왔다. PC 입력칸 2개(`settings_gym_profile.html`)·백엔드 직렬화·PATCH
+    수용도 같은 날 삭제 — DB 컬럼 `gym_profiles.instagram`·`logo_url` **만** 휴면으로 존치
+    (운영 DB 에 실값이 있어 DROP = 데이터 손실. `models/gym_profile.py` 주석 참조).
+23. **폰 체육관 프로필 편집 경로 (v3.29 · 2026-08-27 · 22 와 같은 커밋)** —
+    `GymState.updateGymProfile`(gym_state.dart) · `GymRepository.updateGymProfile`
+    (gym_repository.dart). 편집 화면(구 `gym_profile_edit_screen.dart`)이 진작 사라져
+    `lib/` 전체 호출처 0건이던 죽은 배선. 체육관 프로필 편집 창구는 PC 코치 웹 하나다.
+    서버 `PATCH /api/v1/gyms/<id>/profile` 은 PC 가 쓰므로 그대로 유지.
+

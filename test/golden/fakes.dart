@@ -272,7 +272,6 @@ const gymsMine = {
       'coach_bio': 'CF-L2 · 리저널 3회 출전',
       'class_schedule': '평일 06:00-22:00 · 토 10:00-14:00',
       'motto': 'Earn it.',
-      'instagram': 'hyphen_seomyeon',
     },
   },
   'role': 'member',

@@ -6,7 +6,11 @@
 
 ## 1. ALTER `gym_profiles` (+9 필드)
 
-기존 7 필드(phone · coach_name · coach_bio · class_schedule · motto · instagram · logo_url · updated_at) 그대로 두고 아래 9 필드 추가. 모두 사장 권한으로 PATCH.
+기존 7 필드(phone · coach_name · coach_bio · class_schedule · motto · ~~instagram~~ · ~~logo_url~~ · updated_at) 그대로 두고 아래 9 필드 추가. 모두 코치 권한으로 PATCH.
+
+> **2026-08-27 (브리프 D63)**: `instagram`·`logo_url` 은 4기둥(공지·쪽지·수업 예약·수업 공개)
+> 밖이라 제거됐다. PC 입력칸·API 직렬화·PATCH 수용·앱 모델 전부 삭제, DB 컬럼만 휴면 존치.
+> 현재 편집·노출 필드는 **14개** (아래 9 + phone·coach_name·coach_bio·class_schedule·motto).
 
 | 필드명 | 타입 | nullable | 용도 |
 |---|---|---|---|

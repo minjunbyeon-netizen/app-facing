@@ -55,50 +55,9 @@ class GymRepository {
     return map;
   }
 
-  /// v1.22: 체육관 부가정보 업데이트 (코치 owner 만).
-  /// body 에 포함된 키만 갱신 — 빈 문자열은 명시적 비우기.
-  Future<GymProfile> updateGymProfile({
-    required int gymId,
-    String? phone,
-    String? coachName,
-    String? coachBio,
-    String? classSchedule,
-    String? motto,
-    String? instagram,
-    // v1.16.2 (2026-05-24) — 박스 프로필 페이지 9 필드
-    String? priceSummary,
-    String? paymentMethods,
-    String? receiptInfo,
-    String? parkingInfo,
-    String? firstVisitGuide,
-    String? attireGuide,
-    String? wifiInfo,
-    String? contactKakao,
-    String? freeNotice,
-  }) async {
-    final body = <String, dynamic>{};
-    if (phone != null) body['phone'] = phone;
-    if (coachName != null) body['coach_name'] = coachName;
-    if (coachBio != null) body['coach_bio'] = coachBio;
-    if (classSchedule != null) body['class_schedule'] = classSchedule;
-    if (motto != null) body['motto'] = motto;
-    if (instagram != null) body['instagram'] = instagram;
-    if (priceSummary != null) body['price_summary'] = priceSummary;
-    if (paymentMethods != null) body['payment_methods'] = paymentMethods;
-    if (receiptInfo != null) body['receipt_info'] = receiptInfo;
-    if (parkingInfo != null) body['parking_info'] = parkingInfo;
-    if (firstVisitGuide != null) body['first_visit_guide'] = firstVisitGuide;
-    if (attireGuide != null) body['attire_guide'] = attireGuide;
-    if (wifiInfo != null) body['wifi_info'] = wifiInfo;
-    if (contactKakao != null) body['contact_kakao'] = contactKakao;
-    if (freeNotice != null) body['free_notice'] = freeNotice;
-    final data = await api.patch('/api/v1/gyms/$gymId/profile', body);
-    final profileRaw = data['profile'];
-    if (profileRaw is Map<String, dynamic>) {
-      return GymProfile.fromJson(profileRaw);
-    }
-    return const GymProfile();
-  }
+  // 2026-08-27 — updateGymProfile 삭제. PATCH /api/v1/gyms/{id}/profile 은
+  // 살아 있지만 부르는 창구는 PC 코치 웹 하나다. 폰에는 편집 화면이 없어
+  // 이 메서드와 GymState.updateGymProfile 둘 다 호출처가 0건이었다.
 
   // v1.16.2 (2026-05-24) — 코치 프로필 endpoint 5개.
   // ARCHITECTURE_BRIEF §11.6 / docs/GYM_PROFILE_SCHEMA.md §3.

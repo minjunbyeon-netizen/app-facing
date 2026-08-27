@@ -308,69 +308,9 @@ class GymState extends ChangeNotifier {
     }
   }
 
-  /// v1.22: 체육관 부가정보 저장. 성공 시 _membership 갱신 + notifyListeners.
-  /// v1.16.2 (2026-05-24) — 박스 프로필 페이지 9 필드 추가.
-  Future<bool> updateGymProfile({
-    String? phone,
-    String? coachName,
-    String? coachBio,
-    String? classSchedule,
-    String? motto,
-    String? instagram,
-    String? priceSummary,
-    String? paymentMethods,
-    String? receiptInfo,
-    String? parkingInfo,
-    String? firstVisitGuide,
-    String? attireGuide,
-    String? wifiInfo,
-    String? contactKakao,
-    String? freeNotice,
-  }) async {
-    final gym = _membership.gym;
-    if (gym == null || !isOwner) return false;
-    _error = null;
-    try {
-      final newProfile = await repo.updateGymProfile(
-        gymId: gym.id,
-        phone: phone,
-        coachName: coachName,
-        coachBio: coachBio,
-        classSchedule: classSchedule,
-        motto: motto,
-        instagram: instagram,
-        priceSummary: priceSummary,
-        paymentMethods: paymentMethods,
-        receiptInfo: receiptInfo,
-        parkingInfo: parkingInfo,
-        firstVisitGuide: firstVisitGuide,
-        attireGuide: attireGuide,
-        wifiInfo: wifiInfo,
-        contactKakao: contactKakao,
-        freeNotice: freeNotice,
-      );
-      final updatedGym = GymSummary(
-        id: gym.id,
-        name: gym.name,
-        location: gym.location,
-        memberCount: gym.memberCount,
-        isOfficial: gym.isOfficial,
-        ownerHash: gym.ownerHash,
-        profile: newProfile,
-      );
-      _membership = GymMembership(
-        gym: updatedGym,
-        role: _membership.role,
-        status: _membership.status,
-      );
-      notifyListeners();
-      return true;
-    } on AppException catch (e) {
-      _error = e.messageKo;
-      notifyListeners();
-      return false;
-    }
-  }
+  // 2026-08-27 — GymState.updateGymProfile 삭제. 체육관 프로필 편집 창구는
+  // PC 코치 웹(settings_gym_profile.html) 하나뿐이고, 폰에는 이 메서드를
+  // 부르는 화면이 없었다 (lib/ 전체 호출처 0건). 되살리지 말 것.
 
   Future<bool> decideMember({
     required int memberId,

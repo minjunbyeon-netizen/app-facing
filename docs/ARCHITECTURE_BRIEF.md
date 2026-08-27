@@ -564,6 +564,32 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > - 회귀: 골든 `coach_01`(주간) 재생성 · `coach_02` 삭제 · `coach_04_new_note_members` 신규 ·
 >   `coach_03` 재생성(그룹 버튼 없음).
 
+> **D63 (2026-08-27 사용자 결정 "이건 코치와 회원 간의 공지사항·쪽지·수업 예약·수업 공개(+업적) 그게 끝이야. 여기에 위배되거나 필요없는 건 없애도 된다니까") — 체육관 프로필 인스타그램·로고 이미지 URL 제거 (3면).**
+>
+> - **판단 근거**: 두 칸은 4기둥(공지·쪽지·수업 예약·수업 공개 +업적) 어디에도 속하지 않고,
+>   앱에 **이미지를 그리는 코드가 아예 없다**(`Image.network` 0건 · `GymProfile.instagram`
+>   참조 위젯 0건). 코치가 채워도 어느 화면에도 안 나오는 입력칸이었다 (D62 미결 항목).
+> - **PC** `web/facing-admin/templates/settings_gym_profile.html`: 입력칸 2개 + 라벨 +
+>   `FIELD_MAP` 2행 삭제 (16 → **14 필드**). 나머지 14칸 저장 경로는 그대로.
+> - **백엔드** `services/hyphen`: `api/gym.py` `_profile_dict` 직렬화 2줄 · PATCH 수용
+>   2블록 삭제. 시드도 정리 (`seeds/personas.json` 2곳 · `seeds/seed_personas.py`
+>   생성자 2인자 · `seeds/home_gym.py` `_LEGACY_PROFILE`/`_NEW_PROFILE`).
+> - **DB 컬럼은 남긴다 (휴면)**: `gym_profiles.instagram`·`logo_url`. 이 repo 는 alembic
+>   이 없고 `models/base.py migrate_db()` 의 손수 `_migrate_*` 함수로 부팅 때 스키마를
+>   맞춘다. 운영 DB 에 코치가 실제로 넣은 값이 들어 있어 DROP 은 되돌릴 수 없는 데이터
+>   손실이다 — **사문 컬럼 < 데이터 손실**. `auto_approve_joins`(2026-08-25) 와 같은
+>   처리이며 모델 파일에 휴면 주석을 박았다. 되살리려면 사용자 결정부터.
+> - **앱** `apps/facing-app`: `models/gym.dart` 필드·생성자·`fromJson` 파싱 삭제
+>   (`isEmpty` 는 원래 두 필드를 안 봤다) · `gym_repository.dart`·`gym_state.dart` 의
+>   **`updateGymProfile` 두 메서드 통째 삭제** — 폰에 체육관 프로필 편집 화면이 없어
+>   `lib/` 호출처 0건이었다 (편집 창구는 PC 하나). 골든 fixture 1줄도 정리.
+> - **안내문 정정 (사실만)**: 종전 "회원 앱의 체육관 소개 화면에 그대로 보여요" 는 거짓이었다 —
+>   수업 시간표·모토는 소개 화면이 아니라 **수업 탭 맨 위 카드**(`GymInfoCard` →
+>   `box_wod_screen.dart`)에 나온다. 섹션마다 어느 화면에 나오는지 `.setting-desc` 로 적었다.
+> - 회귀: 백엔드 pytest **291 passed, 1 skipped**(증감 0) · Flutter analyze 0 · **201 통과**,
+>   골든 **61장 그대로**(두 필드가 아무 화면에도 안 그려졌다는 증거) · PC design lint
+>   인라인 7·블록 10 유지 · sync --check 드리프트 0.
+
 > **D62 (2026-08-27 사용자 지시 "이원화 없는지 교차검증해봐 · 고아버튼이나 틀린게 있는지 찾아봐" → 확정 21건 보고 → "1,2번 까지하고 3번은 나에게 다시 보고") — 설정 9화면 교차검증 후 결함 수리 + 3면 표기 통일.**
 >
 > - **교차검증(4갈래)**: 용어 이원화 · 고아 버튼 정적 대조 · fetch↔프록시↔백엔드 3단 계약 · 실물 클릭 순회.
@@ -591,12 +617,10 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 >   `'AUTO'/'COACH'/'NOTICE'` 등 영문 코드값 노출 정리. 백엔드 사용자 노출 에러 "클래스"→"수업" 8곳
 >   (전부 `ClassSession` 조회 실패 = 실제 수업 1회) · 알림 변수 `{상품명}`→`{회원권}`(템플릿+호출부 동시, §0-B).
 >   PC 객체명 "수업 종류" 통일(페이지명 '수업 안내' 는 사용자 호칭이라 유지) · 정지 표기 3종 → 일시정지/일시정지 중.
-> - **미결(사용자 결정 대기)**: 체육관 프로필의 **인스타그램·로고 이미지 URL** 은 DB·API·앱 모델까지
->   배선돼 있으나 **렌더 위젯이 0건**(앱 전체 `Image.network` 0). 화면 안내문은 "앱 소개 화면에 그대로
->   보여요" 라 약속과 다르다. 앱에 표시를 넣을지 / PC 칸을 뺄지 사용자 결정 필요. 수업 시간표·모토는
->   '체육관' 소개가 아니라 수업 탭 아코디언(`GymInfoCard`)에 노출 — 안내문 부정확.
+> - ~~**미결(사용자 결정 대기)**: 체육관 프로필의 **인스타그램·로고 이미지 URL**~~
+>   → **D63 (2026-08-27) 로 해소 — 두 칸 제거.**
 > - **다음 후보(보고만)**: 알림 설정 JSON 키 `reservation`(=수업 취소)·`cancel`(=회원권 해지) 개명 —
->   PC 토글 키·기존 설정 행 마이그레이션 동반. 앱 휴면 편집 경로 `GymState.updateGymProfile` 호출처 0.
+>   PC 토글 키·기존 설정 행 마이그레이션 동반. (앱 휴면 편집 경로 `GymState.updateGymProfile` → D63 에서 삭제.)
 > - 검증: 백엔드 pytest **291 passed**(신규 2) · Flutter **201 통과**, 골든 61장 갱신(장수 증감 0) ·
 >   PC design lint 인라인 7·블록 10 유지 · 실패 경로 재현 13/13 · 수업 안내 실물 28단계.
 
@@ -1412,7 +1436,7 @@ retention 정의 = "코호트(가입 월) 의 N개월 후 시점에 attendance �
 
 | 변경 | 대상 | 신규 필드 / 모델 | 비고 |
 |---|---|---|---|
-| ALTER | `gym_profiles` | +9 필드 (price_summary, payment_methods, receipt_info, parking_info, first_visit_guide, attire_guide, wifi_info, contact_kakao, free_notice) | 기존 7 필드 (phone·coach_*·motto·logo·class_schedule·instagram) 와 합쳐 16 필드 |
+| ALTER | `gym_profiles` | +9 필드 (price_summary, payment_methods, receipt_info, parking_info, first_visit_guide, attire_guide, wifi_info, contact_kakao, free_notice) | 기존 7 필드 (phone·coach_*·motto·logo·class_schedule·instagram) 와 합쳐 16 필드 (→ D63 2026-08-27 로 `instagram`·`logo_url` 코드 경로 제거, 노출 **14 필드**. 컬럼만 휴면 존치) |
 | 신규 테이블 | `gym_coach_profiles` | coach_user_id, gym_id, name, photo_url, career, certifications, specialty, competition_records, demo_video_url, sns_url, pt_bookable, off_days_json, hired_at | 코치 multi 지원. `gym_managers.role='coach'` 와 1:1 연결 |
 | 신규 endpoint | §13 카탈로그 | 6 (GET/PATCH gym profile / GET coach list / GET coach detail / PATCH coach profile / GET coach off-days) | RBAC: 사장 = 전부, 코치 = 본인 only, 회원 = 읽기만 |
 
