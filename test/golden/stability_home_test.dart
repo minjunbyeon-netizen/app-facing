@@ -47,6 +47,12 @@ Future<void> _pumpHome(
   Set<String> hangPaths = const {},
   bool offline = false,
 }) async {
+  // 상태를 이어서 잴 때 **트리를 완전히 버리고** 다시 세운다. 같은 모양의
+  // 위젯을 다시 pump 하면 Flutter 가 Element 를 재사용해 provider 안의
+  // AchievementState 가 앞 상태의 것으로 남는다 (로딩 상태를 재려는데 앞
+  // 상태에서 이미 다 불러온 객체가 그대로 살아 있게 된다).
+  await tester.pumpWidget(const SizedBox.shrink());
+  await tester.pump();
   SharedPreferences.setMockInitialValues(signedInPrefs());
   final api = FakeApi(world ?? memberWorld(), hangPaths: hangPaths);
   final gym = GymState(GymRepository(api), sse: FakeSse());
