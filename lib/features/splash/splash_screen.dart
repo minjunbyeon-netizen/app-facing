@@ -105,9 +105,11 @@ class _SplashScreenState extends State<SplashScreen>
       Navigator.of(context).pushReplacementNamed('/boss/dashboard');
       return;
     }
+    // v3.29 (2026-08-27 사용자 지시): 갈림길 화면('/signup') 폐지 —
+    // 로그인 안 한 사람은 곧바로 아이디·비밀번호 화면으로 간다.
     Navigator.of(
       context,
-    ).pushReplacementNamed(auth.isSignedIn ? '/shell' : '/signup');
+    ).pushReplacementNamed(auth.isSignedIn ? '/shell' : '/login');
   }
 
   Widget _fadeOnly(int slot, Widget child) =>

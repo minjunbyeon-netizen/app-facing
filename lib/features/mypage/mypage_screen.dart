@@ -572,7 +572,8 @@ class _ActionsSection extends StatelessWidget {
     await context.read<AuthState>().signOut();
     if (!context.mounted) return;
     context.read<GymState>().resetLocal();
-    Navigator.of(context).pushNamedAndRemoveUntil('/signup', (_) => false);
+    // v3.29: 진입 화면이 곧 로그인 화면이다 ('/signup' 갈림길 폐지).
+    Navigator.of(context).pushNamedAndRemoveUntil('/login', (_) => false);
   }
 }
 

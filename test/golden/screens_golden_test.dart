@@ -7,7 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hyphen_app/core/quotes.dart';
 import 'package:hyphen_app/features/boss/boss_dashboard_screen.dart';
 import 'package:hyphen_app/features/auth/auth_state.dart';
-import 'package:hyphen_app/features/auth/signup_screen.dart';
 import 'package:hyphen_app/features/gym/gym_repository.dart';
 import 'package:hyphen_app/features/gym/gym_state.dart';
 import 'package:hyphen_app/features/history/history_screen.dart';
@@ -110,22 +109,8 @@ void main() {
   // v3.3 (2026-08-21 사용자 지시): 인트로 2p 골든(common_02·common_03) 삭제 —
   // 화면 코드째 제거 (README §제거된 기능 대장).
 
-  // ── 공통: 소셜 로그인 ──
-  testWidgets('common: signup', (tester) async {
-    phone(tester);
-    SharedPreferences.setMockInitialValues({});
-    final api = FakeApi(memberWorld());
-    await tester.pumpWidget(
-      harness(
-        api: api,
-        auth: AuthState(),
-        profile: ProfileState(),
-        home: const SignupScreen(),
-      ),
-    );
-    await precacheAllImages(tester);
-    await capture(tester, 'common_05_signup');
-  });
+  // v3.29 (2026-08-27 사용자 지시): 진입 갈림길 골든(common_05_signup) 삭제 —
+  // 화면 코드째 제거하고 로그인 화면 하나로 합쳤다 (README §제거된 기능 대장 22).
 
   // ── 공통: 가입 신청서 (v2.8 — 이름·생년월일·성별·연락처·경력·종목·부상) ──
   // 한 화면에 다 안 들어가 위·아래 두 장으로 나눠 찍는다.

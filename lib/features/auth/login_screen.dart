@@ -10,10 +10,16 @@ import '../../widgets/hkit.dart';
 import '../boss/boss_api_client.dart';
 import '../boss/boss_auth_state.dart';
 import '../gym/gym_state.dart';
+import '../mypage/privacy_screen.dart';
+import '../mypage/terms_screen.dart';
 import '../profile/profile_state.dart';
 import 'auth_state.dart';
 
 /// 로그인 — **창구는 하나다** (v3.19 · 2026-08-25 사용자 지시).
+///
+/// v3.29 (2026-08-27 사용자 지시): 앱을 열면 곧바로 이 화면이다. 로그인·가입을
+/// 고르게 하던 갈림길 화면(구 `SignupScreen`)은 삭제했고, 그 화면이 갖고 있던
+/// '회원 가입 신청' 줄과 약관·개인정보처리방침 링크를 이 화면 아래로 옮겼다.
 ///
 /// 사람이 '회원 로그인 / 코치 로그인' 을 골라 들어가는 구조 자체를 없앴다.
 /// 아이디·비밀번호만 받고 계정 유형 판정은 **서버**가 한다:
@@ -247,6 +253,50 @@ class _LoginScreenState extends State<LoginScreen> {
                 _busy
                     ? const HkLoading()
                     : HkButton.primary('로그인', onPressed: _login),
+
+                // v3.29 (2026-08-27 사용자 지시): 갈림길 화면을 없애고 이 화면
+                // 하나로 합쳤다. 아이디가 아직 없는 사람이 갈 길은 큰 버튼이
+                // 아니라 아래 한 줄로 둔다 — 주 동선은 로그인이다.
+                const SizedBox(height: HyphenTokens.sp2),
+                Center(
+                  child: HkButton.tertiary(
+                    '회원 가입 신청',
+                    onPressed: _busy
+                        ? null
+                        : () {
+                            Haptic.light();
+                            Navigator.of(context).pushNamed('/signup/self');
+                          },
+                  ),
+                ),
+
+                // 법적 고지 — 구 진입 화면에 있던 두 링크를 그대로 옮겨 왔다.
+                const SizedBox(height: HyphenTokens.sp3),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    HkButton.tertiary(
+                      '이용약관',
+                      neutral: true,
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const TermsScreen()),
+                      ),
+                    ),
+                    const Text(
+                      ' · ',
+                      style: TextStyle(color: HyphenTokens.muted),
+                    ),
+                    HkButton.tertiary(
+                      '개인정보처리방침',
+                      neutral: true,
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const PrivacyScreen(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),

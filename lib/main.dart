@@ -24,7 +24,6 @@ import 'features/achievement/achievement_repository.dart';
 import 'features/achievement/achievement_state.dart';
 import 'features/auth/auth_state.dart';
 import 'features/auth/login_screen.dart';
-import 'features/auth/signup_screen.dart';
 import 'features/signup/self_signup_screen.dart';
 import 'features/gym/gym_repository.dart';
 import 'features/gym/gym_state.dart';
@@ -176,7 +175,9 @@ class HyphenApp extends StatelessWidget {
         initialRoute: '/splash',
         routes: {
           '/splash': (_) => const SplashScreen(),
-          '/signup': (_) => const SignupScreen(),
+          // v3.29 (2026-08-27 사용자 지시): '/signup' 갈림길 화면·라우트 삭제 —
+          // 앱을 열면 곧바로 '/login' 이고, 가입은 그 화면 아래 한 줄이다
+          // (README §제거된 기능 대장 22).
           // v3.3 (2026-08-21): '/intro' 인트로 화면·라우트 삭제 — v2.3 에서
           // 진입이 끊긴 채 남아 있던 코드 (README §제거된 기능 대장).
           '/onboarding/basic': (_) => const OnboardingBasicScreen(),

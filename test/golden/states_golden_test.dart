@@ -9,7 +9,6 @@ import 'package:hyphen_app/core/goals_state.dart';
 import 'package:hyphen_app/core/quotes.dart';
 import 'package:hyphen_app/features/auth/auth_state.dart';
 import 'package:hyphen_app/features/auth/login_screen.dart';
-import 'package:hyphen_app/features/auth/signup_screen.dart';
 import 'package:hyphen_app/features/boss/boss_dashboard_screen.dart';
 import 'package:hyphen_app/features/gym/box_wod_screen.dart';
 import 'package:hyphen_app/features/gym/gym_repository.dart';
@@ -377,10 +376,7 @@ void _rememberedLoginGolden() {
         gym: gym,
         bossAuth: bossAuth,
         bossApi: bossApi,
-        routes: {
-          '/signup': (_) => const SignupScreen(),
-          '/login': (_) => const LoginScreen(),
-        },
+        routes: {'/login': (_) => const LoginScreen()},
         home: const CoachShell(),
       ),
     );
