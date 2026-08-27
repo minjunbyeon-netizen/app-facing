@@ -125,29 +125,53 @@ class _WodListState extends State<_WodList> {
   @override
   Widget build(BuildContext context) {
     final gym = widget.gymState.membership.gym!;
-    return RefreshIndicator(
-      onRefresh: refreshAll,
-      child: ListView(
-        padding: const EdgeInsets.all(HyphenTokens.sp3),
-        children: [
-          // 불러오기가 실패한 날에도 요일 줄은 그려진다 — 그대로 두면 '게시된
-          // 수업 내용 없음' 으로 읽혀 코치가 안 올린 것처럼 보인다. 실패는
-          // 실패라고 먼저 말한다 (2026-08-12).
-          //
-          // v3.34 (2026-08-27): 그 배너가 `if (error != null)` 로 생겼다
-          // 사라지면서 주간 보드·체육관 정보·공지가 통째로 밀렸다 — 앱의 기본
-          // 진입 탭이라 체감이 가장 큰 자리다. 이제 자리를 항상 잡아 두고
-          // **내용만** 갈아 끼운다 (HkNoticeSlot — DESIGN-SSOT §레이아웃 안정성).
-          // 말하는 내용·재시도 동선은 그대로다.
-          HkNoticeSlot(widget.gymState.error, onRetry: refreshAll),
-          WeekBoard(key: ValueKey('week-$_tick'), gymState: widget.gymState),
-          // 체육관 정보·공지는 맨 아래 (자주 보는 것이 아니다 — 접힌 줄로 유지).
-          const SizedBox(height: HyphenTokens.sp3),
-          const Divider(height: 1, color: HyphenTokens.border, thickness: 1),
-          _GymInfoAccordion(gym: gym, key: BoxWodScreen.kGymInfo),
-          const _AnnouncementsAccordion(),
-        ],
-      ),
+    return Stack(
+      children: [
+        RefreshIndicator(
+          onRefresh: refreshAll,
+          child: ListView(
+            padding: const EdgeInsets.all(HyphenTokens.sp3),
+            children: [
+              // 불러오기가 실패한 날에도 요일 줄은 그려진다 — 그대로 두면 '게시된
+              // 수업 내용 없음' 으로 읽혀 코치가 안 올린 것처럼 보인다. 실패는
+              // 실패라고 먼저 말한다 (2026-08-12).
+              //
+              // v3.34 (2026-08-27): 그 배너가 `if (error != null)` 로 생겼다
+              // 사라지면서 주간 보드·체육관 정보·공지가 통째로 밀렸다 — 앱의 기본
+              // 진입 탭이라 체감이 가장 큰 자리다.
+              //
+              // v3.35 (2026-08-27 실기 확인): 자리를 항상 잡는 방식(HkNoticeSlot)으로
+              // 밀림은 없앴으나, 에러는 **거의 안 나는데** 기본 진입 탭 맨 위에 56px 빈
+              // 띠가 상시로 남았다 — 갤S22 캡처에서 바로 드러났다. 오프라인 배너와 같은
+              // 판단으로 **겹쳐 띄우기**로 바꾼다: 정상일 때 0px, 에러가 떠도 아래 y 불변
+              // (widgets/offline_banner.dart OfflineBannerOverlay 와 같은 처방 —
+              // DESIGN-SSOT §레이아웃 안정성 "배너는 밀지 말고 겹친다").
+              // 말하는 내용·재시도 동선은 그대로다.
+              WeekBoard(
+                key: ValueKey('week-$_tick'),
+                gymState: widget.gymState,
+              ),
+              // 체육관 정보·공지는 맨 아래 (자주 보는 것이 아니다 — 접힌 줄로 유지).
+              const SizedBox(height: HyphenTokens.sp3),
+              const Divider(
+                height: 1,
+                color: HyphenTokens.border,
+                thickness: 1,
+              ),
+              _GymInfoAccordion(gym: gym, key: BoxWodScreen.kGymInfo),
+              const _AnnouncementsAccordion(),
+            ],
+          ),
+        ),
+        // 실패 배너는 본문 위에 겹친다 — 정상일 때 0px, 떠도 아래가 안 밀린다.
+        if (widget.gymState.error != null)
+          Positioned(
+            top: 0,
+            left: HyphenTokens.sp3,
+            right: HyphenTokens.sp3,
+            child: HkNoticeSlot(widget.gymState.error, onRetry: refreshAll),
+          ),
+      ],
     );
   }
 }
