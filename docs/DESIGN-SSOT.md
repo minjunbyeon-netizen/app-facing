@@ -1,4 +1,4 @@
-# DESIGN-SSOT — 화면 양식 정본 (v2.2 · 2026-08-12)
+# DESIGN-SSOT — 화면 양식 정본 (v2.3 · 2026-08-27)
 
 > **모든 레이아웃·크기·폰트 굵기·카피 결정의 단일 정본.** 화면 작업은 이 양식 안에서만 움직인다.
 > 새 수치·새 variant 가 필요하면 **이 문서와 HKit/토큰에 먼저 추가한 뒤** 화면에 쓴다 (역순 금지).
@@ -68,6 +68,8 @@
 | 요소 사이 | 밀접 `sp1`(4) · 기본 `sp2`(8) · 구분 `sp3`(12) |
 | 모서리 | `r1`(4) 배지·선택칩 · `r2`(8) 입력·작은 버튼 · `r3`(12) 카드·소셜 버튼 · `r4`(16) CTA 버튼 · `r5`(28) 시트 |
 | 크기 | 터치 최소 48 · 버튼 높이 52 · AppBar 52 · 탭바 64 · 스피너 22×22 stroke 2 |
+| 폼 최대 폭 | `formMaxW`(420) — 폼 화면은 이 폭에서 멈추고 가운데 정렬 (폰 360 무영향, 태블릿용) |
+| 안내·에러 예약 자리 | `noticeSlotH`(56) — caption 2줄 + 상하 sp2 + 보더. HkNoticeSlot 전용 |
 
 ## 5. HKit 컴포넌트 (여기 없으면 HKit 에 추가 후 사용)
 
@@ -90,6 +92,9 @@
 | `HkAppBar` / `.identity` | **상단바 유일 규격** (v3.24) — push 화면은 제목(+actions), 셸은 체육관명+역할 두 줄. 화면에서 `AppBar(` 직접 금지 |
 | `HkDialog.confirm/info/custom` | **다이얼로그 유일 규격** (v3.24) — 모양은 dialogTheme(r4), 버튼은 HkButton. 위험 확정은 `danger: true` |
 | `HkSheet.show` | **바텀시트 유일 규격** (v3.24) — 모양은 bottomSheetTheme(상단 r5), 항상 스크롤 제어 |
+| `HkBackBar` | **고정 높이 상단 띠 유일 규격** (v3.33) — 높이 `appBarH`(52) 고정, 뒤로 갈 곳이 있을 때만 화살표. 구분선 없음. 제목·actions 가 필요하면 `HkAppBar` |
+| `HkNoticeSlot` | **안내·에러 예약 자리 유일 규격** (v3.33) — 높이 `noticeSlotH`(56) 고정, 비어도 자리를 지킨다. 내용은 `HkInlineError` |
+| `HkButton(busy:)` | 처리 중 — 버튼을 치우지 않고 같은 자리에서 스피너만. primary 는 면 색 유지 (비활성 회색 금지) |
 | `HkInlineError` | 폼 안 인라인 에러 박스 (로그인 실패 등) · `onRetry` 주면 목록 위 한 줄 배너. 전면 = HkErrorState, 스낵 = HkSnack.error |
 | `HkTabBar` | **하단 탭바 유일 규격** (v3.25) — 회원 셸·코치 셸 공용. 셸은 destinations 만 준다 |
 | `ClassLine` (classes/) | 수업 한 줄 유일 규격 (v3.25) — `.coach`(인원+명단) / `.member`(예약 배지). 코치 예약 현황·주간보드 공용 |
@@ -98,7 +103,7 @@
 | 날짜·시각 표기 | `core/time_format.dart` 한 곳 — `ymd`·`hhmm`·`hhmmIso`·`mdDot`·`mdHm`·`mmss`. 화면별 `_fmt` 금지 (v3.26, `ssot_lint_test`) |
 | `HkCard` 슬롯 (v3.27) | `radius`·`borderColor`·`borderWidth`·`clipBehavior`·`width` — 정식 카드 변형은 전부 이 안. 색띠·말풍선·원형·요일 타일은 카드가 아니다 |
 | 스피너 · 섹션 라벨 · 빈 상태 · 통계 타일 | 각각 `HkLoading`·`HkSectionLabel`·`HkEmptyState`·`HkStatTile` **만** (v3.26 전수 치환 — 인라인 CircularProgressIndicator·sectionLabel 직접 지정은 게이트가 막는다) |
-| 입력칸 | 모양은 `theme.dart inputDecorationTheme` 한 벌 (테두리·에러·안내 글꼴). 화면은 `InputDecoration(hintText:)` 만 — 화면별 `_deco()` 금지 (v3.24, `test/ssot_lint_test.dart`) |
+| 입력칸 | 모양은 `theme.dart inputDecorationTheme` 한 벌 (테두리·에러·helper·안내 글꼴). 화면은 `InputDecoration(hintText:)` 만 — 화면별 `_deco()` 금지 (v3.24, `test/ssot_lint_test.dart`). 예외 2칸: 에러 줄 공간 예약용 `helperText: ' '` · `errorMaxLines`(v3.33, §레이아웃 안정성) |
 | `TierBadge` | 티어 표기 별도 정본 |
 
 ## 6. 진입·로딩 화면 양식 (v1.29 · v3.19 로그인 흐름 로고 철수 · v3.31 진입 화면 폐지)
@@ -131,7 +136,10 @@ v3.31 삭제 — README §제거된 기능 대장 11·31):
   사용자 지시 "로고 위치 고정". Spacer 는 콘텐츠 높이에 따라 로고를 움직인다).
   단 v3.31 현재 이 규칙이 걸리는 화면은 없다 (진입 화면 폐지).
 
-- 로그인 진행 중(_busy) 화면 = `HkLoadingScreen(caption: '로그인 중')` — 버튼 비활성만으로 때우지 않는다.
+- 로그인 진행 중(_busy) = **`HkButton(busy: true)`** — 버튼 자리를 그대로 둔 채 그 안에서
+  스피너만 돈다 (v3.33 · 브리프 D67). 구 규칙 "전면 `HkLoadingScreen(caption: '로그인 중')`"
+  은 폐기 — 화면을 통째로 갈아 끼우는 것도 밀림이다 (§레이아웃 안정성).
+  전면 로딩은 화면 전환 자체가 오래 걸릴 때만.
 - 소셜 버튼 순서: 네이버(실서비스 1순위) → 구글. 규격은 HkSocialButton 만.
   v3.31 현재 화면에 얹혀 있지 않다 — 실 OAuth 를 켤 때 로그인 화면에 두 줄을 넣는다
   (`social_auth_service.dart` 는 그 용도로 존치).
@@ -240,6 +248,55 @@ v3.31 삭제 — README §제거된 기능 대장 11·31):
   ② 인라인 선택 칩(`BoxDecoration` 안에서 `selected ?` 로 면·보더를 바꾸는 코드) 0건
   ③ Material 칩 위젯 0건. 배지가 아닌 컴포넌트(선택 상태를 갖는 카드 등)만
   `// badge-lint: ignore — 사유` 로 명시 면제한다.
+
+## 레이아웃 안정성 — 공간 예약 (강제)
+
+> v3.33 · 2026-08-27 사용자 지시 ("네이버 로그인이나 다른 SaaS 처럼 통일된 화면 …
+> 변수가 생길 부분은 변수 자리를 미리 만들고 나머지는 고정 위치에" / "이걸 SSOT에
+> 저장하고 지키게 하고 싶은데"). 브리프 §10 **D67**.
+
+**원칙 한 줄 — 상태가 바뀌어도 요소의 y 좌표가 변하지 않는다. 변하는 것은 미리 자리를 잡아 둔다.**
+
+### 용어 (이 이름만 쓴다 — 새 별칭 금지, 글로벌 §0-B)
+
+| 한글 | 영문 | 뜻 |
+|---|---|---|
+| 레이아웃 시프트 | layout shift | 렌더된 뒤 내용이 생기고 사라지면서 아래 요소가 밀리는 현상 |
+| CLS | Cumulative Layout Shift | 그 밀림의 계량 지표 (Core Web Vitals · 좋음 ≤ 0.1) |
+| 공간 예약 | space reservation | 변할 자리를 고정 높이로 미리 잡아 두는 해결 기법 |
+| 레이아웃 안정성 | layout stability | 그렇게 해서 도달하는 목표 상태 |
+| 스켈레톤 | skeleton screen | 로딩 중 **모양만** 보여 주는 별개 기법 — 공간 예약과 혼용 금지 |
+
+### 밀림을 만드는 4대 패턴과 정답
+
+| 밀림 원인 | 정답 |
+|---|---|
+| 1. 조건부 `appBar` · 조건부 상단 영역 (`canPop ? AppBar() : null`) | **높이 고정 영역 + 내용만 조건부** — `HkBackBar` |
+| 2. `if (x != null) ...[위젯]` 로 블록이 생겼다 사라짐 | **고정 높이 슬롯, 내용만 교체** — `HkNoticeSlot` |
+| 3. `TextFormField` validator 에러 줄 | **에러 줄 항상 예약** — `helperText: ' '` + `errorMaxLines: 1` (helper·error 글꼴 높이는 테마가 같게 맞춘다) |
+| 4. `_busy ? 로딩 : 버튼` 교체 | **같은 높이 유지** — `HkButton(busy: true)`, 버튼 자리에서 스피너 |
+
+- 슬롯 높이는 **가장 긴 경우**(예: 안내 2줄)로 잡고, 넘치면 `maxLines`+ellipsis 로 안에서
+  자른다 — 바깥을 밀지 않는다.
+- 비활성으로 회색까지 내리지 않는다: 자리는 지켜도 색이 사라지면 "없어진 것"으로 읽힌다.
+
+### 적용 대상
+
+**상태에 따라 내용이 바뀌는 모든 화면** — 로그인·가입 같은 폼, 목록의 빈/에러/로딩 상태,
+안내 배너가 붙는 화면. 예외를 두려면 **그 화면 주석에 사유**를 남긴다 (문서에 남기지 말 것 —
+읽는 사람은 코드에서 만난다).
+
+### 검증 방법 (둘 다 필수)
+
+1. **상태별 골든** — 그 화면이 가질 수 있는 상태를 전부 캡처한다. 상태 절차는 한 곳에 모아
+   골든과 좌표 검사가 **같은 절차**를 쓰게 한다 (예: `test/golden/login_states.dart`).
+2. **y 좌표 동일성 검사** — `test/golden/layout_stability.dart` 의
+   `expectStableAnchorY(tester, states:, anchors:)`. 앵커는 화면이 노출하는 `Key` 상수
+   (예: `LoginScreen.kIdField`). 실패하면 어느 앵커가 어느 상태에서 몇 px 밀렸는지 표로 나온다.
+   PNG 스캔보다 정확하고 빠르다 — 안티에일리어싱·색 변화에 흔들리지 않는다.
+
+> 현재 적용: 로그인 6 상태 (`test/golden/layout_stability_test.dart`).
+> 새 화면에 적용할 때는 상태 목록 + 앵커 키만 주면 된다.
 
 ## 8. 변경 절차
 

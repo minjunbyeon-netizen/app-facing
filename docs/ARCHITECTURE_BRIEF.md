@@ -564,6 +564,51 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > - 회귀: 골든 `coach_01`(주간) 재생성 · `coach_02` 삭제 · `coach_04_new_note_members` 신규 ·
 >   `coach_03` 재생성(그룹 버튼 없음).
 
+> **D67 (2026-08-27 사용자 지시 "네이버 로그인이나 다른 SaaS 처럼 통일된 화면이야. 아이디 입력칸 비밀번호 입력칸은 고정 같은 자리에 있고 밑에 회원가입신청도 고정 같은 자리고, 그러니까 변수가 생길 부분은 변수 자리를 미리 만들고 나머지는 고정 위치에 깔끔하게 보이길 원해" + 후속 "고정 레이아웃, 변수는 변수칸을 만들어서 저장한다 이런 기술을 뭐라고 하는데? 또 이걸 SSOT에 저장하고 지키게 하고 싶은데") — 로그인 화면 고정 레이아웃 + 레이아웃 안정성 규칙 신설 (앱만).**
+>
+> **용어 (이 이름만 쓴다 — 새 별칭 금지, §0-B)**: 밀리는 현상 = **레이아웃 시프트(layout shift)**,
+> 계량 지표 = **CLS(Cumulative Layout Shift, Core Web Vitals · 좋음 ≤ 0.1)**, 해결 기법 =
+> **공간 예약(space reservation)**, 목표 상태 = **레이아웃 안정성(layout stability)**.
+> 로딩 중 모양만 보여 주는 것은 **스켈레톤(skeleton screen)** — 이번 건과 다른 기법이다.
+>
+> **(1) 밀림 4대 원인 제거 (`lib/features/auth/login_screen.dart`).** 상태가 바뀌어도
+> 아이디칸·비밀번호칸·로그인 버튼·회원 가입 신청·약관의 y 가 움직이지 않는다.
+> - **조건부 상단바** — `appBar: Navigator.canPop(context) ? HkAppBar() : null` 은 들어온 경로에
+>   따라 본문을 통째로 52px 밀었다. `Scaffold.appBar` 를 버리고 body 최상단에 높이 고정 띠
+>   **`HkBackBar`**(신규 HKit) — 띠는 항상 있고 **화살표만** 조건부, 구분선 없음(빈 띠가
+>   '죽은 줄'로 보이던 이유). 뒤로가기는 `Navigator.maybePop` + tooltip '뒤로', 터치 48.
+> - **생겼다 사라지던 안내·에러 블록** — `if (_error != null) ...[HkInlineError]` → 고정 높이
+>   **`HkNoticeSlot`**(신규 HKit, `HyphenTokens.noticeSlotH = 56` = caption 2줄+패딩+보더).
+>   세션 만료 안내(D59)와 로그인 실패가 같은 예약 자리를 쓴다. 표시는 종전 `HkInlineError`.
+> - **입력칸 검증 에러** — 두 `TextFormField` 에 `helperText: ' '` + `errorMaxLines: 1` 로
+>   에러 줄을 **항상 예약**(Flutter 표준 공간 예약). 높이가 같아야 하므로 테마
+>   `inputDecorationTheme.helperStyle` 을 `errorStyle` 과 같은 micro 로 맞췄다 (`theme.dart`).
+> - **로딩 스왑** — `_busy ? HkLoading() : HkButton.primary(...)` (36↔22 차이만큼 밀림) →
+>   **`HkButton(busy: true)`**: 자리를 그대로 둔 채 글자만 스피너, 면은 primary 유지(비활성
+>   회색으로 내리면 같은 자리에 있어도 '사라진 것'으로 읽힌다). `HkLoading` 에 `color` 슬롯 추가.
+> - 곁들임: 가로는 `ConstrainedBox(maxWidth: HyphenTokens.formMaxW = 420)` + 중앙 정렬
+>   (폰 360 에서는 무영향, 태블릿에서 입력칸이 늘어지지 않게). 본문은 종전대로
+>   `SingleChildScrollView` — 키보드가 올라오면 스크롤되고, 그 밖에는 위에서부터 고정.
+> - **로그인 로직·인증 흐름·문구 뜻은 그대로** (레이아웃 안정화 전용). 로고 없음(D42)·
+>   창구 하나(서버 `kind` 판정)·한글 명사형 카피 유지.
+>
+> **(2) 규칙화 — SSOT + 자동 게이트.**
+> - `docs/DESIGN-SSOT.md` **§레이아웃 안정성 — 공간 예약 (강제)** 신설: 원칙 한 줄
+>   ("상태가 바뀌어도 요소의 y 좌표가 변하지 않는다. 변하는 것은 미리 자리를 잡아 둔다") +
+>   위 4대 패턴과 각각의 정답 + 적용 대상(상태에 따라 내용이 바뀌는 모든 화면) + 검증 방법.
+> - 재사용 게이트 `test/golden/layout_stability.dart` — `expectStableAnchorY(tester,
+>   states:, anchors:)` 가 상태 N개를 렌더하며 앵커 위젯의 `getTopLeft().dy` 를 비교한다
+>   (PNG 스캔보다 정확·빠름: 안티에일리어싱·색 변화에 안 흔들리고, 어느 앵커가 몇 px
+>   밀렸는지 바로 짚는다). 앵커는 `LoginScreen.kIdField` 등 `Key` 상수.
+> - 상태 절차 정본 `test/golden/login_states.dart` — 골든(픽셀)과 y 검사가 **같은 절차**를
+>   공유한다. 골든 하네스 `FakeBossApi` 에 `failures`(경로별 예외)·`hold`(로딩 붙잡기) 추가.
+> - 회귀: `flutter analyze` 0 · `flutter test` **202**(198 +3 골든 +1 레이아웃 게이트) ·
+>   골든 **58 → 61장** (`state_17_login_error`·`state_18_login_validation`·`state_19_login_busy`
+>   신규, `common_08_login`·`state_09_login_remembered`·`state_16_coach_session_expired` 재생성) ·
+>   갤러리·SECTIONS 갱신 · 확인용 `build/login_layout_check.html`.
+> - 6 상태 y 실측(논리 px): 아이디칸 247.0 · 비밀번호칸 343.0 · 로그인버튼 485.0 ·
+>   가입신청 541.0 · 약관 585.0 — 전 상태 동일 (골든 PNG 독립 스캔도 같은 결론).
+
 > **D66 (2026-08-27 사용자 승인 "로그인 화면 하나로 합치는 것이 맞습니다. 앱을 열면 바로 아이디·비밀번호가 나오고, 그 아래에 '회원 가입 신청' 을 작은 줄로 두면 됩니다" + 후속 지시 "내정보 메뉴에서, FAQ, 목표, 고객지원, 데이터 초기화, 버튼 삭제 및 안에 내용까지 삭제") — 앱 첫 화면 = 로그인 · 내 정보 메뉴 4건 삭제 (앱만).**
 >
 > **(1) 로그인 통합 — 갈림길 화면 폐지.** 앱을 열면 스플래시 다음이 곧바로 로그인이다.
