@@ -262,24 +262,35 @@ class _ChallengeRow extends StatelessWidget {
               color: done ? HyphenTokens.success : HyphenTokens.accent,
             ),
           ),
-          if (status.isNotEmpty || (rule.canLog && !done)) ...[
-            const SizedBox(height: HyphenTokens.sp2),
-            Row(
+          // v3.34 (2026-08-27 · DESIGN-SSOT §레이아웃 안정성): 인증 전후로 상태줄과
+          // [인증하기] 가 통째로 생겼다 사라져, 같은 카드 안 다음 규칙 행이
+          // 버튼 높이만큼 뛰었다. 줄은 **항상** 두고 안의 내용만 갈아 끼운다.
+          // 높이는 버튼 높이로 잡는다 — 가장 높은 경우가 기준이다.
+          const SizedBox(height: HyphenTokens.sp2),
+          SizedBox(
+            height: HyphenTokens.buttonHCompact,
+            child: Row(
               children: [
-                if (status.isNotEmpty)
-                  Expanded(child: Text(status, style: HyphenTokens.caption))
-                else
-                  const Spacer(),
-                if (rule.canLog && !done)
+                Expanded(
+                  child: Text(
+                    status,
+                    style: HyphenTokens.caption,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                if (rule.canLog && !done) ...[
+                  const SizedBox(width: HyphenTokens.sp2),
                   HkButton(
                     '인증하기',
                     kind: HkButtonKind.secondary,
                     expand: false,
                     onPressed: onLog,
                   ),
+                ],
               ],
             ),
-          ],
+          ),
         ],
       ),
     );

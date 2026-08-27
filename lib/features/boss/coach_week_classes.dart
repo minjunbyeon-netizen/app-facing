@@ -27,8 +27,12 @@ class CoachWeekClasses extends StatefulWidget {
   // 같이 바꾼다 (글로벌 §0-B 이름 일원화).
   static const Key kWeekHeader = Key('coach-week-header');
 
-  /// 요일 행 — i = 0(월) ~ 6(일).
+  /// 요일 행 — i = 0(월) ~ 6(일). 펼친 내용까지 포함한 줄 전체.
   static Key dayRow(int i) => ValueKey('coach-week-day-$i');
+
+  /// 그 줄의 **누르는 머리**만 — 펼침 자리는 뺀다. 줄 전체를 누르면 펼쳐진
+  /// 수업 줄이 대신 눌려 명단 시트가 열린다.
+  static Key dayHeader(int i) => ValueKey('coach-week-day-head-$i');
 
   /// 펼친 날의 내용이 들어오는 **예약된 자리**.
   static const Key kDaySlot = Key('coach-week-day-slot');
@@ -157,6 +161,7 @@ class _CoachWeekClassesState extends State<CoachWeekClasses> {
                 for (var i = 0; i < 7; i++)
                   _CoachDayRow(
                     key: CoachWeekClasses.dayRow(i),
+                    index: i,
                     date: _weekStart.add(Duration(days: i)),
                     weekdayLabel: _wk[i],
                     isToday: _weekStart.add(Duration(days: i)) == _today,
@@ -232,6 +237,8 @@ class _CoachWeekClassesState extends State<CoachWeekClasses> {
 
 /// 하루 = 접힌 줄 하나 ("월 24 · 수업 3 · 예약 21명"). 펼치면 그날 수업 줄.
 class _CoachDayRow extends StatelessWidget {
+  /// 0(월) ~ 6(일) — 머리 키를 붙이는 데만 쓴다.
+  final int index;
   final DateTime date;
   final String weekdayLabel;
   final bool isToday;
@@ -245,6 +252,7 @@ class _CoachDayRow extends StatelessWidget {
 
   const _CoachDayRow({
     super.key,
+    required this.index,
     required this.date,
     required this.weekdayLabel,
     required this.isToday,
@@ -281,6 +289,7 @@ class _CoachDayRow extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           InkWell(
+            key: CoachWeekClasses.dayHeader(index),
             onTap: onTap,
             child: Padding(
               padding: const EdgeInsets.symmetric(

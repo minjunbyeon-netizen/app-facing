@@ -30,8 +30,10 @@ class AchievementSection extends StatelessWidget {
   /// 상태와 무관하게 표가 지키는 줄 수.
   static const int kRows = 3;
 
-  /// 예약 높이 — [kRows] 줄 + 그 사이 1px 구분선.
-  static const double kBodyH = kRows * HkSkeletonRow.rowH + (kRows - 1) * 1.0;
+  /// 예약 높이 — [kRows] 줄 + 그 사이 1px 구분선 + 카드 테두리 위아래 1px.
+  /// (HkRowCard = HkCard 이므로 테두리 2px 가 바깥 높이에 더해진다.)
+  static const double kBodyH =
+      kRows * HkSkeletonRow.rowH + (kRows - 1) * 1.0 + 2.0;
 
   const AchievementSection({super.key});
 
