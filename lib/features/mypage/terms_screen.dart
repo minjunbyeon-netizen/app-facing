@@ -85,8 +85,10 @@ class TermsScreen extends StatelessWidget {
             HkSectionLabel('8. 분쟁·관할'),
             SizedBox(height: HyphenTokens.sp2),
             Text(
-              '본 약관은 대한민국 법률을 따릅니다. 분쟁은 우선 고객센터(카카오톡 상담)를 '
-              '통한 협의로 해결하며, 협의가 어려울 경우 민사소송법상 관할 법원에 제기합니다.',
+              // v3.34 (2026-08-27): '고객지원(카카오톡 상담)' 행은 D66 에서
+              // 삭제됐다 — 없는 창구를 분쟁 절차로 지정하지 않는다 (§0-B).
+              '본 약관은 대한민국 법률을 따릅니다. 분쟁은 우선 가입한 체육관과의 협의로 '
+              '해결하며, 협의가 어려울 경우 민사소송법상 관할 법원에 제기합니다.',
               style: HyphenTokens.body,
             ),
             SizedBox(height: HyphenTokens.sp5),
@@ -94,7 +96,7 @@ class TermsScreen extends StatelessWidget {
             HkSectionLabel('최종 갱신'),
             SizedBox(height: HyphenTokens.sp2),
             Text(
-              '2026-08-20 · 제공 기능 현행화. 베타 운영 기준, 개정 시 앱 내 공지.',
+              '2026-08-27 · 분쟁 협의 창구 현행화. 베타 운영 기준, 개정 시 앱 내 공지.',
               style: HyphenTokens.caption,
             ),
           ],

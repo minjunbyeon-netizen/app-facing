@@ -36,9 +36,10 @@ class PrivacyScreen extends StatelessWidget {
             const _Bullet('프로필: 생년월일·성별·운동 경력 (이 기기·서버 보관)'),
             const _Bullet('수업 기록: 결과·일시 (서버 보관)'),
             const _Bullet('체육관 정보: 가입한 체육관·회원 구분·포인트 (서버 보관)'),
-            // v3.11 (2026-08-23): 목표가 서버 저장으로 바뀌면서 수집 항목이
-            // 하나 늘었다 — 고지에도 같이 적는다 (member_goals).
-            const _Bullet('목표: 주간·월간 횟수 · PR 목표 · 시즌 목표 (이 기기·서버 보관)'),
+            // v3.34 (2026-08-27): 목표 화면이 D66 에서 삭제돼 주간·월간·PR·시즌
+            // 목표는 더 이상 수집하지 않는다. 같은 member_goals 에 남는 실수집
+            // 항목은 착용 칭호 하나뿐이라 고지도 그것만 적는다 (§0-B).
+            const _Bullet('착용 칭호: 내 정보에 표시할 칭호 선택값 (서버 보관)'),
             const SizedBox(height: HyphenTokens.sp4),
 
             const HkSectionLabel('수집하지 않는 것'),
@@ -73,11 +74,9 @@ class PrivacyScreen extends StatelessWidget {
 
             const HkSectionLabel('이용자 권리'),
             const SizedBox(height: HyphenTokens.sp2),
-            // v3.11 (2026-08-23): 'Sign out'·'Reset data' 는 앱 어디에도 없는
-            // 이름이었다 — 실물 버튼은 내 정보의 '로그아웃'·'데이터 초기화' 다.
-            // 읽는 사람이 찾아갈 수 있게 화면 위치까지 적는다 (§0-B).
+            // v3.34 (2026-08-27): '데이터 초기화' 버튼은 D66 에서 삭제됐다 —
+            // 없는 버튼을 권리로 안내하면 고지가 거짓이 된다 (§0-B).
             const _Bullet('언제든 로그아웃 (내 정보 화면 — 계정 연결만 끊고 프로필은 남습니다)'),
-            const _Bullet("언제든 '데이터 초기화' (내 정보 맨 아래 — 이 기기에 저장된 것만 삭제)"),
             const _Bullet('계정 탈퇴 = 서버·로컬 모든 데이터 영구 삭제 (아래 버튼)'),
             const SizedBox(height: HyphenTokens.sp5),
 
@@ -98,8 +97,8 @@ class PrivacyScreen extends StatelessWidget {
             // 본문을 고치면 이 날짜도 같은 커밋에서 함께 고친다 (§0-B).
             // 법적 고지의 갱신일이 실제 내용과 어긋나면 고지 자체가 신뢰를 잃는다.
             const Text(
-              '2026-08-23 · 표기 정정 (앱에 없는 버튼 이름 교체, 내부 용어를 '
-              '이용자 용어로) + 목표 저장 위치 반영. 정식 출시 시 법무 검토.',
+              '2026-08-27 · D66 에서 사라진 항목 정리 (목표 수집 중단, '
+              "'데이터 초기화' 버튼 삭제). 정식 출시 시 법무 검토.",
               style: HyphenTokens.caption,
             ),
           ],
