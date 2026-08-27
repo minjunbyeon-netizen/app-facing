@@ -115,35 +115,12 @@ class InboxRepository {
   Future<void> askCoach(int noteId, String body) =>
       api.post('/api/v1/gym/notes/$noteId/ask', {'body': body});
 
-  // ---- Profile info (display_name 등) ----
-  Future<Map<String, dynamic>> getProfileInfo() =>
-      api.get('/api/v1/profile/info');
-  Future<void> updateProfileInfo({
-    String? displayName,
-    String? avatarColor,
-    String? injuryNotes,
-  }) => api.post('/api/v1/profile/info', {
-    'display_name': ?displayName,
-    'avatar_color': ?avatarColor,
-    'injury_notes': ?injuryNotes,
-  });
-
-  // ---- Gym invite code ----
-  Future<String?> getInviteCode(int gymId) async {
-    final data = await api.get('/api/v1/gym/$gymId/invite-code');
-    return data['invite_code']?.toString();
-  }
-
-  Future<String?> regenerateInviteCode(int gymId) async {
-    final data = await api.post(
-      '/api/v1/gym/$gymId/invite-code/regenerate',
-      const {},
-    );
-    return data['invite_code']?.toString();
-  }
-
-  Future<Map<String, dynamic>> joinByCode(String code) =>
-      api.post('/api/v1/gym/join-by-code', {'code': code});
+  // 2026-08-27 — getProfileInfo/updateProfileInfo 삭제. 호출처 0건이었고
+  // 서버에 POST /api/v1/profile/info 라우트 자체가 없었다 (GET 도 없음).
+  // 프로필 편집은 /api/v1/member/profile 계열이 담당한다.
+  //
+  // 2026-08-27 — 초대코드 3종(getInviteCode·regenerateInviteCode·joinByCode) 삭제.
+  // 코드로 가입하는 화면이 없어 호출처 0건. 서버 라우트도 같은 커밋에서 제거됐다.
 
   // (v3.28: 그룹 메서드 4종 삭제 — 폰 쪽지에서 그룹 기능 폐지. 서버 API 는 PC 용으로 유지.)
 }

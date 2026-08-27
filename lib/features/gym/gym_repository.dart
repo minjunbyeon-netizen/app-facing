@@ -16,14 +16,10 @@ class GymRepository {
     return GymMembership.fromJson(data);
   }
 
-  Future<List<GymSummary>> search(String query) async {
-    final qs = Uri.encodeQueryComponent(query);
-    final data = await api.getList('/api/v1/gyms/search?q=$qs');
-    return data
-        .whereType<Map<String, dynamic>>()
-        .map(GymSummary.fromJson)
-        .toList();
-  }
+  // 2026-08-27 — search() 삭제. 체육관 검색 화면은 v3.2 에서 제거됐고
+  // (README §제거된 기능 대장 7) 이 메서드 호출처가 0건이었다.
+  // 서버 라우트 GET /api/v1/gyms/search 는 sanity_check·페르소나 테스트가
+  // 아직 쓰므로 백엔드에는 남아 있다.
 
   Future<Map<String, dynamic>> createGym({
     required String name,

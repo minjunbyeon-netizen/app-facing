@@ -1414,6 +1414,4 @@ Map<String, dynamic> memberWorld() => {
   '/api/v1/gym/1/outbox': const {'items': <dynamic>[]},
   '/api/v1/gym/1/threads': const {'items': <dynamic>[]},
   '/api/v1/gym/1/messages': const {'items': <dynamic>[]},
-  '/api/v1/gym/1/groups': const {'groups': <dynamic>[]},
-  '/api/v1/profile/info': const <String, dynamic>{},
 };
