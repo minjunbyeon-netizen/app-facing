@@ -99,7 +99,7 @@ class AchievementSection extends StatelessWidget {
                   ),
                   title: _rowTitle(c),
                   subtitle: c.description,
-                  trailing: c.rarity.toUpperCase(),
+                  trailing: RarityPalette.of(c.rarity).ko,
                   trailingColor: RarityPalette.of(c.rarity).light,
                   onTap: () => _showDetail(context, c, snap.unlocked[c.code]),
                 ),
@@ -255,7 +255,7 @@ class _DetailSheet extends StatelessWidget {
                     borderRadius: BorderRadius.circular(HyphenTokens.r1),
                   ),
                   child: Text(
-                    catalog.rarity.toUpperCase(),
+                    RarityPalette.of(catalog.rarity).ko,
                     style: HyphenTokens.micro.copyWith(
                       color: rarityColor,
                       fontWeight: FontWeight.w800,

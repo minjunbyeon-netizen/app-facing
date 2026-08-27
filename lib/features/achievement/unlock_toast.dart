@@ -65,7 +65,7 @@ class UnlockToast {
                 ),
               ),
               Text(
-                u.rarity.toUpperCase(),
+                RarityPalette.of(u.rarity).ko,
                 style: HyphenTokens.micro.copyWith(
                   color: color,
                   fontWeight: FontWeight.w800,

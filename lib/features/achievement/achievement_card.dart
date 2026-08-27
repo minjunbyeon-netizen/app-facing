@@ -66,7 +66,7 @@ class AchievementCard extends StatelessWidget {
                 ),
               ),
               Text(
-                catalog.rarity.toUpperCase(),
+                RarityPalette.of(catalog.rarity).ko,
                 style: HyphenTokens.micro.copyWith(
                   color: color,
                   fontWeight: FontWeight.w800,

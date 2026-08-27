@@ -105,7 +105,7 @@ class _MemberContractsScreenState extends State<MemberContractsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: HyphenTokens.bg,
-      appBar: const HkAppBar(title: '계약'),
+      appBar: const HkAppBar(title: '전자계약서'),
       body: SafeArea(
         child: FutureBuilder<List<ContractSummary>>(
           future: _future,
@@ -226,7 +226,7 @@ class _ContractDetailScreenState extends State<ContractDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: HyphenTokens.bg,
-      appBar: const HkAppBar(title: '계약'),
+      appBar: const HkAppBar(title: '전자계약서'),
       body: SafeArea(
         child: FutureBuilder<Map<String, dynamic>>(
           future: _future,

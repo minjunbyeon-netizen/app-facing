@@ -342,7 +342,7 @@ class _FeaturedPanel extends StatelessWidget {
           ),
           const SizedBox(height: HyphenTokens.sp3),
           Text(
-            catalog.rarity.toUpperCase(),
+            RarityPalette.of(catalog.rarity).ko,
             style: HyphenTokens.microLabel.copyWith(
               color: color,
               fontWeight: FontWeight.w800,

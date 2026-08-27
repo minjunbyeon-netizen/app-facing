@@ -488,7 +488,7 @@ StreamSubscription<SseEvent> _listenNoteNew(
 /// (구 v1.24 Attend 캘린더 밑 임베드는 ClassesSection 으로 대체됨.)
 /// v3.4 (2026-08-21): 코치 셸 쪽지 탭으로도 임베드 — 탭 문맥에선 제목만 '쪽지'.
 class MessagingScreen extends StatelessWidget {
-  const MessagingScreen({super.key, this.title = '알림함', this.embedded = false});
+  const MessagingScreen({super.key, this.title = '쪽지함', this.embedded = false});
 
   final String title;
 

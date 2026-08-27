@@ -440,7 +440,7 @@ class _ActionsSection extends StatelessWidget {
                   // B-6 (2026-06-10) — 회원 전자계약 목록·상세·서명 진입
                   HkListRow(
                     icon: Icons.assignment_outlined,
-                    title: '계약',
+                    title: '전자계약서',
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (_) => const MemberContractsScreen(),
@@ -666,13 +666,13 @@ class _MembershipCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  ms.planName ?? 'Active',
+                  ms.planName ?? '이용중',
                   style: HyphenTokens.h3.copyWith(color: HyphenTokens.fg),
                 ),
                 const Spacer(),
                 if (days != null)
                   Text(
-                    isExpired ? 'EXPIRED' : 'D-${days.abs()}',
+                    isExpired ? '만료' : 'D-${days.abs()}',
                     style: HyphenTokens.h3.copyWith(color: accentColor),
                   ),
               ],

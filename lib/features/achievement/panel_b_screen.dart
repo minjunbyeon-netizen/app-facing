@@ -454,7 +454,7 @@ class _TitleCard extends StatelessWidget {
                             const SizedBox(width: HyphenTokens.sp2),
                           ],
                           Text(
-                            title.rarity.toUpperCase(),
+                            RarityPalette.of(title.rarity).ko,
                             style: HyphenTokens.microLabel.copyWith(
                               color: RarityPalette.of(title.rarity).light,
                               fontWeight: FontWeight.w800,
