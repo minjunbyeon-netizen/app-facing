@@ -1417,7 +1417,9 @@ Map<String, dynamic> memberWorld() => {
   '/api/v1/member/reservations': const <dynamic>[],
   '/api/v1/member/me/memberships': memberMemberships(),
   '/api/v1/member/me/locker': const <dynamic>[],
-  '/api/v1/member/points': const {'points': 300, 'history': <dynamic>[]},
+  // 2026-08-27: 서버(`services/hyphen/api/gym.py:1398`)는 `balance` 로 준다 —
+  // 페이크만 `points` 라 내 정보 포인트 카드가 골든에서 `-- P` 로 찍혔다 (§0-B).
+  '/api/v1/member/points': const {'balance': 300, 'history': <dynamic>[]},
   '/api/v1/achievements/check': const {'newly_unlocked': <dynamic>[]},
   '/api/v1/achievements': achievementsSnapshot,
   '/api/v1/movements/categories': movementCategories,
