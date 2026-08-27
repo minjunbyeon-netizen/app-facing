@@ -262,7 +262,7 @@ class _ChatBubble extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(bottom: 3, left: 4),
               child: Text(
-                msg.isAuto ? 'AUTO' : (msg.senderName ?? 'COACH').toUpperCase(),
+                msg.isAuto ? '자동' : (msg.senderName ?? '코치').toUpperCase(),
                 style: HyphenTokens.microLabel.copyWith(
                   color: msg.isAuto ? HyphenTokens.success : HyphenTokens.muted,
                 ),

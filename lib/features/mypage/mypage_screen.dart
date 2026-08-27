@@ -301,7 +301,7 @@ class _MyBoxSection extends StatelessWidget {
     final success = await gs.leaveGym();
     if (!context.mounted) return;
     if (!success) {
-      HkSnack.error(context, gs.error ?? 'Leave failed.');
+      HkSnack.error(context, gs.error ?? '탈퇴하지 못했습니다.');
       return;
     }
     // v2.6 (2026-08-13): 탈퇴 후 '박스 찾기'로 보내지 않는다 — 박스는 하나뿐이라

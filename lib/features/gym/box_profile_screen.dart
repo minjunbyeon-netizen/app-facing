@@ -90,7 +90,7 @@ class _Header extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            gym?.name ?? 'BOX',
+            gym?.name ?? '체육관',
             style: HyphenTokens.h1.copyWith(color: HyphenTokens.fg),
           ),
           const SizedBox(height: 4),
