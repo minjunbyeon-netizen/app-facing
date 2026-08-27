@@ -29,6 +29,15 @@ import 'screens_golden_test.dart' show rxProfile, signedInAuth, signedInPrefs;
 /// 골든 PNG 는 "달라졌다" 까지만 말하지만, 여기서는 **어느 앵커가 몇 px 밀렸는지**
 /// 를 바로 짚는다.
 
+/// 상태마다 **트리를 새로 세운다**. 같은 위젯 구조를 다시 pump 하면 Flutter 가
+/// element 를 재사용해 `Provider(create:)` 값과 화면 State 가 앞 상태 것 그대로
+/// 남는다 (가짜 API 를 바꿔도 앞 상태 응답을 계속 본다 — 상태별 검사가 통째로
+/// 헛돌게 되는 함정).
+Future<void> _reset(WidgetTester tester) async {
+  await tester.pumpWidget(const SizedBox.shrink());
+  await tester.pump();
+}
+
 /// 무한 애니메이션(스피너)이 있어도 안전한 정착 — pumpAndSettle 금지.
 Future<void> _settle(WidgetTester tester) async {
   for (var i = 0; i < 4; i++) {
@@ -79,6 +88,7 @@ Future<void> _pumpWeek(
   required List<Map<String, dynamic>> classes,
   bool holding = false,
 }) async {
+  await _reset(tester);
   SharedPreferences.setMockInitialValues(const <String, Object>{});
   final responses = {'/api/v1/admin/gyms/1/classes': classes};
   await tester.pumpWidget(
@@ -111,16 +121,12 @@ Future<void> _pumpInbox(
   required bool withAnnouncements,
   bool holdingThreads = false,
 }) async {
+  await _reset(tester);
   SharedPreferences.setMockInitialValues(signedInPrefs());
   final world = {
     ...memberWorld(),
     if (withAnnouncements) '/api/v1/member/announcements': memberAnnouncements(),
   };
-  // ignore: avoid_print
-  print('PROBE world=' +
-      (world['/api/v1/member/announcements'] as List).length.toString() +
-      ' keys=' +
-      world.keys.where((k) => '/api/v1/member/announcements'.startsWith(k)).join(','));
   final api = FakeApi(
     world,
     hangPaths: holdingThreads ? const {'/api/v1/gym/1/threads'} : const {},
@@ -139,21 +145,7 @@ Future<void> _pumpInbox(
   await _settle(tester);
   // 공지는 셸·SSE 가 뒤늦게 채워 넣는 값이다 — 실제 경로 그대로 불러온다.
   final ctx = tester.element(find.byType(MessagingFeed));
-  final ann = ctx.read<AnnouncementsState>();
-  await ann.refresh(ctx.read<GymRepository>());
-  try {
-    final raw = await ctx.read<GymRepository>().listMemberAnnouncements();
-    final direct = await api.getList('/api/v1/member/announcements');
-    // ignore: avoid_print
-    print('PROBE raw=' + raw.length.toString() +
-        ' direct=' + direct.length.toString() +
-        ' t=' + (direct.isEmpty ? '-' : direct.first.runtimeType.toString()));
-  } catch (e) {
-    // ignore: avoid_print
-    print('PROBE err=' + e.toString());
-  }
-  // ignore: avoid_print
-  print('PROBE items=' + ann.items.length.toString());
+  await ctx.read<AnnouncementsState>().refresh(ctx.read<GymRepository>());
   await _settle(tester);
 }
 
@@ -182,6 +174,7 @@ Map<String, dynamic> _assignmentNote(String status) => {
 };
 
 Future<void> _pumpNote(WidgetTester tester, String status) async {
+  await _reset(tester);
   SharedPreferences.setMockInitialValues(signedInPrefs());
   final api = FakeApi({
     '/api/v1/gym/notes/5': _assignmentNote(status),
