@@ -525,7 +525,7 @@ class MessagingFeed extends StatelessWidget {
   /// 공지 카드의 **가장 긴 경우** 높이 (위 여백 + 라벨 줄 + 제목 1줄 + 본문 2줄).
   /// 공지가 없어도 이만큼은 자리를 지킨다 — 최초 로딩이 끝나거나 SSE 로 새 공지가
   /// 들어와도 대화 목록이 통째로 내려가지 않는다.
-  static const double announcementSlotH = 118;
+  static const double announcementSlotH = 1;
 
   const MessagingFeed({super.key});
 

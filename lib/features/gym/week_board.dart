@@ -38,7 +38,7 @@ class WeekBoard extends StatefulWidget {
   /// 펼친 날의 '수업 시간' 구역이 미리 잡아 두는 자리 (공간 예약).
   /// 값 = 수업 한 줄(ClassLine)의 실측 높이 — 로딩 스켈레톤·'없음' 문구·수업
   /// 줄이 이 자리를 함께 쓴다 (DESIGN-SSOT §레이아웃 안정성).
-  static const double classSlotH = 0;
+  static const double classSlotH = 65;
 
   @override
   State<WeekBoard> createState() => _WeekBoardState();

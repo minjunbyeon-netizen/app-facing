@@ -39,10 +39,10 @@ class WodDetailScreen extends StatefulWidget {
   // 화면 절반이 빈 칸이 된다 (스켈레톤은 내용보다 커지면 안 된다).
   // 두 줄 이상 도착하는 구역은 그만큼 한 번 늘어난다 — 순차 도착 밀림(넷)이
   // 한 번으로 줄어드는 것이 이 예약의 목적이다.
-  static const double slotFeedbackH = 0;
-  static const double slotLeaderboardH = 0;
-  static const double slotHistoryH = 0;
-  static const double slotCommentsH = 0;
+  static const double slotFeedbackH = 75;
+  static const double slotLeaderboardH = 57;
+  static const double slotHistoryH = 45;
+  static const double slotCommentsH = 69;
 
   @override
   State<WodDetailScreen> createState() => _WodDetailScreenState();

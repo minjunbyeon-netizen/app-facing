@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:hyphen_app/core/api_client.dart';
+import 'package:hyphen_app/features/classes/class_line.dart';
 import 'package:hyphen_app/features/gym/box_wod_screen.dart';
 import 'package:hyphen_app/features/gym/gym_repository.dart';
 import 'package:hyphen_app/features/gym/gym_state.dart';
@@ -115,8 +116,17 @@ Map<String, dynamic> _detailWorld({
   };
 }
 
+/// 앞 상태의 State 를 확실히 버린다. `pumpWidget` 은 같은 타입의 트리를 만나면
+/// **갱신**만 해서 State(=이미 나간 요청)를 그대로 물려준다 — 그러면 상태를
+/// 바꿔 끼워도 화면은 첫 상태 그대로라 검사가 헛돈다 (2026-08-27 실측).
+Future<void> _reset(WidgetTester tester) async {
+  await tester.pumpWidget(const SizedBox.shrink());
+  await tester.pump();
+}
+
 /// 상세 화면 한 판. [api] 만 상태별로 갈아 끼운다 — 회원·체육관·수업 내용은 같다.
 Future<void> _pumpDetail(WidgetTester tester, ApiClient api) async {
+  await _reset(tester);
   _tall(tester);
   SharedPreferences.setMockInitialValues(signedInPrefs());
   final gym = GymState(GymRepository(FakeApi(memberWorld())), sse: FakeSse());
@@ -134,74 +144,103 @@ Future<void> _pumpDetail(WidgetTester tester, ApiClient api) async {
   await _settle(tester);
 }
 
-/// (a) 전부 로딩 중 — 네 구역 모두 아직 응답 없음.
-Future<void> detailAllLoading(WidgetTester tester) => _pumpDetail(
-  tester,
-  FakeApi(
-    _detailWorld(
-      feedback: _feedbackOne(),
-      results: _resultsOne(),
-      comments: _commentsOne(),
-      history: _historyOne(),
+// 상태마다 **정말 그 상태인지** 한 줄로 못 박는다. 자리만 재고 내용을 안 보면
+// "네 상태 모두 사실은 로딩" 같은 헛도는 통과가 생긴다 (2026-08-27 실제로 겪음).
+const String _feedbackText = '2라운드부터 프론트랙이 무너집니다.';
+const String _commentText = 'Thruster 중량 낮춰 완주했습니다.';
+const String _feedbackEmpty = '아직 피드백 없음.';
+const String _commentEmpty = '첫 댓글 작성.';
+
+/// (a) 전부 로딩 중 — 네 구역 모두 아직 응답 없음 (스켈레톤).
+Future<void> detailAllLoading(WidgetTester tester) async {
+  await _pumpDetail(
+    tester,
+    FakeApi(
+      _detailWorld(
+        feedback: _feedbackOne(),
+        results: _resultsOne(),
+        comments: _commentsOne(),
+        history: _historyOne(),
+      ),
+      hangPaths: {'$_wodPath/'},
     ),
-    hangPaths: {'$_wodPath/'},
-  ),
-);
+  );
+  expect(find.text(_feedbackText), findsNothing);
+  expect(find.text(_feedbackEmpty), findsNothing);
+  expect(find.text(_commentEmpty), findsNothing);
+}
 
 /// (b) 전부 도착 — 네 구역 모두 한 줄씩.
-Future<void> detailAllArrived(WidgetTester tester) => _pumpDetail(
-  tester,
-  FakeApi(
-    _detailWorld(
-      feedback: _feedbackOne(),
-      results: _resultsOne(),
-      comments: _commentsOne(),
-      history: _historyOne(),
+Future<void> detailAllArrived(WidgetTester tester) async {
+  await _pumpDetail(
+    tester,
+    FakeApi(
+      _detailWorld(
+        feedback: _feedbackOne(),
+        results: _resultsOne(),
+        comments: _commentsOne(),
+        history: _historyOne(),
+      ),
     ),
-  ),
-);
+  );
+  expect(find.text(_feedbackText), findsOneWidget);
+  expect(find.text(_commentText), findsOneWidget);
+}
 
 /// (c) 전부 비어 있음 — 도착했는데 내용이 없다 ('로딩 중'과 다른 사실이다).
-Future<void> detailAllEmpty(WidgetTester tester) => _pumpDetail(
-  tester,
-  FakeApi(
-    _detailWorld(
-      feedback: const [],
-      results: const [],
-      comments: const [],
-      history: const {'kind': 'time', 'items': <dynamic>[]},
+Future<void> detailAllEmpty(WidgetTester tester) async {
+  await _pumpDetail(
+    tester,
+    FakeApi(
+      _detailWorld(
+        feedback: const [],
+        results: const [],
+        comments: const [],
+        history: const {'kind': 'time', 'items': <dynamic>[]},
+      ),
     ),
-  ),
-);
+  );
+  expect(find.text(_feedbackEmpty), findsOneWidget);
+  expect(find.text(_commentEmpty), findsOneWidget);
+}
 
 /// (d) 일부만 도착 — 피드백·내 이전 기록은 왔고 리더보드·댓글은 아직.
 /// 실제 사용자가 가장 오래 보는 중간 화면이라 이 상태가 제일 중요하다.
-Future<void> detailPartial(WidgetTester tester) => _pumpDetail(
-  tester,
-  FakeApi(
-    _detailWorld(
-      feedback: _feedbackOne(),
-      results: _resultsOne(),
-      comments: _commentsOne(),
-      history: _historyOne(),
+Future<void> detailPartial(WidgetTester tester) async {
+  await _pumpDetail(
+    tester,
+    FakeApi(
+      _detailWorld(
+        feedback: _feedbackOne(),
+        results: _resultsOne(),
+        comments: _commentsOne(),
+        history: _historyOne(),
+      ),
+      hangPaths: {'$_wodPath/results', '$_wodPath/comments'},
     ),
-    hangPaths: {'$_wodPath/results', '$_wodPath/comments'},
-  ),
-);
+  );
+  expect(find.text(_feedbackText), findsOneWidget); // 왔다
+  expect(find.text(_commentText), findsNothing); // 아직
+  expect(find.text(_commentEmpty), findsNothing); // '없음' 으로 속이지 않는다
+}
 
 /// (e) 불러오기 실패 — 네 구역 모두 에러. 자리는 그대로, 문구만 실패로.
-Future<void> detailAllError(WidgetTester tester) => _pumpDetail(
-  tester,
-  FakeApi(
-    _detailWorld(
-      feedback: const [],
-      results: const [],
-      comments: const [],
-      history: const {'kind': 'time', 'items': <dynamic>[]},
+Future<void> detailAllError(WidgetTester tester) async {
+  await _pumpDetail(
+    tester,
+    FakeApi(
+      _detailWorld(
+        feedback: const [],
+        results: const [],
+        comments: const [],
+        history: const {'kind': 'time', 'items': <dynamic>[]},
+      ),
+      errorPaths: {'$_wodPath/'},
     ),
-    errorPaths: {'$_wodPath/'},
-  ),
-);
+  );
+  expect(find.text('피드백 불러오기 실패.'), findsOneWidget);
+  expect(find.text('댓글 불러오기 실패.'), findsOneWidget);
+}
 
 // ── 수업 탭: 상단 실패 배너 ─────────────────────────────────────────────────
 
@@ -219,6 +258,7 @@ Future<void> _pumpWodTab(
   required ApiClient api,
   bool banner = false,
 }) async {
+  await _reset(tester);
   _tall(tester);
   SharedPreferences.setMockInitialValues(signedInPrefs());
   final repo = GymRepository(FakeApi(memberWorld()));
@@ -247,40 +287,58 @@ Map<String, dynamic> _tabWorld(Object classes) => {
     ..remove('/api/v1/member/classes'),
 };
 
-Future<void> tabNoBanner(WidgetTester tester) => _pumpWodTab(
-  tester,
-  api: FakeApi(_tabWorld(_oneClassToday())),
-);
+const String _bannerText = '정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.';
+const String _classEmpty = '등록된 수업 없음.';
+const String _classError = '수업 불러오기 실패.';
 
-Future<void> tabBanner(WidgetTester tester) => _pumpWodTab(
-  tester,
-  api: FakeApi(_tabWorld(_oneClassToday())),
-  banner: true,
-);
+Future<void> tabNoBanner(WidgetTester tester) async {
+  await _pumpWodTab(tester, api: FakeApi(_tabWorld(_oneClassToday())));
+  expect(find.text(_bannerText), findsNothing);
+}
+
+Future<void> tabBanner(WidgetTester tester) async {
+  await _pumpWodTab(
+    tester,
+    api: FakeApi(_tabWorld(_oneClassToday())),
+    banner: true,
+  );
+  expect(find.text(_bannerText), findsOneWidget);
+}
 
 // ── 주간 보드: 펼친 날의 '수업 시간' 구역 ────────────────────────────────────
 
-Future<void> dayClassesLoading(WidgetTester tester) => _pumpWodTab(
-  tester,
-  api: FakeApi(
-    _tabWorld(_oneClassToday()),
-    hangPaths: {'/api/v1/member/classes'},
-  ),
-);
+Future<void> dayClassesLoading(WidgetTester tester) async {
+  await _pumpWodTab(
+    tester,
+    api: FakeApi(
+      _tabWorld(_oneClassToday()),
+      hangPaths: {'/api/v1/member/classes'},
+    ),
+  );
+  expect(find.text(_classEmpty), findsNothing); // 로딩을 '없음' 으로 속이지 않는다
+  expect(find.byType(ClassLine), findsNothing);
+}
 
-Future<void> dayClassesArrived(WidgetTester tester) =>
-    _pumpWodTab(tester, api: FakeApi(_tabWorld(_oneClassToday())));
+Future<void> dayClassesArrived(WidgetTester tester) async {
+  await _pumpWodTab(tester, api: FakeApi(_tabWorld(_oneClassToday())));
+  expect(find.byType(ClassLine), findsOneWidget);
+}
 
-Future<void> dayClassesEmpty(WidgetTester tester) =>
-    _pumpWodTab(tester, api: FakeApi(_tabWorld(const <dynamic>[])));
+Future<void> dayClassesEmpty(WidgetTester tester) async {
+  await _pumpWodTab(tester, api: FakeApi(_tabWorld(const <dynamic>[])));
+  expect(find.text(_classEmpty), findsOneWidget);
+}
 
-Future<void> dayClassesError(WidgetTester tester) => _pumpWodTab(
-  tester,
-  api: FakeApi(
-    _tabWorld(_oneClassToday()),
-    errorPaths: {'/api/v1/member/classes'},
-  ),
-);
+Future<void> dayClassesError(WidgetTester tester) async {
+  await _pumpWodTab(
+    tester,
+    api: FakeApi(
+      _tabWorld(_oneClassToday()),
+      errorPaths: {'/api/v1/member/classes'},
+    ),
+  );
+  expect(find.text(_classError), findsOneWidget);
+}
 
 void main() {
   testWidgets('수업 상세 — 네 구역이 어느 순서로 도착해도 앵커 y 가 같다', (tester) async {

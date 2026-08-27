@@ -116,6 +116,11 @@ Future<void> _pumpInbox(
     ...memberWorld(),
     if (withAnnouncements) '/api/v1/member/announcements': memberAnnouncements(),
   };
+  // ignore: avoid_print
+  print('PROBE world=' +
+      (world['/api/v1/member/announcements'] as List).length.toString() +
+      ' keys=' +
+      world.keys.where((k) => '/api/v1/member/announcements'.startsWith(k)).join(','));
   final api = FakeApi(
     world,
     hangPaths: holdingThreads ? const {'/api/v1/gym/1/threads'} : const {},
@@ -134,7 +139,21 @@ Future<void> _pumpInbox(
   await _settle(tester);
   // 공지는 셸·SSE 가 뒤늦게 채워 넣는 값이다 — 실제 경로 그대로 불러온다.
   final ctx = tester.element(find.byType(MessagingFeed));
-  await ctx.read<AnnouncementsState>().refresh(ctx.read<GymRepository>());
+  final ann = ctx.read<AnnouncementsState>();
+  await ann.refresh(ctx.read<GymRepository>());
+  try {
+    final raw = await ctx.read<GymRepository>().listMemberAnnouncements();
+    final direct = await api.getList('/api/v1/member/announcements');
+    // ignore: avoid_print
+    print('PROBE raw=' + raw.length.toString() +
+        ' direct=' + direct.length.toString() +
+        ' t=' + (direct.isEmpty ? '-' : direct.first.runtimeType.toString()));
+  } catch (e) {
+    // ignore: avoid_print
+    print('PROBE err=' + e.toString());
+  }
+  // ignore: avoid_print
+  print('PROBE items=' + ann.items.length.toString());
   await _settle(tester);
 }
 
@@ -252,17 +271,6 @@ void main() {
       },
     );
     // 자리는 예약된 높이 그대로여야 한다 — 공지가 넘치면 아래를 밀어낸다.
-    // ignore: avoid_print
-    print('PROBE card=' +
-        tester
-            .getSize(
-              find.descendant(
-                of: find.byKey(MessagingFeed.kAnnouncementSlot),
-                matching: find.byType(Container),
-              ).first,
-            )
-            .height
-            .toString());
     expect(
       tester.getSize(find.byKey(MessagingFeed.kAnnouncementSlot)).height,
       MessagingFeed.announcementSlotH,
