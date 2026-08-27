@@ -1,5 +1,5 @@
 ﻿<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- INTERNET 沅뚰븳 + 踰좏? ?뚯뒪?몄슜 cleartext HTTP ?덉슜 (LAN 諛깆뿏??. -->
+    <!-- INTERNET 권한. cleartext HTTP는 release에서 차단(기본값), debug 빌드만 src/debug/AndroidManifest.xml 에서 재허용 (LAN 백엔드용). -->
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- v1.17 濡쒖뺄 ?몄떆 (Firebase ?놁씠 SSE + Foreground Service) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
@@ -11,7 +11,7 @@
         android:label="HYPHEN"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
-        android:usesCleartextTraffic="true">
+        android:allowBackup="false">
         <activity
             android:name=".MainActivity"
             android:exported="true"

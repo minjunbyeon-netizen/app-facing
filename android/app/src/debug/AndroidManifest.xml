@@ -4,4 +4,9 @@
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
+
+    <!-- 개발 빌드 전용: 에뮬레이터(10.0.2.2)·LAN IP 백엔드는 HTTPS 가 없어 cleartext 허용 필요.
+         release 매니페스트(main)에는 usesCleartextTraffic 선언이 없어 API 28+ 기본값(false)로
+         잠긴다 — 이 오버라이드는 debug 빌드에서만 유효. -->
+    <application android:usesCleartextTraffic="true" />
 </manifest>
