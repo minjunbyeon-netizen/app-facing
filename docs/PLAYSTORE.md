@@ -33,6 +33,18 @@
    `FOREGROUND_SERVICE`·`FOREGROUND_SERVICE_DATA_SYNC`·`RECEIVE_BOOT_COMPLETED` 권한과 서비스·리시버
    선언이 전부 사라졌다(릴리즈 APK 실측 확인, 권한 6개로 축소). 앱을 완전히 종료하면 알림이 오지 않는다는
    제약은 남는다(포그라운드 서비스가 없으므로) — F-0·F-1·F-2·F-3 참고.
+9. **스토어 양식에 넣는 URL 4개 — 전부 확정 (2026-08-28).** 구글 플레이·앱스토어 공통.
+
+   | 양식 칸 | URL |
+   |---|---|
+   | 홈페이지 / 마케팅 URL / 지원(Support) URL | **https://web-facing-production.up.railway.app/** |
+   | 개인정보처리방침 URL | https://web-facing-admin-production-dca4.up.railway.app/privacy |
+   | 이용약관 URL | https://web-facing-admin-production-dca4.up.railway.app/terms |
+   | 계정 삭제 요청 URL (데이터 보안 양식) | https://web-facing-admin-production-dca4.up.railway.app/delete-account |
+
+   홈페이지는 같은 날 HYPHEN 브랜드로 전면 재작성해 배포했다 (`web/facing-web` — 4기둥 기능 소개 ·
+   앱 실물 캡처 · 코치 로그인 · APK 다운로드 · 약관/방침/삭제 요청 링크 · 사업자 정보 푸터).
+   커스텀 도메인은 없다 — Railway 기본 도메인이 곧 공식 주소. 지원 이메일 = `n1665@naver.com` (삭제 요청 페이지·홈페이지 푸터와 동일).
 
 ---
 
@@ -49,9 +61,10 @@
    - 사업자 등록증(조직 서류)
    - 결제 프로필 정보와 서류 내용이 정확히 일치해야 함
 6. **결제 프로필(Payments profile) 등록.** 사업자 정보와 동일하게 입력.
-7. **한국 개발자 정보란 입력.** 사업자등록번호·주소·연락처. 통신판매업 신고번호는 앱 내 결제(인앱결제) 여부에 따라 필요 여부가 갈리는데, 이 앱은 인앱결제가 없으므로(D 섹션 근거) 신고 대상이 아닐 가능성이 높다 — **최종 판단은 관할 지자체 통신판매업 신고 시스템 또는 세무사 확인 필요(미확인)**.
+7. **한국 개발자 정보란 입력.** 사업자등록번호·주소·연락처. 통신판매업 신고번호 칸에는 사업자가 이미 보유한 번호를 넣는다 — 홈페이지 푸터에 공개된 값과 동일: 상호 디알티(D.R.T) · 사업자등록번호 617-22-96247 · **통신판매업신고 2011-부산기장-0084** · 부산광역시 기장군 정관읍 방곡로 39, 106동 11층 03호. (구 메모 "인앱결제 없어 신고 불필요 가능성" 은 번호가 이미 있으므로 무의미 — 2026-08-28 정리.)
 8. **앱 등록 후 AAB 업로드.** `build/app/outputs/bundle/release/app-release.aab` (51.1MB, 릴리즈 키 서명 완료) 그대로 사용 가능.
-9. **개인정보처리방침·이용약관 URL 입력.** 이미 공개돼 있음 — 아래 URL 그대로 입력.
+9. **홈페이지·개인정보처리방침·이용약관 URL 입력.** 이미 공개돼 있음 — 아래 URL 그대로 입력 (§0-9 표와 동일).
+   - 홈페이지(마케팅·지원 URL): https://web-facing-production.up.railway.app/
    - 개인정보처리방침: https://web-facing-admin-production-dca4.up.railway.app/privacy
    - 이용약관: https://web-facing-admin-production-dca4.up.railway.app/terms
 10. **스토어 등록정보 에셋 업로드.** 전부 제작 완료 — `build/store/` 폴더 그대로 올리면 된다.
@@ -508,7 +521,6 @@ env 가 비면 아무에게도 적용되지 않으므로, 설정하지 않은 �
 
 - [ ] Play Console 개발자 계정 미생성 — 결제 + 신원 확인 필요 (A-2~A-6)
 - [ ] 계정 유형 확정 — 사업자 권장, D-U-N-S 번호 신청 필요 (A-4, B)
-- [ ] 통신판매업 신고 필요 여부 최종 확인(인앱결제 없어 불필요 가능성 높음, 미확인)
 - [ ] 데이터 보안 양식 중 "재정 정보"·"제3자 공유" 분류 법무 검토 (D-1 참고)
 - [ ] 사전 출시 보고서용 Robo 스크립트 녹화 — 로그인 통과용 (F-4 — Flutter 커스텀 UI 라 자동 자격증명 주입이 안 될 가능성)
 
@@ -518,6 +530,8 @@ env 가 비면 아무에게도 적용되지 않으므로, 설정하지 않은 �
 - [x] 릴리즈 AAB 빌드 성공 (`build/app/outputs/bundle/release/app-release.aab`, 51.1MB)
 - [x] applicationId 확정 (`com.netizen.hyphen.hyphen_app`), versionName 1.0.0, versionCode **3008**(2026-08-28 — 3006→3007 보안 설정 2건→3008 미사용 플러그인 제거)
 - [x] compileSdk/targetSdk 36 — 2026-08-31 신규 앱·업데이트 목표 API 요건(Android 16/API 36) 이미 충족, 추가 조치 불필요
+- [x] 홈페이지 URL 확정·HYPHEN 재작성 배포 — https://web-facing-production.up.railway.app/ (2026-08-28, §0-9)
+- [x] 통신판매업 신고번호 보유 확인 — 2011-부산기장-0084 (홈페이지 푸터 공개값, A-7)
 - [x] 개인정보처리방침 URL 공개 (`/privacy`)
 - [x] 이용약관 URL 공개 (`/terms`)
 - [x] 폰 스크린샷 7장 (`build/store/phone_01`~`07`, 각 1080×1920 = 1:1.78 — 2:1 상한 안)
