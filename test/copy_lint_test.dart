@@ -57,6 +57,14 @@ void main() {
       for (final f in dir.listSync(recursive: true)) {
         if (f is! File) continue;
         if (!f.path.endsWith('.dart')) continue;
+        // 약관·방침은 법적 고지 — "서비스 운영자(개인 변민준)" 는 체육관을 운영하는
+        // 사람(코치)이 아니라 서비스 제공자 표기라 GLOSSARY §1 대상이 아니다
+        // (2026-08-28 개인 명의 출시 전환 — 스토어 심사에 운영자 명시가 필요).
+        final normalized = f.path.replaceAll('\\', '/');
+        if (normalized.endsWith('lib/features/mypage/terms_screen.dart') ||
+            normalized.endsWith('lib/features/mypage/privacy_screen.dart')) {
+          continue;
+        }
         final lines = f.readAsStringSync().split('\n');
         for (var i = 0; i < lines.length; i++) {
           final raw = lines[i];

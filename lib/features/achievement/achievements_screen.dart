@@ -1,27 +1,44 @@
-// v1.17 Sprint 18: Achievements grid screen — FIFA-style 3x3 + featured panel.
+// v3.35 (2026-08-28 사용자 확정 "E 안"): 업적 화면 = **분류별 목록 → 트로피 룸** 2단.
 //
-// 레이아웃 차용 (FIFA Online):
-//  - 좌측 대형 featured 배지 + 한글/영문 라벨 + 조건/날짜
-//  - 우측 3열 grid 카드 (체크 / 진행 / 잠금)
-//  - 카테고리 필터 chip row
+// 구 v1.17 FIFA 식 좌우 분할(왼쪽 큰 배지 패널 + 오른쪽 2열 그리드)은 폐기 —
+// 오른쪽 폭이 좁아 라벨이 잘리고, 왼쪽 패널 아래가 비고, 잠긴 업적의 조건이 눌러야
+// 보였다. 시안 비교 = docs/design/achievements-redesign-2026-08-28.html.
 //
-// 비주얼 톤 (hyphen 흑백·Obsession):
-//  - surface #141414 카드 + border 1px
-//  - 단색 outline 아이콘 (Material Icons.outlined)
-//  - 완료 체크 = success #22C55E, locked 카드 opacity 0.35
-//  - rarity 4-tier 컬러 thin bar (Common=muted, Rare=accent, Epic=tierElite, Legendary=tierGames)
+// 화면 1 (이 파일) — 위에서 아래로, 전부 **높이 고정** (DESIGN-SSOT §레이아웃 안정성):
+//  - 요약 카드 112 — 달성 n / 전체, 최근 달성, 원형 진척률
+//  - 3칸 전환 40 — 전체 / 진행 중 / 완료 (퀘스트 요소)
+//  - 분류 라벨 40 + 행 64×n — 배지 44 · 제목 + 확인 방식 태그 · 조건 ·
+//    오른쪽은 완료면 달성 도장, 아니면 희귀도
+// 행을 누르면 화면 2 = TrophyRoomScreen (같은 AchievementState — 추가 호출 없음).
+//
+// 로딩은 같은 자리에 스켈레톤을 깐다 — 스피너 하나로 두면 완료 순간 화면 전체가
+// 교체된다(시프트). 회귀 게이트 = test/golden/achievements_stability_test.dart.
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
-import 'hyphen_pictogram.dart';
+import '../../core/time_format.dart';
 import '../../models/achievement.dart';
 import '../../widgets/hkit.dart';
 import 'achievement_card.dart';
+import 'achievement_group.dart';
 import 'achievement_state.dart';
+import 'hyphen_pictogram.dart';
 import 'panel_b_screen.dart';
+import 'trophy_room_screen.dart';
+
+/// 레이아웃 안정성 테스트가 잡는 앵커 — 로딩·완료 두 상태에 같은 키가 있다.
+class AchievementsAnchors {
+  const AchievementsAnchors._();
+  static const Key summary = Key('ach-summary');
+  static const Key segment = Key('ach-segment');
+  static const Key firstGroup = Key('ach-group-0');
+  static const Key firstRow = Key('ach-row-0');
+}
+
+enum _Filter { all, todo, done }
 
 class AchievementsScreen extends StatefulWidget {
   const AchievementsScreen({super.key});
@@ -31,91 +48,18 @@ class AchievementsScreen extends StatefulWidget {
 }
 
 class _AchievementsScreenState extends State<AchievementsScreen> {
-  String _filter = 'ALL';
-  String? _featuredCode;
+  _Filter _filter = _Filter.all;
 
-  // v1.29 한글 기본 — PR 은 도메인 고정어라 영문 유지.
-  // v3.2 (2026-08-20): Tier·Engine·히든 탭 삭제 — 백엔드 카탈로그 대수술로
-  // 해당 그룹 업적이 전부 사라져 (달성 불가 트리거 삭제) 빈 탭만 남았었다.
-  static const List<(String, String)> _filters = [
-    ('ALL', '전체'),
-    ('STREAK', '연속'),
-    ('PR', 'PR'),
-    ('SEASON', '시즌'),
-    ('VOLUME', '누적'),
-  ];
+  /// 행 높이 — 배지 44(+판 두께 2.4) + 상하 sp2. 스켈레톤이 같은 값을 쓴다.
+  static const double kRowH = 64;
 
-  /// v1.30: TIER 가 잡동사니 통이던 문제 해소 — Engine 점수·카테고리 숙련은
-  /// 별도 ENGINE 으로 분리하고, 시즌 이벤트(CF_*)는 SEASON 으로 넣는다.
-  static String _category(String code) {
-    if (code.startsWith('REACH_') || code == 'TITLE_POLYMATH') return 'TIER';
-    if (code.startsWith('SCORE_') ||
-        code.startsWith('ALL_CAT_') ||
-        code.startsWith('CAT_') ||
-        code == 'HOLY_TRINITY' ||
-        code == 'VOL_EQUAL' ||
-        code == 'FIRST_ENGINE' ||
-        code == 'TITLE_SCHOLAR') {
-      return 'ENGINE';
-    }
-    if (code.startsWith('STREAK_') ||
-        code == 'TITLE_OBSESSED' ||
-        code == 'TITLE_RELENTLESS' ||
-        code == 'VOL_TRIPLE_STREAK' ||
-        code == 'VOL_QUINTUPLE_STREAK' ||
-        code.startsWith('VOL_COMEBACK')) {
-      return 'STREAK';
-    }
-    if (code.startsWith('PR_')) return 'PR';
-    if (code.startsWith('SEASON_') || code.startsWith('CF_')) return 'SEASON';
-    if (code.startsWith('EGG_')) return 'EASTER';
-    if (code.startsWith('VOL_') ||
-        code.startsWith('WOD_') ||
-        code == 'TITLE_UNDEFEATED') {
-      return 'VOLUME';
-    }
-    if (code.startsWith('GIRLS_') ||
-        code.startsWith('HEROES_') ||
-        code == 'GAMES_1') {
-      return 'VOLUME';
-    }
-    return 'TIER';
-  }
+  static const List<String> _filterLabels = ['전체', '진행 중', '완료'];
 
   @override
   Widget build(BuildContext context) {
     final state = context.watch<AchievementState>();
     final snap = state.snapshot;
     final all = snap.catalog;
-    final filtered = _filter == 'ALL'
-        ? all
-        : all.where((c) => _category(c.code) == _filter).toList();
-    final unlockedCount = all.where((c) => state.isUnlockedInUi(c.code)).length;
-    final totalCount = all.length;
-
-    // featured: 명시 선택 → 없으면 첫 잠금해제 → 없으면 첫 카탈로그.
-    AchievementCatalog featured = const AchievementCatalog(
-      code: '',
-      name: '',
-      description: '',
-      rarity: 'Common',
-      isHidden: false,
-      sortOrder: 0,
-    );
-    if (_featuredCode != null) {
-      for (final c in all) {
-        if (c.code == _featuredCode) {
-          featured = c;
-          break;
-        }
-      }
-    }
-    if (featured.code.isEmpty && all.isNotEmpty) {
-      featured = all.firstWhere(
-        (c) => state.isUnlockedInUi(c.code),
-        orElse: () => all.first,
-      );
-    }
 
     // /go 전수조사: 로딩/에러 분기 — 이전엔 빈 catalog 로 stats '0/0' 표시되어
     // 사용자가 '업적 없음' 으로 오해.
@@ -135,407 +79,479 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
         ],
       ),
       body: SafeArea(
-        child: isLoading
-            ? const HkLoading()
-            : hasError
-            ? Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(HyphenTokens.sp5),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const HkSectionLabel('업적 로딩 실패'),
-                      const SizedBox(height: HyphenTokens.sp2),
-                      Text(state.error!, style: HyphenTokens.caption),
-                      const SizedBox(height: HyphenTokens.sp3),
-                      HkButton.secondary(
-                        '다시 시도',
-                        onPressed: () => state.load(),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-            : Column(
-                children: [
-                  _StatsHeader(unlocked: unlockedCount, total: totalCount),
-                  _FilterRow(
-                    current: _filter,
-                    filters: _filters,
-                    onTap: (v) {
-                      Haptic.selection();
-                      setState(() => _filter = v);
-                    },
-                  ),
-                  const Divider(height: 1, color: HyphenTokens.border),
-                  Expanded(
-                    child: filtered.isEmpty
-                        ? const HkEmptyState(title: '아직 업적 없음')
-                        : Row(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Expanded(
-                                flex: 5,
-                                child: featured.code.isEmpty
-                                    ? const SizedBox.shrink()
-                                    : _FeaturedPanel(
-                                        catalog: featured,
-                                        unlock: snap.unlocked[featured.code],
-                                        unlockedInUi: state.isUnlockedInUi(
-                                          featured.code,
-                                        ),
-                                      ),
-                              ),
-                              const VerticalDivider(
-                                width: 1,
-                                color: HyphenTokens.border,
-                              ),
-                              Expanded(
-                                flex: 7,
-                                child: _Grid(
-                                  items: filtered,
-                                  state: state,
-                                  featuredCode: featured.code,
-                                  onTap: (code) {
-                                    Haptic.light();
-                                    setState(() => _featuredCode = code);
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                  ),
-                ],
+        child: hasError
+            ? _ErrorBody(message: state.error!, onRetry: () => state.load())
+            : isLoading
+            ? const _SkeletonBody()
+            : all.isEmpty
+            ? const HkEmptyState(title: '아직 업적 없음')
+            : _ListBody(
+                snap: snap,
+                filter: _filter,
+                onFilter: (i) {
+                  Haptic.selection();
+                  setState(() => _filter = _Filter.values[i]);
+                },
               ),
       ),
     );
   }
 }
 
-class _StatsHeader extends StatelessWidget {
+// ─── 완료 ────────────────────────────────────────────────────────────────────
+
+class _ListBody extends StatelessWidget {
+  final AchievementSnapshot snap;
+  final _Filter filter;
+  final ValueChanged<int> onFilter;
+  const _ListBody({
+    required this.snap,
+    required this.filter,
+    required this.onFilter,
+  });
+
+  bool _pass(AchievementCatalog c) {
+    final open = snap.isUnlocked(c.code);
+    return switch (filter) {
+      _Filter.all => true,
+      _Filter.todo => !open,
+      _Filter.done => open,
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final all = snap.catalog;
+    final unlockedCount = all.where((c) => snap.isUnlocked(c.code)).length;
+
+    // 최근 달성 — 해금일 최신.
+    AchievementCatalog? last;
+    DateTime? lastAt;
+    for (final c in all) {
+      final at = snap.unlocked[c.code]?.unlockedAt;
+      if (at == null) continue;
+      if (lastAt == null || at.isAfter(lastAt)) {
+        last = c;
+        lastAt = at;
+      }
+    }
+
+    final groups = <Widget>[];
+    var groupIndex = 0;
+    var rowIndex = 0;
+    for (final (key, label) in AchievementGroup.ordered) {
+      final members = all.where((c) => AchievementGroup.of(c.code) == key);
+      if (members.isEmpty) continue;
+      final shown = members.where(_pass).toList();
+      if (shown.isEmpty) continue;
+      final n = members.where((c) => snap.isUnlocked(c.code)).length;
+      groups.add(
+        AchievementGroupLabel(
+          key: groupIndex == 0 ? AchievementsAnchors.firstGroup : null,
+          label: label,
+          unlocked: n,
+          total: members.length,
+        ),
+      );
+      groups.add(
+        HkRowCard(
+          margin: const EdgeInsets.symmetric(horizontal: HyphenTokens.sp4),
+          rows: [
+            for (final c in shown)
+              _Row(
+                key: rowIndex++ == 0 ? AchievementsAnchors.firstRow : null,
+                catalog: c,
+                unlock: snap.unlocked[c.code],
+              ),
+          ],
+        ),
+      );
+      groupIndex++;
+    }
+
+    return ListView(
+      padding: const EdgeInsets.only(bottom: HyphenTokens.sp5),
+      children: [
+        _Summary(
+          key: AchievementsAnchors.summary,
+          unlocked: unlockedCount,
+          total: all.length,
+          last: last,
+          lastAt: lastAt,
+        ),
+        Padding(
+          key: AchievementsAnchors.segment,
+          padding: const EdgeInsets.fromLTRB(
+            HyphenTokens.sp4,
+            HyphenTokens.sp3,
+            HyphenTokens.sp4,
+            0,
+          ),
+          child: HkSegment(
+            labels: _AchievementsScreenState._filterLabels,
+            selected: filter.index,
+            onSelected: onFilter,
+          ),
+        ),
+        if (groups.isEmpty)
+          const HkEmptyState(title: '해당 업적 없음')
+        else
+          ...groups,
+      ],
+    );
+  }
+}
+
+/// 요약 카드 — 달성 n / 전체 · 최근 달성 · 원형 진척률. 높이 [height] 고정.
+class _Summary extends StatelessWidget {
+  static const double height = 112;
   final int unlocked;
   final int total;
-  const _StatsHeader({required this.unlocked, required this.total});
+  final AchievementCatalog? last;
+  final DateTime? lastAt;
+  const _Summary({
+    super.key,
+    required this.unlocked,
+    required this.total,
+    required this.last,
+    required this.lastAt,
+  });
 
   @override
   Widget build(BuildContext context) {
     final pct = total == 0 ? 0.0 : (unlocked / total).clamp(0, 1).toDouble();
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        HyphenTokens.sp4,
-        HyphenTokens.sp3,
-        HyphenTokens.sp4,
-        HyphenTokens.sp2,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text('$unlocked', style: HyphenTokens.display),
-              const SizedBox(width: HyphenTokens.sp1),
-              Text(
-                '/ $total',
-                style: HyphenTokens.h3.copyWith(color: HyphenTokens.muted),
+    final recent = last == null || lastAt == null
+        ? '최근 달성 없음'
+        : '최근 · ${AchievementCard.displayTitle(last!)} · '
+              '${lastAt!.toLocal().month}월 ${lastAt!.toLocal().day}일';
+    return SizedBox(
+      height: height,
+      child: HkCard(
+        margin: const EdgeInsets.fromLTRB(
+          HyphenTokens.sp4,
+          HyphenTokens.sp4,
+          HyphenTokens.sp4,
+          0,
+        ),
+        padding: const EdgeInsets.symmetric(
+          horizontal: HyphenTokens.sp4 + 2,
+          vertical: HyphenTokens.sp3,
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const HkSectionLabel('달성'),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      Text(
+                        '$unlocked',
+                        style: HyphenTokens.h1.copyWith(
+                          fontFeatures: HyphenTokens.tabular,
+                        ),
+                      ),
+                      const SizedBox(width: HyphenTokens.sp1),
+                      Text(
+                        '/ $total',
+                        style: HyphenTokens.body.copyWith(
+                          color: HyphenTokens.muted,
+                          fontFeatures: HyphenTokens.tabular,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    recent,
+                    style: HyphenTokens.caption,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
-              const Spacer(),
-              // 진척률은 성과·경고 강조 대상 아님 → muted (실기기 QA).
-              Text(
-                '${(pct * 100).toInt()}%',
-                style: HyphenTokens.h3.copyWith(
-                  fontFeatures: HyphenTokens.tabular,
-                  color: HyphenTokens.muted,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: HyphenTokens.sp1),
-          HkSectionLabel('달성'),
-          const SizedBox(height: HyphenTokens.sp2),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(HyphenTokens.r1),
-            child: Stack(
-              children: [
-                Container(height: 4, color: HyphenTokens.border),
-                FractionallySizedBox(
-                  widthFactor: pct,
-                  child: Container(height: 4, color: HyphenTokens.accent),
-                ),
-              ],
             ),
-          ),
-        ],
+            const SizedBox(width: HyphenTokens.sp3),
+            _Ring(fraction: pct),
+          ],
+        ),
       ),
     );
   }
 }
 
-class _FilterRow extends StatelessWidget {
-  final String current;
-  final List<(String, String)> filters;
-  final void Function(String) onTap;
-  const _FilterRow({
-    required this.current,
-    required this.filters,
-    required this.onTap,
-  });
+/// 원형 진척률 64 — 테두리 6, 배경 border 색 위에 accent 호.
+class _Ring extends StatelessWidget {
+  static const double size = 64;
+  final double fraction;
+  const _Ring({required this.fraction});
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 48,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(
-          horizontal: HyphenTokens.sp4,
-          vertical: HyphenTokens.sp2,
-        ),
-        itemCount: filters.length,
-        separatorBuilder: (_, _) => const SizedBox(width: HyphenTokens.sp2),
-        itemBuilder: (ctx, i) {
-          final (code, label) = filters[i];
-          final selected = current == code;
-          return HkBadge(
-            label,
-            color: HyphenTokens.fg,
-            selected: selected,
-            onTap: () => onTap(code),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _FeaturedPanel extends StatelessWidget {
-  final AchievementCatalog catalog;
-  final AchievementUnlock? unlock;
-  final bool unlockedInUi;
-  const _FeaturedPanel({
-    required this.catalog,
-    required this.unlock,
-    required this.unlockedInUi,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final color = RarityPalette.of(catalog.rarity).light;
-    final isHidden = catalog.isHidden && !unlockedInUi;
-    return Padding(
-      padding: const EdgeInsets.all(HyphenTokens.sp4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      width: size,
+      height: size,
+      child: Stack(
+        alignment: Alignment.center,
         children: [
-          // 2026-08-21 — 픽토그램 팩 v1.0. AchievementBadge 가 판까지 그리므로
-          // 아이콘을 감싸던 테두리 컨테이너는 걷었다 (안 걷으면 판이 두 겹).
-          Center(
-            child: AchievementBadge(
-              code: catalog.code,
-              rarity: catalog.rarity,
-              icon: catalog.icon,
-              size: 128,
-              locked: !unlockedInUi,
-              hidden: isHidden,
-            ),
+          CustomPaint(
+            size: const Size(size, size),
+            painter: _RingPainter(fraction),
           ),
-          const SizedBox(height: HyphenTokens.sp3),
           Text(
-            RarityPalette.of(catalog.rarity).ko,
-            style: HyphenTokens.microLabel.copyWith(
-              color: color,
-              fontWeight: FontWeight.w800,
+            '${(fraction * 100).round()}%',
+            style: HyphenTokens.micro.copyWith(
+              color: HyphenTokens.fg,
+              fontWeight: FontWeight.w700,
+              fontFeatures: HyphenTokens.tabular,
             ),
           ),
-          const SizedBox(height: HyphenTokens.sp1),
-          // v1.30: 한글 칭호가 제목, 영문 고유명이 부제 (홈 표와 표기 통일).
-          Text(
-            isHidden ? '???' : AchievementCard.displayTitle(catalog),
-            style: HyphenTokens.h3.copyWith(
-              color: unlockedInUi ? HyphenTokens.fg : HyphenTokens.muted,
-            ),
-          ),
-          if (!isHidden &&
-              AchievementCard.koreanTitle(catalog.code).isNotEmpty) ...[
-            const SizedBox(height: HyphenTokens.sp1),
-            Text(
-              AchievementCard.gridLabel(catalog.name),
-              style: HyphenTokens.caption,
-            ),
-          ],
-          const SizedBox(height: HyphenTokens.sp3),
-          Text(
-            isHidden
-                ? '· · · 조건 비공개. 해금 후 공개.'
-                : (unlockedInUi
-                      ? catalog.description
-                      : AchievementCard.lockedHint(catalog)),
-            style: HyphenTokens.caption,
-          ),
-          const Spacer(),
-          if (unlockedInUi && unlock != null) ...[
-            const Divider(height: 1, color: HyphenTokens.border),
-            const SizedBox(height: HyphenTokens.sp2),
-            Row(
-              children: [
-                const Icon(
-                  Icons.check_circle,
-                  size: 14,
-                  color: HyphenTokens.success,
-                ),
-                const SizedBox(width: HyphenTokens.sp1),
-                // 좁은 좌측 패널에서 가로 오버플로우 나던 자리 — Expanded 로 고정.
-                Expanded(
-                  child: Text(
-                    '달성 · ${_formatDate(unlock!.unlockedAt)}',
-                    style: HyphenTokens.micro.copyWith(
-                      color: HyphenTokens.success,
-                      fontWeight: FontWeight.w700,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ] else if (unlockedInUi) ...[
-            // demoUnlocked (백엔드 trigger 미연동) — 'Demo' 표시.
-            const Divider(height: 1, color: HyphenTokens.border),
-            const SizedBox(height: HyphenTokens.sp2),
-            Text('데모 달성.', style: HyphenTokens.micro),
-          ] else ...[
-            const Divider(height: 1, color: HyphenTokens.border),
-            const SizedBox(height: HyphenTokens.sp2),
-            Text(
-              '미달성',
-              style: HyphenTokens.microLabel.copyWith(
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ],
         ],
       ),
     );
   }
-
-  static String _formatDate(DateTime d) {
-    final l = d.toLocal();
-    return '${l.year}-${l.month.toString().padLeft(2, '0')}-${l.day.toString().padLeft(2, '0')}';
-  }
 }
 
-class _Grid extends StatelessWidget {
-  final List<AchievementCatalog> items;
-  final AchievementState state;
-  final String? featuredCode;
-  final void Function(String) onTap;
-  const _Grid({
-    required this.items,
-    required this.state,
-    required this.featuredCode,
-    required this.onTap,
-  });
+class _RingPainter extends CustomPainter {
+  final double fraction;
+  const _RingPainter(this.fraction);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const stroke = 6.0;
+    final rect = Rect.fromLTWH(
+      stroke / 2,
+      stroke / 2,
+      size.width - stroke,
+      size.height - stroke,
+    );
+    final track = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = stroke
+      ..color = HyphenTokens.border;
+    final arc = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = stroke
+      ..color = HyphenTokens.accent;
+    canvas.drawArc(rect, 0, 6.283185307, false, track);
+    if (fraction > 0) {
+      canvas.drawArc(rect, -1.5707963, 6.283185307 * fraction, false, arc);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_RingPainter old) => old.fraction != fraction;
+}
+
+/// 목록 행 — 높이 [_AchievementsScreenState.kRowH] 고정.
+class _Row extends StatelessWidget {
+  final AchievementCatalog catalog;
+  final AchievementUnlock? unlock;
+  const _Row({super.key, required this.catalog, required this.unlock});
 
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
-      padding: const EdgeInsets.all(HyphenTokens.sp3),
-      // 실기기 QA: 3열은 셀 폭 부족으로 라벨이 단어 중간에서 개행
-      // ("RX STA NDARD") → 2열로 가독 확보.
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: HyphenTokens.sp2,
-        crossAxisSpacing: HyphenTokens.sp2,
-        childAspectRatio: 0.9,
+    final open = unlock != null;
+    final hidden = catalog.isHidden && !open;
+    final pal = RarityPalette.of(catalog.rarity);
+    final shape = HyphenPictogram.shapeFor(catalog.code);
+
+    final Widget trailing = open
+        ? AchievementStamp(date: unlock!.unlockedAt)
+        : HkBadge(pal.ko, color: pal.text);
+
+    return SizedBox(
+      height: _AchievementsScreenState.kRowH,
+      child: Center(
+        child: HkListRow(
+          leadingWidget: AchievementBadge(
+            code: catalog.code,
+            rarity: catalog.rarity,
+            icon: catalog.icon,
+            size: 44,
+            locked: !open,
+            hidden: hidden,
+          ),
+          title: hidden ? '???' : AchievementCard.displayTitle(catalog),
+          titleBadge: HkBadge(
+            hidden ? '숨김' : HyphenPictogram.shapeLabel(shape),
+          ),
+          subtitle: hidden
+              ? '조건 비공개'
+              : (open ? catalog.description : AchievementCard.lockedHint(catalog)),
+          // 오른쪽에 값(도장·희귀도)이 있는 행은 화살표를 붙이지 않는다 (HkListRow
+          // 규칙) — 360 폭에서 제목·태그 자리를 지키는 쪽이 우선.
+          trailingWidget: trailing,
+          onTap: () {
+            Haptic.light();
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => TrophyRoomScreen(code: catalog.code),
+              ),
+            );
+          },
+        ),
       ),
-      itemCount: items.length,
-      itemBuilder: (ctx, i) {
-        final c = items[i];
-        final unlocked = state.isUnlockedInUi(c.code);
-        final selected = c.code == featuredCode;
-        return _GridCell(
-          catalog: c,
-          unlocked: unlocked,
-          selected: selected,
-          onTap: () => onTap(c.code),
-        );
-      },
     );
   }
 }
 
-class _GridCell extends StatelessWidget {
-  final AchievementCatalog catalog;
-  final bool unlocked;
-  final bool selected;
-  final VoidCallback onTap;
-  const _GridCell({
-    required this.catalog,
-    required this.unlocked,
-    required this.selected,
-    required this.onTap,
+/// 달성 도장 — accent 배지를 살짝 기울인 것 (퀘스트 요소). 목록 행·트로피 룸 공용.
+/// 새 배지 variant 가 아니라 [HkBadge] 그대로에 회전만 얹는다 (§3 코드·클래스 SSOT).
+class AchievementStamp extends StatelessWidget {
+  final DateTime date;
+  final Color color;
+  const AchievementStamp({
+    super.key,
+    required this.date,
+    this.color = HyphenTokens.accent,
   });
 
   @override
   Widget build(BuildContext context) {
-    final color = RarityPalette.of(catalog.rarity).light;
-    final isHidden = catalog.isHidden && !unlocked;
-    return InkWell(
-      onTap: onTap,
-      child: HkCard(
-        padding: EdgeInsets.zero,
-        radius: HyphenTokens.r2,
-        borderColor: selected ? HyphenTokens.fg : HyphenTokens.border,
-        borderWidth: selected ? 1.5 : 1,
-        child: Column(
-          children: [
-            Expanded(
-              child: Stack(
-                children: [
-                  Center(
-                    child: AchievementBadge(
-                      code: catalog.code,
-                      rarity: catalog.rarity,
-                      icon: catalog.icon,
-                      size: 56,
-                      locked: !unlocked,
-                      hidden: isHidden,
-                    ),
+    return Transform.rotate(
+      angle: -0.105,
+      child: HkBadge('달성 ${mdShort(date.toLocal())}', color: color),
+    );
+  }
+}
+
+// ─── 로딩 ────────────────────────────────────────────────────────────────────
+
+/// 스켈레톤 — 완료 화면과 **같은 자리, 같은 높이**. 요약 카드 → 3칸 → 분류 라벨 →
+/// 행 3 → 라벨 → 행 2. 깜빡임 없음 (HkSkeletonRow 규약).
+class _SkeletonBody extends StatelessWidget {
+  const _SkeletonBody();
+
+  @override
+  Widget build(BuildContext context) {
+    const row = HkSkeletonRow(
+      leading: true,
+      height: _AchievementsScreenState.kRowH,
+      leadingSize: 44,
+    );
+    return ListView(
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.only(bottom: HyphenTokens.sp5),
+      children: [
+        SizedBox(
+          key: AchievementsAnchors.summary,
+          height: _Summary.height,
+          child: HkCard(
+            margin: const EdgeInsets.fromLTRB(
+              HyphenTokens.sp4,
+              HyphenTokens.sp4,
+              HyphenTokens.sp4,
+              0,
+            ),
+            padding: const EdgeInsets.symmetric(
+              horizontal: HyphenTokens.sp4 + 2,
+              vertical: HyphenTokens.sp3,
+            ),
+            child: Row(
+              children: [
+                const Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      HkSkeletonBar(width: 28, height: 10),
+                      SizedBox(height: HyphenTokens.sp2),
+                      HkSkeletonBar(width: 86, height: 26),
+                      SizedBox(height: HyphenTokens.sp2),
+                      HkSkeletonBar(width: 150, height: 11),
+                    ],
                   ),
-                  if (unlocked)
-                    const Positioned(
-                      right: 4,
-                      top: 4,
-                      child: Icon(
-                        Icons.check_circle,
-                        size: 14,
-                        color: HyphenTokens.success,
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            Container(height: 2, color: color),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: HyphenTokens.sp1,
-                vertical: HyphenTokens.sp1,
-              ),
-              // 마침표 3분류: 그리드 타일 = 단어 라벨 → 마침표 없음.
-              // toUpperCase 제거 — 좁은 셀에서 대문자 폭 증가로 단어 중간 개행 유발.
-              child: Text(
-                isHidden ? '???' : AchievementCard.displayTitle(catalog),
-                maxLines: 2,
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
-                softWrap: true,
-                style: HyphenTokens.micro.copyWith(
-                  color: unlocked ? HyphenTokens.fg : HyphenTokens.muted,
-                  fontWeight: FontWeight.w700,
                 ),
-              ),
+                const SizedBox(width: HyphenTokens.sp3),
+                HkSkeletonBar(
+                  width: _Ring.size,
+                  height: _Ring.size,
+                  radius: _Ring.size / 2,
+                ),
+              ],
             ),
+          ),
+        ),
+        Padding(
+          key: AchievementsAnchors.segment,
+          padding: const EdgeInsets.fromLTRB(
+            HyphenTokens.sp4,
+            HyphenTokens.sp3,
+            HyphenTokens.sp4,
+            0,
+          ),
+          child: const HkSkeletonBar(
+            width: double.infinity,
+            height: HkSegment.height,
+          ),
+        ),
+        const _SkeletonGroupLabel(key: AchievementsAnchors.firstGroup, w: 64),
+        const HkRowCard(
+          margin: EdgeInsets.symmetric(horizontal: HyphenTokens.sp4),
+          rows: [
+            KeyedSubtree(key: AchievementsAnchors.firstRow, child: row),
+            row,
+            row,
+          ],
+        ),
+        const _SkeletonGroupLabel(w: 48),
+        const HkRowCard(
+          margin: EdgeInsets.symmetric(horizontal: HyphenTokens.sp4),
+          rows: [row, row],
+        ),
+      ],
+    );
+  }
+}
+
+class _SkeletonGroupLabel extends StatelessWidget {
+  final double w;
+  const _SkeletonGroupLabel({super.key, required this.w});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: AchievementGroupLabel.height,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          HyphenTokens.sp4,
+          0,
+          HyphenTokens.sp4,
+          HyphenTokens.sp1 + 2,
+        ),
+        child: Align(
+          alignment: Alignment.bottomLeft,
+          child: HkSkeletonBar(width: w, height: 12),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── 에러 ────────────────────────────────────────────────────────────────────
+
+class _ErrorBody extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+  const _ErrorBody({required this.message, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(HyphenTokens.sp5),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const HkSectionLabel('업적 로딩 실패'),
+            const SizedBox(height: HyphenTokens.sp2),
+            Text(message, style: HyphenTokens.caption),
+            const SizedBox(height: HyphenTokens.sp3),
+            HkButton.secondary('다시 시도', onPressed: onRetry),
           ],
         ),
       ),

@@ -421,6 +421,11 @@ class HkListRow extends StatelessWidget {
   /// 행 하단 슬롯 — 진행바 등. 없으면 생략.
   final Widget? below;
 
+  /// 제목 **옆** 작은 배지 — 업적 행의 확인 방식 태그처럼 제목과 한 줄에 붙는
+  /// 보조 표시 (v3.35 · 2026-08-28 업적 E 안). 줄을 하나 더 쓰지 않으므로 행 높이가
+  /// 그대로다. 제목이 길면 제목이 먼저 줄고(말줄임) 배지는 남는다.
+  final Widget? titleBadge;
+
   /// 좌측 슬롯을 위젯으로 — 업적 배지처럼 아이콘 하나로 안 끝날 때
   /// (2026-08-21 픽토그램 팩). [icon] 과 동시 사용 금지.
   final Widget? leadingWidget;
@@ -433,6 +438,7 @@ class HkListRow extends StatelessWidget {
     this.iconColor,
     this.leadingWidget,
     this.subtitle,
+    this.titleBadge,
     this.trailing,
     this.trailingColor,
     this.trailingWidget,
@@ -472,13 +478,23 @@ class HkListRow extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      title,
-                      style: HyphenTokens.body.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            title,
+                            style: HyphenTokens.body.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (titleBadge != null) ...[
+                          const SizedBox(width: HyphenTokens.sp2),
+                          titleBadge!,
+                        ],
+                      ],
                     ),
                     if (subtitle != null) ...[
                       const SizedBox(height: 2),
@@ -936,21 +952,31 @@ class HkSkeletonRow extends StatelessWidget {
 
   /// 좌측 배지(32) 자리를 함께 그릴지 — 업적 표처럼 아이콘이 붙는 목록용.
   final bool leading;
-  const HkSkeletonRow({super.key, this.leading = false});
+
+  /// 행 높이·배지 크기 — 기본은 [HkListRow] 한 줄([rowH]·32). 업적 전체 목록처럼
+  /// 행이 더 큰 배지(44)를 싣는 표는 그 행과 **같은 값**을 넘긴다 (v3.35).
+  final double height;
+  final double leadingSize;
+  const HkSkeletonRow({
+    super.key,
+    this.leading = false,
+    this.height = rowH,
+    this.leadingSize = 32,
+  });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: rowH,
+      height: height,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: HyphenTokens.sp3),
         child: Row(
           children: [
             if (leading) ...[
-              const HkSkeletonBar(
-                width: 32,
-                height: 32,
-                radius: HyphenTokens.r2,
+              HkSkeletonBar(
+                width: leadingSize,
+                height: leadingSize,
+                radius: leadingSize / 2,
               ),
               const SizedBox(width: HyphenTokens.sp3),
             ],
@@ -1448,6 +1474,70 @@ class HkInlineError extends StatelessWidget {
                 HkButton.tertiary('다시 시도', neutral: true, onPressed: onRetry),
               ],
             ),
+    );
+  }
+}
+
+/// n칸 전환 — 같은 목록을 다른 기준으로 보는 **상호 배타 선택** (v3.35 ·
+/// 2026-08-28 사용자 확정 업적 E 안 "전체 / 진행 중 / 완료").
+///
+/// 배지([HkBadge])를 여럿 나열하는 필터 칩과 다르다 — 이건 한 줄을 n 등분하는
+/// 한 덩어리다. r1 사각 + 1px fg 테두리, 켜진 칸은 면 반전. 높이는 [height] 고정 —
+/// 자리 예약·스켈레톤이 같은 값을 쓴다. 새 전환 variant 신설 금지.
+class HkSegment extends StatelessWidget {
+  static const double height = 40;
+  final List<String> labels;
+  final int selected;
+  final ValueChanged<int> onSelected;
+  const HkSegment({
+    super.key,
+    required this.labels,
+    required this.selected,
+    required this.onSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: height,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: HyphenTokens.surface,
+        border: Border.all(color: HyphenTokens.fg),
+        borderRadius: BorderRadius.circular(HyphenTokens.r1),
+      ),
+      child: Row(
+        children: [
+          for (var i = 0; i < labels.length; i++) ...[
+            if (i > 0) Container(width: 1, color: HyphenTokens.fg),
+            Expanded(
+              child: Semantics(
+                button: true,
+                selected: i == selected,
+                label: labels[i],
+                child: InkWell(
+                  onTap: () => onSelected(i),
+                  child: Container(
+                    color: i == selected
+                        ? HyphenTokens.fg
+                        : Colors.transparent,
+                    alignment: Alignment.center,
+                    child: Text(
+                      labels[i],
+                      style: HyphenTokens.micro.copyWith(
+                        color: i == selected
+                            ? HyphenTokens.bg
+                            : HyphenTokens.fg,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

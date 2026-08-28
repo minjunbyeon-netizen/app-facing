@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hyphen_app/core/app_clock.dart';
 import 'package:hyphen_app/core/goals_state.dart';
 import 'package:hyphen_app/core/quotes.dart';
+import 'package:hyphen_app/features/achievement/achievements_screen.dart';
 import 'package:hyphen_app/features/announcements/announcements_state.dart';
 import 'package:hyphen_app/features/auth/auth_state.dart';
 import 'package:hyphen_app/features/auth/login_screen.dart';
@@ -484,5 +485,22 @@ void _wornTitleGoldens() {
     );
     await tapTab(tester, '내 정보');
     await capture(tester, 'state_06_worn_title');
+  });
+
+  // ── 업적 목록 로딩 — 스켈레톤 (v3.35 E 안: 요약·3칸·분류 라벨·행 자리 예약) ──
+  testWidgets('state: achievements loading skeleton', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi(memberWorld(), hangPaths: {'/api/v1/achievements'});
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        home: const AchievementsScreen(),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 300));
+    await capture(tester, 'state_21_achievements_loading');
   });
 }

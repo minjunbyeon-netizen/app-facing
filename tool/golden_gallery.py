@@ -59,7 +59,8 @@ SECTIONS = [
         ("member_09_wod_detail", "수업 상세 — RX·Scaled·Beginner 탭 + 라운드 + 내 이전 기록 (v3.4)"),
         ("member_10_coach_ask_sheet", "코치에게 질문 시트 — 오늘 행 '메시지'"),
         ("member_11_messaging", "쪽지 · 공지 피드 — 홈 '더 보기' · 수업 탭 종"),
-        ("member_12_achievements_all", "업적 전체 — 해금 · 미해금 카탈로그"),
+        ("member_12_achievements_all", "업적 전체 — 분류별 목록 · 전체/진행 중/완료 3칸 · 확인 방식 태그 · 달성 도장 (v3.35 E 안)"),
+        ("member_24_trophy_room", "트로피 룸 — 목록 행 탭 → 검은 진열대 + 같은 분류 3열 + 다른 분류 (v3.35)"),
         ("member_13_achievement_detail", "업적 상세 시트 — 홈 해금 카드 탭"),
         ("member_14_edit_profile", "프로필 수정 — 이름 줄 연필 아이콘"),
         ("member_15_contracts", "전자계약 목록 — SIGNED · WAITING (메뉴 '계약')"),
@@ -118,6 +119,8 @@ SECTIONS = [
          "로그인 진행 중 — 버튼을 치우지 않고 그 자리에서 스피너만 (D67, 2026-08-27)"),
         ("state_20_inbox_threads",
          "쪽지함 꽉 찬 상태 — 코치 쪽지 + 자동 알림(대기 승격·회원권 만료) 한 목록, 공지 슬롯 채움 (홈페이지·스토어 소스, 2026-08-28)"),
+        ("state_21_achievements_loading",
+         "업적 목록 로딩 — 요약 카드·3칸·분류 라벨·행 자리를 스켈레톤으로 예약, 완료와 y 동일 (v3.35, 2026-08-28)"),
     ]),
 ]
 

@@ -43,6 +43,9 @@ String ymd(DateTime d) => '${d.year}-${_two(d.month)}-${_two(d.day)}';
 /// `08.25`
 String mdDot(DateTime d) => '${_two(d.month)}.${_two(d.day)}';
 
+/// 월.일 — 0 없이 ("7.12"). 좁은 자리(업적 달성 도장)용 (v3.35).
+String mdShort(DateTime d) => '${d.month}.${d.day}';
+
 /// `08/25 19:05`
 String mdHm(DateTime d) => '${_two(d.month)}/${_two(d.day)} ${hhmm(d)}';
 

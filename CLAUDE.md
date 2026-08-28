@@ -413,7 +413,9 @@ python tool/golden_gallery.py               # 단일 HTML 갤러리 (build/golde
 가짜 백엔드(`test/golden/fakes.dart` — ApiClient implements, 네트워크 0)로 실물 픽셀 렌더
 (갤S22 급 360×780·2x). 폰트는 `test/flutter_test_config.dart` 가 FontManifest 전체
 (Pretendard·MaterialIcons)를 로드. 참조 아키텍처: `apps/writeplz-app` 골든스탠다드.
-현재 **62장** (2026-08-28 실측 — state_20_inbox_threads 신규: 쪽지함 꽉 찬 상태(코치 쪽지+자동 알림), 홈페이지·스토어 스크린샷 소스. 직전 61장 = 2026-08-27 실측 — D67 로그인 고정 레이아웃으로 3장 증가:
+현재 **64장** (2026-08-28 v3.35 업적 E 안 — member_24_trophy_room(목록 행 탭 → 트로피 룸) ·
+state_21_achievements_loading(스켈레톤) 신규, member_12·ach_01 은 분류별 목록으로 재생성.
+안정성 게이트 = `test/golden/achievements_stability_test.dart`. 직전 62장 = 2026-08-28 실측 — state_20_inbox_threads 신규: 쪽지함 꽉 찬 상태(코치 쪽지+자동 알림), 홈페이지·스토어 스크린샷 소스. 직전 61장 = 2026-08-27 실측 — D67 로그인 고정 레이아웃으로 3장 증가:
 state_17_login_error · state_18_login_validation · state_19_login_busy 신규,
 common_08_login·state_09_login_remembered·state_16 재생성. 로그인 상태 절차 정본은
 `test/golden/login_states.dart` — 골든과 y 좌표 검사(layout_stability_test.dart)가
@@ -422,8 +424,8 @@ common_05_signup(진입 갈림길) · member_16_goals · member_17_faq 삭제. �
 구 61장 이력: 2026-08-26 실측 — 8/21 "45장" 서술 이후 v3.4~v3.28 증감 포함.
 D57 횟수권 = state_14 내 정보 회원권 카드 신규 · D58 예약 오픈 전 = state_15 신규 ·
 D59 코치 세션 만료 = state_16 로그인 화면 자동 이동 신규 (하네스 `routes` 주입구).
-prefix 집계(2026-08-28): member 23 · state 20 · common 4 · splash 3 · snack 3 ·
-coach 3 · ach 2 · boss 2 · hist 1 · onb 1 (= 62). 2026-08-26 S6 = state_13 가입 폼 BACK 다이얼로그 신규.
+prefix 집계(2026-08-28 v3.35): member 24 · state 21 · common 4 · splash 3 · snack 3 ·
+coach 3 · ach 2 · boss 2 · hist 1 · onb 1 (= 64). 2026-08-26 S6 = state_13 가입 폼 BACK 다이얼로그 신규.
 2026-08-26 S5·S10 = state_11 '회원권 필요' 배지 ·
 state_12 코치 로그아웃 다이얼로그 신규 (boss_03·state_10 은 명단 코치 이름 재생성).
 2026-08-26 S3 = state_10 시작 전 명단 잠금 신규 ·

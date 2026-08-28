@@ -233,6 +233,26 @@ void main() {
     await capture(tester, 'member_12_achievements_all');
   });
 
+  // ── 회원: 트로피 룸 (업적 목록 행 탭 → TrophyRoomScreen, v3.35 E 안) ──
+  testWidgets('member: trophy room', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi(memberWorld());
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        home: const AchievementsScreen(),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 300));
+    // 누적 분류의 해금 행 — 진열대에 도장·태그가 붙고, 아래에 같은 분류 + 다른 분류.
+    await tester.tap(find.text('첫 열 번'));
+    await tester.pump(const Duration(milliseconds: 400));
+    await capture(tester, 'member_24_trophy_room');
+  });
+
   // ── 회원: 업적 상세 시트 (홈 탭 해금 카드 탭) ──
   testWidgets('member: achievement detail sheet', (tester) async {
     phone(tester);
