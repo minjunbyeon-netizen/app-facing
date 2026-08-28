@@ -89,7 +89,7 @@ class TermsScreen extends StatelessWidget {
               // 삭제됐다 — 없는 창구를 분쟁 절차로 지정하지 않는다 (§0-B).
               '본 약관은 대한민국 법률을 따릅니다. 분쟁은 우선 가입한 체육관과의 협의로 '
               '해결하며, 협의가 어려울 경우 민사소송법상 관할 법원에 제기합니다. '
-              '서비스 운영자 문의: n1665@naver.com',
+              '서비스 운영자 문의: cheb2oy@naver.com',
               style: HyphenTokens.body,
             ),
             SizedBox(height: HyphenTokens.sp5),

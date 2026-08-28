@@ -129,7 +129,7 @@ App Store 용 ipa export → `fastlane pilot` 로 TestFlight 업로드 → ipa �
 ## E. 심사 정보 (App Review Information)
 
 - **로그인 필요** 체크 → 데모 계정: 코치 `googletest2` / 회원 `googletest1` (비밀번호 = PLAYSTORE.md A-12 보관 위치).
-- **연락처**: 변민준 · 전화 · `n1665@naver.com`.
+- **연락처**: 변민준 · 전화 · `cheb2oy@naver.com`.
 - **메모 (심사팀에게)** 예:
   > 이 앱은 체육관 코치와 회원을 잇는 앱입니다. 회원은 앱에서 수업을 예약하고 공지·쪽지를 받습니다.
   > 코치의 운영 화면은 PC 웹(https://web-facing-admin-production-dca4.up.railway.app)이며, 폰 앱의 코치 로그인은

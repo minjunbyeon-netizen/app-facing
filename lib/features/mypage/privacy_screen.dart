@@ -92,7 +92,7 @@ class PrivacyScreen extends StatelessWidget {
             const HkSectionLabel('개인정보 보호책임자 · 문의'),
             const SizedBox(height: HyphenTokens.sp2),
             const _Bullet('보호책임자: 변민준 (개인 운영자)'),
-            const _Bullet('이메일: n1665@naver.com'),
+            const _Bullet('이메일: cheb2oy@naver.com'),
             const SizedBox(height: HyphenTokens.sp5),
 
             HkButton.secondary(
