@@ -2,11 +2,13 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:hyphen_app/core/app_clock.dart';
 import 'package:hyphen_app/core/goals_state.dart';
 import 'package:hyphen_app/core/quotes.dart';
+import 'package:hyphen_app/features/announcements/announcements_state.dart';
 import 'package:hyphen_app/features/auth/auth_state.dart';
 import 'package:hyphen_app/features/auth/login_screen.dart';
 import 'package:hyphen_app/features/boss/boss_dashboard_screen.dart';
@@ -16,6 +18,7 @@ import 'package:hyphen_app/features/gym/gym_state.dart';
 import 'package:hyphen_app/features/history/history_screen.dart';
 import 'package:hyphen_app/features/profile/profile_state.dart';
 import 'package:hyphen_app/features/home/home_screen.dart';
+import 'package:hyphen_app/features/inbox/inbox_screen.dart';
 import 'package:hyphen_app/features/shell/coach_shell.dart';
 import 'package:hyphen_app/features/signup/self_signup_screen.dart';
 import 'package:hyphen_app/features/shell/main_shell.dart';
@@ -238,6 +241,39 @@ void _rememberedLoginGolden() {
     expect(find.text('아이디를 입력해 주세요.'), findsOneWidget);
     expect(find.text('비밀번호를 입력해 주세요.'), findsOneWidget);
     await capture(tester, 'state_18_login_validation');
+  });
+
+  // ── 쪽지함 — 코치 쪽지 + 자동 알림이 한 목록에 (2026-08-28 홈페이지·스토어 소스) ──
+  // 기본 memberWorld 의 쪽지함은 비어 있어(member_11) 마케팅 캡처로는 빈 화면이라
+  // 꽉 찬 실물을 별도 상태로 고정한다. 공지 슬롯도 함께 채운다.
+  testWidgets('state: inbox threads filled', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi({
+      ...memberWorld(),
+      '/api/v1/gym/1/threads': {'items': memberThreads()},
+      '/api/v1/member/announcements': memberAnnouncements(),
+    });
+    final gym = GymState(GymRepository(api), sse: FakeSse());
+    await gym.loadMine();
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        gym: gym,
+        home: const MessagingScreen(),
+      ),
+    );
+    // 공지 슬롯은 홈 화면이 채우는 상태라 여기서 직접 불러온다 (홈과 같은 소스).
+    await Provider.of<AnnouncementsState>(
+      tester.element(find.byType(MessagingScreen)),
+      listen: false,
+    ).refresh(GymRepository(api));
+    await tester.pumpAndSettle();
+    expect(find.text('김코치'), findsOneWidget);
+    expect(find.text('휴관 안내'), findsOneWidget);
+    await capture(tester, 'state_20_inbox_threads');
   });
 
   // ── 로딩 중 — 버튼을 치우지 않고 그 자리에서 스피너만 돈다 ──

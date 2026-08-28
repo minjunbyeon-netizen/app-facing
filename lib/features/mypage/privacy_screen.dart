@@ -24,11 +24,19 @@ class PrivacyScreen extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.all(HyphenTokens.sp4),
           children: [
+            // 2026-08-28: 개인(변민준) 명의 출시 — 운영 주체·보호책임자를 본문에 명시.
+            const Text(
+              'HYPHEN 은 개인 운영자 변민준이 운영하는 서비스입니다. '
+              '이 방침은 앱과 코치용 PC 웹 모두에 적용됩니다.',
+              style: HyphenTokens.body,
+            ),
+            const SizedBox(height: HyphenTokens.sp4),
             const HkSectionLabel('저장하는 데이터'),
             const SizedBox(height: HyphenTokens.sp2),
             const _Bullet('기기 식별값 — 이 기기에서 만들고, 서버에는 알아볼 수 없게 바꾼 값만 보냅니다'),
             const _Bullet('이름·전화번호 — 회원 가입 신청 시 입력 (서버 보관, 체육관 코치에게 제공)'),
-            const _Bullet('소셜 로그인: 네이버·구글 계정 식별값·표시 이름 (서버 보관)'),
+            // 2026-08-28: 소셜 로그인 플러그인 제거 — 로그인은 아이디·비밀번호뿐.
+            const _Bullet('로그인 아이디·비밀번호 (서버 보관 — 비밀번호는 원문 대신 알아볼 수 없게 변환한 값만 저장)'),
             const _Bullet('전자계약: 계약 내용·서명 그림·서명 일시·접속 주소 (서버 보관)'),
             const _Bullet('출석 기록: 출석 일시·체육관 — 코치가 수업 명단에서 기록 (서버 보관)'),
             // v3.2 (2026-08-20): 체중·키·나이·1RM·벤치마크 입력 경로는 v2.3
@@ -46,7 +54,7 @@ class PrivacyScreen extends StatelessWidget {
             const SizedBox(height: HyphenTokens.sp2),
             const _Bullet('위치 정보 · 연락처 · 마이크'),
             const _Bullet('카메라 — 앱 권한 없음. 수집하지 않습니다'),
-            const _Bullet('소셜 계정의 친구목록·메시지 (프로필 식별자만 수신)'),
+            const _Bullet('소셜 계정 정보 — 네이버·구글 등 소셜 로그인을 쓰지 않습니다'),
             const SizedBox(height: HyphenTokens.sp4),
 
             const HkSectionLabel('사용 목적'),
@@ -78,6 +86,13 @@ class PrivacyScreen extends StatelessWidget {
             // 없는 버튼을 권리로 안내하면 고지가 거짓이 된다 (§0-B).
             const _Bullet('언제든 로그아웃 (내 정보 화면 — 계정 연결만 끊고 프로필은 남습니다)'),
             const _Bullet('계정 탈퇴 = 서버·로컬 모든 데이터 영구 삭제 (아래 버튼)'),
+            const _Bullet('열람·정정·삭제 요청은 아래 문의처로 — 본인 확인 후 영업일 7일 이내 처리'),
+            const SizedBox(height: HyphenTokens.sp4),
+
+            const HkSectionLabel('개인정보 보호책임자 · 문의'),
+            const SizedBox(height: HyphenTokens.sp2),
+            const _Bullet('보호책임자: 변민준 (개인 운영자)'),
+            const _Bullet('이메일: n1665@naver.com'),
             const SizedBox(height: HyphenTokens.sp5),
 
             HkButton.secondary(
@@ -97,8 +112,8 @@ class PrivacyScreen extends StatelessWidget {
             // 본문을 고치면 이 날짜도 같은 커밋에서 함께 고친다 (§0-B).
             // 법적 고지의 갱신일이 실제 내용과 어긋나면 고지 자체가 신뢰를 잃는다.
             const Text(
-              '2026-08-27 · D66 에서 사라진 항목 정리 (목표 수집 중단, '
-              "'데이터 초기화' 버튼 삭제). 정식 출시 시 법무 검토.",
+              '2026-08-28 · 운영자(개인 변민준)·보호책임자·문의처 명시, '
+              '소셜 로그인 항목 삭제(로그인은 아이디·비밀번호). 정식 출시 시 법무 검토.',
               style: HyphenTokens.caption,
             ),
           ],

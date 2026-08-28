@@ -1432,3 +1432,46 @@ Map<String, dynamic> memberWorld() => {
   '/api/v1/gym/1/threads': const {'items': <dynamic>[]},
   '/api/v1/gym/1/messages': const {'items': <dynamic>[]},
 };
+
+/// /api/v1/gym/1/threads — 회원 쪽지함 대화 목록 (2026-08-28 홈페이지·스토어용 골든 state_20).
+/// 기본 memberWorld 는 빈 목록 유지 (기존 골든 보존) — 쪽지함 골든에서만 주입.
+/// 코치 쪽지 + 자동 알림(D60 "알림 = 앱 쪽지 하나") 이 한 목록에 섞여 보이는 실물.
+List<Map<String, dynamic>> memberThreads() {
+  final now = appClock.now();
+  String at(int daysAgo, String hm) =>
+      '${_ymd(now.subtract(Duration(days: daysAgo)))}T$hm:00';
+  return [
+    {
+      'peer_hash': 'coach-kim',
+      'peer_name': '김코치',
+      'peer_color': '#CC1F1F',
+      'last_body': '내일 20:00 수업 정원 늘렸습니다. 대기 걸어 두신 분은 자동으로 예약 확정돼요.',
+      'last_at': at(0, '09:10'),
+      'unread': 1,
+    },
+    {
+      'peer_hash': 'auto',
+      'peer_name': 'HYPHEN 알림',
+      'peer_color': '#5B6573',
+      'last_body': '대기 승격 — 8/13 20:00 WOD Class 자리가 생겨 예약이 확정됐습니다.',
+      'last_at': at(0, '08:02'),
+      'unread': 1,
+    },
+    {
+      'peer_hash': 'coach-park',
+      'peer_name': '박코치',
+      'peer_color': '#B45309',
+      'last_body': '어제 스쿼트 자세 좋았어요. 다음엔 2.5kg 올려 봅시다.',
+      'last_at': at(1, '21:40'),
+      'unread': 0,
+    },
+    {
+      'peer_hash': 'auto-membership',
+      'peer_name': 'HYPHEN 알림',
+      'peer_color': '#5B6573',
+      'last_body': '회원권이 34일 남았습니다. 연장은 코치에게 문의하세요.',
+      'last_at': at(3, '15:00'),
+      'unread': 0,
+    },
+  ];
+}

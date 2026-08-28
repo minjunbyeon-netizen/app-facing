@@ -22,8 +22,8 @@ class TermsScreen extends StatelessWidget {
             Text(
               // v3.2 (2026-08-20): QR 출석·페이싱 계산은 없는 기능 — 출석은
               // 코치가 수업 명단에서 기록, 페이싱 계산기는 v1.27 숨김.
-              'HYPHEN 은 체육관 운영을 돕는 플랫폼입니다. '
-              '회원에게는 수업 예약·출석·전자계약·수업 기록 기능을, '
+              'HYPHEN 은 체육관 코치와 회원을 잇는 서비스로, 개인 운영자 변민준이 운영합니다. '
+              '회원에게는 수업 예약·공지·쪽지·수업 기록·업적·포인트 기능을, '
               '체육관 코치에게는 회원·수업·계약 관리 도구를 제공합니다.',
               style: HyphenTokens.body,
             ),
@@ -31,7 +31,7 @@ class TermsScreen extends StatelessWidget {
 
             HkSectionLabel('2. 계정·가입·탈퇴'),
             SizedBox(height: HyphenTokens.sp2),
-            _Bullet('가입은 소셜 로그인(네이버·구글) 또는 회원 가입 신청으로 합니다.'),
+            _Bullet('가입은 앱의 회원 가입 신청으로 하며, 로그인은 아이디·비밀번호로 합니다.'),
             _Bullet('회원 가입 신청의 승인·거절 권한은 해당 체육관 코치에게 있습니다.'),
             _Bullet('탈퇴는 내 정보 → 개인정보처리방침 화면에서 언제든 가능합니다.'),
             _Bullet('타인 명의 도용, 허위 정보 가입 시 이용이 제한될 수 있습니다.'),
@@ -88,7 +88,8 @@ class TermsScreen extends StatelessWidget {
               // v3.34 (2026-08-27): '고객지원(카카오톡 상담)' 행은 D66 에서
               // 삭제됐다 — 없는 창구를 분쟁 절차로 지정하지 않는다 (§0-B).
               '본 약관은 대한민국 법률을 따릅니다. 분쟁은 우선 가입한 체육관과의 협의로 '
-              '해결하며, 협의가 어려울 경우 민사소송법상 관할 법원에 제기합니다.',
+              '해결하며, 협의가 어려울 경우 민사소송법상 관할 법원에 제기합니다. '
+              '서비스 운영자 문의: n1665@naver.com',
               style: HyphenTokens.body,
             ),
             SizedBox(height: HyphenTokens.sp5),
@@ -96,7 +97,7 @@ class TermsScreen extends StatelessWidget {
             HkSectionLabel('최종 갱신'),
             SizedBox(height: HyphenTokens.sp2),
             Text(
-              '2026-08-27 · 분쟁 협의 창구 현행화. 베타 운영 기준, 개정 시 앱 내 공지.',
+              '2026-08-28 · 운영자(개인 변민준)·문의처 명시, 가입·로그인 방식 현행화. 베타 운영 기준, 개정 시 앱 내 공지.',
               style: HyphenTokens.caption,
             ),
           ],
