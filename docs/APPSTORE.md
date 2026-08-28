@@ -9,8 +9,8 @@
 
 ## 0. 현재 상태 한 줄
 
-**이 PC(Windows) 에서 할 수 있는 iOS 준비는 전부 끝났다.** 남은 것은 Apple Developer Program 등록(사용자·유료)과
-그 뒤 GitHub Secrets 4개 입력 → 워크플로 실행뿐이다. 계정 승인이 나면 당일 TestFlight 까지 갈 수 있게 배선돼 있다.
+**이 PC(Windows) 에서 할 수 있는 iOS 준비는 전부 끝났다.** Apple Developer Program 등록은 신청 완료(인증 대기)이고, 남은 것은
+승인 뒤 GitHub Secrets 4개 입력 → 워크플로 실행뿐이다. 계정 승인이 나면 당일 TestFlight 까지 갈 수 있게 배선돼 있다.
 
 | 항목 | 상태 | 근거 |
 |---|---|---|
@@ -24,7 +24,7 @@
 | 수출 규정 | `ITSAppUsesNonExemptEncryption = false` → 업로드마다 묻는 암호화 프롬프트 생략 | `ios/Runner/Info.plist` (HTTPS 표준 암호화만 사용) |
 | 심사 계정 | 구글과 동일 2개 (`googletest2` 코치 · `googletest1` 회원) | PLAYSTORE.md A-12 (비밀번호 보관 위치 포함) |
 | URL 4종 | 구글과 동일 | PLAYSTORE.md §0-9 |
-| Apple Developer 계정 | **없음 — 사용자 몫** | §A |
+| Apple Developer 계정 | **신청 완료 (2026-08-28) — 인증 대기** | §A-2 · 승인 후 §G |
 
 ---
 
