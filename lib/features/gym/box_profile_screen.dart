@@ -64,12 +64,13 @@ class BoxProfileScreen extends StatelessWidget {
               (profile?.parkingInfo != null))
             _ContactCard(
               rows: [
+                // 2026-08-28 테스터 요청 9 — 번호를 누르면 전화 앱 (dial: true).
                 if (profile?.phone != null)
-                  (Icons.call_outlined, profile!.phone!),
+                  (Icons.call_outlined, profile!.phone!, true),
                 if (profile?.contactKakao != null)
-                  (Icons.chat_bubble_outline, profile!.contactKakao!),
+                  (Icons.chat_bubble_outline, profile!.contactKakao!, false),
                 if (profile?.parkingInfo != null)
-                  (Icons.local_parking_outlined, profile!.parkingInfo!),
+                  (Icons.local_parking_outlined, profile!.parkingInfo!, false),
               ],
             ),
         ],
@@ -130,7 +131,9 @@ class _Card extends StatelessWidget {
 /// QA (2026-06-11): CONTACT 카드 전용 — 아이콘 + 텍스트 행 목록 (V4 이모지 대체).
 class _ContactCard extends StatelessWidget {
   const _ContactCard({required this.rows});
-  final List<(IconData, String)> rows;
+
+  /// (아이콘, 값, 전화 걸기 여부) — 셋째가 true 면 값이 곧 전화번호다.
+  final List<(IconData, String, bool)> rows;
 
   @override
   Widget build(BuildContext context) {
@@ -152,10 +155,17 @@ class _ContactCard extends StatelessWidget {
                   Icon(r.$1, size: 16, color: HyphenTokens.muted),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Text(
-                      r.$2,
-                      style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
-                    ),
+                    child: r.$3
+                        ? HkPhoneText(
+                            r.$2,
+                            style: HyphenTokens.body
+                                .copyWith(color: HyphenTokens.fg),
+                          )
+                        : Text(
+                            r.$2,
+                            style: HyphenTokens.body
+                                .copyWith(color: HyphenTokens.fg),
+                          ),
                   ),
                 ],
               ),

@@ -9,6 +9,7 @@ import '../core/theme.dart';
 import '../features/gym/gym_state.dart';
 import '../models/coach_profile.dart';
 import '../models/gym.dart';
+import 'hkit.dart';
 
 class GymInfoCard extends StatelessWidget {
   final GymSummary? gym;
@@ -72,7 +73,12 @@ class GymInfoCard extends StatelessWidget {
                     _IconRow(icon: Icons.location_on_outlined, text: location),
                     if (phone.isNotEmpty) ...[
                       const SizedBox(height: HyphenTokens.sp1),
-                      _IconRow(icon: Icons.phone_outlined, text: phone),
+                      // 2026-08-28 테스터 요청 9 — 번호를 누르면 전화 앱.
+                      _IconRow(
+                        icon: Icons.phone_outlined,
+                        text: phone,
+                        dial: true,
+                      ),
                     ],
                     if (kakao.isNotEmpty) ...[
                       const SizedBox(height: HyphenTokens.sp1),
@@ -211,12 +217,16 @@ class _CoachRow extends StatelessWidget {
 /// **실제로 쓰는 값**이다 (길 찾고 전화 건다). 본문 크기(body)로 올리고 흐림을
 /// 걷는다. 잔글씨로 적어 두고 "썼다" 고 하면 안 읽히는 것과 같다.
 class _IconRow extends StatelessWidget {
-  const _IconRow({required this.icon, required this.text});
+  const _IconRow({required this.icon, required this.text, this.dial = false});
   final IconData icon;
   final String text;
 
+  /// 전화번호 줄 — 누르면 전화 앱 (HkPhoneText). 걸 수 없는 값이면 탭도 색도 없다.
+  final bool dial;
+
   @override
   Widget build(BuildContext context) {
+    final style = HyphenTokens.body.copyWith(height: 1.5);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -226,7 +236,8 @@ class _IconRow extends StatelessWidget {
         ),
         const SizedBox(width: HyphenTokens.sp2),
         Expanded(
-          child: Text(text, style: HyphenTokens.body.copyWith(height: 1.5)),
+          // Expanded 안이라 폭이 꽉 찬다 — 번호 글자만이 아니라 줄 전체가 탭 자리.
+          child: dial ? HkPhoneText(text, style: style) : Text(text, style: style),
         ),
       ],
     );

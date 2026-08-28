@@ -52,6 +52,13 @@
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
         </intent>
+        <!-- 전화번호 탭 → 전화 앱 (url_launcher 의 tel: — 체육관 정보 카드·회원 승인
+             화면). Android 11+ 는 이 선언이 없으면 패키지 조회가 막혀 전화가
+             걸리지 않는다 (https://developer.android.com/training/package-visibility). -->
+        <intent>
+            <action android:name="android.intent.action.DIAL"/>
+            <data android:scheme="tel"/>
+        </intent>
     </queries>
 </manifest>
 

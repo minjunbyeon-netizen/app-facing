@@ -97,10 +97,12 @@ class ClassLine extends StatelessWidget {
     final isFull = session.isFull;
     final isOver = l.isBefore(appClock.now());
     // '8/12' 가 날짜(8월 12일)로 읽혔다 — 앞에 '정원' 을 붙여 인원임을 못 박는다.
+    // 2026-08-28 테스터 요청 6 ("무슨 수업인지만 보이면 충분") — 룸 이름을 뺀다.
+    // 정원·대기는 남긴다: 자리가 찼는지가 예약을 누를지 정하는 값이라 곁줄이
+    // 아니라 판단 근거다. 룸은 코치 줄(ClassLine.coach)에만 남는다.
     final subtitle = [
       '정원 ${session.reservedCount}/${session.capacity}',
       if (session.waitlistCount > 0) '대기 ${session.waitlistCount}',
-      if ((session.room ?? '').isNotEmpty) session.room!,
     ].join(' · ');
     return ClassLine(
       key: key,

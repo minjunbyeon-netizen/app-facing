@@ -17,6 +17,8 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../core/exception.dart';
 import '../core/theme.dart';
@@ -1592,6 +1594,72 @@ class HkTabBar extends StatelessWidget {
             destinations: destinations,
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// 전화 걸기 (2026-08-28 테스터 요청 9 — "전화번호를 눌러서 바로 걸리게").
+// 번호를 화면에 적어 두는 것으로 끝내지 않는다. 회원은 체육관에 전화를 걸려고
+// 그 줄을 보고, 코치는 신청자에게 전화를 걸려고 그 줄을 본다.
+// ─────────────────────────────────────────────────────────────────────────
+
+/// 전화 동작 정본 — 번호를 다듬고, 걸고, 못 걸면 복사한다.
+///
+/// `tel:` 은 숫자와 `+` 만 받는다 (하이픈·괄호·공백이 섞이면 전화 앱이 번호를
+/// 잘못 읽는다). 안드로이드 11+ 는 매니페스트 `<queries>` 에 `tel` 인텐트가
+/// 선언돼 있어야 조회가 통과한다 (android/app/src/main/AndroidManifest.xml).
+class HkPhone {
+  const HkPhone._();
+
+  /// `tel:` 에 넘길 형태 — 숫자와 `+` 만. 걸 수 없는 값이면 null.
+  static String? number(String? raw) {
+    final digits = (raw ?? '').replaceAll(RegExp(r'[^0-9+]'), '');
+    return digits.length < 3 ? null : digits;
+  }
+
+  /// 이 값으로 전화를 걸 수 있는가 — 빈 값·기호뿐인 값이면 탭 자체를 만들지 않는다.
+  static bool canDial(String? raw) => number(raw) != null;
+
+  /// 전화 앱 열기. **통화 앱이 없는 기기(태블릿 등)에서는 조용히 끝내지 않는다** —
+  /// 번호를 복사하고 그 사실을 알린다 (아무 일도 안 일어나면 고장으로 읽힌다).
+  static Future<void> dial(BuildContext context, String raw) async {
+    final n = number(raw);
+    if (n == null) return;
+    // await 뒤에 context 를 다시 쓰지 않도록 손잡이를 먼저 잡는다.
+    final snack = HkSnack.of(context);
+    var ok = false;
+    try {
+      ok = await launchUrl(Uri(scheme: 'tel', path: n));
+    } catch (_) {
+      ok = false;
+    }
+    if (ok) return;
+    await Clipboard.setData(ClipboardData(text: n));
+    snack.info('전화 앱을 열지 못했습니다. 번호를 복사했습니다.');
+  }
+}
+
+/// 전화번호 한 줄 — 걸 수 있으면 브랜드색 + 탭, 아니면 평범한 글자.
+///
+/// 번호를 노출하는 자리는 전부 이것을 쓴다 (§3 코드·클래스 SSOT). 색이 곧
+/// "누를 수 있다" 는 신호라, 탭이 없는 값에는 색도 주지 않는다.
+class HkPhoneText extends StatelessWidget {
+  const HkPhoneText(this.phone, {super.key, this.style});
+
+  final String phone;
+  final TextStyle? style;
+
+  @override
+  Widget build(BuildContext context) {
+    final base = style ?? HyphenTokens.body;
+    if (!HkPhone.canDial(phone)) return Text(phone, style: base);
+    return InkWell(
+      onTap: () => HkPhone.dial(context, phone),
+      child: Text(
+        phone,
+        style: base.copyWith(color: HyphenTokens.primary),
       ),
     );
   }

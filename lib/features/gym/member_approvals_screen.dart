@@ -155,8 +155,9 @@ class _PendingRow extends StatelessWidget {
                   ),
                 ),
                 Text(ymd(member.requestedAt), style: HyphenTokens.caption),
+                // 2026-08-28 테스터 요청 9 — 신청자 번호를 누르면 전화 앱.
                 if ((member.phone ?? '').isNotEmpty)
-                  Text(member.phone!, style: HyphenTokens.caption),
+                  HkPhoneText(member.phone!, style: HyphenTokens.caption),
               ],
             ),
           ),
