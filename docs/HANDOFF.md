@@ -1,0 +1,132 @@
+# HANDOFF - 2026-08-28 19:06
+
+> 이 세션 주제: **테스터 피드백 2건(코치 PC 8건 · 모바일 6건) 의도 분석 → 표면+원인 수정 → 배포.**
+> 3 repo(app-hyphen · service-hyphen · web-hyphen-admin) 전부 커밋·푸시 완료, 워킹트리 깨끗함
+> (admin 의 `_run.err`·`_run.out` 은 로컬 실행 로그 — 추적 대상 아님).
+> ⚠ app 저장소는 **공개(public)** — 자격증명·비밀번호 금지 (§2-A-1).
+
+## 이 세션의 판단 기준 (사용자 확언 — 이후 모든 작업에 적용)
+
+**"거짓말을 안 치는 것, 내가 설정한 대로 보여지는 것이 중요."**
+메모리 SSOT = `~/.claude/projects/C--dev-apps-facing-app/memory/project-truthful-ui-principle.md`
+
+- 같은 사실은 어디서나 한 값 (선택 규칙 이원화 금지)
+- 사실이 없으면 빈칸이 아니라 **없다고 말한다**
+- 이상 데이터는 조용히 하나 고르지 말고 **코치에게 보이게**
+- 내 조작 결과는 즉시, 다른 사람 화면에도 반영
+
+---
+
+## 완료
+
+### 1. 코치 PC 요청 8건 — 실화면 검증 + 결함 3건 수정
+배포 후 playwright 로 8건 전부 실조작. 도중 발견·수정:
+- [x] **홈 대시보드 500** — 예약 명단(`reserved_names`) 구현이 `with_entities` 결과를
+      `for (p,)` 로 언패킹. 예약이 1건이라도 있으면 홈 API 전체가 죽었다.
+      프로드 당일 18:30 BUILD 에 예약 1건 → 그대로 뒀으면 코치 홈이 안 열렸다.
+- [x] **명단 인원 불일치** — 내부 조인이라 프로필 없는 회원이 명단에서 빠져
+      "예약 4/12" 인데 이름 3개. `outerjoin` 으로 교체.
+- [x] **수업관리 왼쪽 열 잘림** — `flex-end`+`overflow:hidden` 이라 긴 이름이
+      왼쪽으로 밀려 시각까지 먹혔다. `.ct-time` 고정 + `.ct-name` 말줄임.
+- [x] 회귀 테스트 `services/hyphen/tests/test_dashboard_roster.py` 신설
+      (예약 있는 대시보드를 부르는 테스트가 **하나도 없어** 300건이 전부 통과했었다)
+
+### 2. 표면 아래 원인 정리 — "화면과 실제가 다르던" 것들
+- [x] **회원권 고르는 규칙 3벌 → 1벌** (`api/_membership.py governing_membership`)
+      한도 판정(end_date desc) · 예약 판정(만료 임박 순) · 회원 목록(end_date desc)이
+      각각 달라, 겹친 회원권 회원은 주3회권을 들고도 무제한 한도로 예약됐다.
+      체육관 필터·정지 창 제외도 그 함수가 함께 책임진다.
+- [x] **겹침을 화면에 드러냄** — `is_overlapping`(회원 상세) · `membership_overlap`(목록)
+- [x] **회원권 종류 이름 변경이 발급분까지 반영** — 종전엔 카탈로그 이름만 바뀌어
+      발급분이 종류와 끊기고 종류별 한도가 조용히 기본값으로 돌아갔다 (`plan.rename_cascade` 감사로그)
+- [x] **락커가 회원권보다 오래 살던 것** — 해지 시 `_shrink_lockers_to_membership_end`
+      (줄이기 전용 · 배정 자체는 안 지움)
+- [x] **돈 장부 두 구멍** — 해지 환불 `refund_pending`('환불 예정', 집행은 기존 서명 경로) ·
+      결제수단 없이 발급 시 **미수금 기록**(status pending·받은금액 0)
+- [x] **다른 PC 즉시 반영** — 회원 상세·락커는 그 자리 재조회(모달 열려 있으면 보류),
+      회원 목록은 서버 렌더라 '바뀌었습니다·새로고침' 배너
+- [x] **결제 기록 없는 회원권을 그 자리에서 채우기** — 회원권 행 [기록] → 그 회원권에 묶인 결제
+- [x] `.load-error-banner` → 글로벌 `.page-banner` 승격 (클래스 SSOT)
+
+### 3. 모바일 지적 6건 (테스터 2차)
+- [x] **쪽지 알림** — `note.new` 에 알림 spec 이 아예 없었고 SSE 도 쪽지함 화면에서만
+      들었다. `InboxState` 가 전역 구독. 남의 쪽지 진동 방지 = **내 미읽음이 늘었을 때만**
+- [x] **읽어도 빨간 등** — 읽음 처리가 쪽지 *상세* 에만 있었다. 대화(ChatThreadScreen)에
+      `markThreadRead` 추가
+- [x] **오늘 내 예약** — 홈 맨 위 한 줄(다음 1건 + `+N건`), 4 상태 같은 높이
+- [x] **1시간 전 로컬 알림** — 예약 시 걸고 취소 시 지움. 홈 진입 시 재설정
+      (앱 재설치·기기 변경·권한 뒤늦은 허용 대비). `timezone` 명시 의존 추가
+- [x] **"수업 외 2" → 프로그램 이름** — 이 문구는 "…외 2건" 이었는데 '수업외' 라는
+      **분류로 읽혔다.** 그래서 테스터가 "프로그램 항목" 을 요청한 것
+- [x] **예약 취소 1시간 시한** — 서버 `CANCEL_TOO_LATE` + 앱이 먼저 이유 안내
+- [x] **체육관 정보 크기** — 주소·전화 caption(13sp·흐림) → body
+- [x] **수업 문의에 프로그램 이름** — 종전엔 `wod_id` 가 `rationale` 내부 필드에만 있어
+      코치 인박스에 맥락 없는 한 줄. 제목에 프로그램 이름+날짜
+
+### 4. 검증
+- 백엔드 `pytest tests/` **319 passed** · 앱 `flutter test` **222 passed** · `flutter analyze` 0
+- admin `python design/lint.py` baseline 유지 · Jinja 전 템플릿 컴파일 OK
+- 골든 **64 → 65장** (`member_25_gym_info` 신규 — 접힌 아코디언 안이라 어느 캡처에도
+  안 잡히던 카드) + 갤러리 등재 + CLAUDE.md 집계 갱신
+- 새 테스트는 **옛 코드로 되돌리면 실패함을 확인** (겹침 한도·rename cascade·목록 통일)
+- 배포: `services/hyphen` · `web/facing-admin` 각각 `railway up` SUCCESS, 프로드 실화면 확인
+
+## 진행중
+- [ ] 없음. 3 repo 워킹트리 깨끗함.
+
+## 대기 (사용자·테스터 결정 / 다음 세션)
+
+- [ ] **앱 빌드 3010** — 이번 모바일 변경 + v3.35 업적 화면이 아직 빌드에 없다.
+      스토어 AAB 3009 · 홈페이지 `achievements.webp` 는 구 화면.
+      **테스터 확인 질문 A 항목(알림·배지·오늘 예약 등)은 새 APK 가 있어야 답할 수 있다.**
+- [ ] **테스터 답 대기 — 막고 있는 3건** (질문지 원문은 이 세션 대화에 있음)
+      1. 취소 1시간 지나면 아예 못 하게 vs 취소되되 차감
+      4. 앱 완전 종료 상태에도 쪽지 알림이 와야 하나 (→ FCM 도입 판단)
+      5. 프로그램별 영상 — 무슨 영상, 누가 올리나
+- [ ] **늦은 취소(20분) 처리 결정** — 취소 시한 60분이 20분보다 크므로 회원 경로에서
+      '늦은 취소' 구간이 도달 불가가 됐다. D57 은 사용자 결정이라 규칙·면제 카운터를
+      지우지 않고 뒀다 (시한을 줄이면 곧바로 살아남).
+      원장 계산은 `test_late_cancel_accounting_still_works_if_deadline_shortens` 가 지킨다.
+- [ ] **프로드 결제 기록 정책** — 회원 7(이민지) 회원권 3장(₩630,000·₩432,000·₩250,000)에
+      결제 기록 0건. 새 미수금 규칙은 **신규 발급에만** 적용했고 지난 기록은 지어내지 않았다.
+      화면의 [기록] 으로 실제 받은 대로 넣거나, 소급 생성 여부를 지시받아야 한다.
+- [ ] **프로드 겹친 회원권 정리** — 같은 회원이 회원권 3장 동시 유효 (2장은 해지 예정).
+      화면에 경고는 뜨지만 정리는 코치 판단.
+- [ ] 코치 PC 웹 디자인 방향 — 바탕화면 `공수체크-PC화면-설계서.md` 기준 3안 미결정.
+      즉시 고칠 값 1건: admin `--primary: #EE2B2B` 가 앱·홈페이지(#CC1F1F)와 다름
+- [ ] 이전 잔여: 스토어 개발자 인증 메일 대기 · 클로즈드 테스터 12명 · 갤S22 실기 검증
+
+## 결정사항 / 주의
+
+- **회원권을 고르는 규칙은 `api/_membership.py governing_membership` 하나뿐이다.**
+  새로 어딘가에서 `order_by(end_date)` 로 한 장 뽑는 코드를 쓰면 이 세션에서 고친
+  결함이 그대로 되살아난다 (세 곳에서 각자 뽑고 있었다).
+- **알림 한계** — 앱 프로세스가 살아 있을 때만 쪽지 알림이 온다. 완전 종료 도달은 FCM 필요.
+  1시간 전 수업 알림은 기기에 예약해 두므로 앱이 꺼져 있어도 뜬다.
+- **레이아웃 안정성** — 홈에 무언가를 더할 때 앵커가 뷰포트 밖으로 밀리면
+  `stability_home_test.dart` 가 잡는다 (ListView 가 화면 밖 자식을 안 만들어 finder 실패).
+  '오늘 내 예약' 을 카드→한 줄 띠로 줄인 이유가 이것.
+- **골든 없는 기능 = 미달** — 접힌 아코디언·조건부 카드는 캡처가 안 잡히므로
+  컴포넌트를 직접 세워서라도 찍는다 (`member: gym info card` 선례).
+- **프로드 검증 원칙** — 해지·수정 같은 파괴적 조작은 로컬에서, 프로드는 읽기 전용.
+- 서버 pytest 는 반드시 `pytest tests/` 로 경로 명시.
+- DB 컬럼은 추가만 · 사용자 데이터는 지우지 않는다.
+
+## 관련 파일
+
+| 영역 | 경로 |
+|---|---|
+| 회원권 선택 정본 | `services/hyphen/api/_membership.py` (`governing_membership`·`overlapping_memberships`·`cancel_deadline_passed`) |
+| 예약 한도·취소 게이트 | `services/hyphen/api/classes.py` (`_plan_limits`·`cancel_reservation`) |
+| 대시보드 명단·락커·미수금 | `services/hyphen/api/admin.py` (`admin_dashboard`·`_shrink_lockers_to_membership_end`·발급부) |
+| 환불 예정 | `services/hyphen/api/payments_admin.py` (`_refund_pending`) |
+| 수업 문의 제목 | `services/hyphen/api/coach_note.py` (`member_report`) |
+| 코치 PC 화면 | `web/facing-admin/templates/{classes,dashboard,member_detail,members,lockers}.html` |
+| 앱 알림 | `apps/facing-app/lib/core/notification_service.dart` · `lib/features/inbox/inbox_state.dart` |
+| 앱 예약 흐름 | `apps/facing-app/lib/features/classes/{class_flows,today_reservations}.dart` |
+| 요청 원문 | `web/facing-admin/docs/COACH-PC-FIXES-2026-08-28.md` (PC 8건) · 모바일 6건은 이 세션 대화 |
+
+## 다음 세션 권장 첫 프롬프트
+
+`/resume` → **앱 3010 빌드**(테스터가 A 항목을 확인할 수 있게) 부터,
+또는 테스터 답이 왔으면 막고 있는 3건(취소 시한·앱 종료 알림·영상) 반영.
