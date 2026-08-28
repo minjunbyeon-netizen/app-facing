@@ -70,7 +70,7 @@ void main() {
       await tester.pumpWidget(_wrap(state));
       await tester.pumpAndSettle();
 
-      expect(find.text('업적 로딩 실패'), findsOneWidget);
+      // v3.35 문구 조정 3: "업적 로딩 실패" 라벨 삭제 — 메시지 + 다시 시도 (HkErrorState).
       expect(find.text('서버 연결 실패'), findsOneWidget);
       expect(find.text('다시 시도'), findsOneWidget);
     });
@@ -85,7 +85,10 @@ void main() {
       await tester.pumpWidget(_wrap(state));
       await tester.pumpAndSettle();
 
-      expect(find.text('업적 로딩 실패'), findsOneWidget);
+      expect(
+        find.text('업적을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'),
+        findsOneWidget,
+      );
       expect(find.text('다시 시도'), findsOneWidget);
     });
 

@@ -16,13 +16,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 /// 인증 방식 3분류. 등급이 아니라 "어떻게 따는가" 다 — 서열 없음.
 enum PictoShape {
-  /// 자동 집계 — 서버가 세기만 하면 되는 것 (출석·누적·시즌·이스터에그)
+  /// 자동 (구 '자동 집계') — 서버가 세기만 하면 되는 것 (출석·누적·시즌·이스터에그)
   circle,
 
-  /// 기록 대조 — 이전 기록·점수와 비교해야 판정되는 것 (PR·Engine·Tier·카테고리)
+  /// 기록 자동 (구 '기록 대조') — 이전 기록·점수와 비교해야 판정되는 것 (PR·Engine·Tier·카테고리)
   squircle,
 
-  /// 사람 판정 — 코치/운영이 확인해야 하는 것 (벤치마크 WOD 완주)
+  /// 코치 확인 (구 '사람 판정') — 코치가 확인해야 하는 것 (벤치마크 WOD 완주)
   shield,
 }
 
@@ -343,10 +343,13 @@ class HyphenPictogram {
   }
 
   /// 인증 방식 한글 이름 — 툴팁·범례용.
+  /// v3.35 (2026-08-28 사용자 승인 문구 조정 1): 회원이 알고 싶은 건 "누가 인정하나"
+  /// 뿐 — 자동인지 코치인지. "집계·대조·판정"은 기술어라 뺐다. 서버 설명문의
+  /// "— 코치 확인." 과 같은 말.
   static String shapeLabel(PictoShape s) => switch (s) {
-    PictoShape.circle => '자동 집계',
-    PictoShape.squircle => '기록 대조',
-    PictoShape.shield => '사람 판정',
+    PictoShape.circle => '자동',
+    PictoShape.squircle => '기록 자동',
+    PictoShape.shield => '코치 확인',
   };
 }
 

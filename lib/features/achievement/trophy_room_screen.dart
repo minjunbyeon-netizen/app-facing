@@ -68,7 +68,7 @@ class _TrophyRoomScreenState extends State<TrophyRoomScreen> {
               unlock: snap.unlocked[sel.code],
               groupLabel: label,
             ),
-            _GroupProgress(label: label, unlocked: n, total: same.length),
+            _GroupProgress(unlocked: n, total: same.length),
             _Grid(
               items: same,
               snap: snap,
@@ -180,7 +180,7 @@ class _Showcase extends StatelessWidget {
                       height: 40,
                       child: Text(
                         hidden
-                            ? '조건 비공개. 달성 후 공개.'
+                            ? '조건 비공개 · 달성하면 공개'
                             : (open
                                   ? catalog.description
                                   : AchievementCard.lockedHint(catalog)),
@@ -237,16 +237,11 @@ class _Showcase extends StatelessWidget {
   }
 }
 
-/// 분류 진척 — "연속 · 달성 1 / 3" + 4px 막대. 높이 44 고정.
+/// 분류 진척 — "달성 1 / 3" + 4px 막대. 높이 44 고정. 분류 이름은 상단바가 갖는다.
 class _GroupProgress extends StatelessWidget {
-  final String label;
   final int unlocked;
   final int total;
-  const _GroupProgress({
-    required this.label,
-    required this.unlocked,
-    required this.total,
-  });
+  const _GroupProgress({required this.unlocked, required this.total});
 
   @override
   Widget build(BuildContext context) {
@@ -260,8 +255,9 @@ class _GroupProgress extends StatelessWidget {
           children: [
             Row(
               children: [
+                // 문구 조정 6: 분류 이름은 상단바에 이미 있다 — 여기선 수치만.
                 Text(
-                  '$label · 달성 $unlocked / $total',
+                  '달성 $unlocked / $total',
                   style: HyphenTokens.caption.copyWith(
                     color: HyphenTokens.fg,
                     fontWeight: FontWeight.w600,

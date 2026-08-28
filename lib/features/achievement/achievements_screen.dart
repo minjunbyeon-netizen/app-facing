@@ -53,7 +53,8 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   /// 행 높이 — 배지 44(+판 두께 2.4) + 상하 sp2. 스켈레톤이 같은 값을 쓴다.
   static const double kRowH = 64;
 
-  static const List<String> _filterLabels = ['전체', '진행 중', '완료'];
+  /// 도장·요약·분류 라벨·진열대와 같은 말 — "달성 / 미달성" (문구 조정 2).
+  static const List<String> _filterLabels = ['전체', '미달성', '달성'];
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +81,8 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
       ),
       body: SafeArea(
         child: hasError
-            ? _ErrorBody(message: state.error!, onRetry: () => state.load())
+            // 문구 조정 3: "업적 로딩 실패" 라벨 삭제 — 메시지 + 다시 시도 공통 규격.
+            ? HkErrorState(message: state.error!, onRetry: () => state.load())
             : isLoading
             ? const _SkeletonBody()
             : all.isEmpty
@@ -194,7 +196,10 @@ class _ListBody extends StatelessWidget {
           ),
         ),
         if (groups.isEmpty)
-          const HkEmptyState(title: '해당 업적 없음')
+          // 문구 조정 5: 칸 이름을 그대로 받아 쓴다.
+          HkEmptyState(
+            title: filter == _Filter.done ? '달성한 업적 없음' : '미달성 업적 없음',
+          )
         else
           ...groups,
       ],
@@ -380,7 +385,7 @@ class _Row extends StatelessWidget {
             hidden ? '숨김' : HyphenPictogram.shapeLabel(shape),
           ),
           subtitle: hidden
-              ? '조건 비공개'
+              ? '조건 비공개 · 달성하면 공개'
               : (open ? catalog.description : AchievementCard.lockedHint(catalog)),
           // 오른쪽에 값(도장·희귀도)이 있는 행은 화살표를 붙이지 않는다 (HkListRow
           // 규칙) — 360 폭에서 제목·태그 자리를 지키는 쪽이 우선.
@@ -532,29 +537,3 @@ class _SkeletonGroupLabel extends StatelessWidget {
   }
 }
 
-// ─── 에러 ────────────────────────────────────────────────────────────────────
-
-class _ErrorBody extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
-  const _ErrorBody({required this.message, required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(HyphenTokens.sp5),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const HkSectionLabel('업적 로딩 실패'),
-            const SizedBox(height: HyphenTokens.sp2),
-            Text(message, style: HyphenTokens.caption),
-            const SizedBox(height: HyphenTokens.sp3),
-            HkButton.secondary('다시 시도', onPressed: onRetry),
-          ],
-        ),
-      ),
-    );
-  }
-}
