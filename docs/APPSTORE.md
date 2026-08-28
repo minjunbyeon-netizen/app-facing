@@ -31,9 +31,7 @@
 ## A. 사용자가 해야 할 일 (Claude 가 대신 못 하는 것)
 
 1. **Apple ID 2단계 인증 켜기.** Developer Program 은 2FA 가 켜진 Apple ID 만 받는다.
-2. **Apple Developer Program 등록 — 개인(Individual).** https://developer.apple.com/programs/enroll/
-   연 **99 USD**, 실명 변민준, 신분증으로 본인 확인. 개인은 D-U-N-S 불필요.
-   승인까지 보통 1~2일, 길면 며칠(미확인 — 케이스마다 다름). **가장 급한 항목.**
+2. ~~Apple Developer Program 등록 — 개인(Individual).~~ **신청 완료 (2026-08-28, 사용자) — 인증 대기 중.** 승인 메일이 오면 **§G 런시트**.
 3. **App Store Connect 접속 → 사용자 및 액세스 → 통합(Integrations) → App Store Connect API → 팀 키 생성.**
    역할 **Admin** (App Manager 는 서명용 인증서 발급 권한이 부족할 수 있음 — 미확인이라 Admin 권장).
    여기서 나오는 세 값 + 팀 ID 를 GitHub Secrets 에 넣는다 (§B). **.p8 파일은 한 번만 내려받을 수 있다** — 잃으면 키를 새로 만든다.
@@ -156,7 +154,7 @@ App Store 용 ipa export → `fastlane pilot` 로 TestFlight 업로드 → ipa �
 ## F. 출시 체크리스트
 
 ### 블로커
-- [ ] Apple Developer Program 개인 등록 (99 USD, 2FA) — 사용자
+- [ ] Apple Developer Program 인증 대기 (등록 신청은 2026-08-28 완료) — 승인 후 §G 런시트
 - [ ] App Store Connect API 키(Admin) 발급 → GitHub Secrets 4개 — 사용자
 - [ ] 워크플로 `ios` dispatch → TestFlight 첫 업로드 성공 (첫 실행 함정은 §B-3)
 - [ ] 본인 아이폰에서 TestFlight 설치 → 로그인·예약·알림 권한 실물 확인
@@ -174,3 +172,17 @@ App Store 용 ipa export → `fastlane pilot` 로 TestFlight 업로드 → ipa �
 ### 애플 계정 없이 검증한 범위 / 못 한 범위
 - 검증함: macOS 러너에서 `flutter build ios --no-codesign` 성공 여부 (Actions `ios / compile` 결과가 정본 — 실패하면 그 로그부터).
 - 못 함: 서명·archive·TestFlight 업로드·실기기 실행·심사 제출. 전부 계정 이후.
+
+## G. 승인 당일 런시트 (2026-08-28 사용자: Apple Developer 등록 신청 완료 · 인증 대기)
+
+> 승인 메일이 오면 이 순서대로. ★ = Claude 가 할 수 있음, ● = 사용자만.
+
+1. ● developer.apple.com → Membership details → **Team ID** 복사.
+2. ● App Store Connect → 사용자 및 액세스 → 통합 → **API 키 생성 (Admin)** → Key ID · Issuer ID 복사, `.p8` 내려받기(1회만 가능).
+3. ● GitHub `app-hyphen` → Settings → Secrets → `ASC_KEY_ID` · `ASC_ISSUER_ID` · `APPLE_TEAM_ID` · `ASC_KEY_P8_BASE64` 입력 (§B-1).
+4. ● App Store Connect → 나의 앱 → **+ 신규 앱** (HYPHEN · iOS · 한국어 · 번들 `com.netizen.hyphen.hyphenApp` · SKU `hyphen-ios`).
+   번들 ID 가 목록에 없으면 Identifiers 에서 먼저 등록.
+5. ★ Actions → `ios` → Run workflow → `upload_testflight` 체크 → 실행. 실패하면 §B-3 함정표 순서로 Claude 가 고쳐 재실행.
+6. ● TestFlight → 내부 테스트 그룹에 본인 추가 → 아이폰 TestFlight 앱으로 설치 → 로그인·수업·알림 팝업 확인.
+7. ● 앱 정보·가격(무료)·App Privacy(§D)·연령 등급(§D-3)·심사 정보(§E)·스크린샷(`build/store/ios/6.9`·`6.5`) 입력.
+8. ● 빌드 선택 → **심사 제출**. 반려 시 사유를 그대로 붙여 주면 Claude 가 대응.
