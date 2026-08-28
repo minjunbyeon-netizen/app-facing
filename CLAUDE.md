@@ -413,7 +413,7 @@ python tool/golden_gallery.py               # 단일 HTML 갤러리 (build/golde
 가짜 백엔드(`test/golden/fakes.dart` — ApiClient implements, 네트워크 0)로 실물 픽셀 렌더
 (갤S22 급 360×780·2x). 폰트는 `test/flutter_test_config.dart` 가 FontManifest 전체
 (Pretendard·MaterialIcons)를 로드. 참조 아키텍처: `apps/writeplz-app` 골든스탠다드.
-현재 **68장** (2026-08-28 잔손질 — coach_05_member_approvals 신규: 가입 신청 화면 첫 캡처, 신청자 연락처가 탭 자리(터치 48)가 됐다. 직전 67장 = 테스터 확정 D69 — state_22_late_cancel_dialog · state_23_cancel_dialog 신규: 시작 20분 전을 지난 취소를 막지 않고 '늦은 취소 · 차감될 수 있음' 한 줄 고지, 20분 전까지는 무문구. 두 상태의 문구 유무 게이트 = `test/golden/cancel_dialog_notice_test.dart`. 직전 65장 = 2026-08-28 테스터 지시 — member_25_gym_info 신규: 체육관 정보 카드 주소·전화를 본문 크기로. 직전 64장 = v3.35 업적 E 안 — member_24_trophy_room(목록 행 탭 → 트로피 룸) ·
+현재 **70장** (2026-08-28 알림 받기 — state_24_notifications_on · state_25_notifications_blocked 신규: 내 정보 '알림 받기' 한 줄 토글(종류별로 나누지 않음)과 폰 설정에서 막혀 있을 때의 표시. 관문 회귀 = `test/notification_gate_test.dart`, 행 높이 불변 = `test/golden/stability_mypage_test.dart` 7 상태. 직전 68장 = 2026-08-28 잔손질 — coach_05_member_approvals 신규: 가입 신청 화면 첫 캡처, 신청자 연락처가 탭 자리(터치 48)가 됐다. 직전 67장 = 테스터 확정 D69 — state_22_late_cancel_dialog · state_23_cancel_dialog 신규: 시작 20분 전을 지난 취소를 막지 않고 '늦은 취소 · 차감될 수 있음' 한 줄 고지, 20분 전까지는 무문구. 두 상태의 문구 유무 게이트 = `test/golden/cancel_dialog_notice_test.dart`. 직전 65장 = 2026-08-28 테스터 지시 — member_25_gym_info 신규: 체육관 정보 카드 주소·전화를 본문 크기로. 직전 64장 = v3.35 업적 E 안 — member_24_trophy_room(목록 행 탭 → 트로피 룸) ·
 state_21_achievements_loading(스켈레톤) 신규, member_12·ach_01 은 분류별 목록으로 재생성.
 안정성 게이트 = `test/golden/achievements_stability_test.dart`. 직전 62장 = 2026-08-28 실측 — state_20_inbox_threads 신규: 쪽지함 꽉 찬 상태(코치 쪽지+자동 알림), 홈페이지·스토어 스크린샷 소스. 직전 61장 = 2026-08-27 실측 — D67 로그인 고정 레이아웃으로 3장 증가:
 state_17_login_error · state_18_login_validation · state_19_login_busy 신규,
@@ -424,8 +424,8 @@ common_05_signup(진입 갈림길) · member_16_goals · member_17_faq 삭제. �
 구 61장 이력: 2026-08-26 실측 — 8/21 "45장" 서술 이후 v3.4~v3.28 증감 포함.
 D57 횟수권 = state_14 내 정보 회원권 카드 신규 · D58 예약 오픈 전 = state_15 신규 ·
 D59 코치 세션 만료 = state_16 로그인 화면 자동 이동 신규 (하네스 `routes` 주입구).
-prefix 집계(2026-08-28 D69): member 25 · state 22 · common 4 · splash 3 · snack 3 ·
-coach 3 · ach 2 · boss 2 · hist 1 · onb 1 (= 66). 2026-08-26 S6 = state_13 가입 폼 BACK 다이얼로그 신규.
+prefix 집계(2026-08-28 알림 받기): member 25 · state 25 · common 4 · splash 3 · snack 3 ·
+coach 4 · ach 2 · boss 2 · hist 1 · onb 1 (= 70). 2026-08-26 S6 = state_13 가입 폼 BACK 다이얼로그 신규.
 2026-08-26 S5·S10 = state_11 '회원권 필요' 배지 ·
 state_12 코치 로그아웃 다이얼로그 신규 (boss_03·state_10 은 명단 코치 이름 재생성).
 2026-08-26 S3 = state_10 시작 전 명단 잠금 신규 ·

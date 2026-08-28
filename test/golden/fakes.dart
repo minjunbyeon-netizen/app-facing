@@ -1,8 +1,12 @@
 import 'dart:async';
 
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/timezone.dart';
+
 import 'package:hyphen_app/core/api_client.dart';
 import 'package:hyphen_app/core/connectivity_state.dart';
 import 'package:hyphen_app/core/exception.dart';
+import 'package:hyphen_app/core/notification_service.dart';
 import 'package:hyphen_app/core/sse_client.dart';
 import 'package:hyphen_app/features/boss/boss_api_client.dart';
 import 'package:hyphen_app/features/boss/boss_auth_state.dart';
@@ -97,6 +101,73 @@ class FakeApi implements ApiClient {
 
 /// SSE 무동작 대체 — 실 SseClient 는 listen 시 실네트워크 연결 + 재접속 타이머를
 /// 걸어 골든 테스트를 죽인다 (pending timer). 빈 스트림으로 대체.
+/// 알림 창구 대역 — OS 로 아무것도 내보내지 않고 **무엇이 나갔는지만** 적는다.
+///
+/// [NotificationService] 의 '알림 받기' 관문이 실제로 막는지를 기기 없이
+/// 증명하는 자리 (`test/notification_gate_test.dart`) 이자, 권한이 거부된
+/// 화면을 찍는 주입구 (`state_25_notifications_blocked`)다.
+class FakeNotificationSink implements NotificationSink {
+  FakeNotificationSink({this.supported = true, this.granted = true});
+
+  @override
+  final bool supported;
+
+  /// 폰 설정(OS) 알림 권한 허용 여부.
+  bool granted;
+
+  /// 실제로 나간 즉시 알림의 제목.
+  final List<String> shown = [];
+
+  /// 실제로 걸린 예약 알림의 id.
+  final List<int> scheduled = [];
+
+  /// 지운 예약 알림의 id.
+  final List<int> canceled = [];
+
+  /// 전체 삭제 호출 횟수.
+  int cancelAllCount = 0;
+
+  /// 권한 요청 호출 횟수.
+  int requestCount = 0;
+
+  @override
+  Future<void> show(
+    int id,
+    String title,
+    String body,
+    NotificationDetails details, {
+    String? payload,
+  }) async {
+    shown.add(title);
+  }
+
+  @override
+  Future<void> schedule(
+    int id,
+    String title,
+    String body,
+    TZDateTime when,
+    NotificationDetails details,
+  ) async {
+    scheduled.add(id);
+  }
+
+  @override
+  Future<void> cancel(int id) async => canceled.add(id);
+
+  @override
+  Future<void> cancelAll() async => cancelAllCount++;
+
+  @override
+  Future<bool> requestPermission() async {
+    requestCount++;
+    return granted;
+  }
+
+  @override
+  Future<bool> isPermissionGranted() async => granted;
+}
+
 class FakeSse implements SseClient {
   @override
   Stream<SseEvent> get events => const Stream.empty();

@@ -66,27 +66,11 @@ class _TodayReservationsCardState extends State<TodayReservationsCard> {
     _restoreReminders();
   }
 
-  /// 앞으로의 예약에 1시간 전 알림을 **다시 건다**.
-  ///
-  /// 알림은 기기에 저장되므로, 예약할 때 한 번 거는 것만으로는 다음 경우에 사라진다:
-  /// 앱 재설치·기기 변경·알림 권한을 나중에 허용·다른 기기에서 한 예약.
-  /// 그래서 홈이 뜰 때 내 예약을 훑어 없는 알림을 채운다 (같은 id 로 덮어쓰므로
-  /// 중복되지 않는다). 실패해도 화면에는 영향을 주지 않는다.
   Future<void> _restoreReminders() async {
     try {
       final all = await _future;
       if (all == null) return;
-      final now = appClock.now();
-      for (final r in all) {
-        if (r.isWaitlist) continue; // 대기는 아직 내 자리가 아니다
-        final start = r.startAt.toLocal();
-        if (!start.isAfter(now)) continue; // 지난 수업은 알릴 것이 없다
-        await NotificationService.instance.scheduleClassReminder(
-          reservationId: r.id,
-          title: r.title,
-          startAt: start,
-        );
-      }
+      await restoreClassReminders(all);
     } catch (_) {
       // 알림 복원 실패가 화면을 막지 않는다.
     }
@@ -161,5 +145,41 @@ class _TodayReservationsCardState extends State<TodayReservationsCard> {
         ],
       ),
     );
+  }
+}
+
+/// 앞으로의 예약에 1시간 전 알림을 **다시 건다**.
+///
+/// 알림은 기기에 저장되므로, 예약할 때 한 번 거는 것만으로는 다음 경우에 사라진다:
+/// 앱 재설치·기기 변경·알림 권한을 나중에 허용·'알림 받기'를 껐다 켬·다른 기기에서
+/// 한 예약. 같은 id 로 덮어쓰므로 여러 번 돌려도 중복되지 않는다.
+///
+/// **절차를 한 곳에 두는 이유**: 홈 진입([TodayReservationsCard])과 내 정보의
+/// '알림 받기' 재활성이 같은 일을 한다. 두 벌로 두면 한쪽만 고쳐진다 (§0-B).
+Future<void> restoreClassReminders(List<MyReservationItem> reservations) async {
+  final now = appClock.now();
+  for (final r in reservations) {
+    if (r.isWaitlist) continue; // 대기는 아직 내 자리가 아니다
+    final start = r.startAt.toLocal();
+    if (!start.isAfter(now)) continue; // 지난 수업은 알릴 것이 없다
+    await NotificationService.instance.scheduleClassReminder(
+      reservationId: r.id,
+      title: r.title,
+      startAt: start,
+    );
+  }
+}
+
+/// 내 예약을 새로 받아 [restoreClassReminders] 를 돌린다 — 목록을 손에 안 든
+/// 화면용 (내 정보에서 '알림 받기'를 다시 켰을 때). 셸은 탭을 살려 두므로
+/// (IndexedStack) 홈이 다시 initState 를 타지 않는다 — 켠 자리에서 직접 건다.
+/// 실패해도 조용히 넘어간다: 알림은 못 걸려도 예약 자체는 서버에 그대로다.
+Future<void> refetchAndRestoreClassReminders(ApiClient api) async {
+  try {
+    await restoreClassReminders(
+      await ClassesRepository(api).listMyReservations(),
+    );
+  } catch (_) {
+    // 복원 실패가 스위치 조작을 막지 않는다.
   }
 }

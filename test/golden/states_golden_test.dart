@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:hyphen_app/core/app_clock.dart';
 import 'package:hyphen_app/core/goals_state.dart';
+import 'package:hyphen_app/core/notification_service.dart';
 import 'package:hyphen_app/core/quotes.dart';
 import 'package:hyphen_app/features/achievement/achievements_screen.dart';
 import 'package:hyphen_app/features/announcements/announcements_state.dart';
@@ -20,6 +21,7 @@ import 'package:hyphen_app/features/history/history_screen.dart';
 import 'package:hyphen_app/features/profile/profile_state.dart';
 import 'package:hyphen_app/features/home/home_screen.dart';
 import 'package:hyphen_app/features/inbox/inbox_screen.dart';
+import 'package:hyphen_app/features/mypage/mypage_screen.dart';
 import 'package:hyphen_app/features/shell/coach_shell.dart';
 import 'package:hyphen_app/features/signup/self_signup_screen.dart';
 import 'package:hyphen_app/features/shell/main_shell.dart';
@@ -493,6 +495,69 @@ void _rememberedLoginGolden() {
     expect(find.byType(LoginScreen), findsOneWidget);
     expect(find.text(LoginScreen.noticeSessionExpired), findsOneWidget);
     await capture(tester, 'state_16_coach_session_expired');
+  });
+
+  // ── '알림 받기' 한 줄 (2026-08-28 사용자 확정 — 켜거나 끄거나 하나) ──
+  //
+  // 두 캡처가 짝이다. 켜짐이 흔한 쪽이고, 차단됨은 폰 설정에서 막아 둔 사람이
+  // 보는 화면이다 — 스위치만 켜져 '받는 중' 처럼 보이면 화면이 거짓말을 하므로
+  // 그 상태가 눈에 보이는지를 픽셀로 고정한다. 행 높이는 두 상태가 같다
+  // (좌표 검사 = stability_mypage_test.dart).
+  Future<void> notificationsGolden(
+    WidgetTester tester, {
+    required bool granted,
+    required String name,
+  }) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    NotificationService.instance.debugUseSink(
+      FakeNotificationSink(granted: granted),
+    );
+    addTearDown(NotificationService.instance.debugReset);
+    await NotificationService.instance.setEnabled(true);
+    final api = FakeApi(memberWorld());
+    final gym = GymState(GymRepository(api), sse: FakeSse());
+    await gym.loadMine();
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        gym: gym,
+        home: const MainShell(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tapTab(tester, '내 정보');
+    // 알림 줄은 화면 아래쪽이라 그대로는 프레임 밖이다 — 끝까지 올린다.
+    final scroll = find
+        .descendant(
+          of: find.byType(MyPageScreen),
+          matching: find.byType(Scrollable),
+        )
+        .first;
+    await tester.scrollUntilVisible(find.text('알림 받기'), 300, scrollable: scroll);
+    await tester.ensureVisible(find.text('알림 받기'));
+    await tester.pumpAndSettle();
+    await capture(tester, name);
+  }
+
+  testWidgets('state: notifications on', (tester) async {
+    await notificationsGolden(
+      tester,
+      granted: true,
+      name: 'state_24_notifications_on',
+    );
+    expect(find.text('쪽지 · 수업 시작 1시간 전 알림을 받습니다.'), findsOneWidget);
+  });
+
+  testWidgets('state: notifications blocked by phone settings', (tester) async {
+    await notificationsGolden(
+      tester,
+      granted: false,
+      name: 'state_25_notifications_blocked',
+    );
+    expect(find.text('폰 설정에서 알림이 차단되어 있습니다.'), findsOneWidget);
   });
 
   // ── 가입 폼 BACK — 입력이 있으면 '작성을 그만둘까요?' (S6 · 2026-08-26) ──

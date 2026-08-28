@@ -3,10 +3,123 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
-/// v1.17 로컬 푸시 코어 — Firebase 없이 SSE + 로컬 알림으로 사장·코치 폰 알림 제공.
+/// OS 알림을 **실제로 내보내는 창구**. 플랫폼 분기와 플러그인 호출은 전부
+/// 이 뒤에 있다.
+///
+/// [NotificationService] 는 정책(알림 받기 스위치 · 지난 시각 판정 · 이벤트별
+/// 문구)만 판단하고 실행은 여기로 내린다. 갈아 끼울 수 있는 자리가 하나뿐이라
+/// "껐을 때 정말 아무것도 안 나갔는지" 를 기기 없이 증명할 수 있다
+/// (`test/notification_gate_test.dart`).
+abstract class NotificationSink {
+  /// 이 기기에서 로컬 알림을 다룰 수 있는가 (Android·iOS 만).
+  bool get supported;
+
+  Future<void> show(
+    int id,
+    String title,
+    String body,
+    NotificationDetails details, {
+    String? payload,
+  });
+
+  Future<void> schedule(
+    int id,
+    String title,
+    String body,
+    tz.TZDateTime when,
+    NotificationDetails details,
+  );
+
+  Future<void> cancel(int id);
+
+  Future<void> cancelAll();
+
+  Future<bool> requestPermission();
+
+  Future<bool> isPermissionGranted();
+}
+
+/// 실제 창구 — flutter_local_notifications + permission_handler.
+class _PluginSink implements NotificationSink {
+  _PluginSink(this._plugin);
+
+  final FlutterLocalNotificationsPlugin _plugin;
+
+  @override
+  bool get supported => Platform.isAndroid || Platform.isIOS;
+
+  @override
+  Future<void> show(
+    int id,
+    String title,
+    String body,
+    NotificationDetails details, {
+    String? payload,
+  }) => _plugin.show(id, title, body, details, payload: payload);
+
+  @override
+  Future<void> schedule(
+    int id,
+    String title,
+    String body,
+    tz.TZDateTime when,
+    NotificationDetails details,
+  ) async {
+    try {
+      await _plugin.zonedSchedule(
+        id,
+        title,
+        body,
+        when,
+        details,
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+      );
+    } catch (e) {
+      // 정확 알람 권한이 없는 기기 등 — 알림이 없다고 예약 자체가 실패하면 안 된다.
+      debugPrint('[NOTIF] reminder schedule failed: $e');
+    }
+  }
+
+  @override
+  Future<void> cancel(int id) async {
+    try {
+      await _plugin.cancel(id);
+    } catch (e) {
+      debugPrint('[NOTIF] cancel failed: $e');
+    }
+  }
+
+  @override
+  Future<void> cancelAll() async {
+    try {
+      await _plugin.cancelAll();
+    } catch (e) {
+      debugPrint('[NOTIF] cancelAll failed: $e');
+    }
+  }
+
+  @override
+  Future<bool> requestPermission() async {
+    if (!supported) return false;
+    final status = await Permission.notification.request();
+    debugPrint('[NOTIF] permission=$status');
+    return status.isGranted;
+  }
+
+  @override
+  Future<bool> isPermissionGranted() async {
+    if (!supported) return false;
+    return Permission.notification.isGranted;
+  }
+}
+
+/// v1.17 로컬 푸시 코어 — Firebase 없이 SSE + 로컬 알림으로 폰 알림 제공.
 ///
 /// 흐름:
 ///   1. 앱 첫 진입 시 [requestPermission] 호출 (Android 13+ POST_NOTIFICATIONS)
@@ -34,9 +147,89 @@ class NotificationService {
   static const String _channelMemberName = 'HYPHEN 회원 알림';
   static const String _channelMemberDesc = '회원권 만료·공지·코치 메시지';
 
+  // ─── 알림 받기 스위치 (2026-08-28 사용자 확정) ────────────────────────────
+  //
+  // > "첫 앱 설치 때 알림을 허용할까요? 그때 체크 혹은 내 정보 설정에서 알림 허용
+  // >  칸 토글로 허용 으로 하고 (일괄로 처리)"
+  //
+  // **종류별로 나누지 않는다 — 켜거나 끄거나 하나다.** 값은 기기에만 둔다
+  // (서버는 아직 알림을 보내지 않는다 — 앱이 살아 있을 때만 뜬다).
+
+  /// 기기 저장 키. 화면(내 정보 '알림 받기')과 같은 값을 쓴다 (§0-B).
+  static const String prefsKey = 'notifications_enabled';
+
+  /// 기본값 = **켜짐**. 지금까지 알림을 받던 회원이 업데이트만으로 조용히
+  /// 못 받게 되면 안 된다 (설치 직후에도 마찬가지 — 첫 진입 권한 요청이 곧 동의다).
+  static const bool defaultEnabled = true;
+
   final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
+
+  /// 실행 창구. 테스트만 [debugUseSink] 로 갈아 끼운다.
+  late NotificationSink _sink = _PluginSink(_plugin);
+
   bool _initialized = false;
+
+  /// 읽어 둔 스위치 값. null = 아직 안 읽음.
+  bool? _enabled;
+
+  /// 테스트 전용 — 창구를 갈아 끼우고 초기화 완료 상태로 둔다.
+  @visibleForTesting
+  void debugUseSink(NotificationSink sink) {
+    _sink = sink;
+    _initialized = true;
+    _enabled = null;
+  }
+
+  /// 테스트 전용 — 실제 창구로 되돌리고 캐시를 비운다.
+  @visibleForTesting
+  void debugReset() {
+    _sink = _PluginSink(_plugin);
+    _initialized = false;
+    _enabled = null;
+  }
+
+  /// 이 기기가 로컬 알림을 다룰 수 있는가 (Android·iOS). 데스크톱·테스트에서는
+  /// false — 그때는 '폰 설정에서 차단됨' 안내를 띄우지 않는다 (풀 수 없는 것을
+  /// 풀라고 말하지 않는다).
+  bool get supported => _sink.supported;
+
+  /// 이미 읽어 둔 스위치 값 (아직 안 읽었으면 [defaultEnabled]).
+  /// 화면 첫 프레임용 — 정확한 값은 [isEnabled] 로 확인한다.
+  bool get enabledNow => _enabled ?? defaultEnabled;
+
+  /// 알림 받기 스위치 상태. 저장된 값이 없으면 [defaultEnabled].
+  Future<bool> isEnabled() async {
+    final cached = _enabled;
+    if (cached != null) return cached;
+    bool value = defaultEnabled;
+    try {
+      final sp = await SharedPreferences.getInstance();
+      value = sp.getBool(prefsKey) ?? defaultEnabled;
+    } catch (e) {
+      // 저장소를 못 읽는다고 알림을 끄지 않는다 — 기본값(켜짐)으로 간다.
+      debugPrint('[NOTIF] prefs read failed: $e');
+    }
+    _enabled = value;
+    return value;
+  }
+
+  /// 알림 받기 스위치를 바꾼다.
+  ///
+  /// **끄면 걸어 둔 예약분도 함께 지운다** — 안 그러면 껐는데도 이미 기기에
+  /// 잡혀 있던 수업 1시간 전 알림이 그대로 울린다 (껐다는 화면이 거짓말이 된다).
+  /// 다시 켜면 홈 진입 때 `TodayReservationsCard._restoreReminders()` 가
+  /// 앞으로의 예약을 훑어 알림을 다시 건다.
+  Future<void> setEnabled(bool value) async {
+    _enabled = value;
+    try {
+      final sp = await SharedPreferences.getInstance();
+      await sp.setBool(prefsKey, value);
+    } catch (e) {
+      debugPrint('[NOTIF] prefs write failed: $e');
+    }
+    if (!value) await cancelAll();
+  }
 
   Future<void> init() async {
     if (_initialized) return;
@@ -96,27 +289,24 @@ class NotificationService {
   }
 
   /// 권한 요청. Android 13 이상·iOS 에서 dialog 띄움, 그 이하 Android 는 자동 grant.
-  /// 거부되어도 앱 동작은 막지 않음 — 사용자가 나중에 설정에서 켤 수 있음.
+  /// 거부되어도 앱 동작은 막지 않는다 — 폰 설정에서 나중에 허용할 수 있고,
+  /// 내 정보 '알림 받기' 줄이 그 사실을 계속 알려 준다.
   /// (iOS 는 Podfile `PERMISSION_NOTIFICATIONS=1` 매크로가 켜져 있어야 실제 팝업이 뜬다.)
-  Future<bool> requestPermission() async {
-    if (!(Platform.isAndroid || Platform.isIOS)) return false;
-    final status = await Permission.notification.request();
-    debugPrint('[NOTIF] permission=$status');
-    return status.isGranted;
-  }
+  Future<bool> requestPermission() => _sink.requestPermission();
 
-  Future<bool> isPermissionGranted() async {
-    if (!(Platform.isAndroid || Platform.isIOS)) return false;
-    return Permission.notification.isGranted;
-  }
+  Future<bool> isPermissionGranted() => _sink.isPermissionGranted();
 
   /// SSE 이벤트 → OS 알림 변환.
-  /// staff (사장·코치) 채널: 가입 신청·결제·예약 같은 운영 트리거.
-  /// member 채널: 회원권 만료·공지 같은 회원 트리거.
+  /// staff (코치) 채널: 가입 신청·결제·예약 같은 운영 트리거.
+  /// member 채널: 회원권 만료·공지·쪽지 같은 회원 트리거.
   Future<void> showFromSseEvent({
     required String eventType,
     required Map<String, dynamic> payload,
   }) async {
+    // ── 관문 (2026-08-28) ──
+    // 알림 받기가 꺼져 있으면 여기서 끝. 호출부(SSE·쪽지·체육관 상태 변화)마다
+    // 각자 검사하면 언젠가 한 곳이 빠지므로 관문은 이 파일 안 두 곳뿐이다.
+    if (!await isEnabled()) return;
     if (!_initialized) await init();
     final spec = _resolveSpec(eventType, payload);
     if (spec == null) return; // 이 이벤트는 알림 안 띄움 (silent).
@@ -141,7 +331,7 @@ class NotificationService {
       presentSound: true,
     );
 
-    await _plugin.show(
+    await _sink.show(
       spec.id,
       spec.title,
       spec.body,
@@ -156,7 +346,7 @@ class NotificationService {
         ? payload['payload'] as Map<String, dynamic>
         : payload;
     switch (type) {
-      // ─ 사장·코치 운영 채널 ─────────────────────────────
+      // ─ 코치 운영 채널 ─────────────────────────────
       case 'member_join_request':
         return _NotifSpec(
           id: _idFor('join', inner['member_id']),
@@ -260,52 +450,46 @@ class NotificationService {
     required String title,
     required DateTime startAt,
   }) async {
-    if (!(Platform.isAndroid || Platform.isIOS)) return;
+    // ── 관문 (2026-08-28) — 즉시 알림과 같은 자리에서 막는다 ──
+    if (!await isEnabled()) return;
+    if (!_sink.supported) return;
     if (!_initialized) await init();
     final when = tz.TZDateTime.from(startAt, tz.local)
         .subtract(const Duration(minutes: reminderLeadMinutes));
     if (!when.isAfter(tz.TZDateTime.now(tz.local))) return;
     final hh = startAt.hour.toString().padLeft(2, '0');
     final mm = startAt.minute.toString().padLeft(2, '0');
-    try {
-      await _plugin.zonedSchedule(
-        reminderId(reservationId),
-        '[HYPHEN] $hh:$mm $title',
-        '수업 시작 $reminderLeadMinutes분 전입니다.',
-        when,
-        NotificationDetails(
-          android: const AndroidNotificationDetails(
-            _channelReminderId,
-            _channelReminderName,
-            channelDescription: _channelReminderDesc,
-            importance: Importance.high,
-            priority: Priority.high,
-          ),
-          iOS: const DarwinNotificationDetails(
-            presentAlert: true, presentBadge: false, presentSound: true),
+    await _sink.schedule(
+      reminderId(reservationId),
+      '[HYPHEN] $hh:$mm $title',
+      '수업 시작 $reminderLeadMinutes분 전입니다.',
+      when,
+      NotificationDetails(
+        android: const AndroidNotificationDetails(
+          _channelReminderId,
+          _channelReminderName,
+          channelDescription: _channelReminderDesc,
+          importance: Importance.high,
+          priority: Priority.high,
         ),
-        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-      );
-      debugPrint('[NOTIF] reminder set resv=$reservationId at $when');
-    } catch (e) {
-      // 정확 알람 권한이 없는 기기 등 — 알림이 없다고 예약 자체가 실패하면 안 된다.
-      debugPrint('[NOTIF] reminder schedule failed: $e');
-    }
+        iOS: const DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: false,
+          presentSound: true,
+        ),
+      ),
+    );
+    debugPrint('[NOTIF] reminder set resv=$reservationId at $when');
   }
 
   /// 예약을 취소했으면 걸어 둔 알림도 지운다 (안 오는 수업을 알리지 않는다).
+  /// 지우는 쪽은 스위치와 무관하게 언제나 동작한다.
   Future<void> cancelClassReminder(int reservationId) async {
     if (!_initialized) return;
-    try {
-      await _plugin.cancel(reminderId(reservationId));
-    } catch (e) {
-      debugPrint('[NOTIF] reminder cancel failed: $e');
-    }
+    await _sink.cancel(reminderId(reservationId));
   }
 
-  Future<void> cancelAll() => _plugin.cancelAll();
+  Future<void> cancelAll() => _sink.cancelAll();
 }
 
 class _NotifSpec {

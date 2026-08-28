@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:hyphen_app/core/api_client.dart';
 import 'package:hyphen_app/core/app_clock.dart';
+import 'package:hyphen_app/core/notification_service.dart';
 import 'package:hyphen_app/features/gym/gym_repository.dart';
 import 'package:hyphen_app/features/gym/gym_state.dart';
 import 'package:hyphen_app/features/mypage/mypage_screen.dart';
@@ -142,11 +143,36 @@ Future<void> mypagePaused(WidgetTester tester) async {
   await _pump(tester, api: api, gym: gym);
 }
 
+/// (e~g) '알림 받기' 세 상태 — 켜짐·꺼짐·폰 설정에서 차단됨 (2026-08-28).
+///
+/// 이 행은 자리를 비워 두는 방식(HkNoticeSlot)을 쓰지 않는다. 부제를 항상 한 줄
+/// 두고 글자만 바꾸므로 세 상태의 행 높이가 같아야 한다 — 그 증명이 여기다.
+/// 차단 상태는 실기에서만 나오므로 알림 창구를 대역으로 갈아 끼워 만든다.
+Future<void> _pumpNotifications(
+  WidgetTester tester, {
+  required bool enabled,
+  required bool granted,
+}) async {
+  final sink = FakeNotificationSink(granted: granted);
+  NotificationService.instance.debugUseSink(sink);
+  addTearDown(NotificationService.instance.debugReset);
+  // 스위치 값은 서비스가 메모리에 들고 있다 — _pump 안의
+  // setMockInitialValues 가 저장소를 다시 깔아도 이 값이 유지된다.
+  await NotificationService.instance.setEnabled(enabled);
+  final api = FakeApi(_world(_memberships(), points: 1240));
+  final gym = GymState(GymRepository(api), sse: FakeSse());
+  await gym.loadMine();
+  await _pump(tester, api: api, gym: gym);
+}
+
 Map<String, ScreenState> mypageStates() => {
   '전부 로딩 중': mypageAllLoading,
   '회원권·포인트 있음': mypageLoaded,
   '회원권 없음': mypageNoMembership,
   '일시정지': mypagePaused,
+  '알림 켜짐': (t) => _pumpNotifications(t, enabled: true, granted: true),
+  '알림 꺼짐': (t) => _pumpNotifications(t, enabled: false, granted: true),
+  '알림 차단됨': (t) => _pumpNotifications(t, enabled: true, granted: false),
 };
 
 Map<String, Key> mypageAnchors() => {
@@ -154,6 +180,7 @@ Map<String, Key> mypageAnchors() => {
   '내체육관': MyPageScreen.kMyGym,
   '로그아웃': MyPageScreen.kSignOut,
   '포인트': MyPageScreen.kPoints,
+  '알림': MyPageScreen.kNotifications,
   '메뉴': MyPageScreen.kMenu,
 };
 
@@ -191,7 +218,7 @@ Map<String, Key> membershipCardAnchors() => {
 };
 
 void main() {
-  testWidgets('내 정보 — 4 상태에서 앵커 y 좌표가 전부 같다', (tester) async {
+  testWidgets('내 정보 — 7 상태에서 앵커 y 좌표가 전부 같다', (tester) async {
     final table = await expectStableAnchorY(
       tester,
       states: mypageStates(),

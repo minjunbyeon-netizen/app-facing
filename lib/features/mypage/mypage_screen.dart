@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/api_client.dart';
 import '../../core/goals_state.dart';
 import '../../core/haptic.dart';
+import '../../core/notification_service.dart';
 import '../../core/role_labels.dart';
 import '../../core/titles_catalog.dart';
 import '../../models/membership.dart';
@@ -12,6 +13,7 @@ import '../../core/theme.dart';
 import '../../widgets/hkit.dart';
 import '../../widgets/inbox_bell.dart';
 import '../auth/auth_state.dart';
+import '../classes/today_reservations.dart';
 import '../contracts/member_contracts_screen.dart';
 import 'strength_board_screen.dart';
 import '../gym/gym_state.dart';
@@ -41,6 +43,7 @@ class MyPageScreen extends StatelessWidget {
   static const Key kMembership = Key('mypage-membership');
   static const Key kMyGym = Key('mypage-mygym');
   static const Key kPoints = Key('mypage-points');
+  static const Key kNotifications = Key('mypage-notifications');
   static const Key kMenu = Key('mypage-menu');
   static const Key kSignOut = Key('mypage-signout');
 
@@ -446,6 +449,10 @@ class _ActionsSection extends StatelessWidget {
           ),
           // B-5 (2026-06-10) — 회원 포인트 잔액 (적립 토스트 "+NP" 와 신뢰 일치)
           const _PointsBalanceRow(),
+          // 2026-08-28 사용자 확정 — '알림 받기' 한 줄. 종류별로 나누지 않는다.
+          // 이 화면 코드가 "나중에 설정에서 켤 수 있음" 이라고 적어 두고도
+          // 그 설정이 없었다 (화면이 없는 것을 있다고 말하던 자리).
+          const _NotificationsRow(),
           // v1.31 (2026-08-07) — 메뉴 10종이 세로로 주렁주렁 길다는 사용자 지시로
           // 단일 아코디언(기본 접힘) + 표(HkRowCard) 로 통합. 항목·진입 경로는
           // 그대로, 접힘 상태에서 헤더 한 줄만 차지한다.
@@ -1055,6 +1062,139 @@ class _LockerCard extends StatelessWidget {
 /// 처음부터 서 있고 숫자만** 갈린다 — 값을 모르는 동안은 `--`.
 /// (서버는 미소속이어도 `balance: 0` 을 준다. `--` 가 남는 경우는 응답 전이거나
 ///  네트워크가 끊긴 때뿐이다.)
+/// 내 정보 '알림 받기' 한 줄 — 켜거나 끄거나 **하나**다 (2026-08-28 사용자 확정
+/// "일괄로 처리"). 종류별로 나누지 않는다.
+///
+/// 값은 기기에만 둔다 ([NotificationService.prefsKey]). 서버로 보내지 않는 이유는
+/// 지금 알림을 서버가 보내지 않기 때문이다 — 앱이 살아 있을 때 SSE 로 받아 폰에
+/// 띄우거나, 예약해 둔 수업 알림이 기기에서 울린다. 둘 다 이 기기의 일이다.
+///
+/// **막는 자리는 여기가 아니다.** 껐을 때 실제로 알림을 막는 관문은
+/// [NotificationService] 안 두 곳(`showFromSseEvent`·`scheduleClassReminder`)
+/// 뿐이다 — 화면마다 검사하면 언젠가 한 곳이 빠진다.
+///
+/// **레이아웃 안정성 (DESIGN-SSOT §레이아웃 안정성)**: 이 행은 자리를 비워 두는
+/// 방식(HkNoticeSlot)을 쓰지 않는다. 부제(subtitle)를 **상태와 무관하게 항상 한 줄**
+/// 두고 글자만 갈아 끼우므로 행 높이가 처음부터 끝까지 같다. 빈 띠가 남는 D69 의
+/// 실패도 없고, 안내가 붙었다 빠지며 아래가 밀리는 일도 없다.
+class _NotificationsRow extends StatefulWidget {
+  const _NotificationsRow();
+
+  @override
+  State<_NotificationsRow> createState() => _NotificationsRowState();
+}
+
+class _NotificationsRowState extends State<_NotificationsRow>
+    with WidgetsBindingObserver {
+  /// 앱 설정 — 첫 프레임은 이미 읽어 둔 값으로 그린다 (main.dart 가 미리 읽는다).
+  bool _on = NotificationService.instance.enabledNow;
+
+  /// 폰 설정(OS) 권한. 알림을 못 다루는 기기(데스크톱)는 막힌 것이 아니므로 true.
+  bool _granted = true;
+  bool _busy = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _load();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// 폰 설정에서 허용하고 돌아왔는데도 '차단됨' 이 남아 있으면 그것도 거짓말이다
+  /// — 앱으로 돌아올 때마다 권한을 다시 읽는다.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _load();
+  }
+
+  Future<void> _load() async {
+    final svc = NotificationService.instance;
+    final on = await svc.isEnabled();
+    final granted = svc.supported ? await svc.isPermissionGranted() : true;
+    if (!mounted) return;
+    setState(() {
+      _on = on;
+      _granted = granted;
+    });
+  }
+
+  Future<void> _toggle(bool next) async {
+    if (_busy) return;
+    _busy = true;
+    Haptic.light();
+    final svc = NotificationService.instance;
+    final api = context.read<ApiClient>();
+    // 끄면 걸어 둔 예약분까지 지운다 (setEnabled 안에서).
+    await svc.setEnabled(next);
+    var granted = _granted;
+    if (next && svc.supported) {
+      // 켤 때만 권한을 묻는다. 폰 설정에서 막아 뒀으면 앱이 아무리 켜도 안 뜬다.
+      granted = await svc.isPermissionGranted();
+      if (!granted) granted = await svc.requestPermission();
+    }
+    if (!mounted) {
+      _busy = false;
+      return;
+    }
+    setState(() {
+      _on = next;
+      _granted = granted;
+      _busy = false;
+    });
+    if (next && granted) {
+      // 껐을 때 지운 예약분을 그 자리에서 되돌린다 — 셸이 탭을 살려 두므로
+      // 홈이 다시 뜨기를 기다리면 이번 세션 내내 알림이 안 걸린다.
+      await refetchAndRestoreClassReminders(api);
+    }
+    if (next && svc.supported && !granted && mounted) {
+      await HkDialog.info(
+        context,
+        title: '폰에서 알림이 차단되어 있습니다',
+        message: '폰 설정 → 앱 → HYPHEN → 알림 에서 허용해야 알림이 옵니다.',
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final blocked = _on && !_granted;
+    return Padding(
+      key: MyPageScreen.kNotifications,
+      padding: const EdgeInsets.only(bottom: HyphenTokens.sp3),
+      child: HkRowCard(
+        rows: [
+          HkListRow(
+            icon: Icons.notifications_none,
+            iconColor: blocked ? HyphenTokens.danger : null,
+            title: '알림 받기',
+            // 세 상태 모두 한 줄 — 행 높이가 변하지 않는다.
+            subtitle: blocked
+                ? '폰 설정에서 알림이 차단되어 있습니다.'
+                : _on
+                ? '쪽지 · 수업 시작 1시간 전 알림을 받습니다.'
+                : '알림을 받지 않습니다.',
+            subtitleColor: blocked ? HyphenTokens.danger : null,
+            // 켜 두었어도 폰이 막고 있으면 트랙을 중립색으로 — 위치는 내 설정,
+            // 색은 실제로 오고 있는지. 둘 다 드러난다.
+            trailingWidget: HkSwitch(
+              value: _on,
+              activeColor: blocked ? HyphenTokens.muted : null,
+              onChanged: _toggle,
+            ),
+            onTap: () => _toggle(!_on),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _PointsBalanceRow extends StatefulWidget {
   const _PointsBalanceRow();
 

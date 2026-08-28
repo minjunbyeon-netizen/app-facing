@@ -63,6 +63,9 @@ Future<void> main() async {
 
   // v1.17 로컬 푸시 — 알림 채널 초기화. 권한 요청은 첫 진입 화면에서 (사용자 동의 후).
   await NotificationService.instance.init();
+  // '알림 받기' 스위치 값을 미리 읽어 둔다 — 내 정보 화면이 첫 프레임부터
+  // 저장된 값 그대로 그리게 (기본값이 잠깐 스쳤다 바뀌지 않게).
+  await NotificationService.instance.isEnabled();
 
   // (구 PHASE5 §6-3 FCM 토큰 register 는 2026-08-14 죽은 덩어리 정리로 삭제 —
   //  placeholder 토큰이라 실푸시 도달 0 (백엔드 G17 동시 제거). 알림 실채널은

@@ -264,6 +264,75 @@ class HkCheckRow extends StatelessWidget {
   }
 }
 
+/// 켬/끔 토글 — 스위치의 유일 규격 (v3.36 · 2026-08-28 '알림 받기').
+///
+/// Material [Switch] 는 완전 원형 트랙·원형 썸이라 이 앱의 사각 규격
+/// (HkBadge r1 · HkCheckRow r1)과 어긋난다. 그래서 r1 사각 트랙 + 사각 썸으로
+/// 직접 그린다. **모양은 상태와 무관하게 같은 크기**다 (켜짐·꺼짐이 같은
+/// 44×26) — 표 행 안에 들어가도 행 높이가 상태에 따라 변하지 않는다
+/// (DESIGN-SSOT §레이아웃 안정성).
+///
+/// [activeColor] 는 켜졌을 때 트랙 색이다. 기본은 [HyphenTokens.primary] 지만,
+/// **켜 두었어도 실제로는 작동하지 않는 상태**(예: 폰 설정에서 알림 차단)에는
+/// 중립색을 넘겨 "켜짐처럼 살아 있다" 고 읽히지 않게 한다.
+class HkSwitch extends StatelessWidget {
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  /// 켜짐 트랙 색. null 이면 [HyphenTokens.primary].
+  final Color? activeColor;
+
+  const HkSwitch({
+    super.key,
+    required this.value,
+    required this.onChanged,
+    this.activeColor,
+  });
+
+  static const double _w = 44;
+  static const double _h = 26;
+  static const double _pad = 3;
+
+  @override
+  Widget build(BuildContext context) {
+    final on = activeColor ?? HyphenTokens.primary;
+    return Semantics(
+      toggled: value,
+      child: InkWell(
+        onTap: () => onChanged(!value),
+        borderRadius: BorderRadius.circular(HyphenTokens.r1),
+        child: SizedBox(
+          // 손가락이 닿을 48 은 세로로 확보하되, 눈에 보이는 크기는 그대로.
+          height: HyphenTokens.touchMin,
+          width: _w,
+          child: Center(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 120),
+              width: _w,
+              height: _h,
+              padding: const EdgeInsets.all(_pad),
+              alignment: value ? Alignment.centerRight : Alignment.centerLeft,
+              decoration: BoxDecoration(
+                color: value ? on : HyphenTokens.surfaceAlt,
+                border: Border.all(color: value ? on : HyphenTokens.border),
+                borderRadius: BorderRadius.circular(HyphenTokens.r1),
+              ),
+              child: Container(
+                width: _h - _pad * 2 - 2,
+                height: _h - _pad * 2 - 2,
+                decoration: BoxDecoration(
+                  color: value ? HyphenTokens.onColor : HyphenTokens.muted,
+                  borderRadius: BorderRadius.circular(HyphenTokens.r1),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// 표준 카드 — surface + 1px border + 모서리(r3 기본).
 ///
 /// v3.27 (2026-08-25 사용자 지시 "카드 36곳 마저"): 화면마다 Container 로
@@ -413,6 +482,11 @@ class HkListRow extends StatelessWidget {
   final Color? iconColor;
   final String title;
   final String? subtitle;
+
+  /// 부제 글자색. 기본은 caption(흐림). 상태가 나빠 **읽어야 하는 부제**
+  /// (예: '폰 설정에서 알림 차단됨')일 때만 `danger` 등으로 올린다 —
+  /// 읽어야 하는 값에 muted 금지 (DESIGN-SSOT §7-D 4).
+  final Color? subtitleColor;
   final String? trailing;
   final Color? trailingColor;
 
@@ -440,6 +514,7 @@ class HkListRow extends StatelessWidget {
     this.iconColor,
     this.leadingWidget,
     this.subtitle,
+    this.subtitleColor,
     this.titleBadge,
     this.trailing,
     this.trailingColor,
@@ -502,7 +577,11 @@ class HkListRow extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         subtitle!,
-                        style: HyphenTokens.caption,
+                        style: subtitleColor == null
+                            ? HyphenTokens.caption
+                            : HyphenTokens.caption.copyWith(
+                                color: subtitleColor,
+                              ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
