@@ -8,6 +8,7 @@ import 'package:hyphen_app/core/quotes.dart';
 import 'package:hyphen_app/features/achievement/achievements_screen.dart';
 import 'package:hyphen_app/features/gym/box_wod_screen.dart';
 import 'package:hyphen_app/features/contracts/member_contracts_screen.dart';
+import 'package:hyphen_app/features/gym/member_approvals_screen.dart';
 import 'package:hyphen_app/features/gym/gym_repository.dart';
 import 'package:hyphen_app/features/gym/gym_state.dart';
 import 'package:hyphen_app/features/inbox/inbox_screen.dart';
@@ -427,6 +428,31 @@ void main() {
     // 절차 정본 = login_states.dart (골든·y 좌표 검사 공용).
     await loginDefault(tester);
     await capture(tester, 'common_08_login');
+  });
+
+  // ── 코치: 가입 신청 목록 ──
+  // 2026-08-28 — 전화번호가 탭 자리(터치 48)가 되면서 행 높이가 바뀌는데
+  // 이 화면은 캡처가 하나도 없었다. 바뀐 표시는 캡처로 남긴다.
+  testWidgets('coach: member approvals', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi({
+      ...memberWorld(),
+      '/api/v1/gyms/mine': {...gymsMine, 'role': 'owner'},
+      '/api/v1/gyms/1/members': gymMembersList(),
+    });
+    final gym = GymState(GymRepository(api), sse: FakeSse());
+    await gym.loadMine();
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        gym: gym,
+        home: const MemberApprovalsScreen(),
+      ),
+    );
+    await capture(tester, 'coach_05_member_approvals');
   });
 
   // ── 코치 셸 3탭 (v3.4) — 예약 현황 · 수업 · 쪽지 ──

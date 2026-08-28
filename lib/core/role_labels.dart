@@ -1,5 +1,5 @@
 // v1.16.2 (2026-05-25) — 역할 라벨 한글 매핑 (gym_managers.role + gym_members.status).
-// IdentityCard·CoachDashboard·BoxProfileScreen·MembersList 등에서 공통 사용.
+// IdentityCard·CoachDashboard·MembersList 등에서 공통 사용.
 // 정의 출처: ARCHITECTURE_BRIEF §2 RBAC 표.
 
 /// 백엔드 role/status 조합을 한국어 라벨로 변환.

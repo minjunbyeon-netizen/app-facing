@@ -1684,11 +1684,19 @@ class HkPhoneText extends StatelessWidget {
   Widget build(BuildContext context) {
     final base = style ?? HyphenTokens.body;
     if (!HkPhone.canDial(phone)) return Text(phone, style: base);
+    // 글자 높이(약 22)로만 잡으면 손가락이 자주 빗나간다. 집 규칙인 터치 48 을
+    // 세로로 확보한다 — 폭은 부모가 이미 줄 전체를 준다.
     return InkWell(
       onTap: () => HkPhone.dial(context, phone),
-      child: Text(
-        phone,
-        style: base.copyWith(color: HyphenTokens.primary),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: HyphenTokens.touchMin),
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            phone,
+            style: base.copyWith(color: HyphenTokens.primary),
+          ),
+        ),
       ),
     );
   }

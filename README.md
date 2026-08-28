@@ -211,5 +211,12 @@ samples, guidance on mobile development, and a full API reference.
 35. **내 정보 '데이터 초기화' (v3.31 · 2026-08-27 사용자 지시)** — danger 버튼 +
     `MyPageScreen._confirmReset`(확인 다이얼로그 → `prefs.clear()` → `/splash`).
     `shared_preferences` import 도 이 파일에서 함께 정리. 서버 기록은 원래 지우지 않던 기능.
+36. **체육관 프로필 화면 · 코치 상세 (v3.36 · 2026-08-28)** —
+    `lib/features/gym/box_profile_screen.dart` + `lib/features/gym/coach_detail_screen.dart`.
+    `BoxProfileScreen` 은 어떤 라우트도 밀어주지 않던 고아였고(참조 0건),
+    `CoachDetailScreen` 은 그 화면에서만 진입하던 짝이라 함께 죽어 있었다.
+    회원이 실제로 보는 체육관 정보는 `lib/widgets/gym_info_card.dart` 다 —
+    2026-08-28 전화 걸기 배선 중 좌표가 갈리며 드러났다.
+    `GymState.coaches`·`CoachProfile` 모델은 그 카드와 쪽지함이 계속 쓰므로 남긴다.
 
 

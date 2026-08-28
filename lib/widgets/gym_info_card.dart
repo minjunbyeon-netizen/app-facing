@@ -227,11 +227,14 @@ class _IconRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final style = HyphenTokens.body.copyWith(height: 1.5);
+    // 전화 줄은 터치 48 을 세로로 잡으므로 아이콘도 그 가운데에 맞춘다.
+    // 주소는 여러 줄이 될 수 있어 첫 줄에 붙인다 (start).
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment:
+          dial ? CrossAxisAlignment.center : CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: 2),
+          padding: EdgeInsets.only(top: dial ? 0 : 2),
           child: Icon(icon, size: 16, color: HyphenTokens.muted),
         ),
         const SizedBox(width: HyphenTokens.sp2),

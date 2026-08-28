@@ -1,6 +1,6 @@
 // v1.16.2 (2026-05-24) — 박스 코치 프로필 DTO.
 // ARCHITECTURE_BRIEF §11.6 / docs/GYM_PROFILE_SCHEMA.md §2.
-// 박스 프로필 페이지("COACHES" 카드) + 코치 더보기 화면 (coach_detail_screen) 에서 사용.
+// 체육관 정보 카드(gym_info_card "코치" 구역) + 쪽지함 발신자 이름에서 사용.
 
 import 'dart:convert';
 

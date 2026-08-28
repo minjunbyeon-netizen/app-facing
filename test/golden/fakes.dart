@@ -269,6 +269,9 @@ List<Map<String, dynamic>> gymMembersList() => [
       {
         'id': 43, 'device_hash_prefix': 'c3d4e5f6', 'device_hash': 'c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4',
         'status': 'pending', 'requested_at': '2026-08-20T10:00:00', 'name': '이도윤',
+        // 실제 가입 신청서는 연락처를 받는다 — 코치가 신청자에게 바로 전화를
+        // 거는 자리라 fake 에도 번호가 있어야 그 줄이 캡처에 잡힌다 (2026-08-28).
+        'phone': '010-3456-7890',
         'total_sessions': 0, 'streak_days': 0,
       },
     ];

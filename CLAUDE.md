@@ -413,7 +413,7 @@ python tool/golden_gallery.py               # 단일 HTML 갤러리 (build/golde
 가짜 백엔드(`test/golden/fakes.dart` — ApiClient implements, 네트워크 0)로 실물 픽셀 렌더
 (갤S22 급 360×780·2x). 폰트는 `test/flutter_test_config.dart` 가 FontManifest 전체
 (Pretendard·MaterialIcons)를 로드. 참조 아키텍처: `apps/writeplz-app` 골든스탠다드.
-현재 **67장** (2026-08-28 테스터 확정 D69 — state_22_late_cancel_dialog · state_23_cancel_dialog 신규: 시작 20분 전을 지난 취소를 막지 않고 '늦은 취소 · 차감될 수 있음' 한 줄 고지, 20분 전까지는 무문구. 두 상태의 문구 유무 게이트 = `test/golden/cancel_dialog_notice_test.dart`. 직전 65장 = 2026-08-28 테스터 지시 — member_25_gym_info 신규: 체육관 정보 카드 주소·전화를 본문 크기로. 직전 64장 = v3.35 업적 E 안 — member_24_trophy_room(목록 행 탭 → 트로피 룸) ·
+현재 **68장** (2026-08-28 잔손질 — coach_05_member_approvals 신규: 가입 신청 화면 첫 캡처, 신청자 연락처가 탭 자리(터치 48)가 됐다. 직전 67장 = 테스터 확정 D69 — state_22_late_cancel_dialog · state_23_cancel_dialog 신규: 시작 20분 전을 지난 취소를 막지 않고 '늦은 취소 · 차감될 수 있음' 한 줄 고지, 20분 전까지는 무문구. 두 상태의 문구 유무 게이트 = `test/golden/cancel_dialog_notice_test.dart`. 직전 65장 = 2026-08-28 테스터 지시 — member_25_gym_info 신규: 체육관 정보 카드 주소·전화를 본문 크기로. 직전 64장 = v3.35 업적 E 안 — member_24_trophy_room(목록 행 탭 → 트로피 룸) ·
 state_21_achievements_loading(스켈레톤) 신규, member_12·ach_01 은 분류별 목록으로 재생성.
 안정성 게이트 = `test/golden/achievements_stability_test.dart`. 직전 62장 = 2026-08-28 실측 — state_20_inbox_threads 신규: 쪽지함 꽉 찬 상태(코치 쪽지+자동 알림), 홈페이지·스토어 스크린샷 소스. 직전 61장 = 2026-08-27 실측 — D67 로그인 고정 레이아웃으로 3장 증가:
 state_17_login_error · state_18_login_validation · state_19_login_busy 신규,

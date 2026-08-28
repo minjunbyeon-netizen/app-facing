@@ -79,6 +79,8 @@ SECTIONS = [
         ("boss_03_class_roster", "수업 예약자 명단 — 카드 탭 시 (D29) · 출석/노쇼 체크만 (v3.21) · 시작 지난 수업"),
         ("coach_01_shell_reservations", "코치 셸 2탭① 예약 현황 — 오늘 수치 · 가입 신청 · 주간 수업/예약 (v3.28)"),
         ("coach_03_shell_messages", "코치 셸 2탭② 쪽지 — MessagingScreen 임베드 (v3.28: 그룹 버튼 삭제)"),
+        ("coach_05_member_approvals",
+         "가입 신청 — 신청자 연락처를 눌러 바로 전화 (터치 48 확보, 2026-08-28)"),
         ("coach_04_new_note_members", "새 쪽지 — 내 회원 목록에서 받을 사람 선택 → 대화 (v3.28)"),
     ]),
     ("상태 변형", "상태 변형 — 빈 · 에러 · 오프라인 · 미가입", [

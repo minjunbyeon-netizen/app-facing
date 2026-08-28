@@ -135,7 +135,7 @@ class GymState extends ChangeNotifier {
   List<GymWodPost> get todayWods =>
       _wods.where((w) => w.postDate == todayIso).toList();
 
-  /// v1.16.2 — 박스 코치 목록 (BoxProfileScreen 에서 사용).
+  /// v1.16.2 — 체육관 코치 목록 (GymInfoCard·쪽지함에서 사용).
   List<CoachProfile> get coaches => _coaches;
 
   /// v1.16.2 — 본인 회원권 (가장 최근 active 우선).
