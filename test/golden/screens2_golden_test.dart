@@ -17,6 +17,8 @@ import 'package:hyphen_app/features/mypage/privacy_screen.dart';
 import 'package:hyphen_app/features/mypage/terms_screen.dart';
 import 'package:hyphen_app/features/shell/coach_shell.dart';
 import 'package:hyphen_app/features/shell/main_shell.dart';
+import 'package:hyphen_app/core/theme.dart';
+import 'package:hyphen_app/widgets/gym_info_card.dart';
 
 import 'fakes.dart';
 import 'harness.dart';
@@ -51,6 +53,42 @@ void main() {
       ),
     );
     await capture(tester, 'member_07_classes');
+  });
+
+  // ── 회원: 체육관 정보 카드 ──
+  //
+  // 2026-08-28 테스터 보고 "체육관 정보가 너무 작게 뜨는 것 같음" 으로 주소·전화를
+  // caption(13sp·흐림) → body 로 올렸다. 이 카드는 수업 탭 맨 아래 아코디언 안이라
+  // 접힌 채로는 어느 골든에도 안 잡힌다 — 카드 자체를 세워 캡처한다.
+  // (아코디언을 여는 조작으로 잡으려 했으나 뷰포트 끝에 걸려 불안정했다.
+  //  캡처의 목적은 '이 카드가 어떻게 보이는가' 이므로 카드를 직접 세우는 편이 정확하다.)
+  testWidgets('member: gym info card', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi(memberWorld());
+    final gym = GymState(GymRepository(api), sse: FakeSse());
+    await gym.loadMine();
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        gym: gym,
+        home: Scaffold(
+          backgroundColor: HyphenTokens.bg,
+          body: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(HyphenTokens.sp3),
+              child: GymInfoCard(
+                gym: gym.membership.gym,
+                margin: EdgeInsets.zero,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await capture(tester, 'member_25_gym_info');
   });
 
   // ── 회원: 예약 확정 상태 (예약됨 배지 + 취소 진입) ──

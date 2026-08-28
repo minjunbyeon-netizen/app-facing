@@ -126,7 +126,9 @@ class HyphenApp extends StatelessWidget {
           create: (ctx) => GymState(GymRepository(api), sse: sse)..loadMine(),
         ),
         ChangeNotifierProvider<InboxState>(
-          create: (_) => InboxState(InboxRepository(api)),
+          // sse 주입 (2026-08-28) — 쪽지 도착 알림을 쪽지함 화면이 아니라
+          // 전역에서 듣는다. 화면을 닫아 둬도 알림이 뜬다.
+          create: (_) => InboxState(InboxRepository(api), sse: sse),
         ),
         ChangeNotifierProvider<AnnouncementsState>(
           create: (_) => AnnouncementsState(),

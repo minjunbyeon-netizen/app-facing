@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:hyphen_app/features/achievement/achievement_section.dart';
+import 'package:hyphen_app/features/classes/today_reservations.dart';
 import 'package:hyphen_app/features/gym/gym_repository.dart';
 import 'package:hyphen_app/features/gym/gym_state.dart';
 import 'package:hyphen_app/features/home/home_screen.dart';
@@ -29,6 +30,7 @@ import 'screens_golden_test.dart' show rxProfile, signedInAuth, signedInPrefs;
 ///   2. 공지 카드가 다시 `if (isEmpty) SizedBox.shrink()` 로 사라지나
 ///   3. 업적 표가 예약 높이(AchievementSection.kBodyH)를 넘거나 안 지키나
 ///   4. 출석 행이 다시 `if (attendDays != null)` 로 조건부가 됐나
+///   5. '오늘 내 예약' 이 다시 `if (isEmpty) SizedBox.shrink()` 로 사라지나
 ///
 /// PNG 는 만들지 않는다 — 위치 증명은 좌표가 정확하고 빠르다.
 
@@ -124,6 +126,9 @@ Map<String, ScreenState> homeStates() => {
 /// 상태가 바뀌어도 y 가 움직이면 안 되는 요소들 (위 → 아래 순).
 Map<String, Key> homeAnchors() => {
   '공지': HomeScreen.kNotice,
+  // 2026-08-28 — '오늘 내 예약' 은 화면이 뜬 뒤에 도착한다. 숨겼다 나타나면
+  // 그 아래가 통째로 밀리므로 자리를 항상 지킨다 (TodayReservationsCard.kBodyH).
+  '오늘예약': TodayReservationsCard.kCard,
   '레벨카드': HomeScreen.kLevel,
   '업적': HomeScreen.kAchievements,
   '마일스톤라벨': HomeScreen.kMilestoneLabel,

@@ -310,15 +310,30 @@ class _DayTile extends StatelessWidget {
   bool get _isFuture => date.isAfter(today);
   bool get _isPast => date.isBefore(today);
 
+  /// 요일 줄 오른쪽 한 줄 요약.
+  ///
+  /// 2026-08-28 테스터 보고 — "수업 외 2 라고 되어 있는 것보다 프로그램 항목이
+  /// 있으면 좋겠다". 종전 문구 `'$first 외 ${n}'` 은 "수업(타입) **외** 2건" 이라는
+  /// 뜻이었는데, 읽는 사람에겐 **'수업외' 라는 분류가 2개** 로 읽혔다. 뜻이 뒤집혀
+  /// 읽히는 문구는 없는 것만 못하다.
+  ///
+  /// 그래서 개수 대신 **그날 프로그램 이름을 그대로** 적는다 — 코치가 시간표에
+  /// 적어 둔 이름이 곧 회원이 아는 이름이다 (AWAKE·SWEAT·BUILD). 좁은 줄이라
+  /// 최대 3개까지 적고 넘으면 `+N` 으로 센다 (그때의 N 은 '더 있다' 는 뜻이라
+  /// 오해할 여지가 없다).
   String get _summary {
-    final parts = <String>[];
-    if (wods.isNotEmpty) {
-      final first = wodTypeLabel(wods.first.wodType);
-      parts.add(wods.length > 1 ? '$first 외 ${wods.length - 1}' : first);
+    final names = <String>[];
+    for (final c in classes) {
+      final t = c.title.trim();
+      if (t.isNotEmpty && !names.contains(t)) names.add(t);
     }
-    if (classes.isNotEmpty) parts.add('수업 ${classes.length}');
-    if (parts.isEmpty) return classesLoading ? '' : '일정 없음';
-    return parts.join(' · ');
+    if (names.isEmpty) {
+      // 수업이 없는 날 — 게시된 수업 내용만 있으면 그 종류를 적는다.
+      if (wods.isNotEmpty) return wodTypeLabel(wods.first.wodType);
+      return classesLoading ? '' : '일정 없음';
+    }
+    if (names.length <= 3) return names.join(' · ');
+    return '${names.take(3).join(' · ')} +${names.length - 3}';
   }
 
   @override

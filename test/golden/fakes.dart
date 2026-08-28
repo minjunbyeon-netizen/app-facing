@@ -501,6 +501,44 @@ List<Map<String, dynamic>> memberAttendances() {
 String _todayAt(DateTime now, int hour) =>
     '${_ymd(now)}T${hour.toString().padLeft(2, '0')}:00:00';
 
+/// /api/v1/member/reservations — 내 예약 (홈 '오늘 내 예약' 칸 캡처용).
+/// 오늘 20시 확정 1 + 21시 대기 1 + 지난 오전 1 (지난 건 화면에서 빠져야 한다).
+List<Map<String, dynamic>> myReservations() {
+  final now = appClock.now();
+  return [
+    {
+      'kind': 'reservation',
+      'reservation_id': 9001,
+      'class_session_id': 101,
+      'start_at': _todayAt(now, 20),
+      'duration_minutes': 60,
+      'title': 'WOD Class',
+      'room': 'Main Floor',
+      'status': 'confirmed',
+    },
+    {
+      'kind': 'waitlist',
+      'waitlist_id': 9002,
+      'class_session_id': 102,
+      'start_at': _todayAt(now, 21),
+      'duration_minutes': 60,
+      'title': 'Olympic Lifting',
+      'room': 'Platform',
+      'status': 'waitlist',
+      'position': 2,
+    },
+    {
+      'kind': 'reservation',
+      'reservation_id': 9003,
+      'class_session_id': 103,
+      'start_at': _todayAt(now, 6),
+      'duration_minutes': 60,
+      'title': 'Morning WOD',
+      'status': 'confirmed',
+    },
+  ];
+}
+
 /// /api/v1/member/classes — 오늘 남은 시간대 2 + 내일 아침 1 (마감 1 포함).
 List<Map<String, dynamic>> memberClasses() {
   final now = appClock.now();
@@ -1414,7 +1452,9 @@ Map<String, dynamic> memberWorld() => {
   '/api/v1/member/announcements': const <dynamic>[],
   '/api/v1/member/attendances': memberAttendances(),
   '/api/v1/member/classes': memberClasses(),
-  '/api/v1/member/reservations': const <dynamic>[],
+  // 홈 '오늘 내 예약' 칸 (2026-08-28). 종전엔 빈 배열이라 그 칸이 골든에서
+  // 통째로 빠져 있었다 — 기능을 넣으면 그 상태의 캡처도 같이 넣는다.
+  '/api/v1/member/reservations': myReservations(),
   '/api/v1/member/me/memberships': memberMemberships(),
   '/api/v1/member/me/locker': const <dynamic>[],
   // 2026-08-27: 서버(`services/hyphen/api/gym.py:1398`)는 `balance` 로 준다 —

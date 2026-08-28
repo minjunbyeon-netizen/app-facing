@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:timezone/data/latest.dart' as tzdata;
+import 'package:timezone/timezone.dart' as tz;
 
 /// v1.17 로컬 푸시 코어 — Firebase 없이 SSE + 로컬 알림으로 사장·코치 폰 알림 제공.
 ///
@@ -19,6 +21,14 @@ class NotificationService {
   static const String _channelStaffId = 'hyphen_staff';
   static const String _channelStaffName = 'HYPHEN 코치 알림';
   static const String _channelStaffDesc = '신규 가입 신청·결제·예약 등 운영 알림';
+
+  /// 수업 시작 전 알림 채널 — 회원이 "오늘 몇 시에 예약했더라" 를 안 물어도 되게.
+  static const String _channelReminderId = 'hyphen_reminder';
+  static const String _channelReminderName = 'HYPHEN 수업 알림';
+  static const String _channelReminderDesc = '예약한 수업 시작 전 알림';
+
+  /// 수업 시작 몇 분 전에 알릴 것인가 (테스터 지시 2026-08-28 "1시간 전").
+  static const int reminderLeadMinutes = 60;
 
   static const String _channelMemberId = 'hyphen_member';
   static const String _channelMemberName = 'HYPHEN 회원 알림';
@@ -42,6 +52,10 @@ class NotificationService {
     const initSettings =
         InitializationSettings(android: androidInit, iOS: iosInit);
     await _plugin.initialize(initSettings);
+    // 예약 알림은 '그 체육관의 벽시계' 로 잡아야 한다 — 전 체육관 한국(KST 하나,
+    // 브리프 §2-0 4번)이라 지역을 고정한다. 기기 시간대가 달라도 수업 시각은 KST.
+    tzdata.initializeTimeZones();
+    tz.setLocalLocation(tz.getLocation('Asia/Seoul'));
 
     // Android 8+ 알림 채널 생성 (한 번만 — 시스템이 중복 무시).
     final androidPlugin = _plugin
@@ -64,6 +78,16 @@ class NotificationService {
           _channelMemberName,
           description: _channelMemberDesc,
           importance: Importance.defaultImportance,
+        ),
+      );
+      await androidPlugin.createNotificationChannel(
+        const AndroidNotificationChannel(
+          _channelReminderId,
+          _channelReminderName,
+          description: _channelReminderDesc,
+          importance: Importance.high,
+          playSound: true,
+          enableVibration: true,
         ),
       );
     }
@@ -177,6 +201,21 @@ class NotificationService {
           importance: Importance.high,
           priority: Priority.high,
         );
+      // 2026-08-28 테스터 지시 — "쪽지가 왔을 때 직접적인 알람이 떠야 하는데 오지 않음".
+      // 종전엔 note.new 에 spec 이 없어 조용히 버려졌다. 쪽지는 사람이 나에게
+      // 보낸 것이라 공지·수업 내용보다 급하다 — high 로 띄운다.
+      case 'note.new':
+        final sender = (inner['sender_name'] ?? '').toString().trim();
+        final preview = (inner['preview'] ?? '').toString().trim();
+        return _NotifSpec(
+          // 쪽지마다 따로 쌓이게 note_id 로 id 를 나눈다 (덮어쓰면 놓친다).
+          id: _idFor('note', inner['note_id']),
+          channelId: _channelMemberId,
+          title: sender.isNotEmpty ? '[HYPHEN] $sender 코치' : '[HYPHEN] 새 쪽지',
+          body: preview.isNotEmpty ? preview : '새 쪽지가 도착했습니다.',
+          importance: Importance.high,
+          priority: Priority.high,
+        );
       case 'announcement.posted':
         return _NotifSpec(
           id: _idFor('announce', inner['announcement_id']),
@@ -203,6 +242,67 @@ class NotificationService {
   int _idFor(String prefix, dynamic suffix) {
     final s = '$prefix:$suffix';
     return s.hashCode & 0x7FFFFFFF;
+  }
+
+  // ─── 수업 예약 알림 (2026-08-28 테스터 지시) ──────────────────────────
+  //
+  // "오늘 몇 시 예약했더라 하고 까먹을 수도 있기 때문" — 시작 1시간 전에 폰이
+  // 먼저 알린다. 서버 푸시(FCM) 없이 **기기에 예약**해 두는 로컬 알림이라
+  // 오프라인이어도 뜬다. 예약을 취소하면 같은 id 로 지운다.
+
+  /// 예약 1건의 알림 id — 예약 id 로 고정해야 취소·재예약에서 정확히 맞물린다.
+  int reminderId(int reservationId) => _idFor('resv', reservationId);
+
+  /// 수업 시작 [reminderLeadMinutes] 분 전 알림을 건다.
+  /// 이미 그 시각이 지났으면 아무것도 하지 않는다 (지난 알림을 즉시 울리지 않게).
+  Future<void> scheduleClassReminder({
+    required int reservationId,
+    required String title,
+    required DateTime startAt,
+  }) async {
+    if (!(Platform.isAndroid || Platform.isIOS)) return;
+    if (!_initialized) await init();
+    final when = tz.TZDateTime.from(startAt, tz.local)
+        .subtract(const Duration(minutes: reminderLeadMinutes));
+    if (!when.isAfter(tz.TZDateTime.now(tz.local))) return;
+    final hh = startAt.hour.toString().padLeft(2, '0');
+    final mm = startAt.minute.toString().padLeft(2, '0');
+    try {
+      await _plugin.zonedSchedule(
+        reminderId(reservationId),
+        '[HYPHEN] $hh:$mm $title',
+        '수업 시작 $reminderLeadMinutes분 전입니다.',
+        when,
+        NotificationDetails(
+          android: const AndroidNotificationDetails(
+            _channelReminderId,
+            _channelReminderName,
+            channelDescription: _channelReminderDesc,
+            importance: Importance.high,
+            priority: Priority.high,
+          ),
+          iOS: const DarwinNotificationDetails(
+            presentAlert: true, presentBadge: false, presentSound: true),
+        ),
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+      );
+      debugPrint('[NOTIF] reminder set resv=$reservationId at $when');
+    } catch (e) {
+      // 정확 알람 권한이 없는 기기 등 — 알림이 없다고 예약 자체가 실패하면 안 된다.
+      debugPrint('[NOTIF] reminder schedule failed: $e');
+    }
+  }
+
+  /// 예약을 취소했으면 걸어 둔 알림도 지운다 (안 오는 수업을 알리지 않는다).
+  Future<void> cancelClassReminder(int reservationId) async {
+    if (!_initialized) return;
+    try {
+      await _plugin.cancel(reminderId(reservationId));
+    } catch (e) {
+      debugPrint('[NOTIF] reminder cancel failed: $e');
+    }
   }
 
   Future<void> cancelAll() => _plugin.cancelAll();

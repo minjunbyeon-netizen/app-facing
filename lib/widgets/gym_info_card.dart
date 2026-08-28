@@ -65,17 +65,17 @@ class GymInfoCard extends StatelessWidget {
                   children: [
                     Text(
                       name,
-                      style: HyphenTokens.h3
+                      style: HyphenTokens.h2
                           .copyWith(fontWeight: FontWeight.w800),
                     ),
-                    const SizedBox(height: HyphenTokens.sp1),
+                    const SizedBox(height: HyphenTokens.sp2),
                     _IconRow(icon: Icons.location_on_outlined, text: location),
                     if (phone.isNotEmpty) ...[
-                      const SizedBox(height: 2),
+                      const SizedBox(height: HyphenTokens.sp1),
                       _IconRow(icon: Icons.phone_outlined, text: phone),
                     ],
                     if (kakao.isNotEmpty) ...[
-                      const SizedBox(height: 2),
+                      const SizedBox(height: HyphenTokens.sp1),
                       _IconRow(icon: Icons.chat_bubble_outline, text: kakao),
                     ],
 
@@ -204,6 +204,12 @@ class _CoachRow extends StatelessWidget {
   }
 }
 
+/// 주소·전화 한 줄.
+///
+/// 2026-08-28 테스터 보고 — "체육관 정보가 너무 작게 뜨는 것 같음". 종전엔 주소·
+/// 전화가 caption(13sp·흐림) + 13px 아이콘이었다. 이 둘은 부연이 아니라 회원이
+/// **실제로 쓰는 값**이다 (길 찾고 전화 건다). 본문 크기(body)로 올리고 흐림을
+/// 걷는다. 잔글씨로 적어 두고 "썼다" 고 하면 안 읽히는 것과 같다.
 class _IconRow extends StatelessWidget {
   const _IconRow({required this.icon, required this.text});
   final IconData icon;
@@ -212,10 +218,16 @@ class _IconRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 13, color: HyphenTokens.muted),
-        const SizedBox(width: HyphenTokens.sp1),
-        Expanded(child: Text(text, style: HyphenTokens.caption)),
+        Padding(
+          padding: const EdgeInsets.only(top: 2),
+          child: Icon(icon, size: 16, color: HyphenTokens.muted),
+        ),
+        const SizedBox(width: HyphenTokens.sp2),
+        Expanded(
+          child: Text(text, style: HyphenTokens.body.copyWith(height: 1.5)),
+        ),
       ],
     );
   }

@@ -10,6 +10,7 @@ import '../../core/theme.dart';
 import '../../core/wod_session_bus.dart';
 import '../../models/achievement.dart';
 import '../../widgets/hkit.dart';
+import '../classes/today_reservations.dart';
 import '../../widgets/inbox_bell.dart';
 import '../../widgets/offline_banner.dart';
 import '../achievement/achievement_section.dart';
@@ -333,6 +334,9 @@ class _GamificationBody extends StatelessWidget {
       children: [
         // v1.23 Phase 4: 공지/쪽지 아코디언 — 화면 최상단(게이미피케이션 위).
         const _NoticeAccordion(key: HomeScreen.kNotice),
+        // 2026-08-28 테스터 지시 — "오늘 몇 시 예약했더라" 에 홈에서 바로 답한다.
+        // 예약이 없으면 통째로 숨으므로 평소 레이아웃은 그대로다.
+        const TodayReservationsCard(),
         // LEVEL 카드 = 캐릭터 + 진화.
         _LevelCard(
           key: HomeScreen.kLevel,

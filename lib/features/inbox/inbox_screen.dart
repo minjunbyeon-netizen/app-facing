@@ -915,6 +915,8 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
     _repo = InboxRepository(api);
     _gymRepo = GymRepository(api);
     _future = _repo.listMessages(widget.gymId, peer: widget.peerHash);
+    // 열자마자 읽음으로 — 화면에 떠 있는 동안 새로 오는 것도 _reload 가 처리한다.
+    _markVisibleRead();
     _sseSub = _listenNoteNew(context, () {
       if (mounted) _reload();
     });
@@ -924,6 +926,21 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
     setState(() {
       _future = _repo.listMessages(widget.gymId, peer: widget.peerHash);
     });
+    _markVisibleRead();
+  }
+
+  /// 이 대화에서 **내가 받은 안 읽은 쪽지**를 읽음으로 넘긴다 (2026-08-28).
+  /// 종전엔 대화를 다 읽고 나와도 벨의 빨간 등이 남았다 — 읽음 처리가 쪽지
+  /// 상세 화면에만 있었기 때문. 회원이 실제로 쓰는 길은 이 대화 화면이다.
+  Future<void> _markVisibleRead() async {
+    final msgs = await _future;
+    if (msgs == null || !mounted) return;
+    final unreadIds = msgs
+        .where((m) => !m.mine && m.status == 'sent')
+        .map((m) => m.id)
+        .toList();
+    if (unreadIds.isEmpty) return;
+    await context.read<InboxState>().markThreadRead(unreadIds);
   }
 
   Future<void> _send() async {

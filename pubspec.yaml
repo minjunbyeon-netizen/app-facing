@@ -41,6 +41,9 @@ dependencies:
   # v1.17 로컬 푸시 — Firebase 없는 자체 알림 (SSE + Foreground Service + 로컬 노티)
   flutter_local_notifications: ^17.2.3
   permission_handler: ^11.3.1
+  # 예약 수업 1시간 전 알림(zonedSchedule)이 쓰는 시간대 DB. flutter_local_notifications
+  # 가 이미 끌어오지만, 직접 import 하므로 명시 의존으로 적는다 (2026-08-28).
+  timezone: ^0.9.4
 
 dev_dependencies:
   flutter_test:
