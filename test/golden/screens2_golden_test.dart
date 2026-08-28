@@ -11,6 +11,7 @@ import 'package:hyphen_app/features/contracts/member_contracts_screen.dart';
 import 'package:hyphen_app/features/gym/member_approvals_screen.dart';
 import 'package:hyphen_app/features/gym/gym_repository.dart';
 import 'package:hyphen_app/features/gym/gym_state.dart';
+import 'package:hyphen_app/features/gym/week_board.dart';
 import 'package:hyphen_app/features/inbox/inbox_screen.dart';
 import 'package:hyphen_app/features/mypage/edit_profile_screen.dart';
 import 'package:hyphen_app/features/mypage/strength_board_screen.dart';
@@ -37,7 +38,8 @@ void main() {
     quoteRandom = Random(7);
   });
 
-  // ── 회원: 수업 예약 — 수업 탭 주간보드 (v3.25: /classes 별도 화면 삭제) ──
+  // ── 회원: 수업 예약 — 수업 탭 '수업 시간' 칸 (v3.37 기본 진입) ──
+  // (v3.25: /classes 별도 화면 삭제 → 주간보드 안에서 예약)
   testWidgets('member: classes reserve list', (tester) async {
     phone(tester);
     SharedPreferences.setMockInitialValues(signedInPrefs());
@@ -54,6 +56,37 @@ void main() {
       ),
     );
     await capture(tester, 'member_07_classes');
+  });
+
+  // ── 회원: 수업 탭 '프로그램' 칸 (v3.37 · 2026-08-29 테스터 "프로그램과 수업은
+  // 분리시킵니다") ──
+  // 같은 주·같은 날을 보되 그날 **프로그램만** 나온다 (수업 시간 줄 없음).
+  // 수업 시간 칸 짝 = member_07_classes — 두 장을 나란히 보면 위쪽(칸 전환·주간
+  // 이동·요일 줄)이 그대로고 아래 내용만 바뀐 것이 보인다.
+  testWidgets('member: classes program pane', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi(memberWorld());
+    final gym = GymState(GymRepository(api), sse: FakeSse());
+    await gym.loadMine();
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        gym: gym,
+        home: const BoxWodScreen(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.descendant(
+        of: find.byKey(WeekBoard.kPaneSwitch),
+        matching: find.text(WeekBoard.paneProgram),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await capture(tester, 'member_26_program');
   });
 
   // ── 회원: 체육관 정보 카드 ──
@@ -136,6 +169,9 @@ void main() {
         home: const MainShell(),
       ),
     );
+    // v3.37: 프로그램은 수업 탭 '프로그램' 칸에 있다 (기본 진입은 '수업 시간').
+    await tester.pump(const Duration(milliseconds: 300));
+    await tapProgramPane(tester);
     // HkBadge 는 라벨을 대문자로 렌더한다 (105kg → 105KG).
     await tester.tap(find.textContaining('기록 105KG×3').first);
     await tester.pumpAndSettle();
@@ -208,6 +244,8 @@ void main() {
       ),
     );
     await tester.pump(const Duration(milliseconds: 300));
+    // v3.37: 프로그램은 수업 탭 '프로그램' 칸에 있다 (기본 진입은 '수업 시간').
+    await tapProgramPane(tester);
     await tester.ensureVisible(find.text('자세히').first);
     await tester.tap(find.text('자세히').first);
     await tester.pump(const Duration(milliseconds: 400));
@@ -231,6 +269,8 @@ void main() {
       ),
     );
     await tester.pump(const Duration(milliseconds: 300));
+    // v3.37: 프로그램은 수업 탭 '프로그램' 칸에 있다 (기본 진입은 '수업 시간').
+    await tapProgramPane(tester);
     await tester.ensureVisible(find.text('메시지').first);
     await tester.tap(find.text('메시지').first);
     await tester.pump(const Duration(milliseconds: 400));

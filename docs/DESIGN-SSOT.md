@@ -97,6 +97,7 @@
 | `HkNoticeSlot` | **안내·에러 예약 자리 유일 규격** (v3.33) — 높이 `noticeSlotH`(56) 고정, 비어도 자리를 지킨다. 내용은 `HkInlineError` |
 | `HkButton(busy:)` | 처리 중 — 버튼을 치우지 않고 같은 자리에서 스피너만. primary 는 면 색 유지 (비활성 회색 금지) |
 | `HkInlineError` | 폼 안 인라인 에러 박스 (로그인 실패 등) · `onRetry` 주면 목록 위 한 줄 배너. 전면 = HkErrorState, 스낵 = HkSnack.error |
+| `HkSegment` | **n칸 전환 유일 규격** (v3.35) — 같은 목록을 다른 기준으로 보는 상호 배타 선택. r1 사각 · 높이 40 고정 · 켜진 칸 면 반전. 배지 여럿을 늘어놓는 필터 칩과 다르다 (한 줄을 n 등분한 한 덩어리). 쓰는 곳 = 업적 3칸(전체/진행 중/완료) · 수업 탭 2칸(수업 시간/프로그램, v3.37) |
 | `HkTabBar` | **하단 탭바 유일 규격** (v3.25) — 회원 셸·코치 셸 공용. 셸은 destinations 만 준다 |
 | `ClassLine` (classes/) | 수업 한 줄 유일 규격 (v3.25) — `.coach`(인원+명단) / `.member`(예약 배지). 코치 예약 현황·주간보드 공용 |
 | `MembershipStatusView` (gym/) | 미가입·승인 대기·거절 화면 한 벌 (v3.25) — 셸 게이트·수업 탭 공용 |

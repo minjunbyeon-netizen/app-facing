@@ -360,6 +360,7 @@ R5. **하드코드 fontSize 금지.** 모든 텍스트 크기는 `HyphenTokens` 
 | 로그인 버튼 | "네이버 아이디로 로그인" (1순위) · "구글로 시작" — FkSocialButton |
 | 로그인 진행 | HkButton(busy: true) — 버튼 자리 그대로, 그 안에서 스피너만 (v3.33 D67) |
 | 셸 3탭 | 홈 · 수업 · 내 정보 (v3.0 — 크로스핏 표기 철수) |
+| 수업 탭 2칸 | **수업 시간** · **프로그램** (v3.37 · 2026-08-29 테스터 "프로그램과 수업은 분리시킵니다"). HkSegment 한 줄 — 기본 진입 = 수업 시간(예약이 주 목적). 주·펼친 날은 두 칸 공용. 빈 문구는 칸 이름을 따른다 — 수업 시간 '등록된 수업 없음.' / 프로그램 '아직 게시 전.'·'게시된 프로그램 없음.' |
 | 온보딩 | "1RM 입력" → "Benchmarks" → "내 Tier" · 제출 "Engine 측정" · 진행 "계산 중" |
 | 오프라인 배너 | "오프라인" + "연결 시 동기화." |
 | 에러 공통 | FkErrorState — 메시지 + "다시 시도" |
@@ -413,7 +414,7 @@ python tool/golden_gallery.py               # 단일 HTML 갤러리 (build/golde
 가짜 백엔드(`test/golden/fakes.dart` — ApiClient implements, 네트워크 0)로 실물 픽셀 렌더
 (갤S22 급 360×780·2x). 폰트는 `test/flutter_test_config.dart` 가 FontManifest 전체
 (Pretendard·MaterialIcons)를 로드. 참조 아키텍처: `apps/writeplz-app` 골든스탠다드.
-현재 **70장** (2026-08-28 알림 받기 — state_24_notifications_on · state_25_notifications_blocked 신규: 내 정보 '알림 받기' 한 줄 토글(종류별로 나누지 않음)과 폰 설정에서 막혀 있을 때의 표시. 관문 회귀 = `test/notification_gate_test.dart`, 행 높이 불변 = `test/golden/stability_mypage_test.dart` 7 상태. 직전 68장 = 2026-08-28 잔손질 — coach_05_member_approvals 신규: 가입 신청 화면 첫 캡처, 신청자 연락처가 탭 자리(터치 48)가 됐다. 직전 67장 = 테스터 확정 D69 — state_22_late_cancel_dialog · state_23_cancel_dialog 신규: 시작 20분 전을 지난 취소를 막지 않고 '늦은 취소 · 차감될 수 있음' 한 줄 고지, 20분 전까지는 무문구. 두 상태의 문구 유무 게이트 = `test/golden/cancel_dialog_notice_test.dart`. 직전 65장 = 2026-08-28 테스터 지시 — member_25_gym_info 신규: 체육관 정보 카드 주소·전화를 본문 크기로. 직전 64장 = v3.35 업적 E 안 — member_24_trophy_room(목록 행 탭 → 트로피 룸) ·
+현재 **71장** (2026-08-29 테스터 지시 "프로그램과 수업은 분리시킵니다" — member_26_program 신규: 수업 탭 '프로그램' 칸. 짝인 member_07_classes 는 '수업 시간' 칸으로 재생성됐다 (기본 진입). 두 칸 회귀 = `test/golden/week_pane_test.dart`, 칸 전환 밀림 = `test/golden/stability_wod_test.dart` 두 검사. 직전 70장 = 2026-08-28 알림 받기 — state_24_notifications_on · state_25_notifications_blocked 신규: 내 정보 '알림 받기' 한 줄 토글(종류별로 나누지 않음)과 폰 설정에서 막혀 있을 때의 표시. 관문 회귀 = `test/notification_gate_test.dart`, 행 높이 불변 = `test/golden/stability_mypage_test.dart` 7 상태. 직전 68장 = 2026-08-28 잔손질 — coach_05_member_approvals 신규: 가입 신청 화면 첫 캡처, 신청자 연락처가 탭 자리(터치 48)가 됐다. 직전 67장 = 테스터 확정 D69 — state_22_late_cancel_dialog · state_23_cancel_dialog 신규: 시작 20분 전을 지난 취소를 막지 않고 '늦은 취소 · 차감될 수 있음' 한 줄 고지, 20분 전까지는 무문구. 두 상태의 문구 유무 게이트 = `test/golden/cancel_dialog_notice_test.dart`. 직전 65장 = 2026-08-28 테스터 지시 — member_25_gym_info 신규: 체육관 정보 카드 주소·전화를 본문 크기로. 직전 64장 = v3.35 업적 E 안 — member_24_trophy_room(목록 행 탭 → 트로피 룸) ·
 state_21_achievements_loading(스켈레톤) 신규, member_12·ach_01 은 분류별 목록으로 재생성.
 안정성 게이트 = `test/golden/achievements_stability_test.dart`. 직전 62장 = 2026-08-28 실측 — state_20_inbox_threads 신규: 쪽지함 꽉 찬 상태(코치 쪽지+자동 알림), 홈페이지·스토어 스크린샷 소스. 직전 61장 = 2026-08-27 실측 — D67 로그인 고정 레이아웃으로 3장 증가:
 state_17_login_error · state_18_login_validation · state_19_login_busy 신규,

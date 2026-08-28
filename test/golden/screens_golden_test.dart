@@ -261,6 +261,9 @@ void main() {
         home: const MainShell(),
       ),
     );
+    // v3.37: 프로그램은 수업 탭 '프로그램' 칸에 있다 (기본 진입은 '수업 시간').
+    await tester.pump(const Duration(milliseconds: 300));
+    await tapProgramPane(tester);
     await tester.tap(find.text('완료 표시').first);
     await tester.pumpAndSettle();
     await capture(tester, 'member_06_result_sheet');

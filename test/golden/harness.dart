@@ -18,6 +18,7 @@ import 'package:hyphen_app/features/boss/boss_api_client.dart';
 import 'package:hyphen_app/features/boss/boss_auth_state.dart';
 import 'package:hyphen_app/features/gym/gym_repository.dart';
 import 'package:hyphen_app/features/gym/gym_state.dart';
+import 'package:hyphen_app/features/gym/week_board.dart';
 import 'package:hyphen_app/features/inbox/inbox_repository.dart';
 import 'package:hyphen_app/features/inbox/inbox_state.dart';
 import 'package:hyphen_app/features/profile/profile_state.dart';
@@ -142,6 +143,20 @@ Future<void> precacheAllImages(WidgetTester tester) async {
 Future<void> tapTab(WidgetTester tester, String label) async {
   await tester.tap(
     find.descendant(of: find.byType(NavigationBar), matching: find.text(label)),
+  );
+  await tester.pump(const Duration(milliseconds: 300));
+}
+
+/// 수업 탭 '프로그램' 칸으로 전환 (v3.37 · 2026-08-29).
+///
+/// 수업 탭은 이제 칸이 둘이고 기본 진입은 '수업 시간'(예약)이다. 그날 프로그램
+/// 카드('완료 표시'·'메시지'·'자세히')를 거쳐 가는 캡처는 먼저 이 칸으로 옮긴다.
+Future<void> tapProgramPane(WidgetTester tester) async {
+  await tester.tap(
+    find.descendant(
+      of: find.byKey(WeekBoard.kPaneSwitch),
+      matching: find.text(WeekBoard.paneProgram),
+    ),
   );
   await tester.pump(const Duration(milliseconds: 300));
 }

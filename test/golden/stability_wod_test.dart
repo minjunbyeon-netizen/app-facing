@@ -340,6 +340,57 @@ Future<void> dayClassesError(WidgetTester tester) async {
   expect(find.text(_classError), findsOneWidget);
 }
 
+// ── 두 칸: 수업 시간 ↔ 프로그램 (v3.37 · 2026-08-29) ────────────────────────
+//
+// 칸을 바꾸는 것은 **아래 내용만** 갈아 끼우는 일이다. 칸 전환 줄·주간 이동
+// 줄·요일 줄은 두 칸에서 같은 자리에 있어야 손이 기억한 위치로 계속 갈 수 있다.
+//
+// 앵커는 '펼친 날까지' 다. 그 아래 요일 줄은 펼쳐진 내용의 높이만큼 밀리는데,
+// 두 칸이 보여 주는 것이 애초에 다르므로(수업 두 줄 ↔ 프로그램 카드) 높이가
+// 같을 수 없다 — 같게 만들려면 짧은 쪽에 빈 띠를 넣어야 하고, 그건 D69 에서
+// 이미 틀린 처방으로 판정났다. 대신 **접힌 상태**를 따로 재서 일곱 줄 전부가
+// 두 칸에서 같은 자리인지 확인한다 (아래 두 번째 검사).
+
+Future<void> _pumpPane(WidgetTester tester, String pane) async {
+  await _pumpWodTab(tester, api: FakeApi(_tabWorld(_oneClassToday())));
+  if (pane != WeekBoard.paneSchedule) {
+    await tester.tap(
+      find.descendant(
+        of: find.byKey(WeekBoard.kPaneSwitch),
+        matching: find.text(pane),
+      ),
+    );
+    await _settle(tester);
+  }
+}
+
+Future<void> paneSchedule(WidgetTester tester) async {
+  await _pumpPane(tester, WeekBoard.paneSchedule);
+  expect(find.byType(ClassLine), findsOneWidget);
+}
+
+Future<void> paneProgram(WidgetTester tester) async {
+  await _pumpPane(tester, WeekBoard.paneProgram);
+  expect(find.byType(ClassLine), findsNothing);
+}
+
+/// 펼친 날(수요일)을 다시 눌러 접는다 — 일곱 줄만 남은 상태.
+/// 요일 글자를 눌러야 한다 — 타일 전체를 누르면 펼쳐진 내용 한가운데를 눌러
+/// 접히지 않는다 (2026-08-29 실측: 그래서 '접힘' 상태가 아니었다).
+Future<void> _pumpPaneCollapsed(WidgetTester tester, String pane) async {
+  await _pumpPane(tester, pane);
+  await tester.tap(
+    find.descendant(of: find.byKey(WeekBoard.dayKey(2)), matching: find.text('수')),
+  );
+  await _settle(tester);
+}
+
+Future<void> paneScheduleCollapsed(WidgetTester tester) =>
+    _pumpPaneCollapsed(tester, WeekBoard.paneSchedule);
+
+Future<void> paneProgramCollapsed(WidgetTester tester) =>
+    _pumpPaneCollapsed(tester, WeekBoard.paneProgram);
+
 void main() {
   testWidgets('수업 상세 — 네 구역이 어느 순서로 도착해도 앵커 y 가 같다', (tester) async {
     final table = await expectStableAnchorY(
@@ -401,6 +452,44 @@ void main() {
     // ignore: avoid_print
     print(formatAnchorTable(table));
     _writeTable('week_board', table);
+  });
+
+  testWidgets('수업 탭 두 칸 — 칸을 바꿔도 칸 전환·주간 이동·펼친 날까지 안 밀린다', (
+    tester,
+  ) async {
+    final table = await expectStableAnchorY(
+      tester,
+      states: {'수업 시간 칸': paneSchedule, '프로그램 칸': paneProgram},
+      anchors: {
+        '칸전환줄': WeekBoard.kPaneSwitch,
+        '주간이동줄': WeekBoard.kWeekNav,
+        '월요일줄': WeekBoard.dayKey(0),
+        '화요일줄': WeekBoard.dayKey(1),
+        '펼친날(수)': WeekBoard.dayKey(2),
+      },
+    );
+    // ignore: avoid_print
+    print(formatAnchorTable(table));
+    _writeTable('week_panes', table);
+  });
+
+  testWidgets('수업 탭 두 칸 — 접으면 일곱 줄 전부가 두 칸에서 같은 자리다', (tester) async {
+    final table = await expectStableAnchorY(
+      tester,
+      states: {
+        '수업 시간 칸(접힘)': paneScheduleCollapsed,
+        '프로그램 칸(접힘)': paneProgramCollapsed,
+      },
+      anchors: {
+        '칸전환줄': WeekBoard.kPaneSwitch,
+        '주간이동줄': WeekBoard.kWeekNav,
+        for (var i = 0; i < 7; i++) '${i + 1}번째줄': WeekBoard.dayKey(i),
+        '체육관정보': BoxWodScreen.kGymInfo,
+      },
+    );
+    // ignore: avoid_print
+    print(formatAnchorTable(table));
+    _writeTable('week_panes_collapsed', table);
   });
 }
 

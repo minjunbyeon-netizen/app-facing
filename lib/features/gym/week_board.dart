@@ -23,8 +23,16 @@ import '../../core/time_format.dart';
 ///
 /// 전에는 오늘·예정·지난 3섹션이 세로로 이어져 오늘 것을 보려면 어느 덩어리를
 /// 봐야 하는지부터 골라야 했다. 이제 한 주가 7줄로 고정되고, 요일·날짜를 누르면
-/// 그날 WOD 와 수업이 그 자리에서 펼쳐진다 (한 번에 하나만). 수업 줄 오른쪽에
-/// 예약 버튼이 붙어 "보고 → 바로 예약"이 한 화면에서 끝난다.
+/// 그날 것이 그 자리에서 펼쳐진다 (한 번에 하나만).
+///
+/// v3.37 (2026-08-29 테스터 지시 "수업에는 수업 시간표에 대한 내용만 있어야
+/// 합니다. 프로그램과 수업은 분리시킵니다"): 하루를 펼치면 **한 카드 안에**
+/// 프로그램(수업 내용)과 수업 시간이 세로로 쌓여, 예약하러 들어온 사람이 운동
+/// 설명을 다 지나쳐야 예약 버튼에 닿았다. 이제 위에 칸 두 개를 두고 한 칸이
+/// 한 가지만 보여 준다 — **수업 시간**(예약) · **프로그램**(그날 내용).
+///
+/// 주(週)와 펼친 날은 두 칸이 함께 쓴다 (여기 State 한 벌뿐이라 칸을 바꿔도
+/// 보던 자리가 그대로다). 기본 진입은 수업 시간 — 이 탭의 주 목적이 예약이다.
 class WeekBoard extends StatefulWidget {
   final GymState gymState;
 
@@ -34,6 +42,15 @@ class WeekBoard extends StatefulWidget {
   /// 요일 줄은 제자리에 있어야 한다 (0=월 … 6=일).
   /// 회귀 게이트 = test/golden/stability_wod_test.dart.
   static Key dayKey(int index) => ValueKey('week-day-$index');
+
+  /// 칸 전환 줄 · 주간 이동 줄 (v3.37) — 칸을 바꿔도 이 둘과 그 아래 요일 줄이
+  /// 같은 y 에 있어야 한다. 회귀 게이트 = test/golden/stability_wod_test.dart.
+  static const Key kPaneSwitch = Key('week-pane-switch');
+  static const Key kWeekNav = Key('week-nav');
+
+  /// 칸 이름 — 골든·회귀 테스트가 이 문자열로 칸을 누른다 (§0-B).
+  static const String paneSchedule = '수업 시간';
+  static const String paneProgram = '프로그램';
 
   /// 펼친 날의 '수업 시간' 구역이 미리 잡아 두는 자리 (공간 예약).
   /// 값 = 수업 한 줄(ClassLine)의 실측 높이 — 로딩 스켈레톤·'없음' 문구·수업
@@ -51,6 +68,8 @@ class _WeekBoardState extends State<WeekBoard> {
   late DateTime _today;
   late DateTime _weekStart; // 그 주 월요일 00:00
   late int _selected; // 0(월)~6(일)
+  /// false = 수업 시간(예약) · true = 프로그램. 기본은 수업 시간.
+  bool _program = false;
   List<ClassSessionDto> _classes = const [];
   bool _classesLoading = false;
   bool _classesError = false;
@@ -142,6 +161,15 @@ class _WeekBoardState extends State<WeekBoard> {
     setState(() => _selected = _selected == i ? -1 : i);
   }
 
+  /// 칸 전환. 주(`_weekStart`)와 펼친 날(`_selected`)은 건드리지 않는다 —
+  /// 보던 자리를 유지하는 것이 이 배선의 전부다 (기억이 아니라 구조).
+  void _selectPane(int i) {
+    final program = i == 1;
+    if (program == _program) return;
+    Haptic.light();
+    setState(() => _program = program);
+  }
+
   @override
   Widget build(BuildContext context) {
     final gs = widget.gymState;
@@ -163,6 +191,13 @@ class _WeekBoardState extends State<WeekBoard> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        HkSegment(
+          key: WeekBoard.kPaneSwitch,
+          labels: const [WeekBoard.paneSchedule, WeekBoard.paneProgram],
+          selected: _program ? 1 : 0,
+          onSelected: _selectPane,
+        ),
+        const SizedBox(height: HyphenTokens.sp2),
         _weekHeader(),
         const SizedBox(height: HyphenTokens.sp2),
         HkCard(
@@ -178,6 +213,7 @@ class _WeekBoardState extends State<WeekBoard> {
                   isToday: _weekStart.add(Duration(days: i)) == _today,
                   isSelected: _selected == i,
                   isLast: i == 6,
+                  program: _program,
                   wods:
                       wodsByDate[ymd(_weekStart.add(Duration(days: i)))] ??
                       const [],
@@ -224,6 +260,7 @@ class _WeekBoardState extends State<WeekBoard> {
         _today.isBefore(_weekStart.add(const Duration(days: 7)));
     String md(DateTime d) => '${d.month}.${d.day}';
     return Row(
+      key: WeekBoard.kWeekNav,
       children: [
         IconButton(
           onPressed: () => _shiftWeek(-1),
@@ -270,13 +307,17 @@ class _WeekBoardState extends State<WeekBoard> {
   }
 }
 
-/// 하루 = 접힌 줄 하나. 펼치면 그날 WOD + 수업(예약 버튼 포함).
+/// 하루 = 접힌 줄 하나. 펼치면 지금 보고 있는 칸의 것 **하나만** — 수업 시간
+/// 칸이면 수업 줄(예약 버튼 포함), 프로그램 칸이면 그날 프로그램 (v3.37).
 class _DayTile extends StatelessWidget {
   final DateTime date;
   final String weekdayLabel;
   final bool isToday;
   final bool isSelected;
   final bool isLast;
+
+  /// true = 프로그램 칸 · false = 수업 시간 칸.
+  final bool program;
   final List<GymWodPost> wods;
   final List<ClassSessionDto> classes;
   final bool classesLoading;
@@ -295,6 +336,7 @@ class _DayTile extends StatelessWidget {
     required this.isToday,
     required this.isSelected,
     required this.isLast,
+    required this.program,
     required this.wods,
     required this.classes,
     required this.classesLoading,
@@ -310,30 +352,59 @@ class _DayTile extends StatelessWidget {
   bool get _isFuture => date.isAfter(today);
   bool get _isPast => date.isBefore(today);
 
-  /// 요일 줄 오른쪽 한 줄 요약.
+  /// 요일 줄 오른쪽 한 줄 요약 — **펼치지 않고도 그날을 고를 수 있게** 하는 줄이라
+  /// 지금 보고 있는 칸이 답해야 하는 질문에 답한다 (v3.37).
   ///
-  /// 2026-08-28 테스터 보고 — "수업 외 2 라고 되어 있는 것보다 프로그램 항목이
-  /// 있으면 좋겠다". 종전 문구 `'$first 외 ${n}'` 은 "수업(타입) **외** 2건" 이라는
-  /// 뜻이었는데, 읽는 사람에겐 **'수업외' 라는 분류가 2개** 로 읽혔다. 뜻이 뒤집혀
-  /// 읽히는 문구는 없는 것만 못하다.
-  ///
-  /// 그래서 개수 대신 **그날 프로그램 이름을 그대로** 적는다 — 코치가 시간표에
-  /// 적어 둔 이름이 곧 회원이 아는 이름이다 (AWAKE·SWEAT·BUILD). 좁은 줄이라
-  /// 최대 3개까지 적고 넘으면 `+N` 으로 센다 (그때의 N 은 '더 있다' 는 뜻이라
-  /// 오해할 여지가 없다).
-  String get _summary {
+  /// 2026-08-28 테스터 보고 — "수업 외 2 라고 되어 있는 것보다 항목 이름이 있으면
+  /// 좋겠다". 종전 문구 `'$first 외 ${n}'` 은 "그 수업 **외** 2건" 이라는 뜻이었는데,
+  /// 읽는 사람에겐 **'수업외' 라는 분류가 2개** 로 읽혔다. 뜻이 뒤집혀 읽히는 문구는
+  /// 없는 것만 못하다. 그래서 개수 대신 **이름을 그대로** 적는다.
+  String get _summary => program ? _programSummary : _scheduleSummary;
+
+  /// 수업 시간 칸 — "그날 무슨 수업이 도느냐". 코치가 시간표에 적어 둔 수업 이름이
+  /// 곧 회원이 아는 이름이다 (AWAKE·SWEAT·BUILD).
+  String get _scheduleSummary {
     final names = <String>[];
     for (final c in classes) {
       final t = c.title.trim();
       if (t.isNotEmpty && !names.contains(t)) names.add(t);
     }
-    if (names.isEmpty) {
-      // 수업이 없는 날 — 게시된 수업 내용만 있으면 그 종류를 적는다.
-      if (wods.isNotEmpty) return wodTypeLabel(wods.first.wodType);
-      return classesLoading ? '' : '일정 없음';
+    if (names.isEmpty) return classesLoading ? '' : '수업 없음';
+    return _joined(names);
+  }
+
+  /// 프로그램 칸 — "그날 무엇을 하느냐". 수업 이름은 옆 칸의 것이므로 여기엔
+  /// 안 적는다 (그게 두 칸을 나눈 이유다).
+  String get _programSummary {
+    final names = <String>[];
+    for (final w in wods) {
+      final n = _programName(w);
+      if (n.isNotEmpty && !names.contains(n)) names.add(n);
     }
-    if (names.length <= 3) return names.join(' · ');
-    return '${names.take(3).join(' · ')} +${names.length - 3}';
+    if (names.isEmpty) return _isFuture ? '게시 전' : '프로그램 없음';
+    return _joined(names);
+  }
+
+  /// 좁은 줄이라 최대 3개까지 적고 넘으면 `+N` 으로 센다 (그때의 N 은 '더 있다'
+  /// 는 뜻이라 오해할 여지가 없다).
+  static String _joined(List<String> names) => names.length <= 3
+      ? names.join(' · ')
+      : '${names.take(3).join(' · ')} +${names.length - 3}';
+
+  /// 프로그램 한 건의 이름표.
+  ///
+  /// 종류(FOR TIME·AMRAP·EMOM)가 곧 이름이다. 다만 PC 에서 자동 게시된 글은
+  /// 종류가 `custom` 이라 라벨이 '수업' 인데, 프로그램 칸에서 '수업' 은 옆 칸을
+  /// 가리키는 말로 읽힌다 — 그때는 본문 첫 줄을 대신 적는다 (코치가 쓴 말이
+  /// 가장 정확한 이름표다). 잠긴 글은 본문이 비어 오므로 잠긴 사유를 적는다.
+  static String _programName(GymWodPost w) {
+    if (w.locked) return '회원권 만료';
+    if (w.wodType != 'custom') return wodTypeLabel(w.wodType);
+    for (final line in w.content.split('\n')) {
+      final t = line.trim();
+      if (t.isNotEmpty) return t;
+    }
+    return '게시됨';
   }
 
   @override
@@ -417,18 +488,11 @@ class _DayTile extends StatelessWidget {
                 HyphenTokens.sp3,
                 HyphenTokens.sp3,
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // v3.0 (2026-08-14): 게시물 면 = '수업 내용', 시간표 면 = '수업 시간'
-                  // — '수업' 단독 표기가 두 면 중 어느 쪽인지 안 읽히던 것을 분리.
-                  const HkSectionLabel('수업 내용'),
-                  _wodBlock(),
-                  const SizedBox(height: HyphenTokens.sp3),
-                  const HkSectionLabel('수업 시간'),
-                  _classBlock(),
-                ],
-              ),
+              // v3.37: 칸 이름이 이미 어느 면인지 말하므로 구역 라벨을 다시 달지
+              // 않는다 (DESIGN-SSOT §7-D 8 — 같은 말을 두 번 쓰지 않는다).
+              // 구 v3.0 의 '수업 내용'·'수업 시간' 두 라벨은 한 카드에 두 면이
+              // 쌓여 있을 때 어느 쪽인지 갈라 주던 것이라 칸 분리로 소임이 끝났다.
+              child: program ? _wodBlock() : _classBlock(),
             ),
         ],
       ),
@@ -440,7 +504,9 @@ class _DayTile extends StatelessWidget {
       return Padding(
         padding: const EdgeInsets.only(top: HyphenTokens.sp1),
         child: Text(
-          _isFuture ? '아직 게시 전.' : '게시된 수업 내용 없음.',
+          // v3.37: 칸 이름이 '프로그램' 이므로 없는 것도 프로그램이라고 부른다
+          // — 칸 이름과 빈 문구가 다른 것을 가리키면 그게 곧 헷갈림이다.
+          _isFuture ? '아직 게시 전.' : '게시된 프로그램 없음.',
           style: HyphenTokens.caption,
         ),
       );
