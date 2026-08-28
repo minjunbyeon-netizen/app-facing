@@ -181,6 +181,65 @@ void main() {
     await capture(tester, 'state_08_waitlist_cancel_dialog');
   });
 
+  // ── 늦은 취소 확인 — 시작 20분 전을 지난 예약 (2026-08-28 테스터 확정) ──
+  // 막지 않는다. 대신 차감될 수 있다는 사실을 누르기 전에 한 줄로 알린다.
+  // 안내가 없는 구간(20분 전까지)은 state_23 이 짝으로 찍는다 — 두 캡처를
+  // 나란히 보면 안내 한 줄이 붙고 빠지는 차이만 남는다.
+  testWidgets('state: late cancel dialog', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi({
+      ...memberWorld(),
+      '/api/v1/member/classes': memberClassesLateCancel(),
+    });
+    final gym = GymState(GymRepository(api), sse: FakeSse());
+    await gym.loadMine();
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        gym: gym,
+        home: const BoxWodScreen(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('취소'));
+    await tester.pumpAndSettle();
+    expect(find.text('예약을 취소할까요?'), findsOneWidget);
+    expect(find.textContaining('늦은 취소로 기록됩니다'), findsOneWidget);
+    await capture(tester, 'state_22_late_cancel_dialog');
+  });
+
+  // ── 평상시 취소 확인 — 시작 20분 전까지 (안내 없음) ──
+  // 늦은 취소(state_22)의 짝. 흔한 쪽이 캡처에 없으면 안내 자리가 평소에
+  // 어떻게 보이는지를 아무도 못 본다.
+  testWidgets('state: cancel dialog', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi({
+      ...memberWorld(),
+      '/api/v1/member/classes': memberClassesReserved(),
+    });
+    final gym = GymState(GymRepository(api), sse: FakeSse());
+    await gym.loadMine();
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        gym: gym,
+        home: const BoxWodScreen(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('취소'));
+    await tester.pumpAndSettle();
+    expect(find.text('예약을 취소할까요?'), findsOneWidget);
+    expect(find.textContaining('늦은 취소'), findsNothing);
+    await capture(tester, 'state_23_cancel_dialog');
+  });
+
   _wornTitleGoldens();
   _rememberedLoginGolden();
 }

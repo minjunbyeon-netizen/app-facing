@@ -90,7 +90,7 @@
 | `HkSocialButton` | 소셜 로그인 버튼 유일 규격 — 높이 52 · r3 · 마크+라벨 중앙 |
 | `BrandLogo` | 브랜드 로고 정본 — **기본 폭 220 고정** (진입·로딩 화면 전부 동일) |
 | `HkAppBar` / `.identity` | **상단바 유일 규격** (v3.24) — push 화면은 제목(+actions), 셸은 체육관명+역할 두 줄. 화면에서 `AppBar(` 직접 금지 |
-| `HkDialog.confirm/info/custom` | **다이얼로그 유일 규격** (v3.24) — 모양은 dialogTheme(r4), 버튼은 HkButton. 위험 확정은 `danger: true` |
+| `HkDialog.confirm/info/custom` | **다이얼로그 유일 규격** (v3.24) — 모양은 dialogTheme(r4), 버튼은 HkButton. 위험 확정은 `danger: true`. 상황에 따라 붙는 안내 한 줄은 `notice:` (브리프 D69 — 열린 뒤 붙거나 빠지지 않으므로 자리를 미리 잡지 않는다) |
 | `HkSheet.show` | **바텀시트 유일 규격** (v3.24) — 모양은 bottomSheetTheme(상단 r5), 항상 스크롤 제어 |
 | `HkBackBar` | **고정 높이 상단 띠 유일 규격** (v3.33) — 높이 `appBarH`(52) 고정, 뒤로 갈 곳이 있을 때만 화살표. 구분선 없음. 제목·actions 가 필요하면 `HkAppBar` |
 | `HkNoticeSlot` | **안내·에러 예약 자리 유일 규격** (v3.33) — 높이 `noticeSlotH`(56) 고정, 비어도 자리를 지킨다. 내용은 `HkInlineError` |
@@ -300,6 +300,11 @@ v3.31 삭제 — README §제거된 기능 대장 11·31):
 
 > 현재 적용: 로그인 6 상태 (`test/golden/layout_stability_test.dart`).
 > 새 화면에 적용할 때는 상태 목록 + 앵커 키만 주면 된다.
+>
+> **적용 경계 (2026-08-28 D69)**: 이 규칙은 *보고 있는 화면 안에서* 상태가 바뀌는
+> 자리에만 쓴다 — 검증 문구·로딩·에러처럼 눈앞에서 붙었다 빠지는 것. 열릴 때
+> 내용이 정해져 그 뒤로 변하지 않는 자리(예: 취소 확인 다이얼로그의 차감 안내)에
+> 공간을 예약하면, 안 붙는 쪽에 빈 띠만 남아 미완성으로 보인다.
 
 ## 8. 변경 절차
 

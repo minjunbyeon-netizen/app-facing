@@ -639,6 +639,37 @@ List<Map<String, dynamic>> memberClassesWithEnded() {
   ];
 }
 
+/// /api/v1/member/classes — 시작 20분 전을 지난 내 예약 (늦은 취소 안내 캡처용).
+/// kTestClock 10:30 기준 10:45 시작 = 15분 남음 → `isLateCancel` true.
+/// 시작 전이라 '취소' 배지는 그대로 눌린다 (2026-08-28 테스터 확정 — 막지 않는다).
+List<Map<String, dynamic>> memberClassesLateCancel() {
+  final now = appClock.now();
+  return [
+    {
+      'id': 104,
+      'gym_id': 1,
+      'start_at': '${_ymd(now)}T10:45:00',
+      'duration_minutes': 60,
+      'title': 'Metcon',
+      'description': '오늘의 수업 내용 · 스케일 옵션 제공',
+      'room': 'Main Floor',
+      'coach_user_id': 11,
+      'capacity': 12,
+      'waitlist_capacity': 4,
+      'reserved_count': 9,
+      'waitlist_count': 0,
+      'status': 'scheduled',
+      'my_reservation': {
+        'reservation_id': 56,
+        'status': 'confirmed',
+        'promoted_from_waitlist': false,
+      },
+      'my_waitlist_position': null,
+    },
+    ...memberClasses(),
+  ];
+}
+
 /// /api/v1/member/classes — 21시 만석 수업에 내가 대기 1번 (대기 취소 캡처용).
 List<Map<String, dynamic>> memberClassesWaitlisted() {
   final list = memberClasses();

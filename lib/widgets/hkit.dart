@@ -1345,36 +1345,65 @@ class HkDialog {
     HyphenTokens.sp3,
   );
 
+  /// 두 버튼의 앵커 — 레이아웃 안정성 좌표 검사가 이 키로 버튼 자리를 잰다
+  /// (`test/golden/layout_stability.dart`).
+  static const Key kCancelButton = Key('hk_dialog_cancel');
+  static const Key kConfirmButton = Key('hk_dialog_confirm');
+
   /// 취소/확정 두 버튼. 확정이면 true.
+  ///
+  /// [notice] 는 상황이 부르면 본문 아래 붙는 안내 한 줄이다 (예: 늦은 취소
+  /// 차감). 다이얼로그가 열린 뒤 붙거나 빠지지 않으므로 자리를 미리 잡지
+  /// 않는다 — 안내 없는 다이얼로그는 빈 띠 없이 본문 바로 아래가 버튼이다.
   static Future<bool> confirm(
     BuildContext context, {
     required String title,
     String? message,
+    String? notice,
     String confirmLabel = '확인',
     String cancelLabel = '취소',
     bool danger = false,
   }) async {
+    // 안내가 붙으면 폭을 슬롯(전체)에 맞추고, 없으면 종전처럼 글자 폭에 맞춘다.
+    final Widget? content = notice != null
+        ? Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (message != null) ...[
+                Text(message),
+                const SizedBox(height: HyphenTokens.sp2),
+              ],
+              HkInlineError(notice),
+            ],
+          )
+        : message == null
+        ? null
+        : Text(message);
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(title),
-        content: message == null ? null : Text(message),
+        content: content,
         actionsPadding: _actionsPad,
         actions: [
           HkButton.tertiary(
             cancelLabel,
+            key: kCancelButton,
             neutral: true,
             onPressed: () => Navigator.pop(ctx, false),
           ),
           danger
               ? HkButton.primary(
                   confirmLabel,
+                  key: kConfirmButton,
                   expand: false,
                   danger: true,
                   onPressed: () => Navigator.pop(ctx, true),
                 )
               : HkButton.tertiary(
                   confirmLabel,
+                  key: kConfirmButton,
                   onPressed: () => Navigator.pop(ctx, true),
                 ),
         ],
