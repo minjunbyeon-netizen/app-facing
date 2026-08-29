@@ -31,8 +31,14 @@ import '../../core/time_format.dart';
 /// 설명을 다 지나쳐야 예약 버튼에 닿았다. 이제 위에 칸 두 개를 두고 한 칸이
 /// 한 가지만 보여 준다 — **수업 시간**(예약) · **프로그램**(그날 내용).
 ///
+/// v3.40 (2026-08-29 사용자 지시 "수업시간-프로그램 순서 바꾸자. 프로그램 누르면
+/// 그날 되는 운동목록이 한번에 보이게"): 칸 순서를 **프로그램 · 수업 시간**으로
+/// 뒤집고 기본 진입도 프로그램으로. 탭을 열면 "오늘 뭐 하지"가 먼저 답해지고,
+/// 예약하러 온 사람은 옆 칸 한 번이면 된다.
+///
 /// 주(週)와 펼친 날은 두 칸이 함께 쓴다 (여기 State 한 벌뿐이라 칸을 바꿔도
-/// 보던 자리가 그대로다). 기본 진입은 수업 시간 — 이 탭의 주 목적이 예약이다.
+/// 보던 자리가 그대로다). 단 **프로그램 칸으로 갈 때는 오늘을 펼친다** — 그 칸의
+/// 목적이 "오늘 운동"이라 접힌 채로 열리면 답이 안 보인다.
 class WeekBoard extends StatefulWidget {
   final GymState gymState;
 
@@ -68,8 +74,8 @@ class _WeekBoardState extends State<WeekBoard> {
   late DateTime _today;
   late DateTime _weekStart; // 그 주 월요일 00:00
   late int _selected; // 0(월)~6(일)
-  /// false = 수업 시간(예약) · true = 프로그램. 기본은 수업 시간.
-  bool _program = false;
+  /// false = 수업 시간(예약) · true = 프로그램. 기본은 **프로그램** (v3.40).
+  bool _program = true;
   List<ClassSessionDto> _classes = const [];
   bool _classesLoading = false;
   bool _classesError = false;
@@ -161,13 +167,23 @@ class _WeekBoardState extends State<WeekBoard> {
     setState(() => _selected = _selected == i ? -1 : i);
   }
 
-  /// 칸 전환. 주(`_weekStart`)와 펼친 날(`_selected`)은 건드리지 않는다 —
-  /// 보던 자리를 유지하는 것이 이 배선의 전부다 (기억이 아니라 구조).
+  /// 칸 전환. 주(`_weekStart`)는 건드리지 않는다 — 보던 주가 그대로다.
+  ///
+  /// v3.40: **프로그램 칸으로 갈 때만 오늘을 펼친다.** 그 칸은 "오늘 뭐 하지"에
+  /// 답하는 자리라 접힌 채로 열리면 아무것도 안 보인다. 보고 있던 주에 오늘이
+  /// 없으면(지난 주·다음 주) 건드리지 않는다 — 없는 날을 펼칠 수는 없다.
+  /// 수업 시간 칸은 종전대로 보던 자리를 유지한다.
   void _selectPane(int i) {
-    final program = i == 1;
+    final program = i == 0;
     if (program == _program) return;
     Haptic.light();
-    setState(() => _program = program);
+    setState(() {
+      _program = program;
+      if (program) {
+        final todayIdx = _today.difference(_weekStart).inDays;
+        if (todayIdx >= 0 && todayIdx < 7) _selected = todayIdx;
+      }
+    });
   }
 
   @override
@@ -193,8 +209,8 @@ class _WeekBoardState extends State<WeekBoard> {
       children: [
         HkSegment(
           key: WeekBoard.kPaneSwitch,
-          labels: const [WeekBoard.paneSchedule, WeekBoard.paneProgram],
-          selected: _program ? 1 : 0,
+          labels: const [WeekBoard.paneProgram, WeekBoard.paneSchedule],
+          selected: _program ? 0 : 1,
           onSelected: _selectPane,
         ),
         const SizedBox(height: HyphenTokens.sp2),

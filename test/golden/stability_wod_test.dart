@@ -307,6 +307,19 @@ Future<void> tabBanner(WidgetTester tester) async {
 
 // ── 주간 보드: 펼친 날의 '수업 시간' 구역 ────────────────────────────────────
 
+/// v3.40 — 기본 진입이 '프로그램' 이 됐다. 아래 네 상태는 전부 **수업 시간 칸**의
+/// 것이라 재기 전에 옮긴다. `pumpAndSettle` 을 쓰지 않는다 — 로딩 상태(hangPaths)
+/// 에서는 영영 안 멎는다.
+Future<void> _toSchedulePane(WidgetTester tester) async {
+  await tester.tap(
+    find.descendant(
+      of: find.byKey(WeekBoard.kPaneSwitch),
+      matching: find.text(WeekBoard.paneSchedule),
+    ),
+  );
+  await tester.pump(const Duration(milliseconds: 300));
+}
+
 Future<void> dayClassesLoading(WidgetTester tester) async {
   await _pumpWodTab(
     tester,
@@ -315,17 +328,20 @@ Future<void> dayClassesLoading(WidgetTester tester) async {
       hangPaths: {'/api/v1/member/classes'},
     ),
   );
+  await _toSchedulePane(tester);
   expect(find.text(_classEmpty), findsNothing); // 로딩을 '없음' 으로 속이지 않는다
   expect(find.byType(ClassLine), findsNothing);
 }
 
 Future<void> dayClassesArrived(WidgetTester tester) async {
   await _pumpWodTab(tester, api: FakeApi(_tabWorld(_oneClassToday())));
+  await _toSchedulePane(tester);
   expect(find.byType(ClassLine), findsOneWidget);
 }
 
 Future<void> dayClassesEmpty(WidgetTester tester) async {
   await _pumpWodTab(tester, api: FakeApi(_tabWorld(const <dynamic>[])));
+  await _toSchedulePane(tester);
   expect(find.text(_classEmpty), findsOneWidget);
 }
 
@@ -337,6 +353,7 @@ Future<void> dayClassesError(WidgetTester tester) async {
       errorPaths: {'/api/v1/member/classes'},
     ),
   );
+  await _toSchedulePane(tester);
   expect(find.text(_classError), findsOneWidget);
 }
 
@@ -353,15 +370,15 @@ Future<void> dayClassesError(WidgetTester tester) async {
 
 Future<void> _pumpPane(WidgetTester tester, String pane) async {
   await _pumpWodTab(tester, api: FakeApi(_tabWorld(_oneClassToday())));
-  if (pane != WeekBoard.paneSchedule) {
-    await tester.tap(
-      find.descendant(
-        of: find.byKey(WeekBoard.kPaneSwitch),
-        matching: find.text(pane),
-      ),
-    );
-    await _settle(tester);
-  }
+  // v3.40 — 기본 진입이 프로그램이 됐다. 이미 그 칸이면 눌러도 무해하므로
+  // 어느 칸을 재든 항상 한 번 누른다 (기본값이 또 바뀌어도 안 깨진다).
+  await tester.tap(
+    find.descendant(
+      of: find.byKey(WeekBoard.kPaneSwitch),
+      matching: find.text(pane),
+    ),
+  );
+  await _settle(tester);
 }
 
 Future<void> paneSchedule(WidgetTester tester) async {

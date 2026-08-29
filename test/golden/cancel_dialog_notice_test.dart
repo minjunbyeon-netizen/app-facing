@@ -66,6 +66,9 @@ Future<void> _openCancelDialog(
     ),
   );
   await tester.pumpAndSettle();
+  // v3.40 — 수업 탭 기본 진입이 '프로그램' 이다. 예약 취소 줄은 옆 칸에 있다.
+  await tapSchedulePane(tester);
+  await tester.pumpAndSettle();
   await tester.tap(find.text('취소'));
   await tester.pumpAndSettle();
   expect(find.text('예약을 취소할까요?'), findsOneWidget);

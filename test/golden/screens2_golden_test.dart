@@ -11,7 +11,6 @@ import 'package:hyphen_app/features/contracts/member_contracts_screen.dart';
 import 'package:hyphen_app/features/gym/member_approvals_screen.dart';
 import 'package:hyphen_app/features/gym/gym_repository.dart';
 import 'package:hyphen_app/features/gym/gym_state.dart';
-import 'package:hyphen_app/features/gym/week_board.dart';
 import 'package:hyphen_app/features/inbox/inbox_screen.dart';
 import 'package:hyphen_app/features/mypage/edit_profile_screen.dart';
 import 'package:hyphen_app/features/mypage/strength_board_screen.dart';
@@ -38,8 +37,9 @@ void main() {
     quoteRandom = Random(7);
   });
 
-  // ── 회원: 수업 예약 — 수업 탭 '수업 시간' 칸 (v3.37 기본 진입) ──
+  // ── 회원: 수업 예약 — 수업 탭 '수업 시간' 칸 ──
   // (v3.25: /classes 별도 화면 삭제 → 주간보드 안에서 예약)
+  // v3.40 (2026-08-29): 칸 순서가 뒤집혀 기본 진입이 '프로그램' 이다 — 옆 칸으로 옮긴다.
   testWidgets('member: classes reserve list', (tester) async {
     phone(tester);
     SharedPreferences.setMockInitialValues(signedInPrefs());
@@ -55,6 +55,9 @@ void main() {
         home: const BoxWodScreen(),
       ),
     );
+    await tester.pumpAndSettle();
+    await tapSchedulePane(tester);
+    await tester.pumpAndSettle();
     await capture(tester, 'member_07_classes');
   });
 
@@ -63,6 +66,7 @@ void main() {
   // 같은 주·같은 날을 보되 그날 **프로그램만** 나온다 (수업 시간 줄 없음).
   // 수업 시간 칸 짝 = member_07_classes — 두 장을 나란히 보면 위쪽(칸 전환·주간
   // 이동·요일 줄)이 그대로고 아래 내용만 바뀐 것이 보인다.
+  // v3.40 (2026-08-29 사용자 지시): 이 칸이 **기본 진입**이 됐다.
   testWidgets('member: classes program pane', (tester) async {
     phone(tester);
     SharedPreferences.setMockInitialValues(signedInPrefs());
@@ -79,13 +83,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(
-      find.descendant(
-        of: find.byKey(WeekBoard.kPaneSwitch),
-        matching: find.text(WeekBoard.paneProgram),
-      ),
-    );
-    await tester.pumpAndSettle();
+    // v3.40 — 프로그램이 기본 진입이라 전환이 필요 없다 (오늘이 펼쳐진 채로 열린다).
     await capture(tester, 'member_26_program');
   });
 
@@ -144,6 +142,9 @@ void main() {
         home: const BoxWodScreen(),
       ),
     );
+    await tester.pumpAndSettle();
+    await tapSchedulePane(tester);
+    await tester.pumpAndSettle();
     await capture(tester, 'member_08_classes_reserved');
   });
 

@@ -61,8 +61,9 @@ Future<void> _tapPane(WidgetTester tester, String label) async {
 void main() {
   testWidgets('수업 시간 칸 — 수업 줄만 있고 프로그램은 없다', (tester) async {
     await _pumpTab(tester);
+    // v3.40 — 기본 진입은 '프로그램' 이다. 예약 줄을 보려면 옆 칸으로.
+    await _tapPane(tester, WeekBoard.paneSchedule);
 
-    // 기본 진입이 수업 시간이다 (예약이 이 탭의 주 목적).
     expect(find.byType(ClassLine), findsWidgets);
     // 프로그램은 옆 칸의 것 — 한 조각도 새어 나오지 않아야 한다.
     expect(find.byType(WodRow), findsNothing);
@@ -72,8 +73,7 @@ void main() {
 
   testWidgets('프로그램 칸 — 프로그램만 있고 수업 시간 줄은 없다', (tester) async {
     await _pumpTab(tester);
-    await _tapPane(tester, WeekBoard.paneProgram);
-
+    // v3.40 — 기본 진입이 여기다 (사용자 지시 "프로그램 누르면 그날 운동목록이").
     expect(find.byType(WodRow), findsWidgets);
     // 수업 시간 줄(과 그 오른쪽 예약 배지)은 옆 칸의 것.
     expect(find.byType(ClassLine), findsNothing);
