@@ -591,6 +591,28 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > - 회귀: 골든 `coach_01`(주간) 재생성 · `coach_02` 삭제 · `coach_04_new_note_members` 신규 ·
 >   `coach_03` 재생성(그룹 버튼 없음).
 
+> **D88-2·3 (2026-08-30 집행) — 완료 = 예약한 사람만·수업 시작 후 (서버) · 동작 조건 업적 "X 동작을 Y 기간 Z 번" (서버·PC).
+> 사용자 지시 "다하고나면 너가 직접, 코치로 운동 짜보고, 회원으로(PC 에뮬레이터) 예약하고 운동 완료 눌러서 …
+> 포인트·업적도 달성되는지 체크 … X운동을 Y시간동안 Z번 하면 완료-업적 트리거도 설정해놓고 (가상) ㄱㄱ".**
+>
+> - **완료 게이트 정본 = `services/completion_gate.py completion_check`** (한 곳). 수업 종류(template)에 묶인 그날 운동은
+>   같은 날·같은 종류 수업에 `RESERVED_STATUSES` 예약이 있어야 하고(없으면 403 `RESERVATION_REQUIRED` "예약한 수업만
+>   완료할 수 있습니다."), 그 수업 시작 시각을 지나야 한다(403 `CLASS_NOT_STARTED` "수업 시작 후에 완료할 수 있습니다.").
+>   단발 수업은 그 세션으로, 손 게시물(연결 없음)은 종전대로 누구나, 코치 기기는 게이트 없음. 결과 행에 `class_session_id`
+>   저장(어느 수업의 완료인지). 앱은 무변경 — 결과 시트가 서버 문구를 그대로 띄운다(D67 인라인 에러 자리).
+> - **이음새 결함 수정**: 리워드 '수업 기록'(wod_log) 트리거가 페이싱 표 `WOD` 만 세고 회원 수업 결과(`gym_wod_results`)를
+>   안 셌다 → 두 원천을 합친다(pr 분기와 같은 결). `submit_wod_result` 가 wod_log 트리거도 평가한다(종전 pr·attendance 만).
+> - **동작 조건 = `gym_reward_rules.movement_id`** (NULL 허용, wod_log 트리거만). 판정 = 결과의 게시물 `stored_movements` 에
+>   그 동작이 있는가(`program_lines.post_has_movement` 한 곳). 기간 Y·횟수 Z 는 기존 조건 슬롯(window week/month·lifetime·
+>   condition_value) 그대로 — 새 조건 타입 없음. `_sentence` 가 "Thruster 포함 수업 기록 누적 1회 달성 시 30P 적립 + 업적
+>   부여" 로 읽어 준다. PC 규칙 빌더에 '동작 (선택)' 드롭다운(사전, `name` 그대로) + '동작 목표 — 매주 3회 50P' 프리셋.
+>   `movement_id: null` 은 값 기준으로 "없음"(키 존재로 400 내지 않는다 — PC 가 모든 트리거에 키를 보낸다).
+> - **곁가지 결함(선재)**: 규칙 삭제가 카탈로그 행을 숨김으로 남기는데 SQLite 가 규칙 id 를 재사용해 같은 `RULE_n` code 로
+>   INSERT → UNIQUE 500 (E2E 첫 규칙 생성에서 재현). `create_rule` 이 같은 code 행을 되살려 덮어쓴다 + 회귀 테스트.
+> - 게이트: `tests/test_completion_and_movement_rule_d88.py` · `test_reward_rules.py::test_recreate_rule_after_delete_…`.
+>   서버 전량 555 passed (`test_roundtrip_numbers::test_reserved_count_survives_attendance_marking` 는 00:00~00:30 KST 에만
+>   실패하는 자정 경계 시계 의존 — 코드 결함 아님, 00:30 뒤 재실행 통과 확인).
+
 > **D88-1 (2026-08-30 집행) — 1단계: 동작 사전 + 코치 드롭다운 (서버·PC). 앱 무변경.**
 >
 > - **동작 사전 = `movement_library`** (기존 60종 시드 — PC '동작 라이브러리' 탭이 이미 쓰던 표). D88 원문의
