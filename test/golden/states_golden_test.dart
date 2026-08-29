@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:hyphen_app/core/app_clock.dart';
-import 'package:hyphen_app/features/classes/class_line.dart';
+import 'package:hyphen_app/features/classes/class_flows.dart';
 import 'package:hyphen_app/core/notification_service.dart';
 import 'package:hyphen_app/core/quotes.dart';
 import 'package:hyphen_app/features/achievement/achievements_screen.dart';
@@ -417,7 +417,8 @@ void _rememberedLoginGolden() {
     await capture(tester, 'state_11_class_membership_required');
   });
 
-  // ── 예약 오픈 전 — 모레 수업 배지가 '오픈 전' (D58 · 2026-08-26 전날 11시 오픈) ──
+  // ── 예약 오픈 전 — '예약' 을 누르면 캐릭터 스낵바 '예약 가능한 시간이 아니에요'
+  //    (D58 전날 11시 오픈 · D82 2026-08-29 버튼은 살려 두고 누르면 안내) ──
   testWidgets('state: classes booking not open', (tester) async {
     phone(tester);
     SharedPreferences.setMockInitialValues(signedInPrefs());
@@ -443,9 +444,18 @@ void _rememberedLoginGolden() {
     final dayAfter = appClock.now().add(const Duration(days: 2));
     await tester.tap(find.text('${dayAfter.day}').first);
     await tester.pumpAndSettle();
-    // D82 — 배지 '오픈 전' 대신 플레이스홀더 문구. 문구 정본 = class_line.dart.
-    expect(find.text(kBookingNotOpenNote), findsOneWidget);
+    // D82 — 배지는 '예약' 그대로(잠그지 않는다). 누르면 서버를 두드리지 않고
+    // 담담한 캐릭터 스낵바. 문구 정본 = class_flows.dart kBookingNotOpenSnack.
     expect(find.text('오픈 전'), findsNothing);
+    final tomorrow = appClock.now().add(const Duration(days: 1));
+    await tester.tap(find.text('예약'.toUpperCase()).last);
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(
+      find.text(
+        '$kBookingNotOpenSnack\n${tomorrow.month}/${tomorrow.day} 11:00 부터',
+      ),
+      findsOneWidget,
+    );
     await capture(tester, 'state_15_class_booking_not_open');
   });
 

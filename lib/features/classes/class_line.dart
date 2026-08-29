@@ -6,9 +6,6 @@ import '../../core/time_format.dart';
 import '../../models/class_session.dart';
 import '../../widgets/hkit.dart';
 
-/// 예약 오픈 전 수업의 우측 슬롯 문구 (D82). 골든 `state_15` 와 검사가 같은 상수를 본다.
-const String kBookingNotOpenNote = '예약 가능한 시간이 아닙니다';
-
 /// 수업 한 줄 — 시각 · 이름/부제 · 우측 슬롯.
 ///
 /// v3.25 (2026-08-25 사용자 지시 "따로 있는 것 전부 통일"): 코치 예약 현황 탭의
@@ -163,14 +160,10 @@ class ClassLine extends StatelessWidget {
     if (!membershipOk) {
       return HkBadge('회원권 필요', color: HyphenTokens.muted, onTap: onReserve);
     }
-    // D58 (2026-08-26): 예약 오픈(전날 N시) 전. D82 (2026-08-29 사용자 지시 "지정한
-    // 시간이 아니어서 예약 버튼을 활용할 수 없더라도 플레이스홀더로 보여줘야 함"):
-    // 구 '오픈 전' 배지 대신 안내 문구를 세운다 — 왜 못 누르는지가 줄에서 바로 읽힌다.
-    // 탭은 그대로 서버로 보내 409 BOOKING_NOT_OPEN 문구("예약은 8/27 11:00 부터
-    // 가능합니다.")를 스낵바로 — 정확한 시각의 정본은 서버 하나.
-    if (session.isBookingNotOpen) {
-      return HkSlotNote(kBookingNotOpenNote, onTap: onReserve);
-    }
+    // D82 (2026-08-29 사용자 지시 "그 예약 버튼 누르고 싶은데, 아직 설정한 시간이
+    // 아닐 때 누르면 스낵바로 '예약 가능한 시간이 아니에요' 캐릭터와 함께"):
+    // 예약 오픈(전날 N시) 전이어도 '예약' 배지는 그대로 선다 — 여기서 잠그지 않는다.
+    // 누르면 reserveClassFlow 가 캐릭터 스낵바로 알린다 (구 D58 '오픈 전' 배지 폐기).
     final blocked =
         session.isFull && session.waitlistCount >= session.waitlistCapacity;
     if (blocked) return const HkBadge('마감', color: HyphenTokens.muted);

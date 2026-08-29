@@ -920,7 +920,7 @@ List<Map<String, dynamic>> memberMembershipsSessionPass() {
   ];
 }
 
-/// 예약 오픈 전 수업 — D58 '오픈 전' 배지 골든용 (state_15). 모레 수업, 오픈 = 내일 11:00.
+/// 예약 오픈 전 수업 — state_15 골든용 (D58 · D82 '예약' 누르면 캐릭터 스낵바). 모레 수업, 오픈 = 내일 11:00.
 List<Map<String, dynamic>> memberClassesBookingNotOpen() {
   final now = appClock.now();
   final dayAfter = _ymd(now.add(const Duration(days: 2)));

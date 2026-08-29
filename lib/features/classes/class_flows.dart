@@ -28,6 +28,20 @@ bool isLateCancel(ClassSessionDto c) => !appClock
 // v3.25 (2026-08-25): 구 `/classes` 화면(classes_screen.dart)을 지우면서 이 둘만
 // 남겼다 — 회원이 예약하는 자리는 수업 탭 주간보드 하나다.
 
+/// 예약 오픈 전에 '예약' 을 눌렀을 때의 스낵바 문구 (D82 · 2026-08-29 사용자 원문
+/// "예약 가능한 시간이 아니에요"). 골든 `state_15` 와 검사가 같은 상수를 본다.
+const String kBookingNotOpenSnack = '예약 가능한 시간이 아니에요';
+
+/// 예약 오픈 전 안내 — 담담한 캐릭터 스낵바. 실패(붉은 테두리·우는 얼굴)가 아니라
+/// 상태 안내다: 회원이 잘못한 게 없다. 오픈 시각은 서버가 준 `booking_open_at`
+/// 그대로 붙인다 (정책 계산을 앱에 두 번 적지 않는다).
+void _noticeBookingNotOpen(HkSnack messenger, ClassSessionDto c) {
+  final open = c.bookingOpenAt?.toLocal();
+  // 둘째 줄에 시각 — 한 줄로 이으면 스낵바 폭에서 '부터' 만 다음 줄로 떨어진다(골든 실측).
+  final when = open == null ? '' : '\n${open.month}/${open.day} ${hhmm(open)} 부터';
+  messenger.info('$kBookingNotOpenSnack$when', mood: MascotMood.neutral);
+}
+
 /// 예약 실행 — 성공/대기 등록 시 스낵바 + true, 실패 시 에러 스낵바 + false.
 Future<bool> reserveClassFlow(
   BuildContext context,
@@ -36,6 +50,13 @@ Future<bool> reserveClassFlow(
 ) async {
   Haptic.medium();
   final messenger = HkSnack.of(context);
+  // D82 — 오픈 전이면 서버를 두드리지 않고 바로 안내. 버튼은 살아 있다
+  // (사용자: "그 예약 버튼 누르고 싶은데"). 기기 시계가 틀려 여기를 지나쳐도
+  // 서버 409 BOOKING_NOT_OPEN 이 아래 catch 에서 같은 문구로 잡는다.
+  if (c.isBookingNotOpen) {
+    _noticeBookingNotOpen(messenger, c);
+    return false;
+  }
   try {
     final result = await repo.reserve(c.id);
     final status = (result['status'] ?? '').toString();
@@ -55,7 +76,11 @@ Future<bool> reserveClassFlow(
     );
     return true;
   } on AppException catch (e) {
-    messenger.fail(e.messageKo);
+    if (e.code == 'BOOKING_NOT_OPEN') {
+      _noticeBookingNotOpen(messenger, c);
+    } else {
+      messenger.fail(e.messageKo);
+    }
     return false;
   }
 }
