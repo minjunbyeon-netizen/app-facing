@@ -719,6 +719,12 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > - **선결제 매출 이중 기준 해소.** 홈 대시보드가 하한(이달 1일)만 걸어 다음 달 결제까지 이번 달로
 >   셌다. 결제 축 정의를 `_metrics.payment_revenue_in_month` 한 곳으로 합치고 두 창구가 그것을
 >   부른다. 회원권 **정가** 축(`gym_stats` 매출 추정)은 다른 사실이라 그대로 — 차액이 미수금이다.
+>   ⚠ **정정 (2026-08-29 16:05 실사)**: 여기서 합친 두 창구
+>   (`admin_dashboard.this_month_revenue` · `payments_admin.gym_revenue.net_revenue`)는
+>   **어느 화면도 쓰지 않는다** — PC 웹·폰 앱 전수 grep 0건. 코치가 실제로 보는 '이번 달 매출'
+>   (통계 화면)은 **정가 축 하나뿐**이다(`stats.month.revenue_estimate`). 결함은 사실이었으나
+>   (두 API 가 다른 답을 준다) **코치가 잘못된 숫자를 보고 있던 것은 아니다.**
+>   결제 축을 화면에 노출할지는 미결 — 사용자 판단 대기 (2026-08-29 "일단 추후").
 > - 회귀: 서버 `pytest tests/` **483 passed · 1 skipped · 18 xfailed** (직전 477·24 — 결함 6건의
 >   xfail 마커를 함께 걷었다) · `test_ssot_metrics_lint` 매출 baseline 5 → **3** ·
 >   앱 `flutter test`·`analyze` 무변경 통과 · 관리자 웹 `design/lint.py` baseline 유지.
