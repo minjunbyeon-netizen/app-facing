@@ -453,6 +453,56 @@ class HkBadge extends StatelessWidget {
   }
 }
 
+/// 슬롯 자리의 안내 문구 — 조작 컨트롤(배지·버튼)이 서야 할 자리에 "지금은 안 되는
+/// 이유" 를 세워 두는 플레이스홀더. D82 (2026-08-29 사용자 지시 "예약 버튼을 활용할 수
+/// 없더라도 플레이스홀더로 보여줘야 함 — '예약 가능한 시간이 아닙니다' 이런 느낌").
+///
+/// 배지(HkBadge)와 같은 자리에 서고, 높이는 caption 두 줄까지 — 줄의 왼쪽 두 줄(제목·
+/// 부제) 안에 들어가므로 상태가 바뀌어도 줄 높이가 흔들리지 않는다(레이아웃 안정성).
+/// onTap 을 주면 배지처럼 터치 48 을 세로로 확보한다 (탭 → 정확한 사유를 서버 문구로).
+class HkSlotNote extends StatelessWidget {
+  final String text;
+  final VoidCallback? onTap;
+
+  /// 문구 폭 — 기본 104: 배지 두 개('예약됨' + '취소')가 차지하던 폭과 같은 급이라
+  /// 제목 칸을 더 밀지 않는다.
+  final double width;
+
+  const HkSlotNote(
+    this.text, {
+    super.key,
+    this.onTap,
+    this.width = 104,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final note = SizedBox(
+      width: width,
+      child: Text(
+        text,
+        textAlign: TextAlign.right,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        style: HyphenTokens.caption.copyWith(color: HyphenTokens.muted),
+      ),
+    );
+    if (onTap == null) return note;
+    return Semantics(
+      button: true,
+      label: text,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(HyphenTokens.r1),
+        child: SizedBox(
+          height: HyphenTokens.touchMin,
+          child: Center(widthFactor: 1, child: note),
+        ),
+      ),
+    );
+  }
+}
+
 /// 통계 타일 — 라벨(위) + 값(아래). 홈 Milestones · 보스 대시보드 공용 형태.
 class HkStatTile extends StatelessWidget {
   final String label;

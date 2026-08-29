@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:hyphen_app/core/app_clock.dart';
+import 'package:hyphen_app/features/classes/class_line.dart';
 import 'package:hyphen_app/core/notification_service.dart';
 import 'package:hyphen_app/core/quotes.dart';
 import 'package:hyphen_app/features/achievement/achievements_screen.dart';
@@ -442,7 +443,9 @@ void _rememberedLoginGolden() {
     final dayAfter = appClock.now().add(const Duration(days: 2));
     await tester.tap(find.text('${dayAfter.day}').first);
     await tester.pumpAndSettle();
-    expect(find.text('오픈 전'), findsOneWidget);
+    // D82 — 배지 '오픈 전' 대신 플레이스홀더 문구. 문구 정본 = class_line.dart.
+    expect(find.text(kBookingNotOpenNote), findsOneWidget);
+    expect(find.text('오픈 전'), findsNothing);
     await capture(tester, 'state_15_class_booking_not_open');
   });
 
