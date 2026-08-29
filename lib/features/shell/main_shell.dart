@@ -11,6 +11,7 @@ import '../auth/auth_state.dart';
 import '../gym/box_wod_screen.dart';
 import '../gym/gym_repository.dart';
 import '../gym/gym_state.dart';
+import '../history/history_screen.dart';
 import '../home/home_screen.dart';
 import '../announcements/announcements_state.dart';
 import '../inbox/inbox_state.dart';
@@ -73,12 +74,20 @@ class _MainShellState extends State<MainShell> {
   // v1.27: 3탭 — Home(게이미피케이션) · WOD(보드) · Profile.
   // v3.0 (2026-08-14 사용자 지시): 크로스핏장이 아니므로 표기를 일반 용어로 —
   // 홈 · 수업 · 내 정보. 내부 심볼·라우트는 유지 (표기만 교체).
+  // D85 (2026-08-29 사용자 "하단 4번째 탭으로도 좀 줘"): **4탭** — 히스토리(내 수업
+  // 기록 + 검색, D84)를 탭으로도 연다. 내 정보 메뉴의 '히스토리' 줄은 그대로 둔다
+  // ("~로도"). 내 정보는 관례대로 맨 끝, 기본 진입(수업)은 그대로 1.
   static const List<_TabDef> _tabs = [
     _TabDef(icon: Icons.home_outlined, selectedIcon: Icons.home, label: '홈'),
     _TabDef(
       icon: Icons.list_alt_outlined,
       selectedIcon: Icons.list_alt,
       label: '수업',
+    ),
+    _TabDef(
+      icon: Icons.history_outlined,
+      selectedIcon: Icons.history,
+      label: '히스토리',
     ),
     _TabDef(
       icon: Icons.person_outline,
@@ -90,6 +99,7 @@ class _MainShellState extends State<MainShell> {
   late final List<Widget> _pages = [
     const HomeScreen(embedded: true),
     const BoxWodScreen(embedded: true),
+    const HistoryScreen(embedded: true),
     const MyPageScreen(embedded: true),
   ];
 

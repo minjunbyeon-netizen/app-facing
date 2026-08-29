@@ -41,6 +41,7 @@ SECTIONS = [
         ("onb_01_basic", "기본 정보 — 성별 · 운동 경력 (레벨 기준)"),
     ]),
     ("회원 셸", "회원 셸 3탭 — 홈 · 수업 · 내 정보 (승인된 회원 · HYPHEN CrossFit 서면)", [
+        ("member_27_shell_history", "히스토리 탭 (D85 · 2026-08-29 4탭) — 셸 상단바 하나 + 검색 칸 + 기록 목록(기본 world 는 0건)"),
         ("member_01_shell_wod", "수업 탭 (기본) — 그 주 월~일 아코디언 + 그날 수업 예약"),
         ("member_02_shell_home", "홈 탭 — 레벨 · 업적 · 마일스톤"),
         ("member_02b_home_notice",

@@ -156,7 +156,8 @@ void main() {
   // 있으나 회원이 도달할 수 없으므로 골든에서 뺀다. 진입점을 되살리면 이 두
   // 캡처도 같이 되살릴 것.
 
-  testWidgets('member: shell 3 tabs', (tester) async {
+  // D85 (2026-08-29): 4탭 — 홈 · 수업 · 히스토리 · 내 정보.
+  testWidgets('member: shell 4 tabs', (tester) async {
     phone(tester);
     SharedPreferences.setMockInitialValues(signedInPrefs());
     final api = FakeApi(memberWorld());
@@ -174,6 +175,10 @@ void main() {
     await capture(tester, 'member_01_shell_wod');
     await tapTab(tester, '홈');
     await capture(tester, 'member_02_shell_home');
+    // D85 — 히스토리 탭 (셸 상단바 하나 + 검색 칸 + 목록). 기본 world 는 기록 0건.
+    await tapTab(tester, '히스토리');
+    await tester.pumpAndSettle();
+    await capture(tester, 'member_27_shell_history');
     await tapTab(tester, '내 정보');
     await capture(tester, 'member_03_shell_profile');
     // v1.31 — 프로필 하단 메뉴. 접힘이 기본(헤더 한 줄) → 펼치면 표 1개.

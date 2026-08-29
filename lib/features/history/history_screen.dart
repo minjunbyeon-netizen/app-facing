@@ -17,7 +17,11 @@ import 'history_search.dart';
 /// 목록의 y 가 움직이지 않는다 (DESIGN-SSOT §레이아웃 안정성). 검색어가 비면 최근순,
 /// 치면 연관도순 — 순위 규칙은 `history_search.dart` 한 곳.
 class HistoryScreen extends StatefulWidget {
-  const HistoryScreen({super.key});
+  /// 회원 셸 4번째 탭으로 얹힐 때는 자기 AppBar 를 그리지 않는다 — 상단바는 셸 하나
+  /// (D85 · 2026-08-29 사용자 "하단 4번째 탭으로도 좀 줘"). 내 정보 메뉴에서 열면 false.
+  final bool embedded;
+
+  const HistoryScreen({super.key, this.embedded = false});
 
   /// 골든·안정성 검사 앵커.
   static const Key kSearch = Key('history-search');
@@ -67,7 +71,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const HkAppBar(title: '히스토리'),
+      appBar: widget.embedded ? null : const HkAppBar(title: '히스토리'),
       body: Column(
         children: [
           Padding(
