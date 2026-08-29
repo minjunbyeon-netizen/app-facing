@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
+import '../../core/futures.dart';
 import '../../core/haptic.dart';
 import '../../core/sse_client.dart';
 import '../../core/theme.dart';
@@ -519,7 +520,14 @@ class MessagingScreen extends StatelessWidget {
 
 /// 공지 + 코치/회원 대화목록 + 작성 진입을 한 덩어리로 묶은 임베드 위젯.
 /// Scaffold 없이 스크롤 부모(ListView) 안에 들어가도록 자체 스크롤을 쓰지 않는다.
-class MessagingFeed extends StatelessWidget {
+///
+/// D72 (2026-08-29 사용자 지시) — **회원은 '코치' / '활동' 두 칸**이다.
+/// > "쪽지는 쪽지고(코치와 대화), 업적알림 가입 예약완료 등등 이런건 활동로그
+/// >  이런걸 만들어서 거기에 그냥 쌓이게 하면 안돼?"
+/// 코치 칸 = 사람이 쓴 대화. 활동 칸 = 자동 통보(예약·결제·회원권·업적·가입).
+/// 나누는 판정은 **서버 한 곳**(coach_note._is_conversation)이라 겹치거나 새지 않는다.
+/// 코치 셸에는 칸을 두지 않는다 — 코치가 보는 것은 회원과의 대화뿐이다.
+class MessagingFeed extends StatefulWidget {
   // ── 레이아웃 안정성 앵커·자리 (v3.33 · 2026-08-27) ─────────────────────────
   // 회귀 게이트 = test/golden/stability_coach_inbox_test.dart.
 
@@ -536,7 +544,28 @@ class MessagingFeed extends StatelessWidget {
   /// 들어와도 대화 목록이 통째로 내려가지 않는다.
   static const double announcementSlotH = 123;
 
+  /// 칸 전환 — 골든·회귀 테스트가 이 키로 칸을 누른다.
+  static const Key kPaneSwitch = Key('inbox-pane-switch');
+
+  /// 칸 이름 (§0-B — 화면·테스트가 같은 문자열을 쓴다).
+  static const String paneCoach = '코치';
+  static const String paneActivity = '활동';
+
   const MessagingFeed({super.key});
+
+  @override
+  State<MessagingFeed> createState() => _MessagingFeedState();
+}
+
+class _MessagingFeedState extends State<MessagingFeed> {
+  bool _activity = false;
+
+  void _selectPane(int i) {
+    final activity = i == 1;
+    if (activity == _activity) return;
+    Haptic.light();
+    setState(() => _activity = activity);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -587,11 +616,31 @@ class MessagingFeed extends StatelessWidget {
                   _PinnedAnnouncement(announcements: ann.items),
             ),
           ),
-          _EmbeddedThreadList(
-            key: MessagingFeed.kThreadList,
-            gymId: gymId,
-            emptyHint: isCoach ? '회원 쪽지 도착 시 표시.' : '코치 쪽지 도착 시 표시.',
-          ),
+          // 회원만 두 칸 — 코치는 회원과의 대화 하나뿐이라 칸을 두지 않는다.
+          if (!isCoach) ...[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                HyphenTokens.sp4, HyphenTokens.sp2, HyphenTokens.sp4, 0),
+              child: HkSegment(
+                key: MessagingFeed.kPaneSwitch,
+                labels: const [
+                  MessagingFeed.paneCoach,
+                  MessagingFeed.paneActivity,
+                ],
+                selected: _activity ? 1 : 0,
+                onSelected: _selectPane,
+              ),
+            ),
+            const SizedBox(height: HyphenTokens.sp2),
+          ],
+          if (isCoach || !_activity)
+            _EmbeddedThreadList(
+              key: MessagingFeed.kThreadList,
+              gymId: gymId,
+              emptyHint: isCoach ? '회원 쪽지 도착 시 표시.' : '코치 쪽지 도착 시 표시.',
+            )
+          else
+            _ActivityList(key: MessagingFeed.kThreadList, gymId: gymId),
         ],
       ],
     );
@@ -770,6 +819,154 @@ class _EmbeddedThreadListState extends State<_EmbeddedThreadList> {
           ],
         );
       },
+    );
+  }
+}
+
+/// 활동 칸 — 자동 통보만 시간순 (D72 · 2026-08-29).
+///
+/// 숨은 칸이라 처음 열릴 때 FutureBuilder 가 늦게 붙는다 — 에러가 unhandled 로
+/// 새지 않게 `retainError` 로 감싼다 (CLAUDE.md §골든 캡처).
+class _ActivityList extends StatefulWidget {
+  final int gymId;
+  const _ActivityList({super.key, required this.gymId});
+
+  @override
+  State<_ActivityList> createState() => _ActivityListState();
+}
+
+class _ActivityListState extends State<_ActivityList> {
+  late final InboxRepository _repo;
+  Future<InboxResult>? _future;
+  StreamSubscription<SseEvent>? _sseSub;
+
+  @override
+  void initState() {
+    super.initState();
+    _repo = InboxRepository(context.read<ApiClient>());
+    _future = retainError(_repo.listActivity(widget.gymId));
+    _sseSub = _listenNoteNew(context, () {
+      if (mounted) _reload();
+    });
+  }
+
+  @override
+  void dispose() {
+    _sseSub?.cancel();
+    super.dispose();
+  }
+
+  void _reload() {
+    setState(() {
+      _future = retainError(_repo.listActivity(widget.gymId));
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<InboxResult>(
+      future: _future,
+      builder: (ctx, snap) {
+        if (snap.connectionState != ConnectionState.done) {
+          return const Padding(
+            padding: EdgeInsets.all(HyphenTokens.sp5),
+            child: HkLoading(),
+          );
+        }
+        final items = snap.data?.items ?? const <CoachNote>[];
+        if (items.isEmpty) {
+          return const Padding(
+            padding: EdgeInsets.fromLTRB(
+              HyphenTokens.sp4,
+              HyphenTokens.sp2,
+              HyphenTokens.sp4,
+              HyphenTokens.sp4,
+            ),
+            child: Text('아직 활동 없음.', style: HyphenTokens.caption),
+          );
+        }
+        return Column(
+          children: [
+            for (var i = 0; i < items.length; i++) ...[
+              if (i > 0)
+                const Divider(
+                  height: 1,
+                  color: HyphenTokens.border,
+                  indent: HyphenTokens.sp4,
+                  endIndent: HyphenTokens.sp4,
+                ),
+              _ActivityRow(note: items[i], onReturn: _reload),
+            ],
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// 활동 1줄 — 시각 · 제목 · 본문 한 줄. 안 읽었으면 굵게.
+class _ActivityRow extends StatelessWidget {
+  final CoachNote note;
+  final VoidCallback onReturn;
+  const _ActivityRow({required this.note, required this.onReturn});
+
+  @override
+  Widget build(BuildContext context) {
+    final unread = note.my?.isUnread ?? false;
+    return InkWell(
+      onTap: () async {
+        Haptic.light();
+        await Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => NoteDetailScreen(noteId: note.id)),
+        );
+        onReturn();
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: HyphenTokens.sp4,
+          vertical: HyphenTokens.sp3,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 안읽음 점 — 자리는 늘 잡아 둔다 (읽으면 색만 빠진다).
+            Container(
+              width: 6,
+              height: 6,
+              margin: const EdgeInsets.only(top: 6, right: HyphenTokens.sp3),
+              decoration: BoxDecoration(
+                color: unread ? HyphenTokens.accent : Colors.transparent,
+                shape: BoxShape.circle,
+              ),
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    note.title.trim().isNotEmpty ? note.title : '알림',
+                    style: HyphenTokens.body.copyWith(
+                      fontWeight: unread ? FontWeight.w700 : FontWeight.w500,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: HyphenTokens.sp1),
+                  Text(
+                    note.body.trim(),
+                    style: HyphenTokens.caption,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: HyphenTokens.sp2),
+            Text(CoachDossierTile._agoLabel(note.createdAt),
+                style: HyphenTokens.micro),
+          ],
+        ),
+      ),
     );
   }
 }

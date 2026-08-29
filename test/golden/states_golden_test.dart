@@ -305,7 +305,7 @@ void _rememberedLoginGolden() {
     await capture(tester, 'state_18_login_validation');
   });
 
-  // ── 쪽지함 — 코치 쪽지 + 자동 알림이 한 목록에 (2026-08-28 홈페이지·스토어 소스) ──
+  // ── 쪽지함 '코치' 칸 — 사람이 쓴 대화만 (D72 · 자동 통보는 '활동' 칸) ──
   // 기본 memberWorld 의 쪽지함은 비어 있어(member_11) 마케팅 캡처로는 빈 화면이라
   // 꽉 찬 실물을 별도 상태로 고정한다. 공지 슬롯도 함께 채운다.
   testWidgets('state: inbox threads filled', (tester) async {
@@ -335,7 +335,44 @@ void _rememberedLoginGolden() {
     await tester.pumpAndSettle();
     expect(find.text('김코치'), findsOneWidget);
     expect(find.text('휴관 안내'), findsOneWidget);
+    // 자동 통보는 이 칸에 없다 — 있으면 D72 이전으로 되돌아간 것이다.
+    expect(find.textContaining('HYPHEN 알림'), findsNothing);
     await capture(tester, 'state_20_inbox_threads');
+  });
+
+  // ── 쪽지함 '활동' 칸 — 자동 통보만 시간순 (D72 · 2026-08-29) ──
+  testWidgets('state: inbox activity pane', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi({
+      ...memberWorld(),
+      '/api/v1/gym/1/threads': {'items': memberThreads()},
+      '/api/v1/gym/1/activity': {'items': memberActivity(), 'unread': 2},
+      '/api/v1/member/announcements': memberAnnouncements(),
+    });
+    final gym = GymState(GymRepository(api), sse: FakeSse());
+    await gym.loadMine();
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        gym: gym,
+        home: const MessagingScreen(),
+      ),
+    );
+    await Provider.of<AnnouncementsState>(
+      tester.element(find.byType(MessagingScreen)),
+      listen: false,
+    ).refresh(GymRepository(api));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(MessagingFeed.paneActivity));
+    await tester.pumpAndSettle();
+    expect(find.text('예약 확정'), findsOneWidget);
+    expect(find.text('업적 달성'), findsOneWidget);
+    // 코치 대화는 이 칸에 없다.
+    expect(find.text('김코치'), findsNothing);
+    await capture(tester, 'state_26_inbox_activity');
   });
 
   // ── 로딩 중 — 버튼을 치우지 않고 그 자리에서 스피너만 돈다 ──

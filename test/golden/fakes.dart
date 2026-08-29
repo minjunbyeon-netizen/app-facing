@@ -1576,11 +1576,15 @@ Map<String, dynamic> memberWorld() => {
   '/api/v1/gym/1/outbox': const {'items': <dynamic>[]},
   '/api/v1/gym/1/threads': const {'items': <dynamic>[]},
   '/api/v1/gym/1/messages': const {'items': <dynamic>[]},
+  '/api/v1/gym/1/activity': const {'items': <dynamic>[], 'unread': 0},
 };
 
-/// /api/v1/gym/1/threads — 회원 쪽지함 대화 목록 (2026-08-28 홈페이지·스토어용 골든 state_20).
+/// /api/v1/gym/1/threads — 회원 쪽지함 '코치' 칸 (2026-08-28 홈페이지·스토어용 골든 state_20).
 /// 기본 memberWorld 는 빈 목록 유지 (기존 골든 보존) — 쪽지함 골든에서만 주입.
-/// 코치 쪽지 + 자동 알림(D60 "알림 = 앱 쪽지 하나") 이 한 목록에 섞여 보이는 실물.
+///
+/// D72 (2026-08-29) — **사람이 쓴 대화만**. 자동 통보는 '활동' 칸(`memberActivity`)이
+/// 든다. 종전엔 이 목록에 자동 알림 두 줄이 섞여 있었고, 그게 사용자가 지적한
+/// "쪽지는 쪽지고(코치와 대화)" 문제 그 자체였다.
 List<Map<String, dynamic>> memberThreads() {
   final now = appClock.now();
   String at(int daysAgo, String hm) =>
@@ -1595,14 +1599,6 @@ List<Map<String, dynamic>> memberThreads() {
       'unread': 1,
     },
     {
-      'peer_hash': 'auto',
-      'peer_name': 'HYPHEN 알림',
-      'peer_color': '#5B6573',
-      'last_body': '대기 승격 — 8/13 20:00 WOD Class 자리가 생겨 예약이 확정됐습니다.',
-      'last_at': at(0, '08:02'),
-      'unread': 1,
-    },
-    {
       'peer_hash': 'coach-park',
       'peer_name': '박코치',
       'peer_color': '#B45309',
@@ -1610,13 +1606,39 @@ List<Map<String, dynamic>> memberThreads() {
       'last_at': at(1, '21:40'),
       'unread': 0,
     },
-    {
-      'peer_hash': 'auto-membership',
-      'peer_name': 'HYPHEN 알림',
-      'peer_color': '#5B6573',
-      'last_body': '회원권이 34일 남았습니다. 연장은 코치에게 문의하세요.',
-      'last_at': at(3, '15:00'),
-      'unread': 0,
-    },
+  ];
+}
+
+/// /api/v1/gym/1/activity — 회원 쪽지함 '활동' 칸 (D72 · 2026-08-29).
+///
+/// 자동 통보만. 예약·대기 승격·결제·회원권 만료·업적·가입 승인이 시간순으로 쌓인다.
+/// 코치 칸(`memberThreads`)과 **겹치는 줄이 없다** — 서버가 한 판정식으로 가른다.
+List<Map<String, dynamic>> memberActivity() {
+  final now = appClock.now();
+  String at(int daysAgo, String hm) =>
+      '${_ymd(now.subtract(Duration(days: daysAgo)))}T$hm:00';
+  Map<String, dynamic> row(int id, String kind, String title, String body,
+      int daysAgo, String hm, {bool unread = false}) => {
+        'id': id,
+        'auto_kind': 'notify:$kind',
+        'title': title,
+        'body': body,
+        'kind': 'note',
+        'created_at': at(daysAgo, hm),
+        'sender_name': 'HYPHEN',
+        'my': {'status': unread ? 'sent' : 'read'},
+      };
+  return [
+    row(901, 'promotion', '예약 확정',
+        'WOD Class (${_ymd(now)} 20:00) 자리가 나서 예약이 확정되었습니다.',
+        0, '08:02', unread: true),
+    row(902, 'achievement', '업적 달성',
+        "이서준님, '30일 연속 출석' 업적을 달성했습니다.", 0, '07:30', unread: true),
+    row(903, 'booking', '예약 완료',
+        'Strength (${_ymd(now)} 07:00) 예약이 완료되었습니다.', 1, '19:12'),
+    row(904, 'payment', '결제 등록 안내',
+        '이서준님, 3개월권 330,000원 결제가 등록되었습니다 (카드).', 2, '15:00'),
+    row(905, 'expiry', '회원권 만료 안내',
+        '이서준님, 3개월권 회원권이 34일 뒤 만료됩니다.', 3, '15:00'),
   ];
 }

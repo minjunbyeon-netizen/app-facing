@@ -60,6 +60,23 @@ class InboxRepository {
         .toList();
   }
 
+  /// 활동 — 자동 통보만 시간순 (D72 · 2026-08-29).
+  ///
+  /// 코치 대화와 **같은 표**에 있지만 화면에서는 다른 칸이다. 나누는 판정은
+  /// 서버 한 곳(`coach_note._is_conversation`)이라 두 칸이 겹치거나 새지 않는다.
+  Future<InboxResult> listActivity(int gymId) async {
+    final data = await api.get('/api/v1/gym/$gymId/activity');
+    final itemsRaw = data['items'];
+    final items = (itemsRaw is List ? itemsRaw : const [])
+        .whereType<Map<String, dynamic>>()
+        .map(CoachNote.fromJson)
+        .toList();
+    return InboxResult(
+      items: items,
+      unreadCount: ((data['unread'] ?? 0) as num).toInt(),
+    );
+  }
+
   /// v1.25: 코치 대화 목록 — 회원별 1:1 스레드 요약 (최신순).
   Future<List<CoachThread>> listThreads(int gymId) async {
     final data = await api.get('/api/v1/gym/$gymId/threads');
