@@ -11,7 +11,6 @@ import '../../core/app_clock.dart';
 /// - `lastCheckedAt`: 세션당 1회 제한용 캐시
 ///
 /// v1.20 Phase 2.5: `demoUnlockedCodes` 제거 (B-LW-13).
-/// Panel B 20-title (titles_catalog.dart + PanelBUnlocker)이 클라이언트 추론을 담당.
 /// Achievement 시스템은 백엔드 trigger 응답(`unlocked` 맵)만 신뢰.
 class AchievementState extends ChangeNotifier {
   final AchievementRepository repo;

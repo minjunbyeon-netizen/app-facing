@@ -26,7 +26,6 @@ import 'achievement_card.dart';
 import 'achievement_group.dart';
 import 'achievement_state.dart';
 import 'hyphen_pictogram.dart';
-import 'panel_b_screen.dart';
 import 'trophy_room_screen.dart';
 
 /// 레이아웃 안정성 테스트가 잡는 앵커 — 로딩·완료 두 상태에 같은 키가 있다.
@@ -70,14 +69,6 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     return Scaffold(
       appBar: HkAppBar(
         title: '업적',
-        actions: [
-          // v1.20 Phase 2.5: Panel B 20-title 진입.
-          IconButton(
-            tooltip: '칭호',
-            icon: const Icon(Icons.workspace_premium_outlined, size: 20),
-            onPressed: () => openPanelB(context),
-          ),
-        ],
       ),
       body: SafeArea(
         child: hasError

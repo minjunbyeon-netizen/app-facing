@@ -92,11 +92,10 @@ void main() {
     // 내부 심볼·API·DB 값(BoxWodScreen·wodType·'WOD_50' 등)은 대상 아님.
     test('크로스핏 표기 0건 — 박스/크로스핏/WOD 노출 문구 금지 (GLOSSARY §2 v2)', () {
       final dir = Directory('lib');
-      // 고유명사 보존 예외: 명언 원문(quotes) · 업적 고유명(titles_catalog 의
+      // 고유명사 보존 예외: 명언 원문(quotes) · 업적 고유명(
       // CrossFit Open/Games). 벤치마크 계열(Girls/Hero/Games WOD)은 정규화로 제거.
       final excludePaths = <String>{
         'lib/core/quotes.dart',
-        'lib/core/titles_catalog.dart',
       };
       final banned = RegExp(r'(박스|크로스핏|CrossFit|\bWOD\b)');
       final violations = <String>[];

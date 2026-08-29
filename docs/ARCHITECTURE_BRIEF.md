@@ -584,6 +584,27 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > - 회귀: 골든 `coach_01`(주간) 재생성 · `coach_02` 삭제 · `coach_04_new_note_members` 신규 ·
 >   `coach_03` 재생성(그룹 버튼 없음).
 
+> **D74 (2026-08-29 사용자 "그럼 없애야지, 지금 업적으로 하는거잖아") — 칭호(Panel B) 일체 제거. 게이미피케이션은 업적 하나 (앱 + 서버 한 줄).**
+>
+> - **왜**: 업적 화면 우상단 '칭호' 버튼으로 **도달 가능한** 화면인데, 해금 판정이
+>   `profile.benchmarks`(back_squat_1rm_lb·snatch·run_5km_sec·fran_sec …)를 읽는다.
+>   그 값은 폰 로컬(SharedPreferences)에만 있고 서버엔 없으며, **`setBenchmark` 호출처가 0곳**
+>   이다 — 입력 화면(Benchmarks 온보딩)이 v2.6/v3.2 에서 삭제됐다.
+>   → 신규 설치 회원은 그 조건의 칭호가 **영원히 안 풀린다.** 조건은 보이는데 달성할 길이 없다
+>   (제1원칙 — 화면이 거짓말하지 않을 것). 살아 있던 신호는 `hasGym`·쪽지 수 정도.
+> - **지운 것**: `panel_b_screen.dart` · `titles_catalog.dart`(칭호 26종·`TitleUnlockSignals`·
+>   `PanelBUnlocker`) · `share_count_store.dart` · 진입 버튼 · 내 정보 착용 배지 ·
+>   `GoalsState.wornTitle` 일체 · 골든 `state_06_worn_title` · 테스트 2벌.
+>   대장 = `README.md §제거된 기능 대장 37`.
+> - **남긴 것**: `pr_detector.dart`(홈 화면이 쓴다 — 지우기 전 호출처 재확인, 대전제 5) ·
+>   서버 `member_goals.worn_title` 컬럼과 **기존 값**(DB 는 지우지 않는다).
+>   서버 `api/profile.py` 는 `worn_title` **키가 있을 때만** 갱신하도록 한 줄 고쳤다 —
+>   앱이 이제 그 키를 안 보내는데 종전처럼 무조건 덮으면 지난 착용값이 빈 문자열로 지워진다.
+> - **제거 제안이 아니라 사용자 지시로 집행**했다 (대전제 5 존치 확정 목록과 충돌하지 않는다 —
+>   목표·최고기록·히스토리는 그대로 남아 있고, 걷은 것은 칭호뿐이다).
+> - 회귀: 앱 `flutter test` **231** (직전 251 — 삭제한 테스트 2벌 20건) · `analyze` 0 ·
+>   골든 **71장** (직전 72) · 서버 `pytest tests/` **501 passed · 0 xfailed** 유지.
+
 > **D73 (2026-08-29 사용자 "나머지결함까지 다 하고") — 남은 결함 10건 수정. 왕복 점검 24건 전부 종료 (서버 + PC).**
 >
 > `pytest tests/` 의 **xfail 이 0** 이 됐다 (501 passed · 1 skipped · 0 xfailed).

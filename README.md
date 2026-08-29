@@ -218,5 +218,18 @@ samples, guidance on mobile development, and a full API reference.
     회원이 실제로 보는 체육관 정보는 `lib/widgets/gym_info_card.dart` 다 —
     2026-08-28 전화 걸기 배선 중 좌표가 갈리며 드러났다.
     `GymState.coaches`·`CoachProfile` 모델은 그 카드와 쪽지함이 계속 쓰므로 남긴다.
+37. **칭호(Panel B) 일체 (v3.39 · 2026-08-29 사용자 지시 "그럼 없애야지, 지금 업적으로
+    하는거잖아")** — `lib/features/achievement/panel_b_screen.dart`(칭호 화면) ·
+    `lib/core/titles_catalog.dart`(kPanelBTitles 26종 · TitleUnlockSignals · PanelBUnlocker) ·
+    `lib/core/share_count_store.dart`(Panel B 공유 카운트 전용) · 업적 화면 우상단 '칭호'
+    진입 버튼 · 내 정보 이름 아래 착용 칭호 배지 · `GoalsState.wornTitle` 일체 ·
+    골든 `state_06_worn_title` · 테스트 `titles_catalog_test`·`worn_title_store_test`.
+    **없앤 이유**: 해금 판정이 `profile.benchmarks`(1RM·5km 등)를 읽는데 그 값을 넣는
+    `setBenchmark` 호출처가 **0곳**이었다 — 입력 화면(Benchmarks 온보딩)이 v2.6/v3.2 에서
+    삭제돼, 신규 회원은 그 칭호가 **영원히 안 풀렸다**(제1원칙 위반). 게이미피케이션은
+    업적 하나로 통일한다.
+    **남긴 것**: `lib/core/pr_detector.dart`(홈 화면이 쓴다) · 서버 `member_goals.worn_title`
+    컬럼과 기존 값(휴면 — DB 는 지우지 않는다). 서버 PATCH 는 키가 있을 때만 갱신하도록
+    바꿔, 앱이 안 보내도 지난 착용값이 지워지지 않는다.
 
 

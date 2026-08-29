@@ -93,8 +93,6 @@ SECTIONS = [
         ("state_03_home_offline", "Home — OFFLINE 배너"),
         ("state_04_history_error", "History 로드 실패 — Retry"),
         ("state_05_pending", "승인 대기 — 신청 후 코치 승인 전 (셸 전체 차단)"),
-        ("state_06_worn_title",
-         "착용 칭호 — 업적에서 고른 칭호가 이름 아래 (v3.12)"),
         ("state_07_class_ended",
          "종료 수업 카드 — 버튼 숨김 + '종료' 배지 (CLASS_ENDED 게이트 UX)"),
         ("state_08_waitlist_cancel_dialog",

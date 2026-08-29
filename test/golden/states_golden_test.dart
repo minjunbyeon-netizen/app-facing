@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:hyphen_app/core/app_clock.dart';
-import 'package:hyphen_app/core/goals_state.dart';
 import 'package:hyphen_app/core/notification_service.dart';
 import 'package:hyphen_app/core/quotes.dart';
 import 'package:hyphen_app/features/achievement/achievements_screen.dart';
@@ -242,7 +241,7 @@ void main() {
     await capture(tester, 'state_23_cancel_dialog');
   });
 
-  _wornTitleGoldens();
+  _achievementsLoadingGolden();
   _rememberedLoginGolden();
 }
 
@@ -620,34 +619,7 @@ void _rememberedLoginGolden() {
   });
 }
 
-// ── v3.12 (2026-08-23) 착용 칭호 ──
-// 업적 화면에서 고른 칭호가 내 정보 이름 아래에 붙는지의 시각 게이트.
-// 고르는 자리는 있는데 드러나는 자리가 없어 아무도 못 보던 값이라,
-// 노출을 붙이면서 캡처도 같이 남긴다 (골든 없는 기능 = 골든스탠다드 미달).
-void _wornTitleGoldens() {
-  testWidgets('state: profile worn title', (tester) async {
-    phone(tester);
-    SharedPreferences.setMockInitialValues(signedInPrefs());
-    final api = FakeApi(memberWorld());
-    final gym = GymState(GymRepository(api), sse: FakeSse());
-    await gym.loadMine();
-    final goals = GoalsState();
-    await goals.load();
-    await goals.setWornTitle('PB_WEEKEND'); // '주말반'
-    await tester.pumpWidget(
-      harness(
-        api: api,
-        auth: await signedInAuth(),
-        profile: rxProfile(),
-        gym: gym,
-        goals: goals,
-        home: const MainShell(),
-      ),
-    );
-    await tapTab(tester, '내 정보');
-    await capture(tester, 'state_06_worn_title');
-  });
-
+void _achievementsLoadingGolden() {
   // ── 업적 목록 로딩 — 스켈레톤 (v3.35 E 안: 요약·3칸·분류 라벨·행 자리 예약) ──
   testWidgets('state: achievements loading skeleton', (tester) async {
     phone(tester);
