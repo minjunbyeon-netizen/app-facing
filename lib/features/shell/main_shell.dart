@@ -125,7 +125,11 @@ class _MainShellState extends State<MainShell> {
     // 늦게 도착하는 것 자체는 정상이므로 여기서 흐름을 바꾸지 않는다.
     if (currentGymId != null && annState.boundGymId != currentGymId) {
       final repo = context.read<GymRepository>();
-      Future.microtask(() => annState.bind(repo, currentGymId));
+      // D79 — 코치가 PC 에서 공지를 올리면(SSE) 그 자리에서 다시 묻는다.
+      Future.microtask(
+        () => annState.bind(repo, currentGymId,
+            changed: gs.announcementsChanged),
+      );
     }
     return PopScope(
       canPop: false,

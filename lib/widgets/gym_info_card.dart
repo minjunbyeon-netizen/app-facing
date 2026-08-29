@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../core/theme.dart';
 import '../features/gym/gym_state.dart';
 import '../models/coach_profile.dart';
+import '../models/class_template.dart';
 import '../models/gym.dart';
 import 'hkit.dart';
 
@@ -24,7 +25,9 @@ class GymInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final coaches = context.watch<GymState>().coaches;
+    final gs = context.watch<GymState>();
+    final coaches = gs.coaches;
+    final templates = gs.classTemplates;
 
     final name = gym?.name ?? '내 체육관';
     final location = (gym?.location ?? '').trim().isNotEmpty
@@ -92,6 +95,16 @@ class GymInfoCard extends StatelessWidget {
                     // 코치 카드 — v1.16.2 신규
                     _CoachesSection(coaches: coaches, fallbackProfile: profile),
 
+                    // 수업 종류 — D79 (2026-08-29 사용자 보고 "이벤트 수업
+                    // 만들었는데 회원폰에 노출이 안된다"). 서버는 주고 있었고
+                    // 부르는 곳만 없었다. 이벤트는 배지로 가른다.
+                    if (templates.isNotEmpty) ...[
+                      const SizedBox(height: HyphenTokens.sp3),
+                      const Divider(color: HyphenTokens.border, height: 1),
+                      const SizedBox(height: HyphenTokens.sp3),
+                      _ClassTypesSection(templates: templates),
+                    ],
+
                     if (times.isNotEmpty) ...[
                       const SizedBox(height: HyphenTokens.sp3),
                       _InfoBlock(label: '수업', value: times),
@@ -115,6 +128,63 @@ class GymInfoCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// 수업 종류 목록 — 이름 · (이벤트 배지) · 설명. 코치가 PC '수업 안내' 에 적은
+/// 순서 그대로. 설명은 코치가 쓴 말이 가장 정확한 안내라 자르지 않는다.
+class _ClassTypesSection extends StatelessWidget {
+  const _ClassTypesSection({required this.templates});
+  final List<ClassTemplate> templates;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('수업 종류 (${templates.length})', style: HyphenTokens.sectionLabel),
+        const SizedBox(height: HyphenTokens.sp2),
+        for (final (i, t) in templates.indexed) ...[
+          if (i > 0) const SizedBox(height: HyphenTokens.sp2),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            t.name,
+                            style: HyphenTokens.body
+                                .copyWith(fontWeight: FontWeight.w700),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (t.isEvent) ...[
+                          const SizedBox(width: HyphenTokens.sp2),
+                          const HkBadge('이벤트', color: HyphenTokens.accent),
+                        ],
+                      ],
+                    ),
+                    if (t.description.trim().isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(
+                          t.description.trim(),
+                          style: HyphenTokens.caption.copyWith(height: 1.5),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ],
     );
   }
 }

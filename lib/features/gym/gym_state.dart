@@ -6,6 +6,7 @@ import '../../core/exception.dart';
 import '../../core/notification_service.dart';
 import '../../core/sse_client.dart';
 import '../../models/coach_profile.dart';
+import '../../models/class_template.dart';
 import '../../models/gym.dart';
 import '../../models/locker.dart';
 import '../../models/membership.dart';
@@ -63,6 +64,12 @@ class GymState extends ChangeNotifier {
         debugPrint(
           '[GymState] sse event=${ev.type} reload=${hit ? "YES" : "skip"}',
         );
+        // D79 — 공지 등록·수정·삭제는 AnnouncementsState 가 따로 다시 묻는다.
+        if (ev.type == 'announcement.posted' ||
+            ev.type == 'announcement.updated' ||
+            ev.type == 'announcement.deleted') {
+          _announcementsChanged.add(null);
+        }
         if (hit) {
           // ⚠ 승인 전 상태는 **이벤트를 받은 즉시** 찍어야 한다. 1초 디바운스 뒤에
           // 읽으면 그 사이 화면 진입 등 다른 경로의 loadMine 이 이미 approved 로
@@ -108,6 +115,7 @@ class GymState extends ChangeNotifier {
 
   @override
   void dispose() {
+    _announcementsChanged.close();
     _debounceReload?.cancel();
     _sseSub?.cancel();
     super.dispose();
@@ -117,6 +125,8 @@ class GymState extends ChangeNotifier {
   List<GymWodPost> _wods = const [];
   // v1.16.2 (2026-05-24) — 박스 코치 목록. loadMine() 안에서 같이 fetch.
   List<CoachProfile> _coaches = const [];
+  /// 수업 안내(수업 종류) — D79. 체육관 정보 카드가 그린다.
+  List<ClassTemplate> _classTemplates = const [];
   // v1.16.2 — 본인 회원권·락커. 폰 MyPage 카드용.
   List<Membership> _myMemberships = const [];
   // S5: 목록을 실제로 받았는지 — 못 받은 상태(수업 내용 로드 실패 등)에서
@@ -137,6 +147,16 @@ class GymState extends ChangeNotifier {
 
   /// v1.16.2 — 체육관 코치 목록 (GymInfoCard·쪽지함에서 사용).
   List<CoachProfile> get coaches => _coaches;
+  List<ClassTemplate> get classTemplates => _classTemplates;
+
+  /// 공지가 바뀌었다는 신호 (D79 · 2026-08-29). `announcement.posted` SSE 를
+  /// 받으면 여기로 흘려 AnnouncementsState 가 다시 묻게 한다. 종전엔 이 이벤트가
+  /// GymState 만 reload 시켰는데 GymState 는 공지를 싣지 않아, **앱을 완전히
+  /// 껐다 켜기 전까지 새 공지가 영영 안 보였다** (사용자 보고 "PC 설정했는데
+  /// 폰에서는 안보인다").
+  final StreamController<void> _announcementsChanged =
+      StreamController<void>.broadcast();
+  Stream<void> get announcementsChanged => _announcementsChanged.stream;
 
   /// v1.16.2 — 본인 회원권 (가장 최근 active 우선).
   List<Membership> get myMemberships => _myMemberships;
@@ -191,6 +211,7 @@ class GymState extends ChangeNotifier {
     _membership = GymMembership.empty;
     _wods = const [];
     _coaches = const [];
+    _classTemplates = const [];
     _myMemberships = const [];
     _membershipsLoaded = false;
     _myLockers = const [];
@@ -230,6 +251,13 @@ class GymState extends ChangeNotifier {
         } catch (e) {
           debugPrint('[GymState] listCoaches failed: $e');
           _coaches = const [];
+        }
+        // D79 — 수업 안내. 실패해도 다른 결과는 유지.
+        try {
+          _classTemplates = await repo.listClassTemplates(_membership.gym!.id);
+        } catch (e) {
+          debugPrint('[GymState] listClassTemplates failed: $e');
+          _classTemplates = const [];
         }
         // v1.16.2 — 본인 회원권·락커 (실패해도 다른 결과는 유지)
         try {

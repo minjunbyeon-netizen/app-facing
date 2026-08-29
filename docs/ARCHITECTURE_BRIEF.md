@@ -584,6 +584,33 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > - 회귀: 골든 `coach_01`(주간) 재생성 · `coach_02` 삭제 · `coach_04_new_note_members` 신규 ·
 >   `coach_03` 재생성(그룹 버튼 없음).
 
+> **D79 (2026-08-29 사용자 "수업안내노출도 필요하고, 지금 공지 제대로 작동안한다") — 수업 안내 회원 노출 · 공지 실시간 갱신 (앱 + 서버).**
+>
+> **1. 수업 안내(수업 종류)가 회원 폰에 안 보이던 것** — 서버 창구
+> `GET /api/v1/member/gyms/<id>/class-templates` 는 살아 있었고 **앱이 한 번도 안 불렀다**
+> (오늘 세 번째 같은 유형 — 칭호·결제축 매출과 같은 "서버·데이터는 있는데 화면 경로가 끊김").
+> - 앱 `models/class_template.dart` 신설 · `GymRepository.listClassTemplates` ·
+>   `GymState.loadMine` 에서 코치 목록과 같은 자리에서 함께 받는다(실패해도 다른 결과 유지).
+> - 노출 자리 = **체육관 정보 카드**(`gym_info_card.dart _ClassTypesSection`) — 회원이 이미
+>   여는 자리에 '수업 종류 (N)' 칸. 이름 · 설명 · `kind == 'event'` 는 **'이벤트' 배지**.
+>
+> **2. 공지가 PC 에서 올려도 폰에 안 보이던 것** — 서버 필터는 정상이었다(프로드 실측:
+> 유효 기간 안 공지 1건이 회원 창구로 정상 응답). 원인은 앱 두 겹:
+> - `AnnouncementsState.bind` 가 "이미 묶였고 목록이 있으면" 건너뛰어 **첫 응답이 앱을
+>   껐다 켜기 전까지 굳었다.**
+> - `announcement.posted` SSE 는 `GymState` 만 reload 시켰는데 GymState 는 공지를 싣지 않는다
+>   — AnnouncementsState 를 다시 묻게 하는 코드가 **0곳**이었다.
+> - 수정: `GymState.announcementsChanged` 스트림 신설(SSE posted/updated/deleted → 신호) ·
+>   `AnnouncementsState.bind(..., changed:)` 가 그 신호를 듣고 `refresh`. 같은 체육관 재바인딩은
+>   조용히(셸 재빌드마다 서버를 두드리지 않는다), 체육관이 바뀌면 다시 묻는다.
+> - 서버: 공지 **수정·삭제**도 SSE 를 쏜다(종전엔 등록만) — 고친 문구·지운 공지가 폰에 남지 않게.
+> - 지난 공지 2건(`ㅎㅎㅎ`·`안녕하세요`)이 안 보인 것은 **유효 기간이 끝나서**다 — 결함 아님.
+>   PC 에서 기간을 안 넣으면 시작=오늘 00:00 · 끝=오늘 23:59 로 저장돼 **그날만** 보인다.
+>
+> - 회귀: `test/golden/announcements_refresh_test.dart` 신설(신호 → 갱신 · 재바인딩 조용히) ·
+>   픽스처 `class-templates` 4종(정규 3 + 이벤트 1) · `flutter test` **237** · `analyze` 0 ·
+>   골든 71장(`member_25_gym_info` 재생성) · 서버 `pytest tests/` 503.
+
 > **D78 (2026-08-29 사용자 "그날 수업이 시간 순서대로, 중복은 표시하지 않고") — 프로그램 칸 정렬·중복 제거·전부 펼침 (앱 + 서버).**
 >
 > - **서버**: 회원용 `GET /api/v1/gyms/<id>/wods` 응답에 `template_id`·`template_name`·

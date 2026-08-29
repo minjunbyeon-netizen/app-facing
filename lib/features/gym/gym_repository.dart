@@ -2,6 +2,7 @@ import '../../core/api_client.dart';
 import '../../models/announcement.dart';
 import '../../models/coach_feedback.dart';
 import '../../models/coach_profile.dart';
+import '../../models/class_template.dart';
 import '../../models/gym.dart';
 import '../../models/locker.dart';
 import '../../models/membership.dart';
@@ -57,6 +58,20 @@ class GymRepository {
 
   // v1.16.2 (2026-05-24) — 코치 프로필 endpoint 5개.
   // ARCHITECTURE_BRIEF §11.6 / docs/GYM_PROFILE_SCHEMA.md §3.
+  /// 수업 안내(수업 종류) — D79 (2026-08-29). 서버는 원래 주고 있었고
+  /// 부르는 곳만 없었다. 사용중(is_active)인 것만 온다.
+  Future<List<ClassTemplate>> listClassTemplates(int gymId) async {
+    final data = await api.get('/api/v1/member/gyms/$gymId/class-templates');
+    final raw = data['items'];
+    if (raw is List) {
+      return raw
+          .whereType<Map<String, dynamic>>()
+          .map(ClassTemplate.fromJson)
+          .toList();
+    }
+    return const [];
+  }
+
   Future<List<CoachProfile>> listCoaches(int gymId) async {
     final data = await api.get('/api/v1/gyms/$gymId/coaches');
     final raw = data['coaches'];

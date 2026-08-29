@@ -1555,6 +1555,22 @@ Map<String, dynamic> memberWorld() => {
   '/api/v1/member/me/reward-progress': rewardProgressRows(),
   '/api/v1/gyms/1/wods/': const <dynamic>[],
   '/api/v1/gyms/1/wods': gymWods(),
+  // D79 (2026-08-29) — 수업 안내. 프로드와 같은 모양: 정규 4 + 이벤트 1.
+  '/api/v1/member/gyms/1/class-templates': const {
+    'items': [
+      {'id': 1, 'name': 'BUILD', 'kind': 'regular', 'is_active': true,
+       'description': '힘과 자신감을 쌓는 성장 시간 (기술·수행 중심)',
+       'default_duration': 60, 'default_capacity': 12},
+      {'id': 2, 'name': 'SWEAT', 'kind': 'regular', 'is_active': true,
+       'description': '즐겁게 땀 흘리며 체력을 채우는 시간 (체력·즐거움 중심)',
+       'default_duration': 60, 'default_capacity': 12},
+      {'id': 3, 'name': 'AWAKE', 'kind': 'regular', 'is_active': true,
+       'description': '몸을 깨우고 하루를 여는 시간 (활력·습관 중심)',
+       'default_duration': 60, 'default_capacity': 12},
+      {'id': 5, 'name': 'Blueprint', 'kind': 'event', 'is_active': true,
+       'description': '집중수업', 'default_duration': 90, 'default_capacity': 8},
+    ],
+  },
   '/api/v1/gyms/1/coaches': const {
     'coaches': [
       {
