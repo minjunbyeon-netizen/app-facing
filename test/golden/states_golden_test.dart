@@ -459,6 +459,44 @@ void _rememberedLoginGolden() {
     await capture(tester, 'state_15_class_booking_not_open');
   });
 
+  // ── 예약 성사 순간 — 세 줄 토스트 + 화면 중앙 폭죽 (D86 · 2026-08-29) ──
+  // POST 응답 키를 **먼저** 넣는다 — FakeApi 는 startsWith 로 앞에서부터 맞추므로
+  // '/api/v1/member/classes' 목록 키가 먼저 오면 POST 가 목록을 받아 깨진다.
+  // 폭죽은 고정 시드라 350ms 시점 프레임이 늘 같다.
+  testWidgets('state: reservation done', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi({
+      // 끝 슬래시 — 목록 GET('…/classes?from=')은 안 맞고, 어느 수업 id 의 POST 든 맞는다.
+      '/api/v1/member/classes/': const {
+        'status': 'confirmed',
+        'reservation_id': 9001,
+      },
+      ...memberWorld(),
+    });
+    final gym = GymState(GymRepository(api), sse: FakeSse());
+    await gym.loadMine();
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        gym: gym,
+        home: const BoxWodScreen(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tapSchedulePane(tester);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('예약'.toUpperCase()).first);
+    await tester.pump(const Duration(milliseconds: 350));
+    expect(find.text(kReservedTitle), findsOneWidget);
+    await capture(tester, 'state_27_reservation_done');
+    // 폭죽 오버레이가 스스로 걷힐 때까지 — pending timer 없이 끝낸다.
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pump(const Duration(seconds: 5));
+  });
+
   // ── 횟수권 — 내 정보 회원권 카드 잔여·면제 표시 (D57 · 2026-08-26) ──
   testWidgets('state: mypage session pass', (tester) async {
     phone(tester);

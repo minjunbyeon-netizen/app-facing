@@ -16,6 +16,8 @@
 /// - 소셜 로그인 버튼: HkSocialButton (높이 52 · r3 · 마크+라벨 중앙)
 library;
 
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -1414,12 +1416,23 @@ class HkSnack {
   static HkSnack of(BuildContext context) =>
       HkSnack._(ScaffoldMessenger.of(context));
 
-  /// 손잡이로 내는 일반 알림.
-  void info(String message, {MascotMood? mood, Duration? duration}) => _emit(
+  /// 손잡이로 내는 일반 알림. [detail] 을 주면 굵은 제목 아래 안내 줄(들)이 붙는다
+  /// (D86 예약 완료 — 세 줄 토스트). 줄이 늘면 읽을 시간도 늘려 기본 5초.
+  void info(
+    String message, {
+    MascotMood? mood,
+    Duration? duration,
+    List<String> detail = const [],
+  }) => _emit(
     _messenger,
     message,
     mood: mood,
-    duration: duration ?? const Duration(seconds: 2),
+    detail: detail,
+    duration:
+        duration ??
+        (detail.isEmpty
+            ? const Duration(seconds: 2)
+            : const Duration(seconds: 5)),
   );
 
   /// 손잡이로 내는 실패 알림.
@@ -1437,8 +1450,10 @@ class HkSnack {
     MascotMood? mood,
     required Duration duration,
     bool danger = false,
+    List<String> detail = const [],
   }) {
     final showMascot = mood != null && HyphenMascot.has(mood);
+    final hasDetail = detail.isNotEmpty;
     messenger.showSnackBar(
       SnackBar(
         duration: duration,
@@ -1462,10 +1477,32 @@ class HkSnack {
               const SizedBox(width: HyphenTokens.sp3),
             ],
             Expanded(
-              child: Text(
-                message,
-                style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
-              ),
+              child: hasDetail
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          message,
+                          style: HyphenTokens.body.copyWith(
+                            color: HyphenTokens.fg,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: HyphenTokens.sp1),
+                        for (final line in detail)
+                          Text(
+                            line,
+                            style: HyphenTokens.caption.copyWith(
+                              color: HyphenTokens.fgSecondary,
+                            ),
+                          ),
+                      ],
+                    )
+                  : Text(
+                      message,
+                      style: HyphenTokens.body.copyWith(color: HyphenTokens.fg),
+                    ),
             ),
           ],
         ),
@@ -1479,10 +1516,11 @@ class HkSnack {
     String message, {
     MascotMood? mood,
     Duration duration = const Duration(seconds: 2),
+    List<String> detail = const [],
   }) {
     final messenger = ScaffoldMessenger.maybeOf(context);
     if (messenger == null) return;
-    _emit(messenger, message, mood: mood, duration: duration);
+    _emit(messenger, message, mood: mood, duration: duration, detail: detail);
   }
 
   /// 실패 알림 — 우는 표정(sad)을 쓴다. 웃는 캐릭터는 절대 붙이지 않는다.
@@ -1497,6 +1535,141 @@ class HkSnack {
       danger: true,
     );
   }
+}
+
+/// 폭죽 — 화면 중앙에서 잠깐 터지는 종이 조각 (D86 · 2026-08-29 사용자 "화면 중앙에
+/// 폭죽 잠깐 쏴지는 애니메이션"). 예약 완료처럼 **성사된 순간** 한 번만 쏜다.
+///
+/// Overlay 하나를 얹고 1.1초 뒤 스스로 걷는다 — 터치를 막지 않고, 레이아웃에 끼어들지
+/// 않는다(아래 화면은 한 픽셀도 안 밀린다). 조각은 고정 시드라 같은 모양으로 터진다 —
+/// 골든이 잡을 수 있고, 매번 다를 이유도 없다. 시스템 '애니메이션 줄이기' 면 안 쏜다.
+class HkConfetti {
+  HkConfetti._();
+
+  static const Duration duration = Duration(milliseconds: 1100);
+
+  static void burst(BuildContext context) {
+    if (MediaQuery.maybeDisableAnimationsOf(context) ?? false) return;
+    final overlay = Overlay.maybeOf(context, rootOverlay: true);
+    if (overlay == null) return;
+    late final OverlayEntry entry;
+    entry = OverlayEntry(
+      builder: (_) => IgnorePointer(
+        child: _ConfettiBurst(onDone: () => entry.remove()),
+      ),
+    );
+    overlay.insert(entry);
+  }
+}
+
+class _ConfettiBurst extends StatefulWidget {
+  final VoidCallback onDone;
+  const _ConfettiBurst({required this.onDone});
+
+  @override
+  State<_ConfettiBurst> createState() => _ConfettiBurstState();
+}
+
+class _ConfettiBurstState extends State<_ConfettiBurst>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: HkConfetti.duration,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _c.addStatusListener((s) {
+      if (s == AnimationStatus.completed) widget.onDone();
+    });
+    _c.forward();
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _c,
+      builder: (_, _) => CustomPaint(
+        size: Size.infinite,
+        painter: _ConfettiPainter(_c.value),
+      ),
+    );
+  }
+}
+
+class _ConfettiPainter extends CustomPainter {
+  final double t;
+  _ConfettiPainter(this.t);
+
+  static const int _count = 56;
+  static const List<Color> _palette = [
+    HyphenTokens.primary,
+    HyphenTokens.fg,
+    HyphenTokens.success,
+    HyphenTokens.warning,
+    HyphenTokens.info,
+  ];
+
+  /// 조각의 초기값 — 고정 시드(같은 모양으로 터진다).
+  static final List<_Piece> _pieces = () {
+    final r = math.Random(7);
+    return List.generate(_count, (i) {
+      final angle = r.nextDouble() * math.pi * 2;
+      final speed = 220 + r.nextDouble() * 260; // px/s
+      return _Piece(
+        vx: math.cos(angle) * speed,
+        vy: math.sin(angle) * speed - 120,
+        size: 5 + r.nextDouble() * 5,
+        spin: (r.nextDouble() - 0.5) * 12,
+        color: _palette[i % _palette.length],
+      );
+    });
+  }();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final cx = size.width / 2;
+    final cy = size.height / 2;
+    // 0.55 부터 옅어져 1.0 에 사라진다.
+    final alpha = t < 0.55 ? 1.0 : (1 - (t - 0.55) / 0.45).clamp(0.0, 1.0);
+    const g = 900.0; // px/s²
+    final paint = Paint();
+    for (final p in _pieces) {
+      final x = cx + p.vx * t;
+      final y = cy + p.vy * t + 0.5 * g * t * t;
+      paint.color = p.color.withValues(alpha: alpha);
+      canvas.save();
+      canvas.translate(x, y);
+      canvas.rotate(p.spin * t);
+      canvas.drawRect(
+        Rect.fromCenter(center: Offset.zero, width: p.size, height: p.size * 0.6),
+        paint,
+      );
+      canvas.restore();
+    }
+  }
+
+  @override
+  bool shouldRepaint(_ConfettiPainter old) => old.t != t;
+}
+
+class _Piece {
+  final double vx, vy, size, spin;
+  final Color color;
+  const _Piece({
+    required this.vx,
+    required this.vy,
+    required this.size,
+    required this.spin,
+    required this.color,
+  });
 }
 
 // ─────────────────────────────────────────────────────────────────────────

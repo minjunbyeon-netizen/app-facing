@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hyphen_app/core/theme.dart';
 import 'package:hyphen_app/features/auth/auth_state.dart';
 import 'package:hyphen_app/features/profile/profile_state.dart';
+import 'package:hyphen_app/features/classes/class_flows.dart';
 import 'package:hyphen_app/widgets/hkit.dart';
 import 'package:hyphen_app/widgets/mascot.dart';
 
@@ -48,6 +49,18 @@ void main() {
   testWidgets('snack: 실패 — 우는 캐릭터', (tester) async {
     await shot(tester, 'snack_02_sad', (ctx) {
       HkSnack.error(ctx, '저장 실패. 다시 시도.');
+    });
+  });
+
+  // D86 (2026-08-29) — 예약 완료: 굵은 제목 + 안내 두 줄 (문구 정본 = class_flows.dart).
+  testWidgets('snack: 예약 완료 — 세 줄', (tester) async {
+    await shot(tester, 'snack_04_reserved', (ctx) {
+      HkSnack.show(
+        ctx,
+        kReservedTitle,
+        detail: kReservedDetail,
+        mood: MascotMood.happy,
+      );
     });
   });
 

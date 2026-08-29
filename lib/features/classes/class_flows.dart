@@ -32,6 +32,16 @@ bool isLateCancel(ClassSessionDto c) => !appClock
 /// "예약 가능한 시간이 아니에요"). 골든 `state_15` 와 검사가 같은 상수를 본다.
 const String kBookingNotOpenSnack = '예약 가능한 시간이 아니에요';
 
+/// 예약 완료 토스트 (D86 · 2026-08-29 사용자 원문 "예약이 완료되었습니다. / 수업시간
+/// 최소5분전 도착해서 운동준비를 마쳐주세요 / 5분 이상 지각은, 수업에 참여할 수 없습니다").
+/// 제목 한 줄 + 안내 두 줄, 웃는 캐릭터, 화면 중앙 폭죽 한 번. 대기 등록은 자리가 아직
+/// 아니라 폭죽 없이 종전 한 줄. 골든 `snack_04` · `state_27` 이 같은 상수를 본다.
+const String kReservedTitle = '예약이 완료되었습니다.';
+const List<String> kReservedDetail = [
+  '수업 시간 최소 5분 전에 도착해 운동 준비를 마쳐 주세요.',
+  '5분 이상 지각은 수업에 참여할 수 없습니다.',
+];
+
 /// 예약 오픈 전 안내 — 담담한 캐릭터 스낵바. 실패(붉은 테두리·우는 얼굴)가 아니라
 /// 상태 안내다: 회원이 잘못한 게 없다. 오픈 시각은 서버가 준 `booking_open_at`
 /// 그대로 붙인다 (정책 계산을 앱에 두 번 적지 않는다).
@@ -70,10 +80,17 @@ Future<bool> reserveClassFlow(
         startAt: c.startAt.toLocal(),
       );
     }
-    messenger.info(
-      status == 'waitlisted' ? '대기열 ${result['position']}번 등록.' : '예약 완료.',
-      mood: MascotMood.happy,
-    );
+    if (status == 'waitlisted') {
+      messenger.info('대기열 ${result['position']}번 등록.', mood: MascotMood.happy);
+    } else {
+      // D86 — 세 줄 토스트 + 폭죽. 폭죽은 화면이 아직 있을 때만(await 뒤라 확인).
+      messenger.info(
+        kReservedTitle,
+        detail: kReservedDetail,
+        mood: MascotMood.happy,
+      );
+      if (context.mounted) HkConfetti.burst(context);
+    }
     return true;
   } on AppException catch (e) {
     if (e.code == 'BOOKING_NOT_OPEN') {
