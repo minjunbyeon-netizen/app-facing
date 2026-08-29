@@ -1127,6 +1127,12 @@ class HkMarquee extends StatefulWidget {
   /// 두 벌 사이 간격 — 끝과 처음이 붙어 읽히지 않게.
   final double gap;
 
+  /// **채워 흐름** (v3.43 · 2026-08-29 사용자 "짧은 글도 꽉 채워서 흐르게").
+  /// true 면 짧은 글도 같은 글을 이어 붙여 줄을 꽉 채운 뒤 **항상** 흐른다 —
+  /// 실제 전광판이 짧은 문구를 처리하는 방식. false 면 넘칠 때만 흐른다(기본).
+  /// 접근성('애니메이션 줄이기')은 두 모드 모두 존중한다.
+  final bool fill;
+
   const HkMarquee(
     this.text, {
     super.key,
@@ -1134,6 +1140,7 @@ class HkMarquee extends StatefulWidget {
     this.pixelsPerSecond = 32,
     this.pauseAtStart = const Duration(milliseconds: 1200),
     this.gap = 48,
+    this.fill = false,
   });
 
   @override
@@ -1147,6 +1154,16 @@ class _HkMarqueeState extends State<HkMarquee>
   double _boxW = 0;
 
   bool get _overflows => _textW > _boxW + 0.5;
+  bool get _shouldScroll =>
+      widget.fill ? widget.text.trim().isNotEmpty : _overflows;
+
+  /// fill 모드에서 한 벌(글 + 간격)을 몇 번 이어야 칸을 넘기는가.
+  int get _repeats {
+    if (!widget.fill) return 1;
+    final unit = _textW + widget.gap;
+    if (unit <= 0) return 1;
+    return (_boxW / unit).ceil() + 1;
+  }
 
   void _measure(BuildContext context, double boxW) {
     final tp = TextPainter(
@@ -1163,7 +1180,7 @@ class _HkMarqueeState extends State<HkMarquee>
 
   void _syncAnimation(BuildContext context) {
     final reduce = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
-    if (!_overflows || reduce) {
+    if (!_shouldScroll || reduce) {
       _ctrl?.stop();
       return;
     }
@@ -1200,7 +1217,7 @@ class _HkMarqueeState extends State<HkMarquee>
         if (_boxW != c.maxWidth || _textW == 0) _measure(ctx, c.maxWidth);
         _syncAnimation(ctx);
         final reduce = MediaQuery.maybeOf(ctx)?.disableAnimations ?? false;
-        if (!_overflows || reduce) {
+        if (!_shouldScroll || reduce) {
           return Text(
             widget.text,
             style: style,
@@ -1226,9 +1243,12 @@ class _HkMarqueeState extends State<HkMarquee>
                   top: 0,
                   child: Row(
                     children: [
-                      Text(widget.text, style: style, maxLines: 1, softWrap: false),
-                      SizedBox(width: widget.gap),
-                      Text(widget.text, style: style, maxLines: 1, softWrap: false),
+                      // 기본: 두 벌. fill: 칸을 넘길 만큼 + 되감기용 한 벌 더.
+                      for (var i = 0; i < _repeats + 1; i++) ...[
+                        Text(widget.text,
+                            style: style, maxLines: 1, softWrap: false),
+                        SizedBox(width: widget.gap),
+                      ],
                     ],
                   ),
                 ),

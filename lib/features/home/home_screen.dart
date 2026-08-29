@@ -193,14 +193,19 @@ class _NoticeAccordion extends StatelessWidget {
     final top = items.take(3).toList();
     final isEmpty = top.isEmpty;
     final hasUnread = state.unreadCount > 0;
+    // v3.43 (2026-08-29 사용자 "공지부분은 검정바탕에 흰글자가 꽉채워서 흐르게").
+    // 접힌 줄이 **검정 전광판**이다 — 흰 글자, 짧은 글도 이어 붙여 꽉 채워 항상 흐른다.
+    // 공지가 없을 땐 문구만 서 있다(없는 것을 흐르게 하면 거짓 신호).
+    // 공지는 이제 **홈에서만** 본다 — 수업 탭 하단 아코디언은 같은 날 삭제.
     final preview = isEmpty
         ? '등록된 공지 없음'
-        : (top.first.title.isNotEmpty ? top.first.title : top.first.body);
+        : top.map((a) => a.title.isNotEmpty ? a.title : a.body).join('   ·   ');
 
     return HkCard(
       padding: EdgeInsets.zero,
       margin: const EdgeInsets.only(bottom: HyphenTokens.sp4),
       clipBehavior: Clip.antiAlias,
+      borderColor: HyphenTokens.fg,
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
         // 공지가 없으면 펼칠 것도 없다 — 골격은 그대로 두고 조작만 막는다
@@ -209,6 +214,8 @@ class _NoticeAccordion extends StatelessWidget {
           absorbing: isEmpty,
           child: ExpansionTile(
             initiallyExpanded: false,
+            backgroundColor: HyphenTokens.surface,
+            collapsedBackgroundColor: HyphenTokens.fg,
             tilePadding: const EdgeInsets.symmetric(
               horizontal: HyphenTokens.sp3,
               vertical: 2,
@@ -219,13 +226,17 @@ class _NoticeAccordion extends StatelessWidget {
               HyphenTokens.sp3,
               HyphenTokens.sp3,
             ),
-            collapsedIconColor: HyphenTokens.muted,
+            collapsedIconColor: HyphenTokens.bg,
             iconColor: HyphenTokens.muted,
             // 화살표를 지워도 세로 높이는 그대로다 (행 높이는 제목·부제가 정한다).
             trailing: isEmpty ? const SizedBox.shrink() : null,
             title: Row(
               children: [
-                const HkSectionLabel('공지'),
+                Text(
+                  '공지',
+                  style: HyphenTokens.sectionLabel
+                      .copyWith(color: HyphenTokens.bg),
+                ),
                 if (hasUnread) ...[
                   const SizedBox(width: HyphenTokens.sp2),
                   Container(
@@ -239,10 +250,16 @@ class _NoticeAccordion extends StatelessWidget {
                 ],
               ],
             ),
-            // v3.42 — 넘치면 흐르는 한 줄 (HkMarquee). 공지 0건 문구는 짧아 서 있다.
             subtitle: Padding(
               padding: const EdgeInsets.only(top: 2),
-              child: HkMarquee(preview, style: HyphenTokens.caption),
+              child: HkMarquee(
+                preview,
+                fill: !isEmpty,
+                style: HyphenTokens.body.copyWith(
+                  color: HyphenTokens.bg,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
             children: [
               for (final a in top) AnnouncementRow(bodyMaxLines: 2, item: a),

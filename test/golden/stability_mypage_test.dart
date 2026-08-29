@@ -177,7 +177,6 @@ Map<String, ScreenState> mypageStates() => {
 
 Map<String, Key> mypageAnchors() => {
   '회원권섹션': MyPageScreen.kMembership,
-  '내체육관': MyPageScreen.kMyGym,
   '로그아웃': MyPageScreen.kSignOut,
   '포인트': MyPageScreen.kPoints,
   '알림': MyPageScreen.kNotifications,

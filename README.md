@@ -231,5 +231,13 @@ samples, guidance on mobile development, and a full API reference.
     **남긴 것**: `lib/core/pr_detector.dart`(홈 화면이 쓴다) · 서버 `member_goals.worn_title`
     컬럼과 기존 값(휴면 — DB 는 지우지 않는다). 서버 PATCH 는 키가 있을 때만 갱신하도록
     바꿔, 앱이 안 보내도 지난 착용값이 지워지지 않는다.
+38. **수업 탭 하단 '체육관 정보'·'공지' 아코디언 · 내 정보 '주소 줄'·'체육관 기록'·'내 체육관'
+    (v3.43 · 2026-08-29 사용자 지시)** — `box_wod_screen.dart _GymInfoAccordion`·
+    `_AnnouncementsAccordion` · `mypage_screen.dart _MyBoxSection`·`_ProfileRow`·체육관 기록 카드·
+    신원 카드의 주소 `_ReservedLine`. 공지는 **홈에서만**(검정 전광판) 본다.
+    **딸려 나간 것**: `lib/widgets/gym_info_card.dart`(GymInfoCard) 는 이제 **호출처 0곳** —
+    D79 에서 붙인 '수업 종류(수업 안내)' 칸의 유일한 노출 자리였다. 위젯·모델·저장소·검사는
+    남겨 두었다(골든 `member_25_gym_info` 가 카드를 직접 그린다). **회원이 수업 안내를 볼
+    자리를 어디로 옮길지는 사용자 결정 대기.** 검사 앵커 `kGymInfo`·`kMyGym` 도 함께 제거.
 
 

@@ -14,7 +14,7 @@ import 'package:hyphen_app/widgets/hkit.dart';
 const _style = TextStyle(fontSize: 14, fontFamily: 'Pretendard');
 
 Future<void> _pump(WidgetTester tester, String text,
-    {double width = 200, bool reduce = false}) async {
+    {double width = 200, bool reduce = false, bool fill = false}) async {
   await tester.pumpWidget(
     MediaQuery(
       data: MediaQueryData(disableAnimations: reduce),
@@ -23,7 +23,7 @@ Future<void> _pump(WidgetTester tester, String text,
         child: Center(
           child: SizedBox(
             width: width,
-            child: HkMarquee(text, style: _style,
+            child: HkMarquee(text, style: _style, fill: fill,
                 pauseAtStart: const Duration(milliseconds: 200)),
           ),
         ),
@@ -67,6 +67,31 @@ void main() {
     expect(find.byType(Text), findsOneWidget);
     final t = tester.widget<Text>(find.byType(Text));
     expect(t.overflow, TextOverflow.ellipsis);
+    final before = _firstTextLeft(tester);
+    await tester.pump(const Duration(seconds: 2));
+    expect(_firstTextLeft(tester), before);
+  });
+
+  // ── fill 모드 (v3.43 · 홈 공지 검정 전광판) ───────────────────────────────
+
+  testWidgets('fill — 짧은 글도 이어 붙여 줄을 꽉 채우고 흐른다', (tester) async {
+    await _pump(tester, 'eeeee', fill: true);
+    // 한 벌로는 칸(200)이 안 차니 여러 벌이 이어져 있다
+    expect(tester.widgetList(find.byType(Text)).length, greaterThan(2));
+    final start = _firstTextLeft(tester);
+    await tester.pump(const Duration(milliseconds: 1500));
+    expect(_firstTextLeft(tester), lessThan(start),
+        reason: '짧은 글이 서 있으면 검정 전광판이 죽어 보인다');
+  });
+
+  testWidgets('fill — 빈 글은 흐르지 않는다 (없는 것을 흐르게 하면 거짓 신호)', (tester) async {
+    await _pump(tester, '   ', fill: true);
+    expect(find.byType(Text), findsOneWidget);
+  });
+
+  testWidgets("fill — '애니메이션 줄이기' 면 서 있다", (tester) async {
+    await _pump(tester, 'eeeee', fill: true, reduce: true);
+    expect(find.byType(Text), findsOneWidget);
     final before = _firstTextLeft(tester);
     await tester.pump(const Duration(seconds: 2));
     expect(_firstTextLeft(tester), before);

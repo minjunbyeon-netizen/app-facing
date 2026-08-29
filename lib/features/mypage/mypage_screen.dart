@@ -6,7 +6,6 @@ import '../../core/haptic.dart';
 import '../../core/notification_service.dart';
 import '../../core/role_labels.dart';
 import '../../models/membership.dart';
-import '../../core/shell_nav_bus.dart';
 import '../../core/theme.dart';
 import '../../widgets/hkit.dart';
 import '../../widgets/inbox_bell.dart';
@@ -19,7 +18,6 @@ import 'edit_profile_screen.dart';
 import 'privacy_screen.dart';
 import 'terms_screen.dart';
 import '../../core/app_clock.dart';
-import '../../core/time_format.dart';
 
 /// v1.22: Profile = identity + 측정값 편집 진입 + 잘안쓰는 actions.
 /// Engine score · Tier · Radar · Category Tier · Trend · Records · RoleModel 등
@@ -39,7 +37,6 @@ class MyPageScreen extends StatelessWidget {
   // 회귀 게이트가 이 키로 잰다 (test/golden/stability_mypage_test.dart).
   // 이름을 바꾸면 그 테스트도 같이 바꾼다 (글로벌 §0-B 이름 일원화).
   static const Key kMembership = Key('mypage-membership');
-  static const Key kMyGym = Key('mypage-mygym');
   static const Key kPoints = Key('mypage-points');
   static const Key kNotifications = Key('mypage-notifications');
   static const Key kMenu = Key('mypage-menu');
@@ -63,7 +60,7 @@ class MyPageScreen extends StatelessWidget {
             _SectionDivider(),
             _MembershipSection(),
             _SectionDivider(),
-            _MyBoxSection(),
+            // v3.43 (2026-08-29 사용자 지시): '내 체육관' 섹션 삭제.
             _SectionDivider(),
             // v3.1 (2026-08-19 사용자 지시): 신체(체중·키·나이) 아코디언 삭제 —
             // 입력 칸이 v2.3 에서 전부 빠져 영구 '-' 플레이스홀더였다.
@@ -173,8 +170,8 @@ class _IdentityCard extends StatelessWidget {
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            // v3.43 (2026-08-29 사용자 지시): 체육관 주소 줄 삭제.
                             _ReservedLine(gymLine),
-                            _ReservedLine(gym?.location ?? ''),
                           ],
                         );
                       },
@@ -209,39 +206,7 @@ class _IdentityCard extends StatelessWidget {
           // 가까운 빈 카드를 매번 깔게 된다. 대신 이 블록은 화면 **맨 위**
           // 신원 카드 안에서 loadMine() 한 번에만 붙고, 그 뒤로는 SSE 로도
           // 토글되지 않는다 (코치 메모 변경은 새 loadMine 을 타고 온다).
-          if (mp != null &&
-              ((mp.safetyNote ?? '').isNotEmpty ||
-                  (mp.note ?? '').isNotEmpty)) ...[
-            const SizedBox(height: HyphenTokens.sp2),
-            HkCard(
-              padding: const EdgeInsets.all(HyphenTokens.sp3),
-              radius: HyphenTokens.r2,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const HkSectionLabel('체육관 기록'),
-                      const Spacer(),
-                      if (mp.updatedAt != null)
-                        Text(
-                          mdHm(mp.updatedAt!.toLocal()),
-                          style: HyphenTokens.micro,
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: HyphenTokens.sp2),
-                  // v2.5 (사용자 지시): Tier·전화·생년월일·성별·선호 시간은
-                  // 회원이 이미 아는 등록값을 되비추기만 할 뿐 앱이 쓰지 않는다.
-                  // 코치가 회원에게 남긴 것(주의 사항·메모)만 남긴다.
-                  if ((mp.safetyNote ?? '').isNotEmpty)
-                    _ProfileRow(label: '주의 사항', value: mp.safetyNote!),
-                  if ((mp.note ?? '').isNotEmpty)
-                    _ProfileRow(label: '메모', value: mp.note!),
-                ],
-              ),
-            ),
-          ],
+          // v3.43 (2026-08-29 사용자 지시): '체육관 기록'(주의 사항·메모) 카드 삭제.
         ],
       ),
     );
@@ -267,117 +232,7 @@ class _ReservedLine extends StatelessWidget {
   );
 }
 
-class _ProfileRow extends StatelessWidget {
-  final String label;
-  final String value;
-  const _ProfileRow({required this.label, required this.value});
 
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 70,
-            child: Text(
-              label,
-              style: HyphenTokens.micro.copyWith(color: HyphenTokens.muted),
-            ),
-          ),
-          Expanded(child: Text(value, style: HyphenTokens.caption)),
-        ],
-      ),
-    );
-  }
-}
-
-class _MyBoxSection extends StatelessWidget {
-  const _MyBoxSection();
-
-  // v2.6 (2026-08-13): '박스 변경' 진입점을 끊으면서 호출부가 사라졌다.
-  // 탈퇴 자체를 없앤 결정은 아니므로 흐름은 그대로 둔다 ("숨김 = 코드 보존").
-  // ignore: unused_element
-  Future<void> _confirmLeave(BuildContext context, GymState gs) async {
-    final gymName = gs.membership.gym?.name ?? '체육관';
-    final ok = await HkDialog.confirm(
-      context,
-      title: '체육관을 탈퇴할까요?',
-      message:
-          '$gymName 에서 탈퇴합니다.\n'
-          '다시 들어오려면 가입 신청을 넣고 코치 승인을 받아야 합니다.',
-      confirmLabel: '탈퇴',
-      danger: true,
-    );
-    if (!ok) return;
-    if (!context.mounted) return;
-    final success = await gs.leaveGym();
-    if (!context.mounted) return;
-    if (!success) {
-      HkSnack.error(context, gs.error ?? '탈퇴하지 못했습니다.');
-      return;
-    }
-    // v2.6 (2026-08-13): 탈퇴 후 '박스 찾기'로 보내지 않는다 — 박스는 하나뿐이라
-    // 찾을 목록이 없다. WOD 탭의 미가입 안내가 다음 길(가입 신청)을 알려준다.
-    context.read<ShellNavBus>().requestTab(1);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final gs = context.watch<GymState>();
-    final gym = gs.membership.gym;
-    final statusKo = switch (gs.membership.status) {
-      'approved' => '승인됨',
-      'pending' => '대기 중',
-      'rejected' => '거절됨',
-      _ => '-',
-    };
-    return Padding(
-      key: MyPageScreen.kMyGym,
-      padding: const EdgeInsets.symmetric(horizontal: HyphenTokens.sp4),
-      child: HkAccordion(
-        title: '내 체육관',
-        subtitle: gym == null ? '체육관 없음' : '${gym.name} · 회원 · $statusKo',
-        children: [
-          const SizedBox(height: HyphenTokens.sp2),
-          if (gym == null)
-            const Text('체육관 없음. 수업 탭에서 확인.', style: HyphenTokens.caption)
-          else ...[
-            Text(
-              gym.name,
-              style: HyphenTokens.body.copyWith(fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: HyphenTokens.sp1),
-            Text(
-              '회원 · $statusKo · ${gym.memberCount}명',
-              style: HyphenTokens.caption,
-            ),
-            // P1-5 (2026-06-10): 거절 상태 무안내 해소 — 멤버십이 조용히
-            // 사라지는 대신 사유 고지.
-            // v3.33 (2026-08-27): 인라인 배너 Container 를 **고정 높이 슬롯**
-            // 으로 바꿨다 (§레이아웃 안정성 · 공간 예약 · HkNoticeSlot 정본).
-            // 아코디언을 펼친 채 코치가 PC 에서 승인/거절을 바꾸면 SSE 로 이
-            // 블록이 생겼다 사라지며 그 아래가 통째로 밀렸다. 이제 자리는
-            // 늘 있고 문구만 갈린다.
-            const SizedBox(height: HyphenTokens.sp3),
-            HkNoticeSlot(
-              gs.membership.status == 'rejected'
-                  ? '가입이 승인되지 않았습니다. 체육관에 문의.'
-                  : null,
-            ),
-            // v3.28: 코치 분기('가입 신청' 버튼) 제거 — 내 정보는 회원만 본다.
-            // v3.25: '수업' 버튼 삭제 — 예약은 수업 탭 주간보드 한 곳 (대장 19).
-            // v2.6 (2026-08-13 사용자 지시): '박스 변경' 삭제. 1인 샵 전용이라
-            // 옮겨 갈 다른 박스가 없다. 탈퇴가 필요하면 코치에게 말하는 쪽이 맞다.
-            // (leaveGym·_confirmLeave 코드는 보존 — 진입점만 끊었다)
-          ],
-          const SizedBox(height: HyphenTokens.sp2),
-        ],
-      ),
-    );
-  }
-}
 
 // v3.1 (2026-08-19 사용자 지시): _BodyStats·_Kv(신체 아코디언) 삭제 —
 // 체중·키·나이 입력 경로가 v2.3 온보딩·프로필 수정 개편에서 전부 빠져

@@ -439,7 +439,6 @@ void main() {
       anchors: {
         '월요일줄': WeekBoard.dayKey(0),
         '일요일줄': WeekBoard.dayKey(6),
-        '체육관정보': BoxWodScreen.kGymInfo,
       },
     );
     // ignore: avoid_print
@@ -463,7 +462,6 @@ void main() {
       anchors: {
         '목요일줄': WeekBoard.dayKey(3),
         '일요일줄': WeekBoard.dayKey(6),
-        '체육관정보': BoxWodScreen.kGymInfo,
       },
     );
     // ignore: avoid_print
@@ -501,7 +499,6 @@ void main() {
         '칸전환줄': WeekBoard.kPaneSwitch,
         '주간이동줄': WeekBoard.kWeekNav,
         for (var i = 0; i < 7; i++) '${i + 1}번째줄': WeekBoard.dayKey(i),
-        '체육관정보': BoxWodScreen.kGymInfo,
       },
     );
     // ignore: avoid_print

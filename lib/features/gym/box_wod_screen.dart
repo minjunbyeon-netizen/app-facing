@@ -3,15 +3,11 @@ import 'package:provider/provider.dart';
 
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
-import '../../models/gym.dart';
 import '../../widgets/hkit.dart';
-import '../announcements/announcements_state.dart';
-import '../../widgets/gym_info_card.dart';
 import '../../widgets/inbox_bell.dart';
 import 'gym_state.dart';
 import 'week_board.dart';
 import 'membership_status_view.dart';
-import '../announcements/announcement_row.dart';
 
 /// v1.15.3: WOD 탭 진입점. GymState 상태 따라 4분기 렌더.
 class BoxWodScreen extends StatefulWidget {
@@ -20,10 +16,6 @@ class BoxWodScreen extends StatefulWidget {
   final bool embedded;
 
   const BoxWodScreen({super.key, this.embedded = false});
-
-  /// 레이아웃 안정성 앵커 (v3.34 · 2026-08-27) — 상단 실패 배너가 떠도 이
-  /// 아래 묶음이 밀리면 안 된다. 회귀 게이트 = test/golden/stability_wod_test.dart.
-  static const Key kGymInfo = Key('wod-tab-gym-info');
 
   @override
   State<BoxWodScreen> createState() => _BoxWodScreenState();
@@ -124,7 +116,6 @@ class _WodListState extends State<_WodList> {
 
   @override
   Widget build(BuildContext context) {
-    final gym = widget.gymState.membership.gym!;
     return Stack(
       children: [
         RefreshIndicator(
@@ -151,15 +142,8 @@ class _WodListState extends State<_WodList> {
                 key: ValueKey('week-$_tick'),
                 gymState: widget.gymState,
               ),
-              // 체육관 정보·공지는 맨 아래 (자주 보는 것이 아니다 — 접힌 줄로 유지).
-              const SizedBox(height: HyphenTokens.sp3),
-              const Divider(
-                height: 1,
-                color: HyphenTokens.border,
-                thickness: 1,
-              ),
-              _GymInfoAccordion(gym: gym, key: BoxWodScreen.kGymInfo),
-              const _AnnouncementsAccordion(),
+              // v3.43 (2026-08-29 사용자 지시): 하단 '체육관 정보'·'공지' 아코디언 삭제.
+              // 공지는 **홈에서만** 본다(검정 전광판). 체육관 정보는 이 탭의 일이 아니다.
             ],
           ),
         ),
@@ -179,87 +163,3 @@ class _WodListState extends State<_WodList> {
 /// v1.26 (2026-06-11): 박스 공지를 WOD 보드 상단으로 — Rehab 탭 전환에 따라
 /// 공지 노출처를 WOD(여기) + Attend(MessagingFeed) 로 이원화.
 /// 기본 접힘 — 최신 공지 1건 헤드라인. 펼치면 최신 3건 (pinned 우선).
-class _AnnouncementsAccordion extends StatelessWidget {
-  const _AnnouncementsAccordion();
-
-  @override
-  Widget build(BuildContext context) {
-    final items = [...context.watch<AnnouncementsState>().items]
-      ..sort((a, b) {
-        if (a.pinned != b.pinned) return a.pinned ? -1 : 1;
-        return b.createdAt.compareTo(a.createdAt);
-      });
-    if (items.isEmpty) return const SizedBox.shrink();
-    final top = items.take(3).toList();
-    final latest = top.first;
-    final preview = latest.title.isNotEmpty ? latest.title : latest.body;
-
-    return HkCard(
-      padding: EdgeInsets.zero,
-      margin: const EdgeInsets.only(top: HyphenTokens.sp2),
-      clipBehavior: Clip.antiAlias,
-      child: Theme(
-        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-        child: ExpansionTile(
-          initiallyExpanded: false,
-          tilePadding: const EdgeInsets.symmetric(
-            horizontal: HyphenTokens.sp3,
-            vertical: 2,
-          ),
-          childrenPadding: const EdgeInsets.fromLTRB(
-            HyphenTokens.sp3,
-            0,
-            HyphenTokens.sp3,
-            HyphenTokens.sp3,
-          ),
-          collapsedIconColor: HyphenTokens.muted,
-          iconColor: HyphenTokens.muted,
-          title: const HkSectionLabel('공지'),
-          // v3.42 — 접힌 한 줄이 `…` 로 잘려 뒷말이 안 보였다. 넘치면 흐른다.
-          subtitle: Padding(
-            padding: const EdgeInsets.only(top: 2),
-            child: HkMarquee(preview, style: HyphenTokens.caption),
-          ),
-          children: [for (final a in top) AnnouncementRow(item: a)],
-        ),
-      ),
-    );
-  }
-}
-
-/// v1.25 (2026-06-02): Notice 상단 박스 기본정보(GymInfoCard) → WOD 탭 최상단 아코디언.
-/// (v1.26: Notice 탭은 Rehab 탭으로 전환 — 공지는 위 _AnnouncementsAccordion 참조.)
-class _GymInfoAccordion extends StatelessWidget {
-  final GymSummary gym;
-  const _GymInfoAccordion({super.key, required this.gym});
-
-  @override
-  Widget build(BuildContext context) {
-    final loc = gym.location.trim();
-    final sub = loc.isNotEmpty ? '${gym.name} · $loc' : gym.name;
-    return Theme(
-      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-      child: ExpansionTile(
-        initiallyExpanded: false,
-        tilePadding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
-        childrenPadding: EdgeInsets.zero,
-        collapsedIconColor: HyphenTokens.muted,
-        iconColor: HyphenTokens.muted,
-        title: const HkSectionLabel('체육관 정보'),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 2),
-          child: Text(
-            sub,
-            style: HyphenTokens.caption,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        children: [
-          const SizedBox(height: HyphenTokens.sp2),
-          GymInfoCard(gym: gym, margin: EdgeInsets.zero),
-        ],
-      ),
-    );
-  }
-}
