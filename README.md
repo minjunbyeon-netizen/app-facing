@@ -239,5 +239,8 @@ samples, guidance on mobile development, and a full API reference.
     D79 에서 붙인 '수업 종류(수업 안내)' 칸의 유일한 노출 자리였다. 위젯·모델·저장소·검사는
     남겨 두었다(골든 `member_25_gym_info` 가 카드를 직접 그린다). **회원이 수업 안내를 볼
     자리를 어디로 옮길지는 사용자 결정 대기.** 검사 앵커 `kGymInfo`·`kMyGym` 도 함께 제거.
+    → **해소 (D83 · 2026-08-29 사용자 지시)**: 내 정보 메뉴 첫 줄 **'체육관 정보'** →
+    `lib/features/gym/gym_info_screen.dart`(GymInfoScreen) 가 GymInfoCard 를 세운다 — 수업 종류
+    노출 자리 복구. 같은 지시로 메뉴는 항상 펼침(아코디언 폐기) · '알림 받기' 는 메뉴 표 안 한 줄로 이동.
 
 

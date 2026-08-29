@@ -18,8 +18,7 @@ import 'package:hyphen_app/features/mypage/privacy_screen.dart';
 import 'package:hyphen_app/features/mypage/terms_screen.dart';
 import 'package:hyphen_app/features/shell/coach_shell.dart';
 import 'package:hyphen_app/features/shell/main_shell.dart';
-import 'package:hyphen_app/core/theme.dart';
-import 'package:hyphen_app/widgets/gym_info_card.dart';
+import 'package:hyphen_app/features/gym/gym_info_screen.dart';
 
 import 'fakes.dart';
 import 'harness.dart';
@@ -87,14 +86,13 @@ void main() {
     await capture(tester, 'member_26_program');
   });
 
-  // ── 회원: 체육관 정보 카드 ──
+  // ── 회원: 체육관 정보 화면 (내 정보 → 메뉴 → 체육관 정보) ──
   //
   // 2026-08-28 테스터 보고 "체육관 정보가 너무 작게 뜨는 것 같음" 으로 주소·전화를
-  // caption(13sp·흐림) → body 로 올렸다. 이 카드는 수업 탭 맨 아래 아코디언 안이라
-  // 접힌 채로는 어느 골든에도 안 잡힌다 — 카드 자체를 세워 캡처한다.
-  // (아코디언을 여는 조작으로 잡으려 했으나 뷰포트 끝에 걸려 불안정했다.
-  //  캡처의 목적은 '이 카드가 어떻게 보이는가' 이므로 카드를 직접 세우는 편이 정확하다.)
-  testWidgets('member: gym info card', (tester) async {
+  // caption(13sp·흐림) → body 로 올렸다. D81 로 수업 탭 하단 카드가 사라졌다가
+  // D83 (2026-08-29) 에서 내 정보 메뉴의 전용 화면(GymInfoScreen)이 됐다 —
+  // 회원이 '수업 종류(이름+설명)' 를 보는 유일한 자리. 실제 화면을 그대로 찍는다.
+  testWidgets('member: gym info screen', (tester) async {
     phone(tester);
     SharedPreferences.setMockInitialValues(signedInPrefs());
     final api = FakeApi(memberWorld());
@@ -106,20 +104,11 @@ void main() {
         auth: await signedInAuth(),
         profile: rxProfile(),
         gym: gym,
-        home: Scaffold(
-          backgroundColor: HyphenTokens.bg,
-          body: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(HyphenTokens.sp3),
-              child: GymInfoCard(
-                gym: gym.membership.gym,
-                margin: EdgeInsets.zero,
-              ),
-            ),
-          ),
-        ),
+        // D83 (2026-08-29): 실제 진입 화면(내 정보 → 메뉴 → 체육관 정보)을 찍는다.
+        home: const GymInfoScreen(),
       ),
     );
+    expect(find.text('수업 종류 (4)'), findsOneWidget);
     await capture(tester, 'member_25_gym_info');
   });
 

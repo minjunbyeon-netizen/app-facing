@@ -13,6 +13,7 @@ import '../auth/auth_state.dart';
 import '../classes/today_reservations.dart';
 import '../contracts/member_contracts_screen.dart';
 import 'strength_board_screen.dart';
+import '../gym/gym_info_screen.dart';
 import '../gym/gym_state.dart';
 import 'edit_profile_screen.dart';
 import 'privacy_screen.dart';
@@ -59,8 +60,8 @@ class MyPageScreen extends StatelessWidget {
             _IdentityCard(),
             _SectionDivider(),
             _MembershipSection(),
-            _SectionDivider(),
             // v3.43 (2026-08-29 사용자 지시): '내 체육관' 섹션 삭제.
+            // D83: 그때 남은 구분선 두 겹(굵은 띠로 찍힘)을 한 겹으로.
             _SectionDivider(),
             // v3.1 (2026-08-19 사용자 지시): 신체(체중·키·나이) 아코디언 삭제 —
             // 입력 칸이 v2.3 에서 전부 빠져 영구 '-' 플레이스홀더였다.
@@ -282,21 +283,29 @@ class _ActionsSection extends StatelessWidget {
           ),
           // B-5 (2026-06-10) — 회원 포인트 잔액 (적립 토스트 "+NP" 와 신뢰 일치)
           const _PointsBalanceRow(),
-          // 2026-08-28 사용자 확정 — '알림 받기' 한 줄. 종류별로 나누지 않는다.
-          // 이 화면 코드가 "나중에 설정에서 켤 수 있음" 이라고 적어 두고도
-          // 그 설정이 없었다 (화면이 없는 것을 있다고 말하던 자리).
-          const _NotificationsRow(),
-          // v1.31 (2026-08-07) — 메뉴 10종이 세로로 주렁주렁 길다는 사용자 지시로
-          // 단일 아코디언(기본 접힘) + 표(HkRowCard) 로 통합. 항목·진입 경로는
-          // 그대로, 접힘 상태에서 헤더 한 줄만 차지한다.
+          // D83 (2026-08-29 사용자 지시 "내 정보에 메뉴란 항상 펼쳐놓고, 알림 받기도
+          // 밑에 메뉴 안에 1곳으로 넣고, 저기에 체육관 정보 새로 만들고"):
+          // v1.31 아코디언(기본 접힘)을 폐기하고 **항상 펼친 표 하나**. '알림 받기'
+          // (2026-08-28 한 줄 토글)는 별도 카드가 아니라 이 표의 한 줄이다.
           const SizedBox(height: HyphenTokens.sp2),
-          HkAccordion(
+          const Padding(
             key: MyPageScreen.kMenu,
-            title: '메뉴',
-            children: [
-              const SizedBox(height: HyphenTokens.sp2),
-              HkRowCard(
+            padding: EdgeInsets.only(bottom: HyphenTokens.sp2),
+            child: HkSectionLabel('메뉴'),
+          ),
+          HkRowCard(
                 rows: [
+                  // D83 — 체육관 이름·주소·전화 · 코치 · 수업 종류(이름+설명) ·
+                  // 수업 시간 · 모토. D81 로 사라졌던 '수업 종류' 노출 자리가 여기다.
+                  HkListRow(
+                    icon: Icons.store_outlined,
+                    title: '체육관 정보',
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const GymInfoScreen(),
+                      ),
+                    ),
+                  ),
                   // B-6 (2026-06-10) — 회원 전자계약 목록·상세·서명 진입
                   HkListRow(
                     icon: Icons.assignment_outlined,
@@ -333,6 +342,9 @@ class _ActionsSection extends StatelessWidget {
                   //    회원 레벨은 경력 3단(SCALED/RXD/ELITE)이라 RX+·Games 는 없는 등급이다.
                   // 화면 파일은 v3.2(2026-08-20)에서 코드까지 삭제
                   // (README §제거된 기능 대장 — 복원은 git log).
+                  // 2026-08-28 사용자 확정 — '알림 받기' 한 줄. 종류별로 나누지 않는다.
+                  // D83 — 메뉴 표 안 한 줄로 이동 (종전엔 포인트 아래 별도 카드).
+                  const _NotificationsRow(),
                   // v3.31 (2026-08-27 사용자 지시): 'FAQ'·'고객지원' 행 삭제 —
                   // FAQ 는 화면 코드(faq_screen.dart)까지 제거, 고객지원은
                   // 카카오톡 채널 링크뿐이라 행만 제거 (README §제거된 기능 대장 33·34).
@@ -358,8 +370,6 @@ class _ActionsSection extends StatelessWidget {
               ),
               // v3.31 (2026-08-27 사용자 지시): '데이터 초기화' 버튼·확인
               // 다이얼로그(_confirmReset) 삭제 (README §제거된 기능 대장 35).
-            ],
-          ),
           // v2.2 (2026-08-12 사용자 지시): DEBUG 블록 전면 삭제.
           // 빠른 전환 아바타 바 · Persona Switcher · 데모 진입은 화면을 어지럽히기만
           // 했다. kDebugMode 가드가 있어도 개발 중 매번 보이는 화면이라 제거한다.
@@ -997,33 +1007,27 @@ class _NotificationsRowState extends State<_NotificationsRow>
   @override
   Widget build(BuildContext context) {
     final blocked = _on && !_granted;
-    return Padding(
+    // D83 — 메뉴 표(HkRowCard)의 한 줄. 카드 껍데기는 표가 가진다.
+    return HkListRow(
       key: MyPageScreen.kNotifications,
-      padding: const EdgeInsets.only(bottom: HyphenTokens.sp3),
-      child: HkRowCard(
-        rows: [
-          HkListRow(
-            icon: Icons.notifications_none,
-            iconColor: blocked ? HyphenTokens.danger : null,
-            title: '알림 받기',
-            // 세 상태 모두 한 줄 — 행 높이가 변하지 않는다.
-            subtitle: blocked
-                ? '폰 설정에서 알림이 차단되어 있습니다.'
-                : _on
-                ? '쪽지 · 수업 시작 1시간 전 알림을 받습니다.'
-                : '알림을 받지 않습니다.',
-            subtitleColor: blocked ? HyphenTokens.danger : null,
-            // 켜 두었어도 폰이 막고 있으면 트랙을 중립색으로 — 위치는 내 설정,
-            // 색은 실제로 오고 있는지. 둘 다 드러난다.
-            trailingWidget: HkSwitch(
-              value: _on,
-              activeColor: blocked ? HyphenTokens.muted : null,
-              onChanged: _toggle,
-            ),
-            onTap: () => _toggle(!_on),
-          ),
-        ],
+      icon: Icons.notifications_none,
+      iconColor: blocked ? HyphenTokens.danger : null,
+      title: '알림 받기',
+      // 세 상태 모두 한 줄 — 행 높이가 변하지 않는다.
+      subtitle: blocked
+          ? '폰 설정에서 알림이 차단되어 있습니다.'
+          : _on
+          ? '쪽지 · 수업 시작 1시간 전 알림을 받습니다.'
+          : '알림을 받지 않습니다.',
+      subtitleColor: blocked ? HyphenTokens.danger : null,
+      // 켜 두었어도 폰이 막고 있으면 트랙을 중립색으로 — 위치는 내 설정,
+      // 색은 실제로 오고 있는지. 둘 다 드러난다.
+      trailingWidget: HkSwitch(
+        value: _on,
+        activeColor: blocked ? HyphenTokens.muted : null,
+        onChanged: _toggle,
       ),
+      onTap: () => _toggle(!_on),
     );
   }
 }

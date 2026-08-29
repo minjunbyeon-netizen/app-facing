@@ -195,20 +195,11 @@ void main() {
     );
     await tester.ensureVisible(find.text('메뉴'));
     await tester.pump(const Duration(milliseconds: 100));
+    // D83 (2026-08-29): 메뉴는 항상 펼쳐져 있다 — 표 전체(체육관 정보 ~ 이용약관,
+    // '알림 받기' 포함)가 이 한 장에 다 들어온다. 펼침 캡처(member_05)는 같은 그림이라
+    // 삭제. v3.10 (2026-08-22) 의 설정 아코디언 캡처(member_04b) 삭제와 같은 이유.
+    expect(find.text('알림 받기'), findsOneWidget);
     await capture(tester, 'member_04_profile_menu');
-    // v3.10 (2026-08-22): 설정 아코디언 자체가 사라져 캡처(member_04b)도
-    // 같이 뺐다 — 단위·글자 크기 두 항목을 다 없앴더니 빈 껍데기만 남았다.
-    await tester.tap(find.text('메뉴'));
-    // 펼침 애니메이션이 레이아웃에 반영될 때까지 프레임을 여러 번 돌린다.
-    // 한 번만 pump 하면 maxScrollExtent 가 아직 안 늘어 드래그가 먹지 않는다.
-    for (var i = 0; i < 6; i++) {
-      await tester.pump(const Duration(milliseconds: 100));
-    }
-    // 표 하단(이용약관·데이터 초기화)까지 올린다. ensureVisible 은 여기서
-    // 스크롤을 안 움직여(대상이 이미 build 된 상태) 고정 드래그로 처리.
-    await tester.drag(profileScroll, const Offset(0, -420));
-    await tester.pump(const Duration(milliseconds: 200));
-    await capture(tester, 'member_05_profile_menu_open');
   });
 
   // ── 홈 공지 아코디언 (R7 · 2026-08-21 — 소스를 AnnouncementsState 로 교체) ──
