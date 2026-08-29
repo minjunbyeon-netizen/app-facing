@@ -382,11 +382,10 @@ class _PinnedAnnouncement extends StatelessWidget {
             const Text('등록된 공지 없음.', style: HyphenTokens.caption)
           else ...[
             if (latest.title.isNotEmpty)
-              Text(
+              // v3.42 — 긴 제목은 흐른다 (HkMarquee). 본문 2줄은 그대로.
+              HkMarquee(
                 latest.title,
                 style: HyphenTokens.body.copyWith(fontWeight: FontWeight.w700),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
             if (latest.body.isNotEmpty)
               Padding(

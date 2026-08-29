@@ -239,14 +239,10 @@ class _NoticeAccordion extends StatelessWidget {
                 ],
               ],
             ),
+            // v3.42 — 넘치면 흐르는 한 줄 (HkMarquee). 공지 0건 문구는 짧아 서 있다.
             subtitle: Padding(
               padding: const EdgeInsets.only(top: 2),
-              child: Text(
-                preview,
-                style: HyphenTokens.caption,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
+              child: HkMarquee(preview, style: HyphenTokens.caption),
             ),
             children: [
               for (final a in top) AnnouncementRow(bodyMaxLines: 2, item: a),

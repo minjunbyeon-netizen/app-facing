@@ -1102,6 +1102,145 @@ class HkSkeletonBar extends StatelessWidget {
   }
 }
 
+/// 한 줄 **전광판** — 글이 칸보다 길면 오른쪽에서 왼쪽으로 천천히 흐르고,
+/// 칸에 다 들어가면 그냥 서 있다 (v3.42 · 2026-08-29 사용자 지시 "공지 칸만 좌에서
+/// 우로 안에 내용이 TEXT 가 슬라이드 돌아가게").
+///
+/// 어디에 쓰나: 공지 접힌 줄처럼 **한 줄만 허락된 자리**에서 `…` 로 잘라 버리면
+/// 뒷말이 영영 안 보인다. 펼치면 다 보이지만 "펼쳐야 보인다"는 것 자체가 안 읽히는
+/// 이유다. 흐르게 하면 자리를 안 늘리고도 끝까지 보인다.
+///
+/// 규칙:
+/// - **넘칠 때만 움직인다.** 짧은 글까지 흔들면 시선만 뺏는다. 넘치는지는 실제
+///   레이아웃 폭으로 잰다 (글자 수 추정 금지 — 한글·영문 폭이 다르다).
+/// - 속도는 초당 [pixelsPerSecond] — 글 길이에 비례해 한 바퀴 시간이 정해진다.
+///   시작 전 [pauseAtStart] 만큼 멈춰 첫머리를 읽을 시간을 준다.
+/// - 한 바퀴 돌면 처음으로 되감아 반복. 두 벌을 이어 붙여 끊김 없이 돈다.
+/// - 접근성: 시스템 '애니메이션 줄이기'(`disableAnimations`) 면 움직이지 않고 `…` 처리.
+/// - 세 노출 자리(수업 탭 공지 아코디언·홈 공지 카드·쪽지함 핀)가 **이 위젯 하나**를 쓴다
+///   (§3 코드·클래스 SSOT — 화면마다 애니메이션을 따로 두지 않는다).
+class HkMarquee extends StatefulWidget {
+  final String text;
+  final TextStyle? style;
+  final double pixelsPerSecond;
+  final Duration pauseAtStart;
+  /// 두 벌 사이 간격 — 끝과 처음이 붙어 읽히지 않게.
+  final double gap;
+
+  const HkMarquee(
+    this.text, {
+    super.key,
+    this.style,
+    this.pixelsPerSecond = 32,
+    this.pauseAtStart = const Duration(milliseconds: 1200),
+    this.gap = 48,
+  });
+
+  @override
+  State<HkMarquee> createState() => _HkMarqueeState();
+}
+
+class _HkMarqueeState extends State<HkMarquee>
+    with SingleTickerProviderStateMixin {
+  AnimationController? _ctrl;
+  double _textW = 0;
+  double _boxW = 0;
+
+  bool get _overflows => _textW > _boxW + 0.5;
+
+  void _measure(BuildContext context, double boxW) {
+    final tp = TextPainter(
+      text: TextSpan(text: widget.text, style: _style(context)),
+      maxLines: 1,
+      textDirection: TextDirection.ltr,
+    )..layout();
+    _textW = tp.width;
+    _boxW = boxW;
+  }
+
+  TextStyle _style(BuildContext context) =>
+      widget.style ?? DefaultTextStyle.of(context).style;
+
+  void _syncAnimation(BuildContext context) {
+    final reduce = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    if (!_overflows || reduce) {
+      _ctrl?.stop();
+      return;
+    }
+    final distance = _textW + widget.gap;
+    final travel = Duration(
+      milliseconds: (distance / widget.pixelsPerSecond * 1000).round(),
+    );
+    final total = widget.pauseAtStart + travel;
+    if (_ctrl == null || _ctrl!.duration != total) {
+      _ctrl?.dispose();
+      _ctrl = AnimationController(vsync: this, duration: total)
+        ..addListener(() => setState(() {}));
+    }
+    if (!_ctrl!.isAnimating) _ctrl!.repeat();
+  }
+
+  @override
+  void didUpdateWidget(covariant HkMarquee old) {
+    super.didUpdateWidget(old);
+    if (old.text != widget.text) _textW = 0; // 다시 잰다
+  }
+
+  @override
+  void dispose() {
+    _ctrl?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final style = _style(context);
+    return LayoutBuilder(
+      builder: (ctx, c) {
+        if (_boxW != c.maxWidth || _textW == 0) _measure(ctx, c.maxWidth);
+        _syncAnimation(ctx);
+        final reduce = MediaQuery.maybeOf(ctx)?.disableAnimations ?? false;
+        if (!_overflows || reduce) {
+          return Text(
+            widget.text,
+            style: style,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            softWrap: false,
+          );
+        }
+        // 진행률 → 픽셀 오프셋. 시작 멈춤 구간은 0 에 머문다.
+        final total = _ctrl!.duration!.inMilliseconds.toDouble();
+        final pause = widget.pauseAtStart.inMilliseconds.toDouble();
+        final t = (_ctrl!.value * total - pause).clamp(0.0, total - pause);
+        final distance = _textW + widget.gap;
+        final dx = -(t / (total - pause)) * distance;
+        return ClipRect(
+          child: SizedBox(
+            height: (style.fontSize ?? 14) * (style.height ?? 1.4),
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Positioned(
+                  left: dx,
+                  top: 0,
+                  child: Row(
+                    children: [
+                      Text(widget.text, style: style, maxLines: 1, softWrap: false),
+                      SizedBox(width: widget.gap),
+                      Text(widget.text, style: style, maxLines: 1, softWrap: false),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
 /// 높이가 오락가락하는 영역의 **자리를 미리 잡아 두는 슬롯** (공간 예약 /
 /// space reservation).
 ///

@@ -377,7 +377,7 @@ R5. **하드코드 fontSize 금지.** 모든 텍스트 크기는 `HyphenTokens` 
   회귀 게이트 = `test/golden/layout_stability.dart` (`expectStableAnchorY`, 브리프 D67).
 - **UI 컴포넌트 SSOT = `lib/widgets/hkit.dart` (HKit — v1.27 신설, v1.29 확장, v3.24 골격 통일)**: 카드(HkCard)·배지(HkBadge)·
   섹션 라벨(HkSectionLabel)·통계 타일(HkStatTile)·빈/에러/로딩 상태(HkEmptyState/HkErrorState/HkLoading)·
-  전면 로딩(HkLoadingScreen)·소셜 버튼(HkSocialButton)·**상단바(HkAppBar/.identity)·다이얼로그(HkDialog)·
+  전면 로딩(HkLoadingScreen)·소셜 버튼(HkSocialButton)·**전광판 한 줄(HkMarquee — 넘칠 때만 흐름, v3.42)**·**상단바(HkAppBar/.identity)·다이얼로그(HkDialog)·
   바텀시트(HkSheet)·인라인 에러(HkInlineError)·버튼(HkButton — 원시 버튼 0건)**은 HKit 것만 사용.
   화면 코드에 `AppBar(`·`AlertDialog(`·`showModalBottomSheet`·`OutlineInputBorder(`·화면별 `_deco()` 가
   생기면 `test/ssot_lint_test.dart` 가 막는다 (v3.24 · 2026-08-25 사용자 지시 "인라인·이원화 전부 통일"). 화면마다 새 버튼·배지·레이아웃

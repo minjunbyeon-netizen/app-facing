@@ -215,14 +215,10 @@ class _AnnouncementsAccordion extends StatelessWidget {
           collapsedIconColor: HyphenTokens.muted,
           iconColor: HyphenTokens.muted,
           title: const HkSectionLabel('공지'),
+          // v3.42 — 접힌 한 줄이 `…` 로 잘려 뒷말이 안 보였다. 넘치면 흐른다.
           subtitle: Padding(
             padding: const EdgeInsets.only(top: 2),
-            child: Text(
-              preview,
-              style: HyphenTokens.caption,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
+            child: HkMarquee(preview, style: HyphenTokens.caption),
           ),
           children: [for (final a in top) AnnouncementRow(item: a)],
         ),
