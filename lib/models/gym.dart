@@ -424,6 +424,14 @@ class GymWodPost {
   final String? scoreHint; // 'time' | 'rounds' | 'weight'
   final List<String> movementSuggestions;
 
+  // v3.41 (2026-08-29 사용자 지시 "그날 수업이 시간 순서대로, 중복은 표시하지
+  // 않고") — 프로그램은 (그날, 수업 종류) 단위다. 정렬 축과 중복 판정을 서버가
+  // 함께 내려준다: 그 종류의 **그날 첫 수업 시각**과 종류 id·이름.
+  // 단발 글(수업 종류 연결 없음)은 셋 다 null — 시간 없는 것으로 보고 뒤에 붙인다.
+  final int? templateId;
+  final String? templateName;
+  final DateTime? firstClassAt;
+
   const GymWodPost({
     required this.id,
     required this.postDate,
@@ -440,6 +448,9 @@ class GymWodPost {
     this.locked = false,
     this.scoreHint,
     this.movementSuggestions = const [],
+    this.templateId,
+    this.templateName,
+    this.firstClassAt,
   });
 
   bool get hasVersions =>
@@ -478,6 +489,12 @@ class GymWodPost {
           : null,
       createdAt: parseServerTime(j['created_at'] as String).toLocal(),
       locked: j['locked'] == true,
+      templateId: (j['template_id'] as num?)?.toInt(),
+      templateName: j['template_name']?.toString(),
+      firstClassAt: (j['first_class_at'] is String &&
+              (j['first_class_at'] as String).isNotEmpty)
+          ? parseServerTime(j['first_class_at'] as String).toLocal()
+          : null,
       scoreHint: j['score_hint']?.toString(),
       movementSuggestions: (j['movement_suggestions'] is List)
           ? (j['movement_suggestions'] as List)

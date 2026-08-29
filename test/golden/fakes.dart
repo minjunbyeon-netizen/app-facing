@@ -380,11 +380,41 @@ String _ymd(DateTime d) =>
 
 /// /api/v1/gyms/1/wods — 코치 오늘 WOD 보드 (rounds_data 구조화 포함).
 /// 날짜는 실행 시점 기준 — 언제 갱신해도 TODAY 밴드가 살아있게 (writeplz generations 패턴).
+///
+/// v3.41 (2026-08-29 사용자 지시) — 오늘 프로그램이 **세 종류**다.
+/// 일부러 **뒤섞인 순서**로 두고 BUILD 를 두 번 넣는다: 화면이 첫 수업 시각 순
+/// (AWAKE 06:00 → SWEAT 12:00 → BUILD 18:00)으로 다시 세우고 같은 종류를 한 번만
+/// 그리는지, 픽스처가 그 자체로 증명하게 하려는 것이다.
 List<Map<String, dynamic>> gymWods() {
   final now = appClock.now();
+  final d = _ymd(now);
+  Map<String, dynamic> prog(int id, String name, int tid, int hour,
+          String type, String content,
+          {String? hint}) =>
+      {
+        'id': id,
+        'post_date': d,
+        'wod_type': type,
+        'content': content,
+        'rounds_data': <dynamic>[],
+        'created_at': '${d}T05:00:00',
+        'locked': false,
+        'score_hint': hint ?? 'rounds',
+        'movement_suggestions': <String>[],
+        'template_id': tid,
+        'template_name': name,
+        'first_class_at': '${d}T${hour.toString().padLeft(2, '0')}:00:00',
+      };
   return [
+    // 뒤섞인 순서 — 화면이 시각 순으로 다시 세운다.
+    prog(33, 'BUILD', 3, 18, 'emom', 'EMOM 12\n1 Clean & Jerk'),
+    prog(34, 'BUILD', 3, 18, 'emom', '같은 종류 중복 — 화면에 안 나온다'),
+    prog(32, 'SWEAT', 2, 12, 'amrap', 'AMRAP 15\n10 KB Swing\n200m Row'),
     {
       'id': 31,
+      'template_id': 1,
+      'template_name': 'AWAKE',
+      'first_class_at': '${d}T06:00:00',
       'post_date': _ymd(now),
       'wod_type': 'for_time',
       'content': '21-15-9\nThruster 42.5kg\nPull-up',

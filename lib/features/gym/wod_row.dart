@@ -228,6 +228,21 @@ class _WodRowState extends State<WodRow> {
                     ),
                     _dot(),
                   ],
+                  // v3.41 (2026-08-29) — 어느 수업의 프로그램인지 먼저 적는다.
+                  // 회원이 아는 이름은 AWAKE·SWEAT·BUILD 이고, FOR TIME·AMRAP 은
+                  // 그 안에서 오늘 무엇을 하느냐다. 수업 종류에 안 붙은 단발 글은
+                  // 종전대로 종류만 적는다.
+                  if ((wod.templateName ?? '').trim().isNotEmpty) ...[
+                    Text(
+                      wod.templateName!.trim(),
+                      style: HyphenTokens.sectionLabel.copyWith(
+                        color: isMinimal
+                            ? HyphenTokens.muted
+                            : HyphenTokens.fg,
+                      ),
+                    ),
+                    _dot(),
+                  ],
                   Text(
                     wodTypeLabel(wod.wodType),
                     style: HyphenTokens.sectionLabel.copyWith(

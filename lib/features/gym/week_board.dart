@@ -323,6 +323,33 @@ class _WeekBoardState extends State<WeekBoard> {
   }
 }
 
+/// 그날 프로그램을 **화면에 내보낼 순서·개수**로 고른다 (v3.41 · 2026-08-29).
+///
+/// 사용자 지시: "그날 수업이 시간 순서대로 (어웨이크, 스웻, 빌드): 가장 빠른순대로
+/// 중복은 표시하지 않고, 수업 펼쳐져서 내용은 다 보여야 함".
+///
+/// - **순서** = 그 수업 종류의 그날 **첫 수업 시각**(서버가 `first_class_at` 로 준다).
+///   시각이 없는 글(수업 종류에 안 붙은 단발)은 맨 뒤로, 그 안에서는 게시 순.
+/// - **중복 제거** = 같은 수업 종류(`templateId`)는 한 번만. 하루에 BUILD 가 두 번
+///   돌아도 내용은 하나이므로 두 번 적을 이유가 없다. 종류가 없는 글은 각각 남긴다
+///   (서로 다른 글일 수 있다).
+List<GymWodPost> visibleProgram(List<GymWodPost> wods) {
+  final seen = <int>{};
+  final out = <GymWodPost>[];
+  for (final w in wods) {
+    if (w.templateId != null && !seen.add(w.templateId!)) continue;
+    out.add(w);
+  }
+  out.sort((a, b) {
+    final at = a.firstClassAt, bt = b.firstClassAt;
+    if (at != null && bt != null) return at.compareTo(bt);
+    if (at != null) return -1;   // 시각이 있는 쪽이 먼저
+    if (bt != null) return 1;
+    return a.id.compareTo(b.id); // 둘 다 없으면 게시 순
+  });
+  return out;
+}
+
 /// 하루 = 접힌 줄 하나. 펼치면 지금 보고 있는 칸의 것 **하나만** — 수업 시간
 /// 칸이면 수업 줄(예약 버튼 포함), 프로그램 칸이면 그날 프로그램 (v3.37).
 class _DayTile extends StatelessWidget {
@@ -393,7 +420,8 @@ class _DayTile extends StatelessWidget {
   /// 안 적는다 (그게 두 칸을 나눈 이유다).
   String get _programSummary {
     final names = <String>[];
-    for (final w in wods) {
+    // 접힌 줄 요약과 펼친 내용이 어긋나면 안 된다 — 같은 목록을 쓴다 (v3.41).
+    for (final w in visibleProgram(wods)) {
       final n = _programName(w);
       if (n.isNotEmpty && !names.contains(n)) names.add(n);
     }
@@ -415,6 +443,9 @@ class _DayTile extends StatelessWidget {
   /// 가장 정확한 이름표다). 잠긴 글은 본문이 비어 오므로 잠긴 사유를 적는다.
   static String _programName(GymWodPost w) {
     if (w.locked) return '회원권 만료';
+    // v3.41 — 수업 종류 이름이 곧 회원이 아는 이름이다 (AWAKE·SWEAT·BUILD).
+    final tn = (w.templateName ?? '').trim();
+    if (tn.isNotEmpty) return tn;
     if (w.wodType != 'custom') return wodTypeLabel(w.wodType);
     for (final line in w.content.split('\n')) {
       final t = line.trim();
@@ -535,7 +566,7 @@ class _DayTile extends StatelessWidget {
       children: [
         // '당일 공개' 잠금 폐지 (2026-08-23) — 미래 게시물도 회원에게 그대로.
         // 잠금 사유는 회원권 만료(w.locked)뿐.
-        for (final (i, w) in wods.indexed)
+        for (final w in visibleProgram(wods))
           if (w.locked)
             LockedWodBanner(
               dateLabel: dateLabel,
@@ -548,9 +579,10 @@ class _DayTile extends StatelessWidget {
               dateLabel: dateLabel,
               // 지난 날 WOD 도 이 날을 직접 골라 연 것이므로 흐리게 두지 않는다.
               isToday: !_isPast,
-              // 하루에 WOD 가 둘 이상이면 첫 개만 펼친다 — 실기에서 둘 다 펼쳐져
-              // 그 밑 수업이 화면 밖으로 밀렸다 (2026-08-12 에뮬 확인).
-              initiallyExpanded: i == 0,
+              // v3.41 (2026-08-29 사용자 지시 "수업 펼쳐져서 내용은 다 보여야 함")
+              // — **전부 펼친다.** 종전엔 첫 개만 펼쳤는데(2026-08-12 그 밑 수업이
+              // 밀려서), 이제 프로그램 칸에는 수업 줄이 아예 없어 밀릴 것이 없다.
+              initiallyExpanded: true,
               showDate: false,
             ),
       ],
