@@ -1688,3 +1688,41 @@ List<Map<String, dynamic>> memberActivity() {
         '이서준님, 3개월권 회원권이 34일 뒤 만료됩니다.', 3, '15:00'),
   ];
 }
+
+/// 히스토리 목록 — D84 검색 골든용 (hist_02 · hist_03). 수업 결과 저장이 남기는 꼴
+/// ('수업 #N · 내용 첫 줄') 그대로. 날짜는 실행 시점 상대값.
+List<Map<String, dynamic>> wodHistoryList() {
+  final now = appClock.now();
+  Map<String, dynamic> rec(
+    int id,
+    String type,
+    String notes,
+    int daysAgo, {
+    int sec = 0,
+    String grade = 'rx',
+  }) => {
+    'id': id,
+    'wod_type': type,
+    'time_cap_sec': null,
+    'rounds': null,
+    'notes': notes,
+    'created_at': '${_ymd(now.subtract(Duration(days: daysAgo)))}T10:00:00',
+    'plan': {
+      'id': id * 10,
+      'estimated_total_sec': sec,
+      'grade': grade,
+      'formula_version': 'manual',
+    },
+  };
+  return [
+    rec(501, 'custom', '수업 #41 · BUILD Back Squat 5×5', 1),
+    rec(502, 'for_time', '수업 #40 · SWEAT Fran 21-15-9 Thruster · Pull-up', 3,
+        sec: 412, grade: 'scaled'),
+    rec(503, 'amrap', '수업 #38 · AWAKE 12min AMRAP Burpee · Row 250m', 6,
+        sec: 720),
+    rec(504, 'custom', '수업 #35 · BUILD Front Squat 3×5', 8, grade: 'elite'),
+    rec(505, 'for_time',
+        '수업 #30 · SWEAT Helen 3 rounds Run 400m · KB Swing · Pull-up', 14,
+        sec: 655),
+  ];
+}

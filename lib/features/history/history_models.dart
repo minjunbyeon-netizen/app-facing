@@ -38,6 +38,13 @@ class WodHistoryItem {
     );
   }
 
+  /// 목록 한 줄 제목 — 메모 첫 줄 (수업 결과 저장은 '수업 #N · 내용 첫 줄' 을 남긴다).
+  /// 메모가 비면 종류 코드 그대로(화면이 라벨로 바꾼다). D84 검색의 3배 가중 칸.
+  String get summary {
+    final first = notes.split('\n').first.trim();
+    return first.isEmpty ? wodType : first;
+  }
+
   String get estimatedTotalDisplay {
     // 결함 수정 3 (2026-08-20 실기 발견): 수업 기록 미러 등 시간 없는 기록이
     // "0:00" 으로 도배되던 문제 — 0초는 시간 미측정으로 취급.

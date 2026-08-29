@@ -16,6 +16,25 @@ class HistoryRepository {
         .toList();
   }
 
+  /// 전부 읽기 — D84 검색은 폰에서 고르므로 목록이 잘려 있으면 안 된다. 서버 상한
+  /// (limit ≤ 100) 만큼씩 끝까지 넘긴다. 짧은 페이지가 오면 끝.
+  Future<List<WodHistoryItem>> listAllWodHistory() async {
+    const page = 100;
+    final all = <WodHistoryItem>[];
+    for (var offset = 0; ; offset += page) {
+      final list = await api.getList(
+        '/api/v1/history/wod?limit=$page&offset=$offset',
+      );
+      final items = list
+          .whereType<Map<String, dynamic>>()
+          .map(WodHistoryItem.fromJson)
+          .toList();
+      all.addAll(items);
+      if (items.length < page) break;
+    }
+    return all;
+  }
+
   Future<Map<String, dynamic>> getWodDetail(int recordId) {
     return api.get('/api/v1/history/wod/$recordId');
   }

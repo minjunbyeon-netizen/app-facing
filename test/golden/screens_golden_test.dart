@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -323,6 +323,35 @@ void main() {
       ),
     );
     await capture(tester, 'hist_01_empty');
+  });
+
+  // ── 이력 목록 + 검색 (D84 · 2026-08-29 "검색이 되는 거고 연관도순으로") ──
+  // hist_02 = 검색어 없음(최근순) · hist_03 = 'squat' 를 치면 Back Squat · Front Squat
+  // 두 건만 남고 최근 것이 위. 순위 규칙 정본 = history_search.dart (단위 검사
+  // test/history_search_test.dart) — 골든은 검색 칸이 목록 위에 늘 서 있음을 찍는다.
+  testWidgets('history: list and search', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi({
+      ...memberWorld(),
+      '/api/v1/history/wod': wodHistoryList(),
+    });
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        home: const HistoryScreen(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Back Squat'), findsOneWidget);
+    await capture(tester, 'hist_02_list');
+    await tester.enterText(find.byType(TextField), 'squat');
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Squat'), findsNWidgets(2));
+    expect(find.textContaining('Fran'), findsNothing);
+    await capture(tester, 'hist_03_search');
   });
 
   // ── 사장 로그인 ──

@@ -86,7 +86,9 @@ SECTIONS = [
         ("coach_04_new_note_members", "새 쪽지 — 내 회원 목록에서 받을 사람 선택 → 대화 (v3.28)"),
     ]),
     ("상태 변형", "상태 변형 — 빈 · 에러 · 오프라인 · 미가입", [
-        ("hist_01_empty", "History — 빈 상태 (신규 가입)"),
+        ("hist_01_empty", "히스토리 — 빈 상태 (신규 가입). 검색 칸은 빈 상태에도 서 있다 (D84)"),
+        ("hist_02_list", "히스토리 — 기록 목록, 검색어 없음 = 최근순. 제목 = 수업 내용 첫 줄 · 아랫줄 종류·일시 (D84, 2026-08-29)"),
+        ("hist_03_search", "히스토리 — 'squat' 검색: 연관도순, Back Squat(최근) · Front Squat 두 건만 (D84)"),
         ("state_01_wod_error", "수업 보드 로드 실패 — 네트워크 에러"),
         ("state_02_wod_nogym", "체육관 미가입 — 가입 직후 수업 탭"),
         ("state_03_home_offline", "Home — OFFLINE 배너"),
