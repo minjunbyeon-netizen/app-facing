@@ -591,6 +591,34 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > - 회귀: 골든 `coach_01`(주간) 재생성 · `coach_02` 삭제 · `coach_04_new_note_members` 신규 ·
 >   `coach_03` 재생성(그룹 버튼 없음).
 
+> **D88-1 (2026-08-30 집행) — 1단계: 동작 사전 + 코치 드롭다운 (서버·PC). 앱 무변경.**
+>
+> - **동작 사전 = `movement_library`** (기존 60종 시드 — PC '동작 라이브러리' 탭이 이미 쓰던 표). D88 원문의
+>   "기본 세트 = 구 `movements` 23종" 은 폐기된 페이싱 엔진 표라 **정정** — 사전을 둘로 두지 않는다(§0-B).
+>   컬럼 추가: `gym_id`(NULL=공용·값=체육관 추가분) · `unit`(reps/meters/calories/seconds) · `has_load` · `is_active`.
+>   unique 는 `(gym_id, name_en)` 복합으로 표 재작성(id 보존, 프로드 SQLite 멱등). 표시 이름 = **영문 동작명 하나**
+>   (`display_name = name_en` — 검증 중 사전 '에어로바이크' ↔ 본문 'Bike' 불일치를 잡아 통일, 한글은 `name_ko` 곁들임).
+> - **그날 운동 = 게시물 `gym_wod_posts.rounds_data`** (v1.25 라운드 JSON 재사용 — 새 표 없음). 동작 줄에 `movement_id`·`unit`
+>   추가, 메모는 `round[0].content`. **정의·검증·렌더링 정본 = `services/program_lines.py`** (`WOD_TYPES/WOD_TYPE_LABELS` ·
+>   `normalize_program` · `apply_program` · `render_program_content` · `program_of`). 본문 `content` 는 서버가 구조에서
+>   그린다: `제목 / FOR TIME · 캡 12분 / Thruster 21-15-9회 · 43kg / Row 500m / (빈 줄) 메모` — 옛 앱도 그대로 읽는다.
+> - **API**: `GET /admin/movement-library`(체육관 범위) · `POST/PATCH /admin/gyms/<id>/movement-library`(코치 추가·빼기, 공용 행
+>   403 BASE_MOVEMENT, 중복 409) · `GET /admin/program-meta`(종류·단위·분류 선택지 — PC JS 에 표를 두지 않는다, 6-b) ·
+>   수업 POST/PATCH 와 wod-posts POST/PATCH 가 `program` 객체 수용, wod-posts GET 에 `program` 동봉. `_sync_wod_post` 는
+>   program 미지정이면 있던 구조를 유지(폰 시트가 메모만 보내도 PC 구조가 안 지워짐), **program=None 명시 + 메모 없음**
+>   이면 템플릿 게시물도 지운다(구조를 보고 비운 창구의 뜻 — 조용히 무시하면 화면이 거짓말한다).
+> - **PC**: 공용 편집기 `static/program_editor.js` 한 벌을 수업 수정 모달·게시 모달이 같이 쓴다 (종류·라운드·캡 + 동작 줄
+>   [사전 select(분류 optgroup)·목표·단위 라벨·무게 kg(has_load 만)·↑↓✕] + '사전에 없는 동작' 인라인 폼). 읽기 표시는
+>   서버 `content` 그대로(PC 가 줄을 다시 조립하지 않는다). '동작 라이브러리' 탭 → **'동작 사전'**(추가·빼기). 이름·단위·분류
+>   글자는 API 의 `name/unit_label/category_label`, 검증은 서버 400 문구 그대로. 디자인 린트 baseline 유지.
+> - **게이트**: `tests/test_ssot_program_lint.py`(wod_type 리터럴 재정의·본문 손조립 감지, baseline 0) ·
+>   `tests/test_movement_library_d88.py` 16건 · `tests/test_program_d88.py` 15건 (본문 기대값은 문자열 리터럴 고정).
+>   서버 전량 540 passed. 로컬 실검증: PC 수정 모달에서 Thruster 21-15-9 43kg + Row 500 저장 → 회원 API `rounds_data`
+>   에 movement_id·unit → 에뮬레이터 앱 프로그램 카드에 같은 본문(2026-08-30 00:04).
+> - 잔여: 앱 카드가 제목 줄과 머리줄을 카드 헤더(`AWAKE · FOR TIME · 12min cap`)와 겹쳐 두 번 보여준다 — 2단계(앱 완료
+>   입력) 때 카드에서 본문 첫 두 줄을 접는다. 앱 `wodTypeLabel`·`WodMovementItem.displayLine` 의 영문 라벨/단위 표기는 서버
+>   `wod_type_label`·`unit_label` 로 옮길 대상(6-b, 2단계).
+
 > **D88 (2026-08-29 사용자 확정 · 미착수) — 운동을 데이터로: 동작 사전 → 그날 운동 → 예약자만 완료 → 업적 자동 → 히스토리 검색.**
 >
 > 사용자 원문 요지: "업적-포인트-히스토리-운동(그날그날 바뀌는 것, 수업 종류 말고)을 서로 연동. 1 예약 → 2 운동 →
