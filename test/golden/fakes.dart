@@ -532,6 +532,21 @@ Map<String, dynamic> cancelPreviewLate() => const {
 };
 Map<String, dynamic> cancelPreviewOnTime() => const {'notice': null, 'tier': null};
 
+/// D100 — 늦은 취소(예약 56) DELETE 응답. `notice.toast` 문장·"몇 회째" 는 서버
+/// `_membership.late_cancel_notice` 가 완성한 것을 그대로 옮겼다 (앱은 세지 않는다).
+Map<String, dynamic> cancelLateResult() => const {
+  'cancelled': true,
+  'reservation_id': 56,
+  'late_cancel': true,
+  'session_charged': true,
+  'message': '예약 취소. 수업 20분 전이 지나 1회 차감.',
+  'notice': {
+    'month': 8,
+    'nth': 2,
+    'toast': '8월, 2회째 레이트 캔슬입니다. 주의 부탁드려요 ㅠ-ㅠ\n이 내용은 코치에게 전송됩니다.',
+  },
+};
+
 /// Q3 (v3.4) — 수업 상세 "내 이전 기록" (오늘 WOD 31 = Fran 계열 for_time).
 /// 최근이 위, PR 은 최신 기록에.
 Map<String, dynamic> wodMyHistory() {
