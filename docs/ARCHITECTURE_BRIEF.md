@@ -591,6 +591,22 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > - 회귀: 골든 `coach_01`(주간) 재생성 · `coach_02` 삭제 · `coach_04_new_note_members` 신규 ·
 >   `coach_03` 재생성(그룹 버튼 없음).
 
+> **D98 (2026-08-30 집행) — 세션 칩을 남은 두 창에 붙임 (사용자 "ㅇㅇ 붙여"): 반복 시간표 규칙 · PC 수업 내용 게시 모달.**
+>
+> - **반복 시간표**: `class_schedule_rules.variant`(NULL = 공통, 종류 없는 규칙은 무시). 수업 안내 → 수업 종류 수정 → 매주 시간표
+>   행마다 [세션] 선택(공통·A~E — 선택지·라벨은 `GET /admin/gyms/<g>/class-rules` 의 `variant_options`, PC 는 조립하지 않는다).
+>   규칙이 실체화하는 수업이 세션을 달고 나오고(`materialize_rules`), 규칙의 세션을 바꾸면 미래 무예약·미수정 수업도 새 세션을 단다
+>   (같은 시각이라 남겨 둔 것 포함). 같은 요일·시각이라도 세션이 다르면 다른 줄(AWAKE 06:00 A · 06:00 B). 옛 세션 키의 게시물은 지우지 않는다.
+>   부수 결함: `update_rule` 이 prune 뒤 flush 없이 재실체화해 **같은 시각으로 바꾸면 방금 지운 슬롯을 '있는 것' 으로 보고 다시
+>   만들지 않던** 잠복 결함을 함께 잡았다 (SessionLocal autoflush=False).
+> - **게시 모달** (`wod.html`): [수업 종류 (선택)] × [세션] — 종류를 고르면 이 글은 세션 자동 게시와 **같은 키**(날짜 × 종류 × 세션)의
+>   정본이라 이미 있으면 새 글이 아니라 그 글을 고친다(`admin_create_wod_post` upsert, 응답 `created`). 제목 줄 = 'AWAKE · A 세션'.
+>   세션 선택지 = `program-variants` 의 `items`(있는 것) + **`free_items`**(안 쓴 글자, 라벨째 — D98 신설). 종류 없으면 종전 자유 게시.
+>   수정(PATCH)은 종류·세션 변경을 받고 다른 글의 키면 409 `DUPLICATE_POST`; **종류 있는 글의 제목 줄을 지우던 결함**(title="")도
+>   함께 잡았다. 목록에 `display_name`.
+> - 게이트 = `tests/test_session_chips_d98.py`(규칙 세션 실체화·변경·무종류 무시 · 게시 upsert·B 별도·free_items·PATCH 제목 유지·409·
+>   타 체육관 종류 400 · 자유 게시). PC 실검증(로컬): 수업 안내 시간표 행 세션 선택 · 게시 모달 종류/세션 선택 → 게시.
+
 > **D97 (2026-08-30 집행) — 알림 항목 '늦은 취소 · 노쇼 안내' (사용자 "알림 항목 추가하고").**
 > `NOTE_TEMPLATES["noshow"]`(기본 on, 문구 수정 가능) — 노쇼 정책에 걸린 취소를 한 즉시(`api/classes.py cancel_reservation`)와
 > 코치가 노쇼로 찍은 즉시(`admin_patch_reservation_status`) 회원 앱 쪽지 `{회원명}님, {수업명} ({일시}) — {사유}. {조치}`.
