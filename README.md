@@ -248,5 +248,9 @@ samples, guidance on mobile development, and a full API reference.
     (`wod_session_screen.dart`)의 엔진 표 선저장 경로 · 히스토리 상세의 페이싱 플랜·세그먼트 렌더(`_SegmentCard`·`_ItemLine`).
     **원천은 서버 수업 결과 표 하나** — PR 은 응답 `is_pr`, 총 기록 수·PR 수는 히스토리 `meta`, 저장 창구는
     `GymRepository.submitWodResult` 하나. 게이트 = `test/ssot_lint_test.dart` (PrDetector·`/api/v1/history` POST 금지).
+40. **Streak Freeze · 앱 연속일 계산 (D92 · 2026-08-30 사용자 지시 "3 하고")** — `lib/core/streak_freeze.dart`
+    (StreakFreezeStore — 폰 로컬 SharedPreferences 로 하루 빠진 날을 보정) + `test/streak_freeze_test.dart` ·
+    `home_screen.dart _GamificationBody._currentStreak/_uniqueDays`. 연속일은 **서버 `GET /api/v1/history/wod` meta.streak_days**
+    (`api/_metrics.py class_streak_days` — 코치 명단과 같은 함수). 게이트 = `test/ssot_lint_test.dart` (StreakFreeze·_currentStreak 금지).
 
 

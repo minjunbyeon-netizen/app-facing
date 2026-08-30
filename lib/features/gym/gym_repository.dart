@@ -209,6 +209,9 @@ class GymRepository {
     String? movement,
     String scaleLevel = 'rx',
     String notes = '',
+    // D94 — 동작별 완료 값 [{movement_id, name, reps, load_kg, scaled}]. null 이면 키를
+    // 보내지 않는다(서버가 종전 값 유지). 판정은 서버 normalize_result_movements 한 곳.
+    List<Map<String, dynamic>>? movements,
   }) async {
     final data = await api.post('/api/v1/gyms/$gymId/wods/$wodId/results', {
       'time_sec': ?timeSec,
@@ -219,6 +222,7 @@ class GymRepository {
       'movement': ?movement,
       'scale_level': scaleLevel,
       'notes': notes,
+      'movements': ?movements,
     });
     final comparison = data['comparison'];
     return (

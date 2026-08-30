@@ -591,6 +591,41 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > - 회귀: 골든 `coach_01`(주간) 재생성 · `coach_02` 삭제 · `coach_04_new_note_members` 신규 ·
 >   `coach_03` 재생성(그룹 버튼 없음).
 
+> **D94 (2026-08-30 집행) — 동작별 완료 값: 회원이 그날 운동의 동작마다 실제 한 횟수·무게·난도를 적고, 그 값이 히스토리·리워드 판정의
+> 원천이 된다 (D88 2단계 잔여 해소). 사용자 지시 순서 "3 하고, 2 는 1일 1회, 다 하고 1".**
+>
+> - **표**: `gym_wod_result_movements`(result_id FK cascade · position · movement_id · name · unit · reps · load_kg · scaled) — 결과 하나에
+>   동작 줄들, 재저장은 통째 교체. **정의 = `services/program_lines.py`**: `normalize_result_movements`(오늘 게시물의 동작 중에서만 —
+>   id 또는 이름으로 맞춤, 없는 동작은 ValueError → 400 `INVALID_MOVEMENTS` 한국어 문구 · reps 는 목표와 같은 `_REPS_OK` · load ≥ 0 ·
+>   최대 20 · 중복은 뒤 것 버림) · `result_movement_line`/`result_movements_summary`(본문 동작 줄과 **같은 렌더러** + ' SCALED') ·
+>   `result_has_movement`(리워드 동작 조건 — **적은 값이 있으면 그것**, 없으면 게시물). 읽기 정본 = `api/_metrics.class_result_movements`.
+> - **API**: `POST /gyms/<g>/wods/<post>/results` 가 `movements: [{movement_id|name, reps, load_kg, scaled}]` 를 받는다 — 키가 없으면
+>   종전 값 유지(옛 앱), `[]` 면 지움. 피드 `my_result.movements`(프리필) · 히스토리 `movements[]`(각 줄 `line`) · **`summary` 는 적은 값이
+>   있으면 그것**('Push-up 80회 SCALED'), 없으면 그날 운동 요약. `reward_engine` wod_log 동작 조건이 `result_has_movement` 를 쓴다.
+> - **앱**: 완료 시트 '동작별 기록' — 동작마다 [한 횟수][무게 kg] 칸이 **코치가 정한 값으로 미리 채워져** 있고 다르게 했을 때만 고친다
+>   (SCALED/RXD 칩 유지, 무게 칸은 코치 무게가 있거나 SCALED 일 때 — 자리는 항상 예약). 저장된 값이 있으면 같은 동작에 프리필
+>   (`MyResultMovement`). 구 `_movesSummary`(앱이 메모 문장을 조립) 폐기 — 요약은 서버. `WodMovementItem.movementId/unit` 추가.
+>   골든 `state_28_result_sheet_movements` 신규.
+> - **게이트**: e2e `test_12`(오늘 동작만 · 히스토리 둘째 줄·상세·피드 프리필 · 없는 동작 400 · 키 없는 재저장 값 유지 · 빈 목록 삭제 ·
+>   포인트 이중 지급 없음). strength 게시물은 최고 무게 한 값이 점수라 동작별 값을 보내지 않는다.
+
+> **D93 (2026-08-30 집행) — 출석 = 하루 1회 (사용자 결정 "1일은 1회만 출석임").**
+>
+> - **정의 = `api/_metrics.py`**: `attendance_on(day)`(그날 필터 식) · `attended_on(s, member, gym, day)`(하루 1회 규칙의 **관문** — 출처
+>   self/manual 불문) · `attended_member_count_on`/`attended_member_ids_on`(그날 출석 **인원** — 행이 아니라 사람). 쓰는 손 넷(회원 결과
+>   저장 `api/gym.py` · 코치 명단 출석 `api/classes.py` · 코치 수기 추가 `api/admin.py` · 데모 시드)과 세는 창구 셋(통계 오늘 출석·7일
+>   시리즈·홈 오늘 출석)이 전부 정본을 부른다 — 종전엔 같은 날짜 식이 일곱 자리에 각자 적혀 있었다.
+> - **게이트**: `test_ssot_metrics_lint.py` FACTS["출석 (하루 1회)"](`func.date(GymAttendance.checked_at) ==` baseline 0) · e2e `test_11`
+>   (회원 저장 뒤 코치가 명단에서 찍어도 행 1 · 수기 추가 409 · 통계 오늘 출석 1명).
+> - 하루에 수업 여러 개를 완료해도 출석은 하루 하나 — 리워드 `attendance` 트리거도 날짜당 1 (종전 그대로).
+
+> **D92 (2026-08-30 집행) — 홈 연속일도 서버 meta.streak_days · Streak Freeze 폐기 (사용자 지시 "3 하고").**
+>
+> - 홈 레벨 카드의 연속 기록일이 앱 계산(`_currentStreak`·`_uniqueDays` + 폰 로컬 Streak Freeze 보정)에서 **서버 `meta.streak_days`**
+>   (`api/_metrics.class_streak_days` — 코치 명단과 같은 함수)로. `lib/core/streak_freeze.dart`·`test/streak_freeze_test.dart` 삭제,
+>   `_GamificationBody` 는 `records` 를 더 받지 않는다(total·pr·streak 세 수만). 게이트 = 앱 `ssot_lint_test.dart`(`StreakFreeze`·
+>   `_currentStreak(`·`_uniqueDays(` 금지). README 제거 대장 40.
+
 > **D91 (2026-08-30 집행) — 히스토리 완전 통합: 히스토리 탭·검색·상세·XP·카탈로그 업적·코치 명단이 정본 `gym_wod_results` 를 직접
 > 읽고 센다 (D90 거울 `wods` 쓰기 폐기). 사용자 지시 "완전 통합하고 어디에 무엇을 배선해 뒀는지 적어 두고 저장해 둬".**
 >

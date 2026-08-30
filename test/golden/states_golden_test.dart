@@ -17,6 +17,8 @@ import 'package:hyphen_app/features/boss/boss_dashboard_screen.dart';
 import 'package:hyphen_app/features/gym/box_wod_screen.dart';
 import 'package:hyphen_app/features/gym/gym_repository.dart';
 import 'package:hyphen_app/features/gym/gym_state.dart';
+import 'package:hyphen_app/features/gym/wod_result_sheet.dart';
+import 'package:hyphen_app/models/gym.dart';
 import 'package:hyphen_app/features/history/history_screen.dart';
 import 'package:hyphen_app/features/profile/profile_state.dart';
 import 'package:hyphen_app/features/home/home_screen.dart';
@@ -700,4 +702,34 @@ void _achievementsLoadingGolden() {
     await tester.pump(const Duration(milliseconds: 300));
     await capture(tester, 'state_21_achievements_loading');
   });
+
+  // ── 완료 시트 — 동작별 기록 (D94 · 2026-08-30 "다 하고 1"): 한 횟수·무게 kg 칸이
+  //    코치가 정한 값(21-15-9 · 42.5kg)으로 미리 채워져 있다. 요약·판정은 서버. ──
+  testWidgets('state: result sheet movement values', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi(memberWorld());
+    final gym = GymState(GymRepository(api), sse: FakeSse());
+    await gym.loadMine();
+    // 구조화 동작(Thruster 42.5kg · Pull-up)이 든 글 = 31 (Fran).
+    final post = GymWodPost.fromJson(
+      gymWods().firstWhere((p) => p['id'] == 31),
+    );
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        gym: gym,
+        home: Scaffold(
+          body: SingleChildScrollView(child: WodResultSheet(wod: post)),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('동작별 기록'), findsOneWidget);
+    expect(find.text('42.5'), findsOneWidget);
+    await capture(tester, 'state_28_result_sheet_movements');
+  });
+
 }

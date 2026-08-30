@@ -25,6 +25,7 @@ const List<(String, String)> _forbidden = [
   (r'PrDetector', 'PR 판정은 서버(wod_compare) 한 곳 — 응답 is_pr 를 읽는다 (D91)'),
   (r"post\(\s*'/api/v1/history", '히스토리는 읽기만 — 결과 저장 창구는 GymRepository.submitWodResult 하나 (D91)'),
   (r'\.length\s*;\s*//\s*totalSessions|totalSessions:\s*records\.length', '총 기록 수는 서버 meta.total (D91)'),
+  (r'StreakFreeze|_currentStreak\(|_uniqueDays\(', '연속일은 서버 meta.streak_days — 폰이 세지 않는다 (D92)'),
 ];
 
 void main() {

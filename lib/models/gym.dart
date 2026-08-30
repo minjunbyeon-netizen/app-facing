@@ -314,6 +314,9 @@ class GymMember {
 /// 라운드 내 동작 1개 (#3 동작 레벨 구조화, v1.25 2026-06-09).
 /// 매그넘 레퍼런스의 "동작별 sets·reps·load·rest·영상" 행에 대응.
 class WodMovementItem {
+  /// 동작 사전 id (D88 구조화 글). 옛 글은 null.
+  final int? movementId;
+  final String unit; // reps · m · sec … (서버 movement_library)
   final String name;
   final String slug;
   final int? sets;
@@ -324,6 +327,8 @@ class WodMovementItem {
   final String videoUrl;
 
   const WodMovementItem({
+    this.movementId,
+    this.unit = 'reps',
     required this.name,
     this.slug = '',
     this.sets,
@@ -352,6 +357,8 @@ class WodMovementItem {
   }
 
   factory WodMovementItem.fromJson(Map<String, dynamic> j) => WodMovementItem(
+        movementId: (j['movement_id'] as num?)?.toInt(),
+        unit: (j['unit'] ?? 'reps').toString(),
         name: (j['name'] ?? '').toString(),
         slug: (j['slug'] ?? '').toString(),
         sets: (j['sets'] as num?)?.toInt(),
@@ -700,6 +707,31 @@ class RewardProgress {
 
 /// 결함 수정 4 (2026-08-20) — 수업 카드·시트가 쓰는 "내 기존 기록" 요약.
 /// display("105kg×3"·"4:18"·"10R+5")는 서버 완성 (앱 계산 0).
+/// 내가 적은 동작별 완료 값 (D94 · 2026-08-30) — 서버 `my_result.movements` 한 줄.
+class MyResultMovement {
+  final int? movementId;
+  final String name;
+  final String reps;
+  final double? loadKg;
+  final bool scaled;
+
+  const MyResultMovement({
+    this.movementId,
+    required this.name,
+    this.reps = '',
+    this.loadKg,
+    this.scaled = false,
+  });
+
+  factory MyResultMovement.fromJson(Map<String, dynamic> j) => MyResultMovement(
+        movementId: (j['movement_id'] as num?)?.toInt(),
+        name: (j['name'] ?? '').toString(),
+        reps: (j['reps'] ?? '').toString(),
+        loadKg: (j['load_kg'] as num?)?.toDouble(),
+        scaled: j['scaled'] == true,
+      );
+}
+
 class GymMyResult {
   final int? timeSec;
   final int? rounds;
@@ -712,6 +744,9 @@ class GymMyResult {
   final String scaleLevel;
   final String display;
 
+  /// 동작별 완료 값 (D94) — 시트 재수정 프리필.
+  final List<MyResultMovement> movements;
+
   const GymMyResult({
     this.timeSec,
     this.rounds,
@@ -721,6 +756,7 @@ class GymMyResult {
     this.movement,
     required this.scaleLevel,
     required this.display,
+    this.movements = const [],
   });
 
   factory GymMyResult.fromJson(Map<String, dynamic> j) => GymMyResult(
@@ -731,6 +767,12 @@ class GymMyResult {
         weightReps: (j['weight_reps'] as num?)?.toInt(),
         movement: j['movement'] as String?,
         scaleLevel: (j['scale_level'] ?? 'rx').toString(),
+        movements: (j['movements'] is List)
+            ? (j['movements'] as List)
+                .whereType<Map<String, dynamic>>()
+                .map(MyResultMovement.fromJson)
+                .toList()
+            : const [],
         display: (j['display'] ?? '').toString(),
       );
 }

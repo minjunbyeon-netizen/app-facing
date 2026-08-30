@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../../core/api_client.dart';
 import '../../core/exception.dart';
 import '../../core/level_system.dart';
-import '../../core/streak_freeze.dart';
 import '../../core/theme.dart';
 import '../../core/wod_session_bus.dart';
 import '../../models/achievement.dart';
@@ -56,9 +55,6 @@ class _HomeScreenState extends State<HomeScreen> {
   WodSessionBus? _bus;
   Future<WodHistoryPage>? _future;
 
-  /// Streak Freeze 통합 — 마지막 사용일을 _currentStreak 계산 시 활용.
-  DateTime? _freezeUse;
-
   /// QA 2026-06-11: 실제 출석일 집합 (Attend 탭과 동일 소스 —
   /// GymRepository.listMyAttendances). null = 로드 실패·미가입 →
   /// Attendance milestone 숨김. WOD 계산 기록(_future)과 별개.
@@ -89,10 +85,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void _reload({bool checkThrottle = true}) {
     setState(() {
       _future = _repo.listWodHistory(limit: _kHistoryLimit);
-    });
-    StreakFreezeStore.lastUse().then((dt) {
-      if (!mounted) return;
-      setState(() => _freezeUse = dt);
     });
     // Attend 탭과 동일 소스의 실제 출석 — 실패·미가입이면 milestone 숨김.
     _gymRepo
@@ -153,12 +145,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   await _future;
                 },
                 child: _GamificationBody(
-                  records: page.items,
                   // D91 (2026-08-30): 총 기록 수·PR 수는 서버 meta — 목록 길이(limit 로
                   // 잘림)나 앱 자체 PR 판정(구 PrDetector)으로 만들지 않는다.
+                  // D92 (같은 날 사용자 지시): 연속일도 서버 meta — Streak Freeze(폰 로컬
+                  // 보정) 폐기. 홈·코치 명단이 같은 함수(class_streak_days)의 값을 본다.
                   totalSessions: page.total,
                   prCount: page.prCount,
-                  freezeUse: _freezeUse,
+                  streakDays: page.streakDays,
                   attendDays: _attendDays,
                 ),
               );
@@ -276,66 +269,24 @@ class _NoticeAccordion extends StatelessWidget {
 
 /// 홈 공지 행 — box_wod_screen._AnnouncementRow 와 같은 문법 (핀·제목·날짜·본문).
 class _GamificationBody extends StatelessWidget {
-  final List<WodHistoryItem> records;
-
-  /// 서버가 센 총 수업 기록 수 · PR 수 (히스토리 API meta).
+  /// 서버가 센 총 수업 기록 수 · PR 수 · 연속 기록일 (히스토리 API meta — D91·D92).
   final int totalSessions;
   final int prCount;
-
-  /// 이번 주 freeze 사용 기록. 있으면 streak 1일 보호.
-  final DateTime? freezeUse;
+  final int streakDays;
 
   /// 실제 출석일 (Attend 탭 동일 소스). null = 로드 실패·미가입 → 숨김.
   final Set<DateTime>? attendDays;
   const _GamificationBody({
-    required this.records,
     required this.totalSessions,
     required this.prCount,
-    required this.freezeUse,
+    required this.streakDays,
     required this.attendDays,
   });
-
-  /// 전체 기록에서 고유 일자 집합 (date 기준).
-  Set<DateTime> _uniqueDays() {
-    return records.map((r) {
-      final d = r.createdAt.toLocal();
-      return DateTime(d.year, d.month, d.day);
-    }).toSet();
-  }
-
-  /// 현재 streak — 오늘(또는 가장 최근 세션일)부터 연속된 일수.
-  /// freezeUse 가 있으면 missing day 1일 보호 (streak 카운트에 포함).
-  int _currentStreak() {
-    final days = _uniqueDays();
-    if (days.isEmpty) return 0;
-    final today = appClock.now();
-    final todayDate = DateTime(today.year, today.month, today.day);
-    DateTime cursor = todayDate;
-    if (!days.contains(cursor)) {
-      cursor = cursor.subtract(const Duration(days: 1));
-      if (!days.contains(cursor)) return 0;
-    }
-    bool freezeAvailable = freezeUse != null;
-    int count = 0;
-    while (true) {
-      if (days.contains(cursor)) {
-        count++;
-        cursor = cursor.subtract(const Duration(days: 1));
-      } else if (freezeAvailable) {
-        freezeAvailable = false;
-        count++;
-        cursor = cursor.subtract(const Duration(days: 1));
-      } else {
-        break;
-      }
-    }
-    return count;
-  }
 
   @override
   Widget build(BuildContext context) {
     final totalLifetime = totalSessions;
-    final currentStreak = _currentStreak();
+    final currentStreak = streakDays;
     final now = appClock.now();
     final daysElapsed = now.day;
     final achState = context.watch<AchievementState>();

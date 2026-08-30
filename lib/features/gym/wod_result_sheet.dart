@@ -47,16 +47,54 @@ import 'wod_type_label.dart';
 /// 기록 종류 — 회원이 칩으로 직접 고른다 (v3.15 UX 1).
 enum _RecordKind { time, rounds, weight }
 
-/// 동작 1개의 입력 상태 — 게시물의 WodMovementItem + 회원 선택.
+/// 동작 1개의 입력 상태 — 게시물의 WodMovementItem + 회원이 실제 한 값 (D94).
+///
+/// D94 (2026-08-30 사용자 지시 "동작별 완료 값 입력"): 횟수·무게 칸이 코치가 정한 값으로
+/// 미리 채워져 있고 회원은 다르게 했을 때만 고친다. 저장된 값이 있으면 그것으로 채운다.
+/// 판정·요약은 서버(`program_lines.normalize_result_movements`·`result_movements_summary`).
 class _MoveEntry {
   final WodMovementItem item;
   bool scaled = false; // 기본 RXD
-  final TextEditingController weightCtrl = TextEditingController();
+  late final TextEditingController repsCtrl = TextEditingController(
+    text: item.reps,
+  );
+  late final TextEditingController weightCtrl = TextEditingController(
+    text: item.loadValue,
+  );
   _MoveEntry(this.item);
 
   bool get hasCoachLoad => item.loadValue.isNotEmpty;
 
-  void dispose() => weightCtrl.dispose();
+  /// 저장된 동작별 값과 같은 동작인가 — id 로, 없으면 이름으로.
+  bool matches(MyResultMovement m) {
+    if (item.movementId != null && m.movementId != null) {
+      return item.movementId == m.movementId;
+    }
+    return item.name.trim().toLowerCase() == m.name.trim().toLowerCase();
+  }
+
+  void prefill(MyResultMovement m) {
+    scaled = m.scaled;
+    if (m.reps.isNotEmpty) repsCtrl.text = m.reps;
+    if (m.loadKg != null) {
+      final w = m.loadKg!;
+      weightCtrl.text = w == w.roundToDouble() ? '${w.toInt()}' : '$w';
+    }
+  }
+
+  /// 서버로 보낼 한 줄. 무게는 비었으면 null.
+  Map<String, dynamic> toJson() => {
+    'movement_id': item.movementId,
+    'name': item.name,
+    'reps': repsCtrl.text.trim(),
+    'load_kg': double.tryParse(weightCtrl.text.trim()),
+    'scaled': scaled,
+  };
+
+  void dispose() {
+    repsCtrl.dispose();
+    weightCtrl.dispose();
+  }
 }
 
 class WodResultSheet extends StatefulWidget {
@@ -134,6 +172,12 @@ class _WodResultSheetState extends State<WodResultSheet> {
       }
       if (mr.movement != null && mr.movement!.isNotEmpty) {
         _liftNameCtrl.text = mr.movement!;
+      }
+      // D94 — 동작별 저장값 프리필 (같은 동작만).
+      for (final saved in mr.movements) {
+        for (final e in _moves) {
+          if (e.matches(saved)) e.prefill(saved);
+        }
       }
     }
     _kind = _initialKind();
@@ -224,24 +268,6 @@ class _WodResultSheetState extends State<WodResultSheet> {
     return int.tryParse(t);
   }
 
-  /// 동작별 선택 → 기록 한 줄 ("Wallball RXD 20lb · T2B SCALED").
-  String _movesSummary() {
-    final parts = <String>[];
-    for (final e in _moves) {
-      final name = e.item.name.isEmpty ? e.item.slug : e.item.name;
-      if (e.scaled) {
-        final w = e.weightCtrl.text.trim();
-        parts.add(w.isEmpty ? '$name SCALED' : '$name SCALED ${w}kg');
-      } else {
-        final load = e.hasCoachLoad
-            ? ' ${e.item.loadValue}${e.item.loadUnit}'
-            : '';
-        parts.add('$name RXD$load');
-      }
-    }
-    return parts.join(' · ');
-  }
-
   Future<void> _submit() async {
     if (_saving) return;
     final gs = context.read<GymState>();
@@ -309,7 +335,8 @@ class _WodResultSheetState extends State<WodResultSheet> {
     if (_isStrength) {
       // 무게는 weight_kg 필드로 간다 — 메모엔 사용자 입력만.
     } else if (_structured) {
-      notesParts.add(_movesSummary());
+      // D94 — 동작별 값은 `movements` 로 구조째 간다. 요약 문장은 서버가 만든다
+      // (구 `_movesSummary` 앱 조립 폐기 — 히스토리 둘째 줄이 그 결과다).
     } else {
       final weightKg = double.tryParse(_weightCtrl.text.trim());
       if (weightKg != null && weightKg > 0) notesParts.add('${weightKg}kg');
@@ -318,6 +345,10 @@ class _WodResultSheetState extends State<WodResultSheet> {
       notesParts.add(_notesCtrl.text.trim());
     }
     final notes = notesParts.join(' · ');
+    // D94 — 구조화 글의 동작별 완료 값 (strength 는 최고 무게 한 값이 점수라 제외).
+    final movements = (_structured && !_isStrength)
+        ? [for (final e in _moves) e.toJson()]
+        : null;
 
     try {
       // 1) 결과 제출.
@@ -332,6 +363,7 @@ class _WodResultSheetState extends State<WodResultSheet> {
         movement: movement,
         scaleLevel: scale,
         notes: notes,
+        movements: movements,
       );
       // 2) (D90 · 2026-08-30) 히스토리 행은 서버가 결과 저장과 같은 트랜잭션에서
       //    쓴다 — 종전의 두 번째 POST(/history/wod)는 재저장마다 중복 행을 만들고
@@ -581,9 +613,14 @@ class _WodResultSheetState extends State<WodResultSheet> {
               ],
               const SizedBox(height: HyphenTokens.sp4),
 
-              // ── 동작별 난도 (게시물에서 그대로) — strength 는 난도 없음 ──
+              // ── 동작별 완료 값 (D94) — 코치 값으로 채워져 있고 다르게 했을 때만 고친다 ──
               if (_structured && !_isStrength) ...[
-                const HkSectionLabel('동작별 난도'),
+                const HkSectionLabel('동작별 기록'),
+                const SizedBox(height: HyphenTokens.sp1),
+                const Text(
+                  '코치가 정한 값이 채워져 있습니다 — 다르게 했으면 고치세요.',
+                  style: HyphenTokens.caption,
+                ),
                 const SizedBox(height: HyphenTokens.sp1),
                 for (final e in _moves)
                   _MovementRow(
@@ -672,8 +709,8 @@ class _WodResultSheetState extends State<WodResultSheet> {
   }
 }
 
-/// 동작 1줄 — 이름·횟수·코치 무게는 그대로, 회원은 SCALED/RXD 만 고른다.
-/// SCALED + 무게 동작이면 내 무게 입력칸이 열린다.
+/// 동작 1줄 — 이름 + SCALED/RXD, 아래 [한 횟수][무게 kg] 칸 (D94).
+/// 두 칸은 코치가 정한 값으로 채워져 있다. 무게 칸은 코치 무게가 있거나 SCALED 일 때만.
 class _MovementRow extends StatelessWidget {
   final _MoveEntry entry;
   final bool enabled;
@@ -687,7 +724,8 @@ class _MovementRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final it = entry.item;
-    final title = [if (it.reps.isNotEmpty) it.reps, it.name].join(' ');
+    final title = it.name.isEmpty ? it.slug : it.name;
+    final showWeight = entry.hasCoachLoad || entry.scaled;
     return Container(
       margin: const EdgeInsets.only(bottom: HyphenTokens.sp2),
       padding: const EdgeInsets.all(HyphenTokens.sp3),
@@ -733,30 +771,43 @@ class _MovementRow extends StatelessWidget {
               ),
             ],
           ),
-          // RXD + 코치 무게 = 그대로 따라온다 (입력 없음).
-          if (!entry.scaled && entry.hasCoachLoad) ...[
-            const SizedBox(height: HyphenTokens.sp1),
-            Text(
-              '코치 설정 무게 ${it.loadValue}${it.loadUnit} 그대로',
-              style: HyphenTokens.caption,
-            ),
-          ],
-          // SCALED + 무게 동작 = 내 무게만 입력.
-          if (entry.scaled && entry.hasCoachLoad) ...[
-            const SizedBox(height: HyphenTokens.sp2),
-            TextField(
-              controller: entry.weightCtrl,
-              enabled: enabled,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
+          const SizedBox(height: HyphenTokens.sp2),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: entry.repsCtrl,
+                  enabled: enabled,
+                  keyboardType: TextInputType.text,
+                  decoration: InputDecoration(
+                    labelText: '한 횟수',
+                    hintText: it.reps.isEmpty ? '예: 21-15-9' : it.reps,
+                    isDense: true,
+                  ),
+                ),
               ),
-              decoration: InputDecoration(
-                labelText: '내 무게 (kg)',
-                hintText: '코치 설정 ${it.loadValue}${it.loadUnit}',
-                isDense: true,
+              // 무게 자리는 늘 잡아 둔다 — 칩을 바꿔도 줄 높이가 같다.
+              const SizedBox(width: HyphenTokens.sp2),
+              Expanded(
+                child: showWeight
+                    ? TextField(
+                        controller: entry.weightCtrl,
+                        enabled: enabled,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        decoration: InputDecoration(
+                          labelText: '무게 (kg)',
+                          hintText: entry.hasCoachLoad
+                              ? '코치 ${it.loadValue}${it.loadUnit}'
+                              : '선택',
+                          isDense: true,
+                        ),
+                      )
+                    : const SizedBox.shrink(),
               ),
-            ),
-          ],
+            ],
+          ),
         ],
       ),
     );
