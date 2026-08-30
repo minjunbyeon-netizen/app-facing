@@ -34,6 +34,9 @@ class WodHistoryItem {
 
   /// 회원이 적은 메모.
   final String notes;
+
+  /// 동작별 완료 값 줄들 — 서버 `movements[].line`('Push-up 80회 SCALED', D94). 앱은 조립하지 않는다.
+  final List<String> movementLines;
   final DateTime createdAt;
 
   const WodHistoryItem({
@@ -56,6 +59,7 @@ class WodHistoryItem {
     this.scaleLevel = 'rx',
     this.isPr = false,
     this.notes = '',
+    this.movementLines = const [],
     required this.createdAt,
   });
 
@@ -80,6 +84,11 @@ class WodHistoryItem {
       scaleLevel: (j['scale_level'] ?? 'rx').toString(),
       isPr: j['is_pr'] == true,
       notes: (j['notes'] ?? '').toString(),
+      movementLines: [
+        for (final m in (j['movements'] as List? ?? const []))
+          if (m is Map && (m['line'] ?? '').toString().trim().isNotEmpty)
+            m['line'].toString().trim(),
+      ],
       createdAt: parseServerTime(j['created_at'] as String).toLocal(),
     );
   }

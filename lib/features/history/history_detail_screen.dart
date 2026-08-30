@@ -106,6 +106,18 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
                 const SizedBox(height: HyphenTokens.sp1),
                 Text(item.movement!, style: HyphenTokens.caption),
               ],
+              // D94 — 회원이 적은 동작별 값 (서버 줄 그대로). 없으면 칸도 없다 —
+              // 2차 검증(2026-08-30)에서 상세에 이 칸이 빠져 있던 것을 채움.
+              if (item.movementLines.isNotEmpty) ...[
+                const SizedBox(height: HyphenTokens.sp5),
+                const HkSectionLabel('동작별 기록'),
+                const SizedBox(height: HyphenTokens.sp2),
+                for (final line in item.movementLines)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: HyphenTokens.sp1),
+                    child: Text(line, style: HyphenTokens.body),
+                  ),
+              ],
               if (item.notes.trim().isNotEmpty) ...[
                 const SizedBox(height: HyphenTokens.sp5),
                 const HkSectionLabel('메모'),
