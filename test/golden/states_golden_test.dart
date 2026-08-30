@@ -735,4 +735,40 @@ void _achievementsLoadingGolden() {
     await capture(tester, 'state_28_result_sheet_movements');
   });
 
+  // ── 완료 시트 — 저장 중 (2026-08-30 사용자 "수업을 저장중이에요 로딩바"): '저장' 을
+  //    누르면 버튼은 자리 그대로 busy, 아래에 굵은 제목 + 가로 로딩바 토스트. 서버 응답을
+  //    붙들어(hang) 그 순간을 찍는다. 밀림 검사 = stability_result_sheet_test.dart. ──
+  testWidgets('state: result sheet saving', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi(
+      memberWorld(),
+      hangPaths: {'/api/v1/gyms/1/wods/31/results'},
+    );
+    final gym = GymState(GymRepository(api), sse: FakeSse());
+    await gym.loadMine();
+    final post = GymWodPost.fromJson(
+      gymWods().firstWhere((p) => p['id'] == 31),
+    );
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        gym: gym,
+        home: Scaffold(
+          body: SingleChildScrollView(child: WodResultSheet(wod: post)),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    // 시트가 화면보다 길다 — 버튼을 보이게 내린 뒤 누른다 (안 보이는 곳은 탭이 안 닿는다).
+    await tester.ensureVisible(find.byKey(kWodSaveButton));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(kWodSaveButton));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text(kWodSavingTitle), findsOneWidget);
+    await capture(tester, 'state_29_result_sheet_saving');
+  });
+
 }

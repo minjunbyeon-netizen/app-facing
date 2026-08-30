@@ -1535,6 +1535,49 @@ class HkSnack {
       danger: true,
     );
   }
+
+  /// 진행 중 알림 — 굵은 제목 아래 가로 로딩바 (2026-08-30 사용자 "수업을 저장중이에요
+  /// 로딩바 두두둥"). 스스로 사라지지 않는다 — 끝나면 [dismiss] 로 걷고 결과 알림을
+  /// 낸다. 캐릭터는 붙이지 않는다(아직 결과가 아니다). 골든 `snack_06` · `state_29`.
+  void progress(String message) {
+    _messenger.showSnackBar(
+      SnackBar(
+        duration: const Duration(minutes: 1),
+        backgroundColor: HyphenTokens.surface,
+        behavior: SnackBarBehavior.floating,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(HyphenTokens.r2),
+          side: const BorderSide(color: HyphenTokens.border, width: 1),
+        ),
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              message,
+              style: HyphenTokens.body.copyWith(
+                color: HyphenTokens.fg,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: HyphenTokens.sp2),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(HyphenTokens.r1),
+              child: const LinearProgressIndicator(
+                minHeight: 4,
+                color: HyphenTokens.primary,
+                backgroundColor: HyphenTokens.border,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 떠 있는 알림을 즉시 걷는다 — [progress] 뒤 결과 알림 직전에 부른다.
+  void dismiss() => _messenger.removeCurrentSnackBar();
 }
 
 /// 폭죽 — 화면 중앙에서 잠깐 터지는 종이 조각 (D86 · 2026-08-29 사용자 "화면 중앙에

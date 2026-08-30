@@ -44,6 +44,23 @@ import 'gym_repository.dart';
 import 'gym_state.dart';
 import 'wod_type_label.dart';
 
+/// 저장 중 토스트 (2026-08-30 사용자 원문 "수업을 저장중이에요 로딩바 두두둥"). 굵은 제목 +
+/// 가로 로딩바(HkSnack.progress). 골든 `snack_06_saving` · `state_29_result_sheet_saving`.
+const String kWodSavingTitle = '수업을 저장 중이에요';
+
+/// 저장 성공 — 하이피(마스코트, `MascotMood.happy`)가 응원한다 (2026-08-30 사용자 원문
+/// "하이피가 예____ 화이팅!!!!"). 둘째 줄부터는 종전 '저장됨 · 출석 +1' + 서버 비교 문구.
+/// 골든 `snack_07_saved_fighting`.
+const String kWodSavedCheer = '예____ 화이팅!!!!';
+
+/// 저장 결과 첫 줄(둘째 줄) — 출석 동반 처리 고지. 문구는 여기 한 곳.
+const String kWodSavedBase = '저장됨 · 출석 +1';
+
+/// 레이아웃 안정성 앵커 — 저장 버튼·고지 줄. 저장 중(busy)에도 y 가 같아야 한다
+/// (`test/golden/stability_result_sheet_test.dart`).
+const Key kWodSaveButton = ValueKey('wod-result-save');
+const Key kWodSaveCaption = ValueKey('wod-result-save-caption');
+
 /// 기록 종류 — 회원이 칩으로 직접 고른다 (v3.15 UX 1).
 enum _RecordKind { time, rounds, weight }
 
@@ -287,6 +304,8 @@ class _WodResultSheetState extends State<WodResultSheet> {
     final bus = context.read<WodSessionBus>();
     final messenger = HkSnack.of(context);
     final navigator = Navigator.of(context);
+    // 저장 중 토스트 — 버튼은 자리 그대로 busy, 아래 토스트가 로딩바를 보여 준다.
+    messenger.progress(kWodSavingTitle);
 
     // v3.15 — 칩이 정한 종류의 값만 주 기록으로 나간다.
     final timeSec = _kind == _RecordKind.time
@@ -372,23 +391,30 @@ class _WodResultSheetState extends State<WodResultSheet> {
       // 3) Attendance / Trends 즉시 reload.
       bus.bump();
       navigator.pop(true);
-      // v3.4 — 서버 비교 메시지 붙여 발전 피드백 ("지난 기록보다 42초 단축 — PR!").
+      // 저장 중 토스트를 걷고, 하이피가 응원하는 결과 토스트 (2026-08-30 사용자 원문).
+      // 둘째 줄 = 종전 고지, 셋째 줄 = 서버 비교 문구 ("지난 기록보다 42초 단축 — PR!").
       // (구 +100P 표기는 2026-08-24 첫 제출 적립 폐기와 함께 제거.)
-      const base = '저장됨 · 출석 +1';
       final msg = res.comparisonMessage;
+      messenger.dismiss();
       messenger.info(
-        msg == null ? base : '$base\n$msg',
+        kWodSavedCheer,
+        detail: [kWodSavedBase, ?msg],
         mood: MascotMood.happy,
-        duration: Duration(seconds: msg == null ? 2 : 3),
+        duration: Duration(seconds: msg == null ? 3 : 5),
       );
+      // 폭죽은 D86 과 같은 부품 — PR 을 세운 순간에만 (시트는 이미 닫혀 navigator 의
+      // context 로 쏜다).
+      if (res.isPr && navigator.mounted) HkConfetti.burst(navigator.context);
     } on AppException catch (e) {
       if (!mounted) return;
+      messenger.dismiss();
       setState(() {
         _saving = false;
         _error = e.messageKo;
       });
     } catch (e) {
       if (!mounted) return;
+      messenger.dismiss();
       setState(() {
         _saving = false;
         // 원문은 로그로만 — 화면에는 사람이 읽을 문구 (2026-08-23).
@@ -688,16 +714,18 @@ class _WodResultSheetState extends State<WodResultSheet> {
               ],
               const SizedBox(height: HyphenTokens.sp4),
               // 버튼은 '저장' 하나 — 출석 동반 처리는 아래 한 줄로 고지 (GLOSSARY §3).
-              _saving
-                  ? const HkLoading()
-                  : HkButton.primary(
-                      '저장',
-                      icon: Icons.check,
-                      onPressed: _submit,
-                    ),
+              // 저장 중엔 버튼 자리 그대로 busy (D67 로그인과 같은 결 — 밀림 0).
+              HkButton.primary(
+                '저장',
+                key: kWodSaveButton,
+                icon: Icons.check,
+                busy: _saving,
+                onPressed: _submit,
+              ),
               const SizedBox(height: HyphenTokens.sp2),
               const Text(
                 '저장하면 오늘 출석도 함께 기록됩니다.',
+                key: kWodSaveCaption,
                 style: HyphenTokens.caption,
                 textAlign: TextAlign.center,
               ),
