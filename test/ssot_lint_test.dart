@@ -31,6 +31,15 @@ const List<(String, String)> _forbidden = [
   // D102 (2026-08-30) — 계약 상태 라벨·서명 가능 판정은 서버 status_label·signable 하나.
   // 스위치 팔('signed' => …)과 판정식('sent' || 'viewed')만 잡는다 — 쪽지 상태(m.status == 'sent')는 다른 뜻.
   (r"'(signed|sent|viewed)'\s*(\|\||=>)", '계약 상태 라벨·서명 가능 판정은 서버 status_label·signable (D102)'),
+  (r'coversDay\(|hasMembershipOn\(', '그날 회원권 유무는 서버 수업 목록의 membership_ok (과제 4 · 2026-08-30)'),
+  (r'DateTime\.parse\(pause(Start|End)', '정지 중·정지 예정 판정은 서버 is_paused/is_pause_scheduled (과제 4)'),
+];
+
+/// 모델까지 보는 패턴 — 회원권 날짜 규칙은 서버 api/_membership.membership_calendar_fields 한 곳.
+const _forbiddenInModels = <(String, String)>[
+  (r'DateTime\.parse\(pause(Start|End)', '정지 판정을 폰이 다시 세지 않는다 — 서버 is_paused (과제 4)'),
+  (r'coversDay\(', '그날 회원권 유무는 서버 membership_ok (과제 4)'),
+  (r'endDay\.difference\(today\)', 'D-day 는 서버 d_day (과제 4)'),
 ];
 
 void main() {
@@ -58,5 +67,24 @@ void main() {
     expect(hits, isEmpty,
         reason: '인라인 UI 골격이 다시 생겼습니다 — HKit 정본을 쓰십시오:\n'
             '${hits.join('\n')}');
+  });
+
+  test('회원권 날짜 규칙을 모델에서 다시 세지 않는다 (서버 membership_calendar_fields 하나)', () {
+    final hits = <String>[];
+    // 회원권 모델만 본다 — 락커(models/locker.dart)의 D-day 도 같은 모양이지만 서버
+    // /member/me/locker 가 아직 d_day 를 안 내려준다 (과제 4 범위 밖 — 보고에 남김).
+    for (final f in [File('lib/models/membership.dart')]) {
+      final lines = f.readAsLinesSync();
+      for (var i = 0; i < lines.length; i++) {
+        final line = lines[i];
+        if (line.trimLeft().startsWith('//') || line.trimLeft().startsWith('///')) continue;
+        for (final (pattern, why) in _forbiddenInModels) {
+          if (RegExp(pattern).hasMatch(line)) {
+            hits.add('${f.path.replaceAll('\\', '/')}:${i + 1}: ${line.trim()}  ← $why');
+          }
+        }
+      }
+    }
+    expect(hits, isEmpty, reason: '회원권 날짜 판정이 폰에 다시 생겼습니다:\n${hits.join('\n')}');
   });
 }

@@ -443,6 +443,8 @@ void _rememberedLoginGolden() {
     final api = FakeApi({
       ...memberWorld(),
       '/api/v1/member/me/memberships': memberMembershipsExpired(),
+      // 과제 4 (2026-08-30): '회원권 필요' 는 서버가 수업마다 내려주는 membership_ok 로 그린다.
+      '/api/v1/member/classes': memberClassesMembershipRequired(),
     });
     final gym = GymState(GymRepository(api), sse: FakeSse());
     await gym.loadMine();

@@ -981,20 +981,57 @@ const memberContractDetailSigned = {
   'signed_at': '2026-08-02T18:30:00',
   'created_at': '2026-08-01T10:00:00',
 };
+/// 서버 `api/_membership.membership_calendar_fields` + `is_current` 의 가짜 — 정지 중·정지
+/// 예정·D-day·대표권을 **가짜 서버**가 센다 (앱은 세지 않는다, 과제 4 · 2026-08-30).
+Map<String, dynamic> fakeMembershipCalendar({
+  required String start,
+  required String end,
+  String? pauseStart,
+  String? pauseEnd,
+  bool active = true,
+}) {
+  final now = appClock.now();
+  final today = _ymd(now);
+  final paused = pauseStart != null &&
+      pauseEnd != null &&
+      pauseStart.compareTo(today) <= 0 &&
+      today.compareTo(pauseEnd) < 0;
+  final scheduled =
+      pauseStart != null && pauseEnd != null && today.compareTo(pauseStart) < 0;
+  final endDay = DateTime.parse(end);
+  final dDay = DateTime(endDay.year, endDay.month, endDay.day)
+      .difference(DateTime(now.year, now.month, now.day))
+      .inDays;
+  final label = dDay > 0 ? 'D-$dDay' : (dDay == 0 ? 'D-day' : 'D+${-dDay}');
+  final current = active &&
+      !paused &&
+      start.compareTo(today) <= 0 &&
+      today.compareTo(end) <= 0;
+  return {
+    'is_paused': paused,
+    'is_pause_scheduled': scheduled,
+    'd_day': dDay,
+    'd_day_label': label,
+    'is_current': current,
+  };
+}
 
 /// /api/v1/member/me/memberships — 활성 회원권 1건 (진행률 살아있게 상대 날짜).
 List<Map<String, dynamic>> memberMemberships() {
   final now = appClock.now();
+  final start = _ymd(now.subtract(const Duration(days: 56)));
+  final end = _ymd(now.add(const Duration(days: 34)));
   return [
     {
       'id': 1,
       'gym_id': 1,
       'member_id': 7,
       'plan_name': '3개월 무제한',
-      'start_date': _ymd(now.subtract(const Duration(days: 56))),
-      'end_date': _ymd(now.add(const Duration(days: 34))),
+      'start_date': start,
+      'end_date': end,
       'price': 330000,
       'status': 'active',
+      ...fakeMembershipCalendar(start: start, end: end),
     },
   ];
 }
@@ -1013,6 +1050,10 @@ List<Map<String, dynamic>> memberMembershipsSessionPass() {
       'end_date': _ymd(now.add(const Duration(days: 27))),
       'price': 9900,
       'status': 'active',
+      ...fakeMembershipCalendar(
+        start: _ymd(now.subtract(const Duration(days: 3))),
+        end: _ymd(now.add(const Duration(days: 27))),
+      ),
       'session_total': 3,
       'session_used': 1,
       'session_remaining': 2,
@@ -1065,9 +1106,19 @@ List<Map<String, dynamic>> memberMembershipsExpired() {
       'end_date': _ymd(now.subtract(const Duration(days: 10))),
       'price': 130000,
       'status': 'expired',
+      ...fakeMembershipCalendar(
+        start: _ymd(now.subtract(const Duration(days: 40))),
+        end: _ymd(now.subtract(const Duration(days: 10))),
+        active: false,
+      ),
     },
   ];
 }
+
+/// 회원권이 없는 회원이 보는 수업 목록 — 서버가 수업마다 `membership_ok: false` 를 내려준다
+/// (예약 게이트 pick_membership 의 답). '회원권 필요' 배지 골든용 (state_11).
+List<Map<String, dynamic>> memberClassesMembershipRequired() =>
+    [for (final c in memberClasses()) {...c, 'membership_ok': false}];
 
 /// /api/v1/achievements — 업적 카탈로그 + 해금 2건.
 /// v3.2 (2026-08-20): 백엔드 카탈로그 대수술(달성 불가 Engine 계열 삭제 +

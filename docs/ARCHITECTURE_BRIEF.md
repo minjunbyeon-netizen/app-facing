@@ -598,6 +598,64 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > **서버 판정 문구**('늦은 취소로 기록됩니다…', D96) → 취소 → 쪽지함 활동 칸에 **'취소 · 노쇼 안내'**(D97) 도착. 검증 데이터(글·수업·회원)
 > 전부 삭제. 잡은 것: 기간제 회원에게 '이번은 면제' 라고 쓰던 문구 → '기간제 회원권이라 차감은 없습니다' (`policy_outcome(on_pass)`).
 
+> **D105 (2026-08-30 집행) — 회원 활동 요약: 코치 회원 파악용 (사용자 "이 회원이 얼마나 다녔구나 무슨 수업시간에 자주 오는구나 …
+> 회원 리스트 어떤 화면에서"). 4기둥 판정 = 받침(회원 명단)의 코치용 표시면, 사용자 명시.**
+>
+> - 기록 잔존 점검: 예약(`class_reservations`)·취소 원장·대기/승격·출석(`gym_attendances`, 하루 1회)·결제(`gym_payments`)·회원권·수업 기록·
+>   쪽지 전부 KST 시각으로 남는다. 휴강(코치 사유) 취소는 원장에 안 남음(D99 설계). 앱 열람·로그인은 저장 안 함(대상 아님).
+> - **정본 하나** `api/_metrics.py member_activity_summary()`(단건) · `member_activity_lines_bulk()`(명단, 2쿼리) — 같은 `_compose_activity`.
+>   필드: 출석 일수(`attendance_day()` KST distinct)·최근 30일·마지막 출석·최근 90일 수강(자리 잡은 예약, 취소·노쇼 제외)·자주 듣는 수업 5·
+>   Track·**자주 오는 시간(시각 분포)**·문장 `activity_line`("출석 42일 · 최근 30일 8일 · 마지막 08-28 · 자주 오는 시간 06시 12회 · 19시 5회").
+>   노쇼·늦은 취소 수는 `_membership.session_summary` 를 부른다(다시 세지 않음).
+> - 창구: `GET /admin/members/<m>/lessons`(PC 상세 수강 이력 탭 — inline 쿼리 4개 제거) · `GET /admin/gyms/<g>/members`(행 `activity_line`,
+>   `last_class_date` 원천 = `last_reserved_class_at_bulk`). PC `member_detail.html` 헤더 한 줄 + 탭 상단 블록. **'최근 90일 출석' 이라던
+>   라벨은 실은 수업 수 → '최근 90일 수강' 으로 정정.** 앱 코치 셸에는 회원 명단 화면이 없어 앱 표시 없음(PC 가 주). 목록 표 열은 안 늘림.
+> - 게이트 = `test_ssot_metrics_lint.py` FACTS["회원 활동 요약"] · `test_ssot_agreement.py` WINDOWS 2건 · `tests/test_member_activity_summary.py` 4건.
+> - 주의: 90일 창이 `now-90d`(시각) → `오늘-90일 자정` 으로 통일돼 경계 하루가 종전과 다를 수 있다.
+
+> **D104 (2026-08-30 집행) — 회원권 생애주기 검증·정본화 (사용자 "회원권 설정에서 만든 회원권 가상 회원에서 적용 … 시작일 종료일 …
+> 일시정지 기간 동안 회원권의 기간").**
+>
+> - `tests/test_membership_lifecycle.py` 13건 — 코치 회원권 탭 · 코치 명단 · 회원 앱 카드 **세 창구를 매번 대조**. 30일권 종료 = 시작 포함
+>   +29 · 10회권은 종료일 필수 · 미래 시작 · 이어서 시작(`next_start_date`) · 정지(+7 → 만료 +7, 정지 중 잠금·창 밖 OK) · 정지 예정 ·
+>   정지 중 해제(실제 쉰 날만) · 정지 창이 만료 넘음 · 겹치는 정지 409 · 만료.
+> - **잡은 결함**: PC 폼 두 곳이 종료일을 +29 / +30 으로 **하루 다르게** 계산 · 만료 뒤 정지가 허용돼 **만료된 권이 되살아남** · 기간 없는 종류에
+>   6개월을 지어내던 JS.
+> - **정본** `api/_membership.py`: `is_paused_on` · `is_pause_scheduled_on` · `membership_dday` · `plan_period_end`(시작 포함 +days−1) ·
+>   `membership_calendar_fields`. `admin.py` 정지 판정 inline 2곳·`_calc_dday` → 정본, 발급 시 종료일 비우면 서버가 종류 기간으로 확정,
+>   정지는 기간 밖 400. **신설** `GET /admin/membership-plans/<id>/period?start=` (PC 두 폼의 종료일 창구). 회원 앱 `profile.py` 에
+>   `is_paused·is_pause_scheduled·d_day·d_day_label·is_current`(대표권 = `governing_membership`), 수업 목록에 `membership_ok`(= `pick_membership`).
+> - 앱: `membership.dart` 정지/D-day/coversDay Dart 계산 삭제 → 서버 필드, `gym_state.currentMembership` = 서버 `is_current`, 주간 보드
+>   '회원권 필요' 배지 = 수업별 `membership_ok`. `ssot_lint_test.dart` 재발 패턴 3. 골든 PNG 변경 0.
+> - 게이트 = `test_ssot_metrics_lint.py` "회원권 정지"(canonical) · `test_ssot_agreement.py` "회원권 정지" 창구 3곳.
+> - 남은 것(범위 밖): 연장 모달이 시작일 변경 시 종료일 재계산 안 함(종전) · 두 번째 정지가 첫 창을 덮어씀(행에 창 1개) · 락커 D-day·환불 미리보기 JS 는 아직 폰/PC 계산.
+
+> **D103 (2026-08-30 집행) — 포인트 적립 규칙 트리거 매트릭스 + 이원화 3곳 정리 (사용자 "트리거 별 … 다 제대로 작동하는지 10개 이상 테스트").**
+>
+> - `tests/test_reward_triggers_matrix.py` 17건: 수업 기록×기간 N회(매주·매달 경계·날짜당 1회) · 동작 지정(게시물 동작 / D94 회원 동작별 값 우선 ·
+>   불일치 무발동) · 연속·누적 경계 · PR 실발동 · 출석 훅 · 재저장/스윕 이중 지급 없음 · 비활성→활성 · 타 체육관 · 미소급 · 업적·쪽지·사유
+>   한 문자열 · 카드 진행 = 엔진 수 · meta = 엔진 상수 · 미리보기 = 저장 문장 · 잘못된 조합 6종 400.
+> - **이원화 제거**: 앱 도전 카드 n/N 을 `api/reward_rules.py member_reward_progress` 가 엔진 내부 도우미로 **복제 계산** → 엔진
+>   `services/reward_engine.py progress_count()·target_of()` 하나로(지급 판정과 같은 함수). 라벨·허용값 표(`TRIGGER_KO` 등)도 엔진 한 곳.
+>   PC 업적 빌더의 JS 표·정적 옵션·미리보기 문장 조립·클라이언트 검증 4건 → **`GET /admin/reward-meta`** + **`POST …/reward-rules/preview`**
+>   (생성과 같은 `_validate`+`_sentence`) 로 서버가 주고 PC 는 그리기만. 인라인 `style.display` 토글 11곳 → `is-hidden/is-invisible` 클래스.
+> - 게이트 = `tests/test_ssot_reward_lint.py` 4건(라벨 재정의·엔진 내부 재계산·PC 표/문법/인라인 style/정적 옵션·심은 위반 자기 검사).
+> - **미비(솔직히)**: 사용자 원문의 "기록 이내 / 기록 이상"(무게·시간 임계값) 트리거는 **제품에 없다** — 있는 것은 PR·동작 포함·횟수·연속·누적.
+>   지시("기능 추가 금지")대로 만들지 않음, 별도 결정 사항. 앱은 포인트 잔액만(사유 내역 화면 없음, 현 사양). PC 픽토그램 라벨 55종은 아직 JS.
+
+> **D102 (2026-08-30 집행) — 전자계약서 보기·수정·회원 서명 점검 (사용자 "내용보기 하면 보이는데 수정은 어떻게 … 회원이 어디서 어떻게 싸인").**
+>
+> - **회원 서명 창구는 이미 있었다** — 내 정보 → 전자계약서 → 상세(sent→viewed) → 서명 패드(CustomPaint→PNG) → `POST /member/contracts/<id>/sign`
+>   → 서명 합성 PDF·SHA-256 → PC SSE `contract_signed`·'서명 완료'·다운로드 → QR 검증 `/verify`. 이식 불필요.
+> - **잡은 결함 4**: PC 수정(PATCH) 뒤 서명 때까지 '보기' 가 "PDF 파일 없음"(초안 무효화만) → 발급과 같은 방식으로 **초안 재생성** ·
+>   회원이 발급 사실을 모름(PC SSE 만) → 알림 항목 `contract` '계약서 도착 안내' 신설, 발급 즉시 쪽지 · 상태 라벨·권한이 **5곳 사본**
+>   ('발송'·'발송·대기'·'서명 대기'·'발송됨') → 서버 `api/contracts.py contract_flags()`(status_label·signable·editable·cancellable·downloadable)
+>   하나, 5곳 사전 폐기 · 앱 서명 패드 '제출' busy 스왑 밀림 → 버튼 자리 그대로.
+> - 게이트 = `tests/test_contract_flow_d102.py` 5건(회원 sign·PATCH 잠금 — 종전 0건) · `tests/test_ssot_contract_lint.py`(서버 라벨 1곳·PC 사전 재정의 금지) ·
+>   앱 `ssot_lint_test.dart` D102 패턴. 골든 `member_28_contract_detail_signed` · `member_29_contract_sign_pad` (84장).
+> - 미비: PDF 재생성은 스텁 검증(로컬 GTK 없으면 실제 렌더는 발급과 같은 조건으로 경고) · 옛 초안 파일 미삭제(발급과 동일 관행) ·
+>   수정 가능 변수 목록은 PC·앱 각자 필터(서버가 목록을 안 내려줌 — 작음).
+
 > **D101 (2026-08-30 집행) — 동작 사전 연관도순 검색: 코치 PC 동작 고르기 검색창 + "백스쿼트" 띄어쓰기 무시 (사용자 "운동목록을 만들고
 > 쌤이 수업 등록할때도 불러오기 기능 통해서 … 연관도순으로 빨리 검색 … 백스쿼트라고 입력을 하게되면").**
 >

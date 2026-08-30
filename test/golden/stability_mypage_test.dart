@@ -105,6 +105,15 @@ List<Map<String, dynamic>> _memberships({
       'status': status,
       if (paused) 'pause_start': _ymd(now.subtract(const Duration(days: 2))),
       if (paused) 'pause_end': _ymd(now.add(const Duration(days: 5))),
+      ...fakeMembershipCalendar(
+        start: _ymd(now.subtract(Duration(days: expiredDates ? 100 : 56))),
+        end: _ymd(expiredDates
+            ? now.subtract(const Duration(days: 10))
+            : now.add(const Duration(days: 34))),
+        pauseStart: paused ? _ymd(now.subtract(const Duration(days: 2))) : null,
+        pauseEnd: paused ? _ymd(now.add(const Duration(days: 5))) : null,
+        active: status == 'active',
+      ),
     },
   ];
 }
