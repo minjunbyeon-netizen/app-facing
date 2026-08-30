@@ -196,6 +196,8 @@ void main() {
     phone(tester);
     SharedPreferences.setMockInitialValues(signedInPrefs());
     final api = FakeApi({
+      // D96 — 안내 문구는 서버 판정 (미리보기 키는 취소 키보다 앞에).
+      '/api/v1/member/reservations/56/cancel-preview': cancelPreviewLate(),
       ...memberWorld(),
       '/api/v1/member/classes': memberClassesLateCancel(),
     });
@@ -228,6 +230,7 @@ void main() {
     phone(tester);
     SharedPreferences.setMockInitialValues(signedInPrefs());
     final api = FakeApi({
+      '/api/v1/member/reservations/55/cancel-preview': cancelPreviewOnTime(),
       ...memberWorld(),
       '/api/v1/member/classes': memberClassesReserved(),
     });

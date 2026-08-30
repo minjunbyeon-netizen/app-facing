@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../core/app_clock.dart';
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/notification_service.dart';
@@ -12,17 +11,9 @@ import 'classes_repository.dart';
 
 /// 수업 예약·취소 흐름 — 화면 밖 함수 두 개.
 
-/// **차감 없이 취소되는 마지막 시점** (분) — 이 선을 지나 취소하면 '늦은 취소'다.
-/// 서버 `api/_membership.py LATE_CANCEL_MINUTES` 와 같은 값이고, 기록도 차감도
-/// 서버가 한다 (브리프 D57). 앱은 **막지 않고 사실만 미리 알린다** — 테스터 확정
-/// (2026-08-28) 으로 시작이 임박해도 회원이 스스로 취소할 수 있다.
-/// 구 '취소 시한 60분' 상수는 버튼을 미리 잠그던 선이라 차단과 함께 폐기됐다.
-const int kLateCancelMinutes = 20;
-
-/// 지금 취소하면 '늦은 취소'로 기록되는 구간인가 (시작 20분 전을 지났나).
-bool isLateCancel(ClassSessionDto c) => !appClock
-    .now()
-    .isBefore(c.startAt.subtract(const Duration(minutes: kLateCancelMinutes)));
+// D96 (2026-08-30): '늦은 취소' 판정은 서버가 한다 (체육관마다 노쇼 정책이 다르다 —
+// 알림 설정 → 노쇼 정책). 구 `kLateCancelMinutes`·`isLateCancel` 상수 판정 폐기 — 다이얼로그를
+// 열기 전에 `ClassesRepository.cancelPreview` 로 한 줄을 받아 그대로 보여 준다. 앱은 막지 않는다.
 
 // v2.4 (2026-08-12): 예약 로직이 두 벌이 되면 정책이 갈라진다 (§3 코드 SSOT).
 // v3.25 (2026-08-25): 구 `/classes` 화면(classes_screen.dart)을 지우면서 이 둘만
@@ -115,16 +106,24 @@ Future<bool> cancelClassFlow(
   if (!isWaitlistCancel && (res == null || !c.isReserved)) return false;
   final l = c.startAt.toLocal();
   final when = '${l.month}/${l.day} ${hhmm(l)}';
-  // 테스터 확정 (2026-08-28) — 시작이 임박해도 취소를 막지 않는다. 대신 시작
-  // 20분 전을 지났으면 차감될 수 있다는 사실을 누르기 전에 말한다. 조용히
-  // 차감하면 화면이 거짓말을 하는 것이다 (코치 쪽 기록은 회원의 일이 아니라
-  // 문구에 담지 않는다). 대기 이탈은 차감 규칙 자체가 없어 안내도 없다.
-  final isLate = !isWaitlistCancel && isLateCancel(c);
+  // 테스터 확정 (2026-08-28) — 시작이 임박해도 취소를 막지 않는다. 대신 차감될 수
+  // 있다는 사실을 누르기 전에 말한다. 조용히 차감하면 화면이 거짓말을 하는 것이다
+  // (코치 쪽 기록은 회원의 일이 아니라 문구에 담지 않는다). 대기 이탈은 차감 규칙
+  // 자체가 없어 안내도 없다. D96 — 문구는 서버 판정(체육관 노쇼 정책) 그대로.
+  String? notice;
+  if (!isWaitlistCancel) {
+    try {
+      notice = await repo.cancelPreview(res!.reservationId);
+    } catch (_) {
+      notice = null; // 미리보기 실패는 취소를 막지 않는다 — 결과 문구는 취소 응답이 말한다
+    }
+    if (!context.mounted) return false;
+  }
   final ok = await HkDialog.confirm(
     context,
     title: isWaitlistCancel ? '대기를 취소할까요?' : '예약을 취소할까요?',
     message: '${c.displayTitle} · $when',
-    notice: isLate ? '늦은 취소로 기록됩니다. 횟수권은 1회 차감될 수 있습니다.' : null,
+    notice: notice,
     // 여기는 자리를 미리 잡지 않는다. 공간 예약은 '보고 있는 화면 안에서 상태가
     // 바뀔 때' 를 위한 것인데(로그인 에러·목록 로딩), 이 안내는 어느 수업을
     // 취소하느냐로 정해져 다이얼로그가 열린 뒤 붙거나 빠지지 않는다. 늘 비워

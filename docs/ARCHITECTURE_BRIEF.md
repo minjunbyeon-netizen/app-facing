@@ -591,6 +591,32 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > - 회귀: 골든 `coach_01`(주간) 재생성 · `coach_02` 삭제 · `coach_04_new_note_members` 신규 ·
 >   `coach_03` 재생성(그룹 버튼 없음).
 
+> **D96 (2026-08-30 집행) — 노쇼 정책: 코치가 PC 알림 설정 → '노쇼 정책' 탭에서 늦은 취소·노쇼의 조치를 정한다.
+> 사용자 지시 "알림설정에서 탭 하나 더 만들어서 노쇼정책이란 탭 … 수업 1시간 전(선택), 취소하면 경고(선택) … 60분 전 30분 전
+> 10분 전 등, 경고·1회 차감·2회 차감".**
+>
+> - **표 `gym_noshow_policies`** — 행 = 규칙: `kind`(cancel·no_show) · `minutes_before`(cancel: 10·20·30·60·120·180·1440 중 하나) ·
+>   `penalty_sessions`(0 = 경고만, 1~5 = 횟수권 N회 차감) · `free_count`(회원권당 면제 0~5). 행이 없으면 **D57 그대로**
+>   (`default_policies` — 20분 전 이후 취소 1회 차감·면제 1 / 노쇼 1회 차감·면제 1). **정의 정본 = `api/_membership.py`**:
+>   `gym_policies` · `cancel_policy_for`(지난 선 중 **가장 임박한 것** — 1시간 전 경고 + 20분 전 1회 차감이면 30분 전 취소 = 경고,
+>   10분 전 = 차감) · `no_show_policy` · `policy_label`('수업 1시간 전 이후 취소 → 경고') · `cancel_notice`(앱 다이얼로그 한 줄) ·
+>   `cancel_message`(취소 응답 스낵바) · `minutes_label`(60 → '1시간 전', 1440 → '1일 전').
+> - **취소 순간의 스냅샷** — `class_reservation_cancels.policy_minutes/policy_penalty/policy_free`(어느 선·조치·면제였나) +
+>   `charged_sessions`(예약 줄·원장 둘 다 — 2회 차감이 가능해져 bool 만으론 못 센다, `session_charged` 는 >0 과 같은 뜻으로 유지).
+>   **쓴 횟수 = `charged_count` 하나** = 예약 줄 합 + 원장 합 — 잔여·예약 게이트·회원권 요약이 같은 수 (종전엔 잔여는 줄만, 요약은
+>   원장까지 세어 갈릴 수 있었다). 정책을 나중에 바꿔도 지난 취소는 스냅샷대로 다시 센다(사실은 쌓고 덮어쓰지 않는다). 옛 늦은 취소
+>   행(스냅샷 없음)은 종전 규칙으로 굳혔다(마이그레이션 + recompute 폴백). 노쇼는 그 체육관의 no_show 규칙(2회 차감이면 잔여 2 감소).
+> - **API**: `GET/PUT /api/v1/admin/gyms/<g>/noshow-policy`(행 전체 교체 — 허용 분값·선 중복·노쇼 1행·범위 검증, 빈 목록 = 기본으로) ·
+>   **`GET /api/v1/member/reservations/<rid>/cancel-preview`** — 회원 앱 취소 확인 다이얼로그의 안내 한 줄을 **누르는 순간 서버가 판정**
+>   (종전엔 앱이 '20분' 상수 `kLateCancelMinutes` 로 스스로 판정 — 6-b 위반, 폐기).
+> - **PC**: `notifications.html` 상단 탭 [알림 | 노쇼 정책] — 취소 규칙 행(수업 N분 전 이후 취소하면 → 경고/N회 차감 → 면제) + 노쇼 규칙 한 줄
+>   + [취소 규칙 추가]·[저장]·[기본 규칙으로], 현재 적용 규칙 한 줄 미리보기. 라벨·선택지는 서버 `options`·`label` 그대로.
+>   `settings_plans.html` 의 하드코딩 문구('20분 전 …')는 이 탭으로 안내.
+> - **앱**: `ClassesRepository.cancelPreview` → `class_flows.cancelClassFlow` 가 다이얼로그 전에 문구를 받아 그대로 (실패해도 취소는 막지 않는다).
+>   골든 `state_22`·`state_23`·`cancel_dialog_notice_test` 는 서버 문구를 가짜로. 게이트 = `ssot_lint_test.dart`(`kLateCancelMinutes`·`isLateCancel(` 금지).
+> - **게이트**: `tests/test_noshow_policy_d96.py`(기본값 = D57 · PUT 검증 · 경고 선/차감 선 판정과 미리보기·응답 문구·잔여 · 노쇼 2회 차감 =
+>   잔여·요약 같은 수 · 정책 변경 후 스냅샷 유지). 기존 `test_session_pass`·`test_reservation_policy`·왕복 검사 전부 그대로 통과.
+
 > **D95 (2026-08-30 집행) — 히스토리 검색을 서버가 한다: `GET /api/v1/history/wod?q=` 연관도순 + 동작 사전 번호 일치 (사용자 "일단 이것부터").**
 >
 > - **정의 = `services/history_search.py` 하나** (D84 폰 순위 규칙을 그대로 옮김: 낱말 AND · 칸 전체 일치 10/앞부분 6/단어 앞 4/포함 2 ·

@@ -27,6 +27,7 @@ const List<(String, String)> _forbidden = [
   (r'\.length\s*;\s*//\s*totalSessions|totalSessions:\s*records\.length', '총 기록 수는 서버 meta.total (D91)'),
   (r'StreakFreeze|_currentStreak\(|_uniqueDays\(', '연속일은 서버 meta.streak_days — 폰이 세지 않는다 (D92)'),
   (r'rankHistory\(|scoreHistoryItem\(|searchTokens\(', '히스토리 검색 순위는 서버 services/history_search.py 하나 (D95)'),
+  (r'kLateCancelMinutes|isLateCancel\(', '늦은 취소 판정은 서버 노쇼 정책 — cancel-preview 문구를 그대로 (D96)'),
 ];
 
 void main() {

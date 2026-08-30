@@ -524,6 +524,14 @@ List<Map<String, dynamic>> rewardProgressRows() => [
   },
 ];
 
+/// D96 — 취소 미리보기 (서버 판정 한 줄). 늦은 취소 골든(state_22 · 예약 56)은 차감 안내,
+/// 평상시(state_23 · 예약 55)는 null. 문구는 서버 `_membership.cancel_notice` 와 같다.
+Map<String, dynamic> cancelPreviewLate() => const {
+  'notice': '늦은 취소로 기록됩니다. 횟수권은 1회 차감될 수 있습니다.',
+  'tier': {'minutes_before': 20, 'penalty_sessions': 1, 'label': '수업 20분 전 이후 취소 → 1회 차감'},
+};
+Map<String, dynamic> cancelPreviewOnTime() => const {'notice': null, 'tier': null};
+
 /// Q3 (v3.4) — 수업 상세 "내 이전 기록" (오늘 WOD 31 = Fran 계열 for_time).
 /// 최근이 위, PR 은 최신 기록에.
 Map<String, dynamic> wodMyHistory() {

@@ -18,17 +18,20 @@ import 'screens_golden_test.dart' show rxProfile, signedInAuth, signedInPrefs;
 /// 반대로 20분 전까지는 아무 문구도 붙지 않아야 한다 — 차감되지 않는 취소에
 /// 경고를 붙이면 그것도 거짓말이다. 두 방향을 다 잠근다.
 ///
+/// D96 (2026-08-30): 판정은 서버(체육관 노쇼 정책). 앱은 `cancel-preview` 한 줄을 그대로
+/// 보여 준다 — 여기 가짜는 서버가 준 문구(늦은 취소 = 예약 56 · 제때 = 예약 55)를 돌려준다.
+///
 /// 코치 쪽에 남는 '시한 후 취소' 기록은 **회원의 일이 아니다.** 그 말이 회원
 /// 화면에 새어 나오지 않는지도 여기서 함께 막는다.
 void main() {
-  testWidgets('20분 전 이후 취소 — 차감 안내가 붙는다', (tester) async {
+  testWidgets('서버가 늦은 취소라 하면 — 차감 안내가 붙는다', (tester) async {
     phone(tester);
     await _openCancelDialog(tester, memberClassesLateCancel());
     expect(find.textContaining('늦은 취소로 기록됩니다'), findsOneWidget);
     expect(find.textContaining('차감'), findsOneWidget);
   });
 
-  testWidgets('20분 전까지 취소 — 아무 안내도 붙지 않는다', (tester) async {
+  testWidgets('서버가 제때 취소라 하면 — 아무 안내도 붙지 않는다', (tester) async {
     phone(tester);
     await _openCancelDialog(tester, memberClassesReserved());
     expect(find.textContaining('늦은 취소'), findsNothing);
@@ -51,6 +54,8 @@ Future<void> _openCancelDialog(
 ) async {
   SharedPreferences.setMockInitialValues(signedInPrefs());
   final api = FakeApi({
+    '/api/v1/member/reservations/56/cancel-preview': cancelPreviewLate(),
+    '/api/v1/member/reservations/55/cancel-preview': cancelPreviewOnTime(),
     ...memberWorld(),
     '/api/v1/member/classes': classes,
   });

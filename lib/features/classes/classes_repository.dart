@@ -47,6 +47,17 @@ class ClassesRepository {
     );
   }
 
+  /// 취소 미리보기 (D96 · 2026-08-30) — 지금 취소하면 어떤 기록이 남는지 **서버가 판정**한 한 줄.
+  /// 응답: {notice: String|null, tier: {...}|null}. 제때 취소면 notice 가 null.
+  /// (구 앱 상수 kLateCancelMinutes=20 판정 폐기 — 체육관마다 규칙이 다르다.)
+  Future<String?> cancelPreview(int reservationId) async {
+    final d = await _api.get(
+      '/api/v1/member/reservations/$reservationId/cancel-preview',
+    );
+    final n = d['notice'];
+    return (n == null || n.toString().trim().isEmpty) ? null : n.toString();
+  }
+
   /// 본인 예약 취소. 백엔드가 waitlist 1번 자동 승격.
   /// 응답: {cancelled, late_cancel, session_charged, message} — D57 횟수권
   /// 취소 문구(차감 여부)는 서버가 정본이라 스낵바가 그대로 보여준다.
