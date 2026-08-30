@@ -1,0 +1,269 @@
+- generic [ref=f2e2]:
+  - complementary [ref=f2e3]:
+    - generic [ref=f2e4]:
+      - generic [ref=f2e5]: HYPHEN
+      - generic [ref=f2e6]:
+        - generic [ref=f2e7]: RESV POLICY GYM
+        - generic [ref=f2e8]: 데모 관리자
+    - navigation [ref=f2e9]:
+      - link "홈" [ref=f2e10] [cursor=pointer]:
+        - /url: /dashboard
+      - link "통계" [ref=f2e11] [cursor=pointer]:
+        - /url: /stats
+      - link "공지 · 일정" [ref=f2e12] [cursor=pointer]:
+        - /url: /announcements
+      - generic [ref=f2e13]: 회원
+      - link "전체" [ref=f2e14] [cursor=pointer]:
+        - /url: /members
+      - link "활성" [ref=f2e15] [cursor=pointer]:
+        - /url: /members?filter=active
+      - link "만료" [ref=f2e16] [cursor=pointer]:
+        - /url: /members?filter=expired
+      - link "케어 필요" [ref=f2e17] [cursor=pointer]:
+        - /url: /members/care
+      - link "회원 쪽지" [ref=f2e18] [cursor=pointer]:
+        - /url: /messages
+      - generic [ref=f2e19]: 가입
+      - link "가입 관리" [ref=f2e20] [cursor=pointer]:
+        - /url: /members/join
+      - generic [ref=f2e21]: 운영
+      - link "락커" [ref=f2e22] [cursor=pointer]:
+        - /url: /lockers
+      - link "전자계약서" [ref=f2e23] [cursor=pointer]:
+        - /url: /contracts
+      - generic [ref=f2e24]: 수업
+      - link "수업 안내" [ref=f2e25] [cursor=pointer]:
+        - /url: /class-templates
+      - link "수업 관리" [ref=f2e26] [cursor=pointer]:
+        - /url: /classes
+      - generic [ref=f2e27]: 설정
+      - link "체육관 프로필" [ref=f2e28] [cursor=pointer]:
+        - /url: /settings/gym-profile
+      - link "회원권 설정" [ref=f2e29] [cursor=pointer]:
+        - /url: /settings/plans
+      - link "예약 설정" [ref=f2e30] [cursor=pointer]:
+        - /url: /settings/reservations
+      - link "포인트 설정" [ref=f2e31] [cursor=pointer]:
+        - /url: /settings/points
+      - link "업적 설정" [ref=f2e32] [cursor=pointer]:
+        - /url: /settings/achievements
+      - link "알림 설정" [ref=f2e33] [cursor=pointer]:
+        - /url: /settings/notifications
+    - link "로그아웃" [ref=f2e35] [cursor=pointer]:
+      - /url: /logout
+  - main [ref=f2e36]:
+    - generic [ref=f2e38]:
+      - generic [ref=f2e39]: 업적 설정
+      - generic [ref=f2e40]: 회원 앱 홈의 업적(게임 요소)을 체육관 단위로 조절하고, 리워드 규칙을 직접 만듭니다. 저장 즉시 회원 휴대폰에 반영됩니다.
+    - paragraph [ref=f2e41]: 규칙의 생김새 — [행동]을 [기간] 안에 [N회] 하면 → [포인트] + [업적]. 포인트는 달성 순간 자동 적립됩니다.
+    - generic [ref=f2e42]:
+      - button "규칙 · 업적" [ref=f2e43] [cursor=pointer]
+      - button "인증 대기함" [ref=f2e44] [cursor=pointer]
+    - generic [ref=f2e45]:
+      - generic [ref=f2e46]:
+        - generic [ref=f2e47]:
+          - text: 업적 기능 사용
+          - generic [ref=f2e48]: 끄면 회원 앱에서 업적 목록·달성 알림이 전부 사라집니다.
+        - switch "사용함" [checked] [ref=f2e52] [cursor=pointer]
+      - generic [ref=f2e53]:
+        - generic [ref=f2e54]:
+          - generic [ref=f2e55]:
+            - generic [ref=f2e56]:
+              - text: 카테고리 1 — 자동 (출석·예약·결제·연장·생일)
+              - generic [ref=f2e57]: 시스템이 자동으로 세는 행동. 출석·예약은 1일 1회, 생일은 당일부터 7일 안 자동 지급.
+            - button "+ 규칙" [ref=f2e58] [cursor=pointer]
+          - generic [ref=f2e59]: 아직 규칙 없음 — 우상단 + 규칙 으로 첫 규칙을 만들어 주세요.
+          - generic [ref=f2e60]:
+            - text: 기본 업적 — 기본 제공분. 픽토그램·희귀도·포인트·비고를 편집합니다.
+            - table [ref=f2e61]:
+              - rowgroup [ref=f2e62]:
+                - row "픽토그램 업적 설명 희귀도 달성 포인트 비고 사용 회원 화면" [ref=f2e63]
+              - rowgroup [ref=f2e72]:
+                - row "불꽃 Triple Threat Week. 3주 연속 주 4회 기록. 에픽 0 P 1회 에픽 자동 집계" [ref=f2e73]
+                - row "불꽃 5-Week Iron. (히든) 5주 연속 주 5회 기록. 전설 0 P 1회 전설 자동 집계" [ref=f2e117]
+                - row "일출 Comeback Kid. (히든) 30일 휴식 후 복귀. 희귀 0 P 1회 희귀 자동 집계" [ref=f2e161]
+                - row "시계 Phoenix. (히든) 60일 휴식 후 복귀. 에픽 0 P 1회 에픽 자동 집계" [ref=f2e205]
+        - generic [ref=f2e253]:
+          - generic [ref=f2e254]:
+            - generic [ref=f2e255]:
+              - text: 카테고리 2 — 기록 로그 (수업 기록·PR)
+              - generic [ref=f2e256]: 회원이 저장한 기록·PR 을 서버 로그로 세는 행동.
+            - button "+ 규칙" [active] [ref=f2e257] [cursor=pointer]
+          - table [ref=f2e258]:
+            - rowgroup [ref=f2e259]:
+              - row "규칙 내용 지급 활성" [ref=f2e260]:
+                - columnheader "규칙" [ref=f2e261]
+                - columnheader "내용" [ref=f2e262]
+                - columnheader "지급" [ref=f2e263]
+                - columnheader "활성" [ref=f2e264]
+                - columnheader [ref=f2e265]
+            - rowgroup [ref=f2e266]:
+              - row "Thruster 첫 완료 Thruster 포함 수업 기록 누적 1회 달성 시 30P 적립 + 업적 부여 1회 지급 수정 · 삭제" [ref=f2e267]:
+                - cell "Thruster 첫 완료" [ref=f2e268]
+                - cell "Thruster 포함 수업 기록 누적 1회 달성 시 30P 적립 + 업적 부여" [ref=f2e284]
+                - cell "1회 지급" [ref=f2e285]
+                - cell [ref=f2e286]
+                - cell "수정 · 삭제" [ref=f2e289]
+              - row "Push-up 첫 완료 Push-up 포함 수업 기록 누적 1회 달성 시 20P 적립 + 업적 부여 1회 지급 수정 · 삭제" [ref=f2e292]:
+                - cell "Push-up 첫 완료" [ref=f2e293]
+                - cell "Push-up 포함 수업 기록 누적 1회 달성 시 20P 적립 + 업적 부여" [ref=f2e309]
+                - cell "1회 지급" [ref=f2e310]
+                - cell [ref=f2e311]
+                - cell "수정 · 삭제" [ref=f2e314]
+              - row "Run 첫 완료 Run 포함 수업 기록 누적 1회 달성 시 25P 적립 + 업적 부여 1회 지급 수정 · 삭제" [ref=f2e317]:
+                - cell "Run 첫 완료" [ref=f2e318]
+                - cell "Run 포함 수업 기록 누적 1회 달성 시 25P 적립 + 업적 부여" [ref=f2e334]
+                - cell "1회 지급" [ref=f2e335]
+                - cell [ref=f2e336]
+                - cell "수정 · 삭제" [ref=f2e339]
+              - row "Burpee 첫 완료 Burpee 포함 수업 기록 누적 1회 달성 시 30P 적립 + 업적 부여 1회 지급 수정 · 삭제" [ref=f2e342]:
+                - cell "Burpee 첫 완료" [ref=f2e343]
+                - cell "Burpee 포함 수업 기록 누적 1회 달성 시 30P 적립 + 업적 부여" [ref=f2e359]
+                - cell "1회 지급" [ref=f2e360]
+                - cell [ref=f2e361]
+                - cell "수정 · 삭제" [ref=f2e364]
+          - generic [ref=f2e367]:
+            - text: 기본 업적 — 기본 제공분. 픽토그램·희귀도·포인트·비고를 편집합니다.
+            - table [ref=f2e368]:
+              - rowgroup [ref=f2e369]:
+                - row "픽토그램 업적 설명 희귀도 달성 포인트 비고 사용 회원 화면" [ref=f2e370]
+              - rowgroup [ref=f2e379]:
+                - row "바벨 First Ten. 수업 기록 10회. 일반 0 P 1회 일반 자동 집계" [ref=f2e380]
+                - row "바벨 Quarter Hundred. 수업 기록 25회. 일반 0 P 1회 일반 자동 집계" [ref=f2e424]
+                - row "깃발 Three Quarter. 수업 기록 75회. 희귀 0 P 1회 희귀 자동 집계" [ref=f2e468]
+                - row "바벨 50 Logs. 수업 기록 50회. 희귀 0 P 1회 희귀 자동 집계" [ref=f2e512]
+                - row "달력 Winter Volume. 겨울 시즌 (12-2월) 기록 20회. 희귀 0 P 1회 희귀 자동 집계" [ref=f2e556]
+                - row "트로피 First PR. 첫 개인 기록 갱신. 일반 0 P 1회 일반 기록 대조" [ref=f2e604]
+                - row "트로피 PR Hunter. PR 10회 누적. 희귀 0 P 1회 희귀 기록 대조" [ref=f2e648]
+                - row "트로피 PR Tracker. PR 25회 누적. 에픽 0 P 1회 에픽 기록 대조" [ref=f2e692]
+                - row "트로피 PR Machine. (히든) PR 50회 누적. 전설 0 P 1회 전설 기록 대조" [ref=f2e736]
+                - row "메달 Lift King. Power/Olympic 카테고리 PR 5개. 에픽 0 P 1회 에픽 기록 대조" [ref=f2e780]
+                - row "메달 Cardio Ascend. Cardio 카테고리 PR 5개. 희귀 0 P 1회 희귀 기록 대조" [ref=f2e828]
+                - row "산 Centurion. 수업 기록 100회 누적. 에픽 0 P 1회 에픽 자동 집계" [ref=f2e876]
+                - row "산 Double Century. (히든) 수업 기록 200회 누적. 전설 0 P 1회 전설 자동 집계" [ref=f2e920]
+                - row "산 Half Millennium. (히든) 수업 기록 500회 누적. 전설 0 P 1회 전설 자동 집계" [ref=f2e964]
+                - row "산 Iron Marathon. (히든) 수업 기록 1000회 누적. 전설 0 P 1회 전설 자동 집계" [ref=f2e1008]
+        - generic [ref=f2e1052]:
+          - generic [ref=f2e1053]:
+            - generic [ref=f2e1054]:
+              - text: 카테고리 3 — 코치 인증 (커스텀 행동)
+              - generic [ref=f2e1055]: 달리기처럼 시스템이 못 보는 행동 — 회원이 인증하고 코치가 승인해야 카운트.
+            - button "+ 규칙" [ref=f2e1056] [cursor=pointer]
+          - generic [ref=f2e1057]: 아직 규칙 없음 — 우상단 + 규칙 으로 첫 규칙을 만들어 주세요.
+          - generic [ref=f2e1058]:
+            - text: 기본 업적 — 기본 제공분. 픽토그램·희귀도·포인트·비고를 편집합니다.
+            - table [ref=f2e1059]:
+              - rowgroup [ref=f2e1060]:
+                - row "픽토그램 업적 설명 희귀도 달성 포인트 비고 사용 회원 화면" [ref=f2e1061]
+              - rowgroup [ref=f2e1070]:
+                - row "깃발 Open Survivor. CrossFit Open 기간 (2/22~3/15) 기록 5회. 에픽 0 P 1회 에픽 자동 집계" [ref=f2e1071]
+                - row "깃발 Quarterfinal Grinder. Quarterfinals 기간 (4/1~4/21) 기록 3회. 에픽 0 P 1회 에픽 자동 집계" [ref=f2e1115]
+                - row "깃발 Semifinal Watch. Semifinals 기간 (5~6월) 기록 5회. 희귀 0 P 1회 희귀 자동 집계" [ref=f2e1159]
+    - generic [ref=f2e1204]:
+      - generic [ref=f2e1205]:
+        - generic [ref=f2e1206]: 카테고리 2 — 기록 로그 (수업 기록·PR) — 규칙 만들기
+        - button "×" [ref=f2e1207] [cursor=pointer]
+      - generic [ref=f2e1208]:
+        - generic [ref=f2e1209]: 회원이 저장한 기록·PR 을 서버 로그로 세는 행동.
+        - generic [ref=f2e1210]:
+          - generic [ref=f2e1211]: "예시로 채우기:"
+          - button "출석 — 매주 5회 500P" [ref=f2e1212] [cursor=pointer]
+          - button "PR — 매주 1회 500P" [ref=f2e1213] [cursor=pointer]
+          - button "달리기 인증 — 승인 시 100P" [ref=f2e1214] [cursor=pointer]
+          - button "동작 목표 — 매주 3회 50P" [ref=f2e1215] [cursor=pointer]
+        - generic [ref=f2e1216]:
+          - generic [ref=f2e1217]: 행동
+          - combobox [ref=f2e1218]:
+            - option "수업 기록" [selected]
+            - option "PR 달성"
+        - generic [ref=f2e1219]:
+          - generic [ref=f2e1220]: 동작 (선택)
+          - combobox [ref=f2e1221]:
+            - option "전체 수업 기록" [selected]
+            - option "Bike"
+            - option "Box Jump"
+            - option "Burpee"
+            - option "Burpee Box Jump Over"
+            - option "Double Under"
+            - option "Row"
+            - option "Run"
+            - option "Shuttle Run"
+            - option "Single Under"
+            - option "Ski Erg"
+            - option "Bar Muscle-up"
+            - option "Chest-to-Bar Pull-up"
+            - option "Dip"
+            - option "GHD Sit-up"
+            - option "Handstand Push-up"
+            - option "Handstand Walk"
+            - option "Hollow Hold"
+            - option "L-sit"
+            - option "Muscle-up"
+            - option "Pistol Squat"
+            - option "Plank"
+            - option "Pull-up"
+            - option "Push-up"
+            - option "Ring Dip"
+            - option "Rope Climb"
+            - option "Sit-up"
+            - option "Strict HSPU"
+            - option "Strict Pull-up"
+            - option "Toes-to-Bar"
+            - option "V-up"
+            - option "Atlas Stone"
+            - option "Bench Press"
+            - option "DB Clean"
+            - option "DB Press"
+            - option "DB Snatch"
+            - option "DB Thruster"
+            - option "Deadlift"
+            - option "KB Clean"
+            - option "KB Snatch"
+            - option "KB Swing"
+            - option "Sandbag Carry"
+            - option "Sumo Deadlift High Pull"
+            - option "Thruster"
+            - option "Tire Flip"
+            - option "Wall Ball"
+            - option "Back Squat"
+            - option "Clean"
+            - option "Clean and Jerk"
+            - option "Front Squat"
+            - option "Hang Clean"
+            - option "Hang Snatch"
+            - option "Jerk"
+            - option "Overhead Squat"
+            - option "Power Clean"
+            - option "Power Snatch"
+            - option "Press"
+            - option "Push Jerk"
+            - option "Push Press"
+            - option "Snatch"
+            - option "Squat Clean"
+        - generic [ref=f2e1222]:
+          - generic [ref=f2e1223]: 규칙 이름
+          - textbox "주간 출석 2회" [ref=f2e1224]
+        - generic [ref=f2e1225]: 조건
+        - generic [ref=f2e1226]:
+          - combobox [ref=f2e1227]:
+            - option "기간 안 N회" [selected]
+            - option "N일 연속"
+            - option "누적 N회"
+          - combobox [ref=f2e1228]:
+            - option "매주" [selected]
+            - option "매달"
+          - spinbutton [ref=f2e1229]: "2"
+          - generic [ref=f2e1230]: 회
+        - generic [ref=f2e1231]: 반복
+        - combobox [ref=f2e1232]:
+          - option "주기마다 반복 (매주/매달 다시 달성 가능)" [selected]
+          - option "회원당 1회"
+        - generic [ref=f2e1233]: 보상 — 포인트
+        - spinbutton [ref=f2e1234]: "100"
+        - generic [ref=f2e1235]:
+          - checkbox "업적도 부여" [ref=f2e1236]
+          - text: 업적도 부여
+        - generic [ref=f2e1237]: 미리보기 — 규칙 이름(label) 필수.
+      - generic [ref=f2e1238]:
+        - button "취소" [ref=f2e1239] [cursor=pointer]
+        - button "규칙 만들기" [ref=f2e1240] [cursor=pointer]
