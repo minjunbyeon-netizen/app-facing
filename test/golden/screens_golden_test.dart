@@ -9,6 +9,7 @@ import 'package:hyphen_app/features/boss/boss_dashboard_screen.dart';
 import 'package:hyphen_app/features/auth/auth_state.dart';
 import 'package:hyphen_app/features/gym/gym_repository.dart';
 import 'package:hyphen_app/features/gym/gym_state.dart';
+import 'package:hyphen_app/features/history/history_detail_screen.dart';
 import 'package:hyphen_app/features/history/history_screen.dart';
 import 'package:hyphen_app/features/onboarding/onboarding_basic.dart';
 import 'package:hyphen_app/features/mypage/mypage_screen.dart';
@@ -357,6 +358,29 @@ void main() {
     expect(find.textContaining('Squat'), findsNWidgets(2));
     expect(find.textContaining('Fran'), findsNothing);
     await capture(tester, 'hist_03_search');
+  });
+
+  // ── 이력 상세 (D91 · 2026-08-30) — 목록과 같은 줄을 펼친다: 점수 라벨·난도·메모·수업 내용 ──
+  testWidgets('history: detail', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    // 상세 키를 먼저 넣는다 — FakeApi 는 startsWith 로 맞추므로 목록 키보다 앞에 서야 한다.
+    final api = FakeApi({
+      '/api/v1/history/wod/502': wodHistoryDetail(),
+      ...memberWorld(),
+    });
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        home: const HistoryDetailScreen(recordId: 502),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('6:52'), findsOneWidget);
+    expect(find.text('SCALED'), findsOneWidget);
+    await capture(tester, 'hist_04_detail');
   });
 
   // ── 사장 로그인 ──

@@ -1,65 +1,125 @@
 import '../../core/time_format.dart';
-/// History 도메인 모델 -- 백엔드 /api/v1/history/* 응답 DTO.
+
+/// 히스토리 한 줄 — 백엔드 `GET /api/v1/history/wod` 응답 DTO (D91 · 2026-08-30).
+///
+/// 정본은 서버의 수업 결과 표(`gym_wod_results`) 한 벌이다 — `id` 는 **결과 id**.
+/// 점수 라벨(`label` — '4:18' · '5R+3' · '40kg×5')·종류(`kind`)·PR(`isPr`)·그날 운동 요약
+/// (`summary`)·종류 라벨(`wodTypeLabel`)은 **서버가 완성**해 내려주고 앱은 그대로 보여 준다
+/// (대전제 6-b — 앱은 다시 판정하지 않는다. 구 클라이언트 PR 판정 `PrDetector` 는 삭제).
 class WodHistoryItem {
   final int id;
+  final int postId;
+  final int? classSessionId;
   final String wodType;
-  final int? timeCapSec;
+  final String wodTypeLabel;
+
+  /// 게시물 본문 첫 줄 — 'AWAKE · A 세션'.
+  final String title;
+
+  /// 그날 운동 한 줄 — 'Back Squat 5×5 · 105kg'. 동작 검색의 축.
+  final String summary;
+
+  /// 게시물 본문 전체 (검색 본문 칸 · 상세 표시).
+  final String content;
+  final String kind; // 'time' | 'rounds' | 'weight'
+  final String label;
+  final int? timeSec;
   final int? rounds;
+  final int? extraReps;
+  final double? weightKg;
+  final int? weightReps;
+  final String? movement;
+  final String scaleLevel; // 'rx' | 'scaled' | 'elite'
+  final bool isPr;
+
+  /// 회원이 적은 메모.
   final String notes;
   final DateTime createdAt;
-  final int? estimatedTotalSec;
-  final String? grade;
-  final String? formulaVersion;
 
   const WodHistoryItem({
     required this.id,
+    required this.postId,
+    this.classSessionId,
     required this.wodType,
-    this.timeCapSec,
+    required this.wodTypeLabel,
+    required this.title,
+    this.summary = '',
+    this.content = '',
+    this.kind = 'time',
+    this.label = '',
+    this.timeSec,
     this.rounds,
-    required this.notes,
+    this.extraReps,
+    this.weightKg,
+    this.weightReps,
+    this.movement,
+    this.scaleLevel = 'rx',
+    this.isPr = false,
+    this.notes = '',
     required this.createdAt,
-    this.estimatedTotalSec,
-    this.grade,
-    this.formulaVersion,
   });
 
   factory WodHistoryItem.fromJson(Map<String, dynamic> j) {
-    final plan = j['plan'] as Map<String, dynamic>?;
     return WodHistoryItem(
       id: (j['id'] as num).toInt(),
+      postId: (j['post_id'] as num?)?.toInt() ?? 0,
+      classSessionId: (j['class_session_id'] as num?)?.toInt(),
       wodType: (j['wod_type'] ?? '').toString(),
-      timeCapSec: (j['time_cap_sec'] as num?)?.toInt(),
+      wodTypeLabel: (j['wod_type_label'] ?? j['wod_type'] ?? '').toString(),
+      title: (j['title'] ?? '').toString(),
+      summary: (j['summary'] ?? '').toString(),
+      content: (j['content'] ?? '').toString(),
+      kind: (j['kind'] ?? 'time').toString(),
+      label: (j['label'] ?? '').toString(),
+      timeSec: (j['time_sec'] as num?)?.toInt(),
       rounds: (j['rounds'] as num?)?.toInt(),
+      extraReps: (j['extra_reps'] as num?)?.toInt(),
+      weightKg: (j['weight_kg'] as num?)?.toDouble(),
+      weightReps: (j['weight_reps'] as num?)?.toInt(),
+      movement: j['movement']?.toString(),
+      scaleLevel: (j['scale_level'] ?? 'rx').toString(),
+      isPr: j['is_pr'] == true,
       notes: (j['notes'] ?? '').toString(),
       createdAt: parseServerTime(j['created_at'] as String).toLocal(),
-      estimatedTotalSec: (plan?['estimated_total_sec'] as num?)?.toInt(),
-      grade: plan?['grade']?.toString(),
-      formulaVersion: plan?['formula_version']?.toString(),
     );
   }
 
-  /// 목록 한 줄 제목 — 메모 첫 줄 (수업 결과 저장은 '수업 #N · 내용 첫 줄' 을 남긴다).
-  /// 메모가 비면 종류 코드 그대로(화면이 라벨로 바꾼다). D84 검색의 3배 가중 칸.
-  String get summary {
-    final first = notes.split('\n').first.trim();
-    return first.isEmpty ? wodType : first;
+  /// 목록 첫 줄 — 제목이 비면 종류 라벨.
+  String get heading => title.trim().isEmpty ? wodTypeLabel : title.trim();
+
+  /// 목록 둘째 줄 — 그날 운동 요약, 없으면 메모, 그것도 없으면 종류 라벨 (항상 한 줄 있다).
+  String get subheading {
+    if (summary.trim().isNotEmpty) return summary.trim();
+    if (notes.trim().isNotEmpty) return notes.trim();
+    return wodTypeLabel;
   }
 
-  /// 목록 오른쪽 점수 — 시간이 있으면 시간, 없으면 라운드(`5R`), 둘 다 없으면 '-'.
-  /// D90 (2026-08-30): AMRAP 결과가 '-' 로만 보이던 것 — 서버 거울 행이 라운드를 싣는다.
-  String get scoreDisplay {
-    final t = estimatedTotalDisplay;
-    if (t != '-') return t;
-    if (rounds != null && rounds! > 0) return '${rounds}R';
-    return '-';
-  }
+  /// 목록 오른쪽 점수 — 서버 라벨 그대로, 없으면 '-'.
+  String get scoreDisplay => label.isEmpty ? '-' : label;
 
-  String get estimatedTotalDisplay {
-    // 결함 수정 3 (2026-08-20 실기 발견): 수업 기록 미러 등 시간 없는 기록이
-    // "0:00" 으로 도배되던 문제 — 0초는 시간 미측정으로 취급.
-    if (estimatedTotalSec == null || estimatedTotalSec == 0) return '-';
-    final m = estimatedTotalSec! ~/ 60;
-    final s = estimatedTotalSec! % 60;
-    return '$m:${s.toString().padLeft(2, '0')}';
-  }
+  /// 난도 배지 — 서버 값 'rx' 는 앱 표기 'RXD' (GLOSSARY §3), 나머지는 대문자 그대로.
+  String get scaleLabel =>
+      scaleLevel == 'rx' ? 'RXD' : scaleLevel.toUpperCase();
+}
+
+/// 히스토리 한 페이지 + 레벨 카드가 쓰는 세 수 (서버 `meta` — 앱은 세지 않는다).
+class WodHistoryPage {
+  final List<WodHistoryItem> items;
+  final int total;
+  final int prCount;
+  final int streakDays;
+
+  const WodHistoryPage({
+    required this.items,
+    required this.total,
+    required this.prCount,
+    required this.streakDays,
+  });
+
+  static const empty = WodHistoryPage(
+    items: [],
+    total: 0,
+    prCount: 0,
+    streakDays: 0,
+  );
 }

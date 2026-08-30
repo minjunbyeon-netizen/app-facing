@@ -591,6 +591,40 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > - 회귀: 골든 `coach_01`(주간) 재생성 · `coach_02` 삭제 · `coach_04_new_note_members` 신규 ·
 >   `coach_03` 재생성(그룹 버튼 없음).
 
+> **D91 (2026-08-30 집행) — 히스토리 완전 통합: 히스토리 탭·검색·상세·XP·카탈로그 업적·코치 명단이 정본 `gym_wod_results` 를 직접
+> 읽고 센다 (D90 거울 `wods` 쓰기 폐기). 사용자 지시 "완전 통합하고 어디에 무엇을 배선해 뒀는지 적어 두고 저장해 둬".**
+>
+> - **정의 = `api/_metrics.py` 한 곳** (대전제 6): `class_results_of`(회원 기기의 결과 행 전부, 게시물 join, 최근순) ·
+>   `class_result_count` · `class_pr_count`(저장 시점 서버 판정 `is_pr`) · `class_result_times`/`class_result_days` ·
+>   `class_streak_days`(오늘 또는 어제부터 연속 — 종전 코치 명단은 '가장 최근 기록일' 부터 세어 3주 전 연속이 지금도 보였다) ·
+>   `class_result_stats_bulk`(명단용 1쿼리). 서버 안의 셈은 전부 이 함수를 부른다.
+> - **API**: `GET /api/v1/history/wod` 가 결과 표를 직렬화한다 — 행 id = **결과 id**, `title`(본문 첫 줄 'AWAKE · A 세션') ·
+>   `summary`(그날 운동 한 줄 — `program_lines.movement_summary`, 본문과 같은 렌더러) · `wod_type_label` · `kind`/`label`
+>   (`wod_compare.result_kind_of`/`fmt_result_label` — '4:18'·'5R+3'·'40kg×5') · `is_pr` · `scale_level` · `notes`(회원 메모) ·
+>   `content`. `meta` 에 **레벨 카드의 세 수**(total·pr_count·streak_days·last_at). `GET /history/wod/<result_id>` = 같은 줄 +
+>   게시물(content·scale_guide·movements) + 완료한 수업(display_title). `POST /history/wod`·`DELETE` 는 폐기 — 결과 저장 창구는
+>   `POST /gyms/<g>/wods/<post>/results` 하나. 엔진 시절 `wods` 행(D90 거울 행 포함)은 **읽지도 쓰지도 않는다**(휴면, 데이터 보존).
+> - **업적·리워드**: `achievement_checker` 의 wod_count·pr_count·pr_category·season_wod·weekly_streak·comeback 이 정본 함수로
+>   (device_hash 기준 — Profile 이 없는 앱 전용 회원도 평가된다: `_eval_trigger(session, device_hash, profile_id|None, …)`,
+>   `check_and_unlock` profile_id None 허용, `/achievements/check` 가 Profile 없이도 카탈로그 스윕). `reward_engine` 의
+>   wod_log·pr 에서 엔진 표 합산 제거 — 원천 하나. `pr_category` 는 PR 기록의 그날 운동 본문·적어 낸 동작 이름을 본다.
+> - **앱**: `WodHistoryItem` = 서버 한 줄 그대로(제목·요약·라벨·PR·난도), `WodHistoryPage`(items+meta) ·
+>   `ApiClient.getPage`. 홈 레벨 카드 XP 의 총 기록 수·PR 수는 **`meta.total`·`meta.pr_count`** — 목록 길이(limit 200 로 잘림)와
+>   클라이언트 PR 판정 `PrDetector` 폐기(파일 삭제). 히스토리 행 = 수업 이름 / 그날 운동 요약 / 종류·일시 + 점수 라벨(+PR 배지,
+>   자리 예약) · 상세 = 점수·난도·PR·메모·수업 내용(서버가 그린 글 그대로)·난도 안내. **타이머 화면(`wod_session_screen.dart`)의
+>   저장도 결과 제출 창구 하나로** — 종전엔 엔진 표에 먼저 쓰고 리더보드는 best-effort 였다(D90 이 놓친 두 번째 쓰기 손).
+>   검색(`history_search.dart`)은 제목 3·요약 3·종류 2·날짜 2·본문 1·메모 1·난도 1·점수 1·동작 1.
+> - **게이트 (같은 커밋)**: `tests/test_ssot_history_lint.py`(엔진 표 재사용·거울 부활·정본 삭제·'회원 기록 전부' 재정의) ·
+>   `test_ssot_metrics_lint.py` FACTS["수업 기록"](baseline 0) · `test_ssot_agreement.py` WINDOWS 3창구 등재 ·
+>   e2e `test_6`(같은 줄·상세·404)·`test_6b`·`test_8`·**`test_10`**(히스토리 meta = 업적 ctx = 코치 명단, 휴면 표 행은 무시) ·
+>   `test_reward_rules.test_pr_lifetime_count`(PR 원천 = 결과 표) · gap 테스트 2종의 `_mk_wods` 가 결과 행을 만든다 ·
+>   앱 `ssot_lint_test.dart`(PrDetector·`/api/v1/history` POST·`records.length` 금지) · 골든 `hist_02`·`hist_03` 재생성 +
+>   **`hist_04_detail` 신규**. 서버 전량 583 passed.
+> - **배선 문서**: `services/hyphen/docs/SSOT/배선지도-D88~D91.md` — 원천 표 → 정의 → API → 화면 → 게이트 한 줄씩 (INDEX 상단 링크).
+> - **남긴 것**: 홈 레벨 카드의 연속일은 앱이 센다(Streak Freeze 가 폰 로컬) — 서버 `meta.streak_days` 와 같은 정의, freeze 보정만 앱.
+>   `wods`·`pacing_*` 표는 휴면 존치(`api/profile.py` 초기화 cascade 만 닿는다). 옛 엔진 행을 히스토리에 병합하지 않았다 —
+>   히스토리는 '수업 기록' 이고 엔진 화면은 v3.2 에서 삭제됐다(되살릴 일 없음, 데이터는 남는다).
+
 > **D90 (2026-08-30 집행) — 히스토리 탭 정본화: 수업 결과 저장이 같은 트랜잭션에서 히스토리 행을 쓴다 (앱 2차 전송 폐기).
 > 사용자 지시 "코치가 세션 A·B·C 를 만들고 운동을 정하고 → 회원 폰이 예약·완료 → 기록 입력 때 코치가 정한 운동이 자동으로
 > 잡히고 → 그 기록이 히스토리에 쌓이고 → 그걸 바탕으로 포인트·업적이 쌓이는지 완전히 다른 3가지 방식으로 검증".**

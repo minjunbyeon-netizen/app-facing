@@ -13,11 +13,9 @@ import '../../widgets/mascot.dart';
 import 'package:provider/provider.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
-import '../../core/api_client.dart';
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
-import '../../core/pr_detector.dart';
 import '../../core/wod_session_bus.dart';
 import '../../models/gym.dart';
 import '../gym/wod_type_label.dart';
@@ -25,7 +23,6 @@ import '../achievement/achievement_state.dart';
 import '../achievement/unlock_toast.dart';
 import '../gym/gym_repository.dart';
 import '../gym/gym_state.dart';
-import '../history/history_repository.dart';
 
 enum _TimerMode { forTime, amrap, emom }
 
@@ -333,81 +330,30 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
   }) async {
     // QA B-COR-3: 시작 시점 mounted 확인. 모달 콜백 호출 타이밍에 dispose 가능.
     if (!mounted) return false;
-    final api = context.read<ApiClient>();
     setState(() => _saving = true);
     try {
-      final repo = HistoryRepository(api);
       final totalSec = _mode == _TimerMode.forTime
           ? _parseTimeToSec(timeStr)
           : _elapsedSec;
-
-      // /go Phase 2.5+: PR 감지 — 저장 전에 prior history 캐시.
-      // 판정은 PrDetector.isPrAgainst (forTime 모드 한정).
-      bool isPr = false;
-      if (_mode == _TimerMode.forTime && totalSec > 0) {
-        try {
-          final prior = await repo.listWodHistory(limit: 200);
-          isPr = PrDetector.isPrAgainst(
-            priorHistory: prior,
-            wodType: widget.wod.wodType,
-            newTotalSec: totalSec,
-          );
-        } catch (_) {
-          // 네트워크 실패 시 PR 감지 skip — 저장 흐름은 계속.
-        }
+      // D91 (2026-08-30): 저장 창구는 **결과 제출 하나** — 그 행이 곧 히스토리다.
+      // (구: 엔진 표 /history/wod 에 먼저 쓰고 리더보드는 best-effort, PR 은 폰이
+      // 판정 — 표 두 벌 + 판정 두 벌. 이제 PR 은 서버 응답 is_pr 를 읽는다.)
+      final gs = context.read<GymState>();
+      final gym = gs.membership.gym;
+      if (gym == null || !(gs.isOwner || gs.membership.isApprovedMember)) {
+        HkSnack.error(context, '체육관 회원만 기록할 수 있습니다.');
+        return false;
       }
-
-      final notes = StringBuffer();
-      notes.writeln(
-        _scaled
-            ? '[SCALED] HYPHEN 기록 — ${widget.wod.postDate}'
-            : '[RX] HYPHEN 기록 — ${widget.wod.postDate}',
+      final res = await context.read<GymRepository>().submitWodResult(
+        gymId: gym.id,
+        wodId: widget.wod.id,
+        timeSec: _mode == _TimerMode.forTime ? totalSec : null,
+        rounds: rounds,
+        extraReps: extraReps,
+        scaleLevel: _scaled ? 'scaled' : 'rx',
+        notes: '',
       );
-      if (rounds != null) notes.writeln('Rounds: $rounds');
-      if (extraReps != null) notes.writeln('Extra reps: $extraReps');
-      notes.writeln('---');
-      notes.writeln(widget.wod.content);
-
-      await repo.saveWodHistory({
-        'wod': {
-          'wod_type': widget.wod.wodType,
-          'time_cap_sec': widget.wod.timeCapSec,
-          'rounds': rounds ?? widget.wod.rounds,
-          'notes': notes.toString().substring(
-            0,
-            notes.length > 500 ? 500 : notes.length,
-          ),
-          'items': const [],
-        },
-        'plan': {
-          'formula_version': 'manual_session_v1',
-          'estimated_total_sec': totalSec,
-          'grade': '',
-          'segments': const [],
-        },
-      });
-
-      // v1.16 Sprint 16: 박스 WOD인 경우 참가자 기록 리더보드 POST (best-effort).
-      // QA A-18: await 후 context.read 전 mounted 검사.
-      if (!mounted) return true;
-      try {
-        final gs = context.read<GymState>();
-        final gym = gs.membership.gym;
-        final gymRepo = context.read<GymRepository>();
-        if (gym != null && (gs.isOwner || gs.membership.isApprovedMember)) {
-          await gymRepo.submitWodResult(
-            gymId: gym.id,
-            wodId: widget.wod.id,
-            timeSec: _mode == _TimerMode.forTime ? totalSec : null,
-            rounds: rounds,
-            extraReps: extraReps,
-            scaleLevel: _scaled ? 'scaled' : 'rx',
-            notes: '',
-          );
-        }
-      } catch (_) {
-        // 리더보드 실패는 history 저장 성공을 막지 않음.
-      }
+      final isPr = res.isPr;
 
       if (!mounted) return true;
       context.read<WodSessionBus>().bump();

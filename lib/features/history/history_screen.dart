@@ -6,7 +6,6 @@ import '../../core/futures.dart';
 import '../../core/theme.dart';
 import '../../core/wod_session_bus.dart';
 import '../../widgets/hkit.dart';
-import '../gym/wod_type_label.dart';
 import 'history_models.dart';
 import 'history_repository.dart';
 import 'history_search.dart';
@@ -16,6 +15,9 @@ import 'history_search.dart';
 /// 검색 칸은 **항상** 맨 위에 서 있다(로딩·빈 상태·에러에도) — 상태가 바뀌어도
 /// 목록의 y 가 움직이지 않는다 (DESIGN-SSOT §레이아웃 안정성). 검색어가 비면 최근순,
 /// 치면 연관도순 — 순위 규칙은 `history_search.dart` 한 곳.
+///
+/// D91 (2026-08-30): 목록의 글자는 전부 서버가 완성한 것(제목·그날 운동 요약·종류 라벨·
+/// 점수 라벨·PR). 원천은 수업 결과 표 한 벌 — 결과를 저장하면 그 행이 여기 그대로 선다.
 class HistoryScreen extends StatefulWidget {
   /// 회원 셸 4번째 탭으로 얹힐 때는 자기 AppBar 를 그리지 않는다 — 상단바는 셸 하나
   /// (D85 · 2026-08-29 사용자 "하단 4번째 탭으로도 좀 줘"). 내 정보 메뉴에서 열면 false.
@@ -160,62 +162,89 @@ class _HistoryList extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: HyphenTokens.sp2),
           itemCount: rows.length,
           separatorBuilder: (_, _) => const Divider(height: 1),
-          itemBuilder: (_, i) {
-            final r = rows[i];
-            return InkWell(
-              onTap: () => Navigator.of(
-                context,
-              ).pushNamed('/history/detail', arguments: r.id),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: HyphenTokens.sp4,
-                  vertical: HyphenTokens.sp3,
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // D84 — 제목은 검색이 보는 요약(수업 내용 첫 줄). 찾은
-                          // 이유가 줄에서 바로 읽히도록 종류는 아랫줄로.
-                          Text(
-                            r.notes.trim().isEmpty
-                                ? wodTypeLabel(r.wodType)
-                                : r.summary,
-                            style: HyphenTokens.body.copyWith(
-                              fontWeight: FontWeight.w700,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            '${wodTypeLabel(r.wodType)} · ${_formatDate(r.createdAt)}',
-                            style: HyphenTokens.caption,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: HyphenTokens.sp2),
-                    Text(
-                      r.scoreDisplay,
-                      style: HyphenTokens.h3.copyWith(
-                        fontFeatures: HyphenTokens.tabular,
-                      ),
-                    ),
-                    const Icon(
-                      Icons.chevron_right,
-                      color: HyphenTokens.muted,
-                      size: 20,
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
+          itemBuilder: (_, i) => _HistoryRow(item: rows[i]),
         );
       },
+    );
+  }
+}
+
+/// 한 줄 = 수업 이름 / 그날 운동 요약 / 종류·일시, 오른쪽에 점수 라벨(+PR).
+/// 세 줄은 어느 기록에서나 다 있다(요약이 비면 메모·종류 라벨로 채운다) — 행 높이가 같다.
+class _HistoryRow extends StatelessWidget {
+  final WodHistoryItem item;
+  const _HistoryRow({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () => Navigator.of(
+        context,
+      ).pushNamed('/history/detail', arguments: item.id),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: HyphenTokens.sp4,
+          vertical: HyphenTokens.sp3,
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.heading,
+                    style: HyphenTokens.body.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  // D91 — 동작 검색이 맞춘 줄이 바로 읽히도록 그날 운동 요약을 둘째 줄에.
+                  Text(
+                    item.subheading,
+                    style: HyphenTokens.caption.copyWith(color: HyphenTokens.fg),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '${item.wodTypeLabel} · ${_formatDate(item.createdAt)}',
+                    style: HyphenTokens.caption,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: HyphenTokens.sp2),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  item.scoreDisplay,
+                  style: HyphenTokens.h3.copyWith(
+                    fontFeatures: HyphenTokens.tabular,
+                  ),
+                ),
+                // PR 자리는 늘 잡아 둔다 — 배지가 생겨도 점수 줄이 위로 밀리지 않는다.
+                SizedBox(
+                  height: 22,
+                  child: item.isPr
+                      ? const HkBadge('PR', color: HyphenTokens.primary)
+                      : null,
+                ),
+              ],
+            ),
+            const Icon(
+              Icons.chevron_right,
+              color: HyphenTokens.muted,
+              size: 20,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

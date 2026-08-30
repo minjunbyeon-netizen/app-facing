@@ -59,6 +59,31 @@ class FakeApi implements ApiClient {
     return d as List;
   }
 
+  /// 봉투째 — `{'data': [...], 'meta': {...}}` 를 주면 그대로, 목록만 주면 meta 를
+  /// 목록에서 만든다 (서버 `list_wod_history` 가 하는 일의 대역).
+  @override
+  Future<({List<dynamic> items, Map<String, dynamic> meta})> getPage(
+    String path,
+  ) async {
+    final d = await _respond(path);
+    if (d is Map && d['data'] is List) {
+      return (
+        items: d['data'] as List,
+        meta: Map<String, dynamic>.from((d['meta'] as Map?) ?? const {}),
+      );
+    }
+    final items = d as List;
+    final pr = items.whereType<Map>().where((m) => m['is_pr'] == true).length;
+    return (
+      items: items,
+      meta: <String, dynamic>{
+        'total': items.length,
+        'pr_count': pr,
+        'streak_days': 0,
+      },
+    );
+  }
+
   @override
   Future<Map<String, dynamic>> post(
     String path,
@@ -1704,40 +1729,96 @@ List<Map<String, dynamic>> memberActivity() {
   ];
 }
 
-/// 히스토리 목록 — D84 검색 골든용 (hist_02 · hist_03). 수업 결과 저장이 남기는 꼴
-/// ('수업 #N · 내용 첫 줄') 그대로. 날짜는 실행 시점 상대값.
+/// 히스토리 목록 — D84 검색 골든용 (hist_02 · hist_03). 서버 `history_item`(D91) 이 내려주는
+/// 꼴 그대로 — 제목(본문 첫 줄)·그날 운동 요약·종류 라벨·점수 라벨·PR 전부 서버가 완성한 값.
+/// 날짜는 실행 시점 상대값.
 List<Map<String, dynamic>> wodHistoryList() {
   final now = appClock.now();
-  Map<String, dynamic> rec(
-    int id,
-    String type,
-    String notes,
-    int daysAgo, {
-    int sec = 0,
-    String grade = 'rx',
-  }) => {
-    'id': id,
-    'wod_type': type,
-    'time_cap_sec': null,
-    'rounds': null,
-    'notes': notes,
-    'created_at': '${_ymd(now.subtract(Duration(days: daysAgo)))}T10:00:00',
-    'plan': {
-      'id': id * 10,
-      'estimated_total_sec': sec,
-      'grade': grade,
-      'formula_version': 'manual',
-    },
-  };
   return [
-    rec(501, 'custom', '수업 #41 · BUILD Back Squat 5×5', 1),
-    rec(502, 'for_time', '수업 #40 · SWEAT Fran 21-15-9 Thruster · Pull-up', 3,
-        sec: 412, grade: 'scaled'),
-    rec(503, 'amrap', '수업 #38 · AWAKE 12min AMRAP Burpee · Row 250m', 6,
-        sec: 720),
-    rec(504, 'custom', '수업 #35 · BUILD Front Squat 3×5', 8, grade: 'elite'),
-    rec(505, 'for_time',
-        '수업 #30 · SWEAT Helen 3 rounds Run 400m · KB Swing · Pull-up', 14,
-        sec: 655),
+    _histRec(501, 41, 'strength', 'STRENGTH', 'BUILD', 'Back Squat 5×5 · 105kg', now, 1,
+        kind: 'weight', label: '105kg×5', kg: 105, reps: 5,
+        movement: 'Back Squat', isPr: true),
+    _histRec(502, 40, 'for_time', 'FOR TIME', 'SWEAT · A 세션',
+        'Thruster 21-15-9회 · 43kg · Pull-up 21-15-9회', now, 3,
+        label: '6:52', sec: 412, scale: 'scaled', notes: 'Fran'),
+    _histRec(503, 38, 'amrap', 'AMRAP', 'AWAKE', 'Burpee 12회 · Row 250m', now, 6,
+        kind: 'rounds', label: '7R+4', rounds: 7, extra: 4),
+    _histRec(504, 35, 'strength', 'STRENGTH', 'BUILD', 'Front Squat 3×5 · 80kg', now, 8,
+        kind: 'weight', label: '80kg×5', kg: 80, reps: 5,
+        movement: 'Front Squat', scale: 'elite'),
+    _histRec(505, 30, 'for_time', 'FOR TIME', 'SWEAT',
+        'Run 400m · KB Swing 21회 · Pull-up 12회', now, 14,
+        label: '10:55', sec: 655, notes: 'Helen 3 rounds'),
   ];
+}
+
+/// 히스토리 상세 (hist_04) — 목록의 502(Fran, scaled) 를 펼친 것. `result` 는 목록과 같은 줄.
+Map<String, dynamic> wodHistoryDetail() {
+  final item = wodHistoryList()[1];
+  return {
+    'result': item,
+    'post': {
+      'id': 40,
+      'post_date': item['date'],
+      'wod_type': 'for_time',
+      'content': item['content'],
+      'scale_guide': 'Thruster 30kg · Pull-up 밴드',
+      'rounds': null,
+      'time_cap_sec': null,
+      'movements': const [
+        {'name': 'Thruster', 'reps': '21-15-9', 'unit': 'reps', 'load_value': '43'},
+        {'name': 'Pull-up', 'reps': '21-15-9', 'unit': 'reps'},
+      ],
+    },
+    'class': {'id': 12, 'display_title': 'SWEAT · A 세션', 'start_at': item['created_at']},
+  };
+}
+
+Map<String, dynamic> _histRec(
+  int id,
+  int postId,
+  String type,
+  String typeLabel,
+  String title,
+  String summary,
+  DateTime now,
+  int daysAgo, {
+  String kind = 'time',
+  String label = '',
+  int? sec,
+  int? rounds,
+  int? extra,
+  double? kg,
+  int? reps,
+  String? movement,
+  String scale = 'rx',
+  bool isPr = false,
+  String notes = '',
+}) {
+  final day = now.subtract(Duration(days: daysAgo));
+  return {
+    'id': id,
+    'post_id': postId,
+    'class_session_id': null,
+    'post_date': _ymd(day),
+    'wod_type': type,
+    'wod_type_label': typeLabel,
+    'title': title,
+    'summary': summary,
+    'content': '$title\n$typeLabel\n${summary.replaceAll(' · ', '\n')}',
+    'time_cap_sec': null,
+    'kind': kind,
+    'label': label,
+    'time_sec': sec,
+    'rounds': rounds,
+    'extra_reps': extra,
+    'weight_kg': kg,
+    'weight_reps': reps,
+    'movement': movement,
+    'scale_level': scale,
+    'is_pr': isPr,
+    'notes': notes,
+    'date': _ymd(day),
+    'created_at': '${_ymd(day)}T10:00:00',
+  };
 }

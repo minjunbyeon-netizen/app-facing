@@ -109,6 +109,24 @@ class ApiClient {
     }
   }
 
+  /// 목록 + `meta` (total 등) — 봉투째 읽는다. D91 (2026-08-30) 히스토리 페이지: 레벨
+  /// 카드가 쓰는 세 수(total·pr_count·streak_days)를 서버 meta 에서 받는다 (앱은 세지 않는다).
+  Future<({List<dynamic> items, Map<String, dynamic> meta})> getPage(
+    String path,
+  ) async {
+    try {
+      final res = await _dio.get(path);
+      final items = _unwrapList(res);
+      final raw = (res.data as Map)['meta'];
+      final meta = raw is Map
+          ? Map<String, dynamic>.from(raw)
+          : <String, dynamic>{};
+      return (items: items, meta: meta);
+    } on DioException catch (e) {
+      throw _mapDio(e);
+    }
+  }
+
   /// 통째로 덮어쓰기 (부분 수정은 [patch]). 2026-08-23 회원 목표 저장에 신설.
   Future<Map<String, dynamic>> put(String path, Map<String, dynamic> body) async {
     try {

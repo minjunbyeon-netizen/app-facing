@@ -21,6 +21,10 @@ const List<(String, String)> _forbidden = [
   (r'InputDecoration _\w+\(', '입력칸 스타일은 테마 한 벌 — 화면별 _deco 금지'),
   (r'OutlineInputBorder\(', '입력칸 테두리는 theme.dart inputDecorationTheme 만'),
   (r'danger\.withValues\(alpha: ?0\.12\)', '인라인 에러 박스 금지 — HkInlineError'),
+  // D91 (2026-08-30) — 히스토리 원천은 서버 한 벌. 앱은 판정·집계를 다시 하지 않는다.
+  (r'PrDetector', 'PR 판정은 서버(wod_compare) 한 곳 — 응답 is_pr 를 읽는다 (D91)'),
+  (r"post\(\s*'/api/v1/history", '히스토리는 읽기만 — 결과 저장 창구는 GymRepository.submitWodResult 하나 (D91)'),
+  (r'\.length\s*;\s*//\s*totalSessions|totalSessions:\s*records\.length', '총 기록 수는 서버 meta.total (D91)'),
 ];
 
 void main() {

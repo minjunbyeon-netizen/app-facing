@@ -242,5 +242,11 @@ samples, guidance on mobile development, and a full API reference.
     → **해소 (D83 · 2026-08-29 사용자 지시)**: 내 정보 메뉴 첫 줄 **'체육관 정보'** →
     `lib/features/gym/gym_info_screen.dart`(GymInfoScreen) 가 GymInfoCard 를 세운다 — 수업 종류
     노출 자리 복구. 같은 지시로 메뉴는 항상 펼침(아코디언 폐기) · '알림 받기' 는 메뉴 표 안 한 줄로 이동.
+39. **클라이언트 PR 판정 · 엔진 표 히스토리 쓰기 (D91 · 2026-08-30 사용자 지시 "완전 통합")** —
+    `lib/core/pr_detector.dart`(PrDetector — 폰이 시간 기록을 비교해 PR 을 판정) + `test/pr_detector_test.dart` ·
+    `HistoryRepository.saveWodHistory/deleteWodRecord`(엔진 표 `/api/v1/history/wod` POST·DELETE) · 타이머 화면
+    (`wod_session_screen.dart`)의 엔진 표 선저장 경로 · 히스토리 상세의 페이싱 플랜·세그먼트 렌더(`_SegmentCard`·`_ItemLine`).
+    **원천은 서버 수업 결과 표 하나** — PR 은 응답 `is_pr`, 총 기록 수·PR 수는 히스토리 `meta`, 저장 창구는
+    `GymRepository.submitWodResult` 하나. 게이트 = `test/ssot_lint_test.dart` (PrDetector·`/api/v1/history` POST 금지).
 
 

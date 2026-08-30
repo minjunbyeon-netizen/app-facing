@@ -1,19 +1,19 @@
 import '../../core/api_client.dart';
-import '../../core/exception.dart';
 import 'history_models.dart';
 
-/// HistoryRepository -- /api/v1/history/* 엔드포인트 래퍼.
+/// HistoryRepository -- `/api/v1/history/wod*` 읽기 래퍼 (D91 · 2026-08-30).
+///
+/// **읽기만 한다.** 결과 저장 창구는 `GymRepository.submitWodResult`
+/// (`POST /gyms/<g>/wods/<post>/results`) 하나 — 서버의 그 결과 행이 곧 히스토리다.
+/// (구 `saveWodHistory`/`deleteWodRecord` — 엔진 표에 따로 쓰던 길 — 는 삭제.)
 /// 오프라인 시 AppException(code=NETWORK) 발생 → UI에서 fallback 처리.
 class HistoryRepository {
   final ApiClient api;
   HistoryRepository(this.api);
 
-  Future<List<WodHistoryItem>> listWodHistory({int limit = 20}) async {
-    final list = await api.getList('/api/v1/history/wod?limit=$limit');
-    return list
-        .whereType<Map<String, dynamic>>()
-        .map(WodHistoryItem.fromJson)
-        .toList();
+  /// 첫 페이지 + meta(total·pr_count·streak_days). 홈 레벨 카드가 쓴다.
+  Future<WodHistoryPage> listWodHistory({int limit = 20}) async {
+    return _page('/api/v1/history/wod?limit=$limit');
   }
 
   /// 전부 읽기 — D84 검색은 폰에서 고르므로 목록이 잘려 있으면 안 된다. 서버 상한
@@ -22,31 +22,29 @@ class HistoryRepository {
     const page = 100;
     final all = <WodHistoryItem>[];
     for (var offset = 0; ; offset += page) {
-      final list = await api.getList(
-        '/api/v1/history/wod?limit=$page&offset=$offset',
-      );
-      final items = list
-          .whereType<Map<String, dynamic>>()
-          .map(WodHistoryItem.fromJson)
-          .toList();
-      all.addAll(items);
-      if (items.length < page) break;
+      final p = await _page('/api/v1/history/wod?limit=$page&offset=$offset');
+      all.addAll(p.items);
+      if (p.items.length < page) break;
     }
     return all;
   }
 
-  Future<Map<String, dynamic>> getWodDetail(int recordId) {
-    return api.get('/api/v1/history/wod/$recordId');
+  Future<Map<String, dynamic>> getWodDetail(int resultId) {
+    return api.get('/api/v1/history/wod/$resultId');
   }
 
-  Future<int> saveWodHistory(Map<String, dynamic> body) async {
-    final data = await api.post('/api/v1/history/wod', body);
-    return (data['record_id'] as num?)?.toInt() ?? 0;
-  }
-
-  Future<void> deleteWodRecord(int recordId) async {
-    // dio에 직접 DELETE 없으니 api_client 확장 필요. MVP는 skip or POST /delete.
-    // 여기서는 그냥 throw -- UI에서 disabled로 숨김.
-    throw AppException('Delete not supported.', code: 'NOT_IMPLEMENTED');
+  Future<WodHistoryPage> _page(String path) async {
+    final r = await api.getPage(path);
+    final items = r.items
+        .whereType<Map<String, dynamic>>()
+        .map(WodHistoryItem.fromJson)
+        .toList();
+    int n(String k) => (r.meta[k] as num?)?.toInt() ?? 0;
+    return WodHistoryPage(
+      items: items,
+      total: r.meta.containsKey('total') ? n('total') : items.length,
+      prCount: n('pr_count'),
+      streakDays: n('streak_days'),
+    );
   }
 }

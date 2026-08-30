@@ -1,4 +1,3 @@
-import '../gym/wod_type_label.dart';
 import 'history_models.dart';
 
 /// 히스토리 검색 — **연관도순** 정렬 (D84 · 2026-08-29 사용자 지시 "히스토리라는 목록
@@ -9,13 +8,17 @@ import 'history_models.dart';
 /// 100건씩 끝까지 읽는다) 폰에서 고른다. 페이싱 계산이 아니라 목록 고르기라 앱 계산 0
 /// 원칙(계산은 서버)과 충돌하지 않는다.
 ///
+/// D91 (2026-08-30): 칸의 값은 전부 **서버가 완성한 것**이다 — 제목(본문 첫 줄)·그날 운동
+/// 요약(동작 검색의 축)·종류 라벨·점수 라벨·난도. 앱은 문자열을 맞춰 볼 뿐 만들지 않는다.
+///
 /// 규칙
 /// - 검색어는 공백으로 나눈 **낱말 전부**가 어딘가에 맞아야 한다 (AND). 하나라도 안
 ///   맞으면 빠진다 — 낱말을 더 칠수록 좁아지는 것이 검색의 상식이다.
 /// - 낱말 하나의 점수 = 가장 잘 맞는 칸의 (맞는 정도 × 칸 가중치). 맞는 정도는
 ///   칸 전체 일치 10 · 칸 앞부분 6 · 칸 안 단어 앞부분 4 · 어디든 포함 2.
-/// - 칸 가중치: 요약(수업 내용 첫 줄) 3 · 종류(FOR TIME·AMRAP·수업) 2 · 날짜 2 ·
-///   본문(메모 전체) 1 · 난도(scaled/rxd/elite) 1 · 시간(12:34) 1.
+/// - 칸 가중치: 제목(수업 이름) 3 · 그날 운동 요약(동작) 3 · 종류(FOR TIME·AMRAP·수업) 2 ·
+///   날짜 2 · 본문(게시물 전체) 1 · 메모 1 · 난도(scaled/rxd/elite) 1 · 점수(12:34·5R+3) 1 ·
+///   적어 낸 동작 이름 1.
 /// - 같은 점수면 **최근 것이 먼저**. 검색어가 비면 순위 없이 최근순 그대로.
 List<WodHistoryItem> rankHistory(String query, List<WodHistoryItem> items) {
   final tokens = searchTokens(query);
@@ -66,19 +69,23 @@ int scoreHistoryItem(List<String> tokens, WodHistoryItem item) {
 List<(String, int)> searchFields(WodHistoryItem item) {
   final d = item.createdAt.toLocal();
   String two(int n) => n.toString().padLeft(2, '0');
-  final grade = item.grade?.toLowerCase().trim() ?? '';
+  final scale = item.scaleLevel.toLowerCase().trim();
+  final movement = (item.movement ?? '').toLowerCase().trim();
   return [
+    (item.heading.toLowerCase(), 3),
     (item.summary.toLowerCase(), 3),
-    (wodTypeLabel(item.wodType).toLowerCase(), 2),
+    (item.wodTypeLabel.toLowerCase(), 2),
     ('${d.year}-${two(d.month)}-${two(d.day)}', 2),
     ('${d.year}.${d.month}.${d.day}', 2),
     ('${d.month}/${d.day}', 2),
     ('${d.month}월 ${d.day}일', 2),
+    (item.content.toLowerCase(), 1),
     (item.notes.toLowerCase(), 1),
-    if (grade.isNotEmpty) (grade, 1),
+    if (scale.isNotEmpty) (scale, 1),
     // 앱 표기는 RXD (GLOSSARY §3) — 서버 값 'rx' 를 그 이름으로도 찾는다.
-    if (grade == 'rx') ('rxd', 1),
-    if (item.scoreDisplay != '-') (item.scoreDisplay, 1),
+    if (scale == 'rx') ('rxd', 1),
+    if (item.scoreDisplay != '-') (item.scoreDisplay.toLowerCase(), 1),
+    if (movement.isNotEmpty) (movement, 1),
   ];
 }
 
@@ -90,6 +97,6 @@ int _matchKind(String text, String token) {
   if (idx < 0) return 0;
   // 단어 앞부분: 바로 앞 글자가 구분자(공백·기호)일 때.
   final prev = text[idx - 1];
-  if (RegExp(r'[\s\-·#(/.:×x]').hasMatch(prev)) return 4;
+  if (RegExp(r'[\s\-·#(/.:×x+]').hasMatch(prev)) return 4;
   return 2;
 }

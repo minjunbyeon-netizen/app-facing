@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../../core/api_client.dart';
 import '../../core/exception.dart';
 import '../../core/level_system.dart';
-import '../../core/pr_detector.dart';
 import '../../core/streak_freeze.dart';
 import '../../core/theme.dart';
 import '../../core/wod_session_bus.dart';
@@ -55,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late final HistoryRepository _repo;
   late final GymRepository _gymRepo;
   WodSessionBus? _bus;
-  Future<List<WodHistoryItem>>? _future;
+  Future<WodHistoryPage>? _future;
 
   /// Streak Freeze 통합 — 마지막 사용일을 _currentStreak 계산 시 활용.
   DateTime? _freezeUse;
@@ -134,7 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
       // 끊길 때마다 배너 높이만큼 본문 전체가 아래로 밀렸다.
       body: OfflineBannerOverlay(
         child: SafeArea(
-          child: FutureBuilder<List<WodHistoryItem>>(
+          child: FutureBuilder<WodHistoryPage>(
             future: _future,
             builder: (ctx, snap) {
               if (snap.connectionState != ConnectionState.done) {
@@ -145,7 +144,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 final msg = e is AppException ? e.messageKo : 'Load failed.';
                 return HkErrorState(message: msg, onRetry: _reload);
               }
-              final records = snap.data ?? const [];
+              final page = snap.data ?? WodHistoryPage.empty;
               // 수동 새로고침 — 코치 승인 등 서버 해금을 바로 축하하도록 스로틀 우회.
               return RefreshIndicator(
                 color: HyphenTokens.primary,
@@ -154,7 +153,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   await _future;
                 },
                 child: _GamificationBody(
-                  records: records,
+                  records: page.items,
+                  // D91 (2026-08-30): 총 기록 수·PR 수는 서버 meta — 목록 길이(limit 로
+                  // 잘림)나 앱 자체 PR 판정(구 PrDetector)으로 만들지 않는다.
+                  totalSessions: page.total,
+                  prCount: page.prCount,
                   freezeUse: _freezeUse,
                   attendDays: _attendDays,
                 ),
@@ -275,6 +278,10 @@ class _NoticeAccordion extends StatelessWidget {
 class _GamificationBody extends StatelessWidget {
   final List<WodHistoryItem> records;
 
+  /// 서버가 센 총 수업 기록 수 · PR 수 (히스토리 API meta).
+  final int totalSessions;
+  final int prCount;
+
   /// 이번 주 freeze 사용 기록. 있으면 streak 1일 보호.
   final DateTime? freezeUse;
 
@@ -282,6 +289,8 @@ class _GamificationBody extends StatelessWidget {
   final Set<DateTime>? attendDays;
   const _GamificationBody({
     required this.records,
+    required this.totalSessions,
+    required this.prCount,
     required this.freezeUse,
     required this.attendDays,
   });
@@ -325,7 +334,7 @@ class _GamificationBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final totalLifetime = records.length;
+    final totalLifetime = totalSessions;
     final currentStreak = _currentStreak();
     final now = appClock.now();
     final daysElapsed = now.day;
@@ -355,7 +364,7 @@ class _GamificationBody extends StatelessWidget {
           key: HomeScreen.kLevel,
           totalSessions: totalLifetime,
           currentStreakDays: currentStreak,
-          prCount: PrDetector.countPrs(records),
+          prCount: prCount,
         ),
         const SizedBox(height: HyphenTokens.sp3),
 

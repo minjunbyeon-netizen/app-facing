@@ -2,13 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
-import '../../core/exception.dart';
 import '../../core/theme.dart';
-import '../gym/wod_type_label.dart';
-import 'history_repository.dart';
-import '../../widgets/hkit.dart';
 import '../../core/time_format.dart';
+import '../../widgets/hkit.dart';
+import 'history_models.dart';
+import 'history_repository.dart';
 
+/// 히스토리 상세 — 기록 한 줄(`result`) + 그날 운동(`post`) + 완료한 수업(`class`).
+///
+/// D91 (2026-08-30): `GET /api/v1/history/wod/<결과 id>`. 목록과 **같은 줄**(서버
+/// `history_item`)을 받아 크게 펼친다 — 점수·난도·PR·메모는 그 줄, 운동 본문은 게시물의
+/// `content`(서버가 그린 글 그대로). 앱은 어떤 값도 조립하지 않는다.
+/// (구 화면은 엔진 시절 페이싱 플랜·세그먼트를 그렸다 — 엔진 표 폐기와 함께 삭제.)
 class HistoryDetailScreen extends StatefulWidget {
   final int recordId;
   const HistoryDetailScreen({super.key, required this.recordId});
@@ -18,195 +23,112 @@ class HistoryDetailScreen extends StatefulWidget {
 }
 
 class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
+  late final HistoryRepository _repo;
   Future<Map<String, dynamic>>? _future;
 
   @override
   void initState() {
     super.initState();
-    final repo = HistoryRepository(context.read<ApiClient>());
-    _future = repo.getWodDetail(widget.recordId);
+    _repo = HistoryRepository(context.read<ApiClient>());
+    _future = _repo.getWodDetail(widget.recordId);
+  }
+
+  void _load() {
+    setState(() {
+      _future = _repo.getWodDetail(widget.recordId);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: HkAppBar(title: 'Record #${widget.recordId}'),
+      appBar: const HkAppBar(title: '기록'),
       body: FutureBuilder<Map<String, dynamic>>(
         future: _future,
         builder: (ctx, snap) {
           if (snap.connectionState != ConnectionState.done) {
-            return const Center(
-              child: Text('불러오는 중', style: HyphenTokens.body),
-            );
+            return const HkLoading();
           }
           if (snap.hasError) {
-            // /go 전수조사: 원본 exception toString 노출 차단.
-            final e = snap.error;
-            final msg = e is AppException ? e.messageKo : '기록 로딩 실패.';
-            return Padding(
-              padding: const EdgeInsets.all(HyphenTokens.sp4),
-              child: Text(msg, style: HyphenTokens.body),
-            );
+            return HkErrorState.fromError(snap.error, onRetry: _load);
           }
-          // QA B-FB-4: snap.data null 방어.
           final d = snap.data;
-          if (d == null) {
+          final resultRaw = d?['result'];
+          if (d == null || resultRaw is! Map<String, dynamic>) {
             return const HkEmptyState(title: '기록 데이터 없음');
           }
-          final wodRaw = d['wod'];
-          if (wodRaw is! Map<String, dynamic>) {
-            return const Padding(
-              padding: EdgeInsets.all(HyphenTokens.sp4),
-              child: Text('History 형식 오류.', style: HyphenTokens.body),
-            );
-          }
-          final wod = wodRaw;
-          final plan = d['plan'] is Map<String, dynamic>
-              ? d['plan'] as Map<String, dynamic>
+          final item = WodHistoryItem.fromJson(resultRaw);
+          final post = d['post'] is Map<String, dynamic>
+              ? d['post'] as Map<String, dynamic>
+              : const <String, dynamic>{};
+          final cls = d['class'] is Map<String, dynamic>
+              ? d['class'] as Map<String, dynamic>
               : null;
+          final classTitle = (cls?['display_title'] ?? '').toString();
+          final content = (post['content'] ?? item.content).toString().trim();
+          final scaleGuide = (post['scale_guide'] ?? '').toString().trim();
           return ListView(
             padding: const EdgeInsets.all(HyphenTokens.sp4),
             children: [
-              Text(
-                wodTypeLabel((wod['wod_type'] ?? '').toString()),
-                style: HyphenTokens.h3,
-              ),
+              Text(item.heading, style: HyphenTokens.h3),
               const SizedBox(height: HyphenTokens.sp1),
               Text(
-                _formatDate(wod['created_at']?.toString()),
+                [
+                  item.wodTypeLabel,
+                  ymd(item.createdAt.toLocal()),
+                  hhmm(item.createdAt.toLocal()),
+                  if (classTitle.isNotEmpty && classTitle != item.heading)
+                    classTitle,
+                ].join(' · '),
                 style: HyphenTokens.caption,
               ),
               const SizedBox(height: HyphenTokens.sp4),
-              if (plan != null) ...[
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
-                  children: [
-                    Text(
-                      mmss(plan['estimated_total_sec']),
-                      style: HyphenTokens.display,
+              // 점수 — 서버 라벨 그대로 (시간·라운드·무게 어느 것이든 한 문자열).
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Text(
+                    item.scoreDisplay,
+                    style: HyphenTokens.display.copyWith(
+                      fontFeatures: HyphenTokens.tabular,
                     ),
+                  ),
+                  const SizedBox(width: HyphenTokens.sp3),
+                  HkBadge(item.scaleLabel),
+                  if (item.isPr) ...[
                     const SizedBox(width: HyphenTokens.sp2),
-                    const Text('예상', style: HyphenTokens.caption),
+                    const HkBadge('PR', color: HyphenTokens.primary),
                   ],
-                ),
-                if (plan['grade'] != null)
-                  Text('Grade ${plan['grade']}', style: HyphenTokens.caption),
-                const SizedBox(height: HyphenTokens.sp5),
-                ...((plan['segments'] as List? ?? const []))
-                    .whereType<Map<String, dynamic>>()
-                    .map((s) => _SegmentCard(seg: s)),
+                ],
+              ),
+              if (item.movement != null && item.movement!.isNotEmpty) ...[
+                const SizedBox(height: HyphenTokens.sp1),
+                Text(item.movement!, style: HyphenTokens.caption),
               ],
-              // v3.2 (2026-08-20): '페이싱 플랜 없음.' 빈 상태 삭제 — 계산기
-              // 숨김(v1.27) 후 plan 없는 기록이 기본값이라 없는 기능 언급이었다.
-              // plan 있는 구 기록의 세그먼트 렌더는 보존 (숨김 = 코드 보존).
+              if (item.notes.trim().isNotEmpty) ...[
+                const SizedBox(height: HyphenTokens.sp5),
+                const HkSectionLabel('메모'),
+                const SizedBox(height: HyphenTokens.sp2),
+                Text(item.notes.trim(), style: HyphenTokens.body),
+              ],
               const SizedBox(height: HyphenTokens.sp5),
-              const HkSectionLabel('항목'),
+              const HkSectionLabel('수업 내용'),
               const SizedBox(height: HyphenTokens.sp2),
-              ...((wod['items'] as List? ?? const []))
-                  .whereType<Map<String, dynamic>>()
-                  .map((it) => _ItemLine(it: it)),
+              Text(
+                content.isEmpty ? '내용 없음.' : content,
+                style: HyphenTokens.body,
+              ),
+              if (scaleGuide.isNotEmpty) ...[
+                const SizedBox(height: HyphenTokens.sp4),
+                const HkSectionLabel('난도 안내'),
+                const SizedBox(height: HyphenTokens.sp2),
+                Text(scaleGuide, style: HyphenTokens.caption),
+              ],
             ],
           );
         },
       ),
     );
-  }
-}
-
-class _SegmentCard extends StatelessWidget {
-  final Map<String, dynamic> seg;
-  const _SegmentCard({required this.seg});
-
-  @override
-  Widget build(BuildContext context) {
-    final isExplosion = seg['is_explosion'] == true;
-    final splits = (seg['split_pattern'] as List? ?? const [])
-        .whereType<num>()
-        .map((n) => n.toInt())
-        .toList();
-    return Container(
-      margin: const EdgeInsets.only(bottom: HyphenTokens.sp3),
-      padding: const EdgeInsets.all(HyphenTokens.sp4),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: isExplosion ? HyphenTokens.accent : HyphenTokens.border,
-          width: isExplosion ? 2 : 1,
-        ),
-        borderRadius: BorderRadius.circular(HyphenTokens.r3),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                (seg['movement_slug'] ?? '').toString(),
-                style: HyphenTokens.h3,
-              ),
-              Text(mmss(seg['estimated_sec']), style: HyphenTokens.lead),
-            ],
-          ),
-          const SizedBox(height: HyphenTokens.sp3),
-          if (splits.isNotEmpty) Text(splits.join('-'), style: HyphenTokens.h1),
-          if (seg['target_pace_sec_per_500m'] != null)
-            Text(
-              '${seg['target_pace_sec_per_500m']}s / 500m',
-              style: HyphenTokens.h3,
-            ),
-          const SizedBox(height: HyphenTokens.sp2),
-          Text(
-            (seg['rationale_ko'] ?? '').toString(),
-            style: HyphenTokens.caption,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ItemLine extends StatelessWidget {
-  final Map<String, dynamic> it;
-  const _ItemLine({required this.it});
-
-  @override
-  Widget build(BuildContext context) {
-    final name = (it['movement_name_en'] ?? it['movement_slug'] ?? '')
-        .toString();
-    final reps = it['reps'];
-    final dist = it['distance_m'];
-    final load = it['load_value'];
-    final unit = (it['load_unit'] ?? '').toString();
-    final parts = <String>[];
-    if (reps != null) parts.add('$reps reps');
-    if (dist != null) parts.add('${dist}m');
-    if (load != null) parts.add('$load $unit');
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: HyphenTokens.sp1),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              name,
-              style: HyphenTokens.body.copyWith(fontWeight: FontWeight.w700),
-            ),
-          ),
-          Text(parts.join(' · '), style: HyphenTokens.caption),
-        ],
-      ),
-    );
-  }
-}
-
-String _formatDate(String? iso) {
-  if (iso == null) return '';
-  try {
-    final dt = parseServerTime(iso).toLocal();
-    String two(int n) => n.toString().padLeft(2, '0');
-    return '${dt.year}-${two(dt.month)}-${two(dt.day)} '
-        '${two(dt.hour)}:${two(dt.minute)}';
-  } catch (_) {
-    return iso;
   }
 }
