@@ -612,6 +612,14 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > - 게이트: `tests/test_completion_and_movement_rule_d88.py` · `test_reward_rules.py::test_recreate_rule_after_delete_…`.
 >   서버 전량 555 passed (`test_roundtrip_numbers::test_reserved_count_survives_attendance_marking` 는 00:00~00:30 KST 에만
 >   실패하는 자정 경계 시계 의존 — 코드 결함 아님, 00:30 뒤 재실행 통과 확인).
+> - **E2E 실검증 결과 (2026-08-30 09:53 로컬)**: 코치 PC 에서 AWAKE 수업 7(AMRAP 캡10 · Thruster 10회 40kg · Row 250m)
+>   + 규칙 "Thruster 첫 완료"(wod_log · movement_id · lifetime 1회 · 30P · 업적 First Thruster) 생성 → 회원 에뮬 예약 →
+>   시작 전 '저장' 은 403 `CLASS_NOT_STARTED` 문구 그대로 표시 → 시작 후 '저장' 성공. 한 번의 저장으로
+>   `gym_wod_results` 1건(class_session_id=7 · rounds 3) · `member_points` +30("규칙 달성 — Thruster 첫 완료") ·
+>   `user_achievements` RULE_1 · `gym_attendances` source=self · 자동 쪽지 '업적 달성'(auto_kind notify:achievement) 이
+>   같은 트랜잭션 시각에 생겼다. 폰 = 캐릭터 스낵바 "First Thruster Earned." · 카드 '기록 3R' · 내 정보 30P ·
+>   쪽지함 활동 칸 '업적 달성'(코치 칸은 비어 있음 — D72 판정대로). PC = `GET /admin/members/1/points` balance 30.
+>   세 면이 같은 값을 말한다. 앱 코드 무변경.
 
 > **D88-1 (2026-08-30 집행) — 1단계: 동작 사전 + 코치 드롭다운 (서버·PC). 앱 무변경.**
 >
