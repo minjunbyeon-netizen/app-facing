@@ -25,18 +25,37 @@ import 'fakes.dart';
 import 'harness.dart';
 import 'screens_golden_test.dart' show rxProfile, signedInAuth, signedInPrefs;
 
-GymWodPost _p(int id, {int? tid, String? name, DateTime? at}) => GymWodPost(
-  id: id,
-  postDate: '2026-08-29',
-  wodType: 'custom',
-  content: '내용 $id',
-  createdAt: DateTime(2026, 8, 29, 5),
-  templateId: tid,
-  templateName: name,
-  firstClassAt: at,
-);
+GymWodPost _p(int id,
+        {int? tid, String? name, DateTime? at, String? variant}) =>
+    GymWodPost(
+      id: id,
+      postDate: '2026-08-29',
+      wodType: 'custom',
+      content: '내용 $id',
+      createdAt: DateTime(2026, 8, 29, 5),
+      templateId: tid,
+      templateName: name,
+      firstClassAt: at,
+      variant: variant,
+      variantLabel: variant == null ? null : '$variant 세션',
+      displayName: variant == null ? name : '$name · $variant 세션',
+    );
 
 void main() {
+  group('visibleProgram — 세션 (D89)', () {
+    test('같은 종류라도 세션이 다르면 둘 다 남고, 같은 세션은 한 번만', () {
+      final out = visibleProgram([
+        _p(1, tid: 1, name: 'AWAKE', at: DateTime(2026, 8, 29, 19), variant: 'B'),
+        _p(2, tid: 1, name: 'AWAKE', at: DateTime(2026, 8, 29, 6), variant: 'A'),
+        _p(3, tid: 1, name: 'AWAKE', at: DateTime(2026, 8, 29, 6), variant: 'A'),
+        _p(4, tid: 1, name: 'AWAKE', at: DateTime(2026, 8, 29, 12)),
+      ]);
+      expect(out.map((w) => w.id), [2, 4, 1]);
+      expect(out.map((w) => w.displayName),
+          ['AWAKE · A 세션', 'AWAKE', 'AWAKE · B 세션']);
+    });
+  });
+
   group('visibleProgram — 순서와 중복', () {
     test('첫 수업 시각이 이른 순으로 세운다', () {
       final out = visibleProgram([
@@ -87,11 +106,12 @@ void main() {
 
     // 기본 진입이 프로그램 칸이고 오늘이 펼쳐져 있다 (v3.40).
     final rows = tester.widgetList<WodRow>(find.byType(WodRow)).toList();
-    expect(rows.length, 3, reason: 'BUILD 중복 한 건은 화면에 오지 않는다');
+    // D89 — AWAKE 는 A 세션(06:00)·B 세션(19:00) 둘 다 선다. BUILD 중복만 접힌다.
+    expect(rows.length, 4, reason: 'BUILD 중복 한 건은 화면에 오지 않는다');
     expect(
-      rows.map((r) => r.wod.templateName),
-      ['AWAKE', 'SWEAT', 'BUILD'],
-      reason: '첫 수업 시각 순 (06:00 · 12:00 · 18:00)',
+      rows.map((r) => r.wod.displayName ?? r.wod.templateName),
+      ['AWAKE · A 세션', 'SWEAT', 'BUILD', 'AWAKE · B 세션'],
+      reason: '첫 수업 시각 순 (06:00 · 12:00 · 18:00 · 19:00) — 세션별로 따로',
     );
     expect(rows.every((r) => r.initiallyExpanded == true), isTrue,
         reason: '내용이 다 보여야 한다 — 눌러서 열 필요가 없다');
@@ -100,6 +120,8 @@ void main() {
     expect(find.textContaining('Thruster'), findsWidgets);
     expect(find.textContaining('KB Swing'), findsWidgets);
     expect(find.textContaining('Clean & Jerk'), findsWidgets);
+    expect(find.textContaining('Run 400m'), findsWidgets,
+        reason: 'B 세션 본문도 펼쳐져 있다');
     // 중복 글의 본문은 어디에도 없다.
     expect(find.textContaining('같은 종류 중복'), findsNothing);
   });

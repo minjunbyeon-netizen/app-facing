@@ -107,7 +107,7 @@ class ClassLine extends StatelessWidget {
     return ClassLine(
       key: key,
       timeLabel: hhmm(l),
-      title: session.title,
+      title: session.displayTitle, // D89 — 'AWAKE · A 세션' (서버 표시 제목)
       subtitle: subtitle,
       subtitleColor: isFull ? HyphenTokens.warning : null,
       muted: isCancelled,

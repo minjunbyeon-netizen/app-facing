@@ -591,6 +591,34 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > - 회귀: 골든 `coach_01`(주간) 재생성 · `coach_02` 삭제 · `coach_04_new_note_members` 신규 ·
 >   `coach_03` 재생성(그룹 버튼 없음).
 
+> **D89 (2026-08-30 집행) — 수업 세션 (A·B…): 같은 수업 종류 안에서 그날 운동이 세션마다 다르다 (서버·PC·앱).
+> 사용자 지시 "수업 관리에서 수업 선택할 때 같은 수업이라도 A 세션·B 세션 (세션 추가) 모달 안에 — AWAKE 안에서도
+> A 세션은 푸시업 100, B 세션은 달리기 10분, 이런 식으로 다르게 표시".**
+>
+> - **정의 = `services/program_lines.py` 한 곳** (6-b): `normalize_variant`(영문 한 글자 A~Z, 대소문자·공백 정리, 빈값 = None =
+>   **공통**) · `variant_label`('A 세션' / '공통') · `display_title`('AWAKE · A 세션') · `free_variants`/`next_variant`(안 쓴 글자).
+>   PC JS·앱은 라벨·제목을 조립하지 않는다 — API 의 `variant_label`·`display_title`(수업)·`display_name`(게시물)·
+>   `next_label`·`free_variants` 를 그대로 쓴다. 게이트 = `tests/test_ssot_program_lint.py` 3번(f"{v} 세션"·제목 조립 감지).
+> - **데이터**: `class_sessions.variant`·`gym_wod_posts.variant` (VARCHAR(8) NULL, 멱등 ALTER — `models/base.py`
+>   `_migrate_class_tables`·`_migrate_gym_wod_columns`). **그날 운동의 정본 단위 = (날짜 × 수업 종류 × 세션)** —
+>   `_sync_wod_post` 키·취소 시 "남은 타임" 판정·완료 게이트(`completion_gate.gated_sessions`) 전부 세션까지 같아야 한다.
+>   게시물 본문 첫 줄 = 표시 제목('AWAKE · A 세션') — 옛 앱도 세션을 읽는다. 세션 이동(PATCH variant A→B)은 옛 키에
+>   활성 수업이 없으면 그 게시물을 지운다(`_drop_orphan_variant_post`). 수업 종류가 없는 단발 수업은 세션 무시.
+> - **API**: 수업 POST/PATCH `variant` 수용(400 `INVALID_VARIANT`) · 모든 수업 직렬화에 `variant`·`variant_label`·`display_title`
+>   (`class_public_fields` — list/create/member classes/reservations/roster), 쪽지·SSE 수업명도 표시 제목 ·
+>   `GET /admin/gyms/<id>/program-variants?date=&template_id=` = 공통 + 그날 세션(글자·program·memo·수업 수) + `free_variants` ·
+>   회원 `GET /gyms/<id>/wods` 에 `variant`·`variant_label`·`display_name`, `first_class_at` 은 세션별 · admin wod-posts GET 에 `variant`.
+> - **PC**: 수업 등록 모달이 640 폭으로 넓어지고 **세션 칩(공통 · A 세션 · B 세션 · + 세션 추가) + 그날 운동 편집기 + 메모**를
+>   갖는다(수정 모달과 같은 부품 `ProgramEditor.create` · 신규 `ProgramEditor.createVariantPicker`). 수업 종류를 고르면 그날
+>   세션 목록을 불러 공통을 고른 채 편집기를 채우고, 칩을 바꾸면 그 세션 내용으로 바뀐다. 수정 모달에도 같은 칩 — 바꾸면
+>   수업이 그 세션으로 옮겨간다. 달력 칩·상세 제목·취소 확인은 `display_title`. `_dayPostFor` 는 (template_id, variant) 로 찾는다.
+> - **앱**: `ClassSessionDto/MyReservationItem.displayTitle`·`GymWodPost.variant/variantLabel/displayName`. 수업 줄·요약·예약
+>   다이얼로그·알림 제목·오늘 예약 카드 = `displayTitle`. 프로그램 칸 중복 판정 = (templateId, variant) — AWAKE A 와 B 는 둘 다
+>   선다(`visibleProgram`, 회귀 `test/golden/program_order_test.dart` 세션 그룹). 코치 명단 시트 제목 = 서버 `display_title`.
+> - **골든**: 가짜 데이터에 AWAKE B 세션(19:00 · Run) + 수업 'WOD Class · A 세션' 추가 — 프로그램 칸·수업 시간 칸 골든 재생성.
+> - 게이트: `tests/test_program_variants_d89.py` 12건 (정규화·세션별 게시물·회원 피드·완료 게이트·세션 목록·이동·취소·
+>   직렬화·거부) — 서버 전량 568 passed.
+
 > **D88-2·3 (2026-08-30 집행) — 완료 = 예약한 사람만·수업 시작 후 (서버) · 동작 조건 업적 "X 동작을 Y 기간 Z 번" (서버·PC).
 > 사용자 지시 "다하고나면 너가 직접, 코치로 운동 짜보고, 회원으로(PC 에뮬레이터) 예약하고 운동 완료 눌러서 …
 > 포인트·업적도 달성되는지 체크 … X운동을 Y시간동안 Z번 하면 완료-업적 트리거도 설정해놓고 (가상) ㄱㄱ".**

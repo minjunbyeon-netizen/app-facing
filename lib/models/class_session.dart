@@ -28,6 +28,12 @@ class ClassSessionDto {
   final int? myWaitlistPosition;
   // D58 (2026-08-26) — 예약이 열리는 순간 (서버 booking_open_at). null = 제한 없음.
   final DateTime? bookingOpenAt;
+  // D89 (2026-08-30) — 같은 수업 종류 안의 세션(A·B…). 라벨·표시 제목은 서버가
+  // 정해 내려준다 (`variant_label` · `display_title`) — 앱은 붙이지 않고 그대로 쓴다.
+  // 화면에 적는 수업 이름은 항상 [displayTitle] ('AWAKE · A 세션'). [title] 은 저장값.
+  final String? variant;
+  final String? variantLabel;
+  final String displayTitle;
 
   const ClassSessionDto({
     required this.id,
@@ -48,7 +54,10 @@ class ClassSessionDto {
     this.myReservation,
     this.myWaitlistPosition,
     this.bookingOpenAt,
-  });
+    this.variant,
+    this.variantLabel,
+    String? displayTitle,
+  }) : displayTitle = displayTitle ?? title;
 
   /// 아직 예약이 안 열렸는가 — 서버 BOOKING_NOT_OPEN 의 표시용 거울 (정본은 서버).
   bool get isBookingNotOpen =>
@@ -92,6 +101,9 @@ class ClassSessionDto {
         bookingOpenAt: j['booking_open_at'] is String
             ? parseServerTime(j['booking_open_at'] as String)
             : null,
+        variant: j['variant']?.toString(),
+        variantLabel: j['variant_label']?.toString(),
+        displayTitle: j['display_title']?.toString(),
       );
 }
 
@@ -121,6 +133,8 @@ class MyReservationItem {
   final DateTime startAt;
   final int durationMinutes;
   final String title;
+  // D89 — 화면 이름 ('AWAKE · A 세션'). 서버 display_title, 없으면 title.
+  final String displayTitle;
   final String? room;
   final String status;
   final int? position; // waitlist 만
@@ -133,11 +147,12 @@ class MyReservationItem {
     required this.startAt,
     required this.durationMinutes,
     required this.title,
+    String? displayTitle,
     this.room,
     required this.status,
     this.position,
     this.promotedFromWaitlist = false,
-  });
+  }) : displayTitle = displayTitle ?? title;
 
   bool get isWaitlist => kind == 'waitlist';
 
@@ -150,6 +165,7 @@ class MyReservationItem {
       startAt: parseServerTime(j['start_at'] as String),
       durationMinutes: (j['duration_minutes'] as num?)?.toInt() ?? 60,
       title: (j['title'] ?? '수업').toString(),
+      displayTitle: j['display_title']?.toString(),
       room: j['room']?.toString(),
       status: (j['status'] ?? '').toString(),
       position: (j['position'] as num?)?.toInt(),

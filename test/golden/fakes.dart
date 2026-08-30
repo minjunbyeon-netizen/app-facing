@@ -410,10 +410,21 @@ List<Map<String, dynamic>> gymWods() {
     prog(33, 'BUILD', 3, 18, 'emom', 'EMOM 12\n1 Clean & Jerk'),
     prog(34, 'BUILD', 3, 18, 'emom', '같은 종류 중복 — 화면에 안 나온다'),
     prog(32, 'SWEAT', 2, 12, 'amrap', 'AMRAP 15\n10 KB Swing\n200m Row'),
+    // D89 (2026-08-30 사용자 지시) — 같은 AWAKE 라도 세션이 다르면 다른 프로그램.
+    // B 세션(19:00)은 A 세션(06:00) 뒤에 따로 선다 — 중복으로 접히지 않는다.
+    {
+      ...prog(35, 'AWAKE', 1, 19, 'amrap', 'AWAKE · B 세션\nAMRAP · 캡 10분\nRun 400m'),
+      'variant': 'B',
+      'variant_label': 'B 세션',
+      'display_name': 'AWAKE · B 세션',
+    },
     {
       'id': 31,
       'template_id': 1,
       'template_name': 'AWAKE',
+      'variant': 'A',
+      'variant_label': 'A 세션',
+      'display_name': 'AWAKE · A 세션',
       'first_class_at': '${d}T06:00:00',
       'post_date': _ymd(now),
       'wod_type': 'for_time',
@@ -654,6 +665,10 @@ List<Map<String, dynamic>> memberClasses() {
       'start_at': _todayAt(now, 20),
       'duration_minutes': 60,
       'title': 'WOD Class',
+      // D89 — 세션 라벨은 서버가 붙인다 (display_title). 앱은 그대로 적는다.
+      'variant': 'A',
+      'variant_label': 'A 세션',
+      'display_title': 'WOD Class · A 세션',
       'description': '오늘의 수업 내용 · 스케일 옵션 제공',
       'room': 'Main Floor',
       'coach_user_id': 11,

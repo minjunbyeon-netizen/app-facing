@@ -76,7 +76,7 @@ Future<bool> reserveClassFlow(
     if (status != 'waitlisted' && rid is int) {
       await NotificationService.instance.scheduleClassReminder(
         reservationId: rid,
-        title: c.title,
+        title: c.displayTitle,
         startAt: c.startAt.toLocal(),
       );
     }
@@ -123,7 +123,7 @@ Future<bool> cancelClassFlow(
   final ok = await HkDialog.confirm(
     context,
     title: isWaitlistCancel ? '대기를 취소할까요?' : '예약을 취소할까요?',
-    message: '${c.title} · $when',
+    message: '${c.displayTitle} · $when',
     notice: isLate ? '늦은 취소로 기록됩니다. 횟수권은 1회 차감될 수 있습니다.' : null,
     // 여기는 자리를 미리 잡지 않는다. 공간 예약은 '보고 있는 화면 안에서 상태가
     // 바뀔 때' 를 위한 것인데(로그인 에러·목록 로딩), 이 안내는 어느 수업을

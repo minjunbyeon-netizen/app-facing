@@ -93,7 +93,7 @@ class _TodayReservationsCardState extends State<TodayReservationsCard> {
   String _line(List<MyReservationItem> items) {
     final shown = items.take(TodayReservationsCard.kShown).map((r) {
       final t = hhmm(r.startAt.toLocal());
-      return r.isWaitlist ? '$t ${r.title} (대기)' : '$t ${r.title}';
+      return r.isWaitlist ? '$t ${r.displayTitle} (대기)' : '$t ${r.displayTitle}';
     }).toList();
     final rest = items.length - shown.length;
     return rest > 0 ? '${shown.join('  ·  ')}  +$rest건' : shown.join('  ·  ');
@@ -164,7 +164,7 @@ Future<void> restoreClassReminders(List<MyReservationItem> reservations) async {
     if (!start.isAfter(now)) continue; // 지난 수업은 알릴 것이 없다
     await NotificationService.instance.scheduleClassReminder(
       reservationId: r.id,
-      title: r.title,
+      title: r.displayTitle,
       startAt: start,
     );
   }

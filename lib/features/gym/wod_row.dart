@@ -232,9 +232,12 @@ class _WodRowState extends State<WodRow> {
                   // 회원이 아는 이름은 AWAKE·SWEAT·BUILD 이고, FOR TIME·AMRAP 은
                   // 그 안에서 오늘 무엇을 하느냐다. 수업 종류에 안 붙은 단발 글은
                   // 종전대로 종류만 적는다.
-                  if ((wod.templateName ?? '').trim().isNotEmpty) ...[
+                  // D89 — 세션이 있으면 서버 이름표 그대로 ('AWAKE · A 세션').
+                  if ((wod.displayName ?? wod.templateName ?? '')
+                      .trim()
+                      .isNotEmpty) ...[
                     Text(
-                      wod.templateName!.trim(),
+                      (wod.displayName ?? wod.templateName)!.trim(),
                       style: HyphenTokens.sectionLabel.copyWith(
                         color: isMinimal
                             ? HyphenTokens.muted

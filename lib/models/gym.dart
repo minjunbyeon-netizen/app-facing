@@ -431,6 +431,11 @@ class GymWodPost {
   final int? templateId;
   final String? templateName;
   final DateTime? firstClassAt;
+  // D89 (2026-08-30) — 세션(A·B…). 같은 종류라도 세션이 다르면 다른 프로그램이다.
+  // 중복 판정 축 = (templateId, variant), 이름표 = 서버 display_name ('AWAKE · A 세션').
+  final String? variant;
+  final String? variantLabel;
+  final String? displayName;
 
   const GymWodPost({
     required this.id,
@@ -451,6 +456,9 @@ class GymWodPost {
     this.templateId,
     this.templateName,
     this.firstClassAt,
+    this.variant,
+    this.variantLabel,
+    this.displayName,
   });
 
   bool get hasVersions =>
@@ -491,6 +499,9 @@ class GymWodPost {
       locked: j['locked'] == true,
       templateId: (j['template_id'] as num?)?.toInt(),
       templateName: j['template_name']?.toString(),
+      variant: j['variant']?.toString(),
+      variantLabel: j['variant_label']?.toString(),
+      displayName: j['display_name']?.toString(),
       firstClassAt: (j['first_class_at'] is String &&
               (j['first_class_at'] as String).isNotEmpty)
           ? parseServerTime(j['first_class_at'] as String).toLocal()
