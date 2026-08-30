@@ -893,6 +893,8 @@ const memberContracts = [
   {
     'id': 1,
     'status': 'signed',
+    'status_label': '서명 완료',
+    'signable': false,
     'template_name': '회원권 이용 계약',
     'created_at': '2026-08-01T10:00:00',
     'signed_at': '2026-08-02T18:30:00',
@@ -900,6 +902,8 @@ const memberContracts = [
   {
     'id': 2,
     'status': 'sent',
+    'status_label': '서명 대기',
+    'signable': true,
     'template_name': '개인정보 수집·이용 동의서',
     'created_at': '2026-08-10T09:00:00',
     'signed_at': null,
@@ -911,6 +915,8 @@ const memberContracts = [
 const memberContractDetail = {
   'id': 2,
   'status': 'sent',
+  'status_label': '서명 대기',
+  'signable': true,
   'template_name': '회원권 이용 계약',
   'template_category': 'membership',
   'body_text': null,
@@ -939,6 +945,41 @@ const memberContractDetail = {
   'viewed_at': null,
   'signed_at': null,
   'created_at': '2026-08-10T09:00:00',
+};
+
+/// /api/v1/member/contracts/1 — 서명 완료 계약 상세 (D102 골든 member_28). 라벨·플래그는 서버 것.
+const memberContractDetailSigned = {
+  'id': 1,
+  'status': 'signed',
+  'status_label': '서명 완료',
+  'signable': false,
+  'editable': false,
+  'cancellable': false,
+  'downloadable': true,
+  'template_name': '회원권 이용 계약',
+  'template_category': 'membership',
+  'body_text': '회원권 이용 계약\n3개월권 · 630,000원\n계약 기간 2026-08-01 ~ 2026-10-30',
+  'variables': {
+    'member_name': '박서준',
+    'plan_name': '3개월권',
+    'start_date': '2026-08-01',
+    'end_date': '2026-10-30',
+    'price': '630,000',
+    'gym_name': 'HYPHEN',
+  },
+  'variable_labels': {
+    'member_name': '회원 이름',
+    'plan_name': '회원권 종류',
+    'start_date': '시작일',
+    'end_date': '종료일',
+    'price': '결제 금액',
+    'gym_name': '체육관 이름',
+  },
+  'pdf_path': '/data/contracts/contract_1_signed.pdf',
+  'sent_at': '2026-08-01T10:00:00',
+  'viewed_at': '2026-08-02T18:00:00',
+  'signed_at': '2026-08-02T18:30:00',
+  'created_at': '2026-08-01T10:00:00',
 };
 
 /// /api/v1/member/me/memberships — 활성 회원권 1건 (진행률 살아있게 상대 날짜).

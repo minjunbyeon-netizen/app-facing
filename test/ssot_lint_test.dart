@@ -28,6 +28,9 @@ const List<(String, String)> _forbidden = [
   (r'StreakFreeze|_currentStreak\(|_uniqueDays\(', '연속일은 서버 meta.streak_days — 폰이 세지 않는다 (D92)'),
   (r'rankHistory\(|scoreHistoryItem\(|searchTokens\(', '히스토리 검색 순위는 서버 services/history_search.py 하나 (D95)'),
   (r'kLateCancelMinutes|isLateCancel\(', '늦은 취소 판정은 서버 노쇼 정책 — cancel-preview 문구를 그대로 (D96)'),
+  // D102 (2026-08-30) — 계약 상태 라벨·서명 가능 판정은 서버 status_label·signable 하나.
+  // 스위치 팔('signed' => …)과 판정식('sent' || 'viewed')만 잡는다 — 쪽지 상태(m.status == 'sent')는 다른 뜻.
+  (r"'(signed|sent|viewed)'\s*(\|\||=>)", '계약 상태 라벨·서명 가능 판정은 서버 status_label·signable (D102)'),
 ];
 
 void main() {

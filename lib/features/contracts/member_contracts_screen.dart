@@ -18,10 +18,16 @@ import '../../widgets/hkit.dart';
 ///   GET  /api/v1/member/contracts/{id}              — 상세 (draft/sent → viewed 전환)
 ///   POST /api/v1/member/contracts/{id}/sign         — {signature_image_base64}
 /// 서명패드는 외부 패키지 없이 CustomPaint 스트로크 → PNG → base64.
+///
+/// D102 (2026-08-30) — 상태 라벨(`status_label`)·서명 가능(`signable`)은 서버 정본
+/// (services/hyphen api/contracts.py CONTRACT_STATUS_LABELS·contract_flags)을 그대로
+/// 쓴다. 종전엔 여기 switch 와 PC 두 화면·검증 페이지가 같은 계약을 다르게 불렀다.
 
 class ContractSummary {
   final int id;
   final String status;
+  final String statusLabel;
+  final bool signable;
   final String templateName;
   final String? createdAt;
   final String? signedAt;
@@ -29,6 +35,8 @@ class ContractSummary {
   const ContractSummary({
     required this.id,
     required this.status,
+    required this.statusLabel,
+    required this.signable,
     required this.templateName,
     this.createdAt,
     this.signedAt,
@@ -37,22 +45,12 @@ class ContractSummary {
   factory ContractSummary.fromJson(Map<String, dynamic> j) => ContractSummary(
     id: (j['id'] as num).toInt(),
     status: (j['status'] ?? '') as String,
+    statusLabel: (j['status_label'] ?? j['status'] ?? '') as String,
+    signable: j['signable'] == true,
     templateName: (j['template_name'] ?? '') as String,
     createdAt: j['created_at'] as String?,
     signedAt: j['signed_at'] as String?,
   );
-
-  /// 상태 라벨 — 한글 기본 (v3.0 카피 정책, 2026-08-24 구 V8 영문 라벨 교체).
-  String get statusLabel => switch (status) {
-    'signed' => '서명 완료',
-    'sent' || 'viewed' => '서명 대기',
-    'draft' => '작성 중',
-    'cancelled' => '취소',
-    'expired' => '만료',
-    _ => status,
-  };
-
-  bool get signable => status == 'sent' || status == 'viewed';
 }
 
 class ContractRepository {
@@ -239,7 +237,9 @@ class _ContractDetailScreenState extends State<ContractDetailScreen> {
             }
             final d = snap.data ?? const {};
             final status = (d['status'] ?? '') as String;
-            final signable = status == 'sent' || status == 'viewed';
+            // 서명 가능 여부·라벨은 서버 플래그 그대로 (D102).
+            final signable = d['signable'] == true;
+            final statusLabel = (d['status_label'] ?? status) as String;
             final vars = (d['variables'] as Map?) ?? const {};
             // 항목 이름은 서버 사전(variable_labels)을 그대로 쓴다 — 앱이
             // 옛날처럼 `member_name` 을 'member name' 으로 풀어 보여주던 자리
@@ -261,13 +261,7 @@ class _ContractDetailScreenState extends State<ContractDetailScreen> {
                       ),
                       const SizedBox(height: HyphenTokens.sp2),
                       HkBadge(
-                        switch (status) {
-                          'signed' => '서명 완료',
-                          'sent' || 'viewed' => '서명 대기',
-                          'cancelled' => '취소',
-                          'expired' => '만료',
-                          _ => status,
-                        },
+                        statusLabel,
                         color: signable
                             ? HyphenTokens.primary
                             : HyphenTokens.muted,
@@ -463,12 +457,12 @@ class _SignaturePadScreenState extends State<SignaturePadScreen> {
             ),
             Padding(
               padding: const EdgeInsets.all(HyphenTokens.sp4),
-              child: _submitting
-                  ? const HkLoading()
-                  : HkButton.primary(
-                      '제출',
-                      onPressed: _hasSignature ? _submit : null,
-                    ),
+              // 버튼 자리 그대로 busy — 누르는 순간 스피너로 갈아 끼우면 위 패드가 밀린다 (D67).
+              child: HkButton.primary(
+                '제출',
+                busy: _submitting,
+                onPressed: _hasSignature && !_submitting ? _submit : null,
+              ),
             ),
           ],
         ),

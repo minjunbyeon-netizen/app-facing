@@ -19,6 +19,7 @@ import 'package:hyphen_app/features/mypage/terms_screen.dart';
 import 'package:hyphen_app/features/shell/coach_shell.dart';
 import 'package:hyphen_app/features/shell/main_shell.dart';
 import 'package:hyphen_app/features/gym/gym_info_screen.dart';
+import 'package:hyphen_app/widgets/hkit.dart';
 
 import 'fakes.dart';
 import 'harness.dart';
@@ -412,6 +413,54 @@ void main() {
     expect(find.text('회원 이름'), findsOneWidget);
     expect(find.text('결제 수단'), findsOneWidget);
     await capture(tester, 'member_22_contract_detail');
+  });
+
+  // ── 회원: 전자계약 상세 — 서명 완료 (D102 2026-08-30, 라벨·플래그는 서버 것) ──
+  testWidgets('member: contract detail signed', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi({
+      ...memberWorld(),
+      '/api/v1/member/contracts/1': memberContractDetailSigned,
+    });
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        home: const ContractDetailScreen(contractId: 1),
+      ),
+    );
+    await tester.pumpAndSettle();
+    // 배지는 서버 status_label, '서명' 버튼은 signable=false 라 없다.
+    expect(find.text('서명 완료'), findsOneWidget);
+    expect(find.widgetWithText(HkButton, '서명'), findsNothing);
+    await capture(tester, 'member_28_contract_detail_signed');
+  });
+
+  // ── 회원: 서명 패드 — 회원이 서명하는 창구 (D102) ──
+  testWidgets('member: contract sign pad', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi({...memberWorld()});
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        home: const SignaturePadScreen(contractId: 2),
+      ),
+    );
+    await tester.pumpAndSettle();
+    // 획 하나 — '제출' 이 살아나는 상태로 캡처.
+    final pad = find.descendant(
+      of: find.byType(SignaturePadScreen),
+      matching: find.byType(GestureDetector),
+    ).last;
+    await tester.timedDrag(pad, const Offset(140, 36), const Duration(milliseconds: 300));
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(HkButton, '제출'), findsOneWidget);
+    await capture(tester, 'member_29_contract_sign_pad');
   });
 
   // v3.31 (2026-08-27 사용자 지시): '목표'(member_16_goals)·

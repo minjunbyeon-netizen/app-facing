@@ -71,7 +71,9 @@ SECTIONS = [
         ("member_25_gym_info", "체육관 정보 화면 — 내 정보 → 메뉴 → 체육관 정보. 이름·주소·전화 · 코치 · 수업 종류(이름+설명, 이벤트 배지) · 수업 시간 · 모토 (D83, 2026-08-29)"),
         ("member_13_achievement_detail", "업적 상세 시트 — 홈 해금 카드 탭"),
         ("member_14_edit_profile", "프로필 수정 — 이름 줄 연필 아이콘"),
-        ("member_15_contracts", "전자계약 목록 — SIGNED · WAITING (메뉴 '계약')"),
+        ("member_15_contracts", "전자계약 목록 — 서명 완료 · 서명 대기 (라벨은 서버 status_label, D102) (메뉴 '전자계약서')"),
+        ("member_28_contract_detail_signed", "전자계약 상세 — 서명 완료 (배지 = 서버 status_label, signable=false 라 '서명' 버튼 없음, D102 2026-08-30)"),
+        ("member_29_contract_sign_pad", "서명 패드 — 회원이 손가락으로 서명하는 창구 (획 하나 그린 상태, '제출' 활성 · busy 는 자리 그대로, D102)"),
         # v3.31 (2026-08-27 사용자 지시): 내 정보 메뉴에서 목표·FAQ·고객지원·
         # 데이터 초기화 삭제 — 목표·FAQ 는 화면 코드까지 제거해 골든도 뺐다.
         ("member_18_terms", "이용약관"),
