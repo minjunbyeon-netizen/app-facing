@@ -56,6 +56,10 @@ const String kWodSavedCheer = '예____ 화이팅!!!!';
 /// 저장 결과 첫 줄(둘째 줄) — 출석 동반 처리 고지. 문구는 여기 한 곳.
 const String kWodSavedBase = '저장됨 · 출석 +1';
 
+/// 그날 이미 출석이 있어 출석일이 늘지 않은 저장 — 서버 `attendance_added` 가 false 일 때
+/// (하루 1회, D93). '+1' 이라고 말하면 화면이 거짓말한다 (2026-08-30 2차 검증).
+const String kWodSavedOnly = '저장됨';
+
 /// 레이아웃 안정성 앵커 — 저장 버튼·고지 줄. 저장 중(busy)에도 y 가 같아야 한다
 /// (`test/golden/stability_result_sheet_test.dart`).
 const Key kWodSaveButton = ValueKey('wod-result-save');
@@ -398,7 +402,7 @@ class _WodResultSheetState extends State<WodResultSheet> {
       messenger.dismiss();
       messenger.info(
         kWodSavedCheer,
-        detail: [kWodSavedBase, ?msg],
+        detail: [res.attendanceAdded ? kWodSavedBase : kWodSavedOnly, ?msg],
         mood: MascotMood.happy,
         duration: Duration(seconds: msg == null ? 3 : 5),
       );

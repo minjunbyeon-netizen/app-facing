@@ -543,7 +543,7 @@ Map<String, dynamic> cancelLateResult() => const {
   'notice': {
     'month': 8,
     'nth': 2,
-    'toast': '8월, 2회째 레이트 캔슬입니다. 주의 부탁드려요 ㅠ-ㅠ\n이 내용은 코치에게 전송됩니다.',
+    'toast': '8월, 2회째 레이트 캔슬입니다. 주의 부탁드려요 ㅠ‑ㅠ\n이 내용은 코치에게 전송됩니다.',
   },
 };
 
@@ -1869,7 +1869,14 @@ List<Map<String, dynamic>> wodHistoryList() {
 
 /// 히스토리 상세 (hist_04) — 목록의 502(Fran, scaled) 를 펼친 것. `result` 는 목록과 같은 줄.
 Map<String, dynamic> wodHistoryDetail() {
-  final item = wodHistoryList()[1];
+  final item = Map<String, dynamic>.from(wodHistoryList()[1]);
+  // D94 — 회원이 적은 동작별 값 (서버 `line` 그대로). 상세 '동작별 기록' 칸이 이것을 그린다.
+  item['movements'] = const [
+    {'movement_id': 50, 'name': 'Thruster', 'reps': '21-15-9', 'load_kg': 30, 'scaled': true,
+     'line': 'Thruster 21-15-9회 · 30kg SCALED'},
+    {'movement_id': 2, 'name': 'Pull-up', 'reps': '21-15-9', 'load_kg': null, 'scaled': false,
+     'line': 'Pull-up 21-15-9회'},
+  ];
   return {
     'result': item,
     'post': {

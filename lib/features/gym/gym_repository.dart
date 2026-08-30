@@ -197,7 +197,9 @@ class GymRepository {
   /// comparisonMessage 는 서버가 완성한 한 문장 ("지난 기록보다 42초 단축 — PR!").
   /// 첫 기록이면 null (계산은 전부 백엔드 — 앱 계산 0 원칙).
   /// (구 points_awarded 첫 제출 100P 는 2026-08-24 서버와 함께 폐기.)
-  Future<({int resultId, bool isPr, String? comparisonMessage})>
+  /// attendanceAdded — 이번 저장이 오늘 출석 행을 **새로** 만들었는지 (서버 `attended_on`
+  /// 판정, 하루 1회). 앱은 이 값이 true 일 때만 '출석 +1' 이라고 말한다 (2026-08-30 2차 검증).
+  Future<({int resultId, bool isPr, String? comparisonMessage, bool attendanceAdded})>
   submitWodResult({
     required int gymId,
     required int wodId,
@@ -231,6 +233,7 @@ class GymRepository {
       comparisonMessage: (comparison is Map<String, dynamic>)
           ? comparison['message']?.toString()
           : null,
+      attendanceAdded: data['attendance_added'] == true,
     );
   }
 
