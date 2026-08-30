@@ -252,5 +252,9 @@ samples, guidance on mobile development, and a full API reference.
     (StreakFreezeStore — 폰 로컬 SharedPreferences 로 하루 빠진 날을 보정) + `test/streak_freeze_test.dart` ·
     `home_screen.dart _GamificationBody._currentStreak/_uniqueDays`. 연속일은 **서버 `GET /api/v1/history/wod` meta.streak_days**
     (`api/_metrics.py class_streak_days` — 코치 명단과 같은 함수). 게이트 = `test/ssot_lint_test.dart` (StreakFreeze·_currentStreak 금지).
+41. **폰 히스토리 검색 순위 (D95 · 2026-08-30 사용자 지시 "동작 검색을 서버가 하게 … 일단 이것부터")** —
+    `lib/features/history/history_search.dart`(rankHistory·scoreHistoryItem·searchFields — D84 연관도순) +
+    `test/history_search_test.dart`. 순위는 **서버** `services/history_search.py` (`GET /api/v1/history/wod?q=`) — 동작 사전
+    번호로도 맞춘다. 게이트 = `test/ssot_lint_test.dart` (rankHistory·scoreHistoryItem 금지).
 
 

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -8,13 +10,14 @@ import '../../core/wod_session_bus.dart';
 import '../../widgets/hkit.dart';
 import 'history_models.dart';
 import 'history_repository.dart';
-import 'history_search.dart';
 
 /// 히스토리 — 내 수업 기록 목록 + 검색 (D84 · 2026-08-29).
 ///
 /// 검색 칸은 **항상** 맨 위에 서 있다(로딩·빈 상태·에러에도) — 상태가 바뀌어도
 /// 목록의 y 가 움직이지 않는다 (DESIGN-SSOT §레이아웃 안정성). 검색어가 비면 최근순,
-/// 치면 연관도순 — 순위 규칙은 `history_search.dart` 한 곳.
+/// 치면 연관도순 — 순위 규칙은 **서버** `services/history_search.py` 한 곳 (D95 · 2026-08-30
+/// "동작 검색을 서버가 하게" — 동작 사전 번호로 맞추므로 '스쿼트' 로 쳐도 Back Squat 가 잡힌다).
+/// 폰은 300ms 뒤 한 번 묻고 받은 순서 그대로 그린다.
 ///
 /// D91 (2026-08-30): 목록의 글자는 전부 서버가 완성한 것(제목·그날 운동 요약·종류 라벨·
 /// 점수 라벨·PR). 원천은 수업 결과 표 한 벌 — 결과를 저장하면 그 행이 여기 그대로 선다.
@@ -37,6 +40,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Future<List<WodHistoryItem>>? _wodFuture;
   final _searchCtrl = TextEditingController();
   String _query = '';
+  Timer? _debounce;
 
   /// /go Tier 3: WOD 세션 종료 시 자동 reload — attendance_screen 패턴 동일.
   WodSessionBus? _bus;
@@ -58,13 +62,21 @@ class _HistoryScreenState extends State<HistoryScreen> {
   void _reload() {
     setState(() {
       // retainError: 숨은 탭 future 가 에러로 완료돼도 unhandled 로 새지 않게.
-      // D84: 검색은 폰에서 고르므로 20건 창이 아니라 전부 받는다.
-      _wodFuture = retainError(_repo.listAllWodHistory());
+      // 전부 받는다 (100건씩) — 검색어가 있으면 서버가 세운 순서 그대로.
+      _wodFuture = retainError(_repo.listAllWodHistory(query: _query));
     });
+  }
+
+  /// 글자마다 서버를 두드리지 않는다 — 멈춘 뒤 300ms 에 한 번.
+  void _onQueryChanged(String v) {
+    setState(() => _query = v);
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 300), _reload);
   }
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _bus?.removeListener(_onSessionBump);
     _searchCtrl.dispose();
     super.dispose();
@@ -87,7 +99,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             child: TextField(
               controller: _searchCtrl,
               textInputAction: TextInputAction.search,
-              onChanged: (v) => setState(() => _query = v),
+              onChanged: _onQueryChanged,
               decoration: InputDecoration(
                 hintText: '기록 검색 — 동작 · 수업 · 날짜',
                 prefixIcon: const Icon(Icons.search, size: 20),
@@ -102,7 +114,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       ? null
                       : () {
                           _searchCtrl.clear();
-                          setState(() => _query = '');
+                          _onQueryChanged('');
                         },
                 ),
               ),
@@ -142,20 +154,19 @@ class _HistoryList extends StatelessWidget {
         if (snap.hasError) {
           return HkErrorState.fromError(snap.error, onRetry: onRetry);
         }
-        final all = snap.data ?? const [];
-        if (all.isEmpty) {
+        final rows = snap.data ?? const [];
+        if (rows.isEmpty) {
+          if (query.trim().isNotEmpty) {
+            return HkEmptyState(
+              title: '검색 결과 없음',
+              caption: "'${query.trim()}' 에 맞는 기록 없음.",
+            );
+          }
           return const HkEmptyState(
             title: '수업 기록 없음',
             caption:
                 '수업 기록 저장 시 자동 표시.\n'
                 '결과·일시 전부 보존.',
-          );
-        }
-        final rows = rankHistory(query, all);
-        if (rows.isEmpty) {
-          return HkEmptyState(
-            title: '검색 결과 없음',
-            caption: "'${query.trim()}' 에 맞는 기록 없음.",
           );
         }
         return ListView.separated(

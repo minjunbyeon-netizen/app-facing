@@ -16,13 +16,20 @@ class HistoryRepository {
     return _page('/api/v1/history/wod?limit=$limit');
   }
 
-  /// 전부 읽기 — D84 검색은 폰에서 고르므로 목록이 잘려 있으면 안 된다. 서버 상한
-  /// (limit ≤ 100) 만큼씩 끝까지 넘긴다. 짧은 페이지가 오면 끝.
-  Future<List<WodHistoryItem>> listAllWodHistory() async {
+  /// 전부 읽기 — 서버 상한(limit ≤ 100) 만큼씩 끝까지 넘긴다. 짧은 페이지가 오면 끝.
+  ///
+  /// D95 (2026-08-30 사용자 "동작 검색을 서버가 하게"): `query` 가 있으면 서버가 **연관도순**으로
+  /// 세워 준다 (정의 = 서버 `services/history_search.py` 하나 — 동작 사전 번호로도 맞춘다).
+  /// 폰은 받은 순서 그대로 보여 준다. `q` 를 맨 앞에 두는 것은 골든 가짜(startsWith) 규약.
+  Future<List<WodHistoryItem>> listAllWodHistory({String query = ''}) async {
     const page = 100;
+    final q = query.trim();
+    final head = q.isEmpty
+        ? '/api/v1/history/wod?'
+        : '/api/v1/history/wod?q=${Uri.encodeQueryComponent(q)}&';
     final all = <WodHistoryItem>[];
     for (var offset = 0; ; offset += page) {
-      final p = await _page('/api/v1/history/wod?limit=$page&offset=$offset');
+      final p = await _page('${head}limit=$page&offset=$offset');
       all.addAll(p.items);
       if (p.items.length < page) break;
     }

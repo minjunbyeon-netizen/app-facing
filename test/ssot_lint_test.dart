@@ -26,6 +26,7 @@ const List<(String, String)> _forbidden = [
   (r"post\(\s*'/api/v1/history", '히스토리는 읽기만 — 결과 저장 창구는 GymRepository.submitWodResult 하나 (D91)'),
   (r'\.length\s*;\s*//\s*totalSessions|totalSessions:\s*records\.length', '총 기록 수는 서버 meta.total (D91)'),
   (r'StreakFreeze|_currentStreak\(|_uniqueDays\(', '연속일은 서버 meta.streak_days — 폰이 세지 않는다 (D92)'),
+  (r'rankHistory\(|scoreHistoryItem\(|searchTokens\(', '히스토리 검색 순위는 서버 services/history_search.py 하나 (D95)'),
 ];
 
 void main() {

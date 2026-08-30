@@ -333,14 +333,18 @@ void main() {
 
   // ── 이력 목록 + 검색 (D84 · 2026-08-29 "검색이 되는 거고 연관도순으로") ──
   // hist_02 = 검색어 없음(최근순) · hist_03 = 'squat' 를 치면 Back Squat · Front Squat
-  // 두 건만 남고 최근 것이 위. 순위 규칙 정본 = history_search.dart (단위 검사
-  // test/history_search_test.dart) — 골든은 검색 칸이 목록 위에 늘 서 있음을 찍는다.
+  // 두 건만 남고 최근 것이 위. 순위 규칙 정본 = **서버** services/history_search.py (D95,
+  // 검사 tests/test_e2e_sessions_flow_d89.py::test_13) — 가짜는 서버가 세워 준 결과를 돌려준다.
+  // 골든은 검색 칸이 목록 위에 늘 서 있음을 찍는다.
   testWidgets('history: list and search', (tester) async {
     phone(tester);
     SharedPreferences.setMockInitialValues(signedInPrefs());
+    final all = wodHistoryList();
     final api = FakeApi({
+      // 검색 키가 목록 키보다 앞에 서야 한다 (startsWith).
+      '/api/v1/history/wod?q=squat': [all[0], all[3]],
       ...memberWorld(),
-      '/api/v1/history/wod': wodHistoryList(),
+      '/api/v1/history/wod': all,
     });
     await tester.pumpWidget(
       harness(
@@ -354,6 +358,7 @@ void main() {
     expect(find.textContaining('Back Squat'), findsOneWidget);
     await capture(tester, 'hist_02_list');
     await tester.enterText(find.byType(TextField), 'squat');
+    await tester.pump(const Duration(milliseconds: 400)); // 300ms 디바운스
     await tester.pumpAndSettle();
     expect(find.textContaining('Squat'), findsNWidgets(2));
     expect(find.textContaining('Fran'), findsNothing);
