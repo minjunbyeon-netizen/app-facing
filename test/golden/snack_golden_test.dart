@@ -65,6 +65,14 @@ void main() {
     });
   });
 
+  // D100 (2026-08-30) — 늦은 취소: 서버 문장(달·몇 회째) 첫 줄이 제목, 나머지 줄 +
+  // 차감 문구가 안내 줄. 우는 캐릭터. 렌더링 정본 = class_flows.showCancelResult.
+  testWidgets('snack: 늦은 취소 — 서버 토스트', (tester) async {
+    await shot(tester, 'snack_05_late_cancel_toast', (ctx) {
+      showCancelResult(HkSnack.of(ctx), cancelLateResult());
+    });
+  });
+
   testWidgets('snack: 안내 — 담담한 캐릭터', (tester) async {
     await shot(tester, 'snack_03_neutral', (ctx) {
       HkSnack.show(ctx, '한 번 더 누르면 앱이 종료됩니다.', mood: MascotMood.neutral);

@@ -598,6 +598,26 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > **서버 판정 문구**('늦은 취소로 기록됩니다…', D96) → 취소 → 쪽지함 활동 칸에 **'취소 · 노쇼 안내'**(D97) 도착. 검증 데이터(글·수업·회원)
 > 전부 삭제. 잡은 것: 기간제 회원에게 '이번은 면제' 라고 쓰던 문구 → '기간제 회원권이라 차감은 없습니다' (`policy_outcome(on_pass)`).
 
+> **D100 (2026-08-30 집행) — 늦은 취소 토스트 + 코치 전송 (사용자 "노쇼규칙에 의해서 또 취소하려고 하면 … 토스트바로:
+> 'N달, N회째 레이트 캔슬 입니다. 주의부탁드려요 ㅠ-ㅠ / 이 내용은 코치에게 전송됩니다'").**
+>
+> - **문장·횟수는 서버 한 곳** (`api/_membership.py`): `LATE_CANCEL_TOAST`("{M}월, {k}회째 레이트 캔슬입니다. 주의 부탁드려요 ㅠ-ㅠ\n이 내용은
+>   코치에게 전송됩니다.") · `policy_cancel_count_in_month()`(원장 `class_reservation_cancels` 를 **회원 × KST 달** 로 셈 — 정책에 걸린 모든
+>   선, 경고만인 선 포함 · 이번 것 포함) · `late_cancel_notice()` → `{month, nth, toast}`, 제때 취소는 None. 취소 응답
+>   (`DELETE /member/reservations/<id>`) 에 `notice` 로 내려가고 앱은 그대로 띄운다 — 달·횟수를 세지 않는다 (규칙 6).
+> - **"코치에게 전송됩니다" 는 사실이다**: `api/notifications/note.py send_coach_note()`(회원 쪽지의 거울, `auto_kind='notify:late_cancel'`,
+>   SSE `note.new`) 가 회원→코치 쪽지 자리에 자동 쪽지 1통 — `COACH_LATE_CANCEL_LINE` "{회원명} — {M}월 {k}회째 늦은 취소 · {수업명} ({일시})".
+>   PC 코치 쪽지함 그 회원 스레드에 안읽음으로 보인다. 회원 앱 '코치' 칸(사람 대화만)에는 안 보이도록 `coach_note.build_messages/build_threads`
+>   가 **보낸 쪽 자동 쪽지도** 거른다 (종전엔 받은 쪽만).
+> - **앱** (`class_flows.dart showCancelResult`): 취소 성공 뒤 `notice` 가 있으면 D86 골격의 토스트 — 첫 줄 굵게 + 나머지 줄 + 차감 문구(`message`),
+>   슬픈 하이피, 폭죽 없음. 없으면 종전 한 줄. 골든 `snack_05_late_cancel_toast` · `state_30_late_cancel_done`(실흐름).
+> - 게이트 = `tests/test_late_cancel_toast_d100.py`(같은 달 1→2회째 · 문장 정확일치 · 코치 쪽지 발신/수신/본문 · 제때 취소 None·통보 없음 ·
+>   달 바뀌면 1회째 · 회원 코치 칸 숨김/PC 노출).
+> - 같은 날 **완료 저장 토스트** (사용자 "'수업을 저장중이에요' 로딩바 두두둥 → '하이피가 예____ 화이팅!!!!'"): `wod_result_sheet.dart _submit` —
+>   저장 시작 즉시 `HkSnack.progress('수업을 저장 중이에요')`(가로 로딩바), 응답 오면 `dismiss` → 웃는 **하이피**(마스코트 이름, 사용자 원문)
+>   "예____ 화이팅!!!!" + '저장됨 · 출석 +1' + 서버 비교 문구, `is_pr` 면 폭죽. 저장 버튼은 자리 그대로 busy — 누르는 순간 고지 줄이
+>   30px 튀던 밀림 0 (`test/golden/stability_result_sheet_test.dart`). 골든 `snack_06_saving` · `snack_07_saved_fighting` · `state_29_result_sheet_saving`.
+
 > **D99 (2026-08-30 집행) — 코치 사유 취소 = 예약 전부 리셋 + 횟수권 반환, 휴강은 코치가 다시 열기 전까지 휴강 (사용자
 > "휴강처리하거나 그날 수업을 취소하거나 — 코치의 이유로 사라지게 되면 예약 모두 리셋되고 횟수권도 돌려주고").**
 >

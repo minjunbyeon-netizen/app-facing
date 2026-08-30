@@ -256,6 +256,46 @@ void main() {
     await capture(tester, 'state_23_cancel_dialog');
   });
 
+  // ── 늦은 취소 성사 순간 — 서버 토스트 (D100 · 2026-08-30) ──
+  // state_22 의 다이얼로그에서 '취소' 를 눌러 끝까지 간다. 문장(달·몇 회째)은 DELETE
+  // 응답 `notice.toast` 그대로 — 앱이 세지 않는다. 폭죽 없음, 우는 캐릭터.
+  // DELETE 키는 미리보기 키 뒤·목록 키 앞 (FakeApi 는 startsWith 로 앞에서부터 맞춘다).
+  testWidgets('state: late cancel done', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi({
+      '/api/v1/member/reservations/56/cancel-preview': cancelPreviewLate(),
+      '/api/v1/member/reservations/56': cancelLateResult(),
+      ...memberWorld(),
+      '/api/v1/member/classes': memberClassesLateCancel(),
+    });
+    final gym = GymState(GymRepository(api), sse: FakeSse());
+    await gym.loadMine();
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        gym: gym,
+        home: const BoxWodScreen(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tapSchedulePane(tester);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('취소'));
+    await tester.pumpAndSettle();
+    expect(find.text('예약을 취소할까요?'), findsOneWidget);
+    // 다이얼로그의 '취소'(확정) — 목록의 '취소' 버튼보다 트리 뒤에 있다.
+    await tester.tap(find.text('취소').last);
+    await tester.pump(const Duration(milliseconds: 350));
+    expect(find.textContaining('레이트 캔슬입니다'), findsOneWidget);
+    expect(find.text('이 내용은 코치에게 전송됩니다.'), findsOneWidget);
+    await capture(tester, 'state_30_late_cancel_done');
+    // 스낵바가 스스로 걷힐 때까지 — pending timer 없이 끝낸다.
+    await tester.pump(const Duration(seconds: 6));
+  });
+
   _achievementsLoadingGolden();
   _rememberedLoginGolden();
 }

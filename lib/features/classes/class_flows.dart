@@ -33,6 +33,42 @@ const List<String> kReservedDetail = [
   '5분 이상 지각은 수업에 참여할 수 없습니다.',
 ];
 
+/// 취소 응답 → 토스트 (D100 · 2026-08-30 사용자 원문 "노쇼규칙에 의해서 또 취소하려고
+/// 하면 … 'N달, N회째 레이트 캔슬 입니다. 주의부탁드려요 ㅠ-ㅠ / 이 내용은 코치에게
+/// 전송됩니다.' 토스트바로").
+///
+/// 문장·몇 회째는 **서버**가 완성한다 (`notice.toast`, 정본 `_membership.late_cancel_notice`) —
+/// 앱은 줄바꿈으로 나눠 D86 골격(굵은 제목 + 안내 줄)에 얹을 뿐, 달·횟수를 세지 않는다.
+/// 첫 줄이 제목, 나머지 줄과 차감 문구(`message`)가 안내 줄. 우는 캐릭터, 폭죽 없음.
+/// 정책에 안 걸린 제때 취소(`notice` 없음)는 종전 한 줄 그대로.
+/// 골든 `snack_05` · `state_29` 가 이 함수를 그대로 부른다.
+void showCancelResult(HkSnack messenger, Map<String, dynamic> result) {
+  final msg = (result['message'] ?? '').toString();
+  final charged = result['session_charged'] == true;
+  final notice = result['notice'];
+  if (notice is Map) {
+    final lines = (notice['toast'] ?? '')
+        .toString()
+        .split('\n')
+        .map((l) => l.trim())
+        .where((l) => l.isNotEmpty)
+        .toList();
+    if (lines.isNotEmpty) {
+      messenger.info(
+        lines.first,
+        detail: [...lines.skip(1), if (msg.isNotEmpty) msg],
+        mood: MascotMood.sad,
+      );
+      return;
+    }
+  }
+  // 차감된 취소는 실패가 아니라 상태 안내 — 담담한 얼굴.
+  messenger.info(
+    msg.isEmpty ? '예약 취소.' : msg,
+    mood: charged ? MascotMood.neutral : MascotMood.happy,
+  );
+}
+
 /// 예약 오픈 전 안내 — 담담한 캐릭터 스낵바. 실패(붉은 테두리·우는 얼굴)가 아니라
 /// 상태 안내다: 회원이 잘못한 게 없다. 오픈 시각은 서버가 준 `booking_open_at`
 /// 그대로 붙인다 (정책 계산을 앱에 두 번 적지 않는다).
@@ -143,13 +179,7 @@ Future<bool> cancelClassFlow(
       // 안 갈 수업을 알리지 않는다 — 걸어 둔 1시간 전 알림을 함께 지운다.
       await NotificationService.instance
           .cancelClassReminder(res.reservationId);
-      final msg = (result['message'] ?? '').toString();
-      final charged = result['session_charged'] == true;
-      // 차감된 취소는 실패가 아니라 상태 안내 — 담담한 얼굴.
-      messenger.info(
-        msg.isEmpty ? '예약 취소.' : msg,
-        mood: charged ? MascotMood.neutral : MascotMood.happy,
-      );
+      showCancelResult(messenger, result);
     }
     return true;
   } on AppException catch (e) {
