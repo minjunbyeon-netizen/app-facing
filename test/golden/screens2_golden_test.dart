@@ -452,14 +452,16 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    // 획 하나 — '제출' 이 살아나는 상태로 캡처.
-    final pad = find.descendant(
-      of: find.byType(SignaturePadScreen),
-      matching: find.byType(GestureDetector),
-    ).last;
+    // 획 하나 — '제출' 이 살아나는 상태로 캡처. 패드는 onPanStart 를 가진 GestureDetector
+    // 하나뿐이다 (버튼의 GestureDetector 와 구분).
+    final pad = find.byWidgetPredicate(
+      (w) => w is GestureDetector && w.onPanStart != null,
+    );
+    expect(pad, findsOneWidget);
     await tester.timedDrag(pad, const Offset(140, 36), const Duration(milliseconds: 300));
     await tester.pumpAndSettle();
-    expect(find.widgetWithText(HkButton, '제출'), findsOneWidget);
+    final submit = tester.widget<HkButton>(find.widgetWithText(HkButton, '제출'));
+    expect(submit.onPressed, isNotNull, reason: '획을 그리면 제출이 살아난다');
     await capture(tester, 'member_29_contract_sign_pad');
   });
 
