@@ -34,6 +34,9 @@ class ClassSessionDto {
   final String? variant;
   final String? variantLabel;
   final String displayTitle;
+  /// 과제 4 (2026-08-30) — 그날 유효한 회원권이 있는가. 서버 예약 게이트(pick_membership)와
+  /// 같은 함수의 답 (`membership_ok`). null = 서버가 안 준 것(코치 조회) → 배지는 정상.
+  final bool? membershipOk;
 
   const ClassSessionDto({
     required this.id,
@@ -57,6 +60,7 @@ class ClassSessionDto {
     this.variant,
     this.variantLabel,
     String? displayTitle,
+    this.membershipOk,
   }) : displayTitle = displayTitle ?? title;
 
   /// 아직 예약이 안 열렸는가 — 서버 BOOKING_NOT_OPEN 의 표시용 거울 (정본은 서버).
@@ -104,6 +108,7 @@ class ClassSessionDto {
         variant: j['variant']?.toString(),
         variantLabel: j['variant_label']?.toString(),
         displayTitle: j['display_title']?.toString(),
+        membershipOk: j['membership_ok'] is bool ? j['membership_ok'] as bool : null,
       );
 }
 

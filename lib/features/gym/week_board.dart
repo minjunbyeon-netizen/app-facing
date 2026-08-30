@@ -241,10 +241,12 @@ class _WeekBoardState extends State<WeekBoard> {
                   classesError: _classesError,
                   today: _today,
                   // S5 (2026-08-26): 그날 유효한 회원권이 없으면 예약 배지가
-                  // '회원권 필요' 로 바뀐다 (서버 MEMBERSHIP_REQUIRED 의 거울).
-                  membershipOk: gs.hasMembershipOn(
-                    _weekStart.add(Duration(days: i)),
-                  ),
+                  // '회원권 필요' 로 바뀐다. 과제 4 (2026-08-30): 그 답은 서버가 수업마다
+                  // 내려준다 (membership_ok — 예약 게이트와 같은 함수). 폰은 날짜를 세지 않는다.
+                  membershipOk:
+                      (classesByDate[ymd(_weekStart.add(Duration(days: i)))] ??
+                              const <ClassSessionDto>[])
+                          .every((c) => c.membershipOk ?? true),
                   onTap: () => _select(i),
                   onReserve: (c) async {
                     final ok = await reserveClassFlow(context, _repo, c);

@@ -129,9 +129,6 @@ class GymState extends ChangeNotifier {
   List<ClassTemplate> _classTemplates = const [];
   // v1.16.2 — 본인 회원권·락커. 폰 MyPage 카드용.
   List<Membership> _myMemberships = const [];
-  // S5: 목록을 실제로 받았는지 — 못 받은 상태(수업 내용 로드 실패 등)에서
-  // 빈 목록을 '회원권 없음' 으로 읽으면 주간보드 전체가 '회원권 필요' 가 된다.
-  bool _membershipsLoaded = false;
   List<Locker> _myLockers = const [];
   bool _loading = false;
   String? _error;
@@ -162,30 +159,15 @@ class GymState extends ChangeNotifier {
   List<Membership> get myMemberships => _myMemberships;
   Membership? get currentMembership {
     if (_myMemberships.isEmpty) return null;
-    final actives = _myMemberships.where((m) => m.isActive).toList();
-    if (actives.isEmpty) return _myMemberships.first;
-    // 오늘을 포함하는 기간이 대표 (2026-08-24 결함 수정 — 목록이 최신 발급
-    // 우선이라 미래 시작권이 현재 이용중 권을 가렸다). 미래권만 있으면 최신.
-    final today = todayIso;
-    for (final m in actives) {
-      final s = m.startDate, e = m.endDate;
-      if (s != null &&
-          e != null &&
-          s.compareTo(today) <= 0 &&
-          today.compareTo(e) <= 0) {
-        return m;
-      }
+    // 과제 4 (2026-08-30): 대표 한 장은 서버가 고른다 (`is_current` — 코치 명단·예약 게이트와
+    // 같은 governing_membership). 서버가 한 장도 안 골랐으면(전부 정지·미래 시작·만료)
+    // 살아 있는 최신 것, 그것도 없으면 최신 것 — 날짜 규칙을 폰이 다시 적지 않는다.
+    for (final m in _myMemberships) {
+      if (m.isCurrent) return m;
     }
-    return actives.first;
+    final actives = _myMemberships.where((m) => m.isActive).toList();
+    return actives.isEmpty ? _myMemberships.first : actives.first;
   }
-
-  /// 그날 수업을 잡을 수 있는 회원권이 한 장이라도 있는가 (S5 · 2026-08-26).
-  /// 서버 게이트(MEMBERSHIP_REQUIRED)의 표시용 거울 — 정책은 서버가 정본이고
-  /// 여기는 예약 배지를 '회원권 필요' 로 바꿔 그리는 데만 쓴다.
-  /// 목록을 아직 못 받았으면 true — 모르는 상태를 '없음' 으로 그리지 않는다
-  /// (탭하면 서버가 어차피 판정한다).
-  bool hasMembershipOn(DateTime day) =>
-      !_membershipsLoaded || _myMemberships.any((m) => m.coversDay(day));
 
   /// v1.16.2 — 본인 락커.
   List<Locker> get myLockers => _myLockers;
@@ -213,7 +195,6 @@ class GymState extends ChangeNotifier {
     _coaches = const [];
     _classTemplates = const [];
     _myMemberships = const [];
-    _membershipsLoaded = false;
     _myLockers = const [];
     _error = null;
     notifyListeners();
@@ -227,7 +208,6 @@ class GymState extends ChangeNotifier {
     if (_membership.gym == null) return;
     try {
       _myMemberships = await repo.listMyMemberships();
-      _membershipsLoaded = true;
       debugPrint('[GymState] refreshMemberships ok n=${_myMemberships.length}');
       notifyListeners();
     } catch (e) {
@@ -262,11 +242,9 @@ class GymState extends ChangeNotifier {
         // v1.16.2 — 본인 회원권·락커 (실패해도 다른 결과는 유지)
         try {
           _myMemberships = await repo.listMyMemberships();
-          _membershipsLoaded = true;
         } catch (e) {
           debugPrint('[GymState] listMyMemberships failed: $e');
           _myMemberships = const [];
-          _membershipsLoaded = false;
         }
         try {
           _myLockers = await repo.listMyLockers();
@@ -278,7 +256,6 @@ class GymState extends ChangeNotifier {
         _wods = const [];
         _coaches = const [];
         _myMemberships = const [];
-        _membershipsLoaded = false;
         _myLockers = const [];
       }
     } on AppException catch (e) {
