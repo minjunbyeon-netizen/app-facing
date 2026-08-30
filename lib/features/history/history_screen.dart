@@ -199,7 +199,7 @@ class _HistoryList extends StatelessWidget {
                     ),
                     const SizedBox(width: HyphenTokens.sp2),
                     Text(
-                      r.estimatedTotalDisplay,
+                      r.scoreDisplay,
                       style: HyphenTokens.h3.copyWith(
                         fontFeatures: HyphenTokens.tabular,
                       ),

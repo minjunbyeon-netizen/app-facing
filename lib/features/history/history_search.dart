@@ -78,7 +78,7 @@ List<(String, int)> searchFields(WodHistoryItem item) {
     if (grade.isNotEmpty) (grade, 1),
     // 앱 표기는 RXD (GLOSSARY §3) — 서버 값 'rx' 를 그 이름으로도 찾는다.
     if (grade == 'rx') ('rxd', 1),
-    if (item.estimatedTotalDisplay != '-') (item.estimatedTotalDisplay, 1),
+    if (item.scoreDisplay != '-') (item.scoreDisplay, 1),
   ];
 }
 

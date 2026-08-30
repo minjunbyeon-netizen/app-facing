@@ -34,14 +34,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../widgets/mascot.dart';
 
-import '../../core/api_client.dart';
 import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../core/wod_session_bus.dart';
 import '../../models/gym.dart';
 import '../../widgets/hkit.dart';
-import '../history/history_repository.dart';
 import 'gym_repository.dart';
 import 'gym_state.dart';
 import 'wod_type_label.dart';
@@ -260,7 +258,6 @@ class _WodResultSheetState extends State<WodResultSheet> {
 
     // QA: await 전에 BuildContext 의존 객체를 모두 캡처. async gap 경고 회피.
     final repo = context.read<GymRepository>();
-    final api = context.read<ApiClient>();
     final bus = context.read<WodSessionBus>();
     final messenger = HkSnack.of(context);
     final navigator = Navigator.of(context);
@@ -336,25 +333,9 @@ class _WodResultSheetState extends State<WodResultSheet> {
         scaleLevel: scale,
         notes: notes,
       );
-      // 2) Attendance 캘린더 트리거 — history/wod minimal record.
-      // HistoryRepository는 Provider 미등록이라 ApiClient로 직접 인스턴스화.
-      try {
-        final hist = HistoryRepository(api);
-        await hist.saveWodHistory({
-          'wod': {
-            'wod_type': widget.wod.wodType,
-            'notes':
-                '수업 #${widget.wod.id} · ${widget.wod.content.split('\n').first}',
-          },
-          'plan': {
-            'formula_version': 'manual',
-            'estimated_total_sec': timeSec ?? 0,
-            'grade': scale,
-          },
-        });
-      } catch (_) {
-        // history 실패해도 결과는 저장됨. 무시.
-      }
+      // 2) (D90 · 2026-08-30) 히스토리 행은 서버가 결과 저장과 같은 트랜잭션에서
+      //    쓴다 — 종전의 두 번째 POST(/history/wod)는 재저장마다 중복 행을 만들고
+      //    라운드를 빠뜨렸다. 앱은 정본에 한 번만 쓴다.
       if (!mounted) return;
       // 3) Attendance / Trends 즉시 reload.
       bus.bump();
