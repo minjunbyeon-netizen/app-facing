@@ -787,6 +787,9 @@ class _EmbeddedThreadListState extends State<_EmbeddedThreadList> {
             child: HkLoading(),
           );
         }
+        if (snap.hasError) {
+          return HkErrorState.fromError(snap.error, onRetry: _reload);
+        }
         final threads = snap.data ?? const <CoachThread>[];
         if (threads.isEmpty) {
           return Padding(
@@ -871,6 +874,11 @@ class _ActivityListState extends State<_ActivityList> {
             padding: EdgeInsets.all(HyphenTokens.sp5),
             child: HkLoading(),
           );
+        }
+        // 실패를 '아직 활동 없음.' 으로 그리면 안 된다 (2026-09-02 검증 — 조회가
+        // 실패해도 빈 문구가 나와 쪽지 무음 실패와 구분이 불가능했다).
+        if (snap.hasError) {
+          return HkErrorState.fromError(snap.error, onRetry: _reload);
         }
         final items = snap.data?.items ?? const <CoachNote>[];
         if (items.isEmpty) {

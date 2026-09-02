@@ -84,7 +84,11 @@ class _WeekBoardState extends State<WeekBoard> {
   /// D58 (2026-08-26 PC·에뮬 실주행): 코치가 회원권을 해지·정지·수정해 서버가 예약을
   /// 지웠는데(revoke_uncovered_reservations) 보드는 '예약됨' 을 그대로 보였다.
   /// GymState 는 회원권·수업 내용만 다시 받으므로 수업 목록은 여기서 직접 듣는다.
+  /// 2026-09-02: 코치가 수업을 새로 등록·수정하면 서버가 `wod.posted` 를 쏘는데
+  /// (classes.py D106) 프로그램 칸만 갱신되고 수업 시간 칸은 주 이동 전까지 옛 그림이었다
+  /// — 여기서도 듣는다.
   static const _classReloadEvents = <String>{
+    'wod.posted',
     'member_reservation_cancelled',
     'class_cancelled',
     'member_promoted_from_waitlist',

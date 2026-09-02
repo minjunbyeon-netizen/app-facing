@@ -429,6 +429,43 @@ void _rememberedLoginGolden() {
     await capture(tester, 'state_26_inbox_activity');
   });
 
+  // ── 쪽지함 '활동' 칸 — 조회 실패는 빈 문구가 아니라 에러+재시도 (2026-09-02) ──
+  // 종전엔 hasError 를 안 봐서 실패도 '아직 활동 없음.' 으로 위장했다 — 쪽지가 안 만들어진
+  // 것인지 조회가 실패한 것인지 화면으로 구분이 불가능했다 (잔여 검증에서 발견).
+  testWidgets('state: inbox activity error', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi(
+      {
+        ...memberWorld(),
+        '/api/v1/gym/1/threads': {'items': memberThreads()},
+        '/api/v1/member/announcements': memberAnnouncements(),
+      },
+      errorPaths: {'/api/v1/gym/1/activity'},
+    );
+    final gym = GymState(GymRepository(api), sse: FakeSse());
+    await gym.loadMine();
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        gym: gym,
+        home: const MessagingScreen(),
+      ),
+    );
+    await Provider.of<AnnouncementsState>(
+      tester.element(find.byType(MessagingScreen)),
+      listen: false,
+    ).refresh(GymRepository(api));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(MessagingFeed.paneActivity));
+    await tester.pumpAndSettle();
+    expect(find.text('아직 활동 없음.'), findsNothing);
+    expect(find.text('다시 시도'), findsOneWidget);
+    await capture(tester, 'state_31_inbox_activity_error');
+  });
+
   // ── 로딩 중 — 버튼을 치우지 않고 그 자리에서 스피너만 돈다 ──
   testWidgets('state: login busy', (tester) async {
     phone(tester);
