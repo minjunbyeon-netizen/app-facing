@@ -841,7 +841,37 @@ void _achievementsLoadingGolden() {
     await tester.pumpAndSettle();
     expect(find.text('동작별 기록'), findsOneWidget);
     expect(find.text('42.5'), findsOneWidget);
+    // v3.44 시트 다이어트 — 메모·병기 무게 섹션이 없어야 한다.
+    expect(find.text('메모 (선택)'), findsNothing);
+    expect(find.text('무게 기록 (선택)'), findsNothing);
     await capture(tester, 'state_28_result_sheet_movements');
+  });
+
+  // ── 완료 버튼 정직화 (2026-09-02 사용자 보고 "다 입력하고 저장을 눌러야 403") —
+  //    예약 없는 글은 '예약 필요', 예약했지만 시작 전 글은 '수업 시작 전'.
+  //    서버 completion_blocked(제출 게이트와 같은 함수)로만 그린다. ──
+  testWidgets('state: wod completion locked badges', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi({
+      ...memberWorld(),
+      '/api/v1/gyms/1/wods': gymWodsCompletionLocked(),
+    });
+    final gym = GymState(GymRepository(api), sse: FakeSse());
+    await gym.loadMine();
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        gym: gym,
+        home: const BoxWodScreen(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('예약 필요'), findsOneWidget);
+    expect(find.text('수업 시작 전'), findsOneWidget);
+    await capture(tester, 'state_33_wod_completion_locked');
   });
 
   // ── 완료 시트 — 저장 중 (2026-08-30 사용자 "수업을 저장중이에요 로딩바"): '저장' 을

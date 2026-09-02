@@ -178,6 +178,17 @@ class _WodRowState extends State<WodRow> {
     );
   }
 
+  /// 2026-09-02 — 완료가 막힌 이유를 그 자리에서 말한다 (시트 열고 나서
+  /// 거절하지 않는다). 문구 정본 = 서버 completion_gate.MESSAGES.
+  void _showBlocked(BuildContext context) {
+    Haptic.light();
+    HkSnack.show(
+      context,
+      widget.wod.completionBlockedMessage ?? '지금은 완료할 수 없습니다.',
+      mood: MascotMood.sad,
+    );
+  }
+
   /// v1.20: Start 버튼 없이 바로 결과 입력.
   /// v3.17: 시트가 저장 성공 시 pop(true) — 받아서 수업 목록 재조회.
   /// 배지(week_board 카드·이 행 둘 다)의 원천이 GymState.wods 라 여기 한 곳이면 된다.
@@ -351,16 +362,29 @@ class _WodRowState extends State<WodRow> {
                     // v3.28: 코치 가드(isOwner) 제거 — 이 화면은 회원만 본다.
                     // 결함 수정 4 (2026-08-20): 기록한 수업은 카드에서 바로 보이게 —
                     // 배지가 '기록 105kg'(성공색)로 바뀐다. 탭하면 수정 시트(프리필).
-                    HkBadge(
-                      wod.myResult != null
-                          ? '기록 ${wod.myResult!.display}'.trim()
-                          : '완료 표시',
-                      color: wod.myResult != null
-                          ? HyphenTokens.success
-                          : HyphenTokens.primary,
-                      selected: true,
-                      onTap: () => _openResultSheet(context),
-                    ),
+                    // 2026-09-02 사용자 보고 "다 입력하고 저장을 눌러야 403" —
+                    // 예약이 없거나 수업 시작 전이면 '완료 표시' 대신 이유 배지.
+                    // 판정은 서버 completion_blocked (제출 게이트와 같은 함수),
+                    // 탭하면 서버 문구 그대로 스낵바 — 시트를 열지 않는다.
+                    if (wod.myResult == null && wod.completionBlocked != null)
+                      HkBadge(
+                        wod.completionBlocked == 'CLASS_NOT_STARTED'
+                            ? '수업 시작 전'
+                            : '예약 필요',
+                        color: HyphenTokens.muted,
+                        onTap: () => _showBlocked(context),
+                      )
+                    else
+                      HkBadge(
+                        wod.myResult != null
+                            ? '기록 ${wod.myResult!.display}'.trim()
+                            : '완료 표시',
+                        color: wod.myResult != null
+                            ? HyphenTokens.success
+                            : HyphenTokens.primary,
+                        selected: true,
+                        onTap: () => _openResultSheet(context),
+                      ),
                     const Spacer(),
                     HkBadge(
                       '메시지',

@@ -436,7 +436,15 @@ python tool/golden_gallery.py               # 단일 HTML 갤러리 (build/golde
 가짜 백엔드(`test/golden/fakes.dart` — ApiClient implements, 네트워크 0)로 실물 픽셀 렌더
 (갤S22 급 360×780·2x). 폰트는 `test/flutter_test_config.dart` 가 FontManifest 전체
 (Pretendard·MaterialIcons)를 로드. 참조 아키텍처: `apps/writeplz-app` 골든스탠다드.
-현재 **87장** (2026-09-02 하루 한도 배지 — state_32_class_daily_limit 신규: 예약한 날의
+현재 **88장** (2026-09-02 완료 버튼 정직화 + 시트 다이어트(v3.44) —
+state_33_wod_completion_locked 신규: 예약 없는 글은 '완료 표시' 대신 '예약 필요',
+예약했지만 시작 전이면 '수업 시작 전' (서버 `completion_blocked` = 제출 게이트
+completion_check 와 같은 함수, 탭하면 서버 문구 스낵바 — 시트를 열지 않음).
+같은 날 시트 다이어트로 member_06·member_06b·state_28·state_29 재생성: 메모 칸·
+'무게 기록 (선택)' 병기·fallback '내 무게' 칸 삭제 — 코치 운동 + 내 기록만.
+notes 는 앱이 안 보내고 서버가 종전 값 유지. 칩은 저장 중에도 onTap 유지(높이
+불변 — 안정성 게이트가 잡은 66px 밀림 픽스). 직전 87장 = 같은 날 하루 한도 배지 —
+state_32_class_daily_limit 신규: 예약한 날의
 다른 수업은 자리가 남아도 '예약' 대신 '오늘 예약 완료'(주 한도는 '이번 주 예약 완료') —
 서버 회원 수업 목록 `reserve_limit_reached`(예약 게이트와 같은 함수)로만 그림, 탭하면
 서버 409 문구 스낵바. 직전 86장 = 같은 날 동작 필터 — hist_05_movement_filter 신규: 상세 '동작별 기록 보기' 배지 탭 → 목록이 서버 `?movement_id=` 로 그 동작 기록만(검색 칸 자리에 같은 규격 '동작: Thruster' 읽기 전용 칸 — y 불변), hist_04_detail 은 배지 섹션이 얹혀 재생성. 직전 85장 = 같은 날 잔여 검증 — state_31_inbox_activity_error 신규: 쪽지함 '활동' 칸 조회 실패가 '아직 활동 없음.' 으로 위장하지 않고 에러+다시 시도. 같은 날 수업 시간 칸이 wod.posted 를 듣게 됨 — 픽셀 변화 없어 재생성 없음. 직전 84장 = 2026-08-30 D102 전자계약 — member_28_contract_detail_signed(서명 완료 상세)·member_29_contract_sign_pad(서명 패드) 신규. 직전 82장 = 같은 날 D100 토스트 다섯 장 — 완료 저장: snack_06_saving('수업을 저장 중이에요' 로딩바)·snack_07_saved_fighting(웃는 하이피 '예____ 화이팅!!!!')·state_29_result_sheet_saving(저장 직후 버튼 자리 그대로 busy) / 늦은 취소: snack_05_late_cancel_toast(서버 문장 'N월, N회째 레이트 캔슬…코치에게 전송', 슬픈 하이피)·state_30_late_cancel_done(실흐름). 직전 77장 = 같은 날 D94 동작별 완료 값 — state_28_result_sheet_movements 신규: 완료 시트 '동작별 기록' 칸(한 횟수·무게 kg 가

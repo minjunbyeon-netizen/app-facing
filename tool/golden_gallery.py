@@ -152,6 +152,9 @@ SECTIONS = [
         ("state_32_class_daily_limit",
          "하루 한도 도달 — 예약한 날의 다른 수업은 자리가 남아도 '오늘 예약 완료' 배지 "
          "(서버 reserve_limit_reached, 2026-09-02)"),
+        ("state_33_wod_completion_locked",
+         "완료 버튼 정직화 — 예약 없는 글 '예약 필요' · 시작 전 글 '수업 시작 전' "
+         "(서버 completion_blocked = 제출 게이트와 같은 함수, 2026-09-02)"),
         ("state_25_notifications_blocked",
          "폰 설정에서 알림 차단 — 스위치는 내 설정, 색·문구는 실제로 오고 있는지 (state_24 의 짝)"),
     ]),

@@ -444,6 +444,12 @@ class GymWodPost {
   final String? variantLabel;
   final String? displayName;
 
+  /// 2026-09-02 — 완료 버튼 정직화. 서버 제출 게이트(completion_check)와 같은
+  /// 함수의 답: null = 완료 가능 · 'RESERVATION_REQUIRED' · 'CLASS_NOT_STARTED'.
+  /// 문구는 서버 한 곳(completion_gate.MESSAGES) — 배지 탭 스낵바가 그대로 쓴다.
+  final String? completionBlocked;
+  final String? completionBlockedMessage;
+
   const GymWodPost({
     required this.id,
     required this.postDate,
@@ -466,6 +472,8 @@ class GymWodPost {
     this.variant,
     this.variantLabel,
     this.displayName,
+    this.completionBlocked,
+    this.completionBlockedMessage,
   });
 
   bool get hasVersions =>
@@ -514,6 +522,8 @@ class GymWodPost {
           ? parseServerTime(j['first_class_at'] as String).toLocal()
           : null,
       scoreHint: j['score_hint']?.toString(),
+      completionBlocked: j['completion_blocked']?.toString(),
+      completionBlockedMessage: j['completion_blocked_message']?.toString(),
       movementSuggestions: (j['movement_suggestions'] is List)
           ? (j['movement_suggestions'] as List)
               .map((e) => e.toString())

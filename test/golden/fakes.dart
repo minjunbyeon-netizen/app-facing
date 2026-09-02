@@ -607,6 +607,19 @@ List<Map<String, dynamic>> strengthBoard() {
 
 /// 오늘 WOD 가 Strength(무게 측정일)인 변형 — 결과 시트 무게 입력 분기 골든용.
 /// v3.4 (2026-08-20 승인 — docs/PLAN-record-structures.md Part A).
+/// /api/v1/gyms/1/wods — 완료 버튼 정직화 (2026-09-02). 예약 없는 글은
+/// RESERVATION_REQUIRED, 예약했지만 시작 전 글은 CLASS_NOT_STARTED —
+/// 서버 제출 게이트(completion_check)와 같은 함수의 답. 골든 state_33.
+List<Map<String, dynamic>> gymWodsCompletionLocked() =>
+    [for (final p in gymWods())
+      if (p['id'] == 31)
+        {...p, 'completion_blocked': 'RESERVATION_REQUIRED',
+         'completion_blocked_message': '예약한 수업만 완료할 수 있습니다.'}
+      else if (p['id'] == 32)
+        {...p, 'completion_blocked': 'CLASS_NOT_STARTED',
+         'completion_blocked_message': '수업 시작 후에 완료할 수 있습니다.'}
+      else p];
+
 List<Map<String, dynamic>> gymWodsStrengthToday() {
   final now = appClock.now();
   return [

@@ -210,7 +210,8 @@ class GymRepository {
     int? weightReps,
     String? movement,
     String scaleLevel = 'rx',
-    String notes = '',
+    // 2026-09-02 시트 다이어트 — 메모 칸 삭제로 notes 는 보내지 않는다.
+    // 키가 없으면 서버가 종전 값을 유지한다 (movements 와 같은 계약).
     // D94 — 동작별 완료 값 [{movement_id, name, reps, load_kg, scaled}]. null 이면 키를
     // 보내지 않는다(서버가 종전 값 유지). 판정은 서버 normalize_result_movements 한 곳.
     List<Map<String, dynamic>>? movements,
@@ -223,7 +224,6 @@ class GymRepository {
       'weight_reps': ?weightReps,
       'movement': ?movement,
       'scale_level': scaleLevel,
-      'notes': notes,
       'movements': ?movements,
     });
     final comparison = data['comparison'];

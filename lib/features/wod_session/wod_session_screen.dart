@@ -351,7 +351,6 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
         rounds: rounds,
         extraReps: extraReps,
         scaleLevel: _scaled ? 'scaled' : 'rx',
-        notes: '',
       );
       final isPr = res.isPr;
 
