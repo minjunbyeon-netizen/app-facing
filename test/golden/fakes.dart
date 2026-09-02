@@ -1926,6 +1926,23 @@ Map<String, dynamic> wodHistoryDetail() {
   };
 }
 
+/// v3.45 (2026-09-02) — 점수 없는 완료 기록 상세. 앱이 점수 키를 안 보내
+/// `label` 이 빈 문자열이라 상세의 히어로 점수 줄이 숨는다(검은 대시 결함 픽스).
+/// 동작별 기록이 곧 그 회원의 기록. 골든 `hist_06_detail_no_score`.
+Map<String, dynamic> wodHistoryDetailNoScore() {
+  final d = wodHistoryDetail();
+  final result = Map<String, dynamic>.from(d['result'] as Map);
+  result['label'] = '';
+  result['kind'] = 'time';
+  result['time_sec'] = null;
+  result['rounds'] = null;
+  result['extra_reps'] = null;
+  result['weight_kg'] = null;
+  result['is_pr'] = false;
+  result['notes'] = '';
+  return {...d, 'result': result};
+}
+
 Map<String, dynamic> _histRec(
   int id,
   int postId,

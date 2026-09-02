@@ -98,26 +98,32 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
                 ].join(' · '),
                 style: HyphenTokens.caption,
               ),
-              const SizedBox(height: HyphenTokens.sp4),
               // 점수 — 서버 라벨 그대로 (시간·라운드·무게 어느 것이든 한 문자열).
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
-                  Text(
-                    item.scoreDisplay,
-                    style: HyphenTokens.display.copyWith(
-                      fontFeatures: HyphenTokens.tabular,
+              // v3.45 (2026-09-02): 완료 입력에서 점수·난도를 없앴다. 점수가 없는
+              // 기록은 이 히어로 줄을 통째로 숨긴다 — 종전엔 빈 라벨의 '-' 를 64sp
+              // 로 그려 검은 막대처럼 보였다(E2E 실검증에서 발견). 동작별 기록이
+              // 곧 그 회원의 기록이다. 옛 점수·난도 기록은 그대로 보여 준다.
+              if (item.label.isNotEmpty) ...[
+                const SizedBox(height: HyphenTokens.sp4),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text(
+                      item.scoreDisplay,
+                      style: HyphenTokens.display.copyWith(
+                        fontFeatures: HyphenTokens.tabular,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: HyphenTokens.sp3),
-                  HkBadge(item.scaleLabel),
-                  if (item.isPr) ...[
-                    const SizedBox(width: HyphenTokens.sp2),
-                    const HkBadge('PR', color: HyphenTokens.primary),
+                    const SizedBox(width: HyphenTokens.sp3),
+                    HkBadge(item.scaleLabel),
+                    if (item.isPr) ...[
+                      const SizedBox(width: HyphenTokens.sp2),
+                      const HkBadge('PR', color: HyphenTokens.primary),
+                    ],
                   ],
-                ],
-              ),
+                ),
+              ],
               if (item.movement != null && item.movement!.isNotEmpty) ...[
                 const SizedBox(height: HyphenTokens.sp1),
                 Text(item.movement!, style: HyphenTokens.caption),

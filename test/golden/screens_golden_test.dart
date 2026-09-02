@@ -388,6 +388,32 @@ void main() {
     await capture(tester, 'hist_04_detail');
   });
 
+  // ── 이력 상세 — 점수 없는 v3.45 기록 (2026-09-02 E2E 실검증 발견) ──
+  // 완료 입력에서 점수·난도를 없애 label 이 빈 기록은 히어로 점수 줄을 숨긴다
+  // (종전엔 '-' 를 64sp 로 그려 검은 막대처럼 보였다). 동작별 기록이 곧 기록.
+  testWidgets('history: detail without score', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi({
+      '/api/v1/history/wod/502': wodHistoryDetailNoScore(),
+      ...memberWorld(),
+    });
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        home: const HistoryDetailScreen(recordId: 502),
+      ),
+    );
+    await tester.pumpAndSettle();
+    // 점수 히어로도 난도 배지도 없다 — 동작별 기록만.
+    expect(find.text('-'), findsNothing);
+    expect(find.text('SCALED'), findsNothing);
+    expect(find.text('동작별 기록'), findsOneWidget);
+    await capture(tester, 'hist_06_detail_no_score');
+  });
+
   // ── 동작 필터 (2026-09-02) — 상세 '동작별 기록 보기' 배지 탭 → 목록이 그 동작만.
   // 판정·필터는 서버 `?movement_id=` (program_lines.result_movement_ids 한 곳) —
   // 가짜는 서버가 거른 결과를 돌려주고, 폰은 받은 순서 그대로 그린다 (6-b).
