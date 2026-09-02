@@ -67,6 +67,22 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
           final classTitle = (cls?['display_title'] ?? '').toString();
           final content = (post['content'] ?? item.content).toString().trim();
           final scaleGuide = (post['scale_guide'] ?? '').toString().trim();
+          // 동작 필터 진입점 (2026-09-02) — 내가 적은 동작 + 그날 운동 동작, 사전 번호로
+          // 중복 제거. 탭하면 목록으로 돌아가며 그 동작의 기록만 거른다 (판정은 서버).
+          final seen = <int>{};
+          final movementRefs = [
+            for (final m in item.movements)
+              if (m.id != null && seen.add(m.id!)) m,
+            for (final m in (post['movements'] as List? ?? const []))
+              if (m is Map &&
+                  (m['movement_id'] as num?) != null &&
+                  (m['name'] ?? '').toString().trim().isNotEmpty &&
+                  seen.add((m['movement_id'] as num).toInt()))
+                WodMovementRef(
+                  id: (m['movement_id'] as num).toInt(),
+                  name: m['name'].toString().trim(),
+                ),
+          ];
           return ListView(
             padding: const EdgeInsets.all(HyphenTokens.sp4),
             children: [
@@ -136,6 +152,21 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
                 const HkSectionLabel('난도 안내'),
                 const SizedBox(height: HyphenTokens.sp2),
                 Text(scaleGuide, style: HyphenTokens.caption),
+              ],
+              // 동작 배지 탭 → 목록이 그 동작의 기록만 거른다 (`?movement_id=`,
+              // 판정 정본 = 서버 program_lines.result_movement_ids — 6-b).
+              if (movementRefs.isNotEmpty) ...[
+                const SizedBox(height: HyphenTokens.sp5),
+                const HkSectionLabel('동작별 기록 보기'),
+                const SizedBox(height: HyphenTokens.sp2),
+                Wrap(
+                  spacing: HyphenTokens.sp2,
+                  runSpacing: HyphenTokens.sp2,
+                  children: [
+                    for (final m in movementRefs)
+                      HkBadge(m.name, onTap: () => Navigator.of(context).pop(m)),
+                  ],
+                ),
               ],
             ],
           );

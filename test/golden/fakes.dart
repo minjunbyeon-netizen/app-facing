@@ -1887,9 +1887,11 @@ Map<String, dynamic> wodHistoryDetail() {
       'scale_guide': 'Thruster 30kg · Pull-up 밴드',
       'rounds': null,
       'time_cap_sec': null,
+      // movement_id = 서버 rounds_data 규약 그대로 (동작 필터 배지의 키 — 2026-09-02).
       'movements': const [
-        {'name': 'Thruster', 'reps': '21-15-9', 'unit': 'reps', 'load_value': '43'},
-        {'name': 'Pull-up', 'reps': '21-15-9', 'unit': 'reps'},
+        {'movement_id': 50, 'name': 'Thruster', 'reps': '21-15-9', 'unit': 'reps',
+         'load_value': '43'},
+        {'movement_id': 2, 'name': 'Pull-up', 'reps': '21-15-9', 'unit': 'reps'},
       ],
     },
     'class': {'id': 12, 'display_title': 'SWEAT · A 세션', 'start_at': item['created_at']},

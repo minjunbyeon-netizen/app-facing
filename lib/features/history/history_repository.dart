@@ -20,13 +20,22 @@ class HistoryRepository {
   ///
   /// D95 (2026-08-30 사용자 "동작 검색을 서버가 하게"): `query` 가 있으면 서버가 **연관도순**으로
   /// 세워 준다 (정의 = 서버 `services/history_search.py` 하나 — 동작 사전 번호로도 맞춘다).
-  /// 폰은 받은 순서 그대로 보여 준다. `q` 를 맨 앞에 두는 것은 골든 가짜(startsWith) 규약.
-  Future<List<WodHistoryItem>> listAllWodHistory({String query = ''}) async {
+  /// `movementId`(2026-09-02) 는 동작 사전 번호 **직접 필터** — 그 동작이 든 기록만, 판정은
+  /// 서버 `program_lines.result_movement_ids` 한 곳. 폰은 받은 순서 그대로 보여 준다.
+  /// 필터·검색 키를 맨 앞에 두는 것은 골든 가짜(startsWith) 규약.
+  Future<List<WodHistoryItem>> listAllWodHistory({
+    String query = '',
+    int? movementId,
+  }) async {
     const page = 100;
     final q = query.trim();
-    final head = q.isEmpty
+    final params = [
+      if (movementId != null) 'movement_id=$movementId',
+      if (q.isNotEmpty) 'q=${Uri.encodeQueryComponent(q)}',
+    ];
+    final head = params.isEmpty
         ? '/api/v1/history/wod?'
-        : '/api/v1/history/wod?q=${Uri.encodeQueryComponent(q)}&';
+        : '/api/v1/history/wod?${params.join('&')}&';
     final all = <WodHistoryItem>[];
     for (var offset = 0; ; offset += page) {
       final p = await _page('${head}limit=$page&offset=$offset');

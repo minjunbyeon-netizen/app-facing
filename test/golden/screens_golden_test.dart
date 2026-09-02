@@ -388,6 +388,49 @@ void main() {
     await capture(tester, 'hist_04_detail');
   });
 
+  // ── 동작 필터 (2026-09-02) — 상세 '동작별 기록 보기' 배지 탭 → 목록이 그 동작만.
+  // 판정·필터는 서버 `?movement_id=` (program_lines.result_movement_ids 한 곳) —
+  // 가짜는 서버가 거른 결과를 돌려주고, 폰은 받은 순서 그대로 그린다 (6-b).
+  // 필터가 켜지면 검색 칸 자리에 같은 규격의 읽기 전용 칸이 서므로 목록 y 불변.
+  testWidgets('history: movement filter', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final all = wodHistoryList();
+    final api = FakeApi({
+      '/api/v1/history/wod/502': wodHistoryDetail(),
+      // 필터 키가 목록 키보다 앞에 서야 한다 (startsWith).
+      '/api/v1/history/wod?movement_id=50': [all[1]],
+      ...memberWorld(),
+      '/api/v1/history/wod': all,
+    });
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        home: const HistoryScreen(),
+        routes: {
+          '/history/detail': (ctx) => HistoryDetailScreen(
+            recordId: ModalRoute.of(ctx)!.settings.arguments as int,
+          ),
+        },
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('SWEAT · A 세션'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('THRUSTER')); // 배지 (HkBadge 는 대문자로 그린다)
+    await tester.pumpAndSettle();
+    // 목록으로 돌아와 Thruster 가 든 기록(502)만 — 필터 칸에 동작 이름이 서 있다.
+    expect(find.text('동작: Thruster'), findsOneWidget);
+    expect(find.text('6:52'), findsOneWidget);
+    expect(find.textContaining('Back Squat'), findsNothing);
+    await capture(tester, 'hist_05_movement_filter');
+    await tester.tap(find.byTooltip('필터 해제'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Back Squat'), findsOneWidget);
+  });
+
   // ── 사장 로그인 ──
   // v3.19 (2026-08-25): 'boss: login' 캡처 삭제 — 코치 전용 로그인 화면이
   // 없어졌다. 로그인은 common_08_login 한 장으로 통합 (README §제거된 기능 대장).

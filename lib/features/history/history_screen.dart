@@ -39,7 +39,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
   late final HistoryRepository _repo;
   Future<List<WodHistoryItem>>? _wodFuture;
   final _searchCtrl = TextEditingController();
+  final _filterCtrl = TextEditingController();
   String _query = '';
+
+  /// 동작 필터 (2026-09-02) — 상세의 '동작별 기록 보기' 탭이 걸어 준다.
+  /// 켜지면 검색 칸 자리에 **같은 규격의 읽기 전용 칸**이 서므로 y 가 안 움직인다.
+  int? _movementId;
+  String _movementName = '';
   Timer? _debounce;
 
   /// /go Tier 3: WOD 세션 종료 시 자동 reload — attendance_screen 패턴 동일.
@@ -62,9 +68,35 @@ class _HistoryScreenState extends State<HistoryScreen> {
   void _reload() {
     setState(() {
       // retainError: 숨은 탭 future 가 에러로 완료돼도 unhandled 로 새지 않게.
-      // 전부 받는다 (100건씩) — 검색어가 있으면 서버가 세운 순서 그대로.
-      _wodFuture = retainError(_repo.listAllWodHistory(query: _query));
+      // 전부 받는다 (100건씩) — 검색어·동작 필터가 있으면 서버가 세운 순서·범위 그대로.
+      _wodFuture = retainError(
+        _repo.listAllWodHistory(query: _query, movementId: _movementId),
+      );
     });
+  }
+
+  /// 상세를 열고, 동작 배지를 탭해 돌아오면 그 동작으로 목록을 거른다.
+  Future<void> _openDetail(WodHistoryItem item) async {
+    final result = await Navigator.of(
+      context,
+    ).pushNamed('/history/detail', arguments: item.id);
+    if (!mounted || result is! WodMovementRef || result.id == null) return;
+    _searchCtrl.clear();
+    _filterCtrl.text = '동작: ${result.name}';
+    setState(() {
+      _query = '';
+      _movementId = result.id;
+      _movementName = result.name;
+    });
+    _reload();
+  }
+
+  void _clearMovementFilter() {
+    setState(() {
+      _movementId = null;
+      _movementName = '';
+    });
+    _reload();
   }
 
   /// 글자마다 서버를 두드리지 않는다 — 멈춘 뒤 300ms 에 한 번.
@@ -79,6 +111,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     _debounce?.cancel();
     _bus?.removeListener(_onSessionBump);
     _searchCtrl.dispose();
+    _filterCtrl.dispose();
     super.dispose();
   }
 
@@ -96,35 +129,52 @@ class _HistoryScreenState extends State<HistoryScreen> {
               HyphenTokens.sp4,
               HyphenTokens.sp2,
             ),
-            child: TextField(
-              controller: _searchCtrl,
-              textInputAction: TextInputAction.search,
-              onChanged: _onQueryChanged,
-              decoration: InputDecoration(
-                hintText: '기록 검색 — 동작 · 수업 · 날짜',
-                prefixIcon: const Icon(Icons.search, size: 20),
-                // 지울 자리는 늘 확보 — 글자가 생기고 사라져도 칸 폭이 안 흔들린다.
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.close, size: 18),
-                  tooltip: '지우기',
-                  color: _query.isEmpty
-                      ? Colors.transparent
-                      : HyphenTokens.muted,
-                  onPressed: _query.isEmpty
-                      ? null
-                      : () {
-                          _searchCtrl.clear();
-                          _onQueryChanged('');
-                        },
-                ),
-              ),
-            ),
+            // 동작 필터가 켜지면 같은 규격의 읽기 전용 칸으로 스왑 — 목록 y 불변.
+            child: _movementId != null
+                ? TextField(
+                    controller: _filterCtrl,
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      prefixIcon: const Icon(Icons.filter_alt, size: 20),
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.close, size: 18),
+                        tooltip: '필터 해제',
+                        color: HyphenTokens.muted,
+                        onPressed: _clearMovementFilter,
+                      ),
+                    ),
+                  )
+                : TextField(
+                    controller: _searchCtrl,
+                    textInputAction: TextInputAction.search,
+                    onChanged: _onQueryChanged,
+                    decoration: InputDecoration(
+                      hintText: '기록 검색 — 동작 · 수업 · 날짜',
+                      prefixIcon: const Icon(Icons.search, size: 20),
+                      // 지울 자리는 늘 확보 — 글자가 생기고 사라져도 칸 폭이 안 흔들린다.
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.close, size: 18),
+                        tooltip: '지우기',
+                        color: _query.isEmpty
+                            ? Colors.transparent
+                            : HyphenTokens.muted,
+                        onPressed: _query.isEmpty
+                            ? null
+                            : () {
+                                _searchCtrl.clear();
+                                _onQueryChanged('');
+                              },
+                      ),
+                    ),
+                  ),
           ),
           Expanded(
             child: _HistoryList(
               future: _wodFuture,
               query: _query,
+              movementName: _movementName,
               onRetry: _reload,
+              onOpenDetail: _openDetail,
             ),
           ),
         ],
@@ -136,11 +186,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
 class _HistoryList extends StatelessWidget {
   final Future<List<WodHistoryItem>>? future;
   final String query;
+  final String movementName;
   final VoidCallback onRetry;
+  final ValueChanged<WodHistoryItem> onOpenDetail;
   const _HistoryList({
     required this.future,
     required this.query,
+    required this.movementName,
     required this.onRetry,
+    required this.onOpenDetail,
   });
 
   @override
@@ -156,6 +210,12 @@ class _HistoryList extends StatelessWidget {
         }
         final rows = snap.data ?? const [];
         if (rows.isEmpty) {
+          if (movementName.isNotEmpty) {
+            return HkEmptyState(
+              title: '검색 결과 없음',
+              caption: "'$movementName' 동작 기록 없음.",
+            );
+          }
           if (query.trim().isNotEmpty) {
             return HkEmptyState(
               title: '검색 결과 없음',
@@ -173,7 +233,8 @@ class _HistoryList extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: HyphenTokens.sp2),
           itemCount: rows.length,
           separatorBuilder: (_, _) => const Divider(height: 1),
-          itemBuilder: (_, i) => _HistoryRow(item: rows[i]),
+          itemBuilder: (_, i) =>
+              _HistoryRow(item: rows[i], onOpenDetail: onOpenDetail),
         );
       },
     );
@@ -184,14 +245,13 @@ class _HistoryList extends StatelessWidget {
 /// 세 줄은 어느 기록에서나 다 있다(요약이 비면 메모·종류 라벨로 채운다) — 행 높이가 같다.
 class _HistoryRow extends StatelessWidget {
   final WodHistoryItem item;
-  const _HistoryRow({required this.item});
+  final ValueChanged<WodHistoryItem> onOpenDetail;
+  const _HistoryRow({required this.item, required this.onOpenDetail});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => Navigator.of(
-        context,
-      ).pushNamed('/history/detail', arguments: item.id),
+      onTap: () => onOpenDetail(item),
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: HyphenTokens.sp4,

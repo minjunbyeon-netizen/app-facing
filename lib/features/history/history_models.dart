@@ -35,9 +35,13 @@ class WodHistoryItem {
   /// 회원이 적은 메모.
   final String notes;
 
-  /// 동작별 완료 값 줄들 — 서버 `movements[].line`('Push-up 80회 SCALED', D94). 앱은 조립하지 않는다.
-  final List<String> movementLines;
+  /// 동작별 완료 값 — 서버 `movements[]` (D94). 줄 문자열은 서버 `line` 그대로,
+  /// 동작 사전 번호(`movement_id`)는 동작 필터(`?movement_id=`)의 키 (2026-09-02).
+  final List<WodMovementRef> movements;
   final DateTime createdAt;
+
+  /// 동작별 완료 값 줄들 — 서버 `line` 그대로. 앱은 조립하지 않는다.
+  List<String> get movementLines => [for (final m in movements) m.line];
 
   const WodHistoryItem({
     required this.id,
@@ -59,7 +63,7 @@ class WodHistoryItem {
     this.scaleLevel = 'rx',
     this.isPr = false,
     this.notes = '',
-    this.movementLines = const [],
+    this.movements = const [],
     required this.createdAt,
   });
 
@@ -84,10 +88,10 @@ class WodHistoryItem {
       scaleLevel: (j['scale_level'] ?? 'rx').toString(),
       isPr: j['is_pr'] == true,
       notes: (j['notes'] ?? '').toString(),
-      movementLines: [
+      movements: [
         for (final m in (j['movements'] as List? ?? const []))
           if (m is Map && (m['line'] ?? '').toString().trim().isNotEmpty)
-            m['line'].toString().trim(),
+            WodMovementRef.fromJson(m.cast<String, dynamic>()),
       ],
       createdAt: parseServerTime(j['created_at'] as String).toLocal(),
     );
@@ -109,6 +113,23 @@ class WodHistoryItem {
   /// 난도 배지 — 서버 값 'rx' 는 앱 표기 'RXD' (GLOSSARY §3), 나머지는 대문자 그대로.
   String get scaleLabel =>
       scaleLevel == 'rx' ? 'RXD' : scaleLevel.toUpperCase();
+}
+
+/// 동작 한 개 참조 — 동작 사전 번호 + 표시 이름(+완료 값 줄). 히스토리 상세의
+/// '동작별 기록 보기' 탭 → 목록 `?movement_id=` 필터가 이것을 주고받는다 (2026-09-02).
+/// 판정·필터는 전부 서버 — 앱은 번호를 넘길 뿐이다 (6-b).
+class WodMovementRef {
+  final int? id;
+  final String name;
+  final String line;
+
+  const WodMovementRef({required this.id, required this.name, this.line = ''});
+
+  factory WodMovementRef.fromJson(Map<String, dynamic> j) => WodMovementRef(
+    id: (j['movement_id'] as num?)?.toInt(),
+    name: (j['name'] ?? '').toString().trim(),
+    line: (j['line'] ?? '').toString().trim(),
+  );
 }
 
 /// 히스토리 한 페이지 + 레벨 카드가 쓰는 세 수 (서버 `meta` — 앱은 세지 않는다).
