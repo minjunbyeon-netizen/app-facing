@@ -436,7 +436,13 @@ python tool/golden_gallery.py               # 단일 HTML 갤러리 (build/golde
 가짜 백엔드(`test/golden/fakes.dart` — ApiClient implements, 네트워크 0)로 실물 픽셀 렌더
 (갤S22 급 360×780·2x). 폰트는 `test/flutter_test_config.dart` 가 FontManifest 전체
 (Pretendard·MaterialIcons)를 로드. 참조 아키텍처: `apps/writeplz-app` 골든스탠다드.
-현재 **88장** (2026-09-02 완료 버튼 정직화 + 시트 다이어트(v3.44) —
+현재 **88장** (2026-09-02 저녁 완료 시트 초간소화(v3.45) — 사용자 "코치가 설정한 운동이
+그대로 불러와지고 그 옆에 자기의 기록만. 내 결과·시간·라운드·무게·추가 렙스·난이도·동작
+이름·메모 전부 없애고": '내 결과' 점수 칩·난도(SCALED/RXD)·동작 이름 입력·strength 전용칸
+전부 삭제, 남는 것 = 수업 내용 + '내 기록'(코치 운동 목록 [한 횟수][무게] 프리필 — 무게 칸은
+항상, 코치 값은 힌트) + 저장. 점수 키를 안 보내 서버 히스토리 label 은 빈 문자열, 행 요약은
+동작별 값이 맡는다. 장수 불변 — member_06·member_06b·state_28·state_29 재생성.
+직전 88장 = 같은 날 완료 버튼 정직화 + 시트 다이어트(v3.44) —
 state_33_wod_completion_locked 신규: 예약 없는 글은 '완료 표시' 대신 '예약 필요',
 예약했지만 시작 전이면 '수업 시작 전' (서버 `completion_blocked` = 제출 게이트
 completion_check 와 같은 함수, 탭하면 서버 문구 스낵바 — 시트를 열지 않음).

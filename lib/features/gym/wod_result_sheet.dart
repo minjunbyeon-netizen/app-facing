@@ -3,39 +3,19 @@
 //
 // v3.3 (2026-08-20 사용자 지시 전면 개편): "라운드·스케일·중량·메모가 뭔지 알기
 // 어렵다 — 오늘 수업 내용이 그대로 가져와지고 나는 최소한만 입력하게 하라".
-// - 수업 내용(동작·횟수·코치 무게)을 게시물에서 그대로 가져와 보여준다
-// - 동작별로 SCALED / RXD 만 고른다 (ELITE 제거 — 회원 선택지에서 삭제)
-//   · 무게 있는 동작: RXD = 코치가 설정한 무게 그대로 따라옴(입력 없음),
-//     SCALED = 내 무게만 입력
-//   · 맨몸 동작(T2B 등): 무게 없이 SCALED/RXD 선택만
-// - 결과는 종류별 최소 입력 (For Time 시간 / AMRAP 라운드+reps / EMOM 라운드)
-// - 저장 시 동작별 선택이 "Wallball RXD 20lb · Squat SCALED 40kg" 형태로
-//   기록에 쌓인다 — PR·기록 경신 로그가 읽히는 구조.
+// v3.44 (2026-09-02): 시트 다이어트 — 메모·'무게 기록(선택)' 병기·fallback 내 무게 삭제.
 //
-// v3.4 (2026-08-20 승인 — docs/PLAN-record-structures.md Part A):
-// - Strength 분기 신설 — 최고 무게(kg)+reps 입력 (SCALED/RXD 선택 아님)
-// - EMOM 라벨 "성공한 라운드" 명확화
-// - 저장 응답의 서버 비교 메시지("지난 기록보다 42초 단축 — PR!")를
-//   스낵바에 표시 (비교·PR 판정은 전부 백엔드 — 앱 계산 0).
-//
-// v3.15 (2026-08-23 승인 — 기록 UX 1): 기록 종류 칩 [시간/라운드/무게].
-// 그날 내용은 custom(수업) 게시물로 흘러와 타입이 기록 종류를 못 정한다 —
-// 회원이 직접 고른다. 기본값은 타입에서 (for_time→시간 · strength→무게 ·
-// 그 외→라운드), 재수정이면 저장된 값의 종류를 그대로 연다. 서버는 기록이
-// 실제 담은 값으로 비교·표시한다 (services/wod_compare.py result_kind_of).
-//
-// v3.16 (2026-08-23 승인 — 기록 UX 2·3): 서버 추천 배선.
-// - 칩 기본값 = 서버 score_hint (custom 도 내용에서 추정 — 판정 사전은
-//   services/wod_compare.py score_hint 한 곳, 앱 판정 0)
-// - 동작 이름 칩 = 서버 movement_suggestions (게시물 구조화 동작 +
-//   movement_library 대조) — 탭 한 번 = 오타 없는 이름 (PR 묶음 열쇠).
-//
-// v3.44 (2026-09-02 사용자 지시 "쓸데없는 칸 지우고, 코치가 입력한 운동에 맞게
-// 내 기록만"): 시트 다이어트.
-// - 메모 칸 삭제 — notes 는 더 보내지 않는다 (서버는 키 없으면 종전 값 유지).
-// - '무게 기록 (선택)' 병기 섹션 삭제 — 무게가 점수면 무게 칩으로, 동작별
-//   실제 무게는 '동작별 기록' 칸이 이미 받는다 (중복 입구 정리).
-// - 자유 서술 게시물의 '내 무게 (kg · 선택)' 칸 삭제 — 난도 선택만 남긴다.
+// v3.45 (2026-09-02 사용자 지시 "코치가 설정한 운동이 그대로 불러와지고 그 옆에
+// 자기의 기록만 적을 수 있게. 지금 있는 내 결과·시간·라운드·무게·몇 라운드·추가
+// 렙스·난이도·동작 이름·메모 이런 거 전부 없애고 … 이게 그대로 히스토리 저장"):
+// - '내 결과' 섹션(기록 종류 칩·시간·라운드·추가 reps·최고 무게·동작 이름) 전부 삭제.
+// - 난도(SCALED/RXD) 선택 삭제 — 동작 줄·fallback 양쪽 다. scale_level 은 안 보낸다
+//   (서버 기본 rx).
+// - 남는 것 = 수업 내용 + 코치 운동 목록([한 횟수][무게] 코치 값 프리필, 내 값만
+//   고침) + 저장. strength 도 같은 구조 (구 최고 무게 전용칸 폐기).
+// - 구조 없는 자유 서술 게시물 = 수업 내용 + 저장 (완료·출석 기록만).
+// - 서버 계약: time_sec 등 점수 키는 보내지 않는다 → 히스토리 label 은 빈 문자열,
+//   행 요약은 동작별 값(result_movements_summary)이 맡는다 (api/history.py D94).
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -72,17 +52,13 @@ const String kWodSavedOnly = '저장됨';
 const Key kWodSaveButton = ValueKey('wod-result-save');
 const Key kWodSaveCaption = ValueKey('wod-result-save-caption');
 
-/// 기록 종류 — 회원이 칩으로 직접 고른다 (v3.15 UX 1).
-enum _RecordKind { time, rounds, weight }
-
-/// 동작 1개의 입력 상태 — 게시물의 WodMovementItem + 회원이 실제 한 값 (D94).
+/// 동작 1개의 입력 상태 — 게시물의 WodMovementItem + 회원이 실제 한 값 (D94·v3.45).
 ///
-/// D94 (2026-08-30 사용자 지시 "동작별 완료 값 입력"): 횟수·무게 칸이 코치가 정한 값으로
-/// 미리 채워져 있고 회원은 다르게 했을 때만 고친다. 저장된 값이 있으면 그것으로 채운다.
-/// 판정·요약은 서버(`program_lines.normalize_result_movements`·`result_movements_summary`).
+/// 횟수·무게 칸이 코치가 정한 값으로 미리 채워져 있고 회원은 다르게 했을 때만 고친다.
+/// 저장된 값이 있으면 그것으로 채운다. 판정·요약은 서버
+/// (`program_lines.normalize_result_movements`·`result_movements_summary`).
 class _MoveEntry {
   final WodMovementItem item;
-  bool scaled = false; // 기본 RXD
   late final TextEditingController repsCtrl = TextEditingController(
     text: item.reps,
   );
@@ -102,7 +78,6 @@ class _MoveEntry {
   }
 
   void prefill(MyResultMovement m) {
-    scaled = m.scaled;
     if (m.reps.isNotEmpty) repsCtrl.text = m.reps;
     if (m.loadKg != null) {
       final w = m.loadKg!;
@@ -110,13 +85,12 @@ class _MoveEntry {
     }
   }
 
-  /// 서버로 보낼 한 줄. 무게는 비었으면 null.
+  /// 서버로 보낼 한 줄. 무게는 비었으면 null. (난도는 v3.45 에서 삭제 — 서버 기본 false.)
   Map<String, dynamic> toJson() => {
     'movement_id': item.movementId,
     'name': item.name,
     'reps': repsCtrl.text.trim(),
     'load_kg': double.tryParse(weightCtrl.text.trim()),
-    'scaled': scaled,
   };
 
   void dispose() {
@@ -134,32 +108,12 @@ class WodResultSheet extends StatefulWidget {
 }
 
 class _WodResultSheetState extends State<WodResultSheet> {
-  final _timeCtrl = TextEditingController();
-  final _roundsCtrl = TextEditingController();
-  final _extraCtrl = TextEditingController();
-  final _stWeightCtrl = TextEditingController(); // strength — 최고 무게
-  final _stRepsCtrl = TextEditingController(); // strength — reps (선택)
-  // v3.14 (2026-08-23 조인트 1) — custom 수업에서 무게가 점수일 때(무게 칩)의
-  // 동작 이름·무게·reps. 동작 이름이 기록의 묶음 열쇠 (서버가 strength 게시물과
-  // 같은 그룹으로 묶어 PR·1RM 보드 연동). v3.44 — 병기 섹션은 삭제, 무게 칩
-  // 전용으로만 쓴다.
-  final _liftNameCtrl = TextEditingController();
-  final _liftWeightCtrl = TextEditingController();
-  final _liftRepsCtrl = TextEditingController();
-  bool _fallbackScaled = false; // fallback 전용 — 기본 RXD
   bool _saving = false;
   String? _error;
 
   late final List<_MoveEntry> _moves;
 
-  /// v3.15 — 이번에 적을 기록 종류. 칩으로 전환.
-  late _RecordKind _kind;
-
-  bool get _isForTime => widget.wod.wodType.toLowerCase() == 'for_time';
-  bool get _isEmom => widget.wod.wodType.toLowerCase() == 'emom';
-  bool get _isStrength => widget.wod.wodType.toLowerCase() == 'strength';
-
-  /// 게시물에 구조화 동작이 있으면 동작별 입력, 없으면 fallback(전체 1선택).
+  /// 게시물에 구조화 동작이 있으면 동작별 입력, 없으면 수업 내용 + 저장뿐 (v3.45).
   bool get _structured => _moves.isNotEmpty;
 
   @override
@@ -169,131 +123,24 @@ class _WodResultSheetState extends State<WodResultSheet> {
       for (final r in widget.wod.roundsData)
         for (final m in r.movements) _MoveEntry(m),
     ];
-    // 라운드 수는 게시물 값이 있으면 그대로 가져온다 (EMOM 10 → 10).
-    if (!_isForTime && !_isStrength && widget.wod.rounds != null) {
-      _roundsCtrl.text = '${widget.wod.rounds}';
-    }
-    // 결함 수정 4 (2026-08-20 실기 발견): 기존 기록이 있으면 프리필 —
-    // 빈 시트로 열려 조용히 덮어쓰던 문제. 안내줄은 build 쪽에.
+    // 재수정이면 저장된 동작별 값으로 프리필 (같은 동작만) — 빈 시트로 열려
+    // 조용히 덮어쓰던 문제의 픽스(2026-08-20)는 그대로 산다.
     final mr = widget.wod.myResult;
     if (mr != null) {
-      if (mr.timeSec != null && mr.timeSec! > 0) {
-        final m = mr.timeSec! ~/ 60;
-        final s = mr.timeSec! % 60;
-        _timeCtrl.text = '$m:${s.toString().padLeft(2, '0')}';
-      }
-      if (mr.rounds != null) _roundsCtrl.text = '${mr.rounds}';
-      if (mr.extraReps != null) _extraCtrl.text = '${mr.extraReps}';
-      if (mr.weightKg != null) {
-        final w = mr.weightKg!;
-        final txt = w == w.roundToDouble() ? '${w.toInt()}' : '$w';
-        // strength 는 전용칸, 그 외는 무게 칩·선택 리프트칸 — 양쪽 다 채워
-        // 어느 UI 로 열려도 프리필이 산다 (v3.15).
-        _stWeightCtrl.text = txt;
-        _liftWeightCtrl.text = txt;
-      }
-      if (mr.weightReps != null) {
-        _stRepsCtrl.text = '${mr.weightReps}';
-        _liftRepsCtrl.text = '${mr.weightReps}';
-      }
-      if (mr.movement != null && mr.movement!.isNotEmpty) {
-        _liftNameCtrl.text = mr.movement!;
-      }
-      // D94 — 동작별 저장값 프리필 (같은 동작만).
       for (final saved in mr.movements) {
         for (final e in _moves) {
           if (e.matches(saved)) e.prefill(saved);
         }
       }
     }
-    _kind = _initialKind();
   }
-
-  /// 기본 기록 종류 — 재수정이면 저장된 값 > 서버 힌트(UX 2) > 게시물 타입.
-  _RecordKind _initialKind() {
-    final mr = widget.wod.myResult;
-    if (mr != null) {
-      if (mr.rounds != null || mr.extraReps != null) return _RecordKind.rounds;
-      if ((mr.timeSec ?? 0) > 0) return _RecordKind.time;
-      if (mr.weightKg != null) return _RecordKind.weight;
-    }
-    switch (widget.wod.scoreHint) {
-      case 'time':
-        return _RecordKind.time;
-      case 'weight':
-        return _RecordKind.weight;
-      case 'rounds':
-        return _RecordKind.rounds;
-    }
-    // 힌트 없음 (구 서버) — 타입 폴백.
-    if (_isForTime) return _RecordKind.time;
-    if (_isStrength) return _RecordKind.weight;
-    return _RecordKind.rounds;
-  }
-
-  /// v3.16 (UX 3) — 동작 이름 후보 칩. 탭 = 이름 채움 (오타 원천 차단).
-  List<Widget> _liftNameSuggestions() {
-    final names = widget.wod.movementSuggestions;
-    if (names.isEmpty) return const [];
-    return [
-      Wrap(
-        spacing: HyphenTokens.sp1,
-        runSpacing: HyphenTokens.sp1,
-        children: [
-          for (final n in names)
-            HkBadge(
-              n,
-              color: HyphenTokens.fgSecondary,
-              selected: _liftNameCtrl.text.trim() == n,
-              // 저장 중에도 onTap 은 유지하고 안에서 무시 — onTap null 이 되면
-              // HkBadge 가 터치 48 확보를 접어 칩 줄 높이가 흔들린다 (v3.44 에서
-              // 시트가 짧아지며 드러난 밀림 — 레이아웃 안정성 §공간 예약).
-              onTap: () {
-                if (_saving) return;
-                setState(() => _liftNameCtrl.text = n);
-              },
-            ),
-        ],
-      ),
-      const SizedBox(height: HyphenTokens.sp2),
-    ];
-  }
-
-  static String _kindLabel(_RecordKind k) => switch (k) {
-    _RecordKind.time => '시간',
-    _RecordKind.rounds => '라운드',
-    _RecordKind.weight => '무게',
-  };
 
   @override
   void dispose() {
-    _timeCtrl.dispose();
-    _roundsCtrl.dispose();
-    _extraCtrl.dispose();
-    _stWeightCtrl.dispose();
-    _stRepsCtrl.dispose();
-    _liftNameCtrl.dispose();
-    _liftWeightCtrl.dispose();
-    _liftRepsCtrl.dispose();
     for (final m in _moves) {
       m.dispose();
     }
     super.dispose();
-  }
-
-  /// "12:34" or "12" → seconds.
-  int? _parseTime(String s) {
-    final t = s.trim();
-    if (t.isEmpty) return null;
-    if (t.contains(':')) {
-      final parts = t.split(':');
-      if (parts.length != 2) return null;
-      final m = int.tryParse(parts[0]);
-      final sec = int.tryParse(parts[1]);
-      if (m == null || sec == null) return null;
-      return m * 60 + sec;
-    }
-    return int.tryParse(t);
   }
 
   Future<void> _submit() async {
@@ -318,44 +165,8 @@ class _WodResultSheetState extends State<WodResultSheet> {
     // 저장 중 토스트 — 버튼은 자리 그대로 busy, 아래 토스트가 로딩바를 보여 준다.
     messenger.progress(kWodSavingTitle);
 
-    // v3.15 — 칩이 정한 종류의 값만 주 기록으로 나간다.
-    final timeSec = _kind == _RecordKind.time
-        ? _parseTime(_timeCtrl.text)
-        : null;
-    final rounds = _kind == _RecordKind.rounds
-        ? int.tryParse(_roundsCtrl.text.trim())
-        : null;
-    final extra = (_kind == _RecordKind.rounds && !_isEmom)
-        ? int.tryParse(_extraCtrl.text.trim())
-        : null;
-    // 무게 — 무게 칩일 때만 주 기록으로 나간다 (v3.44 — 병기 섹션 삭제).
-    double? weightKg;
-    int? weightReps;
-    String? movement;
-    if (_kind == _RecordKind.weight) {
-      weightKg = double.tryParse(
-        (_isStrength ? _stWeightCtrl : _liftWeightCtrl).text.trim(),
-      );
-      weightReps = int.tryParse(
-        (_isStrength ? _stRepsCtrl : _liftRepsCtrl).text.trim(),
-      );
-      // strength 게시물은 게시물 자체가 리프트 그룹 — 이름 없이도 묶인다.
-      final name = _liftNameCtrl.text.trim();
-      if (!_isStrength && name.isNotEmpty) movement = name;
-    }
-
-    // 전체 난도 = 동작 중 하나라도 SCALED 면 scaled (enum 은 scaled/rx 유지).
-    // strength 는 난도 선택이 없다 — 기본 rx.
-    final anyScaled = _isStrength
-        ? false
-        : _structured
-        ? _moves.any((m) => m.scaled)
-        : _fallbackScaled;
-    final scale = anyScaled ? 'scaled' : 'rx';
-
-    // v3.44 — 메모 칸 삭제. notes 는 보내지 않는다 (서버가 종전 값 유지).
-    // D94 — 구조화 글의 동작별 완료 값 (strength 는 최고 무게 한 값이 점수라 제외).
-    final movements = (_structured && !_isStrength)
+    // v3.45 — 보내는 것은 동작별 기록뿐. 점수(time_sec 등)·난도·메모 키는 없다.
+    final movements = _structured
         ? [for (final e in _moves) e.toJson()]
         : null;
 
@@ -364,25 +175,15 @@ class _WodResultSheetState extends State<WodResultSheet> {
       final res = await repo.submitWodResult(
         gymId: gym.id,
         wodId: widget.wod.id,
-        timeSec: timeSec,
-        rounds: rounds,
-        extraReps: extra,
-        weightKg: weightKg,
-        weightReps: weightReps,
-        movement: movement,
-        scaleLevel: scale,
         movements: movements,
       );
       // 2) (D90 · 2026-08-30) 히스토리 행은 서버가 결과 저장과 같은 트랜잭션에서
-      //    쓴다 — 종전의 두 번째 POST(/history/wod)는 재저장마다 중복 행을 만들고
-      //    라운드를 빠뜨렸다. 앱은 정본에 한 번만 쓴다.
+      //    쓴다 — 앱은 정본에 한 번만 쓴다.
       if (!mounted) return;
       // 3) Attendance / Trends 즉시 reload.
       bus.bump();
       navigator.pop(true);
       // 저장 중 토스트를 걷고, 하이피가 응원하는 결과 토스트 (2026-08-30 사용자 원문).
-      // 둘째 줄 = 종전 고지, 셋째 줄 = 서버 비교 문구 ("지난 기록보다 42초 단축 — PR!").
-      // (구 +100P 표기는 2026-08-24 첫 제출 적립 폐기와 함께 제거.)
       final msg = res.comparisonMessage;
       messenger.dismiss();
       messenger.info(
@@ -466,29 +267,7 @@ class _WodResultSheetState extends State<WodResultSheet> {
               ),
               const SizedBox(height: HyphenTokens.sp4),
 
-              // ── 내 결과 (칩이 정한 종류의 최소 입력 — v3.15) ──
-              const HkSectionLabel('내 결과'),
-              const SizedBox(height: HyphenTokens.sp1),
-              // 기록 종류 칩 — 게시물 타입은 기본값만 정하고 최종 선택은 회원.
-              // custom(수업) 게시물에서 시간·무게 기록일 곳이 없던 갭의 입구.
-              Wrap(
-                spacing: HyphenTokens.sp2,
-                children: [
-                  for (final k in _RecordKind.values)
-                    HkBadge(
-                      _kindLabel(k),
-                      color: HyphenTokens.fg,
-                      selected: _kind == k,
-                      // onTap null 금지 — 칩 높이 불변 (위 _liftNameSuggestions 참조).
-                      onTap: () {
-                        if (_saving) return;
-                        setState(() => _kind = k);
-                      },
-                    ),
-                ],
-              ),
-              const SizedBox(height: HyphenTokens.sp2),
-              // 결함 수정 4 — 재제출 = 덮어쓰기임을 알린다 (프리필과 한 쌍).
+              // 재제출 = 덮어쓰기임을 알린다 (프리필과 한 쌍, 2026-08-20 픽스).
               if (widget.wod.myResult != null) ...[
                 Text(
                   '이미 저장한 기록이 있습니다 — 저장하면 새 값으로 바뀝니다.',
@@ -498,93 +277,10 @@ class _WodResultSheetState extends State<WodResultSheet> {
                 ),
                 const SizedBox(height: HyphenTokens.sp2),
               ],
-              if (_kind == _RecordKind.time) ...[
-                _TimeField(controller: _timeCtrl),
-              ] else if (_kind == _RecordKind.weight) ...[
-                // v3.4 — 무게가 점수. strength 게시물은 게시물이 리프트
-                // 그룹이라 이름 생략, 그 외(수업 등)는 이름이 묶음 열쇠.
-                if (!_isStrength) ...[
-                  ..._liftNameSuggestions(),
-                  TextField(
-                    controller: _liftNameCtrl,
-                    // 칩 selected 상태를 타이핑에도 따라가게.
-                    onChanged: (_) => setState(() {}),
-                    decoration: const InputDecoration(
-                      labelText: '동작 이름',
-                      hintText: '예: Back Squat',
-                    ),
-                  ),
-                  const SizedBox(height: HyphenTokens.sp2),
-                ],
-                Row(
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: TextField(
-                        controller: _isStrength
-                            ? _stWeightCtrl
-                            : _liftWeightCtrl,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                        decoration: const InputDecoration(
-                          labelText: '오늘 최고 무게 (kg)',
-                          hintText: '예: 100',
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: HyphenTokens.sp2),
-                    Expanded(
-                      child: TextField(
-                        controller: _isStrength ? _stRepsCtrl : _liftRepsCtrl,
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                          labelText: 'reps (선택)',
-                          hintText: '예: 5',
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ] else ...[
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _roundsCtrl,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          // EMOM 은 "성공한 라운드"가 점수 (승인 결정 1).
-                          labelText: _isEmom ? '성공한 라운드' : '몇 라운드 했는지',
-                          hintText: _isEmom && widget.wod.rounds != null
-                              ? '${widget.wod.rounds}라운드 중 몇 개 성공'
-                              : null,
-                        ),
-                      ),
-                    ),
-                    // EMOM 만 추가 reps 가 없다 — custom 도 AMRAP 식 기록 가능.
-                    if (!_isEmom) ...[
-                      const SizedBox(width: HyphenTokens.sp2),
-                      Expanded(
-                        child: TextField(
-                          controller: _extraCtrl,
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                            labelText: '추가 reps (선택)',
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ],
-              // (v3.44 — '무게 기록 (선택)' 병기 섹션 삭제. 무게가 점수면 무게
-              //  칩으로, 동작별 실제 무게는 아래 '동작별 기록' 칸이 받는다.)
-              const SizedBox(height: HyphenTokens.sp4),
 
-              // ── 동작별 완료 값 (D94) — 코치 값으로 채워져 있고 다르게 했을 때만 고친다 ──
-              if (_structured && !_isStrength) ...[
-                const HkSectionLabel('동작별 기록'),
+              // ── 내 기록 (v3.45) — 코치 운동 목록이 그대로, 내 값만 고친다 ──
+              if (_structured) ...[
+                const HkSectionLabel('내 기록'),
                 const SizedBox(height: HyphenTokens.sp1),
                 const Text(
                   '코치가 정한 값이 채워져 있습니다 — 다르게 했으면 고치세요.',
@@ -592,41 +288,7 @@ class _WodResultSheetState extends State<WodResultSheet> {
                 ),
                 const SizedBox(height: HyphenTokens.sp1),
                 for (final e in _moves)
-                  _MovementRow(
-                    entry: e,
-                    enabled: !_saving,
-                    onChanged: () => setState(() {}),
-                  ),
-              ] else if (!_isStrength) ...[
-                // 자유 서술 게시물 — 전체 1선택 (코치 무게는 본문에 이미 있음).
-                const HkSectionLabel('난도'),
-                const SizedBox(height: HyphenTokens.sp1),
-                Wrap(
-                  spacing: HyphenTokens.sp2,
-                  children: [
-                    HkBadge(
-                      'SCALED',
-                      color: HyphenTokens.fg,
-                      selected: _fallbackScaled,
-                      onTap: () {
-                        if (_saving) return;
-                        setState(() => _fallbackScaled = true);
-                      },
-                    ),
-                    HkBadge(
-                      'RXD',
-                      color: HyphenTokens.fg,
-                      selected: !_fallbackScaled,
-                      onTap: () {
-                        if (_saving) return;
-                        setState(() => _fallbackScaled = false);
-                      },
-                    ),
-                  ],
-                ),
-                // (v3.44 — '내 무게 (kg · 선택)'·'메모 (선택)' 칸 삭제.
-                //  기록은 점수 + 동작별 값으로 충분하다 — 코치 운동에 맞춰
-                //  내 기록만 적는다.)
+                  _MovementRow(entry: e, enabled: !_saving),
               ],
               if (_error != null) ...[
                 const SizedBox(height: HyphenTokens.sp2),
@@ -662,23 +324,18 @@ class _WodResultSheetState extends State<WodResultSheet> {
   }
 }
 
-/// 동작 1줄 — 이름 + SCALED/RXD, 아래 [한 횟수][무게 kg] 칸 (D94).
-/// 두 칸은 코치가 정한 값으로 채워져 있다. 무게 칸은 코치 무게가 있거나 SCALED 일 때만.
+/// 동작 1줄 — 코치가 정한 동작 이름 + [한 횟수][무게 kg] 칸 (D94·v3.45).
+/// 두 칸은 코치가 정한 값으로 채워져 있다. 무게 칸은 항상 있다 — 코치 무게가 없어도
+/// (strength 5x5·중량 풀업처럼) 내가 든 무게를 적을 자리가 필요하다.
 class _MovementRow extends StatelessWidget {
   final _MoveEntry entry;
   final bool enabled;
-  final VoidCallback onChanged;
-  const _MovementRow({
-    required this.entry,
-    required this.enabled,
-    required this.onChanged,
-  });
+  const _MovementRow({required this.entry, required this.enabled});
 
   @override
   Widget build(BuildContext context) {
     final it = entry.item;
     final title = it.name.isEmpty ? it.slug : it.name;
-    final showWeight = entry.hasCoachLoad || entry.scaled;
     return Container(
       margin: const EdgeInsets.only(bottom: HyphenTokens.sp2),
       padding: const EdgeInsets.all(HyphenTokens.sp3),
@@ -689,39 +346,9 @@ class _MovementRow extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  style: HyphenTokens.body.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              HkBadge(
-                'SCALED',
-                color: HyphenTokens.fg,
-                selected: entry.scaled,
-                // onTap null 금지 — 칩 높이 불변 (레이아웃 안정성 §공간 예약).
-                onTap: () {
-                  if (!enabled) return;
-                  entry.scaled = true;
-                  onChanged();
-                },
-              ),
-              const SizedBox(width: HyphenTokens.sp1),
-              HkBadge(
-                'RXD',
-                color: HyphenTokens.fg,
-                selected: !entry.scaled,
-                onTap: () {
-                  if (!enabled) return;
-                  entry.scaled = false;
-                  onChanged();
-                },
-              ),
-            ],
+          Text(
+            title,
+            style: HyphenTokens.body.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: HyphenTokens.sp2),
           Row(
@@ -738,45 +365,26 @@ class _MovementRow extends StatelessWidget {
                   ),
                 ),
               ),
-              // 무게 자리는 늘 잡아 둔다 — 칩을 바꿔도 줄 높이가 같다.
               const SizedBox(width: HyphenTokens.sp2),
               Expanded(
-                child: showWeight
-                    ? TextField(
-                        controller: entry.weightCtrl,
-                        enabled: enabled,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                        decoration: InputDecoration(
-                          labelText: '무게 (kg)',
-                          hintText: entry.hasCoachLoad
-                              ? '코치 ${it.loadValue}${it.loadUnit}'
-                              : '선택',
-                          isDense: true,
-                        ),
-                      )
-                    : const SizedBox.shrink(),
+                child: TextField(
+                  controller: entry.weightCtrl,
+                  enabled: enabled,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: '무게 (kg)',
+                    hintText: entry.hasCoachLoad
+                        ? '코치 ${it.loadValue}${it.loadUnit}'
+                        : '선택',
+                    isDense: true,
+                  ),
+                ),
               ),
             ],
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _TimeField extends StatelessWidget {
-  final TextEditingController controller;
-  const _TimeField({required this.controller});
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      keyboardType: TextInputType.text,
-      decoration: const InputDecoration(
-        labelText: '기록 (분:초)',
-        hintText: '12:34',
       ),
     );
   }

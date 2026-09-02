@@ -815,8 +815,9 @@ void _achievementsLoadingGolden() {
     await capture(tester, 'state_21_achievements_loading');
   });
 
-  // ── 완료 시트 — 동작별 기록 (D94 · 2026-08-30 "다 하고 1"): 한 횟수·무게 kg 칸이
-  //    코치가 정한 값(21-15-9 · 42.5kg)으로 미리 채워져 있다. 요약·판정은 서버. ──
+  // ── 완료 시트 — 내 기록 (D94 · v3.45 2026-09-02 "코치가 설정한 운동이 그대로
+  //    불러와지고 내 기록만"): 한 횟수·무게 kg 칸이 코치 값(21-15-9 · 42.5kg)으로 미리
+  //    채워져 있다. 점수 칩·난도·동작 이름 입력은 v3.45 에서 전부 삭제. 요약·판정은 서버. ──
   testWidgets('state: result sheet movement values', (tester) async {
     phone(tester);
     SharedPreferences.setMockInitialValues(signedInPrefs());
@@ -839,11 +840,12 @@ void _achievementsLoadingGolden() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.text('동작별 기록'), findsOneWidget);
+    expect(find.text('내 기록'), findsOneWidget);
     expect(find.text('42.5'), findsOneWidget);
-    // v3.44 시트 다이어트 — 메모·병기 무게 섹션이 없어야 한다.
+    // v3.45 — 점수 칩('내 결과')·난도(SCALED/RXD)·메모가 없어야 한다.
+    expect(find.text('내 결과'), findsNothing);
+    expect(find.text('SCALED'), findsNothing);
     expect(find.text('메모 (선택)'), findsNothing);
-    expect(find.text('무게 기록 (선택)'), findsNothing);
     await capture(tester, 'state_28_result_sheet_movements');
   });
 

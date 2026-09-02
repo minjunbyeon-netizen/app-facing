@@ -138,10 +138,10 @@ void main() {
     await capture(tester, 'member_08_classes_reserved');
   });
 
-  // ── 회원: 결과 시트 — Strength(무게 측정일) 분기 (v3.4) ──
-  // 오늘 WOD 가 strength 면 시간·라운드 대신 최고 무게(kg)+reps 입력이 뜬다.
-  // 결함 수정 4 (2026-08-20): 이 변형은 기존 기록(my_result) 있는 상태 —
-  // 카드 배지 '기록 105kg×3' + 시트 프리필 + 덮어쓰기 안내를 한 캡처로.
+  // ── 회원: 결과 시트 — Strength 게시물 (v3.45) ──
+  // 구 최고 무게(kg)+reps 전용칸은 v3.45 에서 폐기 — strength 도 다른 종류와 같이
+  // 코치 운동 목록([한 횟수][무게] 프리필)만 뜬다. 이 변형은 기존 기록(my_result)
+  // 있는 상태 — 카드 배지 '기록 105kg×3' + 덮어쓰기 안내를 한 캡처로.
   testWidgets('member: wod result sheet strength', (tester) async {
     phone(tester);
     SharedPreferences.setMockInitialValues(signedInPrefs());
