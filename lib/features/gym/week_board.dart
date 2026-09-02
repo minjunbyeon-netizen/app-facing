@@ -87,8 +87,14 @@ class _WeekBoardState extends State<WeekBoard> {
   /// 2026-09-02: 코치가 수업을 새로 등록·수정하면 서버가 `wod.posted` 를 쏘는데
   /// (classes.py D106) 프로그램 칸만 갱신되고 수업 시간 칸은 주 이동 전까지 옛 그림이었다
   /// — 여기서도 듣는다.
+  /// 2026-09-02: 다른 회원이 예약을 잡아도(member_reservation_created) 보드는
+  /// 옛 정원·마감 표시를 그대로 보였다 — 취소는 듣는데 생성만 안 듣는 비대칭
+  /// (서버가 2026-08-12 PC 에 고친 것과 같은 모양, classes.py
+  /// _publish_reservation_created 주석 참조). isFull(마감)·대기 순번이 이 수에
+  /// 달려 있으므로 같이 듣는다.
   static const _classReloadEvents = <String>{
     'wod.posted',
+    'member_reservation_created',
     'member_reservation_cancelled',
     'class_cancelled',
     'member_promoted_from_waitlist',
