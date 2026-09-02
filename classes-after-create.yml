@@ -1,0 +1,326 @@
+- generic [ref=f21e2]:
+  - complementary [ref=f21e3]:
+    - generic [ref=f21e4]:
+      - generic [ref=f21e5]: HYPHEN
+      - generic [ref=f21e6]:
+        - generic [ref=f21e7]: RESV POLICY GYM
+        - generic [ref=f21e8]: 데모 관리자
+    - navigation [ref=f21e9]:
+      - link "홈" [ref=f21e10] [cursor=pointer]:
+        - /url: /dashboard
+      - link "통계" [ref=f21e11] [cursor=pointer]:
+        - /url: /stats
+      - link "공지 · 일정" [ref=f21e12] [cursor=pointer]:
+        - /url: /announcements
+      - generic [ref=f21e13]: 회원
+      - link "전체" [ref=f21e14] [cursor=pointer]:
+        - /url: /members
+      - link "활성" [ref=f21e15] [cursor=pointer]:
+        - /url: /members?filter=active
+      - link "만료" [ref=f21e16] [cursor=pointer]:
+        - /url: /members?filter=expired
+      - link "케어 필요" [ref=f21e17] [cursor=pointer]:
+        - /url: /members/care
+      - link "회원 쪽지" [ref=f21e18] [cursor=pointer]:
+        - /url: /messages
+      - generic [ref=f21e19]: 가입
+      - link "가입 관리" [ref=f21e20] [cursor=pointer]:
+        - /url: /members/join
+      - generic [ref=f21e21]: 운영
+      - link "락커" [ref=f21e22] [cursor=pointer]:
+        - /url: /lockers
+      - link "전자계약서" [ref=f21e23] [cursor=pointer]:
+        - /url: /contracts
+      - generic [ref=f21e24]: 수업
+      - link "수업 안내" [ref=f21e25] [cursor=pointer]:
+        - /url: /class-templates
+      - link "수업 관리" [ref=f21e26] [cursor=pointer]:
+        - /url: /classes
+      - generic [ref=f21e27]: 설정
+      - link "체육관 프로필" [ref=f21e28] [cursor=pointer]:
+        - /url: /settings/gym-profile
+      - link "회원권 설정" [ref=f21e29] [cursor=pointer]:
+        - /url: /settings/plans
+      - link "예약 설정" [ref=f21e30] [cursor=pointer]:
+        - /url: /settings/reservations
+      - link "포인트 설정" [ref=f21e31] [cursor=pointer]:
+        - /url: /settings/points
+      - link "업적 설정" [ref=f21e32] [cursor=pointer]:
+        - /url: /settings/achievements
+      - link "알림 설정" [ref=f21e33] [cursor=pointer]:
+        - /url: /settings/notifications
+    - link "로그아웃" [ref=f21e35] [cursor=pointer]:
+      - /url: /logout
+  - main [ref=f21e36]:
+    - generic [ref=f21e38]:
+      - generic [ref=f21e39]: 수업 관리
+      - generic [ref=f21e40]: 캘린더 빈 칸을 클릭해 수업 시간과 수업 내용을 함께 등록하세요.
+    - generic [ref=f21e41]:
+      - button "이전 주" [ref=f21e42] [cursor=pointer]: ‹
+      - generic [ref=f21e46]: 2026-08-31 ~ 2026-09-06
+      - button "다음 주" [ref=f21e43] [cursor=pointer]: ›
+    - generic [ref=f21e45]:
+      - generic [ref=f21e575]:
+        - generic [ref=f21e576]: 월
+        - generic [ref=f21e577]: 08-31
+      - generic [ref=f21e579]:
+        - generic [ref=f21e580]: 화
+        - generic [ref=f21e581]: 09-01
+      - generic [ref=f21e583]:
+        - generic [ref=f21e584]: 수
+        - generic [ref=f21e585]: 09-02
+      - generic [ref=f21e587]:
+        - generic [ref=f21e588]: 목
+        - generic [ref=f21e589]: 09-03
+      - generic [ref=f21e591]:
+        - generic [ref=f21e592]: 금
+        - generic [ref=f21e593]: 09-04
+      - generic [ref=f21e595]:
+        - generic [ref=f21e596]: 토
+        - generic [ref=f21e597]: 09-05
+      - generic [ref=f21e599]:
+        - generic [ref=f21e600]: 일
+        - generic [ref=f21e601]: 09-06
+      - gridcell "2026-08-31 06:00 수업 등록" [ref=f21e603] [cursor=pointer]
+      - gridcell "2026-09-01 06:00 수업 등록" [ref=f21e604] [cursor=pointer]
+      - gridcell "2026-09-02 06:00 수업 등록" [ref=f21e605] [cursor=pointer]
+      - gridcell "2026-09-03 06:00 수업 등록" [ref=f21e606] [cursor=pointer]
+      - gridcell "2026-09-04 06:00 수업 등록" [ref=f21e607] [cursor=pointer]
+      - gridcell "2026-09-05 06:00 수업 등록" [ref=f21e608] [cursor=pointer]
+      - gridcell "2026-09-06 06:00 수업 등록" [ref=f21e609] [cursor=pointer]
+      - gridcell "2026-08-31 06:30 수업 등록" [ref=f21e611] [cursor=pointer]
+      - gridcell "2026-09-01 06:30 수업 등록" [ref=f21e612] [cursor=pointer]
+      - gridcell "2026-09-02 06:30 수업 등록" [ref=f21e613] [cursor=pointer]
+      - gridcell "2026-09-03 06:30 수업 등록" [ref=f21e614] [cursor=pointer]
+      - gridcell "2026-09-04 06:30 수업 등록" [ref=f21e615] [cursor=pointer]
+      - gridcell "2026-09-05 06:30 수업 등록" [ref=f21e616] [cursor=pointer]
+      - gridcell "2026-09-06 06:30 수업 등록" [ref=f21e617] [cursor=pointer]
+      - generic "07:00 AWAKE · A 세션" [ref=f21e618]:
+        - generic [ref=f21e619]: 07:00
+        - generic [ref=f21e620]: AWAKE · A 세션
+      - gridcell "2026-08-31 07:00 수업 등록" [ref=f21e621] [cursor=pointer]
+      - gridcell "2026-09-01 07:00 수업 등록" [ref=f21e622] [cursor=pointer]
+      - gridcell "2026-09-02 07:00 수업 등록" [ref=f21e623] [cursor=pointer]
+      - gridcell "2026-09-03 07:00 수업 등록" [ref=f21e624] [cursor=pointer]
+      - gridcell "2026-09-04 07:00 수업 등록" [ref=f21e625] [cursor=pointer]
+      - gridcell "2026-09-05 07:00 수업 등록" [ref=f21e626] [cursor=pointer]
+      - gridcell "2026-09-06 07:00 수업 등록" [ref=f21e627] [cursor=pointer]
+      - gridcell "2026-08-31 07:30 수업 등록" [ref=f21e629] [cursor=pointer]
+      - gridcell "2026-09-01 07:30 수업 등록" [ref=f21e630] [cursor=pointer]
+      - gridcell "2026-09-02 07:30 수업 등록" [ref=f21e631] [cursor=pointer]
+      - gridcell "2026-09-03 07:30 수업 등록" [ref=f21e632] [cursor=pointer]
+      - gridcell "2026-09-04 07:30 수업 등록" [ref=f21e633] [cursor=pointer]
+      - gridcell "2026-09-05 07:30 수업 등록" [ref=f21e634] [cursor=pointer]
+      - gridcell "2026-09-06 07:30 수업 등록" [ref=f21e635] [cursor=pointer]
+      - gridcell "2026-08-31 08:00 수업 등록" [ref=f21e637] [cursor=pointer]
+      - gridcell "2026-09-01 08:00 수업 등록" [ref=f21e638] [cursor=pointer]
+      - gridcell "2026-09-02 08:00 수업 등록" [ref=f21e639] [cursor=pointer]
+      - gridcell "2026-09-03 08:00 수업 등록" [ref=f21e640] [cursor=pointer]
+      - gridcell "2026-09-04 08:00 수업 등록" [ref=f21e641] [cursor=pointer]
+      - gridcell "2026-09-05 08:00 수업 등록" [ref=f21e642] [cursor=pointer]
+      - gridcell "2026-09-06 08:00 수업 등록" [ref=f21e643] [cursor=pointer]
+      - gridcell "2026-08-31 08:30 수업 등록" [ref=f21e645] [cursor=pointer]
+      - gridcell "2026-09-01 08:30 수업 등록" [ref=f21e646] [cursor=pointer]
+      - gridcell "2026-09-02 08:30 수업 등록" [ref=f21e647] [cursor=pointer]
+      - gridcell "2026-09-03 08:30 수업 등록" [ref=f21e648] [cursor=pointer]
+      - gridcell "2026-09-04 08:30 수업 등록" [ref=f21e649] [cursor=pointer]
+      - gridcell "2026-09-05 08:30 수업 등록" [ref=f21e650] [cursor=pointer]
+      - gridcell "2026-09-06 08:30 수업 등록" [ref=f21e651] [cursor=pointer]
+      - generic "09:00 AWAKE · A 세션" [ref=f21e652]:
+        - generic [ref=f21e653]: 09:00
+        - generic [ref=f21e654]: AWAKE · A 세션
+      - gridcell "2026-08-31 09:00 수업 등록" [ref=f21e655] [cursor=pointer]
+      - gridcell "2026-09-01 09:00 수업 등록" [ref=f21e656] [cursor=pointer]
+      - gridcell "2026-09-02 09:00 수업 등록" [ref=f21e657] [cursor=pointer]
+      - gridcell "2026-09-03 09:00 수업 등록" [ref=f21e658] [cursor=pointer]
+      - gridcell "2026-09-04 09:00 수업 등록" [ref=f21e659] [cursor=pointer]
+      - gridcell "2026-09-05 09:00 수업 등록" [ref=f21e660] [cursor=pointer]
+      - gridcell "2026-09-06 09:00 수업 등록" [ref=f21e661] [cursor=pointer]
+      - gridcell "2026-08-31 09:30 수업 등록" [ref=f21e663] [cursor=pointer]
+      - gridcell "2026-09-01 09:30 수업 등록" [ref=f21e664] [cursor=pointer]
+      - gridcell "2026-09-02 09:30 수업 등록" [ref=f21e665] [cursor=pointer]
+      - gridcell "2026-09-03 09:30 수업 등록" [ref=f21e666] [cursor=pointer]
+      - gridcell "2026-09-04 09:30 수업 등록" [ref=f21e667] [cursor=pointer]
+      - gridcell "2026-09-05 09:30 수업 등록" [ref=f21e668] [cursor=pointer]
+      - gridcell "2026-09-06 09:30 수업 등록" [ref=f21e669] [cursor=pointer]
+      - gridcell "2026-08-31 10:00 수업 등록" [ref=f21e671] [cursor=pointer]
+      - gridcell "2026-09-01 10:00 수업 등록" [ref=f21e672] [cursor=pointer]
+      - gridcell "2026-09-02 10:00 수업 등록" [ref=f21e673] [cursor=pointer]
+      - gridcell "2026-09-03 10:00 수업 등록" [ref=f21e674] [cursor=pointer]
+      - gridcell "2026-09-04 10:00 수업 등록" [ref=f21e675] [cursor=pointer]
+      - gridcell "2026-09-05 10:00 수업 등록" [ref=f21e676] [cursor=pointer]
+      - gridcell "2026-09-06 10:00 수업 등록" [ref=f21e677] [cursor=pointer]
+      - gridcell "2026-08-31 10:30 수업 등록" [ref=f21e679] [cursor=pointer]
+      - gridcell "2026-09-01 10:30 수업 등록" [ref=f21e680] [cursor=pointer]
+      - gridcell "2026-09-02 10:30 수업 등록" [ref=f21e681] [cursor=pointer]
+      - gridcell "2026-09-03 10:30 수업 등록" [ref=f21e682] [cursor=pointer]
+      - gridcell "2026-09-04 10:30 수업 등록" [ref=f21e683] [cursor=pointer]
+      - gridcell "2026-09-05 10:30 수업 등록" [ref=f21e684] [cursor=pointer]
+      - gridcell "2026-09-06 10:30 수업 등록" [ref=f21e685] [cursor=pointer]
+      - gridcell "2026-08-31 11:00 수업 등록" [ref=f21e687] [cursor=pointer]
+      - gridcell "2026-09-01 11:00 수업 등록" [ref=f21e688] [cursor=pointer]
+      - gridcell "2026-09-02 11:00 수업 등록" [ref=f21e689] [cursor=pointer]
+      - gridcell "2026-09-03 11:00 수업 등록" [ref=f21e690] [cursor=pointer]
+      - gridcell "2026-09-04 11:00 수업 등록" [ref=f21e691] [cursor=pointer]
+      - gridcell "2026-09-05 11:00 수업 등록" [ref=f21e692] [cursor=pointer]
+      - gridcell "2026-09-06 11:00 수업 등록" [ref=f21e693] [cursor=pointer]
+      - gridcell "2026-08-31 11:30 수업 등록" [ref=f21e695] [cursor=pointer]
+      - gridcell "2026-09-01 11:30 수업 등록" [ref=f21e696] [cursor=pointer]
+      - gridcell "2026-09-02 11:30 수업 등록" [ref=f21e697] [cursor=pointer]
+      - gridcell "2026-09-03 11:30 수업 등록" [ref=f21e698] [cursor=pointer]
+      - gridcell "2026-09-04 11:30 수업 등록" [ref=f21e699] [cursor=pointer]
+      - gridcell "2026-09-05 11:30 수업 등록" [ref=f21e700] [cursor=pointer]
+      - gridcell "2026-09-06 11:30 수업 등록" [ref=f21e701] [cursor=pointer]
+      - gridcell "2026-08-31 12:00 수업 등록" [ref=f21e703] [cursor=pointer]
+      - gridcell "2026-09-01 12:00 수업 등록" [ref=f21e704] [cursor=pointer]
+      - gridcell "2026-09-02 12:00 수업 등록" [ref=f21e705] [cursor=pointer]
+      - gridcell "2026-09-03 12:00 수업 등록" [ref=f21e706] [cursor=pointer]
+      - gridcell "2026-09-04 12:00 수업 등록" [ref=f21e707] [cursor=pointer]
+      - gridcell "2026-09-05 12:00 수업 등록" [ref=f21e708] [cursor=pointer]
+      - gridcell "2026-09-06 12:00 수업 등록" [ref=f21e709] [cursor=pointer]
+      - gridcell "2026-08-31 12:30 수업 등록" [ref=f21e711] [cursor=pointer]
+      - gridcell "2026-09-01 12:30 수업 등록" [ref=f21e712] [cursor=pointer]
+      - gridcell "2026-09-02 12:30 수업 등록" [ref=f21e713] [cursor=pointer]
+      - gridcell "2026-09-03 12:30 수업 등록" [ref=f21e714] [cursor=pointer]
+      - gridcell "2026-09-04 12:30 수업 등록" [ref=f21e715] [cursor=pointer]
+      - gridcell "2026-09-05 12:30 수업 등록" [ref=f21e716] [cursor=pointer]
+      - gridcell "2026-09-06 12:30 수업 등록" [ref=f21e717] [cursor=pointer]
+      - gridcell "2026-08-31 13:00 수업 등록" [ref=f21e719] [cursor=pointer]
+      - gridcell "2026-09-01 13:00 수업 등록" [ref=f21e720] [cursor=pointer]
+      - gridcell "2026-09-02 13:00 수업 등록" [ref=f21e721] [cursor=pointer]
+      - gridcell "2026-09-03 13:00 수업 등록" [ref=f21e722] [cursor=pointer]
+      - gridcell "2026-09-04 13:00 수업 등록" [ref=f21e723] [cursor=pointer]
+      - gridcell "2026-09-05 13:00 수업 등록" [ref=f21e724] [cursor=pointer]
+      - gridcell "2026-09-06 13:00 수업 등록" [ref=f21e725] [cursor=pointer]
+      - gridcell "2026-08-31 13:30 수업 등록" [ref=f21e727] [cursor=pointer]
+      - gridcell "2026-09-01 13:30 수업 등록" [ref=f21e728] [cursor=pointer]
+      - gridcell "2026-09-02 13:30 수업 등록" [ref=f21e729] [cursor=pointer]
+      - gridcell "2026-09-03 13:30 수업 등록" [ref=f21e730] [cursor=pointer]
+      - gridcell "2026-09-04 13:30 수업 등록" [ref=f21e731] [cursor=pointer]
+      - gridcell "2026-09-05 13:30 수업 등록" [ref=f21e732] [cursor=pointer]
+      - gridcell "2026-09-06 13:30 수업 등록" [ref=f21e733] [cursor=pointer]
+      - generic "14:00 BUILD" [ref=f21e734]:
+        - generic [ref=f21e735]: 14:00
+        - generic [ref=f21e736]: BUILD
+      - gridcell "2026-08-31 14:00 수업 등록" [ref=f21e737] [cursor=pointer]
+      - gridcell "2026-09-01 14:00 수업 등록" [ref=f21e738] [cursor=pointer]
+      - gridcell "2026-09-02 14:00 수업 등록" [ref=f21e739] [cursor=pointer]
+      - gridcell "2026-09-03 14:00 수업 등록" [ref=f21e740] [cursor=pointer]
+      - gridcell "2026-09-04 14:00 수업 등록" [ref=f21e741] [cursor=pointer]
+      - gridcell "2026-09-05 14:00 수업 등록" [ref=f21e742] [cursor=pointer]
+      - gridcell "2026-09-06 14:00 수업 등록" [ref=f21e743] [cursor=pointer]
+      - gridcell "2026-08-31 14:30 수업 등록" [ref=f21e745] [cursor=pointer]
+      - gridcell "2026-09-01 14:30 수업 등록" [ref=f21e746] [cursor=pointer]
+      - gridcell "2026-09-02 14:30 수업 등록" [ref=f21e747] [cursor=pointer]
+      - gridcell "2026-09-03 14:30 수업 등록" [ref=f21e748] [cursor=pointer]
+      - gridcell "2026-09-04 14:30 수업 등록" [ref=f21e749] [cursor=pointer]
+      - gridcell "2026-09-05 14:30 수업 등록" [ref=f21e750] [cursor=pointer]
+      - gridcell "2026-09-06 14:30 수업 등록" [ref=f21e751] [cursor=pointer]
+      - gridcell "2026-08-31 15:00 수업 등록" [ref=f21e753] [cursor=pointer]
+      - gridcell "2026-09-01 15:00 수업 등록" [ref=f21e754] [cursor=pointer]
+      - gridcell "2026-09-02 15:00 수업 등록" [ref=f21e755] [cursor=pointer]
+      - gridcell "2026-09-03 15:00 수업 등록" [ref=f21e756] [cursor=pointer]
+      - gridcell "2026-09-04 15:00 수업 등록" [ref=f21e757] [cursor=pointer]
+      - gridcell "2026-09-05 15:00 수업 등록" [ref=f21e758] [cursor=pointer]
+      - gridcell "2026-09-06 15:00 수업 등록" [ref=f21e759] [cursor=pointer]
+      - gridcell "2026-08-31 15:30 수업 등록" [ref=f21e761] [cursor=pointer]
+      - gridcell "2026-09-01 15:30 수업 등록" [ref=f21e762] [cursor=pointer]
+      - gridcell "2026-09-02 15:30 수업 등록" [ref=f21e763] [cursor=pointer]
+      - gridcell "2026-09-03 15:30 수업 등록" [ref=f21e764] [cursor=pointer]
+      - gridcell "2026-09-04 15:30 수업 등록" [ref=f21e765] [cursor=pointer]
+      - gridcell "2026-09-05 15:30 수업 등록" [ref=f21e766] [cursor=pointer]
+      - gridcell "2026-09-06 15:30 수업 등록" [ref=f21e767] [cursor=pointer]
+      - gridcell "2026-08-31 16:00 수업 등록" [ref=f21e769] [cursor=pointer]
+      - gridcell "2026-09-01 16:00 수업 등록" [ref=f21e770] [cursor=pointer]
+      - gridcell "2026-09-02 16:00 수업 등록" [ref=f21e771] [cursor=pointer]
+      - gridcell "2026-09-03 16:00 수업 등록" [ref=f21e772] [cursor=pointer]
+      - gridcell "2026-09-04 16:00 수업 등록" [ref=f21e773] [cursor=pointer]
+      - gridcell "2026-09-05 16:00 수업 등록" [ref=f21e774] [cursor=pointer]
+      - gridcell "2026-09-06 16:00 수업 등록" [ref=f21e775] [cursor=pointer]
+      - gridcell "2026-08-31 16:30 수업 등록" [ref=f21e777] [cursor=pointer]
+      - gridcell "2026-09-01 16:30 수업 등록" [ref=f21e778] [cursor=pointer]
+      - gridcell "2026-09-02 16:30 수업 등록" [ref=f21e779] [cursor=pointer]
+      - gridcell "2026-09-03 16:30 수업 등록" [ref=f21e780] [cursor=pointer]
+      - gridcell "2026-09-04 16:30 수업 등록" [ref=f21e781] [cursor=pointer]
+      - gridcell "2026-09-05 16:30 수업 등록" [ref=f21e782] [cursor=pointer]
+      - gridcell "2026-09-06 16:30 수업 등록" [ref=f21e783] [cursor=pointer]
+      - generic "17:00 SMOKE" [ref=f21e784]:
+        - generic [ref=f21e785]: 17:00
+        - generic [ref=f21e786]: SMOKE
+      - gridcell "2026-08-31 17:00 수업 등록" [ref=f21e787] [cursor=pointer]
+      - gridcell "2026-09-01 17:00 수업 등록" [ref=f21e788] [cursor=pointer]
+      - gridcell "2026-09-02 17:00 수업 등록" [ref=f21e789] [cursor=pointer]
+      - gridcell "2026-09-03 17:00 수업 등록" [ref=f21e790] [cursor=pointer]
+      - gridcell "2026-09-04 17:00 수업 등록" [ref=f21e791] [cursor=pointer]
+      - gridcell "2026-09-05 17:00 수업 등록" [ref=f21e792] [cursor=pointer]
+      - gridcell "2026-09-06 17:00 수업 등록" [ref=f21e793] [cursor=pointer]
+      - gridcell "2026-08-31 17:30 수업 등록" [ref=f21e795] [cursor=pointer]
+      - gridcell "2026-09-01 17:30 수업 등록" [ref=f21e796] [cursor=pointer]
+      - gridcell "2026-09-02 17:30 수업 등록" [ref=f21e797] [cursor=pointer]
+      - gridcell "2026-09-03 17:30 수업 등록" [ref=f21e798] [cursor=pointer]
+      - gridcell "2026-09-04 17:30 수업 등록" [ref=f21e799] [cursor=pointer]
+      - gridcell "2026-09-05 17:30 수업 등록" [ref=f21e800] [cursor=pointer]
+      - gridcell "2026-09-06 17:30 수업 등록" [ref=f21e801] [cursor=pointer]
+      - gridcell "2026-08-31 18:00 수업 등록" [ref=f21e803] [cursor=pointer]
+      - gridcell "2026-09-01 18:00 수업 등록" [ref=f21e804] [cursor=pointer]
+      - gridcell "2026-09-02 18:00 수업 등록" [ref=f21e805] [cursor=pointer]
+      - gridcell "2026-09-03 18:00 수업 등록" [ref=f21e806] [cursor=pointer]
+      - gridcell "2026-09-04 18:00 수업 등록" [ref=f21e807] [cursor=pointer]
+      - gridcell "2026-09-05 18:00 수업 등록" [ref=f21e808] [cursor=pointer]
+      - gridcell "2026-09-06 18:00 수업 등록" [ref=f21e809] [cursor=pointer]
+      - gridcell "2026-08-31 18:30 수업 등록" [ref=f21e811] [cursor=pointer]
+      - gridcell "2026-09-01 18:30 수업 등록" [ref=f21e812] [cursor=pointer]
+      - gridcell "2026-09-02 18:30 수업 등록" [ref=f21e813] [cursor=pointer]
+      - gridcell "2026-09-03 18:30 수업 등록" [ref=f21e814] [cursor=pointer]
+      - gridcell "2026-09-04 18:30 수업 등록" [ref=f21e815] [cursor=pointer]
+      - gridcell "2026-09-05 18:30 수업 등록" [ref=f21e816] [cursor=pointer]
+      - gridcell "2026-09-06 18:30 수업 등록" [ref=f21e817] [cursor=pointer]
+      - generic "19:00 AWAKE · B 세션" [ref=f21e818]:
+        - generic [ref=f21e819]: 19:00
+        - generic [ref=f21e820]: AWAKE · B 세션
+      - gridcell "2026-08-31 19:00 수업 등록" [ref=f21e821] [cursor=pointer]
+      - gridcell "2026-09-01 19:00 수업 등록" [ref=f21e822] [cursor=pointer]
+      - gridcell "2026-09-02 19:00 수업 등록" [ref=f21e823] [cursor=pointer]
+      - gridcell "2026-09-03 19:00 수업 등록" [ref=f21e824] [cursor=pointer]
+      - gridcell "2026-09-04 19:00 수업 등록" [ref=f21e825] [cursor=pointer]
+      - gridcell "2026-09-05 19:00 수업 등록" [ref=f21e826] [cursor=pointer]
+      - gridcell "2026-09-06 19:00 수업 등록" [ref=f21e827] [cursor=pointer]
+      - gridcell "2026-08-31 19:30 수업 등록" [ref=f21e829] [cursor=pointer]
+      - gridcell "2026-09-01 19:30 수업 등록" [ref=f21e830] [cursor=pointer]
+      - gridcell "2026-09-02 19:30 수업 등록" [ref=f21e831] [cursor=pointer]
+      - gridcell "2026-09-03 19:30 수업 등록" [ref=f21e832] [cursor=pointer]
+      - gridcell "2026-09-04 19:30 수업 등록" [ref=f21e833] [cursor=pointer]
+      - gridcell "2026-09-05 19:30 수업 등록" [ref=f21e834] [cursor=pointer]
+      - gridcell "2026-09-06 19:30 수업 등록" [ref=f21e835] [cursor=pointer]
+      - gridcell "2026-08-31 20:00 수업 등록" [ref=f21e837] [cursor=pointer]
+      - gridcell "2026-09-01 20:00 수업 등록" [ref=f21e838] [cursor=pointer]
+      - gridcell "2026-09-02 20:00 수업 등록" [ref=f21e839] [cursor=pointer]
+      - gridcell "2026-09-03 20:00 수업 등록" [ref=f21e840] [cursor=pointer]
+      - gridcell "2026-09-04 20:00 수업 등록" [ref=f21e841] [cursor=pointer]
+      - gridcell "2026-09-05 20:00 수업 등록" [ref=f21e842] [cursor=pointer]
+      - gridcell "2026-09-06 20:00 수업 등록" [ref=f21e843] [cursor=pointer]
+      - gridcell "2026-08-31 20:30 수업 등록" [ref=f21e845] [cursor=pointer]
+      - gridcell "2026-09-01 20:30 수업 등록" [ref=f21e846] [cursor=pointer]
+      - gridcell "2026-09-02 20:30 수업 등록" [ref=f21e847] [cursor=pointer]
+      - gridcell "2026-09-03 20:30 수업 등록" [ref=f21e848] [cursor=pointer]
+      - gridcell "2026-09-04 20:30 수업 등록" [ref=f21e849] [cursor=pointer]
+      - gridcell "2026-09-05 20:30 수업 등록" [ref=f21e850] [cursor=pointer]
+      - gridcell "2026-09-06 20:30 수업 등록" [ref=f21e851] [cursor=pointer]
+      - generic "AWAKE · A 세션 (0/12) · 60분" [ref=f21e852] [cursor=pointer]:
+        - generic [ref=f21e853]: AWAKE · A 세션
+        - generic [ref=f21e854]: 0/12 · 60분
+      - generic "AWAKE · B 세션 (0/12) · 60분" [ref=f21e855] [cursor=pointer]:
+        - generic [ref=f21e856]: AWAKE · B 세션
+        - generic [ref=f21e857]: 0/12 · 60분
+      - generic "BUILD (0/8) · 60분" [ref=f21e858] [cursor=pointer]:
+        - generic [ref=f21e859]: BUILD
+        - generic [ref=f21e860]: 0/8 · 60분
+      - generic "SMOKE (1/8) · 60분" [ref=f21e861] [cursor=pointer]:
+        - generic [ref=f21e862]: SMOKE
+        - generic [ref=f21e863]: 1/8 · 60분
+      - generic "AWAKE (0/10) · 60분 · 취소됨" [ref=f21e864] [cursor=pointer]:
+        - generic [ref=f21e865]: AWAKE
+        - generic [ref=f21e866]: 취소됨
+      - generic "AWAKE · A 세션 (0/12) · 60분" [ref=f21e867] [cursor=pointer]:
+        - generic [ref=f21e868]: AWAKE · A 세션
+        - generic [ref=f21e869]: 0/12 · 60분

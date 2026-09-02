@@ -1,0 +1,65 @@
+- generic [ref=f24e72]:
+  - generic [ref=f24e73]:
+    - generic [ref=f24e74]: 수업 종류 수정
+    - button "×" [ref=f24e75] [cursor=pointer]
+  - generic [ref=f24e76]:
+    - generic [ref=f24e77]:
+      - generic [ref=f24e78]: 이름
+      - textbox "이름" [ref=f24e79]:
+        - /placeholder: 1수업 초보 입문 · 2수업 RX 본격 · 3수업 역도 세미나
+        - text: AWAKE
+    - generic [ref=f24e80]:
+      - generic [ref=f24e81]: 구분
+      - combobox "구분" [ref=f24e82]:
+        - option "정규 수업 (매일 진행)" [selected]
+        - option "이벤트 / 세미나 (특별 일정)"
+    - generic [ref=f24e83]:
+      - generic [ref=f24e84]: 설명 (회원도 봐요)
+      - textbox "설명 (회원도 봐요)" [ref=f24e85]:
+        - /placeholder: "이 수업이 어떨 때 듣는 수업인지 회원이 보게 적어주세요. 예: 초보자 환영, 모든 동작 스케일링 제공."
+        - text: 아침 수업
+    - generic [ref=f24e86]:
+      - generic [ref=f24e87]: 기본 시간 (분)
+      - spinbutton "기본 시간 (분)" [ref=f24e88]: "60"
+    - generic [ref=f24e89]:
+      - generic [ref=f24e90]: 정원
+      - spinbutton "정원" [ref=f24e91]: "12"
+    - generic [ref=f24e92]:
+      - generic [ref=f24e93]: 룸
+      - textbox "룸" [ref=f24e94]:
+        - /placeholder: Main Floor
+    - generic [ref=f24e95]:
+      - generic [ref=f24e96]: 캘린더 색상
+      - generic [ref=f24e97]:
+        - generic "빨강 (정규)" [ref=f24e98] [cursor=pointer]
+        - generic "주황" [ref=f24e99] [cursor=pointer]
+        - generic "노랑 (이벤트)" [ref=f24e100] [cursor=pointer]
+        - generic "초록" [ref=f24e101] [cursor=pointer]
+        - generic "파랑" [ref=f24e102] [cursor=pointer]
+        - generic "보라" [ref=f24e103] [cursor=pointer]
+    - generic [ref=f24e104]:
+      - generic [ref=f24e105]: 매주 시간표
+      - generic [ref=f24e113]:
+        - generic [ref=f24e114]:
+          - button "월" [pressed] [ref=f24e115] [cursor=pointer]
+          - button "화" [pressed] [ref=f24e116] [cursor=pointer]
+          - button "수" [pressed] [ref=f24e117] [cursor=pointer]
+          - button "목" [pressed] [ref=f24e118] [cursor=pointer]
+          - button "금" [pressed] [ref=f24e119] [cursor=pointer]
+          - button "토" [ref=f24e120] [cursor=pointer]
+          - button "일" [ref=f24e121] [cursor=pointer]
+        - textbox "시각" [ref=f24e122]: 06:00
+        - combobox "세션" [ref=f24e123]:
+          - option "공통" [selected]
+          - option "A 세션"
+          - option "B 세션"
+          - option "C 세션"
+          - option "D 세션"
+          - option "E 세션"
+        - button "이 시간 삭제" [ref=f24e124] [cursor=pointer]: ×
+      - link "+ 시간 추가" [active] [ref=f24e108] [cursor=pointer]:
+        - /url: "#"
+      - paragraph [ref=f24e109]: 저장하면 앞으로 4주 치 수업이 자동 등록되고, 주를 넘길 때마다 이어서 채워집니다. 특정 날짜만 바꾸려면 수업 관리 달력에서 그 수업을 눌러 수정·휴강하세요.
+    - generic [ref=f24e110]:
+      - button "취소" [ref=f24e111] [cursor=pointer]
+      - button "저장" [ref=f24e112] [cursor=pointer]
