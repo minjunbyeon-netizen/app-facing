@@ -501,6 +501,36 @@ void _rememberedLoginGolden() {
     await capture(tester, 'state_11_class_membership_required');
   });
 
+  // ── 하루 한도 도달 — 예약한 날의 다른 수업은 '예약' 대신 '오늘 예약 완료'
+  //    (2026-09-02 사용자 보고 "예약 버튼이 살아 있어 되는 것처럼 오해") ──
+  testWidgets('state: classes daily limit reached', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi({
+      ...memberWorld(),
+      // 20시 예약됨 + 21시는 자리가 남아도 reserve_limit_reached='daily'
+      // (서버 예약 게이트와 같은 함수의 답 — 앱은 이 값으로만 그린다).
+      '/api/v1/member/classes': memberClassesDailyLimit(),
+    });
+    final gym = GymState(GymRepository(api), sse: FakeSse());
+    await gym.loadMine();
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        gym: gym,
+        home: const BoxWodScreen(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tapSchedulePane(tester);
+    await tester.pumpAndSettle();
+    expect(find.text('예약됨'), findsOneWidget);
+    expect(find.text('오늘 예약 완료'), findsOneWidget);
+    await capture(tester, 'state_32_class_daily_limit');
+  });
+
   // ── 예약 오픈 전 — '예약' 을 누르면 캐릭터 스낵바 '예약 가능한 시간이 아니에요'
   //    (D58 전날 11시 오픈 · D82 2026-08-29 버튼은 살려 두고 누르면 안내) ──
   testWidgets('state: classes booking not open', (tester) async {

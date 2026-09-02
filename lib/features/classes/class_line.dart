@@ -160,6 +160,18 @@ class ClassLine extends StatelessWidget {
     if (!membershipOk) {
       return HkBadge('회원권 필요', color: HyphenTokens.muted, onTap: onReserve);
     }
+    // 2026-09-02 사용자 보고 "하루 1수업 예약했는데 다른 수업 예약 버튼이 살아 있어
+    // 되는 것처럼 오해": 하루·주 한도에 걸리는 수업은 '예약' 대신 이 배지.
+    // 판정은 서버 예약 게이트와 같은 함수(reserve_limit_reached — 6-b), 탭은
+    // 그대로 서버로 보내 409 문구("하루 예약 한도(1회)를 초과했습니다")를
+    // 스낵바로 받는다 — 정책 문구 정본은 서버 하나 (회원권 필요와 같은 규격).
+    if (session.reserveLimitReached != null) {
+      return HkBadge(
+        session.reserveLimitReached == 'weekly' ? '이번 주 예약 완료' : '오늘 예약 완료',
+        color: HyphenTokens.muted,
+        onTap: onReserve,
+      );
+    }
     // D82 (2026-08-29 사용자 지시 "그 예약 버튼 누르고 싶은데, 아직 설정한 시간이
     // 아닐 때 누르면 스낵바로 '예약 가능한 시간이 아니에요' 캐릭터와 함께"):
     // 예약 오픈(전날 N시) 전이어도 '예약' 배지는 그대로 선다 — 여기서 잠그지 않는다.

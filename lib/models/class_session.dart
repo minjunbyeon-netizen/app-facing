@@ -37,6 +37,10 @@ class ClassSessionDto {
   /// 과제 4 (2026-08-30) — 그날 유효한 회원권이 있는가. 서버 예약 게이트(pick_membership)와
   /// 같은 함수의 답 (`membership_ok`). null = 서버가 안 준 것(코치 조회) → 배지는 정상.
   final bool? membershipOk;
+  /// 2026-09-02 — 이 수업을 새로 예약하면 하루·주 한도에 걸리는가. 서버 예약
+  /// 게이트와 같은 함수(reserve_limit_reached)의 답 — 'daily' | 'weekly' | null.
+  /// null = 여유·미설정·코치 조회. 앱은 이 값으로만 '예약 완료' 배지를 그린다.
+  final String? reserveLimitReached;
 
   const ClassSessionDto({
     required this.id,
@@ -61,6 +65,7 @@ class ClassSessionDto {
     this.variantLabel,
     String? displayTitle,
     this.membershipOk,
+    this.reserveLimitReached,
   }) : displayTitle = displayTitle ?? title;
 
   /// 아직 예약이 안 열렸는가 — 서버 BOOKING_NOT_OPEN 의 표시용 거울 (정본은 서버).
@@ -109,6 +114,9 @@ class ClassSessionDto {
         variantLabel: j['variant_label']?.toString(),
         displayTitle: j['display_title']?.toString(),
         membershipOk: j['membership_ok'] is bool ? j['membership_ok'] as bool : null,
+        reserveLimitReached: j['reserve_limit_reached'] is String
+            ? j['reserve_limit_reached'] as String
+            : null,
       );
 }
 

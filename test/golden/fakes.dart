@@ -780,6 +780,17 @@ List<Map<String, dynamic>> memberClassesReserved() {
   return list;
 }
 
+/// /api/v1/member/classes — 20시 예약 확정 + 같은 날 21시 수업은 하루 한도에
+/// 걸림(`reserve_limit_reached: 'daily'` — 서버 예약 게이트와 같은 함수의 답).
+/// '오늘 예약 완료' 배지 골든용 (state_32). 내일 수업(103)은 여유 그대로.
+List<Map<String, dynamic>> memberClassesDailyLimit() =>
+    [for (final c in memberClassesReserved())
+      if (c['id'] == 102)
+        // 자리가 남아 있는데도(5/12) 한도 때문에 못 잡는 그림 — 사용자 보고 그대로.
+        {...c, 'reserved_count': 5, 'waitlist_count': 0,
+         'reserve_limit_reached': 'daily'}
+      else c];
+
 /// /api/v1/member/classes — 위와 동일 + 이미 끝난 오전 수업 1 (종료 배지 캡처용).
 /// kTestClock 10:30 기준 08:00+60분 = 09:00 종료 → isEnded true.
 List<Map<String, dynamic>> memberClassesWithEnded() {
