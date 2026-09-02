@@ -885,9 +885,11 @@ class _LockerCard extends StatelessWidget {
                 ],
               ),
             ),
-            if (days != null && days >= 0 && days <= 14)
+            // 라벨은 서버 d_day_label 그대로 (2026-09-02 — 'D-0' 대신 서버 'D-day').
+            // 14일 표시 창은 회원권 카드와 같은 앱 표시 규약.
+            if (days != null && days >= 0 && days <= 14 && lk.dDayLabel != null)
               Text(
-                'D-$days',
+                lk.dDayLabel!,
                 style: HyphenTokens.h3.copyWith(color: HyphenTokens.warning),
               ),
           ],

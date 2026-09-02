@@ -1,8 +1,6 @@
 // v1.16.2 (2026-05-24) — 락커 DTO.
 // /api/v1/member/me/locker 응답 1 행 매핑.
 
-import '../core/app_clock.dart';
-
 class Locker {
   final int gymId;
   final String lockerNo; // "A-07" 등 자유 string
@@ -10,6 +8,8 @@ class Locker {
   final String? startDate;
   final String? endDate;
   final String? memo;
+  final int? dDay;
+  final String? dDayLabel;
 
   const Locker({
     required this.gymId,
@@ -18,6 +18,8 @@ class Locker {
     this.startDate,
     this.endDate,
     this.memo,
+    this.dDay,
+    this.dDayLabel,
   });
 
   factory Locker.fromJson(Map<String, dynamic> j) => Locker(
@@ -27,19 +29,12 @@ class Locker {
         startDate: j['start_date']?.toString(),
         endDate: j['end_date']?.toString(),
         memo: j['memo']?.toString(),
+        dDay: (j['d_day'] as num?)?.toInt(),
+        dDayLabel: j['d_day_label']?.toString(),
       );
 
-  /// 락커 만료 D-day. null 이면 미지정 (회원권 만료일 자동).
-  int? get daysUntilExpiry {
-    if (endDate == null || endDate!.isEmpty) return null;
-    try {
-      final end = DateTime.parse(endDate!);
-      final now = appClock.now();
-      final endDay = DateTime(end.year, end.month, end.day);
-      final today = DateTime(now.year, now.month, now.day);
-      return endDay.difference(today).inDays;
-    } catch (_) {
-      return null;
-    }
-  }
+  /// 락커 만료 D-day — 서버 `d_day` 그대로 (2026-09-02 이원화 정리, 정본
+  /// api/_membership.membership_dday — 회원권 카드 membership.dart 와 같은 결).
+  /// null 이면 미지정 (회원권 만료일 자동).
+  int? get daysUntilExpiry => dDay;
 }
