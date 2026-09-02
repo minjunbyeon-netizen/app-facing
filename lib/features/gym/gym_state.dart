@@ -215,6 +215,20 @@ class GymState extends ChangeNotifier {
     }
   }
 
+  /// 수업 게시물(프로그램 칸)만 다시 받는다 — 완료 배지(`completion_blocked`)와
+  /// 내 기록은 **회원별 판정**이라 예약·취소 직후 따라와야 한다 (2026-09-02 프로드
+  /// 실검증: 예약했는데도 '예약 필요'·"예약한 수업만" 옛 판정이 남던 stale 결함).
+  /// 실패해도 기존 목록을 유지한다 (refreshMemberships 와 같은 결).
+  Future<void> refreshWods() async {
+    if (_membership.gym == null) return;
+    try {
+      _wods = await repo.listWods(gymId: _membership.gym!.id);
+      notifyListeners();
+    } catch (e) {
+      debugPrint('[GymState] refreshWods failed: $e');
+    }
+  }
+
   Future<void> loadMine() async {
     _loading = true;
     _error = null;

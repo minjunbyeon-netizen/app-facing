@@ -609,6 +609,13 @@ void _rememberedLoginGolden() {
     // 폭죽 오버레이가 스스로 걷힐 때까지 — pending timer 없이 끝낸다.
     await tester.pump(const Duration(seconds: 2));
     await tester.pump(const Duration(seconds: 5));
+    // 2026-09-02 프로드 실검증 결함: 예약 뒤 프로그램 칸(wods)을 다시 안 불러
+    // '예약 필요'·"예약한 수업만" 옛 판정이 남았다. 예약 성공 시 wods 재조회가
+    // 반드시 한 번 더 나가야 한다 (완료 배지는 회원별 판정 — refreshWods).
+    final wodCalls =
+        api.calls.where((p) => p.startsWith('/api/v1/gyms/1/wods')).length;
+    expect(wodCalls, greaterThan(1),
+        reason: '예약 성공 후 wods 재조회(refreshWods)가 한 번 더 나가야 한다');
   });
 
   // ── 횟수권 — 내 정보 회원권 카드 잔여·면제 표시 (D57 · 2026-08-26) ──

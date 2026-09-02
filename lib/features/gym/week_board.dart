@@ -263,6 +263,9 @@ class _WeekBoardState extends State<WeekBoard> {
                     if (ok && mounted) {
                       _loadClasses();
                       gs.refreshMemberships(); // D57 횟수권 잔여 갱신
+                      // 완료 배지(completion_blocked)는 회원별 판정 — 예약을
+                      // 따라가야 한다 (2026-09-02 프로드 stale 결함 픽스).
+                      gs.refreshWods();
                     }
                   },
                   onCancel: (c) async {
@@ -270,6 +273,7 @@ class _WeekBoardState extends State<WeekBoard> {
                     if (ok && mounted) {
                       _loadClasses();
                       gs.refreshMemberships(); // D57 횟수권 잔여 갱신
+                      gs.refreshWods(); // 위 onReserve 와 같은 이유
                     }
                   },
                   onRetryClasses: _loadClasses,

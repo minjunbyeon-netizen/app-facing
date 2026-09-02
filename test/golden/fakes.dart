@@ -34,7 +34,11 @@ class FakeApi implements ApiClient {
     this.errorPaths = const {},
   });
 
+  /// 요청받은 경로 순서 기록 — 예약 뒤 wods 재조회 같은 "다시 불렀나" 검증용.
+  final List<String> calls = [];
+
   Future<dynamic> _respond(String path) {
+    calls.add(path);
     if (hang || hangPaths.any(path.startsWith)) {
       return Completer<dynamic>().future; // 영원히 pending
     }
