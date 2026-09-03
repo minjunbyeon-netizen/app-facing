@@ -598,6 +598,40 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > **서버 판정 문구**('늦은 취소로 기록됩니다…', D96) → 취소 → 쪽지함 활동 칸에 **'취소 · 노쇼 안내'**(D97) 도착. 검증 데이터(글·수업·회원)
 > 전부 삭제. 잡은 것: 기간제 회원에게 '이번은 면제' 라고 쓰던 문구 → '기간제 회원권이라 차감은 없습니다' (`policy_outcome(on_pass)`).
 
+> **D110 (2026-09-04 집행) — 프로그램 보관함: 코치가 그날 운동(파트 포함)을 이름 붙여 미리 짜 두고 수업 등록·수정·게시에서 불러온다 (서버·PC).
+> 사용자 지시 "PC 에서 운동 수업 설정할 때 안에 들어가는 운동 프로그램들 내가 더 추가할 수 있는 탭 사이드바 어디에 만들어놔
+> (api, 이음새, SSOT 철저히 지켜서)".** 4기둥 판정 = '수업 공개' 의 받침(코치가 수업 내용을 미리 짜 둔다).
+>
+> - **뜻**: 보관 프로그램 = 이름 + 그날 운동 구조(파트 목록 + 메모). 수업 종류·날짜에 묶이지 않는다. 수업 등록·수정 모달과
+>   게시 모달의 편집기에 **'보관함에서 불러오기'** 셀렉트가 붙어 고르면 편집기·메모가 그 내용으로 채워진다 — 그 뒤 저장은
+>   종전 경로(수업 POST/PATCH `program` · 게시 POST/PATCH `program`) 그대로다. 보관함은 **원본이 아니라 복사 원천** — 보관
+>   프로그램을 고친다고 이미 게시된 글이 바뀌지 않는다.
+> - **동작 사전 입구 복구**: 8/13 '수업 내용' 링크를 숨기며 그 안의 동작 사전 탭도 사이드바에서 사라졌다. 보관함 페이지의
+>   둘째 탭이 동작 사전이다 — 사전 탭 마크업·JS 는 부분 템플릿 `templates/_movement_library_tab.html` 한 벌로 옮기고
+>   숨은 `/wod` 페이지도 같은 부분 템플릿을 include 한다 (복제 0).
+> - **정의 = 서버 한 곳** (6-b): 검증 `program_lines.normalize_program`(수업·게시와 같은 함수) · 미리보기 본문
+>   `apply_program`(제목 = 보관 이름) · PC 프리필 `program_of` · 한 줄 요약 `movement_summary` · 총 시간
+>   `program_lines.program_duration_min(parts)`(파트 duration 합, 하나도 없으면 None) — 전부 기존 함수 재사용. PC 는 API 값만 그린다.
+> - **데이터**: 새 표 `gym_programs` (`models/gym_program.py GymProgram`) — `id · gym_id(FK gyms, index) · name(60, NOT NULL) ·
+>   wod_type · rounds · time_cap_sec · rounds_data(Text) · content(Text, 렌더 미리보기) · is_active(기본 1) · created_at · updated_at`.
+>   게시물과 **같은 구조 컬럼**이라 `apply_program`/`program_of`/`movement_summary` 가 행을 그대로 받는다. 삭제 = `is_active=0`
+>   (휴면 — 데이터 삭제 없음). `create_all` 이 만든다(멱등).
+> - **API** (admin · `require_staff` · 쓰기는 CSRF · 다른 체육관 403):
+>   - `GET /api/v1/admin/gyms/<gym_id>/programs` → `{items:[{id, name, summary, part_count, duration_min, content, program:{parts, memo},
+>     updated_at}]}` — `is_active` 만, `updated_at` 내림차순.
+>   - `POST /api/v1/admin/gyms/<gym_id>/programs` `{name, program, memo}` → 201 item. `name` 빈값·60자 초과 400 `VALIDATION_ERROR`,
+>     같은 체육관 활성 이름 중복 409 `DUPLICATE_NAME`, `program` 은 `normalize_program`(400 `INVALID_PROGRAM`), 동작 0 이면 400
+>     `INVALID_PROGRAM` "동작을 하나 이상 고르세요".
+>   - `PATCH /api/v1/admin/programs/<id>` `{name?, program?, memo?}` → item. `DELETE /api/v1/admin/programs/<id>` → `{deleted:true}`
+>     (is_active=0, 이미 꺼진 것은 404).
+> - **PC**: 사이드바 '수업' 그룹에 **프로그램 보관함**(`/programs`, 수업 관리 다음 줄). 페이지 탭 = 보관함(목록 카드: 이름 · 요약 ·
+>   파트 수 · 총 시간 · 수정 · 삭제 + '+ 프로그램' 모달 = 이름 · `ProgramEditor` · 메모) · 동작 사전(부분 템플릿). 수업 등록·수정
+>   모달과 게시 모달의 '그날 운동' 라벨 옆에 `보관함에서 불러오기` 셀렉트(목록은 GET programs, 고르면 `editor.setValue(item.program)`
+>   + 메모 칸 = `item.program.memo`, 비어 있으면 '보관함 비어 있음 — 프로그램 보관함에서 추가' 안내 링크).
+> - **앱**: 변경 없음 (회원은 게시된 글만 본다).
+> - **게이트**: 서버 `tests/test_programs_library_d110.py`(CRUD · 검증 · 체육관 격리 · 보관 → 수업 등록 program 왕복이 같은 파트를
+>   만든다 · 소프트 삭제) + `tests/test_ssot_program_lint.py` 스캔에 새 파일 포함(자동) · PC `design/lint.py`.
+
 > **D109 (2026-09-04 집행) — 파트: 그날 운동을 한 수업 안에서 A·B·C 구간으로 나눈다 (세션 D89·D98·D107 폐기 — 서버·PC·앱).
 > 사용자 지시 "PC 에서 코치가 1개의 운동에서 SWEAT 에서 A세션 B세션 C세션 나눠서 운동을 설정했는데 폰에는 3개의 운동으로
 > 표시 … 60분 운동에서 A세션때 15분 B세션때 20분 이런식으로 사람들이 보기 쉬우라는 거지. 다른 운동이 아님" → "파트 느낌
