@@ -19,7 +19,7 @@
 | 개인정보처리방침 URL | https://web-facing-admin-production-dca4.up.railway.app/privacy |
 | 이용약관 URL | https://web-facing-admin-production-dca4.up.railway.app/terms |
 | 계정·데이터 삭제 요청 URL | https://web-facing-admin-production-dca4.up.railway.app/delete-account |
-| 버전 | 1.0.0 (빌드 3025) — pubspec `1.0.0+3025`. 구글 versionCode 3025 · 애플 CFBundleVersion 3025 |
+| 버전 | 1.0.0 (빌드 3026) — pubspec `1.0.0+3026`. 구글 versionCode 3026 · 애플 CFBundleVersion 3026 |
 | 카테고리 | 구글 **건강/운동** · 애플 기본 **건강 및 피트니스**, 보조 **스포츠** |
 | 가격 · 광고 · 인앱결제 | 무료 · 광고 없음 · 인앱결제 없음 |
 | 배포 국가 | 대한민국만 |
@@ -202,7 +202,7 @@ HYPHEN(하이픈)은 체육관 코치와 회원을 잇는 앱입니다. 체육�
 | 트랙 | 비공개 테스트 → 트랙 만들기 → 이름 `closed-1` |
 | 테스터 | 이메일 목록 만들기 → 지인·회원 구글 계정 **12명 이상 여유 있게** (중간 이탈 시 카운트 리셋) — 초대 문구 = `PLAYSTORE.md` §G 테스터 초대 문구 |
 | App Bundle | `build/app/outputs/bundle/release/app-release.aab` 업로드 — 첫 업로드에서 **Play 앱 서명 사용** 동의 |
-| 출시 이름 | 1.0.0 (3025) |
+| 출시 이름 | 1.0.0 (3026) |
 | 출시 노트 (ko-KR) | `HYPHEN 첫 테스트 버전. 수업 예약·공지·쪽지·업적·포인트.` |
 | 검토 → 출시 시작 | 비공개 테스트는 검토 뒤 테스터에게 열림 |
 
@@ -281,7 +281,7 @@ HYPHEN(하이픈)은 체육관 코치와 회원을 잇는 앱입니다. 체육�
 | 설명 | §2-3 "자세한 설명" 블록 그대로 |
 | 키워드 (100자) | 체육관,코치,수업 예약,공지,쪽지,회원권,출석,업적 |
 | 지원 URL · 마케팅 URL | https://web-facing-production.up.railway.app/ |
-| 빌드 | TestFlight 에 올라온 1.0.0 (3025) 선택 |
+| 빌드 | TestFlight 에 올라온 1.0.0 (3026) 선택 |
 | 저작권 | 2026 변민준 |
 | 버전 | 1.0.0 |
 | 앱 심사 정보 — 로그인 필요 | 체크 → 사용자 이름 `testmember1` · 비밀번호 Railway `REVIEW_MEMBER_PASSWORD` |
@@ -297,7 +297,7 @@ HYPHEN(하이픈)은 체육관 코치와 회원을 잇는 앱입니다. 체육�
 
 ## 4. 심사팀이 실제로 눌러 볼 것 → 보여야 할 것 (2026-09-03 에뮬레이터 실측)
 
-운영 서버 APK(1.0.0+3025)를 초기화한 뒤 실제로 눌러 본 결과. 골든 이름은 `test/golden/goldens/`.
+운영 서버 APK(1.0.0+3026)를 초기화한 뒤 실제로 눌러 본 결과. 골든 이름은 `test/golden/goldens/`.
 
 | 심사팀 행동 | 보여야 할 것 | 실측 |
 |---|---|---|
@@ -311,7 +311,8 @@ HYPHEN(하이픈)은 체육관 코치와 회원을 잇는 앱입니다. 체육�
 | 쪽지 (수업 카드 '메시지') | 코치에게 쪽지 작성 → 쪽지함 '코치' 칸 | member_11_messaging |
 | 계정 삭제 (testmember2) | 내 정보 → 개인정보처리방침 → 계정 삭제 → 확인 → 로그인 화면으로 | member_19_privacy |
 | 회원 가입 신청 | 신청서 제출 → 승인 대기 화면. testcoach1 '가입 신청' 에서 승인 → 로그인 가능 | common_06_self_signup · state_05_pending · coach_05_member_approvals |
-| testcoach1 로그인 | 코치 셸 2탭 — 예약 현황(오늘 예약·출석·주간 신규, 가입 신청 버튼, 주간 수업 명단) · 쪽지 | 통과 — coach_01_shell_reservations · coach_03_shell_messages |
+| testcoach1 로그인 | 코치 셸 2탭 — 예약 현황(오늘 예약·출석·주간 신규, 가입 신청 버튼, 주간 수업 명단) · 쪽지(상단 공지 카드에 'HYPHEN 앱 이용 안내' · 회원 이름별 스레드) | 통과 — coach_01_shell_reservations · coach_03_shell_messages (09-03 오후 재생성: 코치 셸이 공지 상태를 묶지 않아 카드가 늘 '등록된 공지 없음' 이던 결함 픽스 → 빌드 3026) |
+| 홈 공지 전광판 (testmember1) | 'HYPHEN 앱 이용 안내' 가 흐른다 — 운영 공지 3건은 전부 기간 만료(end_at 08-11·08-17·09-01)라 09-03 오후 코치로 무기한 공지 1건 게시 | 통과 — API `/api/v1/member/announcements` 1건 |
 | 오프라인 | 상단 '오프라인' 배너, 크래시 없음 | state_03_home_offline |
 
 반려 가능성이 있던 것과 처리 (전부 2026-09-03 완료):
@@ -331,7 +332,7 @@ HYPHEN(하이픈)은 체육관 코치와 회원을 잇는 앱입니다. 체육�
 ## 5. 제출 직전 10분
 
 1. `python tool/store_preflight.py` → 전부 PASS (FAIL 이 있으면 그 줄이 곧 할 일).
-2. 구글: 앱 콘텐츠 11개 항목에 초록 체크 · 앱 액세스 지침 3세트 · 스크린샷 7장 순서 · AAB 버전 3025.
+2. 구글: 앱 콘텐츠 11개 항목에 초록 체크 · 앱 액세스 지침 3세트 · 스크린샷 7장 순서 · AAB 버전 3026.
 3. 애플: 빌드가 '처리 완료' 인지 · 스크린샷 7장 · 심사 정보 메모에 계정 3개 · 연령 등급 설문 완료 · 판매자 아님.
 4. 두 콘솔의 방침 URL 을 브라우저에서 한 번 열어 본다 (200 + '최종 갱신 2026-09-03').
 5. 폰에서 testmember1 · testcoach1 실로그인 1회 (속도 제한 예외라 여러 번 해도 된다).

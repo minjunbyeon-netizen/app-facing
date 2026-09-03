@@ -4,10 +4,12 @@ import 'package:provider/provider.dart';
 import '../../core/device_id.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
+import '../announcements/announcements_state.dart';
 import '../auth/login_screen.dart';
 import '../boss/boss_api_client.dart';
 import '../boss/boss_auth_state.dart';
 import '../boss/boss_dashboard_screen.dart';
+import '../gym/gym_repository.dart';
 import '../gym/gym_state.dart';
 import '../inbox/inbox_screen.dart';
 import '../inbox/inbox_state.dart';
@@ -170,6 +172,16 @@ class _CoachShellState extends State<CoachShell> {
       final inboxState = context.read<InboxState>();
       if (inboxState.boundGymId != gymId) {
         Future.microtask(() => inboxState.bind(gymId));
+      }
+      // 쪽지 탭 공지 카드(MessagingFeed → AnnouncementsState)는 회원 셸
+      // (main_shell)과 같은 배선으로 묶는다. 종전엔 코치 셸이 이 상태를 묶지
+      // 않아 공지가 있어도 카드가 늘 '등록된 공지 없음' 이었다 (2026-09-03
+      // 프로드 실측). SSE announcement.posted 가 오면 그 자리에서 다시 묻는다.
+      final annState = context.read<AnnouncementsState>();
+      if (annState.boundGymId != gymId) {
+        final repo = context.read<GymRepository>();
+        Future.microtask(() => annState.bind(repo, gymId,
+            changed: gs.announcementsChanged));
       }
     }
 

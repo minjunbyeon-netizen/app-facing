@@ -15,7 +15,7 @@
 > **2026-09-03 갱신 (심사 제출 직전 점검)**: ① App Store Connect 가 **2026-04-28 부터 Xcode 26 / iOS 26 SDK 빌드만 받는다** —
 > 워크플로 러너를 `macos-15`(기본 Xcode 16.4)에서 **`macos-26`(기본 Xcode 26.6)** 으로 교체. ② 앱 번들에 **개인정보 매니페스트
 > `ios/Runner/PrivacyInfo.xcprivacy`** 추가(필수 사유 API 4종 — UserDefaults·파일 타임스탬프·부팅 시각·디스크 공간, 추적 없음).
-> ③ 스크린샷 6.9"/6.5" 각 7장을 09-02 골든(4탭 셸) 기준으로 재생성. ④ 버전 `1.0.0+3025`. ⑤ GitHub Secrets 는 아직 0건
+> ③ 스크린샷 6.9"/6.5" 각 7장을 09-02 골든(4탭 셸) 기준으로 재생성. ④ 버전 `1.0.0+3026`. ⑤ GitHub Secrets 는 아직 0건
 > (`gh secret list`) — Apple 계정 승인 뒤 §B-1. ⑥ 연령 등급 설문이 2025 신체계(4+/9+/13+/16+/18+)이고 2026-07 추가된
 > 소셜 문항이 2026-09 부터 신규 제출 필수 — 쪽지(1:1 메시지) 기능을 사실대로 답한다(§D-3).
 
@@ -108,7 +108,7 @@ App Store 용 ipa export → `fastlane pilot` 로 TestFlight 업로드 → ipa �
 | 개인정보 처리방침 URL | https://web-facing-admin-production-dca4.up.railway.app/privacy |
 | 저작권 | 2026 변민준 |
 | 스크린샷 | `build/store/ios/6.9/01~07` (필수 슬롯) · `build/store/ios/6.5/01~07` (구형 기기 슬롯). iPad 슬롯은 iPhone 전용 앱이라 없음 |
-| 버전 | pubspec `1.0.0+3025` (2026-09-03) → CFBundleShortVersionString 1.0.0 · CFBundleVersion 3025 (구글과 같은 번호) |
+| 버전 | pubspec `1.0.0+3026` (2026-09-03) → CFBundleShortVersionString 1.0.0 · CFBundleVersion 3026 (구글과 같은 번호) |
 
 > 금지 용어(박스·크로스핏·WOD·헬스·다이어트·건강·"쉬운"·"누구나"…)는 애플 카피에도 동일 적용 — 단 **카테고리 이름 "건강 및 피트니스" 는 애플 고정 명칭**이라 예외.
 

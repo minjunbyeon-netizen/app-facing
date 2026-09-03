@@ -436,7 +436,10 @@ python tool/golden_gallery.py               # 단일 HTML 갤러리 (build/golde
 가짜 백엔드(`test/golden/fakes.dart` — ApiClient implements, 네트워크 0)로 실물 픽셀 렌더
 (갤S22 급 360×780·2x). 폰트는 `test/flutter_test_config.dart` 가 FontManifest 전체
 (Pretendard·MaterialIcons)를 로드. 참조 아키텍처: `apps/writeplz-app` 골든스탠다드.
-현재 **88장** (2026-09-02 저녁 완료 시트 초간소화(v3.45) — 사용자 "코치가 설정한 운동이
+현재 **89장** (2026-09-03 오후 — coach_03_shell_messages 재생성: 코치 셸(coach_shell.dart)이
+AnnouncementsState 를 묶지 않아 쪽지 탭 공지 카드가 데이터와 무관하게 늘 '등록된 공지 없음' 이던
+결함(프로드 실측)을 회원 셸과 같은 배선으로 고치고, 골든 가짜에 공지를 주입해 카드가 뜨는 상태를
+캡처 — 장수 불변. 직전 89장 = 2026-09-03 오전 심사 준비(장수 불변). 직전 88장 = 2026-09-02 저녁 완료 시트 초간소화(v3.45) — 사용자 "코치가 설정한 운동이
 그대로 불러와지고 그 옆에 자기의 기록만. 내 결과·시간·라운드·무게·추가 렙스·난이도·동작
 이름·메모 전부 없애고": '내 결과' 점수 칩·난도(SCALED/RXD)·동작 이름 입력·strength 전용칸
 전부 삭제, 남는 것 = 수업 내용 + '내 기록'(코치 운동 목록 [한 횟수][무게] 프리필 — 무게 칸은

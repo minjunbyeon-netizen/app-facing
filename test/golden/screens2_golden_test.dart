@@ -546,6 +546,10 @@ void main() {
       ...memberWorld(),
       '/api/v1/gyms/mine': {...gymsMine, 'role': 'owner'},
       '/api/v1/gyms/1/members': gymMembersList(),
+      // 2026-09-03 — 코치 쪽지 탭 공지 카드 회귀 게이트. 코치 셸이
+      // AnnouncementsState 를 묶지 않아 공지가 있어도 '등록된 공지 없음' 이던
+      // 결함(프로드 실측)의 픽스 캡처 — 데이터를 주면 카드에 떠야 한다.
+      '/api/v1/member/announcements': memberAnnouncements(),
     });
     final bossApi = FakeBossApi({
       '/api/v1/admin/gyms/1/dashboard': bossDashboard(),
