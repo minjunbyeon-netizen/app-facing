@@ -9,9 +9,9 @@
 
 ## 0. 현재 상태 한 줄
 
-**이 PC(Windows) 에서 할 수 있는 iOS 준비는 전부 끝났다.** Apple Developer Program 은 **개인 등록 승인 완료**
-(2026-09-03 사용자 확인 — 갱신일 2027-08-29, 연회비 ₩129,000). `APPLE_TEAM_ID` 는 GitHub Secrets 에 등록됐고(값은 공개
-저장소라 문서에 안 적음), 남은 것은 App Store Connect API 키 3개(Key ID · Issuer ID · .p8) → 워크플로 실행뿐이다.
+**TestFlight 첫 업로드 성공 — 2026-09-03 18:26, 빌드 1.0.0 (3026).** Apple Developer Program 개인 등록 승인(갱신일 2027-08-29,
+연회비 ₩129,000) · Secrets 4개 등록 · 앱 레코드 생성 · EU DSA "거래자 아님" 까지 끝났다. 남은 것은 콘솔 입력(§C·§D·§E — 값은
+`STORE-SUBMIT-SHEET.md` §3) → 빌드 선택 → 심사 제출. 맥·Xcode·기기 등록 없이 GitHub macOS 러너만으로 여기까지 왔다 (§B-3 에 실측 함정 2건).
 
 > **2026-09-03 갱신 (심사 제출 직전 점검)**: ① App Store Connect 가 **2026-04-28 부터 Xcode 26 / iOS 26 SDK 빌드만 받는다** —
 > 워크플로 러너를 `macos-15`(기본 Xcode 16.4)에서 **`macos-26`(기본 Xcode 26.6)** 으로 교체. ② 앱 번들에 **개인정보 매니페스트
@@ -179,8 +179,9 @@ App Store 용 ipa export → `fastlane pilot` 로 TestFlight 업로드 → ipa �
 
 ### 블로커
 - [x] Apple Developer Program 승인 (2026-09-03 확인) · `APPLE_TEAM_ID` Secrets 등록
-- [ ] App Store Connect API 키(Admin) 발급 → 사용자가 Key ID · Issuer ID · .p8 파일(`C:\dev\keys\facing-app\` 에 저장, git 밖)을 전달 → Claude 가 Secrets 3개 등록
-- [ ] 워크플로 `ios` dispatch → TestFlight 첫 업로드 성공 (첫 실행 함정은 §B-3)
+- [x] App Store Connect API 키(Admin) 발급 → `.p8` 은 `C:\dev\keys\facing-app\` (git 밖) · Secrets 4개 등록 완료 (2026-09-03)
+- [x] 워크플로 `ios` dispatch → **TestFlight 첫 업로드 성공 (2026-09-03 18:26, 3차 실행 — 1차 기기 0대 archive 실패 · 2차 앱 레코드 미생성 실패, §B-3)**. 빌드 1.0.0 (3026)
+- [x] App Store Connect 앱 레코드 생성 (사용자, 2026-09-03) — 이름 `HYPHEN - 체육관 코치·회원 소통` · SKU `hyphen-ios` · EU DSA "거래자 아님" 선택
 - [ ] 본인 아이폰에서 TestFlight 설치 → 로그인·예약·알림 권한 실물 확인
 - [ ] App Privacy·연령 등급(신체계 + 소셜 문항, §D-3)·심사 정보 입력 (§D·§E) → 심사 제출
 - [ ] 제출 직전 `python tool/store_preflight.py` 전부 PASS
