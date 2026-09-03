@@ -9,8 +9,9 @@
 
 ## 0. 현재 상태 한 줄
 
-**이 PC(Windows) 에서 할 수 있는 iOS 준비는 전부 끝났다.** Apple Developer Program 등록은 신청 완료(인증 대기)이고, 남은 것은
-승인 뒤 GitHub Secrets 4개 입력 → 워크플로 실행뿐이다. 계정 승인이 나면 당일 TestFlight 까지 갈 수 있게 배선돼 있다.
+**이 PC(Windows) 에서 할 수 있는 iOS 준비는 전부 끝났다.** Apple Developer Program 은 **개인 등록 승인 완료**
+(2026-09-03 사용자 확인 — 갱신일 2027-08-29, 연회비 ₩129,000). `APPLE_TEAM_ID` 는 GitHub Secrets 에 등록됐고(값은 공개
+저장소라 문서에 안 적음), 남은 것은 App Store Connect API 키 3개(Key ID · Issuer ID · .p8) → 워크플로 실행뿐이다.
 
 > **2026-09-03 갱신 (심사 제출 직전 점검)**: ① App Store Connect 가 **2026-04-28 부터 Xcode 26 / iOS 26 SDK 빌드만 받는다** —
 > 워크플로 러너를 `macos-15`(기본 Xcode 16.4)에서 **`macos-26`(기본 Xcode 26.6)** 으로 교체. ② 앱 번들에 **개인정보 매니페스트
@@ -40,7 +41,7 @@
 ## A. 사용자가 해야 할 일 (Claude 가 대신 못 하는 것)
 
 1. **Apple ID 2단계 인증 켜기.** Developer Program 은 2FA 가 켜진 Apple ID 만 받는다.
-2. ~~Apple Developer Program 등록 — 개인(Individual).~~ **신청 완료 (2026-08-28, 사용자) — 인증 대기 중.** 승인 메일이 오면 **§G 런시트**.
+2. ~~Apple Developer Program 등록 — 개인(Individual).~~ **승인 완료 (2026-09-03 사용자 확인 · 갱신 2027-08-29).** Team ID 는 Secrets 등록 완료 → **§G 런시트 2번부터**.
 3. **App Store Connect 접속 → 사용자 및 액세스 → 통합(Integrations) → App Store Connect API → 팀 키 생성.**
    역할 **Admin** (App Manager 는 서명용 인증서 발급 권한이 부족할 수 있음 — 미확인이라 Admin 권장).
    여기서 나오는 세 값 + 팀 ID 를 GitHub Secrets 에 넣는다 (§B). **.p8 파일은 한 번만 내려받을 수 있다** — 잃으면 키를 새로 만든다.
@@ -172,8 +173,8 @@ App Store 용 ipa export → `fastlane pilot` 로 TestFlight 업로드 → ipa �
 ## F. 출시 체크리스트
 
 ### 블로커
-- [ ] Apple Developer Program 인증 대기 (등록 신청은 2026-08-28 완료) — 승인 후 §G 런시트
-- [ ] App Store Connect API 키(Admin) 발급 → GitHub Secrets 4개 — 사용자
+- [x] Apple Developer Program 승인 (2026-09-03 확인) · `APPLE_TEAM_ID` Secrets 등록
+- [ ] App Store Connect API 키(Admin) 발급 → 사용자가 Key ID · Issuer ID · .p8 파일(`C:\dev\keys\facing-app\` 에 저장, git 밖)을 전달 → Claude 가 Secrets 3개 등록
 - [ ] 워크플로 `ios` dispatch → TestFlight 첫 업로드 성공 (첫 실행 함정은 §B-3)
 - [ ] 본인 아이폰에서 TestFlight 설치 → 로그인·예약·알림 권한 실물 확인
 - [ ] App Privacy·연령 등급(신체계 + 소셜 문항, §D-3)·심사 정보 입력 (§D·§E) → 심사 제출
