@@ -98,16 +98,18 @@ jobs:
       - run: flutter pub get
       - name: flutter build ios (no codesign, prepares pods + Generated.xcconfig)
         run: flutter build ios --release --no-codesign --dart-define=API_BASE_URL=https://service-facing-production.up.railway.app
-      - name: xcodebuild archive (cloud signing)
+      - name: xcodebuild archive (unsigned — 서명은 export 단계에서)
+        # 2026-09-03 1차 실행 실패: 자동 서명 archive 는 **개발용** 프로파일을 요구하는데,
+        # 새 팀은 등록 기기 0대라 "Your team has no devices from which to generate a
+        # provisioning profile" 로 멈췄다. 배포용 신원을 직접 지정하면 Xcode 가 "자동 서명과
+        # 충돌" 오류를 내므로, archive 는 서명 없이 만들고 -exportArchive 의 클라우드 서명
+        # (API 키 · Apple 관리 배포 인증서 · App Store 프로파일 — 기기 등록 불필요)에 맡긴다.
         run: |
           xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner -configuration Release \
             -destination 'generic/platform=iOS' \
             -archivePath build/ios/Runner.xcarchive archive \
-            -allowProvisioningUpdates \
-            -authenticationKeyPath "$KEY_PATH" \
-            -authenticationKeyID "$ASC_KEY_ID" \
-            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
-            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CODE_SIGN_STYLE=Automatic
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""
       - name: export ipa (app-store-connect)
         run: |
           cat > build/ios/ExportOptions.plist <<EOF
