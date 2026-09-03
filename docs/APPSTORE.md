@@ -182,8 +182,13 @@ App Store 용 ipa export → `fastlane pilot` 로 TestFlight 업로드 → ipa �
 - [x] App Store Connect API 키(Admin) 발급 → `.p8` 은 `C:\dev\keys\facing-app\` (git 밖) · Secrets 4개 등록 완료 (2026-09-03)
 - [x] 워크플로 `ios` dispatch → **TestFlight 첫 업로드 성공 (2026-09-03 18:26, 3차 실행 — 1차 기기 0대 archive 실패 · 2차 앱 레코드 미생성 실패, §B-3)**. 빌드 1.0.0 (3026)
 - [x] App Store Connect 앱 레코드 생성 (사용자, 2026-09-03) — 이름 `HYPHEN - 체육관 코치·회원 소통` · SKU `hyphen-ios` · EU DSA "거래자 아님" 선택
-- [ ] 본인 아이폰에서 TestFlight 설치 → 로그인·예약·알림 권한 실물 확인
-- [ ] App Privacy·연령 등급(신체계 + 소셜 문항, §D-3)·심사 정보 입력 (§D·§E) → 심사 제출
+- [ ] 본인 아이폰에서 TestFlight 설치 → 로그인·예약·알림 권한 실물 확인 (내부 그룹 `internal` 생성 · 계정 소유자 초대 완료 2026-09-03 — 메일의 초대 수락 → TestFlight 앱)
+- [x] **콘솔 입력 완료 (2026-09-03 19시, Claude — ASC API + 브라우저 자동화)**: 앱 정보(부제·방침 URL·카테고리 건강및피트니스/스포츠·제3자 콘텐츠 없음) ·
+  연령 등급 신 설문(메시지/채팅·UGC 있음, 나머지 없음) · 가격 무료(기준 KOR) · 판매 국가 대한민국만(175개 중 KOR 만 true) · 버전 1.0.0(저작권 2026 변민준 ·
+  수동 출시 · 설명·키워드·프로모션·지원/마케팅 URL) · 빌드 3026 연결 · 심사 정보(연락처·데모 testmember1·메모에 계정 3개 비밀번호) ·
+  스크린샷 6.9"(APP_IPHONE_67) 7장 + 6.5"(APP_IPHONE_65) 7장 · App Privacy 9개 유형(앱 기능·신원 연결·추적 없음) **게시**.
+  API 로 안 되는 것은 App Privacy 뿐(브라우저로 입력). 프로브·스크립트 패턴 = 세션 scratchpad `asc.py`·`asc_stage_*.py` (메모리 참조)
+- [ ] **심사 제출** ("심사에 추가" → 제출) — 사용자 결정 대기: 아이폰 TestFlight 실물 확인 뒤 제출 권장
 - [ ] 제출 직전 `python tool/store_preflight.py` 전부 PASS
 - [ ] EU DSA 판매자(trader) 여부 — 한국만 배포하는 개인 계정은 **"판매자 아님"** 선택 가능 (2026-09-03 조사, 공식 도움말)
 
