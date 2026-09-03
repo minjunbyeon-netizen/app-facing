@@ -81,7 +81,12 @@ App Store 용 ipa export → `fastlane pilot` 로 TestFlight 업로드 → ipa �
 
 ### B-3. 처음 실행에서 막힐 수 있는 곳 (미리 아는 함정)
 
-- **"No profiles for 'com.netizen.hyphen.hyphenApp'"** — API 키 역할이 낮아 자동 발급 불가. 키를 Admin 으로 다시 만든다.
+- **"Your team has no devices from which to generate a provisioning profile" + "No profiles for …"** (2026-09-03 1차 실행에서
+  실제로 남) — 자동 서명 archive 가 **개발용** 프로파일을 요구하는데 새 팀은 등록 기기 0대. 배포용 신원을 직접 지정하면
+  "자동 서명과 충돌" 오류. **해결 = archive 를 서명 없이(`CODE_SIGNING_ALLOWED=NO`) 만들고 export 의 클라우드 서명에 맡김**
+  (워크플로 반영 완료, 2차 실행에서 archive·export 통과 확인). 키 역할이 낮을 때도 같은 "No profiles" 문구가 나온다.
+- **"Couldn't find app 'com.netizen.hyphen.hyphenApp' on the account"** (pilot 단계, 2차 실행) — App Store Connect 에 앱 레코드가
+  아직 없다. API 로는 못 만든다 — 사용자가 콘솔 "+ 신규 앱"(§A-4) 을 만든 뒤 워크플로 재실행. 번들 ID 는 export 단계가 이미 등록해 둔다.
 - **번들 ID 미등록** — `-allowProvisioningUpdates` 가 등록해 주지만 실패하면 Identifiers 에서 수동 등록 후 재실행.
 - **TestFlight 업로드는 됐는데 빌드가 안 보임** — 처리 중(5~30분). 수출 규정 프롬프트는 Info.plist 로 이미 답했다.
 - **ITMS-90725 / "SDK version issue"** — Xcode 26 미만으로 빌드한 ipa. 러너가 `macos-26` 인지(기본 Xcode 26.x) 확인.
