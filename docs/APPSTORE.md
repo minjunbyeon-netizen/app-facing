@@ -31,7 +31,7 @@
 | 수출 규정 | `ITSAppUsesNonExemptEncryption = false` → 업로드마다 묻는 암호화 프롬프트 생략 | `ios/Runner/Info.plist` (HTTPS 표준 암호화만 사용) |
 | 개인정보 매니페스트 | **있음** (2026-09-03) — 필수 사유 API 4종 선언, 추적 없음 | `ios/Runner/PrivacyInfo.xcprivacy` (Xcode 프로젝트 Resources 등록) |
 | 빌드 SDK | 러너 `macos-26` = Xcode 26.6 (ASC 요건 Xcode 26+, 2026-04-28~) | `.github/workflows/ios.yml` |
-| 심사 계정 | 구글과 동일 2개 (`googletest2` 코치 · `googletest1` 회원) | PLAYSTORE.md A-12 (비밀번호 보관 위치 포함) |
+| 심사 계정 | 구글과 동일 2개 (`testcoach1` 코치 · `testmember1` 회원 — 2026-09-03 개명) | PLAYSTORE.md A-12 (비밀번호 보관 위치 포함) |
 | URL 4종 | 구글과 동일 | PLAYSTORE.md §0-9 |
 | Apple Developer 계정 | **신청 완료 (2026-08-28) — 인증 대기** | §A-2 · 승인 후 §G |
 
@@ -144,7 +144,7 @@ App Store 용 ipa export → `fastlane pilot` 로 TestFlight 업로드 → ipa �
 
 ## E. 심사 정보 (App Review Information)
 
-- **로그인 필요** 체크 → 데모 계정: 코치 `googletest2` / 회원 `googletest1` (비밀번호 = PLAYSTORE.md A-12 보관 위치).
+- **로그인 필요** 체크 → 데모 계정: 코치 `testcoach1` / 회원 `testmember1` (비밀번호 = PLAYSTORE.md A-12 보관 위치, Railway 변수).
 - **연락처**: 변민준 · 전화 · `cheb2oy@naver.com`.
 - **메모 (심사팀에게)** 예:
   > 이 앱은 체육관 코치와 회원을 잇는 앱입니다. 회원은 앱에서 수업을 예약하고 공지·쪽지를 받습니다.
