@@ -94,6 +94,8 @@ App Store 용 ipa export → `fastlane pilot` 로 TestFlight 업로드 → ipa �
 
 ## C. 등록 정보 (App Store Connect → 앱 → 1.0 준비 중)
 
+> **입력 정본 = `docs/STORE-SUBMIT-SHEET.md` §3** (2026-09-03 — 화면 순서·복사용). 값이 어긋나면 시트를 따른다.
+
 | 칸 | 값 |
 |---|---|
 | 이름 | HYPHEN |
@@ -144,7 +146,7 @@ App Store 용 ipa export → `fastlane pilot` 로 TestFlight 업로드 → ipa �
 
 ## E. 심사 정보 (App Review Information)
 
-- **로그인 필요** 체크 → 데모 계정: 코치 `testcoach1` / 회원 `testmember1` (비밀번호 = PLAYSTORE.md A-12 보관 위치, Railway 변수).
+- **로그인 필요** 체크 → 데모 계정: 코치 `testcoach1` / 회원 `testmember1` / 계정 삭제 검증용 `testmember2` (비밀번호 = PLAYSTORE.md A-12 보관 위치, Railway 변수).
 - **연락처**: 변민준 · 전화 · `cheb2oy@naver.com`.
 - **메모 (심사팀에게)** 예:
   > 이 앱은 체육관 코치와 회원을 잇는 앱입니다. 회원은 앱에서 수업을 예약하고 공지·쪽지를 받습니다.
@@ -175,6 +177,7 @@ App Store 용 ipa export → `fastlane pilot` 로 TestFlight 업로드 → ipa �
 - [ ] 워크플로 `ios` dispatch → TestFlight 첫 업로드 성공 (첫 실행 함정은 §B-3)
 - [ ] 본인 아이폰에서 TestFlight 설치 → 로그인·예약·알림 권한 실물 확인
 - [ ] App Privacy·연령 등급(신체계 + 소셜 문항, §D-3)·심사 정보 입력 (§D·§E) → 심사 제출
+- [ ] 제출 직전 `python tool/store_preflight.py` 전부 PASS
 - [ ] EU DSA 판매자(trader) 여부 — 한국만 배포하는 개인 계정은 **"판매자 아님"** 선택 가능 (2026-09-03 조사, 공식 도움말)
 
 ### 완료됨 (2026-08-28)
