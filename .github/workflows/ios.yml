@@ -1,5 +1,7 @@
 # iOS 빌드 — 이 PC(Windows) 에는 Xcode 가 없으므로 GitHub 의 macOS 러너로 대신 컴파일한다.
 # 저장소가 public 이라 macOS 러너 분수가 무료다 (2026-08-28 App Store 준비).
+# 러너는 macos-26 (기본 Xcode 26.x). App Store Connect 가 2026-04-28 부터 Xcode 26 / iOS 26 SDK 빌드만
+# 받으므로 macos-15(기본 Xcode 16.4)로 만든 ipa 는 업로드가 거절된다 (2026-09-03 확인 — docs/APPSTORE.md §B-3).
 #
 # job 1 `compile`  — 서명 없이 컴파일만. Apple 계정 없이도 돌아간다 → "iOS 프로젝트가 깨지지 않았다" 회귀 게이트.
 # job 2 `testflight` — 수동 실행(workflow_dispatch) 전용. App Store Connect API 키 4개가 Secrets 에 있어야 한다:
@@ -36,7 +38,7 @@ env:
 jobs:
   compile:
     name: compile (no codesign)
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
@@ -69,7 +71,7 @@ jobs:
     name: archive + TestFlight
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.upload_testflight }}
     needs: compile
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 60
     env:
       ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}

@@ -12,16 +12,25 @@
 **이 PC(Windows) 에서 할 수 있는 iOS 준비는 전부 끝났다.** Apple Developer Program 등록은 신청 완료(인증 대기)이고, 남은 것은
 승인 뒤 GitHub Secrets 4개 입력 → 워크플로 실행뿐이다. 계정 승인이 나면 당일 TestFlight 까지 갈 수 있게 배선돼 있다.
 
+> **2026-09-03 갱신 (심사 제출 직전 점검)**: ① App Store Connect 가 **2026-04-28 부터 Xcode 26 / iOS 26 SDK 빌드만 받는다** —
+> 워크플로 러너를 `macos-15`(기본 Xcode 16.4)에서 **`macos-26`(기본 Xcode 26.6)** 으로 교체. ② 앱 번들에 **개인정보 매니페스트
+> `ios/Runner/PrivacyInfo.xcprivacy`** 추가(필수 사유 API 4종 — UserDefaults·파일 타임스탬프·부팅 시각·디스크 공간, 추적 없음).
+> ③ 스크린샷 6.9"/6.5" 각 7장을 09-02 골든(4탭 셸) 기준으로 재생성. ④ 버전 `1.0.0+3025`. ⑤ GitHub Secrets 는 아직 0건
+> (`gh secret list`) — Apple 계정 승인 뒤 §B-1. ⑥ 연령 등급 설문이 2025 신체계(4+/9+/13+/16+/18+)이고 2026-07 추가된
+> 소셜 문항이 2026-09 부터 신규 제출 필수 — 쪽지(1:1 메시지) 기능을 사실대로 답한다(§D-3).
+
 | 항목 | 상태 | 근거 |
 |---|---|---|
 | iOS 프로젝트 | **있음** (2026-08-28 신설) | `ios/` — bundle `com.netizen.hyphen.hyphenApp`, 표시명 HYPHEN, iPhone 전용, 세로 고정, 배포 타깃 iOS 13 |
 | 컴파일 검증 | GitHub Actions macOS 러너 `ios / compile` (push 마다) | `.github/workflows/ios.yml` — 서명 없이 `flutter build ios` 후 번들 안 운영 URL 주입까지 검사 |
 | 앱 아이콘 | **있음** — 전 사이즈 + 1024 마케팅, 알파 없음 | `ios/Runner/Assets.xcassets/AppIcon.appiconset/` (런처 아이콘과 같은 기하) |
-| 스크린샷 | **있음** — 6.9" 1320×2868 · 6.5" 1284×2778 각 7장 | `build/store/ios/{6.9,6.5}/` — `python tool/gen_store_shots_ios.py` 재생성 |
+| 스크린샷 | **있음** — 6.9" 1320×2868 · 6.5" 1284×2778 각 7장 (2026-09-03 재생성) | `build/store/ios/{6.9,6.5}/` — `python tool/gen_store_shots_ios.py` 재생성 |
 | 알림 | iOS 초기화·권한 요청·전면 배너 배선 완료 | `lib/core/notification_service.dart` · `ios/Podfile` 매크로 · `AppDelegate.swift` delegate |
 | 소셜 로그인 | **없음** (사문 플러그인 제거) → Sign in with Apple 의무(4.8) 해당 없음 | 로그인 = 아이디·비밀번호뿐 |
 | 계정 삭제 | 앱 안 삭제 버튼 + 공개 페이지 → 5.1.1(v) 충족 | PLAYSTORE.md §0-5 |
 | 수출 규정 | `ITSAppUsesNonExemptEncryption = false` → 업로드마다 묻는 암호화 프롬프트 생략 | `ios/Runner/Info.plist` (HTTPS 표준 암호화만 사용) |
+| 개인정보 매니페스트 | **있음** (2026-09-03) — 필수 사유 API 4종 선언, 추적 없음 | `ios/Runner/PrivacyInfo.xcprivacy` (Xcode 프로젝트 Resources 등록) |
+| 빌드 SDK | 러너 `macos-26` = Xcode 26.6 (ASC 요건 Xcode 26+, 2026-04-28~) | `.github/workflows/ios.yml` |
 | 심사 계정 | 구글과 동일 2개 (`googletest2` 코치 · `googletest1` 회원) | PLAYSTORE.md A-12 (비밀번호 보관 위치 포함) |
 | URL 4종 | 구글과 동일 | PLAYSTORE.md §0-9 |
 | Apple Developer 계정 | **신청 완료 (2026-08-28) — 인증 대기** | §A-2 · 승인 후 §G |
@@ -74,6 +83,9 @@ App Store 용 ipa export → `fastlane pilot` 로 TestFlight 업로드 → ipa �
 - **"No profiles for 'com.netizen.hyphen.hyphenApp'"** — API 키 역할이 낮아 자동 발급 불가. 키를 Admin 으로 다시 만든다.
 - **번들 ID 미등록** — `-allowProvisioningUpdates` 가 등록해 주지만 실패하면 Identifiers 에서 수동 등록 후 재실행.
 - **TestFlight 업로드는 됐는데 빌드가 안 보임** — 처리 중(5~30분). 수출 규정 프롬프트는 Info.plist 로 이미 답했다.
+- **ITMS-90725 / "SDK version issue"** — Xcode 26 미만으로 빌드한 ipa. 러너가 `macos-26` 인지(기본 Xcode 26.x) 확인.
+  2026-09-03 에 두 job 모두 `macos-26` 으로 바꿨다 — macos-15 이미지의 기본 Xcode 는 16.4 라 ASC 가 거절한다.
+- **ITMS-91053 Missing API declaration** — 개인정보 매니페스트 누락. `ios/Runner/PrivacyInfo.xcprivacy` 가 Resources 에 들어 있는지 확인.
 - **fastlane pilot 인증 실패** — `.p8` base64 가 줄바꿈 포함으로 깨진 경우. 한 줄인지 확인.
 - 이 절차는 **Apple 계정이 없는 2026-08-28 시점에는 실행해 보지 못했다** — 계정 생기면 첫 실행 로그를 보고 고친다.
   `compile` job 은 계정 없이 돌아가며 그것이 지금 검증된 범위다.
@@ -94,7 +106,7 @@ App Store 용 ipa export → `fastlane pilot` 로 TestFlight 업로드 → ipa �
 | 개인정보 처리방침 URL | https://web-facing-admin-production-dca4.up.railway.app/privacy |
 | 저작권 | 2026 변민준 |
 | 스크린샷 | `build/store/ios/6.9/01~07` (필수 슬롯) · `build/store/ios/6.5/01~07` (구형 기기 슬롯). iPad 슬롯은 iPhone 전용 앱이라 없음 |
-| 버전 | pubspec `1.0.0+3009` → CFBundleShortVersionString 1.0.0 · CFBundleVersion 3009 (구글과 같은 번호) |
+| 버전 | pubspec `1.0.0+3025` (2026-09-03) → CFBundleShortVersionString 1.0.0 · CFBundleVersion 3025 (구글과 같은 번호) |
 
 > 금지 용어(박스·크로스핏·WOD·헬스·다이어트·건강·"쉬운"·"누구나"…)는 애플 카피에도 동일 적용 — 단 **카테고리 이름 "건강 및 피트니스" 는 애플 고정 명칭**이라 예외.
 
@@ -122,7 +134,11 @@ App Store 용 ipa export → `fastlane pilot` 로 TestFlight 업로드 → ipa �
 - 답한 내용과 개인정보처리방침 본문이 어긋나면 반려 사유 — 방침 본문은 `web/facing-admin/templates/legal_privacy.html`.
 
 ### D-3. 연령 등급
-전 항목 "없음" (폭력·성·도박·약물·공포 없음, 무제한 웹 접근 없음, 사용자 생성 콘텐츠 = 쪽지·수업 결과이지만 체육관 안 소속 회원끼리만) → **4+** 예상. 미확인: 애플이 1:1 쪽지를 "사용자 생성 콘텐츠" 로 보고 12+ 를 요구할 수 있음 — 설문 결과대로 따른다.
+전 항목 "없음" (폭력·성·도박·약물·공포 없음, 무제한 웹 접근 없음, 사용자 생성 콘텐츠 = 쪽지·수업 결과이지만 체육관 안 소속 회원끼리만) → **4+** 예상. 미확인: 애플이 1:1 쪽지를 "사용자 생성 콘텐츠" 로 보고 더 높은 등급을 요구할 수 있음 — 설문 결과대로 따른다.
+
+- **2026-09-03 조사**: 등급 체계가 **4+ / 9+ / 13+ / 16+ / 18+** 신체계이고(2025 개편), 2026-07 에 추가된 소셜 미디어·메시지 문항이
+  **2026-09 부터 신규 제출·업데이트 필수**. 이 앱의 해당 항목 = "메시지·채팅 기능 있음(같은 체육관 코치↔회원 1:1, 공개 피드 없음)" ·
+  "사용자 생성 콘텐츠 — 제한적" · 부모 통제/인앱 제어 없음 · 의료·웰니스 주제 없음. 광고 없음. 출처: developer.apple.com/news?id=ks775ehf
 
 ---
 
@@ -158,7 +174,8 @@ App Store 용 ipa export → `fastlane pilot` 로 TestFlight 업로드 → ipa �
 - [ ] App Store Connect API 키(Admin) 발급 → GitHub Secrets 4개 — 사용자
 - [ ] 워크플로 `ios` dispatch → TestFlight 첫 업로드 성공 (첫 실행 함정은 §B-3)
 - [ ] 본인 아이폰에서 TestFlight 설치 → 로그인·예약·알림 권한 실물 확인
-- [ ] App Privacy·연령 등급·심사 정보 입력 (§D·§E) → 심사 제출
+- [ ] App Privacy·연령 등급(신체계 + 소셜 문항, §D-3)·심사 정보 입력 (§D·§E) → 심사 제출
+- [ ] EU DSA 판매자(trader) 여부 — 한국만 배포하는 개인 계정은 **"판매자 아님"** 선택 가능 (2026-09-03 조사, 공식 도움말)
 
 ### 완료됨 (2026-08-28)
 - [x] iOS 프로젝트 생성·브랜딩·iPhone 전용·세로 고정·iOS 13 타깃
@@ -166,6 +183,8 @@ App Store 용 ipa export → `fastlane pilot` 로 TestFlight 업로드 → ipa �
 - [x] 알림 iOS 배선 (초기화·권한·전면 배너·Podfile 매크로)
 - [x] 사문 소셜 로그인 플러그인 제거 → 4.8 해당 없음
 - [x] 수출 규정 프롬프트 생략 (`ITSAppUsesNonExemptEncryption=false`)
+- [x] 개인정보 매니페스트 `PrivacyInfo.xcprivacy` (2026-09-03)
+- [x] 러너 `macos-26` — Xcode 26 SDK 요건 (2026-09-03)
 - [x] GitHub Actions: 서명 없는 컴파일 게이트 + 클라우드 서명 TestFlight 워크플로
 - [x] 계정 삭제 경로·URL 4종·심사 계정 — 구글과 공유
 
