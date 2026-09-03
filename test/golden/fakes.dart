@@ -692,7 +692,7 @@ List<Map<String, dynamic>> myReservations() {
       'class_session_id': 101,
       'start_at': _todayAt(now, 20),
       'duration_minutes': 60,
-      'title': 'WOD Class',
+      'title': 'SWEAT',
       'room': 'Main Floor',
       'status': 'confirmed',
     },
@@ -713,7 +713,7 @@ List<Map<String, dynamic>> myReservations() {
       'class_session_id': 103,
       'start_at': _todayAt(now, 6),
       'duration_minutes': 60,
-      'title': 'Morning WOD',
+      'title': 'AWAKE',
       'status': 'confirmed',
     },
   ];
@@ -729,11 +729,11 @@ List<Map<String, dynamic>> memberClasses() {
       'gym_id': 1,
       'start_at': _todayAt(now, 20),
       'duration_minutes': 60,
-      'title': 'WOD Class',
+      'title': 'SWEAT',
       // D89 — 세션 라벨은 서버가 붙인다 (display_title). 앱은 그대로 적는다.
       'variant': 'A',
       'variant_label': 'A 세션',
-      'display_title': 'WOD Class · A 세션',
+      'display_title': 'SWEAT · A 세션',
       'description': '오늘의 수업 내용 · 스케일 옵션 제공',
       'room': 'Main Floor',
       'coach_user_id': 11,
@@ -767,7 +767,7 @@ List<Map<String, dynamic>> memberClasses() {
       'gym_id': 1,
       'start_at': '${tomorrow}T06:00:00',
       'duration_minutes': 60,
-      'title': 'Morning WOD',
+      'title': 'AWAKE',
       'description': '출근 전 클래스',
       'room': 'Main Floor',
       'coach_user_id': 12,
@@ -1529,7 +1529,7 @@ Map<String, dynamic> classRosterUpcoming() => {
 
 Map<String, dynamic> classRoster() => {
   'class_session_id': 101,
-  'title': 'WOD Class',
+  'title': 'SWEAT',
   'start_at': '2026-08-12T09:00:00',
   'room': 'Main Floor',
   'coach_user_id': 'coach_park',
@@ -1641,7 +1641,7 @@ Map<String, dynamic> bossDashboard() {
     'today_classes': [
       {
         'id': 101,
-        'title': 'WOD Class',
+        'title': 'SWEAT',
         'start_at': '${_ymd(now)}T19:00:00',
         'end_at': '${_ymd(now)}T20:00:00',
         'reserved': 8,
@@ -1859,7 +1859,7 @@ List<Map<String, dynamic>> memberActivity() {
       };
   return [
     row(901, 'promotion', '예약 확정',
-        'WOD Class (${_ymd(now)} 20:00) 자리가 나서 예약이 확정되었습니다.',
+        'SWEAT (${_ymd(now)} 20:00) 자리가 나서 예약이 확정되었습니다.',
         0, '08:02', unread: true),
     row(902, 'achievement', '업적 달성',
         "이서준님, '30일 연속 출석' 업적을 달성했습니다.", 0, '07:30', unread: true),

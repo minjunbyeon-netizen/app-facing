@@ -326,7 +326,7 @@ void _rememberedLoginGolden() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.text('WOD Class').first);
+    await tester.tap(find.text('SWEAT').first);
     await tester.pumpAndSettle();
     expect(find.text('출석 체크는 수업 시작 후'), findsOneWidget);
     await capture(tester, 'state_10_roster_before_start');

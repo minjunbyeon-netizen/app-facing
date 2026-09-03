@@ -310,7 +310,7 @@ void main() {
     );
     await tester.pumpAndSettle();
     // 오늘 수업 첫 카드(class 101) 탭 → 명단 시트.
-    await tester.tap(find.text('WOD Class').first);
+    await tester.tap(find.text('SWEAT').first);
     await tester.pumpAndSettle();
     await capture(tester, 'boss_03_class_roster');
   });
