@@ -45,7 +45,7 @@
    역할 **Admin** (App Manager 는 서명용 인증서 발급 권한이 부족할 수 있음 — 미확인이라 Admin 권장).
    여기서 나오는 세 값 + 팀 ID 를 GitHub Secrets 에 넣는다 (§B). **.p8 파일은 한 번만 내려받을 수 있다** — 잃으면 키를 새로 만든다.
 4. **App Store Connect → 나의 앱 → + 신규 앱.**
-   - 플랫폼 iOS · 이름 **HYPHEN** · 기본 언어 한국어 · 번들 ID `com.netizen.hyphen.hyphenApp`
+   - 플랫폼 iOS · 이름 **HYPHEN - 체육관 코치·회원 소통** (시트 §0 정본 — "이미 사용 중" 이면 시트 §3-1 대안) · 기본 언어 한국어 · 번들 ID `com.netizen.hyphen.hyphenApp`
      (번들 ID 는 Certificates, Identifiers & Profiles 에 먼저 등록돼 있어야 목록에 뜬다 —
      워크플로의 `-allowProvisioningUpdates` 가 자동 등록해 주지만, 수동으로 먼저 만들어도 된다)
    - SKU `hyphen-ios` (내부 식별용, 자유)
@@ -98,7 +98,7 @@ App Store 용 ipa export → `fastlane pilot` 로 TestFlight 업로드 → ipa �
 
 | 칸 | 값 |
 |---|---|
-| 이름 | HYPHEN |
+| 이름 | HYPHEN - 체육관 코치·회원 소통 (시트 §0 정본) |
 | 부제 (30자) | 코치와 회원을 잇는 체육관 앱 |
 | 카테고리 | 기본 건강 및 피트니스 · 보조 스포츠 (구글 카테고리와 대응 — PLAYSTORE.md D-4) |
 | 설명 | PLAYSTORE.md §C "자세한 설명" 그대로 (4000자 한도 동일) |

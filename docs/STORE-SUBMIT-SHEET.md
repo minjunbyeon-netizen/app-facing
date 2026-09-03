@@ -57,6 +57,7 @@
 - 계정 삭제 기능을 확인하려면 testmember2 를 사용해 주세요 (내 정보 → 개인정보처리방침 → 계정 삭제). testmember1 은 삭제하지 말아 주세요.
 - '회원 가입 신청'으로 새 계정을 만들면 코치 승인 전까지 대기 화면이 뜹니다. testcoach1 로 로그인해 '가입 신청'에서 승인하면 바로 로그인됩니다.
 - 알림은 앱이 켜져 있을 때 서버 이벤트로 표시되는 로컬 알림입니다 (푸시 서버 없음).
+- 쪽지는 같은 체육관의 코치와 회원 사이 1:1 뿐이며 회원끼리는 대화할 수 없습니다. 공개 피드·프로필 검색이 없습니다. 코치는 PC 웹에서 회원을 탈퇴 처리해 대화를 끊을 수 있고, 부적절한 내용은 지원 이메일(cheb2oy@naver.com)로 신고받아 처리합니다.
 세 계정 모두 같은 체육관(HYPHEN)에 속하며 만료되지 않습니다.
 ```
 
@@ -71,6 +72,7 @@ Sign in with ID and password (no social login, no OTP).
 - To test account deletion please use testmember2 (My Info → Privacy Policy → Delete account). Please do not delete testmember1.
 - "Sign-up request" creates a pending account; approve it from testcoach1 → "가입 신청" and it can sign in immediately.
 - Notifications are local notifications driven by server events while the app is open (no push server).
+- Messages are 1:1 between a coach and a member of the same gym only; members cannot message each other. There is no public feed or profile search. A coach can remove a member from the gym (web admin), and objectionable content can be reported to cheb2oy@naver.com.
 All three accounts belong to the same gym (HYPHEN) and never expire.
 ```
 
