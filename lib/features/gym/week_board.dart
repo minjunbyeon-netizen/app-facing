@@ -346,16 +346,16 @@ class _WeekBoardState extends State<WeekBoard> {
 ///
 /// - **순서** = 그 수업 종류의 그날 **첫 수업 시각**(서버가 `first_class_at` 로 준다).
 ///   시각이 없는 글(수업 종류에 안 붙은 단발)은 맨 뒤로, 그 안에서는 게시 순.
-/// - **중복 제거** = 같은 수업 종류(`templateId`)·같은 세션(`variant`, D89)은 한 번만.
-///   하루에 BUILD 가 두 번 돌아도 내용은 하나이므로 두 번 적을 이유가 없다. 다만
-///   AWAKE A 세션과 B 세션은 다른 프로그램이라 둘 다 남는다. 종류가 없는 글은 각각
-///   남긴다 (서로 다른 글일 수 있다).
+/// - **중복 제거** = 같은 수업 종류(`templateId`)는 한 번만. 하루에 BUILD 가 두 번
+///   돌아도 내용은 하나이므로 두 번 적을 이유가 없다. 종류가 없는 글은 각각 남긴다
+///   (서로 다른 글일 수 있다). D109 (2026-09-04): 구 D89 의 "세션이 다르면 따로"
+///   는 폐기 — 같은 수업의 A·B·C 는 다른 운동이 아니라 **한 글 안의 파트**라
+///   카드 한 장 안에 세로로 선다 (`WodRow`).
 List<GymWodPost> visibleProgram(List<GymWodPost> wods) {
-  final seen = <String>{};
+  final seen = <int>{};
   final out = <GymWodPost>[];
   for (final w in wods) {
-    if (w.templateId != null &&
-        !seen.add('${w.templateId}|${w.variant ?? ''}')) {
+    if (w.templateId != null && !seen.add(w.templateId!)) {
       continue;
     }
     out.add(w);
@@ -429,7 +429,7 @@ class _DayTile extends StatelessWidget {
   String get _scheduleSummary {
     final names = <String>[];
     for (final c in classes) {
-      final t = c.displayTitle.trim(); // D89 — 'AWAKE · A 세션' (서버 표시 제목)
+      final t = c.displayTitle.trim(); // 서버 표시 제목 그대로
       if (t.isNotEmpty && !names.contains(t)) names.add(t);
     }
     if (names.isEmpty) return classesLoading ? '' : '수업 없음';
@@ -464,7 +464,7 @@ class _DayTile extends StatelessWidget {
   static String _programName(GymWodPost w) {
     if (w.locked) return '회원권 만료';
     // v3.41 — 수업 종류 이름이 곧 회원이 아는 이름이다 (AWAKE·SWEAT·BUILD).
-    // D89 — 세션이 있으면 서버가 붙인 이름표 그대로 ('AWAKE · A 세션').
+    // 이름표는 서버 display_name 그대로 (D109: 세션 꼬리 없음).
     final tn = (w.displayName ?? w.templateName ?? '').trim();
     if (tn.isNotEmpty) return tn;
     if (w.wodType != 'custom') return wodTypeLabel(w.wodType);

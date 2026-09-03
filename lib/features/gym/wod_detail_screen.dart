@@ -250,13 +250,16 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
     }
   }
 
-  /// rounds_data 의 movements 를 라운드별 동작 행으로 렌더.
+  /// rounds_data 의 movements 를 파트별 동작 행으로 렌더.
   /// movements 가 하나도 없으면 빈 리스트 반환(구버전 WOD 영향 0).
+  /// D109 — 파트가 둘 이상이면 카드 라벨 = 서버 머리줄 `title`('A 파트 · 15분 ·
+  /// AMRAP'), 빈 값이면 `label`. 파트 하나면 종전과 같은 그림(label 만).
   List<Widget> _buildMovementRounds(GymWodPost wod) {
     final rounds = wod.roundsData.where((r) => r.hasMovements).toList();
     if (rounds.isEmpty) return const [];
     final widgets = <Widget>[const SizedBox(height: HyphenTokens.sp3)];
     for (final r in rounds) {
+      final label = wod.isMultiPart && r.title.isNotEmpty ? r.title : r.label;
       widgets.add(
         HkCard(
           padding: const EdgeInsets.all(HyphenTokens.sp3),
@@ -264,10 +267,10 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (r.label.isNotEmpty)
+              if (label.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(bottom: HyphenTokens.sp2),
-                  child: HkSectionLabel(r.label),
+                  child: HkSectionLabel(label),
                 ),
               ...r.movements.map(
                 (m) => _MovementRow(

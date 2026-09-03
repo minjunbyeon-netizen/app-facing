@@ -1,16 +1,21 @@
-// 프로그램 칸의 순서·중복·펼침 회귀 (v3.41 · 2026-08-29).
+// 프로그램 칸의 순서·중복·펼침·파트 회귀 (v3.41 · 2026-08-29 / D109 · 2026-09-04).
 //
-// 사용자 지시: "프로그램 들어왔을 때 그날 수업이 시간 순서대로
+// 사용자 지시 (v3.41): "프로그램 들어왔을 때 그날 수업이 시간 순서대로
 // (어웨이크, 스웻, 빌드): 가장 빠른순대로 중복은 표시하지 않고,
 // 수업 펼쳐져서 내용은 다 보여야 함".
+// 사용자 지시 (D109): "60분 운동에서 A세션때 15분 B세션때 20분 이런식으로
+// 사람들이 보기 쉬우라는 거지. 다른 운동이 아님" — 같은 수업의 A·B·C 는
+// 한 카드 안의 **파트**다. 카드가 셋으로 갈라지면 안 된다.
 //
-// 세 가지를 못 박는다.
+// 네 가지를 못 박는다.
 //   1) 순서 = 그 수업 종류의 그날 **첫 수업 시각** (서버 `first_class_at`)
 //   2) 같은 수업 종류는 **한 번만** — 하루에 두 번 돌아도 내용은 하나다
 //   3) 카드가 **전부 펼쳐진 채**로 열린다 (접힌 것을 눌러 열 필요가 없다)
+//   4) 파트가 둘 이상인 글은 **카드 한 장** 안에 파트 머리줄·동작 줄이 세로로
+//      서고, 카드 머리에는 종류(AMRAP 등)를 적지 않는다
 //
-// 픽스처(`gymWods`)가 일부러 뒤섞인 순서에 BUILD 를 두 번 담고 있어,
-// 이 검사가 곧 그 픽스처의 뜻이다.
+// 픽스처(`gymWods`)가 일부러 뒤섞인 순서에 BUILD 를 두 번, SWEAT 에 파트 셋을
+// 담고 있어, 이 검사가 곧 그 픽스처의 뜻이다.
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -25,9 +30,7 @@ import 'fakes.dart';
 import 'harness.dart';
 import 'screens_golden_test.dart' show rxProfile, signedInAuth, signedInPrefs;
 
-GymWodPost _p(int id,
-        {int? tid, String? name, DateTime? at, String? variant}) =>
-    GymWodPost(
+GymWodPost _p(int id, {int? tid, String? name, DateTime? at}) => GymWodPost(
       id: id,
       postDate: '2026-08-29',
       wodType: 'custom',
@@ -36,26 +39,10 @@ GymWodPost _p(int id,
       templateId: tid,
       templateName: name,
       firstClassAt: at,
-      variant: variant,
-      variantLabel: variant == null ? null : '$variant 세션',
-      displayName: variant == null ? name : '$name · $variant 세션',
+      displayName: name,
     );
 
 void main() {
-  group('visibleProgram — 세션 (D89)', () {
-    test('같은 종류라도 세션이 다르면 둘 다 남고, 같은 세션은 한 번만', () {
-      final out = visibleProgram([
-        _p(1, tid: 1, name: 'AWAKE', at: DateTime(2026, 8, 29, 19), variant: 'B'),
-        _p(2, tid: 1, name: 'AWAKE', at: DateTime(2026, 8, 29, 6), variant: 'A'),
-        _p(3, tid: 1, name: 'AWAKE', at: DateTime(2026, 8, 29, 6), variant: 'A'),
-        _p(4, tid: 1, name: 'AWAKE', at: DateTime(2026, 8, 29, 12)),
-      ]);
-      expect(out.map((w) => w.id), [2, 4, 1]);
-      expect(out.map((w) => w.displayName),
-          ['AWAKE · A 세션', 'AWAKE', 'AWAKE · B 세션']);
-    });
-  });
-
   group('visibleProgram — 순서와 중복', () {
     test('첫 수업 시각이 이른 순으로 세운다', () {
       final out = visibleProgram([
@@ -77,6 +64,17 @@ void main() {
       expect(out.first.id, 1, reason: '중복이면 먼저 온 것을 남긴다');
     });
 
+    test('같은 종류 글이 여럿이어도 카드는 하나 — D109 (구 D89 세션 분리 폐기)', () {
+      // 옛 데이터(세션 글자가 남은 글)가 같은 종류로 여럿 와도 앱은 종류당 첫 글만.
+      final out = visibleProgram([
+        _p(1, tid: 1, name: 'AWAKE', at: DateTime(2026, 8, 29, 19)),
+        _p(2, tid: 1, name: 'AWAKE', at: DateTime(2026, 8, 29, 6)),
+        _p(4, tid: 1, name: 'AWAKE', at: DateTime(2026, 8, 29, 12)),
+      ]);
+      expect(out.map((w) => w.id), [1]);
+      expect(out.single.displayName, 'AWAKE');
+    });
+
     test('수업 종류에 안 붙은 단발 글은 맨 뒤에, 서로는 지우지 않는다', () {
       final out = visibleProgram([
         _p(9), // 시각 없음
@@ -87,7 +85,34 @@ void main() {
     });
   });
 
-  testWidgets('프로그램 칸 — 오늘 세 종류가 시간 순으로, 전부 펼쳐진 채', (tester) async {
+  group('GymWodPost — 파트 (D109)', () {
+    test('파트가 둘 이상이면 isMultiPart, 서버 title·lines·memo 를 그대로 든다', () {
+      final sweat = gymWods().firstWhere((w) => w['id'] == 32);
+      final post = GymWodPost.fromJson(sweat);
+      expect(post.isMultiPart, isTrue);
+      expect(post.roundsData.map((r) => r.title), [
+        'A 파트 · 15분 · STRENGTH',
+        'B 파트 · 20분 · AMRAP · 캡 12분',
+        'C 파트 · 10분',
+      ]);
+      expect(post.roundsData[1].lines, ['KB Swing 15회 · 24kg', 'Row 200m']);
+      expect(post.roundsData.map((r) => r.durationMin), [15, 20, 10]);
+      expect(post.memo, '마지막 파트는 쿨다운.');
+      expect(post.wodType, 'custom', reason: '둘 이상이면 대표 종류가 없다');
+    });
+
+    test('파트 하나(옛 글)는 isMultiPart 가 아니고 title 이 비어도 읽힌다', () {
+      final awake = gymWods().firstWhere((w) => w['id'] == 31);
+      final post = GymWodPost.fromJson(awake);
+      expect(post.isMultiPart, isFalse);
+      expect(post.roundsData.single.title, '');
+      expect(post.roundsData.single.lines, isEmpty);
+      expect(post.memo, '');
+    });
+  });
+
+  testWidgets('프로그램 칸 — 오늘 세 종류가 시간 순으로, 전부 펼쳐진 채, 파트는 한 카드 안에',
+      (tester) async {
     phone(tester);
     SharedPreferences.setMockInitialValues(signedInPrefs());
     final api = FakeApi(memberWorld());
@@ -106,23 +131,43 @@ void main() {
 
     // 기본 진입이 프로그램 칸이고 오늘이 펼쳐져 있다 (v3.40).
     final rows = tester.widgetList<WodRow>(find.byType(WodRow)).toList();
-    // D89 — AWAKE 는 A 세션(06:00)·B 세션(19:00) 둘 다 선다. BUILD 중복만 접힌다.
-    expect(rows.length, 4, reason: 'BUILD 중복 한 건은 화면에 오지 않는다');
+    expect(rows.length, 3, reason: 'BUILD 중복 한 건은 화면에 오지 않는다');
     expect(
       rows.map((r) => r.wod.displayName ?? r.wod.templateName),
-      ['AWAKE · A 세션', 'SWEAT', 'BUILD', 'AWAKE · B 세션'],
-      reason: '첫 수업 시각 순 (06:00 · 12:00 · 18:00 · 19:00) — 세션별로 따로',
+      ['AWAKE', 'SWEAT', 'BUILD'],
+      reason: '첫 수업 시각 순 (06:00 · 12:00 · 18:00)',
     );
     expect(rows.every((r) => r.initiallyExpanded == true), isTrue,
         reason: '내용이 다 보여야 한다 — 눌러서 열 필요가 없다');
 
     // 펼쳐진 내용이 실제로 그려졌는지 (접힌 카드면 본문이 없다).
     expect(find.textContaining('Thruster'), findsWidgets);
-    expect(find.textContaining('KB Swing'), findsWidgets);
     expect(find.textContaining('Clean & Jerk'), findsWidgets);
-    expect(find.textContaining('Run 400m'), findsWidgets,
-        reason: 'B 세션 본문도 펼쳐져 있다');
     // 중복 글의 본문은 어디에도 없다.
     expect(find.textContaining('같은 종류 중복'), findsNothing);
+
+    // D109 — SWEAT 카드 한 장 안에 파트 셋. 머리줄(서버 title, 섹션 라벨은
+    // 대문자로 그린다)과 동작 줄이 전부 보인다.
+    final sweatRow = find.byWidgetPredicate(
+        (w) => w is WodRow && w.wod.displayName == 'SWEAT');
+    expect(sweatRow, findsOneWidget, reason: '파트 셋이 카드 셋으로 갈라지면 안 된다');
+    for (final head in ['A 파트 · 15분 · STRENGTH', 'B 파트 · 20분 · AMRAP · 캡 12분', 'C 파트 · 10분']) {
+      expect(find.descendant(of: sweatRow, matching: find.text(head.toUpperCase())),
+          findsOneWidget, reason: '파트 머리줄 $head');
+    }
+    expect(find.descendant(of: sweatRow, matching: find.textContaining('KB Swing')),
+        findsOneWidget);
+    expect(find.descendant(of: sweatRow, matching: find.textContaining('Plank 60초')),
+        findsOneWidget);
+    expect(find.descendant(of: sweatRow, matching: find.text('마지막 파트는 쿨다운.')),
+        findsOneWidget, reason: '메모는 파트 아래 한 번');
+    // 카드 머리에 종류를 적지 않는다 — 파트 하나짜리 AWAKE 는 'FOR TIME' 을 적는다.
+    expect(find.descendant(of: sweatRow, matching: find.text('수업')), findsNothing,
+        reason: "wod_type 'custom' 의 라벨 '수업' 이 머리에 서면 안 된다");
+    expect(find.descendant(of: sweatRow, matching: find.text('AMRAP')), findsNothing);
+    final awakeRow = find.byWidgetPredicate(
+        (w) => w is WodRow && w.wod.displayName == 'AWAKE');
+    expect(find.descendant(of: awakeRow, matching: find.text('FOR TIME')),
+        findsOneWidget);
   });
 }

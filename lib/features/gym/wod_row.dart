@@ -243,7 +243,7 @@ class _WodRowState extends State<WodRow> {
                   // 회원이 아는 이름은 AWAKE·SWEAT·BUILD 이고, FOR TIME·AMRAP 은
                   // 그 안에서 오늘 무엇을 하느냐다. 수업 종류에 안 붙은 단발 글은
                   // 종전대로 종류만 적는다.
-                  // D89 — 세션이 있으면 서버 이름표 그대로 ('AWAKE · A 세션').
+                  // 이름표는 서버 display_name 그대로 (D109: 세션 꼬리 없음).
                   if ((wod.displayName ?? wod.templateName ?? '')
                       .trim()
                       .isNotEmpty) ...[
@@ -255,23 +255,28 @@ class _WodRowState extends State<WodRow> {
                             : HyphenTokens.fg,
                       ),
                     ),
-                    _dot(),
+                    // D109 — 파트가 둘 이상이면 머리에 종류·캡·라운드를 적지
+                    // 않는다 (전체를 대표하는 종류가 없다 — 파트마다 제 머리줄이
+                    // 있다). 이름표 뒤 점도 같이 뺀다.
+                    if (!wod.isMultiPart) _dot(),
                   ],
-                  Text(
-                    wodTypeLabel(wod.wodType),
-                    style: HyphenTokens.sectionLabel.copyWith(
-                      color: isMinimal
-                          ? HyphenTokens.muted
-                          : HyphenTokens.accent,
+                  if (!wod.isMultiPart) ...[
+                    Text(
+                      wodTypeLabel(wod.wodType),
+                      style: HyphenTokens.sectionLabel.copyWith(
+                        color: isMinimal
+                            ? HyphenTokens.muted
+                            : HyphenTokens.accent,
+                      ),
                     ),
-                  ),
-                  if (wod.timeCapSec != null) ...[
-                    _dot(),
-                    Text(wod.timeCapDisplay, style: HyphenTokens.caption),
-                  ],
-                  if (wod.rounds != null) ...[
-                    _dot(),
-                    Text('${wod.rounds} rounds', style: HyphenTokens.caption),
+                    if (wod.timeCapSec != null) ...[
+                      _dot(),
+                      Text(wod.timeCapDisplay, style: HyphenTokens.caption),
+                    ],
+                    if (wod.rounds != null) ...[
+                      _dot(),
+                      Text('${wod.rounds} rounds', style: HyphenTokens.caption),
+                    ],
                   ],
                   const Spacer(),
                   // v3.20: 수업 내용 삭제 버튼 제거 — 게시가 PC 몫이 되면서
@@ -295,36 +300,40 @@ class _WodRowState extends State<WodRow> {
               ],
               if (_expanded) ...[
                 const SizedBox(height: HyphenTokens.sp2),
-                Text(
-                  wod.content,
-                  style: HyphenTokens.body.copyWith(color: fgColor),
-                ),
-                // v2.3: 라운드가 하나뿐이면 그 내용은 바로 위 본문과 같은 말이다
-                // ('21-15-9 Thruster + Pull-up' 이 두 번). 카드 길이만 늘리고
-                // 읽을 것은 안 늘어나므로 여러 라운드일 때만 펼친다.
-                if (wod.roundsData.length > 1) ...[
-                  ...wod.roundsData.asMap().entries.map((e) {
-                    final i = e.key;
-                    final r = e.value;
-                    final label = r.label.isEmpty
-                        ? 'R${i + 1}'
-                        : r.label.toUpperCase();
-                    return _kv(
-                      label,
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(r.content, style: HyphenTokens.caption),
-                          if (r.timeCapSec != null)
-                            Text(
-                              'cap ${r.timeCapSec! ~/ 60}:${(r.timeCapSec! % 60).toString().padLeft(2, '0')}',
-                              style: HyphenTokens.micro,
-                            ),
-                        ],
+                // D109 (2026-09-04 사용자 "60분 운동에서 A세션때 15분 B세션때 20분
+                // 이런식으로 보기 쉬우라는 거지. 다른 운동이 아님") — 파트가 둘
+                // 이상이면 파트마다 서버 머리줄(title)을 섹션 라벨로, 그 아래 동작
+                // 줄(lines)을 세로로, 끝에 메모. 글자는 전부 서버가 그린 것이고
+                // 앱은 놓기만 한다 (6-b). 파트 하나면 종전대로 본문 한 덩이 —
+                // 구 "여러 라운드면 _kv 로 한 번 더" 블록은 같은 말을 두 번 적던
+                // 것이라 지웠다.
+                if (wod.isMultiPart) ...[
+                  for (var i = 0; i < wod.roundsData.length; i++) ...[
+                    if (i > 0) const SizedBox(height: HyphenTokens.sp2),
+                    HkSectionLabel(
+                      wod.roundsData[i].title.isNotEmpty
+                          ? wod.roundsData[i].title
+                          : wod.roundsData[i].label,
+                    ),
+                    if (wod.roundsData[i].lines.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(
+                          wod.roundsData[i].lines.join('\n'),
+                          style: HyphenTokens.body.copyWith(color: fgColor),
+                        ),
                       ),
-                    );
-                  }),
-                ],
+                  ],
+                  if (wod.memo.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: HyphenTokens.sp2),
+                      child: Text(wod.memo, style: HyphenTokens.caption),
+                    ),
+                ] else
+                  Text(
+                    wod.content,
+                    style: HyphenTokens.body.copyWith(color: fgColor),
+                  ),
                 if (wod.scaleGuide != null && wod.scaleGuide!.isNotEmpty)
                   _kv(
                     'SCALE',

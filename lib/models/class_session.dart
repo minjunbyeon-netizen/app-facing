@@ -28,11 +28,9 @@ class ClassSessionDto {
   final int? myWaitlistPosition;
   // D58 (2026-08-26) — 예약이 열리는 순간 (서버 booking_open_at). null = 제한 없음.
   final DateTime? bookingOpenAt;
-  // D89 (2026-08-30) — 같은 수업 종류 안의 세션(A·B…). 라벨·표시 제목은 서버가
-  // 정해 내려준다 (`variant_label` · `display_title`) — 앱은 붙이지 않고 그대로 쓴다.
-  // 화면에 적는 수업 이름은 항상 [displayTitle] ('AWAKE · A 세션'). [title] 은 저장값.
-  final String? variant;
-  final String? variantLabel;
+  // 화면에 적는 수업 이름은 항상 [displayTitle] — 서버 `display_title` 그대로 (앱은
+  // 붙이지 않는다). [title] 은 저장값(PC 편집칸용). D109 (2026-09-04): 구 D89 세션
+  // 꼬리('AWAKE · A 세션', `variant`·`variant_label`)는 폐기 — 지금은 제목과 같다.
   final String displayTitle;
   /// 과제 4 (2026-08-30) — 그날 유효한 회원권이 있는가. 서버 예약 게이트(pick_membership)와
   /// 같은 함수의 답 (`membership_ok`). null = 서버가 안 준 것(코치 조회) → 배지는 정상.
@@ -61,8 +59,6 @@ class ClassSessionDto {
     this.myReservation,
     this.myWaitlistPosition,
     this.bookingOpenAt,
-    this.variant,
-    this.variantLabel,
     String? displayTitle,
     this.membershipOk,
     this.reserveLimitReached,
@@ -110,8 +106,6 @@ class ClassSessionDto {
         bookingOpenAt: j['booking_open_at'] is String
             ? parseServerTime(j['booking_open_at'] as String)
             : null,
-        variant: j['variant']?.toString(),
-        variantLabel: j['variant_label']?.toString(),
         displayTitle: j['display_title']?.toString(),
         membershipOk: j['membership_ok'] is bool ? j['membership_ok'] as bool : null,
         reserveLimitReached: j['reserve_limit_reached'] is String
@@ -146,7 +140,7 @@ class MyReservationItem {
   final DateTime startAt;
   final int durationMinutes;
   final String title;
-  // D89 — 화면 이름 ('AWAKE · A 세션'). 서버 display_title, 없으면 title.
+  // 화면 이름 — 서버 display_title, 없으면 title (D109: 세션 꼬리 없음).
   final String displayTitle;
   final String? room;
   final String status;

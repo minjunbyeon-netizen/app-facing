@@ -370,17 +370,39 @@ class WodMovementItem {
       );
 }
 
+/// 그날 운동의 **파트** 한 구간 (D109 · 2026-09-04 — 구 '라운드' 자리 그대로).
+///
+/// 서버 `rounds_data[]` 항목. 파트 = 같은 수업 한 프로그램 **안의** 순서 있는 구간
+/// (A 파트 15분 · B 파트 20분 …) — 다른 운동이 아니다. 머리줄 [title]('A 파트 ·
+/// 15분 · AMRAP · 캡 12분')과 동작 줄 [lines] 는 서버 `program_lines.api_rounds`
+/// 가 렌더한 글자 그대로다 — 앱은 조립하지 않고 세로로 놓기만 한다 (대전제 6-b).
+/// 옛 글(한 라운드, 파트 필드 없음)은 파트 하나로 읽힌다.
 class WodRoundItem {
   final String label;
   final String content;
   final int? timeCapSec;
   final List<WodMovementItem> movements;
 
+  /// 서버가 그린 파트 머리줄. 파트 하나뿐이면 라벨 없이('15분 · AMRAP · 캡 12분'),
+  /// 적을 것이 없으면 ''.
+  final String title;
+
+  /// 서버가 그린 동작 줄 ('KB Swing 15회 · 24kg').
+  final List<String> lines;
+  final int? durationMin;
+  final String? wodType;
+  final int? rounds;
+
   const WodRoundItem({
     required this.label,
     required this.content,
     this.timeCapSec,
     this.movements = const [],
+    this.title = '',
+    this.lines = const [],
+    this.durationMin,
+    this.wodType,
+    this.rounds,
   });
 
   bool get hasMovements => movements.isNotEmpty;
@@ -393,11 +415,22 @@ class WodRoundItem {
             .map(WodMovementItem.fromJson)
             .toList()
         : <WodMovementItem>[];
+    final linesRaw = j['lines'];
     return WodRoundItem(
       label: (j['label'] ?? '').toString(),
       content: (j['content'] ?? '').toString(),
       timeCapSec: (j['time_cap_sec'] as num?)?.toInt(),
       movements: mv,
+      title: (j['title'] ?? '').toString(),
+      lines: (linesRaw is List)
+          ? linesRaw
+              .map((e) => e.toString())
+              .where((s) => s.isNotEmpty)
+              .toList()
+          : const [],
+      durationMin: (j['duration_min'] as num?)?.toInt(),
+      wodType: j['wod_type']?.toString(),
+      rounds: (j['rounds'] as num?)?.toInt(),
     );
   }
 
@@ -438,11 +471,17 @@ class GymWodPost {
   final int? templateId;
   final String? templateName;
   final DateTime? firstClassAt;
-  // D89 (2026-08-30) — 세션(A·B…). 같은 종류라도 세션이 다르면 다른 프로그램이다.
-  // 중복 판정 축 = (templateId, variant), 이름표 = 서버 display_name ('AWAKE · A 세션').
-  final String? variant;
-  final String? variantLabel;
+  // 이름표 = 서버 display_name (= 수업 종류 이름). D109 (2026-09-04): 구 D89 세션
+  // (`variant`·`variant_label`, 'AWAKE · A 세션')은 폐기 — 같은 종류는 글 하나고,
+  // 그 안의 A·B·C 는 [roundsData] 의 파트다.
   final String? displayName;
+
+  /// D109 — 게시물 메모 (서버 `memo`, 파트 밖 자유 글). 없으면 ''.
+  final String memo;
+
+  /// 파트가 둘 이상인 글 — 카드 머리에 종류·캡·라운드를 적지 않고 본문을 파트별로
+  /// 그린다 (전체를 대표하는 종류가 없다 — 서버도 wod_type 을 'custom' 으로 둔다).
+  bool get isMultiPart => roundsData.length > 1;
 
   /// 2026-09-02 — 완료 버튼 정직화. 서버 제출 게이트(completion_check)와 같은
   /// 함수의 답: null = 완료 가능 · 'RESERVATION_REQUIRED' · 'CLASS_NOT_STARTED'.
@@ -469,9 +508,8 @@ class GymWodPost {
     this.templateId,
     this.templateName,
     this.firstClassAt,
-    this.variant,
-    this.variantLabel,
     this.displayName,
+    this.memo = '',
     this.completionBlocked,
     this.completionBlockedMessage,
   });
@@ -514,9 +552,8 @@ class GymWodPost {
       locked: j['locked'] == true,
       templateId: (j['template_id'] as num?)?.toInt(),
       templateName: j['template_name']?.toString(),
-      variant: j['variant']?.toString(),
-      variantLabel: j['variant_label']?.toString(),
       displayName: j['display_name']?.toString(),
+      memo: (j['memo'] ?? '').toString(),
       firstClassAt: (j['first_class_at'] is String &&
               (j['first_class_at'] as String).isNotEmpty)
           ? parseServerTime(j['first_class_at'] as String).toLocal()

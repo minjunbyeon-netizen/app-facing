@@ -119,7 +119,7 @@ class ClassRoster {
 
   factory ClassRoster.fromJson(Map<String, dynamic> j) => ClassRoster(
     classSessionId: (j['class_session_id'] as num?)?.toInt() ?? 0,
-    // D89 — 서버 표시 제목('AWAKE · A 세션')이 있으면 그것, 없으면 저장 제목.
+    // 서버 표시 제목(display_title)이 있으면 그것, 없으면 저장 제목.
     title: (j['display_title'] ?? j['title'])?.toString() ?? '수업',
     startAt: j['start_at']?.toString() ?? '',
     room: j['room']?.toString(),
