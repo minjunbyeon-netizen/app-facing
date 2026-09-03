@@ -443,7 +443,8 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.text('SWEAT · A 세션'));
+    // D109 — 제목이 'SWEAT' 인 행이 둘(502 · 505). 최근순이라 첫 행이 502(Fran).
+    await tester.tap(find.text('SWEAT').first);
     await tester.pumpAndSettle();
     await tester.tap(find.text('THRUSTER')); // 배지 (HkBadge 는 대문자로 그린다)
     await tester.pumpAndSettle();

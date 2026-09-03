@@ -13,7 +13,7 @@ class WodHistoryItem {
   final String wodType;
   final String wodTypeLabel;
 
-  /// 게시물 본문 첫 줄 — 'AWAKE · A 세션'.
+  /// 게시물 본문 첫 줄 — 수업 이름 ('AWAKE').
   final String title;
 
   /// 그날 운동 한 줄 — 'Back Squat 5×5 · 105kg'. 동작 검색의 축.

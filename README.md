@@ -257,4 +257,9 @@ samples, guidance on mobile development, and a full API reference.
     `test/history_search_test.dart`. 순위는 **서버** `services/history_search.py` (`GET /api/v1/history/wod?q=`) — 동작 사전
     번호로도 맞춘다. 게이트 = `test/ssot_lint_test.dart` (rankHistory·scoreHistoryItem 금지).
 
-
+42. **수업 세션 (D89 · A 세션·B 세션)** — 2026-09-04 D109 로 폐기. 세션을 수업 타임에 붙는
+   글자(`variant`)로 두고 세션마다 게시물·폰 카드를 따로 세우던 모델. 사용자 "다른 운동이 아님" —
+   그날 운동 **한 글 안의 파트**(A 파트 15분 · B 파트 20분)로 다시 정의. 앱에서 지운 것 =
+   `GymWodPost.variant/variantLabel` · `ClassSessionDto.variant/variantLabel` · `visibleProgram` 의
+   (templateId, variant) 중복 축 · `WodRow` 의 라운드 `_kv` 재출력. 복원 좌표: D89 커밋(2026-08-30)
+   `git log --grep=D89`. 서버 `variant` 컬럼 3개는 휴면(표 보존).

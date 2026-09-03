@@ -480,9 +480,12 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  r.label.isEmpty
-                                      ? 'ROUND ${i + 1}'
-                                      : r.label.toUpperCase(),
+                                  // D109 — 파트 머리줄은 서버 title 우선.
+                                  r.title.isNotEmpty
+                                      ? r.title.toUpperCase()
+                                      : (r.label.isEmpty
+                                          ? 'ROUND ${i + 1}'
+                                          : r.label.toUpperCase()),
                                   style: HyphenTokens.micro.copyWith(
                                     color: HyphenTokens.accent,
                                     fontWeight: FontWeight.w800,

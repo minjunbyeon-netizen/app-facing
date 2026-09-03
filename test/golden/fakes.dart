@@ -438,22 +438,110 @@ List<Map<String, dynamic>> gymWods() {
     // 뒤섞인 순서 — 화면이 시각 순으로 다시 세운다.
     prog(33, 'BUILD', 3, 18, 'emom', 'EMOM 12\n1 Clean & Jerk'),
     prog(34, 'BUILD', 3, 18, 'emom', '같은 종류 중복 — 화면에 안 나온다'),
-    prog(32, 'SWEAT', 2, 12, 'amrap', 'AMRAP 15\n10 KB Swing\n200m Row'),
-    // D89 (2026-08-30 사용자 지시) — 같은 AWAKE 라도 세션이 다르면 다른 프로그램.
-    // B 세션(19:00)은 A 세션(06:00) 뒤에 따로 선다 — 중복으로 접히지 않는다.
+    // D109 (2026-09-04 사용자 "60분 운동에서 A세션때 15분 B세션때 20분 이런식으로
+    // 보기 쉬우라는 거지. 다른 운동이 아님") — SWEAT 한 글에 **파트 셋**. 서버
+    // `program_lines.api_rounds` 가 내려주는 꼴 그대로: 파트마다 머리줄 `title`·동작
+    // 줄 `lines` 가 이미 그려져 있고, 게시물 `content` 도 같은 렌더러의 글이다.
+    // 파트가 둘 이상이면 게시물 wod_type 은 'custom' (전체를 대표하는 종류 없음).
     {
-      ...prog(35, 'AWAKE', 1, 19, 'amrap', 'AWAKE · B 세션\nAMRAP · 캡 10분\nRun 400m'),
-      'variant': 'B',
-      'variant_label': 'B 세션',
-      'display_name': 'AWAKE · B 세션',
+      ...prog(32, 'SWEAT', 2, 12, 'custom',
+          'SWEAT\n'
+          'A 파트 · 15분 · STRENGTH\n'
+          'Back Squat 5-5-5회 · 100kg\n'
+          '\n'
+          'B 파트 · 20분 · AMRAP · 캡 12분\n'
+          'KB Swing 15회 · 24kg\n'
+          'Row 200m\n'
+          '\n'
+          'C 파트 · 10분\n'
+          'Plank 60초\n'
+          '\n'
+          '마지막 파트는 쿨다운.'),
+      'display_name': 'SWEAT',
+      'memo': '마지막 파트는 쿨다운.',
+      'rounds': null,
+      'time_cap_sec': null,
+      'rounds_data': [
+        {
+          'label': 'A',
+          'title': 'A 파트 · 15분 · STRENGTH',
+          'duration_min': 15,
+          'wod_type': 'strength',
+          'rounds': null,
+          'time_cap_sec': null,
+          // 메모는 옛 자리(첫 파트 content)에만 — 서버 stored_memo 규약.
+          'content': '마지막 파트는 쿨다운.',
+          'lines': ['Back Squat 5-5-5회 · 100kg'],
+          'movements': [
+            {
+              'movement_id': 10,
+              'name': 'Back Squat',
+              'slug': 'back_squat',
+              'unit': 'reps',
+              'reps': '5-5-5',
+              'load_value': '100',
+              'load_unit': 'kg',
+            },
+          ],
+        },
+        {
+          'label': 'B',
+          'title': 'B 파트 · 20분 · AMRAP · 캡 12분',
+          'duration_min': 20,
+          'wod_type': 'amrap',
+          'rounds': null,
+          'time_cap_sec': 720,
+          'content': '',
+          'lines': ['KB Swing 15회 · 24kg', 'Row 200m'],
+          'movements': [
+            {
+              'movement_id': 21,
+              'name': 'KB Swing',
+              'slug': 'kb_swing',
+              'unit': 'reps',
+              'reps': '15',
+              'load_value': '24',
+              'load_unit': 'kg',
+            },
+            {
+              'movement_id': 30,
+              'name': 'Row',
+              'slug': 'row',
+              'unit': 'meters',
+              'reps': '200',
+              'load_value': '',
+              'load_unit': '',
+            },
+          ],
+        },
+        {
+          'label': 'C',
+          'title': 'C 파트 · 10분',
+          'duration_min': 10,
+          'wod_type': 'custom',
+          'rounds': null,
+          'time_cap_sec': null,
+          'content': '',
+          'lines': ['Plank 60초'],
+          'movements': [
+            {
+              'movement_id': 44,
+              'name': 'Plank',
+              'slug': 'plank',
+              'unit': 'seconds',
+              'reps': '60',
+              'load_value': '',
+              'load_unit': '',
+            },
+          ],
+        },
+      ],
     },
     {
       'id': 31,
       'template_id': 1,
       'template_name': 'AWAKE',
-      'variant': 'A',
-      'variant_label': 'A 세션',
-      'display_name': 'AWAKE · A 세션',
+      'display_name': 'AWAKE',
       'first_class_at': '${d}T06:00:00',
       'post_date': _ymd(now),
       'wod_type': 'for_time',
@@ -730,10 +818,8 @@ List<Map<String, dynamic>> memberClasses() {
       'start_at': _todayAt(now, 20),
       'duration_minutes': 60,
       'title': 'SWEAT',
-      // D89 — 세션 라벨은 서버가 붙인다 (display_title). 앱은 그대로 적는다.
-      'variant': 'A',
-      'variant_label': 'A 세션',
-      'display_title': 'SWEAT · A 세션',
+      // 표시 제목은 서버가 내려준다 (display_title) — D109: 세션 꼬리 없음.
+      'display_title': 'SWEAT',
       'description': '오늘의 수업 내용 · 스케일 옵션 제공',
       'room': 'Main Floor',
       'coach_user_id': 11,
@@ -1881,7 +1967,7 @@ List<Map<String, dynamic>> wodHistoryList() {
     _histRec(501, 41, 'strength', 'STRENGTH', 'BUILD', 'Back Squat 5×5 · 105kg', now, 1,
         kind: 'weight', label: '105kg×5', kg: 105, reps: 5,
         movement: 'Back Squat', isPr: true),
-    _histRec(502, 40, 'for_time', 'FOR TIME', 'SWEAT · A 세션',
+    _histRec(502, 40, 'for_time', 'FOR TIME', 'SWEAT',
         'Thruster 21-15-9회 · 43kg · Pull-up 21-15-9회', now, 3,
         label: '6:52', sec: 412, scale: 'scaled', notes: 'Fran'),
     _histRec(503, 38, 'amrap', 'AMRAP', 'AWAKE', 'Burpee 12회 · Row 250m', now, 6,
@@ -1922,7 +2008,7 @@ Map<String, dynamic> wodHistoryDetail() {
         {'movement_id': 2, 'name': 'Pull-up', 'reps': '21-15-9', 'unit': 'reps'},
       ],
     },
-    'class': {'id': 12, 'display_title': 'SWEAT · A 세션', 'start_at': item['created_at']},
+    'class': {'id': 12, 'display_title': 'SWEAT', 'start_at': item['created_at']},
   };
 }
 
