@@ -598,6 +598,55 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 > **서버 판정 문구**('늦은 취소로 기록됩니다…', D96) → 취소 → 쪽지함 활동 칸에 **'취소 · 노쇼 안내'**(D97) 도착. 검증 데이터(글·수업·회원)
 > 전부 삭제. 잡은 것: 기간제 회원에게 '이번은 면제' 라고 쓰던 문구 → '기간제 회원권이라 차감은 없습니다' (`policy_outcome(on_pass)`).
 
+> **D109 (2026-09-04 집행) — 파트: 그날 운동을 한 수업 안에서 A·B·C 구간으로 나눈다 (세션 D89·D98·D107 폐기 — 서버·PC·앱).
+> 사용자 지시 "PC 에서 코치가 1개의 운동에서 SWEAT 에서 A세션 B세션 C세션 나눠서 운동을 설정했는데 폰에는 3개의 운동으로
+> 표시 … 60분 운동에서 A세션때 15분 B세션때 20분 이런식으로 사람들이 보기 쉬우라는 거지. 다른 운동이 아님" → "파트 느낌
+> SSOT 에 잘 기록해두고 API 일원화 및 이음새 문제없도록 단단히 못박고, 작업시작".**
+>
+> - **뜻**: 파트 = 같은 수업(그날 × 수업 종류) **한 프로그램 안의** 순서 있는 구간 (A 파트 15분 · B 파트 20분 · C 파트 25분).
+>   파트는 다른 운동이 아니다 — 회원 카드 **한 장** 안에 A·B·C 가 시간과 함께 세로로 선다. D89 의 "세션 = 수업 시간에 붙는
+>   글자 · 세션마다 다른 글" 은 폐기 — 그 모델로는 60분 안의 A·B·C 를 표현할 수 없었고, 프로드 실측(9/1·9/3)에서 코치가 A 를
+>   고르자 10시 수업이 통째로 'SWEAT · A 세션' 이 됐으며 19:30 공통 예약자는 그 글에 완료를 못 눌렀다(게이트가 세션까지 맞췄다).
+> - **정본 단위 = (날짜 × 수업 종류) 한 글** (D89 이전으로 복귀). 수업(class_sessions)·반복 시간표(class_schedule_rules)에는
+>   파트 개념이 없다. `class_sessions.variant`·`class_schedule_rules.variant`·`gym_wod_posts.variant` 세 컬럼은 **휴면**
+>   (읽지도 쓰지도 않는다 — 표는 남긴다, 규칙 5). 부팅 마이그레이션 `models/base.py _migrate_parts_d109` 가 수업·규칙 variant 를
+>   NULL 로, 게시물 variant 는 같은 (체육관·날짜·종류)에 다른 글이 없을 때만 NULL 로 내리고 본문 첫 줄을 종류 이름으로 다시
+>   그린다(옛 'SWEAT · B 세션' 첫 줄 제거). 겹치는 글은 손대지 않는다(앱은 종류당 첫 글만 보인다).
+> - **정의 = `services/program_lines.py` 한 곳** (6-b): `MAX_PARTS`(8) · `part_label(i)`('A'…'Z') · `part_title(part, single)`
+>   — 머리줄 `A 파트 · 15분 · AMRAP · 3라운드 · 캡 12분` (파트 하나뿐이면 라벨 없이 `15분 · AMRAP · 캡 12분`, 아무것도 없으면 '') ·
+>   `render_program_content(title, parts, memo)` · `api_rounds(post)`(API 용 — 저장 구조에 `title`·`lines`(동작 줄) 렌더 첨부) ·
+>   `normalize_program`(파트 목록 검증 — `duration_min` 1~240 또는 없음, 동작 없는 파트는 버린다, 전부 비면 None, 파트 수 초과·
+>   형식 오류는 ValueError → 400 `INVALID_PROGRAM`) · `apply_program`. PC·앱은 라벨·머리줄·동작 줄을 **조립하지 않는다**.
+> - **저장** `gym_wod_posts.rounds_data` = 파트 목록 `[{label, duration_min, wod_type, rounds, time_cap_sec, content(메모 —
+>   [0] 에만, 옛 자리 그대로), movements}]`. 게시물 `wod_type`·`rounds`·`time_cap_sec` 는 파트 하나면 그 파트 값(종전과 같음),
+>   둘 이상이면 `custom`·NULL·NULL (전체를 대표하는 종류가 없다 — 카드 머리에 종류를 안 적는다). 옛 글(한 라운드, 파트 필드
+>   없음)은 파트 하나로 읽힌다 — 데이터 변환 없음.
+> - **API (계약 — 세 면이 같은 것을 본다)**:
+>   - program 객체 (PC → 서버 · 수업 POST/PATCH `program` · 게시 POST/PATCH `program`):
+>     `{"parts":[{"wod_type","rounds","time_cap_min","duration_min","movements":[{"movement_id","reps","load_kg"}]}]}`.
+>     종전 평평한 꼴(`{wod_type, rounds, time_cap_min, movements}`)은 파트 하나로 읽는다(어댑터 1곳 `normalize_program`).
+>   - 게시물 읽기 (회원 `GET /gyms/<id>/wods` · admin wod-posts GET `program`): `rounds_data[]` 항목 = `{label, title, duration_min,
+>     wod_type, rounds, time_cap_sec, lines[], content, movements[]}` (`title`·`lines` 는 읽을 때 `api_rounds` 가 붙인다 — 저장하지
+>     않는다) + 게시물 `memo`(= `stored_memo`). `display_name` = 수업 종류 이름. `variant`·`variant_label` 키 **삭제**.
+>     admin `program` = `{parts:[{wod_type, rounds, time_cap_min, duration_min, movements:[{movement_id, name, unit, reps, load_kg}]}], memo}`.
+>   - `GET /admin/program-meta` 에 `parts: {max, labels:["A 파트", …]}` — PC 편집기 파트 머리 글자 (PC 는 'A 파트' 를 조립하지 않는다).
+>   - 수업 직렬화 `display_title` = `title` (키는 유지 — 앱·PC 가 읽는다). `variant`·`variant_label` 키 삭제, POST/PATCH `variant`
+>     무시. `GET /admin/gyms/<id>/program-variants` **삭제**. class-rules 응답 `variant_options` 삭제, `variant` 무시. 완료
+>     게이트(`completion_gate`)·`first_class_at` 은 (날짜 × 종류) 만 본다. 쪽지·SSE 수업명 = `title`.
+> - **PC**: 수업 등록·수정 모달의 '세션' 칩 삭제, 게시 모달의 '세션' 셀렉트 삭제, 수업 종류 시간표 행의 '세션' 셀렉트 삭제,
+>   D107 세션 이동 409 처리 삭제. 운동 편집기(`static/program_editor.js`)가 **파트 단위**가 된다 — 파트마다 머리 [A 파트 · 시간(분) ·
+>   종류 · 라운드 · 타임캡] + 동작 줄, '+ 파트 추가' / 파트 삭제 / 파트 순서. `getValue()` = `{parts:[…]}` 또는 null(동작 0).
+>   `setValue` 는 `{parts}` 와 평평한 옛 꼴 둘 다 받는다. 프리필은 `GET wod-posts?date=` 의 (template_id) 글 한 곳(`_dayPostFor`).
+> - **앱**: 카드 한 장 = 수업 종류. 파트가 둘 이상이면 카드 머리에 종류·캡·라운드를 적지 않고, 본문은 파트마다 서버 `title`
+>   (섹션 라벨) + `lines`(동작 줄) 세로, 끝에 `memo`. 파트 하나면 종전대로 `content`. 프로그램 칸 중복 판정 = `templateId` 하나
+>   (`visibleProgram`). `GymWodPost.variant/variantLabel`·`ClassSessionDto.variant/variantLabel` 삭제(`displayName`·`displayTitle`
+>   유지). 상세 화면 동작 카드 라벨 = 서버 `title`. 완료 시트 동작 목록 = 전 파트 합산(종전 flatten 그대로).
+> - **게이트**: 서버 `tests/test_program_parts_d109.py`(정규화·저장·렌더·API 키·마이그레이션·완료 게이트·수업 직렬화) +
+>   `tests/test_ssot_program_lint.py`(`… 파트"` 조립·`variant` 재사용 감지, 정본 마커 갱신) · 앱 `test/golden/program_order_test.dart`
+>   (같은 종류 = 카드 하나 · 파트 세로) + 골든 재생성 · PC `design/lint.py`.
+> - **폐기**: D89 세션(수업·게시물 variant, `display_title(title, variant)`), D98 세션 칩·규칙 variant·`free_items`, D107 세션 이동
+>   409 `VARIANT_MOVE_DROPS_POST`. 용어: `docs/GLOSSARY.md` '세션·공통' 행 → **파트** (코드 `part`, 표시 'A 파트').
+
 > **D106 (2026-08-30 집행) — 회귀 검증 1회차(PC playwright + 에뮬레이터 로컬 빌드, V1~V8 전부 통과)에서 나온 미비 18건 중 범위 안 결함 수정
 > (사용자 "회귀검증 2회 시작. pc에뮬레이터로" · "2번 이상 검증하고 보고, 미비하면 솔직히, 있는 기능 끝까지").**
 >
