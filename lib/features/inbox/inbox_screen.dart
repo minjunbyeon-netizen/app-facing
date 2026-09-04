@@ -782,10 +782,7 @@ class _EmbeddedThreadListState extends State<_EmbeddedThreadList> {
       future: _future,
       builder: (ctx, snap) {
         if (snap.connectionState != ConnectionState.done) {
-          return const Padding(
-            padding: EdgeInsets.all(HyphenTokens.sp5),
-            child: HkLoading(),
-          );
+          return const HkLoading.slot();
         }
         if (snap.hasError) {
           return HkErrorState.fromError(snap.error, onRetry: _reload);
@@ -870,10 +867,7 @@ class _ActivityListState extends State<_ActivityList> {
       future: _future,
       builder: (ctx, snap) {
         if (snap.connectionState != ConnectionState.done) {
-          return const Padding(
-            padding: EdgeInsets.all(HyphenTokens.sp5),
-            child: HkLoading(),
-          );
+          return const HkLoading.slot();
         }
         // 실패를 '아직 활동 없음.' 으로 그리면 안 된다 (2026-09-02 검증 — 조회가
         // 실패해도 빈 문구가 나와 쪽지 무음 실패와 구분이 불가능했다).
@@ -1204,7 +1198,7 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
                 future: _future,
                 builder: (ctx, snap) {
                   if (snap.connectionState != ConnectionState.done) {
-                    return const HkLoading();
+                    return const HkLoading.slot();
                   }
                   final msgs = snap.data ?? const <ChatMessage>[];
                   if (msgs.isEmpty) {

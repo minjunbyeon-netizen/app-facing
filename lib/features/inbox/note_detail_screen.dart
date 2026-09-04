@@ -422,7 +422,7 @@ class _NoteDetailScreenState extends State<NoteDetailScreen> {
       appBar: const HkAppBar(title: '노트'),
       body: SafeArea(
         child: _loading
-            ? const HkLoading()
+            ? const HkLoading.slot()
             : _error != null
             ? Padding(
                 padding: const EdgeInsets.all(HyphenTokens.sp4),

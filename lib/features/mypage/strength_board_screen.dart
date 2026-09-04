@@ -47,7 +47,7 @@ class _StrengthBoardScreenState extends State<StrengthBoardScreen> {
               return HkErrorState.fromError(snap.error, onRetry: _load);
             }
             if (snap.connectionState != ConnectionState.done) {
-              return const HkLoading();
+              return const HkLoading.slot();
             }
             final list = snap.data ?? const <StrengthBoardEntry>[];
             if (list.isEmpty) {

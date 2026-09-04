@@ -92,7 +92,7 @@ class _BossDashboardScreenState extends State<BossDashboardScreen> {
       backgroundColor: HyphenTokens.bg,
       appBar: widget.embedded ? null : _buildAppBar(context, auth),
       body: _loading
-          ? const HkLoading()
+          ? const HkLoading.slot()
           : _error != null
           ? HkErrorState(message: _error!, onRetry: _load)
           : RefreshIndicator(

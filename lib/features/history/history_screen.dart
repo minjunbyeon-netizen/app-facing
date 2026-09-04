@@ -203,7 +203,7 @@ class _HistoryList extends StatelessWidget {
       future: future,
       builder: (ctx, snap) {
         if (snap.connectionState != ConnectionState.done) {
-          return const HkLoading();
+          return const HkLoading.slot();
         }
         if (snap.hasError) {
           return HkErrorState.fromError(snap.error, onRetry: onRetry);

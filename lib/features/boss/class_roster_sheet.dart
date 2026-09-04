@@ -84,10 +84,7 @@ class _ClassRosterSheetState extends State<_ClassRosterSheet> {
           future: _future,
           builder: (context, snap) {
             if (snap.connectionState != ConnectionState.done) {
-              return const Padding(
-                padding: EdgeInsets.all(HyphenTokens.sp6),
-                child: HkLoading(),
-              );
+              return const HkLoading.slot();
             }
             if (snap.hasError) {
               return Padding(

@@ -68,7 +68,7 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                 future: _future,
                 builder: (ctx, snap) {
                   if (snap.connectionState != ConnectionState.done) {
-                    return const HkLoading();
+                    return const HkLoading.slot();
                   }
                   if (snap.hasError) {
                     return HkErrorState.fromError(snap.error, onRetry: _load);

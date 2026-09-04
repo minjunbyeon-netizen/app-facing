@@ -787,20 +787,24 @@ class HkErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(HyphenTokens.sp5),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              message,
-              style: HyphenTokens.body,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: HyphenTokens.sp3),
-            HkButton.secondary('다시 시도', onPressed: onRetry),
-          ],
+    return ConstrainedBox(
+      // D115 — 빈·로딩과 같은 바닥. 셋 중 가장 큰 것이라 실제로는 이 값에 딱 맞는다.
+      constraints: const BoxConstraints(minHeight: HyphenTokens.stateSlotH),
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(HyphenTokens.sp5),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                message,
+                style: HyphenTokens.body,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: HyphenTokens.sp3),
+              HkButton.secondary('다시 시도', onPressed: onRetry),
+            ],
+          ),
         ),
       ),
     );
@@ -809,13 +813,25 @@ class HkErrorState extends StatelessWidget {
 
 /// 로딩 스피너 — 22×22 stroke 2 muted 단일 규격.
 /// [color] 는 색 있는 면 위에 얹을 때만 (버튼 안 = onColor). 크기는 바꾸지 않는다.
+///
+/// **자리를 차지하는 로딩은 `HkLoading.slot()`** (D115 · 2026-09-04).
+/// 기본 생성자는 22×22 그대로다 — 버튼 안처럼 이미 자리가 있는 곳에서 쓴다.
+/// `loading ? HkLoading() : ... HkEmptyState()` 처럼 **빈·에러와 같은 자리에서
+/// 갈아 끼울 때는 반드시 `.slot()`** 을 쓴다. 그러지 않으면 22 ↔ 132 로 밀린다.
 class HkLoading extends StatelessWidget {
   final Color? color;
-  const HkLoading({super.key, this.color});
+
+  /// 자리를 차지하지 않는 스피너 (버튼 안·줄 안).
+  const HkLoading({super.key, this.color}) : _slot = false;
+
+  /// 빈·에러와 **같은 바닥**(`stateSlotH`)을 갖는 로딩 자리.
+  const HkLoading.slot({super.key, this.color}) : _slot = true;
+
+  final bool _slot;
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    final spinner = Center(
       child: SizedBox(
         width: 22,
         height: 22,
@@ -824,6 +840,11 @@ class HkLoading extends StatelessWidget {
           color: color ?? HyphenTokens.muted,
         ),
       ),
+    );
+    if (!_slot) return spinner;
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: HyphenTokens.stateSlotH),
+      child: spinner,
     );
   }
 }

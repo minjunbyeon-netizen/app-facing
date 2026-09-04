@@ -10,7 +10,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/exception.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/gym.dart';
@@ -81,14 +80,13 @@ class _MemberApprovalsScreenState extends State<MemberApprovalsScreen> {
                 future: _future,
                 builder: (ctx, snap) {
                   if (snap.connectionState != ConnectionState.done) {
-                    return const HkLoading();
+                    return const HkLoading.slot();
                   }
                   if (snap.hasError) {
-                    final e = snap.error;
-                    final msg = e is AppException ? e.messageKo : '로딩 실패';
-                    return Padding(
-                      padding: const EdgeInsets.all(HyphenTokens.sp4),
-                      child: Text(msg, style: HyphenTokens.body),
+                    // D115 — 평문 Text 라 로딩·빈과 높이가 제각각이었다.
+                    return HkErrorState.fromError(
+                      snap.error,
+                      onRetry: _reload,
                     );
                   }
                   final members = snap.data ?? const [];

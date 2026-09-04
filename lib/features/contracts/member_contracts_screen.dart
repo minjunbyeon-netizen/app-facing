@@ -109,7 +109,7 @@ class _MemberContractsScreenState extends State<MemberContractsScreen> {
           future: _future,
           builder: (context, snap) {
             if (snap.connectionState != ConnectionState.done) {
-              return const HkLoading();
+              return const HkLoading.slot();
             }
             if (snap.hasError) {
               return HkErrorState(message: '불러오기 실패', onRetry: _reload);
@@ -230,7 +230,7 @@ class _ContractDetailScreenState extends State<ContractDetailScreen> {
           future: _future,
           builder: (context, snap) {
             if (snap.connectionState != ConnectionState.done) {
-              return const HkLoading();
+              return const HkLoading.slot();
             }
             if (snap.hasError) {
               return HkErrorState(message: '불러오기 실패', onRetry: _reload);

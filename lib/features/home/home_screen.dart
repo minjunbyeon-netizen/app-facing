@@ -129,7 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
             future: _future,
             builder: (ctx, snap) {
               if (snap.connectionState != ConnectionState.done) {
-                return const HkLoading();
+                return const HkLoading.slot();
               }
               if (snap.hasError) {
                 final e = snap.error;
