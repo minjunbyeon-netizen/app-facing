@@ -617,7 +617,8 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 >   5. **자동 펼침** = 그날 내 예약 줄 전부 + (예약 없으면) 다음 수업 1개(시작 시각 ≥ 지금인 첫 줄). 지난 날은 아무 줄도 안 편다.
 >   6. **수업 종류가 없는 단발 글·그날 수업이 없는 종류의 글**은 목록 아래 '프로그램' 섹션 라벨 밑에 종전 `WodRow`(머리 포함)로 —
 >      글이 사라지지 않는다(`visibleProgram` 재사용). 수업도 글도 없으면 '등록된 수업 없음.' 한 줄(HkSectionSlot 예약 자리).
-> - **서버 (한 줄)**: 회원 `GET /gyms/<id>/wods` 항목에 `summary` = `program_lines.movement_summary(post)`(히스토리 둘째 줄과 같은 함수 —
+> - **서버 (두 줄)**: 모든 수업 직렬화(`class_public_fields`)에 `template_id` — 회원 `GET /member/classes` 에 없어 앱이 수업 줄과 글을
+>   못 맞추던 갭(앱 fork 발견, 이름으로 맞추지 않는다 6-b). 회원 `GET /gyms/<id>/wods` 항목에 `summary` = `program_lines.movement_summary(post)`(히스토리 둘째 줄과 같은 함수 —
 >   'Back Squat 5-5-5회 · 100kg · KB Swing 15회'). 앱은 그대로 적는다(요약 조립 금지).
 > - **폐기**: 프로그램/수업 시간 `HkSegment` · 요일 아코디언 `_DayTile` · 두 칸 회귀 `test/golden/week_pane_test.dart` · 칸 전환 안정성
 >   `test/golden/stability_wod_test.dart`(→ 요일 띠 전환 안정성으로 교체). 홈 '오늘 내 예약' 카드 · 코치 셸(`coach_week_classes.dart`) 무변경.
