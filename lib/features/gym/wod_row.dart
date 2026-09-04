@@ -520,9 +520,8 @@ class _MsgCoachSheetState extends State<_MsgCoachSheet> {
             ),
           ),
           const SizedBox(height: HyphenTokens.sp3),
-          _sending
-              ? const HkLoading()
-              : HkButton.primary('보내기', onPressed: _send),
+          // D117 — 같은 22↔36 스왑. 시트 전체 높이가 바뀌던 것을 자리 그대로 busy 로.
+          HkButton.primary('보내기', busy: _sending, onPressed: _send),
         ],
       ),
     );

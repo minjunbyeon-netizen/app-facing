@@ -290,15 +290,6 @@ class _WodResultSheetState extends State<WodResultSheet> {
                 for (final e in _moves)
                   _MovementRow(entry: e, enabled: !_saving),
               ],
-              if (_error != null) ...[
-                const SizedBox(height: HyphenTokens.sp2),
-                Text(
-                  _error!,
-                  style: HyphenTokens.caption.copyWith(
-                    color: HyphenTokens.warning,
-                  ),
-                ),
-              ],
               const SizedBox(height: HyphenTokens.sp4),
               // 버튼은 '저장' 하나 — 출석 동반 처리는 아래 한 줄로 고지 (GLOSSARY §3).
               // 저장 중엔 버튼 자리 그대로 busy (D67 로그인과 같은 결 — 밀림 0).
@@ -310,11 +301,22 @@ class _WodResultSheetState extends State<WodResultSheet> {
                 onPressed: _submit,
               ),
               const SizedBox(height: HyphenTokens.sp2),
-              const Text(
-                '저장하면 오늘 출석도 함께 기록됩니다.',
+              // D117 — 실패 문구는 **이미 있는 이 한 줄 자리**에서 글자만 바뀐다.
+              // 종전에는 버튼 위에 조건부 블록으로 생겨 버튼과 이 줄을 27px 밀어
+              // 내렸다 — 실패 직후가 다시 누르기 가장 쉬운 순간인데 손가락 아래에서
+              // 버튼이 도망갔다. 빈 띠를 새로 예약하지 않고 문장을 교체하는 쪽이
+              // DESIGN-SSOT §레이아웃 안정성 의 '빈 띠 없이 자리를 지키는 법' 이다.
+              Text(
+                _error ?? '저장하면 오늘 출석도 함께 기록됩니다.',
                 key: kWodSaveCaption,
-                style: HyphenTokens.caption,
+                style: _error == null
+                    ? HyphenTokens.caption
+                    : HyphenTokens.caption.copyWith(
+                        color: HyphenTokens.warning,
+                      ),
                 textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),

@@ -789,14 +789,19 @@ class _EmbeddedThreadListState extends State<_EmbeddedThreadList> {
         }
         final threads = snap.data ?? const <CoachThread>[];
         if (threads.isEmpty) {
-          return Padding(
-            padding: const EdgeInsets.fromLTRB(
-              HyphenTokens.sp4,
-              HyphenTokens.sp2,
-              HyphenTokens.sp4,
-              HyphenTokens.sp4,
+          // D117 — 빈 상태만 자리를 안 잡아 로딩(132) → 빈(43) 으로 89px 줄었다.
+          // 로딩·에러와 같은 바닥을 갖는다 (문구 모양은 그대로 — 왼쪽 정렬 캡션).
+          return HkReservedSlot(
+            minHeight: HyphenTokens.stateSlotH,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                HyphenTokens.sp4,
+                HyphenTokens.sp2,
+                HyphenTokens.sp4,
+                HyphenTokens.sp4,
+              ),
+              child: Text(widget.emptyHint, style: HyphenTokens.caption),
             ),
-            child: Text(widget.emptyHint, style: HyphenTokens.caption),
           );
         }
         return Column(
@@ -876,14 +881,18 @@ class _ActivityListState extends State<_ActivityList> {
         }
         final items = snap.data?.items ?? const <CoachNote>[];
         if (items.isEmpty) {
-          return const Padding(
-            padding: EdgeInsets.fromLTRB(
-              HyphenTokens.sp4,
-              HyphenTokens.sp2,
-              HyphenTokens.sp4,
-              HyphenTokens.sp4,
+          // D117 — 대화 목록과 같은 바닥 (로딩·에러와 높이 일치).
+          return const HkReservedSlot(
+            minHeight: HyphenTokens.stateSlotH,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(
+                HyphenTokens.sp4,
+                HyphenTokens.sp2,
+                HyphenTokens.sp4,
+                HyphenTokens.sp4,
+              ),
+              child: Text('아직 활동 없음.', style: HyphenTokens.caption),
             ),
-            child: Text('아직 활동 없음.', style: HyphenTokens.caption),
           );
         }
         return Column(

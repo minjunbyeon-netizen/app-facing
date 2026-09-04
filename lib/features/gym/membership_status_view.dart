@@ -91,9 +91,14 @@ class MembershipStatusView extends StatelessWidget {
             ),
             if (kind == MembershipStatusKind.pending && onRecheck != null) ...[
               const SizedBox(height: HyphenTokens.sp6),
-              checking
-                  ? const HkLoading()
-                  : HkButton.primary('승인됐는지 확인', onPressed: onRecheck),
+              // D117 — 구 `checking ? HkLoading() : HkButton(...)` 은 스피너 22 와
+              // 버튼 36 의 차이만큼(14px) **바로 아래 로그아웃 버튼을 밀었다**.
+              // 자리를 그대로 두고 글자만 스피너로 (DESIGN-SSOT 밀림 4번 정답).
+              HkButton.primary(
+                '승인됐는지 확인',
+                busy: checking,
+                onPressed: onRecheck,
+              ),
             ],
             if (onSignOut != null) ...[
               const SizedBox(height: HyphenTokens.sp3),

@@ -90,6 +90,62 @@ Future<AnchorTable> expectStableAnchorY(
   return table;
 }
 
+/// **자리 자체의 높이**가 상태에 따라 변하지 않는지 (D117 · 2026-09-04).
+///
+/// `expectStableAnchorY` 는 앵커의 **시작 y** 를 잰다 — 자리가 목록의 맨 아래면
+/// 그 안이 132 였다 59 가 돼도 위쪽 앵커는 그대로라 안 걸린다. 그런데 그 자리는
+/// 화면 높이를 바꾸므로 아래에 무엇이든 붙는 순간 밀린다. 로딩·빈·에러가 같은
+/// 자리에서 갈아 끼워지는 곳은 **높이**로 재는 것이 맞다.
+///
+/// [targets] 는 잴 위젯의 Key. 하나라도 상태 간 높이가 다르면 표로 실패시킨다.
+Future<AnchorTable> expectStableHeight(
+  WidgetTester tester, {
+  required Map<String, ScreenState> states,
+  required Map<String, Key> targets,
+  double tolerance = 0.01,
+}) async {
+  final table = <String, Map<String, double>>{};
+  for (final state in states.entries) {
+    await state.value(tester);
+    final row = <String, double>{};
+    for (final t in targets.entries) {
+      final finder = find.byKey(t.value);
+      expect(
+        finder,
+        findsOneWidget,
+        reason: "자리 '${t.key}' 를 찾지 못했습니다 (상태 '${state.key}')",
+      );
+      row[t.key] = tester.getSize(finder).height;
+    }
+    table[state.key] = row;
+  }
+  final baseName = states.keys.first;
+  final base = table[baseName]!;
+  final drifts = <String>[];
+  for (final t in targets.keys) {
+    for (final state in states.keys) {
+      final delta = (table[state]![t]! - base[t]!).abs();
+      if (delta > tolerance) {
+        drifts.add(
+          "$t: '$state' 가 '$baseName' 대비 "
+          '${delta.toStringAsFixed(1)}px 달라졌습니다 '
+          '(${base[t]!.toStringAsFixed(1)} → '
+          '${table[state]![t]!.toStringAsFixed(1)})',
+        );
+      }
+    }
+  }
+  expect(
+    drifts,
+    isEmpty,
+    reason:
+        '자리 높이가 상태마다 다릅니다 — 로딩·빈·에러는 같은 바닥을 가져야 '
+        '합니다 (DESIGN-SSOT §레이아웃 안정성):\n'
+        '${drifts.join('\n')}\n\n${formatAnchorTable(table)}',
+  );
+  return table;
+}
+
 /// 사람이 읽을 표로. 테스트 실패 사유와 확인용 HTML 양쪽에서 쓴다.
 String formatAnchorTable(AnchorTable table) {
   if (table.isEmpty) return '(빈 표)';

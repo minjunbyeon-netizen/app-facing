@@ -88,6 +88,7 @@ Future<void> _pumpWeek(
   WidgetTester tester, {
   required List<Map<String, dynamic>> classes,
   bool holding = false,
+  bool failing = false,
 }) async {
   await _reset(tester);
   SharedPreferences.setMockInitialValues(const <String, Object>{});
@@ -100,7 +101,12 @@ Future<void> _pumpWeek(
       bossAuth: FakeBossAuth(),
       bossApi: holding
           ? _HoldingBossApi(responses, gate: _weekHold.future)
-          : FakeBossApi(responses),
+          : FakeBossApi(
+              responses,
+              errorPaths: failing
+                  ? const {'/api/v1/admin/gyms/1/classes'}
+                  : const {},
+            ),
       home: const Scaffold(
         body: SingleChildScrollView(child: CoachWeekClasses(gymId: 1)),
       ),
@@ -150,6 +156,7 @@ Future<void> _pumpInbox(
   required bool withAnnouncements,
   bool holdingThreads = false,
   bool longAnnouncement = false,
+  bool failingThreads = false,
 }) async {
   await _reset(tester);
   SharedPreferences.setMockInitialValues(signedInPrefs());
@@ -162,6 +169,7 @@ Future<void> _pumpInbox(
   final api = FakeApi(
     world,
     hangPaths: holdingThreads ? const {'/api/v1/gym/1/threads'} : const {},
+    errorPaths: failingThreads ? const {'/api/v1/gym/1/threads'} : const {},
   );
   final gym = GymState(GymRepository(api), sse: FakeSse());
   await gym.loadMine();
@@ -247,6 +255,12 @@ void main() {
           await _pumpWeek(t, classes: const []);
           expect(find.text('등록된 수업 없음.'), findsOneWidget);
         },
+        // D117 — 실패 상태가 검사 밖이었다. 종전에는 카드 7행을 배너로 통째
+        // 치환해서 요일 행 앵커가 **사라졌고**, 그래서 이 검사를 걸 수조차 없었다.
+        '불러오기 실패': (t) async {
+          await _pumpWeek(t, classes: const [], failing: true);
+          expect(find.text('수업 불러오기 실패.'), findsOneWidget);
+        },
       },
       anchors: {
         '주간헤더': CoachWeekClasses.kWeekHeader,
@@ -293,6 +307,32 @@ void main() {
   //
   // 공지는 최초 로딩 완료·SSE 신규 도착으로 **뒤늦게** 들어온다. 자리를 미리
   // 잡아 두지 않으면 그때마다 대화 목록 전체가 아래로 밀린다.
+  // D117 — 목록 **안쪽**은 검사 밖이었다. 앵커는 목록의 시작 y 만 재는데,
+  // 목록이 마지막 요소라 안이 132 였다 59 가 돼도 위쪽 앵커는 그대로다.
+  // 그래도 화면 높이가 바뀌므로 아래에 무엇이든 붙는 순간 밀린다 —
+  // 로딩·빈·에러가 갈아 끼워지는 자리는 **높이**로 잰다.
+  testWidgets('쪽지함 — 대화 목록 자리는 로딩·빈·에러에서 같은 높이', (tester) async {
+    phone(tester);
+    await expectStableHeight(
+      tester,
+      states: {
+        '로딩 중': (t) async {
+          await _pumpInbox(t, withAnnouncements: false, holdingThreads: true);
+          expect(find.byType(HkLoading), findsOneWidget);
+        },
+        '빈 목록': (t) async {
+          await _pumpInbox(t, withAnnouncements: false);
+          expect(find.text('코치 쪽지 도착 시 표시.'), findsOneWidget);
+        },
+        '불러오기 실패': (t) async {
+          await _pumpInbox(t, withAnnouncements: false, failingThreads: true);
+          expect(find.text('다시 시도'), findsOneWidget);
+        },
+      },
+      targets: {'대화목록 자리': MessagingFeed.kThreadList},
+    );
+  });
+
   testWidgets('쪽지함 — 로딩·공지 없음·공지 있음에서 대화 목록 y 가 같다', (tester) async {
     phone(tester);
     final table = await expectStableAnchorY(

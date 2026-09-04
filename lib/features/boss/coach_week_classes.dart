@@ -150,14 +150,16 @@ class _CoachWeekClassesState extends State<CoachWeekClasses> {
       children: [
         _weekHeader(),
         const SizedBox(height: HyphenTokens.sp2),
-        if (_error)
-          HkInlineError('수업 불러오기 실패.', onRetry: _load)
-        else
-          HkCard(
-            padding: EdgeInsets.zero,
-            clipBehavior: Clip.antiAlias,
-            child: Column(
-              children: [
+        // D117 — 실패해도 **주간 카드는 그대로 선다**. 종전에는 카드 7행을 배너로
+        // 통째 치환해서, 실패하는 순간 요일 행이 사라지고 화면이 다른 물건이 됐다
+        // (앵커 자체가 없어져 좌표 검사도 못 걸었다). 이제 실패 문구는 카드 **아래**에
+        // 붙는다 — 아래에 다른 요소가 없어 아무것도 밀지 않고, 주를 옮겨 다시
+        // 시도하는 길(주간 헤더)도 그대로 남는다.
+        HkCard(
+          padding: EdgeInsets.zero,
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            children: [
                 for (var i = 0; i < 7; i++)
                   _CoachDayRow(
                     key: CoachWeekClasses.dayRow(i),
@@ -175,9 +177,13 @@ class _CoachWeekClassesState extends State<CoachWeekClasses> {
                     onTap: () => _select(i),
                     onOpenRoster: _openRoster,
                   ),
-              ],
-            ),
+            ],
           ),
+        ),
+        if (_error) ...[
+          const SizedBox(height: HyphenTokens.sp2),
+          HkInlineError('수업 불러오기 실패.', onRetry: _load),
+        ],
       ],
     );
   }
