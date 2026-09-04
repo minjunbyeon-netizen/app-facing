@@ -420,6 +420,7 @@ class _ChatInputBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      key: ChatThreadScreen.kInputBar,
       padding: const EdgeInsets.fromLTRB(
         HyphenTokens.sp3,
         HyphenTokens.sp2,
@@ -449,15 +450,18 @@ class _ChatInputBar extends StatelessWidget {
             HyphenTokens.sp1,
             HyphenTokens.sp2 + 2,
           ),
-          suffixIcon: sending
-              ? const HkLoading()
-              : IconButton(
-                  icon: const Icon(
-                    Icons.arrow_upward,
-                    color: HyphenTokens.accent,
-                  ),
-                  onPressed: onSend,
-                ),
+          // D118 — 전송 중에도 **버튼 자리 그대로** 안에서 스피너만 돈다
+          // (HkButton(busy:) 와 같은 결). 종전엔 버튼(48×48)을 `HkLoading()` 으로
+          // 통째 갈아 끼웠는데, 그 스피너는 Center 라 가로폭을 전부 먹어 글자
+          // 칸이 0 이 됐다 — 네 줄로 접히며 입력바가 65 → 129 로 부풀고 위
+          // 대화 목록이 64px 깎였다.
+          suffixIcon: IconButton(
+            key: ChatThreadScreen.kSendSlot,
+            icon: sending
+                ? const HkLoading.icon(color: HyphenTokens.accent)
+                : const Icon(Icons.arrow_upward, color: HyphenTokens.accent),
+            onPressed: sending ? null : onSend,
+          ),
         ),
       ),
     );
@@ -1102,6 +1106,13 @@ class ChatThreadScreen extends StatefulWidget {
     required this.peerHash,
     required this.peerName,
   });
+
+  // ── 레이아웃 안정성 앵커 (D118 · 2026-09-05) ────────────────────────────────
+  // 입력바는 Column 의 마지막 칸이고 위는 Expanded 다 — 바가 1px 두꺼워지면
+  // 대화 목록이 그만큼 깎인다. 전송 중에도 바의 y·높이가 같아야 한다.
+  // 회귀 게이트 = test/golden/stability_inbox_test.dart.
+  static const Key kInputBar = Key('chat-input-bar');
+  static const Key kSendSlot = Key('chat-send-slot');
 
   @override
   State<ChatThreadScreen> createState() => _ChatThreadScreenState();

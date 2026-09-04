@@ -33,6 +33,16 @@ class WodDetailScreen extends StatefulWidget {
   static const Key kCommentsLabel = Key('wod-detail-comments-label');
   static const Key kCommentInput = Key('wod-detail-comment-input');
 
+  // 코치에게 요청 시트 (D118 · 2026-09-05) — 검증 실패 문구가 떠도 시트 안이
+  // 움직이면 안 된다. 게이트 = test/golden/stability_wod_sheet_test.dart,
+  // 시트를 여는 절차 = test/golden/wod_request_sheet.dart.
+  static const Key kRequestOpen = Key('wod-request-open');
+  static const Key kRequestSheet = Key('wod-request-sheet');
+  static const Key kRequestNotice = Key('wod-request-notice');
+  static const Key kRequestSubject = Key('wod-request-subject');
+  static const Key kRequestBody = Key('wod-request-body');
+  static const Key kRequestSend = Key('wod-request-send');
+
   // ── 구역별 예약 높이 (공간 예약 — DESIGN-SSOT §레이아웃 안정성) ─────────────
   // 값 = 그 구역 **한 줄**의 실측 높이. 로딩 스켈레톤·'없음' 문구·내용이 이
   // 자리를 함께 쓴다. 한 줄로 잡은 이유: 넷을 두 줄씩 잡으면 다 비었을 때
@@ -43,6 +53,16 @@ class WodDetailScreen extends StatefulWidget {
   static const double slotLeaderboardH = 57;
   static const double slotHistoryH = 45;
   static const double slotCommentsH = 69;
+
+  /// '코치에게 요청' 시트 안내 줄의 예약 높이 (D118 · 2026-09-05).
+  /// 값 = 안내 문장 두 줄의 실측 높이. 실패 문구는 한 줄이라 이 자리를 함께
+  /// 쓰지 않으면 시트가 23px 튄다 (게이트 = stability_wod_sheet_test.dart).
+  static const double slotRequestNoticeH = 38;
+
+  /// 시트 안내·검증 문구 — 화면과 검사가 같은 글자를 본다 (§0-B).
+  static const String requestNotice =
+      '이 수업 내용 관련 조정·대체 요청. 예: "어깨 수술 이력 있어 Thruster 대체 부탁".';
+  static const String requestEmptyBody = '내용을 입력해 주세요.';
 
   @override
   State<WodDetailScreen> createState() => _WodDetailScreenState();
@@ -109,19 +129,41 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const HkSectionLabel('코치에게 요청'),
+                const HkSectionLabel(
+                  '코치에게 요청',
+                  key: WodDetailScreen.kRequestSheet,
+                ),
                 const SizedBox(height: HyphenTokens.sp1),
-                const Text(
-                  '이 수업 내용 관련 조정·대체 요청. 예: "어깨 수술 이력 있어 Thruster 대체 부탁".',
-                  style: HyphenTokens.caption,
+                // D118 — 실패 문구는 **이미 있는 이 안내 줄**에서 글자만 바뀐다.
+                // 종전에는 보내기 버튼 바로 위에 조건부 블록으로 생겼는데,
+                // 바텀시트는 아래에 붙어 위로 자라므로 시트 안 모든 것이 23px
+                // 위로 튀었다 (제목·두 입력칸이 통째로). 빈 띠를 새로 예약하는
+                // 대신 문장을 교체하는 것이 DESIGN-SSOT §레이아웃 안정성 의
+                // '빈 띠 없이 자리를 지키는 법' 이다. 두 문장은 줄 수가 달라
+                // (안내 2줄 · 실패 1줄) 자리 높이는 따로 못 박는다.
+                HkReservedSlot(
+                  key: WodDetailScreen.kRequestNotice,
+                  minHeight: WodDetailScreen.slotRequestNoticeH,
+                  child: Text(
+                    sheetError ?? WodDetailScreen.requestNotice,
+                    style: sheetError == null
+                        ? HyphenTokens.caption
+                        : HyphenTokens.caption.copyWith(
+                            color: HyphenTokens.warning,
+                          ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 const SizedBox(height: HyphenTokens.sp3),
                 TextField(
+                  key: WodDetailScreen.kRequestSubject,
                   controller: subjectCtrl,
                   decoration: const InputDecoration(labelText: '제목'),
                   maxLength: 120,
                 ),
                 TextField(
+                  key: WodDetailScreen.kRequestBody,
                   controller: bodyCtrl,
                   decoration: const InputDecoration(
                     labelText: '내용',
@@ -130,22 +172,16 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
                   maxLines: 5,
                   maxLength: 2000,
                 ),
-                if (sheetError != null) ...[
-                  Text(
-                    sheetError!,
-                    style: HyphenTokens.caption.copyWith(
-                      color: HyphenTokens.warning,
-                    ),
-                  ),
-                  const SizedBox(height: HyphenTokens.sp1),
-                ],
                 const SizedBox(height: HyphenTokens.sp3),
                 HkButton.primary(
                   '보내기',
+                  key: WodDetailScreen.kRequestSend,
                   onPressed: () async {
                     final body = bodyCtrl.text.trim();
                     if (body.isEmpty) {
-                      setSheet(() => sheetError = '내용을 입력해 주세요.');
+                      setSheet(
+                        () => sheetError = WodDetailScreen.requestEmptyBody,
+                      );
                       return;
                     }
                     final gs = context.read<GymState>();
@@ -367,6 +403,7 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
                 // QA (2026-06-11): 물음표(help) 아이콘 → 전송 아이콘 (의미 일치).
                 return HkButton.secondary(
                   '코치에게 요청',
+                  key: WodDetailScreen.kRequestOpen,
                   icon: Icons.send_outlined,
                   onPressed: _sendRequest,
                 );
