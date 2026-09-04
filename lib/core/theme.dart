@@ -324,6 +324,16 @@ class HyphenTokens {
   /// caption 2줄(13×1.45×2 = 37.7) + 상하 sp2(8+8) + 1px 보더 둘 = 55.7 → 56.
   /// DESIGN-SSOT §레이아웃 안정성 — 값을 바꾸면 HkInlineError 규격도 같이 본다.
   static const double noticeSlotH = 56;
+
+  /// 로딩·빈·에러가 **같은 자리**를 쓰게 하는 최소 높이 (D115 · 2026-09-04).
+  ///
+  /// 셋을 같은 자리에서 갈아 끼우는데 실측 높이가 22 / 70·97 / 131 로 달라
+  /// **최대 109px** 밀렸다. 지금까지는 호출부가 `HkSectionSlot(minHeight:)` 로
+  /// 감싸 준 곳만 안전했고 그 값도 호출부마다 각자 정했다 — 규격이 부품에 없었다.
+  /// 값 = 가장 큰 `HkErrorState`(패딩 24×2 + 본문 22.5 + sp3 12 + 버튼 48 = 130.5)를
+  /// 담는 높이. 셋 다 이 바닥을 갖고, 내용이 더 크면 그 위로 자란다.
+  /// DESIGN-SSOT §레이아웃 안정성 · 게이트 `test/state_slot_test.dart`.
+  static const double stateSlotH = 132;
 }
 
 class HyphenTheme {

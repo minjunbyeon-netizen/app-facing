@@ -748,22 +748,27 @@ class HkEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(HyphenTokens.sp5),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(title, style: HyphenTokens.h3, textAlign: TextAlign.center),
-            if (caption != null) ...[
-              const SizedBox(height: HyphenTokens.sp2),
-              Text(
-                caption!,
-                style: HyphenTokens.caption,
-                textAlign: TextAlign.center,
-              ),
+    return ConstrainedBox(
+      // D115 — 로딩·빈·에러가 같은 바닥(stateSlotH)을 갖는다. 셋의 실측 높이가
+      // 22 / 70·97 / 131 로 달라 갈아 끼울 때마다 최대 109px 밀렸다.
+      constraints: const BoxConstraints(minHeight: HyphenTokens.stateSlotH),
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(HyphenTokens.sp5),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(title, style: HyphenTokens.h3, textAlign: TextAlign.center),
+              if (caption != null) ...[
+                const SizedBox(height: HyphenTokens.sp2),
+                Text(
+                  caption!,
+                  style: HyphenTokens.caption,
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
