@@ -419,12 +419,14 @@ List<Map<String, dynamic>> gymWods() {
   final d = _ymd(now);
   Map<String, dynamic> prog(int id, String name, int tid, int hour,
           String type, String content,
-          {String? hint}) =>
+          {String? hint, String summary = ''}) =>
       {
         'id': id,
         'post_date': d,
         'wod_type': type,
         'content': content,
+        // D111 — 접힌 수업 줄의 한 줄 요약 (서버 movement_summary 그대로).
+        'summary': summary,
         'rounds_data': <dynamic>[],
         'created_at': '${d}T05:00:00',
         'locked': false,
@@ -436,7 +438,8 @@ List<Map<String, dynamic>> gymWods() {
       };
   return [
     // 뒤섞인 순서 — 화면이 시각 순으로 다시 세운다.
-    prog(33, 'BUILD', 3, 18, 'emom', 'EMOM 12\n1 Clean & Jerk'),
+    prog(33, 'BUILD', 3, 18, 'emom', 'EMOM 12\n1 Clean & Jerk',
+        summary: 'Clean & Jerk 1회'),
     prog(34, 'BUILD', 3, 18, 'emom', '같은 종류 중복 — 화면에 안 나온다'),
     // D109 (2026-09-04 사용자 "60분 운동에서 A세션때 15분 B세션때 20분 이런식으로
     // 보기 쉬우라는 거지. 다른 운동이 아님") — SWEAT 한 글에 **파트 셋**. 서버
@@ -459,6 +462,7 @@ List<Map<String, dynamic>> gymWods() {
           '마지막 파트는 쿨다운.'),
       'display_name': 'SWEAT',
       'memo': '마지막 파트는 쿨다운.',
+      'summary': 'Back Squat 5-5-5회 · 100kg · KB Swing 15회 · 24kg · Row 200m · Plank 60초',
       'rounds': null,
       'time_cap_sec': null,
       'rounds_data': [
@@ -545,6 +549,7 @@ List<Map<String, dynamic>> gymWods() {
       'first_class_at': '${d}T06:00:00',
       'post_date': _ymd(now),
       'wod_type': 'for_time',
+      'summary': 'Thruster 21-15-9회 · 42.5kg · Pull-up 21-15-9회',
       'content': '21-15-9\nThruster 42.5kg\nPull-up',
       'scaled_version': '15-12-9\nThruster 30kg\nRing Row',
       'beginner_version': '12-9-6\nGoblet Squat 12kg\nRing Row',
@@ -820,6 +825,8 @@ List<Map<String, dynamic>> memberClasses() {
       'title': 'SWEAT',
       // 표시 제목은 서버가 내려준다 (display_title) — D109: 세션 꼬리 없음.
       'display_title': 'SWEAT',
+      // D111 — 수업 줄을 펼치면 이 종류(2 = SWEAT)의 그날 글이 붙는다.
+      'template_id': 2,
       'description': '오늘의 수업 내용 · 스케일 옵션 제공',
       'room': 'Main Floor',
       'coach_user_id': 11,
@@ -854,6 +861,7 @@ List<Map<String, dynamic>> memberClasses() {
       'start_at': '${tomorrow}T06:00:00',
       'duration_minutes': 60,
       'title': 'AWAKE',
+      'template_id': 1,
       'description': '출근 전 클래스',
       'room': 'Main Floor',
       'coach_user_id': 12,

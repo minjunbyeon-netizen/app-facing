@@ -18,7 +18,6 @@ import 'package:hyphen_app/features/boss/boss_api_client.dart';
 import 'package:hyphen_app/features/boss/boss_auth_state.dart';
 import 'package:hyphen_app/features/gym/gym_repository.dart';
 import 'package:hyphen_app/features/gym/gym_state.dart';
-import 'package:hyphen_app/features/gym/week_board.dart';
 import 'package:hyphen_app/features/inbox/inbox_repository.dart';
 import 'package:hyphen_app/features/inbox/inbox_state.dart';
 import 'package:hyphen_app/features/profile/profile_state.dart';
@@ -147,25 +146,5 @@ Future<void> tapTab(WidgetTester tester, String label) async {
   await tester.pump(const Duration(milliseconds: 300));
 }
 
-/// 수업 탭의 칸 전환 (v3.37 신설 · v3.40 순서 뒤집힘).
-///
-/// v3.40 (2026-08-29): 칸 순서가 **프로그램 · 수업 시간** 이 되고 기본 진입도
-/// 프로그램이다. 이미 그 칸이면 `_selectPane` 이 조용히 빠지므로 눌러도 무해하다
-/// — 그래서 헬퍼는 "필요하면 누른다"를 신경 쓰지 않고 항상 누른다.
-Future<void> _tapPane(WidgetTester tester, String label) async {
-  await tester.tap(
-    find.descendant(
-      of: find.byKey(WeekBoard.kPaneSwitch),
-      matching: find.text(label),
-    ),
-  );
-  await tester.pump(const Duration(milliseconds: 300));
-}
-
-/// 그날 프로그램(수업 내용) 칸. v3.40 부터 **기본 진입**이라 대개 생략해도 된다.
-Future<void> tapProgramPane(WidgetTester tester) =>
-    _tapPane(tester, WeekBoard.paneProgram);
-
-/// 수업 시간(예약) 칸 — 예약·취소를 다루는 캡처·검사는 먼저 이 칸으로 옮긴다.
-Future<void> tapSchedulePane(WidgetTester tester) =>
-    _tapPane(tester, WeekBoard.paneSchedule);
+// (구 tapProgramPane·tapSchedulePane 은 D111 (2026-09-04) 두 칸 폐기로 삭제 —
+//  수업 탭은 요일 띠 + 수업 줄 하나다. 검사는 줄을 직접 집는다: WeekBoard.rowKey.)

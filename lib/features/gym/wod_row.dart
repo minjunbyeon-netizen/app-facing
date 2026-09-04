@@ -99,6 +99,11 @@ class WodRow extends StatefulWidget {
   /// 헤더에 날짜를 prefix 로 붙일지. 주간 보드처럼 날짜가 이미 있으면 false.
   final bool showDate;
 
+  /// D111 (2026-09-04) — 수업 줄 아래 **본문만** 붙일 때. 이름표 머리·접기 토글·
+  /// 아래 테두리가 없고 항상 펼쳐져 있다 — 어느 수업의 글인지는 위의 수업 줄이
+  /// 이미 말했다 (같은 말을 두 번 적지 않는다).
+  final bool headerless;
+
   const WodRow({
     super.key,
     required this.wod,
@@ -106,6 +111,7 @@ class WodRow extends StatefulWidget {
     required this.isToday,
     this.initiallyExpanded,
     this.showDate = true,
+    this.headerless = false,
   });
 
   @override
@@ -118,10 +124,12 @@ class _WodRowState extends State<WodRow> {
   @override
   void initState() {
     super.initState();
-    _expanded = widget.initiallyExpanded ?? widget.isToday;
+    _expanded =
+        widget.headerless || (widget.initiallyExpanded ?? widget.isToday);
   }
 
   void _toggle() {
+    if (widget.headerless) return; // 본문만 있는 글은 접히지 않는다
     Haptic.light();
     setState(() => _expanded = !_expanded);
   }
@@ -209,25 +217,31 @@ class _WodRowState extends State<WodRow> {
     final wod = widget.wod;
     final isMinimal = !widget.isToday;
     final fgColor = isMinimal ? HyphenTokens.muted : HyphenTokens.fg;
+    final headerless = widget.headerless;
     return Material(
       color: Colors.transparent,
       child: InkWell(
         // v1.22 rev2: 항상 toggle. Detail은 명시 버튼만.
-        onTap: _toggle,
+        onTap: headerless ? null : _toggle,
         child: Container(
-          decoration: const BoxDecoration(
-            border: Border(
-              bottom: BorderSide(color: HyphenTokens.border, width: 1),
-            ),
-          ),
-          padding: EdgeInsets.symmetric(
-            vertical: isMinimal ? HyphenTokens.sp2 : HyphenTokens.sp3,
-            horizontal: 2,
-          ),
+          decoration: headerless
+              ? null
+              : const BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(color: HyphenTokens.border, width: 1),
+                  ),
+                ),
+          padding: headerless
+              ? EdgeInsets.zero
+              : EdgeInsets.symmetric(
+                  vertical: isMinimal ? HyphenTokens.sp2 : HyphenTokens.sp3,
+                  horizontal: 2,
+                ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // 헤더 row — past/future는 일자 prefix + type · time · rounds · chevron
+              if (!headerless)
               Row(
                 children: [
                   if (isMinimal && widget.showDate) ...[
@@ -299,7 +313,7 @@ class _WodRowState extends State<WodRow> {
                 ),
               ],
               if (_expanded) ...[
-                const SizedBox(height: HyphenTokens.sp2),
+                if (!headerless) const SizedBox(height: HyphenTokens.sp2),
                 // D109 (2026-09-04 사용자 "60분 운동에서 A세션때 15분 B세션때 20분
                 // 이런식으로 보기 쉬우라는 거지. 다른 운동이 아님") — 파트가 둘
                 // 이상이면 파트마다 서버 머리줄(title)을 섹션 라벨로, 그 아래 동작

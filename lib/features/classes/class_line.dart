@@ -24,6 +24,14 @@ class ClassLine extends StatelessWidget {
   final Widget trailing;
   final VoidCallback? onTap;
 
+  /// D111 (2026-09-04) — 접힌 줄 셋째 줄: 그날 그 종류의 프로그램 한 줄 요약
+  /// (서버 `summary` 그대로). 비면 줄이 없다. 펼친 줄에서는 본문이 그 자리를
+  /// 대신하므로 [expanded] 면 적지 않는다.
+  final String summary;
+
+  /// D111 — 이 줄이 펼쳐져 있는가 (펼침 본문은 호출부가 줄 아래에 붙인다).
+  final bool expanded;
+
   const ClassLine({
     super.key,
     required this.timeLabel,
@@ -33,6 +41,8 @@ class ClassLine extends StatelessWidget {
     this.subtitleColor,
     this.muted = false,
     this.onTap,
+    this.summary = '',
+    this.expanded = false,
   });
 
   /// 코치 시점 — 예약 인원 + 명단 진입.
@@ -84,6 +94,9 @@ class ClassLine extends StatelessWidget {
   /// v2.5 (2026-08-12 사용자 지시): 예약 버튼이 '예약됨' 배지보다 훨씬 커서 같은 줄
   /// 안에서 층이 졌다. HkBadge 는 onTap 을 주면 그대로 조작 컨트롤이 되고(터치 48
   /// 은 안쪽에서 확보), 표시·조작이 시각적으로 같은 크기가 된다.
+  ///
+  /// D111 (2026-09-04): 줄 본문 탭 = 펼침([onTap]). 배지 탭은 종전대로 예약·취소
+  /// (배지의 InkWell 이 안쪽이라 먼저 받는다). [summary]·[expanded] 는 위 참조.
   factory ClassLine.member({
     Key? key,
     required ClassSessionDto session,
@@ -91,6 +104,9 @@ class ClassLine extends StatelessWidget {
     required VoidCallback onReserve,
     required VoidCallback onCancel,
     bool membershipOk = true,
+    String summary = '',
+    bool expanded = false,
+    VoidCallback? onTap,
   }) {
     final l = session.startAt.toLocal();
     final isCancelled = session.isCancelled;
@@ -111,6 +127,9 @@ class ClassLine extends StatelessWidget {
       subtitle: subtitle,
       subtitleColor: isFull ? HyphenTokens.warning : null,
       muted: isCancelled,
+      summary: summary,
+      expanded: expanded,
+      onTap: onTap,
       trailing: _memberAction(
         session,
         isPastDay: isPastDay,
@@ -230,6 +249,16 @@ class ClassLine extends StatelessWidget {
                     style: HyphenTokens.caption.copyWith(
                       color: subtitleColor ?? HyphenTokens.muted,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+                // D111 — 접힌 줄에만 프로그램 한 줄 요약 (서버 글자 그대로).
+                if (!expanded && summary.isNotEmpty) ...[
+                  const SizedBox(height: 1),
+                  Text(
+                    summary,
+                    style: HyphenTokens.caption.copyWith(color: fg),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),

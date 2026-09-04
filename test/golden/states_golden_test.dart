@@ -179,9 +179,6 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    // v3.40 — 수업 탭 기본 진입이 '프로그램'. 취소 줄은 옆 칸에 있다.
-    await tapSchedulePane(tester);
-    await tester.pumpAndSettle();
     await tester.tap(find.text('취소'));
     await tester.pumpAndSettle();
     expect(find.text('대기를 취소할까요?'), findsOneWidget);
@@ -213,9 +210,6 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    // v3.40 — 수업 탭 기본 진입이 '프로그램'. 취소 줄은 옆 칸에 있다.
-    await tapSchedulePane(tester);
-    await tester.pumpAndSettle();
     await tester.tap(find.text('취소'));
     await tester.pumpAndSettle();
     expect(find.text('예약을 취소할까요?'), findsOneWidget);
@@ -245,9 +239,6 @@ void main() {
         home: const BoxWodScreen(),
       ),
     );
-    await tester.pumpAndSettle();
-    // v3.40 — 수업 탭 기본 진입이 '프로그램'. 취소 줄은 옆 칸에 있다.
-    await tapSchedulePane(tester);
     await tester.pumpAndSettle();
     await tester.tap(find.text('취소'));
     await tester.pumpAndSettle();
@@ -280,8 +271,6 @@ void main() {
         home: const BoxWodScreen(),
       ),
     );
-    await tester.pumpAndSettle();
-    await tapSchedulePane(tester);
     await tester.pumpAndSettle();
     await tester.tap(find.text('취소'));
     await tester.pumpAndSettle();
@@ -495,8 +484,6 @@ void _rememberedLoginGolden() {
       ),
     );
     await tester.pumpAndSettle();
-    await tapSchedulePane(tester);
-    await tester.pumpAndSettle();
     expect(find.text('회원권 필요'), findsWidgets);
     await capture(tester, 'state_11_class_membership_required');
   });
@@ -524,8 +511,6 @@ void _rememberedLoginGolden() {
       ),
     );
     await tester.pumpAndSettle();
-    await tapSchedulePane(tester);
-    await tester.pumpAndSettle();
     expect(find.text('예약됨'), findsOneWidget);
     expect(find.text('오늘 예약 완료'), findsOneWidget);
     await capture(tester, 'state_32_class_daily_limit');
@@ -551,8 +536,6 @@ void _rememberedLoginGolden() {
         home: const BoxWodScreen(),
       ),
     );
-    await tester.pumpAndSettle();
-    await tapSchedulePane(tester);
     await tester.pumpAndSettle();
     // 모레 날짜 행을 펼친다 — 요일 헤더 텍스트는 날짜에 따라 달라 AWAKE 수업이 든 날을 찾는다.
     final dayAfter = appClock.now().add(const Duration(days: 2));
@@ -599,8 +582,6 @@ void _rememberedLoginGolden() {
         home: const BoxWodScreen(),
       ),
     );
-    await tester.pumpAndSettle();
-    await tapSchedulePane(tester);
     await tester.pumpAndSettle();
     await tester.tap(find.text('예약'.toUpperCase()).first);
     await tester.pump(const Duration(milliseconds: 350));
