@@ -123,13 +123,7 @@ class HkButton extends StatelessWidget {
     final shrink = expand ? null : MaterialTapTargetSize.shrinkWrap;
     final action = busy ? null : onPressed;
 
-    final Widget child = busy
-        ? HkLoading(
-            color: kind == HkButtonKind.primary
-                ? HyphenTokens.onColor
-                : HyphenTokens.primary,
-          )
-        : icon == null
+    final Widget face = icon == null
         ? Text(label)
         : Row(
             mainAxisSize: MainAxisSize.min,
@@ -139,6 +133,30 @@ class HkButton extends StatelessWidget {
               Flexible(child: Text(label, overflow: TextOverflow.ellipsis)),
             ],
           );
+
+    // D118 — 전체폭이 아닌 버튼은 **글자가 폭을 정한다**. 스피너로 통째
+    // 갈아 끼우면 그 폭이 사라져 버튼이 홀쭉해지거나(폭 0 최소치) 반대로
+    // 남는 자리를 다 먹는다 — 실측 49.6 → 360. 그래서 글자를 투명하게
+    // 남겨 폭을 붙들고 그 위에 스피너만 얹는다. 높이는 _height 로 이미 고정.
+    final Widget child = busy
+        ? Stack(
+            alignment: Alignment.center,
+            children: [
+              Visibility(
+                visible: false,
+                maintainSize: true,
+                maintainAnimation: true,
+                maintainState: true,
+                child: face,
+              ),
+              HkLoading.icon(
+                color: kind == HkButtonKind.primary
+                    ? HyphenTokens.onColor
+                    : HyphenTokens.primary,
+              ),
+            ],
+          )
+        : face;
 
     switch (kind) {
       case HkButtonKind.primary:
