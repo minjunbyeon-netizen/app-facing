@@ -30,6 +30,12 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
+# 윈도우 기본 콘솔(cp949)에서 한글·—(em dash) 출력이 죽는다 — 이 게이트는 결과를
+# 읽히게 하는 것이 일이라 stdout 을 UTF-8 로 못박는다.
+for _s in (sys.stdout, sys.stderr):
+    if hasattr(_s, "reconfigure"):
+        _s.reconfigure(encoding="utf-8", errors="replace")
+
 ROOT = Path(__file__).resolve().parent.parent
 SERVER_DIR = ROOT.parent.parent / "services" / "hyphen"
 
