@@ -53,26 +53,26 @@
 
 | 부품 | 좌표 | 고정 치수 | 비고 |
 |---|---|---|---|
-| `HkBackBar` | hkit.dart:836 | **52 불변** | 조건부 상단바 대체 (밀림 1번 정답) |
-| `HkNoticeSlot` | hkit.dart:867 | **56 불변** | 안내·에러 예약 자리 (밀림 2번 정답) |
-| `HkPreviewSlot` | hkit.dart:988 | **32 불변** | 미리보기 자리 |
-| `HkSkeletonRow` | hkit.dart:1034 | **행 60** | 목록 로딩 한 줄 |
-| `HkSocialButton` | hkit.dart:1348 | **52 불변** | |
-| `HkAppBar` / `.identity` | hkit.dart:1735 | **52 불변** | |
-| `HkSegment` | hkit.dart:1977 | **40 불변** | |
-| `HkTabBar` | hkit.dart:2037 | **64 불변** (+SafeArea) | |
-| `HkDayStrip` | hkit.dart:2190 | **58 불변**, 칸 폭 균등(360/7=48) | 점 자리 상시 예약 |
+| `HkBackBar` | hkit.dart:886 | **52 불변** | 조건부 상단바 대체 (밀림 1번 정답) |
+| `HkNoticeSlot` | hkit.dart:917 | **56 불변** | 안내·에러 예약 자리 (밀림 2번 정답) |
+| `HkPreviewSlot` | hkit.dart:1038 | **32 불변** | 미리보기 자리 |
+| `HkSkeletonRow` | hkit.dart:1084 | **행 60** | 목록 로딩 한 줄 |
+| `HkSocialButton` | hkit.dart:1398 | **52 불변** | |
+| `HkAppBar` / `.identity` | hkit.dart:1785 | **52 불변** | |
+| `HkSegment` | hkit.dart:2027 | **40 불변** | |
+| `HkTabBar` | hkit.dart:2087 | **64 불변** (+SafeArea) | |
+| `HkDayStrip` | hkit.dart:2240 | **58 불변**, 칸 폭 균등(360/7=48) | 점 자리 상시 예약 |
 | `HkCheckRow` · `HkSwitch` | hkit.dart:218 · 280 | **48 불변** | 터치 48 |
-| `HkLoading` | hkit.dart:807 | **22×22 불변** | |
+| `HkLoading` | hkit.dart:821 | **22×22 불변** | 생성자 셋 — 기본(Center) · `.slot()`(132) · **`.icon()`(D118 — 옆으로 안 번짐)** |
 | `HkButton` | hkit.dart:43 | **높이 48/36 불변** | ⚠ **폭은 변함** — 아래 2-3 참조 |
-| `HkSectionSlot` · `HkReservedSlot` | hkit.dart:902 · 1282 | `minHeight` 인자 | 값은 **호출부가 각자 정한다** |
+| `HkSectionSlot` · `HkReservedSlot` | hkit.dart:952 · 1332 | `minHeight` 인자 | 값은 **호출부가 각자 정한다** |
 | `InboxBellAction` | inbox_bell.dart:11 | **48×48** | 미읽음 점은 Positioned |
 | `OfflineBannerOverlay` | offline_banner.dart:75 | — | Stack 겹침 — 본문 y 불변 |
 
 ### 2-2. 내용 높이 부품 (자리 예약 없음)
 
-`HkCard`(345) · `HkStatTile`(464) · `HkRowCard`(643) · `HkSheet`(1915) · `HkDialog`(1797) ·
-`HkSectionLabel`(203) · `HkMarquee`(1129) · `HkSnack`(1412, 오버레이) · `HkConfetti`(1594, 오버레이) ·
+`HkCard`(345) · `HkStatTile`(464) · `HkRowCard`(643) · `HkSheet`(1965) · `HkDialog`(1847) ·
+`HkSectionLabel`(203) · `HkMarquee`(1179) · `HkSnack`(1462, 오버레이) · `HkConfetti`(1644, 오버레이) ·
 `Avatar`(avatar.dart:14, 36 정사각) · `BrandLogo`(brand_logo.dart:8) · `QuoteCard`(quote_card.dart:7) ·
 `GymInfoCard`(gym_info_card.dart:15, **미측정** — Provider 필요) · `HypeeIntroDeck`(hypee_intro.dart:23, 미측정)
 
@@ -82,14 +82,14 @@
 |---|---|---|
 | `HkListRow` (hkit.dart:487) | 39 → 42 / 49 / 60 / **64** | 제목배지 · 아래줄 · 부제 · **탭 가능 배지(48 터치영역이 행을 밀어 올림)** |
 | `HkEmptyState` (744) | 70 ↔ 97 (**+27**) | 캡션 유무 |
-| `HkPhoneText` (2136) | 48 ↔ 23 (**−25**) | 걸 수 없는 번호면 터치영역이 사라짐 |
+| `HkPhoneText` (2186) | 48 ↔ 23 (**−25**) | 걸 수 없는 번호면 터치영역이 사라짐 |
 | `HkBadge` (398) | 26 ↔ 48 (**+22**) | 표시용 ↔ 탭 가능 (D113) |
 | `HkAccordion` (681) | 46 ↔ 96 | 여닫기 (의도된 동작) |
-| `HkSectionSlot` (902) | minHeight ↔ 내용 | **minHeight 를 실제 내용보다 작게 잡은 호출부** |
+| `HkSectionSlot` (952) | minHeight ↔ 내용 | **minHeight 를 실제 내용보다 작게 잡은 호출부** |
 | `HyphenMascot` (mascot.dart:36) | 0 ↔ size | 에셋 없음·로드 실패 |
 | `OfflineBanner` (offline_banner.dart:19) | 0 ↔ 46 | 온·오프라인 — **Overlay 로 이미 해결** |
-| `HkButton` (43) | 높이 불변, **폭 49.6 → 360** | `busy` 일 때 자식이 `HkLoading`(Center 래퍼) → `expand:false` 도 부모 폭을 먹음 |
-| `HkLoadingScreen` (1316) | caption 유무 ±31 | 로고 y 는 `HkEntryLogoGap` 이 고정 |
+| `HkButton` (43) | 높이 불변, **폭 49.6 → 360** | `busy` 일 때 자식이 `HkLoading`(Center 래퍼) → `expand:false` 도 부모 폭을 먹음. **같은 원인이 채팅 입력바를 64px 부풀렸다 (D118)** — 옆에 글자가 있는 자리엔 `HkLoading.icon()` |
+| `HkLoadingScreen` (1366) | caption 유무 ±31 | 로고 y 는 `HkEntryLogoGap` 이 고정 |
 
 ### 2-4. 로딩·빈·에러 3종의 낙차 — **부품에 공통 규격이 없다**
 
@@ -153,13 +153,13 @@
 | 1 | 완료 시트 에러 줄 | `gym/wod_result_sheet.dart:293` | 조건부 블록이 저장 버튼·고지 줄 바로 위. 게이트는 2상태만 잼 |
 | 2 | 미가입 화면 확인 버튼 | `gym/membership_status_view.dart:94` | 스피너 22 ↔ 버튼 36 — **아래 로그아웃 버튼이 14px 밀린다** |
 | 3 | 코치 주간 실패 배너 | `boss/coach_week_classes.dart:153` | 카드 7행을 배너로 통째 치환 — 에러일 땐 앵커 자체가 사라짐 |
-| 4 | 수업 상세 대체요청 시트 | `gym/wod_detail_screen.dart:133` | 조건부 블록이 보내기 버튼 바로 위 |
+| 4 | 수업 상세 대체요청 시트 | `gym/wod_detail_screen.dart:133` | 조건부 블록이 보내기 버튼 바로 위 — **실측 23px**. D118 해소 — §12 |
 | 5 | 쪽지함 대화·활동 목록 | `inbox/inbox_screen.dart:786 · 872` | 로딩·에러·빈·목록 넷의 높이가 제각각 |
 | 6 | 가입 신청 목록 에러 | `gym/member_approvals_screen.dart:88` | 에러가 HKit 이 아니라 **평문 텍스트** |
 | 7 | 홈 도전 섹션 | `home/challenge_section.dart:80` | 로딩·실패·0건이 0px → 도착하면 통째로 생김 |
 | 8 | 계약 목록 | `contracts/member_contracts_screen.dart:112 · 233` | 본문 전체를 4상태로 갈아 끼움 |
 | 9 | 수업 질문 시트 | `gym/wod_row.dart:523` | 같은 22↔36 스왑 |
-| 10 | 채팅 전송 아이콘 | `inbox/inbox_screen.dart:453` | **미확인** — 입력칸 안이라 제약 가능성, 실측 필요 |
+| 10 | 채팅 전송 아이콘 | `inbox/inbox_screen.dart:453` | ~~미확인~~ → **실측 +64px** (스피너가 가로폭을 먹어 줄이 접힘). D118 해소 — §12 |
 
 ---
 
@@ -405,14 +405,57 @@
 안정성 검사 **21 → 25**. 전체 256 통과 · analyze 0 · 골든 89장 **재생성 0**
 (에러·빈 상태는 캡처 대상이 아니라 픽셀이 안 바뀌었다).
 
-### 아직 남은 밀림 후보 4
+### 아직 남은 밀림 후보 2 (D118 로 둘 해소)
 
 | # | 자리 | 왜 남겼나 |
 |---|---|---|
-| 4 | 수업 상세 대체요청 시트 에러 | 시트가 `stability_wod_test` 앵커 밖 — 시트용 상태 절차를 새로 짜야 한다 |
 | 7 | 홈 도전 섹션 | 로딩·실패·0건이 전부 0px → 도착하면 섹션이 통째로 생긴다. **홈 마지막이라 위는 안 밀린다** |
 | 8 | 계약 목록 2중 로딩 | 본문 전체를 4상태로 갈아 끼움. 화면 전체가 바뀌는 형태라 앵커 설계부터 필요 |
-| 10 | 채팅 전송 아이콘 | **미확인** — 입력칸 안이라 제약을 받을 가능성이 있어 실측이 먼저다 |
+
+---
+
+## 12. 앱 밀림 잔여 2건 집행 (D118 · 2026-09-05)
+
+> 여기서도 **검사부터 썼다** — 먼저 실패시키고(수치를 적고) 고쳐서 통과시켰다.
+
+| # | 자리 | 잰 밀림 | 어떻게 고쳤나 |
+|---|---|---|---|
+| 10 | 채팅 전송 아이콘 | **입력바 65 → 129 (+64) · y 715 → 651** | 버튼을 통째로 스피너로 갈아 끼우던 것을 → **버튼 자리 그대로 안에서 스피너만** (`HkButton(busy:)` 와 같은 결) |
+| 4 | 수업 상세 대체요청 시트 | **23px** (시트 제목 400→377, 두 입력칸 동반) | 보내기 위 조건부 블록 → **이미 있는 안내 줄**에서 글자만 교체 + 그 줄 높이 예약(`slotRequestNoticeH` 38) |
+
+### 10번의 진짜 원인은 세로가 아니라 **가로**였다
+
+"입력칸 안이라 제약을 받아 안 밀릴 것" 이라는 짐작(§4 표의 '미확인')은 틀렸다.
+아이콘 자리(`suffixIcon`)는 위아래로는 최소 48×48 로 잡혀 있어 세로는 멀쩡했다 —
+그런데 스피너를 그리던 `HkLoading()` 이 [Center] 라 **남는 가로폭을 전부 먹었다**
+(48 → 336). 글자 칸이 0 으로 눌리며 한 줄이 네 줄(`maxLines: 4`)로 접혔고,
+입력바가 그만큼 두꺼워지며 위 대화 목록이 64px 깎였다.
+
+§2-3 표는 이 성질을 이미 `HkButton` 항목에 적어 두고 있었다(폭 49.6 → 360) —
+같은 원인이 다른 화면에서 두 번째로 터진 것이다. 그래서 부품 쪽에도 규격을
+하나 늘렸다: **`HkLoading.icon()`** — 원 크기 그대로, 옆 칸을 밀지 않는다.
+`HkButton` 안쪽은 자리가 이미 정해져 있어 종전 `Center` 그대로 둔다.
+
+### 4번은 바텀시트라 "아래로 내리기" 가 안 통한다
+
+바텀시트는 화면 아래에 붙어 **위로 자란다**. 그래서 실패 문구를 버튼 아래로
+내려도 시트 전체 높이가 늘어 그 위 모든 것이 위로 튄다 (실측: 보내기 버튼만
+716 에 남고 제목·안내·두 입력칸이 23px 위로). 남는 답은 하나 —
+**높이가 고정된 자리 안에서 글자만 바꾼다.** 안내 2줄 · 실패 1줄로 줄 수가
+달라 `HkReservedSlot(38)` 로 그 줄의 높이를 못 박았다.
+
+### 시트용 상태 절차를 파일로 뽑았다
+
+모달은 화면이 아니라 `pumpWidget` 한 번으로 못 만든다 — 상세를 세우고, 목록을
+내려 버튼을 보이게 하고, 눌러야 시트가 뜬다. 그 세 걸음을
+`test/golden/wod_request_sheet.dart` 한 곳에 뒀다 (로그인의 `login_states.dart`
+와 같은 결). 나중에 이 시트의 골든을 찍을 때도 같은 절차를 쓴다.
+
+안정성 검사 파일 **8 → 10**, `testWidgets` **22 → 26** (2026-09-05 실측).
+※ D117 이 적은 '25' 는 같은 집합을 세면 22 다 — 세는 기준이 달랐던 듯해
+**testWidgets 개수**로 기준을 고정한다 (§0-B 수치 일원화).
+전체 **260 통과** · analyze 0 · 골든 89장 **재생성 0**
+(두 자리 모두 캡처 대상 상태가 아니라 픽셀이 안 바뀌었다).
 
 ---
 
@@ -426,4 +469,7 @@
   조건부 배너·폭 변동은 해소됐다 (표의 '전' 수치는 근거로 남긴다).
 - 2026-09-04 (같은 날 밤) — **D116 토스트**(§10) · **D117 밀림 후보 6건**(§11).
   §4 밀림 후보 10 중 6 해소, 4 남음. 앱 안정성 검사 25 · PC 게이트 6종.
+- 2026-09-05 — **D118 잔여 2건**(§12) — 채팅 전송 아이콘(10) · 수업 상세 대체요청
+  시트(4). §4 밀림 후보 10 중 8 해소, 2 남음(7 홈 도전 섹션 · 8 계약 목록).
+  부품 규격 하나 추가 = `HkLoading.icon()`. 앱 안정성 검사 10파일 26 (testWidgets 기준).
   §7-1 "갤러리가 실물과 다른 곳" 3건은 D115·D116 으로 전부 닫혔다.

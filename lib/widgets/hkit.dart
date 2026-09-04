@@ -822,31 +822,55 @@ class HkLoading extends StatelessWidget {
   final Color? color;
 
   /// 자리를 차지하지 않는 스피너 (버튼 안·줄 안).
-  const HkLoading({super.key, this.color}) : _slot = false;
+  const HkLoading({super.key, this.color}) : _fit = _HkLoadingFit.center;
 
   /// 빈·에러와 **같은 바닥**(`stateSlotH`)을 갖는 로딩 자리.
-  const HkLoading.slot({super.key, this.color}) : _slot = true;
+  const HkLoading.slot({super.key, this.color}) : _fit = _HkLoadingFit.slot;
 
-  final bool _slot;
+  /// 아이콘 한 칸에 그대로 끼우는 스피너 — **옆으로 번지지 않는다** (D118 ·
+  /// 2026-09-05).
+  ///
+  /// 기본 생성자는 [Center] 라 남는 가로폭을 전부 먹는다. 버튼 안처럼 자리가
+  /// 이미 정해진 곳에선 그게 맞지만, 입력칸 `suffixIcon` 처럼 **옆에 글자가
+  /// 있는** 자리에 끼우면 글자 칸이 0 으로 눌려 줄이 접힌다 — 채팅 입력바가
+  /// 그 때문에 65 → 129 로 부풀었다. 그런 자리엔 이 생성자를 쓴다.
+  const HkLoading.icon({super.key, this.color}) : _fit = _HkLoadingFit.icon;
+
+  final _HkLoadingFit _fit;
 
   @override
   Widget build(BuildContext context) {
-    final spinner = Center(
-      child: SizedBox(
-        width: 22,
-        height: 22,
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          color: color ?? HyphenTokens.muted,
-        ),
+    final dot = SizedBox(
+      width: _spinnerSize,
+      height: _spinnerSize,
+      child: CircularProgressIndicator(
+        strokeWidth: 2,
+        color: color ?? HyphenTokens.muted,
       ),
     );
-    if (!_slot) return spinner;
+    if (_fit == _HkLoadingFit.icon) return dot;
+    final spinner = Center(child: dot);
+    if (_fit == _HkLoadingFit.center) return spinner;
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: HyphenTokens.stateSlotH),
       child: spinner,
     );
   }
+
+  /// 22×22 stroke 2 — 세 생성자가 같은 원을 그린다 (크기는 여기 한 곳).
+  static const double _spinnerSize = 22;
+}
+
+/// [HkLoading] 이 자리를 어떻게 차지하는가 — 셋뿐이다.
+enum _HkLoadingFit {
+  /// 가운데 정렬로 남는 자리를 채운다 (버튼 안).
+  center,
+
+  /// 빈·에러와 같은 바닥(`stateSlotH`).
+  slot,
+
+  /// 원 크기 그대로 — 옆 칸을 밀지 않는다 (아이콘 자리).
+  icon,
 }
 
 /// 고정 높이 상단 띠 — **뒤로가기가 있든 없든 높이가 같다** (v3.33 · 2026-08-27
