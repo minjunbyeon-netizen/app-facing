@@ -255,8 +255,9 @@ class ClassLine extends StatelessWidget {
                           onTap: onToggle,
                           borderRadius: BorderRadius.circular(HyphenTokens.r1),
                           child: SizedBox(
-                            width: 32,
-                            height: 32,
+                            // D113 — 누르는 상자는 48, 아이콘은 20 그대로.
+                            width: HyphenTokens.touchMin,
+                            height: HyphenTokens.touchMin,
                             child: Icon(
                               expanded ? Icons.expand_less : Icons.expand_more,
                               size: 20,

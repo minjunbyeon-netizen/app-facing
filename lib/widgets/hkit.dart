@@ -444,10 +444,15 @@ class HkBadge extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(HyphenTokens.r1),
-        // 배지 자체는 작게 두고 손가락이 닿을 48 만 세로로 확보한다.
-        // widthFactor: 1 — 가로는 글자 폭에 딱 맞춘다 (Row 안에서 늘어나지 않게).
-        child: SizedBox(
-          height: HyphenTokens.touchMin,
+        // 배지 자체는 작게 두고 손가락이 닿을 48 을 **가로·세로 둘 다** 확보한다.
+        // D113 (2026-09-04 사용자 "폭 48 적용"): 종전엔 세로만 48 이고 가로는 글자 폭을
+        // 따라가 '예약' 두 글자가 42 였다 — 기준(DESIGN-SSOT §3 터치 48) 미달.
+        // widthFactor: 1 — Row 안에서 남는 폭을 먹지 않게 (그림은 종전 그대로).
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            minWidth: HyphenTokens.touchMin,
+            minHeight: HyphenTokens.touchMin,
+          ),
           child: Center(widthFactor: 1, child: box),
         ),
       ),
@@ -2206,7 +2211,8 @@ class HkDayStrip extends StatelessWidget {
       child: Row(
         children: [
           for (var i = 0; i < cells.length; i++) ...[
-            if (i > 0) const SizedBox(width: 4),
+            // D113 — 칸 사이 간격을 없애 7칸이 각자 48 을 갖는다 (336 / 7 = 48).
+            // 칸끼리 붙어도 오늘·고른 날 표시가 배경·테두리라 경계는 그대로 읽힌다.
             Expanded(child: _cell(i)),
           ],
         ],
