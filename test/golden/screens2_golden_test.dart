@@ -86,6 +86,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(WeekBoard.dayKey(3)));
     await tester.pumpAndSettle();
+    // D112 — 날짜를 누르면 줄만 선다. 화살표를 눌러 연 상태를 찍는다.
+    await openClassRow(tester, 103);
     expect(find.text('아직 게시 전.'), findsOneWidget);
     await capture(tester, 'member_26_program');
   });
@@ -162,6 +164,8 @@ void main() {
       ),
     );
     await tester.pump(const Duration(milliseconds: 300));
+    // D112 — 닫힌 채로 열리므로 그 글의 카드를 먼저 편다 (글 33 = 수업 줄 없는 종류).
+    await openProgramCard(tester, 33);
     // HkBadge 는 라벨을 대문자로 렌더한다 (105kg → 105KG).
     await tester.tap(find.textContaining('기록 105KG×3').first);
     await tester.pumpAndSettle();
@@ -234,8 +238,9 @@ void main() {
       ),
     );
     await tester.pump(const Duration(milliseconds: 300));
-    // D111 — 첫 '자세히' 는 펼쳐진 20:00 SWEAT 줄(글 32)의 것이다. 상세 골든은 종전대로
-    // AWAKE 글(31 — my-history 픽스처가 있는 글)을 연다: '프로그램' 밑 카드의 버튼.
+    // D112 — 줄은 닫힌 채로 열리므로 '자세히' 는 '프로그램' 밑 카드의 것뿐이다.
+    // 상세 골든은 종전대로 AWAKE 글(31 — my-history 픽스처가 있는 글)을 연다.
+    await openProgramCard(tester, 31); // D112 — 카드도 닫힌 채로 선다
     final awakeCard = find.byWidgetPredicate((w) => w is WodRow && w.wod.id == 31);
     final detailBtn = find.descendant(of: awakeCard, matching: find.text('자세히'.toUpperCase()));
     await tester.ensureVisible(detailBtn);
@@ -261,6 +266,7 @@ void main() {
       ),
     );
     await tester.pump(const Duration(milliseconds: 300));
+    await openClassRow(tester, 101); // D112 — 줄을 열어야 '메시지' 가 나온다
     await tester.ensureVisible(find.text('메시지').first);
     await tester.tap(find.text('메시지').first);
     await tester.pump(const Duration(milliseconds: 400));

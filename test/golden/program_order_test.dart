@@ -129,8 +129,13 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // D111 — 오늘 20:00 SWEAT 줄이 다음 수업이라 펼쳐져 있고, 그 아래 파트 셋이
-    // 머리 없는 본문으로 선다. 종류(AMRAP 등)는 파트 머리줄에만 있다.
+    // D112 — 들어오면 전부 닫혀 있다. 20:00 SWEAT 줄의 화살표를 눌러 연다.
+    expect(tester.widgetList<WodRow>(find.byType(WodRow)).where((r) => r.headerless),
+        isEmpty, reason: '자동으로 열리는 줄은 없다');
+    await tester.tap(find.byKey(WeekBoard.rowKey(101)));
+    await tester.pumpAndSettle();
+
+    // 열린 줄 아래 파트 셋이 머리 없는 본문으로 선다. 종류(AMRAP 등)는 파트 머리줄에만.
     final rows = tester.widgetList<WodRow>(find.byType(WodRow)).toList();
     final sweat = rows.where((r) => r.headerless).toList();
     expect(sweat.length, 1, reason: '파트 셋이 카드 셋으로 갈라지면 안 된다');
@@ -150,8 +155,8 @@ void main() {
     final cards = rows.where((r) => !r.headerless).toList();
     expect(cards.map((r) => r.wod.displayName ?? r.wod.templateName), ['AWAKE', 'BUILD'],
         reason: '첫 수업 시각 순 (06:00 · 18:00) — BUILD 중복 한 건은 안 온다');
-    expect(cards.every((r) => r.initiallyExpanded == true), isTrue,
-        reason: '내용이 다 보여야 한다 — 눌러서 열 필요가 없다');
+    expect(cards.every((r) => r.initiallyExpanded == false), isTrue,
+        reason: 'D112 — 프로그램 칸 카드도 닫힌 채로 (눌러서 연다)');
     expect(find.textContaining('Thruster'), findsWidgets);
     expect(find.textContaining('Clean & Jerk'), findsWidgets);
     expect(find.textContaining('같은 종류 중복'), findsNothing);

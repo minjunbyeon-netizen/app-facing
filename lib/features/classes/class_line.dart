@@ -24,12 +24,11 @@ class ClassLine extends StatelessWidget {
   final Widget trailing;
   final VoidCallback? onTap;
 
-  /// D111 (2026-09-04) — 접힌 줄 셋째 줄: 그날 그 종류의 프로그램 한 줄 요약
-  /// (서버 `summary` 그대로). 비면 줄이 없다. 펼친 줄에서는 본문이 그 자리를
-  /// 대신하므로 [expanded] 면 적지 않는다.
-  final String summary;
+  /// D112 (2026-09-04 사용자 지시) — 수업 이름 오른쪽 화살표를 눌러 그날 운동을
+  /// 여닫는다. null 이면 화살표가 없다(코치 줄). 펼침 본문은 호출부가 줄 아래에 붙인다.
+  final VoidCallback? onToggle;
 
-  /// D111 — 이 줄이 펼쳐져 있는가 (펼침 본문은 호출부가 줄 아래에 붙인다).
+  /// 이 줄이 펼쳐져 있는가 — 화살표 방향(∨/∧)과 접근성 라벨이 이 값을 따른다.
   final bool expanded;
 
   const ClassLine({
@@ -41,7 +40,7 @@ class ClassLine extends StatelessWidget {
     this.subtitleColor,
     this.muted = false,
     this.onTap,
-    this.summary = '',
+    this.onToggle,
     this.expanded = false,
   });
 
@@ -95,8 +94,10 @@ class ClassLine extends StatelessWidget {
   /// 안에서 층이 졌다. HkBadge 는 onTap 을 주면 그대로 조작 컨트롤이 되고(터치 48
   /// 은 안쪽에서 확보), 표시·조작이 시각적으로 같은 크기가 된다.
   ///
-  /// D111 (2026-09-04): 줄 본문 탭 = 펼침([onTap]). 배지 탭은 종전대로 예약·취소
-  /// (배지의 InkWell 이 안쪽이라 먼저 받는다). [summary]·[expanded] 는 위 참조.
+  /// D112 (2026-09-04 사용자 지시 "각 운동프로그램 AWAKE, SWEAT 등 옆에 화살표를
+  /// 둬서 누르면 운동이 보이게 하고, 다시 누르면 닫히게"): 여닫기는 이름 옆 화살표
+  /// ([onToggle])와 줄 본문 탭 둘 다. 배지 탭은 종전대로 예약·취소 (배지의 InkWell 이
+  /// 안쪽이라 먼저 받는다). 접힌 줄에는 시각·이름·정원·배지만 — 요약 줄은 없다.
   factory ClassLine.member({
     Key? key,
     required ClassSessionDto session,
@@ -104,9 +105,8 @@ class ClassLine extends StatelessWidget {
     required VoidCallback onReserve,
     required VoidCallback onCancel,
     bool membershipOk = true,
-    String summary = '',
     bool expanded = false,
-    VoidCallback? onTap,
+    VoidCallback? onToggle,
   }) {
     final l = session.startAt.toLocal();
     final isCancelled = session.isCancelled;
@@ -127,9 +127,8 @@ class ClassLine extends StatelessWidget {
       subtitle: subtitle,
       subtitleColor: isFull ? HyphenTokens.warning : null,
       muted: isCancelled,
-      summary: summary,
       expanded: expanded,
-      onTap: onTap,
+      onToggle: onToggle,
       trailing: _memberAction(
         session,
         isPastDay: isPastDay,
@@ -233,14 +232,40 @@ class ClassLine extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: HyphenTokens.body.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: fg,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                // D112 — 이름 오른쪽에 여닫기 화살표. 이름이 길면 화살표가 밀리지
+                // 않도록 이름만 줄이고 화살표는 자리를 지킨다.
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        title,
+                        style: HyphenTokens.body.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: fg,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (onToggle != null)
+                      Semantics(
+                        button: true,
+                        label: '$title 운동 ${expanded ? '닫기' : '열기'}',
+                        child: InkWell(
+                          onTap: onToggle,
+                          borderRadius: BorderRadius.circular(HyphenTokens.r1),
+                          child: SizedBox(
+                            width: 32,
+                            height: 32,
+                            child: Icon(
+                              expanded ? Icons.expand_less : Icons.expand_more,
+                              size: 20,
+                              color: HyphenTokens.muted,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
                 if (subtitle.isNotEmpty) ...[
                   const SizedBox(height: 1),
@@ -253,16 +278,6 @@ class ClassLine extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
-                // D111 — 접힌 줄에만 프로그램 한 줄 요약 (서버 글자 그대로).
-                if (!expanded && summary.isNotEmpty) ...[
-                  const SizedBox(height: 1),
-                  Text(
-                    summary,
-                    style: HyphenTokens.caption.copyWith(color: fg),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
               ],
             ),
           ),
@@ -271,7 +286,8 @@ class ClassLine extends StatelessWidget {
         ],
       ),
     );
-    if (onTap == null) return row;
-    return InkWell(onTap: onTap, child: row);
+    final tap = onTap ?? onToggle;
+    if (tap == null) return row;
+    return InkWell(onTap: tap, child: row);
   }
 }

@@ -859,6 +859,10 @@ void _achievementsLoadingGolden() {
       ),
     );
     await tester.pumpAndSettle();
+    // D112 — 닫힌 채로 열린다. 글 32 는 20:00 SWEAT 줄에, 글 31(AWAKE)은 수업 줄이
+    // 없어 '프로그램' 카드에 붙는다 — 둘 다 열어 두 배지를 한 캡처에 담는다.
+    await openClassRow(tester, 101);
+    await openProgramCard(tester, 31);
     expect(find.text('예약 필요'), findsOneWidget);
     expect(find.text('수업 시작 전'), findsOneWidget);
     await capture(tester, 'state_33_wod_completion_locked');

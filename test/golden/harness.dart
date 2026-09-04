@@ -18,6 +18,8 @@ import 'package:hyphen_app/features/boss/boss_api_client.dart';
 import 'package:hyphen_app/features/boss/boss_auth_state.dart';
 import 'package:hyphen_app/features/gym/gym_repository.dart';
 import 'package:hyphen_app/features/gym/gym_state.dart';
+import 'package:hyphen_app/features/gym/week_board.dart';
+import 'package:hyphen_app/features/gym/wod_row.dart';
 import 'package:hyphen_app/features/inbox/inbox_repository.dart';
 import 'package:hyphen_app/features/inbox/inbox_state.dart';
 import 'package:hyphen_app/features/profile/profile_state.dart';
@@ -108,6 +110,20 @@ Widget harness({
       ),
     ),
   );
+}
+
+/// D112 (2026-09-04) — 수업 탭의 줄은 **닫힌 채로** 열린다. 펼친 본문(파트·완료
+/// 표시·메시지·자세히)에 닿는 검사는 먼저 그 줄을 연다 (사람이 화살표를 누르는 것과
+/// 같은 경로 — 줄 본문 탭도 같은 토글이다).
+Future<void> openClassRow(WidgetTester tester, int classId) async {
+  await tester.tap(find.byKey(WeekBoard.rowKey(classId)));
+  await tester.pumpAndSettle();
+}
+
+/// '프로그램' 밑 카드(수업 줄이 없는 종류의 글)도 닫힌 채로 선다 — 머리를 눌러 편다.
+Future<void> openProgramCard(WidgetTester tester, int postId) async {
+  await tester.tap(find.byWidgetPredicate((w) => w is WodRow && w.wod.id == postId));
+  await tester.pumpAndSettle();
 }
 
 /// 비동기 로드가 그려질 시간을 준 뒤 캡처. (무한 애니메이션이 있어 pumpAndSettle 금지)

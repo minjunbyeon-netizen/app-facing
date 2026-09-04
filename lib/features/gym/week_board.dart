@@ -33,7 +33,9 @@ import 'wod_row.dart';
 /// 4. **펼침** = 그 줄의 수업 종류(`templateId`)에 붙은 그날 글을 [WodRow] 본문만으로
 ///    (파트 세로 · 메모 · 완료/메시지/자세히). 글이 없으면 '아직 게시 전.'/'게시된
 ///    프로그램 없음.', 잠긴 글은 [LockedWodBanner].
-/// 5. **자동 펼침** = 내 예약 줄 전부, 없으면 다음 수업 1개, 지난 날은 없음 — [autoExpanded].
+/// 5. **여닫기** = 사람이 누른 것만 (D112 · 2026-09-04 사용자 지시). 날짜를 눌러 들어오면
+///    모든 줄이 닫혀 있고, 이름 옆 화살표(또는 줄 본문)를 눌러야 열린다. 날짜를 옮기면
+///    다시 전부 닫힌다 — 자동으로 열리는 줄은 없다.
 /// 6. 수업 종류가 없는 단발 글·그날 수업이 없는 종류의 글은 목록 아래 '프로그램' 라벨
 ///    밑에 종전 카드(머리 포함) — [leftoverPrograms]. 글이 사라지지 않는다.
 ///
@@ -73,27 +75,6 @@ HkDayMark dayMark(List<ClassSessionDto> dayClasses) {
     return HkDayMark.reserved;
   }
   return dayClasses.isEmpty ? HkDayMark.none : HkDayMark.hasClass;
-}
-
-/// 처음 열릴 때 펼쳐 두는 줄 (class id) — 정의는 이 함수 하나.
-/// - 지난 날: 아무 줄도 안 편다.
-/// - 내 예약(확정·대기) 줄 전부.
-/// - 예약이 없으면 **다음 수업 1개** = 시작 시각이 [now] 이후인 첫 줄 (없으면 없음).
-Set<int> autoExpanded(
-  List<ClassSessionDto> classes,
-  DateTime now, {
-  required bool isPastDay,
-}) {
-  if (isPastDay) return const {};
-  final mine = {
-    for (final c in classes)
-      if (c.isReserved || c.isWaitlisted) c.id,
-  };
-  if (mine.isNotEmpty) return mine;
-  for (final c in classes) {
-    if (!c.startAt.isBefore(now)) return {c.id};
-  }
-  return const {};
 }
 
 /// 그날 프로그램을 **화면에 내보낼 순서·개수**로 고른다 (v3.41 · 2026-08-29).
@@ -160,9 +141,9 @@ class _WeekBoardState extends State<WeekBoard> {
   bool _classesError = false;
   StreamSubscription<SseEvent>? _sseSub;
 
-  /// 사람이 손으로 바꾼 펼침 (날짜 → class id 집합). 없는 날은 [autoExpanded] 가 정한다.
-  /// 재조회(SSE·예약)가 와도 손으로 정한 것은 지키고, 다른 날을 고르면 그 날은 다시 자동.
-  final Map<String, Set<int>> _manualExpanded = {};
+  /// 지금 고른 날에서 **사람이 연** 줄 (class id). 날짜를 옮기면 비운다 — 새 날은 전부
+  /// 닫힌 채로 시작한다 (D112). 재조회(SSE·예약)는 이 집합을 건드리지 않는다.
+  Set<int> _expanded = {};
 
   /// D58 (2026-08-26 PC·에뮬 실주행): 코치가 회원권을 해지·정지·수정해 서버가 예약을
   /// 지웠는데(revoke_uncovered_reservations) 보드는 '예약됨' 을 그대로 보였다.
@@ -244,6 +225,7 @@ class _WeekBoardState extends State<WeekBoard> {
           !_today.isBefore(next) &&
           _today.isBefore(next.add(const Duration(days: 7)));
       _selected = isThisWeek ? _today.weekday - 1 : 0;
+      _expanded = {}; // 다른 날 = 다시 전부 닫힘 (D112)
     });
     // 주가 바뀌면 이전 주 수업은 남겨 둘 이유가 없다 (다른 날짜의 데이터).
     _loadClasses(keepPrevious: false);
@@ -252,15 +234,19 @@ class _WeekBoardState extends State<WeekBoard> {
   void _select(int i) {
     if (i == _selected) return;
     Haptic.light();
-    setState(() => _selected = i);
+    setState(() {
+      _selected = i;
+      _expanded = {}; // 날짜를 옮기면 전부 닫힌 채로 (D112)
+    });
   }
 
-  void _toggleRow(String day, Set<int> current, int classId) {
+  /// 이름 옆 화살표(또는 줄 본문) 탭 — 그 줄만 여닫는다. 여러 줄을 함께 열어 둘 수 있다.
+  void _toggleRow(int classId) {
     Haptic.light();
     setState(() {
-      final next = Set<int>.from(current);
+      final next = Set<int>.from(_expanded);
       if (!next.remove(classId)) next.add(classId);
-      _manualExpanded[day] = next;
+      _expanded = next;
     });
   }
 
@@ -286,10 +272,7 @@ class _WeekBoardState extends State<WeekBoard> {
     final day = ymd(date);
     final dayClasses = classesByDate[day] ?? const <ClassSessionDto>[];
     final dayWods = wodsByDate[day] ?? const <GymWodPost>[];
-    final isPast = date.isBefore(_today);
-    final expanded =
-        _manualExpanded[day] ??
-        autoExpanded(dayClasses, appClock.now(), isPastDay: isPast);
+    final expanded = _expanded;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -334,7 +317,7 @@ class _WeekBoardState extends State<WeekBoard> {
             // 과제 4 (2026-08-30): 그 답은 서버가 수업마다 내려준다 (membership_ok —
             // 예약 게이트와 같은 함수). 폰은 날짜를 세지 않는다.
             membershipOk: dayClasses.every((c) => c.membershipOk ?? true),
-            onToggle: (c) => _toggleRow(day, expanded, c.id),
+            onToggle: (c) => _toggleRow(c.id),
             onReserve: (c) async {
               final ok = await reserveClassFlow(context, _repo, c);
               if (ok && mounted) {
@@ -472,9 +455,8 @@ class _DayList extends StatelessWidget {
                   session: c,
                   isPastDay: _isPast,
                   membershipOk: membershipOk,
-                  summary: programFor(c, wods)?.summary ?? '',
                   expanded: expanded.contains(c.id),
-                  onTap: () => onToggle(c),
+                  onToggle: () => onToggle(c),
                   onReserve: () => onReserve(c),
                   onCancel: () => onCancel(c),
                 ),
@@ -506,8 +488,9 @@ class _DayList extends StatelessWidget {
                       dateLabel: mdDot(date),
                       // 지난 날 글도 이 날을 직접 골라 연 것이므로 흐리게 두지 않는다.
                       isToday: !_isPast,
-                      // 내용은 다 보여야 한다 (v3.41) — 눌러서 열 필요가 없다.
-                      initiallyExpanded: true,
+                      // D112 — 이 날의 모든 것은 닫힌 채로 시작한다. 수업 줄과 같은
+                      // 규칙이라야 한 화면에 두 규칙이 살지 않는다 (구 v3.41 '전부 펼침' 폐기).
+                      initiallyExpanded: false,
                       showDate: false,
                     ),
               ],

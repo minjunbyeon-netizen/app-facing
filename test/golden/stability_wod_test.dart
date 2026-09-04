@@ -371,18 +371,18 @@ Future<void> dayMonday(WidgetTester tester) async {
   expect(find.text(_classEmpty), findsOneWidget);
 }
 
-/// 오늘, 다음 수업(20:00 SWEAT)이 자동으로 펼쳐진 채.
-Future<void> rowExpanded(WidgetTester tester) async {
+/// 오늘 — 들어온 그대로(전부 접힘). D112: 자동으로 열리는 줄은 없다.
+Future<void> rowCollapsed(WidgetTester tester) async {
   await _pumpDay(tester, 2);
-  expect(find.text('A 파트 · 15분 · STRENGTH'.toUpperCase()), findsOneWidget);
+  expect(find.text('A 파트 · 15분 · STRENGTH'.toUpperCase()), findsNothing);
 }
 
-/// 그 줄을 눌러 접은 채 — 요약 한 줄만 남는다.
-Future<void> rowCollapsed(WidgetTester tester) async {
+/// 20:00 SWEAT 줄의 화살표를 눌러 편 채.
+Future<void> rowExpanded(WidgetTester tester) async {
   await _pumpDay(tester, 2);
   await tester.tap(find.byKey(WeekBoard.rowKey(101)));
   await _settle(tester);
-  expect(find.text('A 파트 · 15분 · STRENGTH'.toUpperCase()), findsNothing);
+  expect(find.text('A 파트 · 15분 · STRENGTH'.toUpperCase()), findsOneWidget);
 }
 
 void main() {

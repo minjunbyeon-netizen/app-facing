@@ -240,7 +240,7 @@ void main() {
   });
 
   // ── WOD 결과 입력 시트 (v2.6 · 사용자 요청) ──
-  // 회원이 실제로 도달하는 경로 그대로 탄다: WOD 탭 → 오늘 WOD(기본 펼침)의
+  // 회원이 실제로 도달하는 경로 그대로 탄다: 수업 탭 → 20:00 SWEAT 줄을 열고 →
   // '완료 표시' 배지 탭 → 바텀시트. 시트만 따로 pump 하면 진입점이 살아 있는지는
   // 증명하지 못한다 (명단 시트 golden 과 같은 방식).
   testWidgets('member: wod result sheet', (tester) async {
@@ -259,6 +259,7 @@ void main() {
       ),
     );
     await tester.pump(const Duration(milliseconds: 300));
+    await openClassRow(tester, 101); // D112 — 20:00 SWEAT 줄을 열어야 본문이 나온다
     await tester.tap(find.text('완료 표시').first);
     await tester.pumpAndSettle();
     await capture(tester, 'member_06_result_sheet');
