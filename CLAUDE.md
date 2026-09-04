@@ -436,7 +436,12 @@ python tool/golden_gallery.py               # 단일 HTML 갤러리 (build/golde
 가짜 백엔드(`test/golden/fakes.dart` — ApiClient implements, 네트워크 0)로 실물 픽셀 렌더
 (갤S22 급 360×780·2x). 폰트는 `test/flutter_test_config.dart` 가 FontManifest 전체
 (Pretendard·MaterialIcons)를 로드. 참조 아키텍처: `apps/writeplz-app` 골든스탠다드.
-현재 **89장** (2026-09-04 저녁 — D113 손가락 영역 48: 사용자 "폭 48 적용시키자". 누르는 배지가 가로도 48
+현재 **89장** (2026-09-05 — D118 밀림 잔여 2건(홈 도전 섹션 · 계약 목록/상세): 검사를 먼저 얹어
+6 실패를 확인하고 고쳐 9 통과. 도전 섹션은 로딩·0건·실패에 자리를 예약해 **항상** 서고, 계약 목록·상세는
+본문 전체 교체를 그만두고 예약된 자리(132) 안에서만 바꾼다. **1장 재생성, 장수 불변** —
+member_13_achievement_detail 은 홈을 굴려 업적 행을 띄우는 캡처라 홈이 도전 섹션만큼 길어지며 시트
+**뒤 배경**의 스크롤 위치가 달라졌다(시트 자체는 그대로). 게이트 = `test/golden/stability_home_challenge_test.dart` ·
+`test/golden/stability_contracts_test.dart`. 직전 **89장** (2026-09-04 저녁 — D113 손가락 영역 48: 사용자 "폭 48 적용시키자". 누르는 배지가 가로도 48
 (구 42), 요일 띠 칸 48(칸 사이 간격 4→0), 여닫기 화살표 상자 48(구 32) — 그림은 그대로이고 누르는 상자만
 커져 줄 높이가 조금 늘었다. 표시 전용 배지는 종전 크기. 게이트 = `test/touch_target_test.dart`(실물 렌더를
 getSize 로 잰다). 21장 재생성, 장수 불변. 직전 **89장** (2026-09-04 오후 — D112 수업 탭 여닫기: 사용자 "각 운동프로그램 AWAKE·SWEAT 등 옆에 화살표를

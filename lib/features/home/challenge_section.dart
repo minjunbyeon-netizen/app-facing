@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../../widgets/mascot.dart';
 
 import '../../core/exception.dart';
+import '../../core/futures.dart';
 import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../models/gym.dart';
@@ -18,6 +19,11 @@ import '../gym/gym_state.dart';
 
 class ChallengeSection extends StatefulWidget {
   const ChallengeSection({super.key});
+
+  /// 레이아웃 안정성 앵커 — 상태가 바뀌어도 이 둘의 y 는 같아야 한다
+  /// (`test/golden/stability_home_challenge_test.dart`).
+  static const Key kLabel = Key('home-challenge-label');
+  static const Key kBody = Key('home-challenge-body');
 
   @override
   State<ChallengeSection> createState() => _ChallengeSectionState();
@@ -46,7 +52,9 @@ class _ChallengeSectionState extends State<ChallengeSection> {
   void _load() {
     if (!mounted) return;
     setState(() {
-      _future = context.read<GymRepository>().rewardProgress();
+      // 홈 ListView 의 마지막 자식이라 스크롤 밖이면 통째로 버려진다 — 그때
+      // 남은 요청이 실패하면 unhandled 로 샌다 (CLAUDE.md §골든 캡처).
+      _future = retainError(context.read<GymRepository>().rewardProgress());
     });
   }
 
@@ -70,38 +78,57 @@ class _ChallengeSectionState extends State<ChallengeSection> {
     );
   }
 
+  /// D118 (2026-09-05 · DESIGN-SSOT §레이아웃 안정성): 종전엔 규칙이 없거나·아직
+  /// 안 왔거나·못 읽었으면 **섹션을 통째로 숨겼다**. 실측하면 로딩 0 · 0건 0 ·
+  /// 실패 0 · 도전 2건 289px — 규칙이 도착하는 순간 섹션이 생겨나고 홈 스크롤
+  /// 총길이가 145 → 434 로 3배가 됐다. "홈 마지막이라 위는 안 밀린다" 는 안전의
+  /// 근거가 못 된다: 스크롤 위치·막대 길이가 튀고, 홈 아래에 무엇이 붙는 순간
+  /// 그대로 밀림이 된다. 실패를 숨긴 것은 **거짓말**이기도 했다 — 못 읽은 것과
+  /// 없는 것이 화면에서 똑같이 보였다.
+  ///
+  /// 이제 라벨과 카드는 **항상** 서 있고 카드 안만 갈아 끼운다. 로딩·0건·실패
+  /// 셋은 같은 바닥([HyphenTokens.stateSlotH] = 132) 을 쓴다 — 그 값은 도전 한
+  /// 행의 실측 높이(128.5)와 거의 같아, 규칙 1건짜리 체육관에서는 도착해도
+  /// 사실상 안 밀린다. 빈 카드를 세우는 선택은 홈이 이미 공지에서 하고 있는
+  /// 것과 같다 ('등록된 공지 없음' 이 늘 서 있다).
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<RewardProgress>>(
       future: _future,
-      builder: (ctx, snap) {
-        // 규칙 없음·미가입·로드 실패 = 섹션 통째로 숨김 (홈은 조용히).
-        final rules = snap.data ?? const <RewardProgress>[];
-        if (rules.isEmpty) return const SizedBox.shrink();
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: HyphenTokens.sp3),
-            const HkSectionLabel('도전'),
-            const SizedBox(height: HyphenTokens.sp1),
-            HkCard(
-              padding: EdgeInsets.zero,
-              child: Column(
-                children: [
-                  for (var i = 0; i < rules.length; i++) ...[
-                    if (i > 0)
-                      const Divider(height: 1, color: HyphenTokens.border),
-                    _ChallengeRow(
-                      rule: rules[i],
-                      onLog: () => _openLogSheet(rules[i]),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ],
-        );
-      },
+      builder: (ctx, snap) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SizedBox(height: HyphenTokens.sp3),
+          const HkSectionLabel('도전', key: ChallengeSection.kLabel),
+          const SizedBox(height: HyphenTokens.sp1),
+          HkCard(
+            key: ChallengeSection.kBody,
+            padding: EdgeInsets.zero,
+            child: _body(snap),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _body(AsyncSnapshot<List<RewardProgress>> snap) {
+    if (snap.connectionState != ConnectionState.done) {
+      return const HkLoading.slot();
+    }
+    if (snap.hasError) {
+      return HkErrorState.fromError(snap.error, onRetry: _load);
+    }
+    final rules = snap.data ?? const <RewardProgress>[];
+    if (rules.isEmpty) {
+      return const HkEmptyState(title: '등록된 도전 없음');
+    }
+    return Column(
+      children: [
+        for (var i = 0; i < rules.length; i++) ...[
+          if (i > 0) const Divider(height: 1, color: HyphenTokens.border),
+          _ChallengeRow(rule: rules[i], onLog: () => _openLogSheet(rules[i])),
+        ],
+      ],
     );
   }
 }
