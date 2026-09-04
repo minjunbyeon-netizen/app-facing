@@ -1,68 +1,103 @@
-# HANDOFF - 2026-09-04 15:35
+# HANDOFF - 2026-09-05 07:54
 
 ## 완료
 
-- [x] **D109 파트** — 그날 운동을 한 수업 안 A·B·C 구간으로. 구 D89 세션(수업 시간에 글자 붙임) 폐기.
-  - 정의 1곳 = `services/facing/services/program_lines.py` (`MAX_PARTS`·`part_label`·`part_title`·`api_rounds`·`normalize_program`·`apply_program`). PC·앱은 라벨·머리줄을 조립하지 않는다.
-  - `class_sessions.variant`·`class_schedule_rules.variant`·`gym_wod_posts.variant` = **휴면**(읽지도 쓰지도 않음). 부팅 마이그레이션 `models/base.py _migrate_parts_d109` 가 값을 NULL 로 내리고 본문 첫 줄을 종류 이름으로 재렌더.
-  - 프로드 실측 완료: 게시물 63(9/1)·64(9/3) 첫 줄 'SWEAT · B/A 세션' → 'SWEAT', `variant` 키 사라짐.
-  - 덤 픽스: `services/reward_engine.py` — 한 완료로 업적 여럿 해금 시 앞 쪽지가 `database is locked` 로 죽던 것(세션당 리스너 1개 + 큐).
-- [x] **D110 프로그램 보관함** — 코치가 파트 포함 프로그램을 이름 붙여 저장하고 수업 등록·수정·게시에서 불러온다.
-  - 서버: 표 `gym_programs`(`models/gym_program.py`) + `api/programs.py` CRUD. 검증·미리보기·프리필은 전부 `program_lines` 재사용.
-  - PC: `/programs` 페이지(보관함·동작 사전 두 탭, 사이드바 '수업' 그룹) · `templates/_movement_library_tab.html`(동작 사전 입구 복구 — 8/13 부터 사이드바에서 사라져 있었다) · `ProgramEditor.createLibraryPicker` 1벌을 세 모달이 공용.
-  - 로컬 실브라우저 왕복 확인: 보관 → 수업 등록에서 불러오기 → 저장 → 회원 글 본문 렌더까지.
-- [x] **D111 수업 탭 통합 한 줄** (사용자가 목업 3안 중 "1안" 선택) — 두 칸 세그먼트(프로그램/수업 시간)·요일 아코디언 폐기 → 주 이동 줄 + 요일 띠(`HkDayStrip`) + 그날 수업 줄.
-  - 서버 전제 2줄: 모든 수업 직렬화(`class_public_fields`)에 `template_id` · 회원 `GET /gyms/<id>/wods` 에 `summary`(= `movement_summary`).
-- [x] **D112 수업 탭 여닫기** (사용자 "오케이 이거 맞다" 로 확정) — 날짜를 누르면 **줄만**(시각·이름+화살표·정원·배지 넷뿐), 이름 옆 ∨ 나 줄 본문을 눌러야 그날 운동이 열리고 다시 누르면 닫힌다. **자동 펼침(구 `autoExpanded`) 폐기·함수 삭제**, 날짜·주를 옮기면 전부 닫힘, '프로그램' 밑 카드도 닫힌 채로.
-  - D111 이 넣었던 접힌 줄 요약(`summary`) 줄은 삭제 (서버 키는 존치 — 지금은 앱이 안 그린다).
-- [x] **D113 손가락 영역 48** — `HkBadge` 가 가로도 48(구 42), 요일 칸 48(칸 사이 간격 4→0), 여닫기 화살표 상자 48(구 32). 표시 전용 배지는 종전 크기.
-  - 게이트 `test/touch_target_test.dart` — 상수를 비교하지 않고 실물 렌더를 `tester.getSize` 로 잰다.
-- [x] **페르소나 5명 실사용 점검** — 실제 시간표 5타임으로 계측(임시 테스트는 삭제, 캡처만 사용자에게 전달). 이 점검이 D112·D113 을 낳았다.
-- [x] **빌드 3027 · 배포** — 서버·PC 는 Railway 반영 완료, 앱은 master 푸시 + iOS CI 성공.
-  - TestFlight 업로드 성공 (`gh run 33844109306`, app 6808162168). 안드로이드 APK/AAB 빌드 완료, 스토어 스크린샷 21장·아이콘·피처 그래픽 재생성, `tool/store_preflight.py` **24 PASS 0 FAIL**.
-  - 폰 직배포 = GitHub Release `v1.0.0-3027` (arm64 25MB · universal 61MB). ⚠ split APK 는 `versionCode` 가 5027 로 찍힌다(Flutter ABI 오프셋) — Play 업로드는 AAB 로.
+- [x] **D114 알림 설정 보관함 탭 + 노쇼 정책 배열** (PC · 서버)
+  - 탭 3개(알림 · 노쇼 정책 · 보관함). '발송 시각'·'최근 발송'을 보관함으로 이동.
+  - 발송 기록은 `AuditLog(note.auto)` 라 **영구 보존**인데 화면은 최근 7일 100건만 꺼냈다 →
+    기간(7·30·90일·전체)·항목·`before_id` 커서. 응답 모양 변경(배열 → `{items, next_cursor, …}`,
+    호출처는 PC 한 곳뿐임을 확인). 선택지 정본 = `api/notifications/note.py` `LOG_RANGES` 계열.
+  - 노쇼 정책: 카드 2장 + `.setting-row`(= '이름 왼쪽·조작 오른쪽' 전용 부품) → **규칙 표 한 장**.
+    '삭제' 가 카드 밖으로 잘려 있던 것·빨간 버튼 둘이 양 끝으로 찢어져 있던 것 해소.
+  - 부품 `.form-actions` 신설 (갤러리 §19·§20, `design/SSOT.md §16`).
+
+- [x] **UI 인덱스 신설** — `docs/UI-INDEX.md` (사용자 "index화 해놓고, 있어? 없으면 만들고")
+  - 서버·데이터 인덱스(`services/facing/docs/SSOT/INDEX.md`)는 있었고 **UI 인덱스는 없었다.**
+  - 앱 부품 34종(실제 렌더 측정)·게이트·화면 35개 + PC 부품 170·화면 21·갤러리 대조.
+  - 읽기 좋은 판 = 아티팩트 **「하이픈 자리 예약 감사」**
+    https://claude.ai/code/artifact/bae98b93-89f6-4ee3-99d4-4cfe7d0f3de9 (3탭)
+
+- [x] **D115 자리 예약 + 컨트롤 높이 통일** (앱 · PC)
+  - 앱: 로딩 22 / 빈 70·97 / 에러 131 → **`stateSlotH` 132 공통**. `HkLoading()` 기본은 22 유지,
+    자리 차지하는 쪽은 **`HkLoading.slot()`**. 게이트 `test/state_slot_test.dart`(실물 `getSize`).
+  - PC: 세 상태 `--slot-msg` **76**. 원인은 `fetchTableInto` 만 스켈레톤을 안 깐 것(표 7화면).
+    `.page-banner` display:none → `.is-empty`(visibility, 45px 밀림 차단).
+    컨트롤 높이 33/35/29/26/34/28 → **`--ctrl-h` 34 하나**. 탭 그릇 → **`.tab-row`**(유령 `.tabs` 소멸).
+  - 게이트 §7.5 유령 클래스 · §7.6 로딩 자리 신설 → 첫 실행 22건 **전부 수정**.
+
+- [x] **D116 토스트 한 벌** (PC)
+  - 두 벌인 줄 알았는데 **세 벌**이었고 정작 CSS 쪽은 아무도 안 썼다(갤러리가 그 사본을 보여 줌).
+  - `.toast` 한 곳 + `--toast-tone` 하나만 바꾸는 상태 클래스. 게이트 **§7.7 `style.cssText` 금지**(0건).
+  - 덤: 동기화 토스트 시각이 `slice(0,5)` 라 **"오후 10"** 으로 나오던 것 → 24시각 `hh:mm`.
+
+- [x] **D117 앱 밀림 후보 6건** — **검사부터 쓰고** 고쳤다
+  - 실측: 완료 시트 **27px** · 쪽지함 목록 **89px** · 22↔36 스왑 2곳 14px · 코치 주간 **앵커 소실**.
+  - 검사 도구 추가 **`expectStableHeight`** — 기존 `expectStableAnchorY` 는 앵커의 시작 y 만 재서
+    자리가 목록 맨 아래면 안이 132→43 이 돼도 안 걸린다(쪽지함이 그 상태였다).
+
+- [x] 3면 커밋·푸시 완료. **PC 관리자 웹 Railway 배포 반영**(`--ctrl-h`·`toast-tone` 실물 확인).
 
 ## 진행중
 
-- 없음. 작업 트리 깨끗(`git status` 0), 서버·PC·앱 3면 모두 커밋·푸시·배포 완료.
+- 없음. 작업 트리 깨끗(3면 모두). 앱은 푸시만 됨 — **APK 빌드·배포는 안 했다**.
 
 ## 대기
 
-- [ ] **실기 확인** — 사용자가 APK/TestFlight 설치 후 수업 탭을 직접 눌러 보기. 지금까지는 골든·가짜 백엔드·로컬 브라우저 검증뿐이고 실기 확인은 없음.
-- [ ] **구글 플레이 업로드** — AAB 3027(`build/app/outputs/bundle/release/app-release.aab`, 49MB)을 콘솔 테스트 트랙에 올리기. 절차 = `docs/STORE-SUBMIT-SHEET.md`.
-- [ ] **사용자 미결 개선 3건** (페르소나 점검에서 제안, 폭 48 만 채택됨)
-  - 요약 두 줄 + 펼친 카드 머리에 수업 이름 · 지난 수업 한 줄 접기 · 하루 한도/대기 이유 한 줄.
-  - 비교 데모: https://gist.githack.com/minjunbyeon-netizen/6d10338fdebcdb4f73aa774fd525e11b/raw/class-tab-fixes.html
-- [ ] **프로드 회원 피드 실기 확인** — 9/1·9/3 SWEAT 카드가 폰에서 한 장으로 뜨는지 눈으로. 서버 테스트·fakes 로만 검증됨.
-- [ ] (선택) 홈 '오늘 내 예약' 카드를 수업 줄 문법에 맞추기 — 지금은 문법이 다름.
+- [ ] **앱 밀림 후보 남은 4건** (`docs/UI-INDEX.md §11` 표)
+  - 채팅 전송 아이콘 — **미확인**, 실측이 먼저 (`inbox/inbox_screen.dart:453`, 입력칸 안이라 제약 가능성)
+  - 수업 상세 대체요청 시트 에러 — `gym/wod_detail_screen.dart:133`, 시트용 상태 절차를 새로 짜야 함
+  - 홈 도전 섹션 — `home/challenge_section.dart:80`, 홈 마지막이라 위는 안 밀림(우선순위 낮음)
+  - 계약 목록 2중 로딩 — `contracts/member_contracts_screen.dart:112·233`, 앵커 설계부터
+- [ ] **실기 확인** — 폰·PC 로 직접 눌러 로딩 자리·토스트·컨트롤 높이 눈으로. 지금까지 골든·
+      좌표 검사·로컬 브라우저 실측뿐.
+- [ ] **앱 릴리즈** — D115·D117 이 들어간 빌드는 아직 안 만들었다 (마지막 빌드 3027 = D113).
+- [ ] 구글 플레이 AAB 업로드 (인계 전부터 대기, 절차 = `docs/STORE-SUBMIT-SHEET.md`)
+- [ ] PC 잔여 — `.stack`(§17 승인받고 도입 0건) 등 죽은 부품 13건 정리 · 페이지 전용 `<style>` 6개
 
 ## 결정사항 / 주의
 
-- **파트 ≠ 세션.** A·B·C 는 한 수업 안의 구간이지 다른 운동이 아니다. "세션을 수업 시간에 붙이자" 재제안 금지. 정본 = 브리프 D109.
-- **수업 탭은 닫힌 채로 연다.** 자동 펼침 재도입 금지. 접힌 줄은 네 가지(시각·이름·정원·배지)만. 정본 = 브리프 D112 · `lib/features/gym/week_board.dart`.
-- **정의는 서버 한 곳** — 라벨·머리줄·요약·검증·완료 게이트 전부 `program_lines`/`completion_gate`. PC JS·앱은 API 값을 그대로 그린다(6-b 절대규칙).
-- **검사가 펼친 본문에 닿을 때** = `test/golden/harness.dart` 의 `openClassRow(tester, classId)` · `openProgramCard(tester, postId)`.
-- 서버 테스트는 반드시 `python -m pytest tests/ -q` (인자 없이 돌리면 수집 오류).
-- 선택지는 번호·기호(가/나/다) 대신 **이름**으로 제시할 것 — 이번 세션에서 '가' 가 답변마다 달라져 사용자가 혼동했다.
+- **용어 정본은 앱 문서 하나** — `docs/DESIGN-SSOT.md §레이아웃 안정성`. PC(`design/SSOT.md §17`)는
+  링크만 하고 옮겨 적지 않는다. 두 벌이 되면 한쪽만 고쳐진다.
+- **문서만 만들고 게이트를 미루지 않는다** (대전제 6-b). D114~D117 모두 같은 커밋에 게이트를 넣었다.
+- **골든 재생성으로 "고쳤다" 고 하지 않는다.** 골든은 한 상태의 그림만 잡는다. 밀림은 상태 사이의
+  차이라 좌표·높이 검사만이 증명한다.
+- **검사 도구 둘의 쓰임이 다르다** — `expectStableAnchorY`(위아래에 요소가 있을 때) /
+  `expectStableHeight`(로딩·빈·에러가 갈아 끼워지는 자리, 특히 목록 맨 아래).
+- `HkLoading()` 기본 생성자를 132 로 만들면 **버튼 안 스피너까지 부푼다** — `.slot()` 과 구분 유지.
+- PC 게이트가 잡은 것은 **면제로 넘기지 말 것**. D115 에서 22건을 전부 고쳤고, 면제는 한 줄
+  라벨 3종(`page-sub`·`page-title`·`modal-title`·`form-static`)뿐이다.
+- 서버 테스트는 `python -m pytest tests/ -q` (인자 없이 돌리면 수집 오류).
+- `services/facing` 에 untracked `_d111_pytest.txt` 가 남아 있다 (이전 세션 산출물, 내 것 아님).
 
 ## 관련 파일
 
-- 계약 정본: `docs/ARCHITECTURE_BRIEF.md` D109·D110·D111·D112·D113
-- 앱: `lib/features/gym/week_board.dart` · `lib/features/classes/class_line.dart` · `lib/widgets/hkit.dart`(HkBadge·HkDayStrip) · `lib/models/gym.dart`·`class_session.dart`
-- 앱 검사: `test/golden/class_tab_test.dart` · `test/golden/stability_wod_test.dart` · `test/golden/program_order_test.dart` · `test/touch_target_test.dart` · `test/golden/harness.dart`
-- 서버(`C:/dev/services/facing`): `services/program_lines.py` · `api/classes.py` · `api/gym.py` · `api/admin.py` · `api/programs.py` · `models/gym_program.py` · `models/base.py _migrate_parts_d109` · `tests/test_program_parts_d109.py` · `tests/test_programs_library_d110.py`
-- PC(`C:/dev/web/facing-admin`): `static/program_editor.js` · `templates/programs.html` · `templates/_movement_library_tab.html` · `templates/classes.html` · `templates/wod.html` · `templates/class_templates.html`
-- 스토어: `docs/STORE-SUBMIT-SHEET.md` · `tool/store_preflight.py` · `build/store/**`
+- **인덱스·감사**: `docs/UI-INDEX.md` (§9 D115 · §10 D116 · §11 D117) ·
+  아티팩트 「하이픈 자리 예약 감사」
+- **계약 정본**: `docs/ARCHITECTURE_BRIEF.md` D114 · D115 · D116 · D117
+- **앱 규격**: `docs/DESIGN-SSOT.md §레이아웃 안정성` · `lib/core/theme.dart`(`stateSlotH`) ·
+  `lib/widgets/hkit.dart`(`HkLoading.slot`·`HkEmptyState`·`HkErrorState`·`HkReservedSlot`)
+- **앱 검사**: `test/golden/layout_stability.dart`(헬퍼 둘) · `test/state_slot_test.dart` ·
+  `test/golden/stability_*.dart`(25 검사)
+- **앱 이번 수정**: `features/gym/wod_result_sheet.dart` · `features/boss/coach_week_classes.dart` ·
+  `features/inbox/inbox_screen.dart` · `features/gym/membership_status_view.dart` · `features/gym/wod_row.dart`
+- **PC**(`C:/dev/web/facing-admin`): `design/tokens.css`(`--ctrl-h`·`--slot-msg`) · `static/style.css`
+  (`.tab-row`·`.table-skel-cell`·`.toast`·`.sse-banner`·`.head-stat`) · `static/app.js`(로더 둘) ·
+  `templates/_layout.html`(토스트 두 함수) · `design/lint.py`(§7.5·§7.6·§7.7) ·
+  `design/SSOT.md §16~§19` · `design/gallery.html §19~§22` · `CLAUDE.md`
+- **서버**(`C:/dev/services/facing`): `api/notifications/note.py`(`LOG_RANGES`) · `api/admin.py`
+  (`admin_notification_logs`) · `tests/test_notification_note_gates.py`
 
 ## 검증 상태
 
 | 대상 | 결과 |
 |---|---|
-| 서버 pytest | 706 passed, 1 skipped |
-| 앱 flutter test | 246 passed · analyze 0 |
-| 골든 | 89장 (D112 19장 · D113 21장 재생성) |
-| PC design lint | 위반 0 · baseline 유지 |
-| 스토어 preflight | 24 PASS 0 FAIL |
+| 서버 pytest | 708 passed, 1 skipped |
+| 앱 flutter test | **256 passed** · analyze 0 |
+| 앱 골든 | 89장 (D115 1장 재생성 · D117 재생성 0) |
+| 앱 안정성 검사 | **25** (전 20) |
+| PC design lint | 위반 0 · baseline 유지 · 게이트 **6종**(전 3) |
+| PC 토큰 드리프트 | 없음 |
+| 배포 | PC 관리자 웹 Railway 반영 확인. **앱 APK 미빌드** |
 
 ## 다음 세션 권장 첫 프롬프트
 
