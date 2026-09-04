@@ -436,7 +436,16 @@ python tool/golden_gallery.py               # 단일 HTML 갤러리 (build/golde
 가짜 백엔드(`test/golden/fakes.dart` — ApiClient implements, 네트워크 0)로 실물 픽셀 렌더
 (갤S22 급 360×780·2x). 폰트는 `test/flutter_test_config.dart` 가 FontManifest 전체
 (Pretendard·MaterialIcons)를 로드. 참조 아키텍처: `apps/writeplz-app` 골든스탠다드.
-현재 **89장** (2026-09-04 저녁 — D113 손가락 영역 48: 사용자 "폭 48 적용시키자". 누르는 배지가 가로도 48
+현재 **89장** (2026-09-05 — D118 밀림 후보 **잔여 4건 + 버튼 폭**: 채팅 전송 아이콘 · 수업 상세
+'코치에게 요청' 시트 · 홈 도전 섹션 · 계약 목록/상세, 그리고 `HkButton(busy:)`. 네 건 모두 검사를 먼저
+얹어 실패를 확인하고 고쳤다 — 채팅 입력바 65→129(원인은 세로가 아니라 **가로**: 스피너가 Center 라
+글자 칸을 0 으로 눌렀다) · 시트 23px(바텀시트는 위로 자라 '아래로 내리기' 가 안 통한다) · 도전 섹션
+0px↔289px · 계약 첫 줄 337px · 버튼 폭 57.6→360. 부품 규격 추가 = **`HkLoading.icon()`**(옆 칸을 안 민다).
+**1장 재생성, 장수 불변** — member_13_achievement_detail 은 홈을 굴려 업적 행을 띄우는 캡처라 홈이 도전
+섹션만큼 길어지며 시트 **뒤 배경**의 스크롤 위치가 달라졌다(시트 자체는 그대로). 게이트 =
+`test/golden/stability_inbox_test.dart` · `stability_wod_sheet_test.dart` · `stability_home_challenge_test.dart` ·
+`stability_contracts_test.dart` · `test/button_busy_width_test.dart`. **§4 밀림 후보 10건 전부 해소.**
+검사 수는 이제 **러너가 센 값**으로만 적는다(안정성 12파일 35 · 자리·버튼 포함 14파일 42). 직전 **89장** (2026-09-04 저녁 — D113 손가락 영역 48: 사용자 "폭 48 적용시키자". 누르는 배지가 가로도 48
 (구 42), 요일 띠 칸 48(칸 사이 간격 4→0), 여닫기 화살표 상자 48(구 32) — 그림은 그대로이고 누르는 상자만
 커져 줄 높이가 조금 늘었다. 표시 전용 배지는 종전 크기. 게이트 = `test/touch_target_test.dart`(실물 렌더를
 getSize 로 잰다). 21장 재생성, 장수 불변. 직전 **89장** (2026-09-04 오후 — D112 수업 탭 여닫기: 사용자 "각 운동프로그램 AWAKE·SWEAT 등 옆에 화살표를
