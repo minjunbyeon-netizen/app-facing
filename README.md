@@ -263,3 +263,5 @@ samples, guidance on mobile development, and a full API reference.
    `GymWodPost.variant/variantLabel` · `ClassSessionDto.variant/variantLabel` · `visibleProgram` 의
    (templateId, variant) 중복 축 · `WodRow` 의 라운드 `_kv` 재출력. 복원 좌표: D89 커밋(2026-08-30)
    `git log --grep=D89`. 서버 `variant` 컬럼 3개는 휴면(표 보존).
+
+43. **수업 탭 두 칸 세그먼트 — 프로그램 · 수업 시간 (v3.37 · D77 · 2026-08-29)** — 2026-09-04 D111 로 폐기. 회원의 결정은 하나("20:00 SWEAT 에 가서 이걸 한다")인데 동기(프로그램 칸)와 버튼(수업 시간 칸)을 갈라 반응까지 칸 전환이 한 번 더 들었고, 요일 아코디언 + 카드 이중 펼침에 '수업 없음' 요일 줄이 오늘 위에 쌓였다 (사용자 진단, 목업 세 안 중 1안 선택). 지금은 요일 띠(`HkDayStrip`) + 수업 줄(펼치면 그 종류의 글 본문) 하나 — `lib/features/gym/week_board.dart`. 지운 것: `HkSegment` 칸 전환·`_DayTile` 요일 아코디언·`WeekBoard.kPaneSwitch/paneProgram/paneSchedule`·골든 헬퍼 `tapProgramPane/tapSchedulePane`·`test/golden/week_pane_test.dart`. 복원 좌표 = D111 직전 커밋(2026-09-04, `3c90fca`).

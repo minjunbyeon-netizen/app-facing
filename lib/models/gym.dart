@@ -479,6 +479,11 @@ class GymWodPost {
   /// D109 — 게시물 메모 (서버 `memo`, 파트 밖 자유 글). 없으면 ''.
   final String memo;
 
+  /// D111 (2026-09-04) — 그날 운동 한 줄 요약 (서버 `summary` = 히스토리 둘째 줄과
+  /// 같은 함수 `movement_summary`). 접힌 수업 줄 밑에 그대로 적는다 — 앱이 동작 줄을
+  /// 이어 붙여 만들지 않는다 (6-b). 없으면 '' (옛 서버).
+  final String summary;
+
   /// 파트가 둘 이상인 글 — 카드 머리에 종류·캡·라운드를 적지 않고 본문을 파트별로
   /// 그린다 (전체를 대표하는 종류가 없다 — 서버도 wod_type 을 'custom' 으로 둔다).
   bool get isMultiPart => roundsData.length > 1;
@@ -510,6 +515,7 @@ class GymWodPost {
     this.firstClassAt,
     this.displayName,
     this.memo = '',
+    this.summary = '',
     this.completionBlocked,
     this.completionBlockedMessage,
   });
@@ -554,6 +560,7 @@ class GymWodPost {
       templateName: j['template_name']?.toString(),
       displayName: j['display_name']?.toString(),
       memo: (j['memo'] ?? '').toString(),
+      summary: (j['summary'] ?? '').toString(),
       firstClassAt: (j['first_class_at'] is String &&
               (j['first_class_at'] as String).isNotEmpty)
           ? parseServerTime(j['first_class_at'] as String).toLocal()

@@ -1,4 +1,4 @@
-// 프로그램 칸의 순서·중복·펼침·파트 회귀 (v3.41 · 2026-08-29 / D109 · 2026-09-04).
+// 프로그램 순서·중복·펼침·파트 회귀 (v3.41 · 2026-08-29 / D109 · D111 · 2026-09-04).
 //
 // 사용자 지시 (v3.41): "프로그램 들어왔을 때 그날 수업이 시간 순서대로
 // (어웨이크, 스웻, 빌드): 가장 빠른순대로 중복은 표시하지 않고,
@@ -111,7 +111,7 @@ void main() {
     });
   });
 
-  testWidgets('프로그램 칸 — 오늘 세 종류가 시간 순으로, 전부 펼쳐진 채, 파트는 한 카드 안에',
+  testWidgets('수업 탭 (D111) — 파트 셋이 한 줄 아래 세로로, 수업 없는 종류는 프로그램 칸에 시간 순',
       (tester) async {
     phone(tester);
     SharedPreferences.setMockInitialValues(signedInPrefs());
@@ -129,45 +129,33 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // 기본 진입이 프로그램 칸이고 오늘이 펼쳐져 있다 (v3.40).
+    // D111 — 오늘 20:00 SWEAT 줄이 다음 수업이라 펼쳐져 있고, 그 아래 파트 셋이
+    // 머리 없는 본문으로 선다. 종류(AMRAP 등)는 파트 머리줄에만 있다.
     final rows = tester.widgetList<WodRow>(find.byType(WodRow)).toList();
-    expect(rows.length, 3, reason: 'BUILD 중복 한 건은 화면에 오지 않는다');
-    expect(
-      rows.map((r) => r.wod.displayName ?? r.wod.templateName),
-      ['AWAKE', 'SWEAT', 'BUILD'],
-      reason: '첫 수업 시각 순 (06:00 · 12:00 · 18:00)',
-    );
-    expect(rows.every((r) => r.initiallyExpanded == true), isTrue,
-        reason: '내용이 다 보여야 한다 — 눌러서 열 필요가 없다');
+    final sweat = rows.where((r) => r.headerless).toList();
+    expect(sweat.length, 1, reason: '파트 셋이 카드 셋으로 갈라지면 안 된다');
+    expect(sweat.single.wod.displayName, 'SWEAT');
+    for (final head in ['A 파트 · 15분 · STRENGTH', 'B 파트 · 20분 · AMRAP · 캡 12분', 'C 파트 · 10분']) {
+      expect(find.text(head.toUpperCase()), findsOneWidget, reason: '파트 머리줄 $head');
+    }
+    expect(find.textContaining('KB Swing'), findsWidgets);
+    expect(find.textContaining('Plank 60초'), findsWidgets);
+    expect(find.text('마지막 파트는 쿨다운.'), findsOneWidget, reason: '메모는 파트 아래 한 번');
+    // 상단바 제목 '수업' 은 빼고, 파트 본문 안에서만 찾는다.
+    final sweatBody = find.byWidgetPredicate((w) => w is WodRow && w.headerless);
+    expect(find.descendant(of: sweatBody, matching: find.text('수업')), findsNothing,
+        reason: "wod_type 'custom' 의 라벨 '수업' 이 머리에 서면 안 된다");
 
-    // 펼쳐진 내용이 실제로 그려졌는지 (접힌 카드면 본문이 없다).
+    // 오늘 수업이 없는 종류(AWAKE 06:00 · BUILD 18:00)는 '프로그램' 밑에 시간 순, 전부 펼친 채.
+    final cards = rows.where((r) => !r.headerless).toList();
+    expect(cards.map((r) => r.wod.displayName ?? r.wod.templateName), ['AWAKE', 'BUILD'],
+        reason: '첫 수업 시각 순 (06:00 · 18:00) — BUILD 중복 한 건은 안 온다');
+    expect(cards.every((r) => r.initiallyExpanded == true), isTrue,
+        reason: '내용이 다 보여야 한다 — 눌러서 열 필요가 없다');
     expect(find.textContaining('Thruster'), findsWidgets);
     expect(find.textContaining('Clean & Jerk'), findsWidgets);
-    // 중복 글의 본문은 어디에도 없다.
     expect(find.textContaining('같은 종류 중복'), findsNothing);
-
-    // D109 — SWEAT 카드 한 장 안에 파트 셋. 머리줄(서버 title, 섹션 라벨은
-    // 대문자로 그린다)과 동작 줄이 전부 보인다.
-    final sweatRow = find.byWidgetPredicate(
-        (w) => w is WodRow && w.wod.displayName == 'SWEAT');
-    expect(sweatRow, findsOneWidget, reason: '파트 셋이 카드 셋으로 갈라지면 안 된다');
-    for (final head in ['A 파트 · 15분 · STRENGTH', 'B 파트 · 20분 · AMRAP · 캡 12분', 'C 파트 · 10분']) {
-      expect(find.descendant(of: sweatRow, matching: find.text(head.toUpperCase())),
-          findsOneWidget, reason: '파트 머리줄 $head');
-    }
-    expect(find.descendant(of: sweatRow, matching: find.textContaining('KB Swing')),
-        findsOneWidget);
-    expect(find.descendant(of: sweatRow, matching: find.textContaining('Plank 60초')),
-        findsOneWidget);
-    expect(find.descendant(of: sweatRow, matching: find.text('마지막 파트는 쿨다운.')),
-        findsOneWidget, reason: '메모는 파트 아래 한 번');
-    // 카드 머리에 종류를 적지 않는다 — 파트 하나짜리 AWAKE 는 'FOR TIME' 을 적는다.
-    expect(find.descendant(of: sweatRow, matching: find.text('수업')), findsNothing,
-        reason: "wod_type 'custom' 의 라벨 '수업' 이 머리에 서면 안 된다");
-    expect(find.descendant(of: sweatRow, matching: find.text('AMRAP')), findsNothing);
-    final awakeRow = find.byWidgetPredicate(
-        (w) => w is WodRow && w.wod.displayName == 'AWAKE');
-    expect(find.descendant(of: awakeRow, matching: find.text('FOR TIME')),
-        findsOneWidget);
+    // 파트 하나짜리 AWAKE 카드 머리에는 종전대로 종류가 선다.
+    expect(find.text('FOR TIME'), findsOneWidget);
   });
 }

@@ -23,6 +23,10 @@ class ClassSessionDto {
   final int waitlistCount;
   final String status; // open | cancelled | completed
   final String? track; // 수업 종류 (intro/rx/... 자유 문자열) — G25
+  /// D111 (2026-09-04) — 이 수업이 붙은 수업 종류(class_templates.id). 수업 줄을
+  /// 펼칠 때 그날 글(`GymWodPost.templateId`)을 찾는 유일한 축. 서버 `template_id`
+  /// — 없으면(단발 수업·옛 서버) 프로그램을 붙이지 않는다 (이름으로 맞추지 않는다).
+  final int? templateId;
   final String? color; // 캘린더 칩 hex — 파싱만, UI 미사용 (토큰 정책)
   final MyReservationDto? myReservation;
   final int? myWaitlistPosition;
@@ -55,6 +59,7 @@ class ClassSessionDto {
     required this.waitlistCount,
     required this.status,
     this.track,
+    this.templateId,
     this.color,
     this.myReservation,
     this.myWaitlistPosition,
@@ -98,6 +103,7 @@ class ClassSessionDto {
         waitlistCount: (j['waitlist_count'] as num?)?.toInt() ?? 0,
         status: (j['status'] ?? 'open').toString(),
         track: j['track']?.toString(),
+        templateId: (j['template_id'] as num?)?.toInt(),
         color: j['color']?.toString(),
         myReservation: j['my_reservation'] is Map<String, dynamic>
             ? MyReservationDto.fromJson(j['my_reservation'] as Map<String, dynamic>)

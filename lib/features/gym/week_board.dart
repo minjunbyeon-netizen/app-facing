@@ -4,67 +4,148 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api_client.dart';
+import '../../core/app_clock.dart';
 import '../../core/haptic.dart';
 import '../../core/sse_client.dart';
 import '../../core/theme.dart';
+import '../../core/time_format.dart';
 import '../../models/class_session.dart';
 import '../../models/gym.dart';
 import '../../widgets/hkit.dart';
-import '../classes/classes_repository.dart';
 import '../classes/class_flows.dart' show cancelClassFlow, reserveClassFlow;
+import '../classes/class_line.dart';
+import '../classes/classes_repository.dart';
 import 'gym_state.dart';
 import 'wod_row.dart';
-import 'wod_type_label.dart';
-import '../../core/app_clock.dart';
-import '../classes/class_line.dart';
-import '../../core/time_format.dart';
 
-/// v2.4 (2026-08-12 사용자 지시): WOD 탭 = **그 주 월~일 아코디언**.
+/// 회원 수업 탭 = **통합 한 줄** (D111 · 2026-09-04 사용자 "1안").
 ///
-/// 전에는 오늘·예정·지난 3섹션이 세로로 이어져 오늘 것을 보려면 어느 덩어리를
-/// 봐야 하는지부터 골라야 했다. 이제 한 주가 7줄로 고정되고, 요일·날짜를 누르면
-/// 그날 것이 그 자리에서 펼쳐진다 (한 번에 하나만).
+/// 회원의 결정은 하나다 — "20:00 SWEAT 에 가서 이걸 한다". 종전(v3.37~v3.41)엔
+/// 그 하나를 프로그램 칸(동기)과 수업 시간 칸(버튼)으로 갈라 두 칸 사이를 오가야
+/// 했고, 요일 아코디언 + 카드 이중 펼침에 '수업 없음' 요일 줄이 오늘 위에 쌓여
+/// 첫 화면에 행동할 것이 적었다. 이제:
 ///
-/// v3.37 (2026-08-29 테스터 지시 "수업에는 수업 시간표에 대한 내용만 있어야
-/// 합니다. 프로그램과 수업은 분리시킵니다"): 하루를 펼치면 **한 카드 안에**
-/// 프로그램(수업 내용)과 수업 시간이 세로로 쌓여, 예약하러 들어온 사람이 운동
-/// 설명을 다 지나쳐야 예약 버튼에 닿았다. 이제 위에 칸 두 개를 두고 한 칸이
-/// 한 가지만 보여 준다 — **수업 시간**(예약) · **프로그램**(그날 내용).
+/// 1. 주 이동 줄 (‹ 8.10 – 8.16 [이번 주] ›) — 그대로.
+/// 2. **요일 띠** 7칸 ([HkDayStrip]) — 고른 날 하나만 아래에 편다. 기본 = 오늘(그 주에
+///    있으면), 다른 주는 월. 점 = 내 예약(주색) / 수업 있음(회색) / 없음 — [dayMark].
+/// 3. **수업 줄 목록** (고른 날, 시작 시각 순) — [ClassLine.member] 규격 그대로. 접힌
+///    줄 밑에 그 종류의 그날 프로그램 한 줄 요약(서버 `summary`).
+/// 4. **펼침** = 그 줄의 수업 종류(`templateId`)에 붙은 그날 글을 [WodRow] 본문만으로
+///    (파트 세로 · 메모 · 완료/메시지/자세히). 글이 없으면 '아직 게시 전.'/'게시된
+///    프로그램 없음.', 잠긴 글은 [LockedWodBanner].
+/// 5. **자동 펼침** = 내 예약 줄 전부, 없으면 다음 수업 1개, 지난 날은 없음 — [autoExpanded].
+/// 6. 수업 종류가 없는 단발 글·그날 수업이 없는 종류의 글은 목록 아래 '프로그램' 라벨
+///    밑에 종전 카드(머리 포함) — [leftoverPrograms]. 글이 사라지지 않는다.
 ///
-/// v3.40 (2026-08-29 사용자 지시 "수업시간-프로그램 순서 바꾸자. 프로그램 누르면
-/// 그날 되는 운동목록이 한번에 보이게"): 칸 순서를 **프로그램 · 수업 시간**으로
-/// 뒤집고 기본 진입도 프로그램으로. 탭을 열면 "오늘 뭐 하지"가 먼저 답해지고,
-/// 예약하러 온 사람은 옆 칸 한 번이면 된다.
-///
-/// 주(週)와 펼친 날은 두 칸이 함께 쓴다 (여기 State 한 벌뿐이라 칸을 바꿔도
-/// 보던 자리가 그대로다). 단 **프로그램 칸으로 갈 때는 오늘을 펼친다** — 그 칸의
-/// 목적이 "오늘 운동"이라 접힌 채로 열리면 답이 안 보인다.
+/// 정의는 여기 한 곳이다 — 요약·라벨·판정 문구는 서버 값을 그대로 적고, 순서·중복·
+/// 자동 펼침·점만 이 파일의 순수 함수가 정한다 (회귀 = test/golden/class_tab_test.dart).
 class WeekBoard extends StatefulWidget {
   final GymState gymState;
 
   const WeekBoard({super.key, required this.gymState});
 
-  /// 레이아웃 안정성 앵커 (v3.34 · 2026-08-27) — 어느 날을 펼쳐도 그 아래
-  /// 요일 줄은 제자리에 있어야 한다 (0=월 … 6=일).
-  /// 회귀 게이트 = test/golden/stability_wod_test.dart.
+  /// 요일 띠의 칸 (0=월 … 6=일) — 어느 날을 골라도, 목록이 로딩·도착·없음·실패여도
+  /// 이 칸들과 [kWeekNav] 의 y 는 불변이다. 회귀 = test/golden/stability_wod_test.dart.
   static Key dayKey(int index) => ValueKey('week-day-$index');
 
-  /// 칸 전환 줄 · 주간 이동 줄 (v3.37) — 칸을 바꿔도 이 둘과 그 아래 요일 줄이
-  /// 같은 y 에 있어야 한다. 회귀 게이트 = test/golden/stability_wod_test.dart.
-  static const Key kPaneSwitch = Key('week-pane-switch');
   static const Key kWeekNav = Key('week-nav');
+  static const Key kDayStrip = Key('week-day-strip');
 
-  /// 칸 이름 — 골든·회귀 테스트가 이 문자열로 칸을 누른다 (§0-B).
-  static const String paneSchedule = '수업 시간';
-  static const String paneProgram = '프로그램';
+  /// 수업 줄 (class id) — 검사가 줄을 집어 펼친다.
+  static Key rowKey(int classId) => ValueKey('class-row-$classId');
 
-  /// 펼친 날의 '수업 시간' 구역이 미리 잡아 두는 자리 (공간 예약).
-  /// 값 = 수업 한 줄(ClassLine)의 실측 높이 — 로딩 스켈레톤·'없음' 문구·수업
-  /// 줄이 이 자리를 함께 쓴다 (DESIGN-SSOT §레이아웃 안정성).
+  /// 고른 날의 목록이 미리 잡아 두는 자리 (공간 예약) — 수업 한 줄 실측 높이.
+  /// 로딩 스켈레톤·'없음' 문구·수업 줄이 이 자리를 함께 쓴다 (DESIGN-SSOT §레이아웃 안정성).
   static const double classSlotH = 65;
+
+  /// 수업이 없는 종류의 글이 서는 구역 라벨.
+  static const String leftoverLabel = '프로그램';
 
   @override
   State<WeekBoard> createState() => _WeekBoardState();
+}
+
+/// 요일 칸의 점 — 정의는 이 함수 하나.
+/// 내 예약(확정·대기)이 있으면 [HkDayMark.reserved], 수업이 하나라도 있으면
+/// [HkDayMark.hasClass], 없으면 [HkDayMark.none].
+HkDayMark dayMark(List<ClassSessionDto> dayClasses) {
+  if (dayClasses.any((c) => c.isReserved || c.isWaitlisted)) {
+    return HkDayMark.reserved;
+  }
+  return dayClasses.isEmpty ? HkDayMark.none : HkDayMark.hasClass;
+}
+
+/// 처음 열릴 때 펼쳐 두는 줄 (class id) — 정의는 이 함수 하나.
+/// - 지난 날: 아무 줄도 안 편다.
+/// - 내 예약(확정·대기) 줄 전부.
+/// - 예약이 없으면 **다음 수업 1개** = 시작 시각이 [now] 이후인 첫 줄 (없으면 없음).
+Set<int> autoExpanded(
+  List<ClassSessionDto> classes,
+  DateTime now, {
+  required bool isPastDay,
+}) {
+  if (isPastDay) return const {};
+  final mine = {
+    for (final c in classes)
+      if (c.isReserved || c.isWaitlisted) c.id,
+  };
+  if (mine.isNotEmpty) return mine;
+  for (final c in classes) {
+    if (!c.startAt.isBefore(now)) return {c.id};
+  }
+  return const {};
+}
+
+/// 그날 프로그램을 **화면에 내보낼 순서·개수**로 고른다 (v3.41 · 2026-08-29).
+///
+/// - **순서** = 그 수업 종류의 그날 **첫 수업 시각**(서버 `first_class_at`).
+///   시각이 없는 글(수업 종류에 안 붙은 단발)은 맨 뒤로, 그 안에서는 게시 순.
+/// - **중복 제거** = 같은 수업 종류(`templateId`)는 한 번만. 종류가 없는 글은 각각
+///   남긴다. D109: 같은 수업의 A·B·C 는 한 글 안의 **파트**라 카드 한 장 안에 선다.
+List<GymWodPost> visibleProgram(List<GymWodPost> wods) {
+  final seen = <int>{};
+  final out = <GymWodPost>[];
+  for (final w in wods) {
+    if (w.templateId != null && !seen.add(w.templateId!)) {
+      continue;
+    }
+    out.add(w);
+  }
+  out.sort((a, b) {
+    final at = a.firstClassAt, bt = b.firstClassAt;
+    if (at != null && bt != null) return at.compareTo(bt);
+    if (at != null) return -1; // 시각이 있는 쪽이 먼저
+    if (bt != null) return 1;
+    return a.id.compareTo(b.id); // 둘 다 없으면 게시 순
+  });
+  return out;
+}
+
+/// 수업 줄에 붙는 그날 글 — 그 줄의 수업 종류(`templateId`)와 같은 글 (종류당 첫 글).
+/// 종류가 없는 수업(단발)은 글을 붙이지 않는다 — 이름으로 맞추지 않는다 (6-b).
+GymWodPost? programFor(ClassSessionDto c, List<GymWodPost> wods) {
+  final tid = c.templateId;
+  if (tid == null) return null;
+  for (final w in visibleProgram(wods)) {
+    if (w.templateId == tid) return w;
+  }
+  return null;
+}
+
+/// 수업 줄 어디에도 안 붙는 글 — 종류가 없는 단발 글 · 그날 수업이 없는 종류의 글.
+/// 목록 아래 '프로그램' 라벨 밑에 종전 카드(머리 포함)로 선다.
+List<GymWodPost> leftoverPrograms(
+  List<GymWodPost> wods,
+  List<ClassSessionDto> classes,
+) {
+  final attached = {
+    for (final c in classes)
+      if (c.templateId != null) c.templateId!,
+  };
+  return [
+    for (final w in visibleProgram(wods))
+      if (w.templateId == null || !attached.contains(w.templateId)) w,
+  ];
 }
 
 class _WeekBoardState extends State<WeekBoard> {
@@ -74,24 +155,21 @@ class _WeekBoardState extends State<WeekBoard> {
   late DateTime _today;
   late DateTime _weekStart; // 그 주 월요일 00:00
   late int _selected; // 0(월)~6(일)
-  /// false = 수업 시간(예약) · true = 프로그램. 기본은 **프로그램** (v3.40).
-  bool _program = true;
   List<ClassSessionDto> _classes = const [];
   bool _classesLoading = false;
   bool _classesError = false;
   StreamSubscription<SseEvent>? _sseSub;
 
+  /// 사람이 손으로 바꾼 펼침 (날짜 → class id 집합). 없는 날은 [autoExpanded] 가 정한다.
+  /// 재조회(SSE·예약)가 와도 손으로 정한 것은 지키고, 다른 날을 고르면 그 날은 다시 자동.
+  final Map<String, Set<int>> _manualExpanded = {};
+
   /// D58 (2026-08-26 PC·에뮬 실주행): 코치가 회원권을 해지·정지·수정해 서버가 예약을
   /// 지웠는데(revoke_uncovered_reservations) 보드는 '예약됨' 을 그대로 보였다.
   /// GymState 는 회원권·수업 내용만 다시 받으므로 수업 목록은 여기서 직접 듣는다.
-  /// 2026-09-02: 코치가 수업을 새로 등록·수정하면 서버가 `wod.posted` 를 쏘는데
-  /// (classes.py D106) 프로그램 칸만 갱신되고 수업 시간 칸은 주 이동 전까지 옛 그림이었다
-  /// — 여기서도 듣는다.
-  /// 2026-09-02: 다른 회원이 예약을 잡아도(member_reservation_created) 보드는
-  /// 옛 정원·마감 표시를 그대로 보였다 — 취소는 듣는데 생성만 안 듣는 비대칭
-  /// (서버가 2026-08-12 PC 에 고친 것과 같은 모양, classes.py
-  /// _publish_reservation_created 주석 참조). isFull(마감)·대기 순번이 이 수에
-  /// 달려 있으므로 같이 듣는다.
+  /// 2026-09-02: 코치가 수업을 새로 등록·수정하면 서버가 `wod.posted` 를 쏜다
+  /// (classes.py D106) — 여기서도 듣는다. 다른 회원의 예약 생성(member_reservation_created)
+  /// 도 듣는다 — isFull(마감)·대기 순번이 이 수에 달려 있다.
   static const _classReloadEvents = <String>{
     'wod.posted',
     'member_reservation_created',
@@ -172,27 +250,17 @@ class _WeekBoardState extends State<WeekBoard> {
   }
 
   void _select(int i) {
+    if (i == _selected) return;
     Haptic.light();
-    // 열린 날을 다시 누르면 접는다 — 7줄만 남아 한 주 전체가 한눈에 들어온다.
-    setState(() => _selected = _selected == i ? -1 : i);
+    setState(() => _selected = i);
   }
 
-  /// 칸 전환. 주(`_weekStart`)는 건드리지 않는다 — 보던 주가 그대로다.
-  ///
-  /// v3.40: **프로그램 칸으로 갈 때만 오늘을 펼친다.** 그 칸은 "오늘 뭐 하지"에
-  /// 답하는 자리라 접힌 채로 열리면 아무것도 안 보인다. 보고 있던 주에 오늘이
-  /// 없으면(지난 주·다음 주) 건드리지 않는다 — 없는 날을 펼칠 수는 없다.
-  /// 수업 시간 칸은 종전대로 보던 자리를 유지한다.
-  void _selectPane(int i) {
-    final program = i == 0;
-    if (program == _program) return;
+  void _toggleRow(String day, Set<int> current, int classId) {
     Haptic.light();
     setState(() {
-      _program = program;
-      if (program) {
-        final todayIdx = _today.difference(_weekStart).inDays;
-        if (todayIdx >= 0 && todayIdx < 7) _selected = todayIdx;
-      }
+      final next = Set<int>.from(current);
+      if (!next.remove(classId)) next.add(classId);
+      _manualExpanded[day] = next;
     });
   }
 
@@ -214,71 +282,78 @@ class _WeekBoardState extends State<WeekBoard> {
       list.sort((a, b) => a.startAt.compareTo(b.startAt));
     }
 
+    final date = _weekStart.add(Duration(days: _selected));
+    final day = ymd(date);
+    final dayClasses = classesByDate[day] ?? const <ClassSessionDto>[];
+    final dayWods = wodsByDate[day] ?? const <GymWodPost>[];
+    final isPast = date.isBefore(_today);
+    final expanded =
+        _manualExpanded[day] ??
+        autoExpanded(dayClasses, appClock.now(), isPastDay: isPast);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        HkSegment(
-          key: WeekBoard.kPaneSwitch,
-          labels: const [WeekBoard.paneProgram, WeekBoard.paneSchedule],
-          selected: _program ? 0 : 1,
-          onSelected: _selectPane,
-        ),
-        const SizedBox(height: HyphenTokens.sp2),
         _weekHeader(),
         const SizedBox(height: HyphenTokens.sp2),
-        HkCard(
-          padding: EdgeInsets.zero,
-          clipBehavior: Clip.antiAlias,
-          child: Column(
-            children: [
-              for (var i = 0; i < 7; i++)
-                _DayTile(
-                  key: WeekBoard.dayKey(i),
-                  date: _weekStart.add(Duration(days: i)),
-                  weekdayLabel: _wk[i],
-                  isToday: _weekStart.add(Duration(days: i)) == _today,
-                  isSelected: _selected == i,
-                  isLast: i == 6,
-                  program: _program,
-                  wods:
-                      wodsByDate[ymd(_weekStart.add(Duration(days: i)))] ??
-                      const [],
-                  classes:
-                      classesByDate[ymd(_weekStart.add(Duration(days: i)))] ??
-                      const [],
-                  // 이전 결과를 들고 있는 동안은 로딩 취급하지 않는다 (깜빡임 방지).
-                  classesLoading: _classesLoading && _classes.isEmpty,
-                  classesError: _classesError,
-                  today: _today,
-                  // S5 (2026-08-26): 그날 유효한 회원권이 없으면 예약 배지가
-                  // '회원권 필요' 로 바뀐다. 과제 4 (2026-08-30): 그 답은 서버가 수업마다
-                  // 내려준다 (membership_ok — 예약 게이트와 같은 함수). 폰은 날짜를 세지 않는다.
-                  membershipOk:
-                      (classesByDate[ymd(_weekStart.add(Duration(days: i)))] ??
-                              const <ClassSessionDto>[])
-                          .every((c) => c.membershipOk ?? true),
-                  onTap: () => _select(i),
-                  onReserve: (c) async {
-                    final ok = await reserveClassFlow(context, _repo, c);
-                    if (ok && mounted) {
-                      _loadClasses();
-                      gs.refreshMemberships(); // D57 횟수권 잔여 갱신
-                      // 완료 배지(completion_blocked)는 회원별 판정 — 예약을
-                      // 따라가야 한다 (2026-09-02 프로드 stale 결함 픽스).
-                      gs.refreshWods();
-                    }
-                  },
-                  onCancel: (c) async {
-                    final ok = await cancelClassFlow(context, _repo, c);
-                    if (ok && mounted) {
-                      _loadClasses();
-                      gs.refreshMemberships(); // D57 횟수권 잔여 갱신
-                      gs.refreshWods(); // 위 onReserve 와 같은 이유
-                    }
-                  },
-                  onRetryClasses: _loadClasses,
+        HkDayStrip(
+          key: WeekBoard.kDayStrip,
+          cells: [
+            for (var i = 0; i < 7; i++)
+              HkDayCell(
+                weekday: _wk[i],
+                day: _weekStart.add(Duration(days: i)).day,
+                isToday: _weekStart.add(Duration(days: i)) == _today,
+                mark: dayMark(
+                  classesByDate[ymd(_weekStart.add(Duration(days: i)))] ??
+                      const <ClassSessionDto>[],
                 ),
-            ],
+              ),
+          ],
+          selected: _selected,
+          onSelected: _select,
+          cellKey: WeekBoard.dayKey,
+        ),
+        const SizedBox(height: HyphenTokens.sp2),
+        HkCard(
+          padding: const EdgeInsets.symmetric(
+            horizontal: HyphenTokens.sp3,
+            vertical: HyphenTokens.sp2,
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: _DayList(
+            date: date,
+            today: _today,
+            classes: dayClasses,
+            wods: dayWods,
+            expanded: expanded,
+            // 이전 결과를 들고 있는 동안은 로딩 취급하지 않는다 (깜빡임 방지).
+            loading: _classesLoading && _classes.isEmpty,
+            error: _classesError,
+            // S5 (2026-08-26): 그날 유효한 회원권이 없으면 예약 배지가 '회원권 필요'.
+            // 과제 4 (2026-08-30): 그 답은 서버가 수업마다 내려준다 (membership_ok —
+            // 예약 게이트와 같은 함수). 폰은 날짜를 세지 않는다.
+            membershipOk: dayClasses.every((c) => c.membershipOk ?? true),
+            onToggle: (c) => _toggleRow(day, expanded, c.id),
+            onReserve: (c) async {
+              final ok = await reserveClassFlow(context, _repo, c);
+              if (ok && mounted) {
+                _loadClasses();
+                gs.refreshMemberships(); // D57 횟수권 잔여 갱신
+                // 완료 배지(completion_blocked)는 회원별 판정 — 예약을
+                // 따라가야 한다 (2026-09-02 프로드 stale 결함 픽스).
+                gs.refreshWods();
+              }
+            },
+            onCancel: (c) async {
+              final ok = await cancelClassFlow(context, _repo, c);
+              if (ok && mounted) {
+                _loadClasses();
+                gs.refreshMemberships(); // D57 횟수권 잔여 갱신
+                gs.refreshWods(); // 위 onReserve 와 같은 이유
+              }
+            },
+            onRetry: _loadClasses,
           ),
         ),
       ],
@@ -339,311 +414,168 @@ class _WeekBoardState extends State<WeekBoard> {
   }
 }
 
-/// 그날 프로그램을 **화면에 내보낼 순서·개수**로 고른다 (v3.41 · 2026-08-29).
+/// 고른 날의 수업 줄 목록 + 어디에도 안 붙는 글.
 ///
-/// 사용자 지시: "그날 수업이 시간 순서대로 (어웨이크, 스웻, 빌드): 가장 빠른순대로
-/// 중복은 표시하지 않고, 수업 펼쳐져서 내용은 다 보여야 함".
-///
-/// - **순서** = 그 수업 종류의 그날 **첫 수업 시각**(서버가 `first_class_at` 로 준다).
-///   시각이 없는 글(수업 종류에 안 붙은 단발)은 맨 뒤로, 그 안에서는 게시 순.
-/// - **중복 제거** = 같은 수업 종류(`templateId`)는 한 번만. 하루에 BUILD 가 두 번
-///   돌아도 내용은 하나이므로 두 번 적을 이유가 없다. 종류가 없는 글은 각각 남긴다
-///   (서로 다른 글일 수 있다). D109 (2026-09-04): 구 D89 의 "세션이 다르면 따로"
-///   는 폐기 — 같은 수업의 A·B·C 는 다른 운동이 아니라 **한 글 안의 파트**라
-///   카드 한 장 안에 세로로 선다 (`WodRow`).
-List<GymWodPost> visibleProgram(List<GymWodPost> wods) {
-  final seen = <int>{};
-  final out = <GymWodPost>[];
-  for (final w in wods) {
-    if (w.templateId != null && !seen.add(w.templateId!)) {
-      continue;
-    }
-    out.add(w);
-  }
-  out.sort((a, b) {
-    final at = a.firstClassAt, bt = b.firstClassAt;
-    if (at != null && bt != null) return at.compareTo(bt);
-    if (at != null) return -1;   // 시각이 있는 쪽이 먼저
-    if (bt != null) return 1;
-    return a.id.compareTo(b.id); // 둘 다 없으면 게시 순
-  });
-  return out;
-}
-
-/// 하루 = 접힌 줄 하나. 펼치면 지금 보고 있는 칸의 것 **하나만** — 수업 시간
-/// 칸이면 수업 줄(예약 버튼 포함), 프로그램 칸이면 그날 프로그램 (v3.37).
-class _DayTile extends StatelessWidget {
+/// 로딩·없음·실패·목록이 같은 예약 자리([HkSectionSlot])를 쓴다 — 어느 상태여도
+/// 위의 요일 띠·주 이동 줄은 제자리다 (v3.34 의 처방 그대로).
+class _DayList extends StatelessWidget {
   final DateTime date;
-  final String weekdayLabel;
-  final bool isToday;
-  final bool isSelected;
-  final bool isLast;
-
-  /// true = 프로그램 칸 · false = 수업 시간 칸.
-  final bool program;
-  final List<GymWodPost> wods;
-  final List<ClassSessionDto> classes;
-  final bool classesLoading;
-  final bool classesError;
   final DateTime today;
+  final List<ClassSessionDto> classes;
+  final List<GymWodPost> wods;
+  final Set<int> expanded;
+  final bool loading;
+  final bool error;
   final bool membershipOk;
-  final VoidCallback onTap;
+  final void Function(ClassSessionDto) onToggle;
   final Future<void> Function(ClassSessionDto) onReserve;
   final Future<void> Function(ClassSessionDto) onCancel;
-  final VoidCallback onRetryClasses;
+  final VoidCallback onRetry;
 
-  const _DayTile({
-    super.key,
+  const _DayList({
     required this.date,
-    required this.weekdayLabel,
-    required this.isToday,
-    required this.isSelected,
-    required this.isLast,
-    required this.program,
-    required this.wods,
-    required this.classes,
-    required this.classesLoading,
-    required this.classesError,
     required this.today,
+    required this.classes,
+    required this.wods,
+    required this.expanded,
+    required this.loading,
+    required this.error,
     required this.membershipOk,
-    required this.onTap,
+    required this.onToggle,
     required this.onReserve,
     required this.onCancel,
-    required this.onRetryClasses,
+    required this.onRetry,
   });
 
   bool get _isFuture => date.isAfter(today);
   bool get _isPast => date.isBefore(today);
 
-  /// 요일 줄 오른쪽 한 줄 요약 — **펼치지 않고도 그날을 고를 수 있게** 하는 줄이라
-  /// 지금 보고 있는 칸이 답해야 하는 질문에 답한다 (v3.37).
-  ///
-  /// 2026-08-28 테스터 보고 — "수업 외 2 라고 되어 있는 것보다 항목 이름이 있으면
-  /// 좋겠다". 종전 문구 `'$first 외 ${n}'` 은 "그 수업 **외** 2건" 이라는 뜻이었는데,
-  /// 읽는 사람에겐 **'수업외' 라는 분류가 2개** 로 읽혔다. 뜻이 뒤집혀 읽히는 문구는
-  /// 없는 것만 못하다. 그래서 개수 대신 **이름을 그대로** 적는다.
-  String get _summary => program ? _programSummary : _scheduleSummary;
-
-  /// 수업 시간 칸 — "그날 무슨 수업이 도느냐". 코치가 시간표에 적어 둔 수업 이름이
-  /// 곧 회원이 아는 이름이다 (AWAKE·SWEAT·BUILD).
-  String get _scheduleSummary {
-    final names = <String>[];
-    for (final c in classes) {
-      final t = c.displayTitle.trim(); // 서버 표시 제목 그대로
-      if (t.isNotEmpty && !names.contains(t)) names.add(t);
-    }
-    if (names.isEmpty) return classesLoading ? '' : '수업 없음';
-    return _joined(names);
-  }
-
-  /// 프로그램 칸 — "그날 무엇을 하느냐". 수업 이름은 옆 칸의 것이므로 여기엔
-  /// 안 적는다 (그게 두 칸을 나눈 이유다).
-  String get _programSummary {
-    final names = <String>[];
-    // 접힌 줄 요약과 펼친 내용이 어긋나면 안 된다 — 같은 목록을 쓴다 (v3.41).
-    for (final w in visibleProgram(wods)) {
-      final n = _programName(w);
-      if (n.isNotEmpty && !names.contains(n)) names.add(n);
-    }
-    if (names.isEmpty) return _isFuture ? '게시 전' : '프로그램 없음';
-    return _joined(names);
-  }
-
-  /// 좁은 줄이라 최대 3개까지 적고 넘으면 `+N` 으로 센다 (그때의 N 은 '더 있다'
-  /// 는 뜻이라 오해할 여지가 없다).
-  static String _joined(List<String> names) => names.length <= 3
-      ? names.join(' · ')
-      : '${names.take(3).join(' · ')} +${names.length - 3}';
-
-  /// 프로그램 한 건의 이름표.
-  ///
-  /// 종류(FOR TIME·AMRAP·EMOM)가 곧 이름이다. 다만 PC 에서 자동 게시된 글은
-  /// 종류가 `custom` 이라 라벨이 '수업' 인데, 프로그램 칸에서 '수업' 은 옆 칸을
-  /// 가리키는 말로 읽힌다 — 그때는 본문 첫 줄을 대신 적는다 (코치가 쓴 말이
-  /// 가장 정확한 이름표다). 잠긴 글은 본문이 비어 오므로 잠긴 사유를 적는다.
-  static String _programName(GymWodPost w) {
-    if (w.locked) return '회원권 만료';
-    // v3.41 — 수업 종류 이름이 곧 회원이 아는 이름이다 (AWAKE·SWEAT·BUILD).
-    // 이름표는 서버 display_name 그대로 (D109: 세션 꼬리 없음).
-    final tn = (w.displayName ?? w.templateName ?? '').trim();
-    if (tn.isNotEmpty) return tn;
-    if (w.wodType != 'custom') return wodTypeLabel(w.wodType);
-    for (final line in w.content.split('\n')) {
-      final t = line.trim();
-      if (t.isNotEmpty) return t;
-    }
-    return '게시됨';
-  }
-
   @override
   Widget build(BuildContext context) {
-    final dayColor = isToday
-        ? HyphenTokens.primary
-        : (_isPast ? HyphenTokens.muted : HyphenTokens.fg);
-
-    return Container(
-      decoration: BoxDecoration(
-        color: isSelected ? HyphenTokens.surfaceAlt : HyphenTokens.surface,
-        border: isLast
-            ? null
-            : const Border(
-                bottom: BorderSide(color: HyphenTokens.border, width: 1),
-              ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          InkWell(
-            onTap: onTap,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: HyphenTokens.sp3,
-                vertical: HyphenTokens.sp2,
-              ),
-              child: Row(
-                children: [
-                  // 요일 + 일자 — 좌측 고정 폭. 세로 두 줄이면 줄이 길어지므로
-                  // 가로 한 줄로 붙인다 ('월 10').
-                  SizedBox(
-                    width: 46,
-                    child: Row(
-                      children: [
-                        Text(
-                          weekdayLabel,
-                          style: HyphenTokens.caption.copyWith(
-                            color: dayColor,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const SizedBox(width: 5),
-                        Text(
-                          '${date.day}',
-                          style: HyphenTokens.body.copyWith(
-                            color: dayColor,
-                            fontWeight: FontWeight.w700,
-                            fontFeatures: HyphenTokens.tabular,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (isToday) ...[
-                    const HkBadge('오늘', color: HyphenTokens.primary),
-                    const SizedBox(width: HyphenTokens.sp2),
-                  ],
-                  Expanded(
-                    child: Text(
-                      _summary,
-                      style: HyphenTokens.caption,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  Icon(
-                    isSelected ? Icons.expand_less : Icons.expand_more,
-                    size: 20,
-                    color: HyphenTokens.muted,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          if (isSelected)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                HyphenTokens.sp3,
-                0,
-                HyphenTokens.sp3,
-                HyphenTokens.sp3,
-              ),
-              // v3.37: 칸 이름이 이미 어느 면인지 말하므로 구역 라벨을 다시 달지
-              // 않는다 (DESIGN-SSOT §7-D 8 — 같은 말을 두 번 쓰지 않는다).
-              // 구 v3.0 의 '수업 내용'·'수업 시간' 두 라벨은 한 카드에 두 면이
-              // 쌓여 있을 때 어느 쪽인지 갈라 주던 것이라 칸 분리로 소임이 끝났다.
-              child: program ? _wodBlock() : _classBlock(),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _wodBlock() {
-    if (wods.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.only(top: HyphenTokens.sp1),
-        child: Text(
-          // v3.37: 칸 이름이 '프로그램' 이므로 없는 것도 프로그램이라고 부른다
-          // — 칸 이름과 빈 문구가 다른 것을 가리키면 그게 곧 헷갈림이다.
-          _isFuture ? '아직 게시 전.' : '게시된 프로그램 없음.',
-          style: HyphenTokens.caption,
-        ),
+    if (error) {
+      return HkSectionSlot(
+        minHeight: WeekBoard.classSlotH,
+        loading: false,
+        empty: '',
+        child: HkInlineError('수업 불러오기 실패.', onRetry: onRetry),
       );
     }
-    final dateLabel =
-        '${date.month.toString().padLeft(2, '0')}'
-        '.${date.day.toString().padLeft(2, '0')}';
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // '당일 공개' 잠금 폐지 (2026-08-23) — 미래 게시물도 회원에게 그대로.
-        // 잠금 사유는 회원권 만료(w.locked)뿐.
-        for (final w in visibleProgram(wods))
-          if (w.locked)
-            LockedWodBanner(
-              dateLabel: dateLabel,
-              wodType: w.wodType,
-              showDate: false,
-            )
-          else
-            WodRow(
-              wod: w,
-              dateLabel: dateLabel,
-              // 지난 날 WOD 도 이 날을 직접 골라 연 것이므로 흐리게 두지 않는다.
-              isToday: !_isPast,
-              // v3.41 (2026-08-29 사용자 지시 "수업 펼쳐져서 내용은 다 보여야 함")
-              // — **전부 펼친다.** 종전엔 첫 개만 펼쳤는데(2026-08-12 그 밑 수업이
-              // 밀려서), 이제 프로그램 칸에는 수업 줄이 아예 없어 밀릴 것이 없다.
-              initiallyExpanded: true,
-              showDate: false,
-            ),
-      ],
-    );
-  }
-
-  /// v3.34 (2026-08-27): 요일을 펼치면 스피너 자리(46) → 수업 목록으로 높이가
-  /// 바뀌며 그 아래 요일 줄들이 밀렸다. 이제 로딩·없음·목록이 같은 예약 자리를
-  /// 쓴다 (HkSectionSlot — DESIGN-SSOT §레이아웃 안정성).
-  /// `_loadClasses(keepPrevious: true)` 가 재조회 깜빡임을 막아 둔 것과 같은 뜻 —
-  /// 화면이 바뀌는 것은 내용이지 자리가 아니다.
-  Widget _classBlock() {
-    final Widget? content = classesError
-        ? HkInlineError('수업 불러오기 실패.', onRetry: onRetryClasses)
-        : (classes.isEmpty
-              ? null
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (final c in classes)
-                      ClassLine.member(
-                        session: c,
-                        isPastDay: _isPast,
-                        membershipOk: membershipOk,
-                        onReserve: () => onReserve(c),
-                        onCancel: () => onCancel(c),
-                      ),
-                  ],
-                ));
-    return Padding(
-      padding: const EdgeInsets.only(top: HyphenTokens.sp1),
-      child: HkSectionSlot(
-        minHeight: WeekBoard.classSlotH,
-        loading: classesLoading && !classesError,
-        empty: '등록된 수업 없음.',
-        child: content,
-      ),
+    final leftovers = leftoverPrograms(wods, classes);
+    final Widget? content = (classes.isEmpty && leftovers.isEmpty)
+        ? null
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final c in classes) ...[
+                ClassLine.member(
+                  key: WeekBoard.rowKey(c.id),
+                  session: c,
+                  isPastDay: _isPast,
+                  membershipOk: membershipOk,
+                  summary: programFor(c, wods)?.summary ?? '',
+                  expanded: expanded.contains(c.id),
+                  onTap: () => onToggle(c),
+                  onReserve: () => onReserve(c),
+                  onCancel: () => onCancel(c),
+                ),
+                if (expanded.contains(c.id))
+                  _ProgramBlock(
+                    post: programFor(c, wods),
+                    date: date,
+                    isFuture: _isFuture,
+                    isPast: _isPast,
+                  ),
+              ],
+              if (leftovers.isNotEmpty) ...[
+                Padding(
+                  padding: EdgeInsets.only(
+                    top: classes.isEmpty ? HyphenTokens.sp1 : HyphenTokens.sp3,
+                  ),
+                  child: const HkSectionLabel(WeekBoard.leftoverLabel),
+                ),
+                for (final w in leftovers)
+                  if (w.locked)
+                    LockedWodBanner(
+                      dateLabel: mdDot(date),
+                      wodType: w.wodType,
+                      showDate: false,
+                    )
+                  else
+                    WodRow(
+                      wod: w,
+                      dateLabel: mdDot(date),
+                      // 지난 날 글도 이 날을 직접 골라 연 것이므로 흐리게 두지 않는다.
+                      isToday: !_isPast,
+                      // 내용은 다 보여야 한다 (v3.41) — 눌러서 열 필요가 없다.
+                      initiallyExpanded: true,
+                      showDate: false,
+                    ),
+              ],
+            ],
+          );
+    return HkSectionSlot(
+      minHeight: WeekBoard.classSlotH,
+      loading: loading,
+      empty: '등록된 수업 없음.',
+      child: content,
     );
   }
 }
 
-// (구 _ClassLine 은 v3.25 에서 classes/class_line.dart 로. v3.28: 코치 분기(isOwner)
-// 제거 — 코치는 boss/coach_week_classes.dart 가 같은 부품으로 따로 조립한다.)
+/// 펼친 수업 줄 아래 — 그 종류의 그날 글 본문만 (이름표 머리 없음).
+class _ProgramBlock extends StatelessWidget {
+  final GymWodPost? post;
+  final DateTime date;
+  final bool isFuture;
+  final bool isPast;
+
+  const _ProgramBlock({
+    required this.post,
+    required this.date,
+    required this.isFuture,
+    required this.isPast,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final p = post;
+    final Widget body;
+    if (p == null) {
+      body = Text(
+        isFuture ? '아직 게시 전.' : '게시된 프로그램 없음.',
+        style: HyphenTokens.caption,
+      );
+    } else if (p.locked) {
+      body = LockedWodBanner(
+        dateLabel: mdDot(date),
+        wodType: p.wodType,
+        showDate: false,
+      );
+    } else {
+      body = WodRow(
+        wod: p,
+        dateLabel: mdDot(date),
+        isToday: !isPast,
+        showDate: false,
+        headerless: true,
+      );
+    }
+    return Container(
+      margin: const EdgeInsets.only(
+        top: HyphenTokens.sp1,
+        bottom: HyphenTokens.sp2,
+      ),
+      padding: const EdgeInsets.fromLTRB(
+        HyphenTokens.sp3,
+        HyphenTokens.sp2,
+        HyphenTokens.sp3,
+        HyphenTokens.sp2,
+      ),
+      decoration: BoxDecoration(
+        color: HyphenTokens.surfaceAlt,
+        borderRadius: BorderRadius.circular(HyphenTokens.r1),
+      ),
+      child: body,
+    );
+  }
+}

@@ -2155,3 +2155,126 @@ class HkPhoneText extends StatelessWidget {
     );
   }
 }
+
+// ─── 요일 띠 (D111 · 2026-09-04) ──────────────────────────────────────────────
+
+/// 요일 칸 아래 점의 뜻 — 정의는 호출부 한 곳(`week_board.dart dayMark`)이 정한다.
+enum HkDayMark { none, hasClass, reserved }
+
+/// 요일 띠의 칸 하나 — 요일 글자 · 날짜 숫자 · 오늘 여부 · 점.
+class HkDayCell {
+  final String weekday;
+  final int day;
+  final bool isToday;
+  final HkDayMark mark;
+  const HkDayCell({
+    required this.weekday,
+    required this.day,
+    this.isToday = false,
+    this.mark = HkDayMark.none,
+  });
+}
+
+/// 요일 띠 — 한 주 7칸, 고른 날 하나만 아래에 편다 (회원 수업 탭 · D111).
+///
+/// 사용자 결정(2026-09-04 목업 1안): 요일 아코디언(하루 = 접힌 줄) 대신 **띠**.
+/// '수업 없음' 요일 줄이 오늘 내용 위에 쌓이던 세로 낭비가 사라지고, 어느 날을
+/// 골라도 띠·그 위 줄의 y 는 그대로다 (높이 고정 [height]).
+/// - 오늘 = 면 채움(fg) · 고른 날 = 테두리 · 점 = 주색(내 예약) / 회색(수업 있음) / 없음.
+/// - 점 자리는 항상 잡는다 — 예약이 생겨도 칸 높이가 안 변한다.
+class HkDayStrip extends StatelessWidget {
+  static const double height = 58;
+  final List<HkDayCell> cells;
+  final int selected;
+  final ValueChanged<int> onSelected;
+
+  /// 칸마다 붙일 키 — 안정성 검사가 칸의 y 를 잰다 (`WeekBoard.dayKey`).
+  final Key Function(int index)? cellKey;
+
+  const HkDayStrip({
+    super.key,
+    required this.cells,
+    required this.selected,
+    required this.onSelected,
+    this.cellKey,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: height,
+      child: Row(
+        children: [
+          for (var i = 0; i < cells.length; i++) ...[
+            if (i > 0) const SizedBox(width: 4),
+            Expanded(child: _cell(i)),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _cell(int i) {
+    final c = cells[i];
+    final on = i == selected;
+    final fg = c.isToday ? HyphenTokens.bg : HyphenTokens.fg;
+    final sub = c.isToday ? HyphenTokens.bg : HyphenTokens.muted;
+    final Color dot;
+    switch (c.mark) {
+      case HkDayMark.reserved:
+        dot = c.isToday ? HyphenTokens.bg : HyphenTokens.primary;
+      case HkDayMark.hasClass:
+        dot = c.isToday ? HyphenTokens.bg : HyphenTokens.muted;
+      case HkDayMark.none:
+        dot = Colors.transparent;
+    }
+    return Semantics(
+      button: true,
+      selected: on,
+      label: '${c.weekday} ${c.day}',
+      child: InkWell(
+        key: cellKey?.call(i),
+        onTap: () => onSelected(i),
+        borderRadius: BorderRadius.circular(HyphenTokens.r1),
+        child: Container(
+          height: height,
+          decoration: BoxDecoration(
+            color: c.isToday ? HyphenTokens.fg : Colors.transparent,
+            border: Border.all(
+              color: on && !c.isToday ? HyphenTokens.fg : Colors.transparent,
+              width: 1.5,
+            ),
+            borderRadius: BorderRadius.circular(HyphenTokens.r1),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                c.weekday,
+                style: HyphenTokens.caption.copyWith(
+                  color: sub,
+                  fontWeight: on || c.isToday ? FontWeight.w700 : FontWeight.w400,
+                ),
+              ),
+              const SizedBox(height: 1),
+              Text(
+                '${c.day}',
+                style: HyphenTokens.body.copyWith(
+                  color: fg,
+                  fontWeight: FontWeight.w700,
+                  fontFeatures: HyphenTokens.tabular,
+                ),
+              ),
+              const SizedBox(height: 3),
+              Container(
+                width: 4,
+                height: 4,
+                decoration: BoxDecoration(color: dot, shape: BoxShape.circle),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
