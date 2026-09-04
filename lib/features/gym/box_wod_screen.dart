@@ -36,6 +36,18 @@ class _BoxWodScreenState extends State<BoxWodScreen> {
     Widget body;
     if (gs.isLoading && !gs.hasGym) {
       body = const HkLoading();
+    } else if (!gs.hasGym && gs.error != null) {
+      // D118 (2026-09-05 · 에뮬 실주행에서 잡음) — **못 읽은 것을 '미가입' 이라
+      // 말하지 않는다.** 종전엔 `hasGym` 만 보고 갈라서, 승인된 회원이 통신 실패
+      // 한 번에 '체육관 미가입' 을 봤고 다시 시도할 길이 없어 앱을 껐다 켜야 했다
+      // (홈 도전 섹션의 0px 실패 숨김과 같은 병 · 제1원칙: 화면은 거짓말하지 않는다).
+      body = HkErrorState(
+        message: gs.error!,
+        onRetry: () {
+          Haptic.light();
+          gs.loadMine();
+        },
+      );
     } else if (!gs.hasGym) {
       // v3.25: 미가입·대기·거절 화면은 MembershipStatusView 한 벌 (셸 게이트와 동일).
       body = const MembershipStatusView.none();
