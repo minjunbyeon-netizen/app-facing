@@ -1,0 +1,306 @@
+# UI 인덱스 — 부품 · 화면 · 자리 예약 (2면 통합)
+
+> **이 파일이 답하는 질문**: 부품이 몇 개인가 · 어느 화면이 어떤 상태를 어떻게 그리는가 ·
+> 상태가 바뀔 때 밀리는가 · 그것을 무엇이 막고 있는가.
+>
+> **왜 필요했나 (2026-09-04 사용자 지시)**: 서버·데이터 쪽에는 인덱스가 있는데
+> (`services/facing/docs/SSOT/INDEX.md` — 대차대조·이름사전·갭대장) **UI 쪽에는 없었다.**
+> 앱은 `lib/widgets/hkit.dart` 와 골든 89장이, PC 는 `design/gallery.html` 이 각각 조각으로
+> 갖고 있었을 뿐 한 자리에 모인 적이 없다.
+>
+> **다른 문서와의 관계** — 규칙의 정본은 여기가 아니다.
+> 앱 규격 = `docs/DESIGN-SSOT.md` · PC 규격 = `web/facing-admin/design/SSOT.md` ·
+> 계약·결정 = `docs/ARCHITECTURE_BRIEF.md`. **이 파일은 그 규격들이 실제로 어디에 걸려 있는지의 지도**다.
+> 규격을 여기 옮겨 적지 않는다 (§0-B 이름 일원화 · 대전제 6-b 이음새).
+
+---
+
+## 0. 용어 (이 이름만 쓴다 — 정본 = `docs/DESIGN-SSOT.md §레이아웃 안정성`)
+
+| 한글 | 영문 | 뜻 |
+|---|---|---|
+| 레이아웃 시프트 | layout shift | 렌더된 뒤 내용이 생기고 사라지면서 아래 요소가 밀리는 현상 |
+| CLS | Cumulative Layout Shift | 그 밀림의 계량 지표 (웹 전용 · 좋음 ≤ 0.1) |
+| 공간 예약 | space reservation | 변할 자리를 고정 높이로 미리 잡아 두는 해결 기법 |
+| 레이아웃 안정성 | layout stability | 그렇게 해서 도달하는 목표 상태 |
+| 스켈레톤 | skeleton screen | 로딩 중 **모양만** 보여 주는 별개 기법 — 공간 예약과 혼용 금지 |
+
+---
+
+## 1. SSOT 6층 — 어느 층이 실제로 화면을 잡는가
+
+| 층 | 앱 (Flutter) | PC 관리자 웹 | 판정 |
+|---|---|---|---|
+| 1 글로벌 룰 | `~/.claude/rules/performance.md §CLS` ≤ 0.1 · `frontend.md` · `design.md` | (같음) | 원칙만. CLS 는 웹 지표라 앱에 그대로 안 쓰인다 |
+| 2 프로젝트 룰 | `CLAUDE.md §디자인 원칙` — y 좌표 불변 + 게이트 지목 | `web/facing-admin/CLAUDE.md` | **PC 0건** (시프트·밀림·공간 예약·스켈레톤·CLS 전부 미언급) |
+| 3 정본 | `docs/DESIGN-SSOT.md §레이아웃 안정성` · `lib/widgets/hkit.dart` · `lib/core/appkit.gen.dart` | `design/SSOT.md` · `static/style.css` · `design/tokens.css` | **PC 0건** — 색·부품·이름 규격은 촘촘한데 시프트 조항만 없다 |
+| 4 시안·데모 | 골든 89장 + `tool/golden_gallery.py` (**상태별 실물 캡처**) | `design/gallery.html` (`/design`, 프로덕션 404 — **부품 시안**) | 성격이 다르다. PC 에는 상태별 시안이 없다 |
+| 5 회귀 게이트 | 테스트 39개 — 안정성 8파일 20검사 · 골든 89 · 린트 5종 · 터치 48 | `design/lint.py` · `design/sync.py --check` | **PC 시프트 게이트 0** (테스트 디렉터리 자체가 없다) |
+| 6 기록 | 브리프 D67(안정성 신설) · D114(배열) · 메모리 `project-layout-stability.md` | (같음) | 서버·데이터 인덱스는 있고 UI 인덱스는 이 파일이 처음 |
+
+---
+
+## 2. 앱 부품 인덱스 — `lib/widgets/`
+
+토큰 실값: `sp1..sp8` = 4·8·12·16·24·32·48·64 / `r1..r5` = 4·8·12·16·28 /
+`touchMin` 48 · `buttonH` 52 · `buttonHCompact` 36 · `appBarH` 52 · `tabbarH` 64 · `noticeSlotH` 56
+(정본 `lib/core/appkit.gen.dart` · `lib/core/theme.dart`)
+
+> 아래 숫자는 **실제로 렌더해 잰 값**이다 (폭 360dp · 배율 1.0 · 라이트 테마 · 1줄 문구).
+> 문구가 길어 줄바꿈되면 커진다.
+
+### 2-1. 자리를 지키는 부품 (고정 치수 있음)
+
+| 부품 | 좌표 | 고정 치수 | 비고 |
+|---|---|---|---|
+| `HkBackBar` | hkit.dart:836 | **52 불변** | 조건부 상단바 대체 (밀림 1번 정답) |
+| `HkNoticeSlot` | hkit.dart:867 | **56 불변** | 안내·에러 예약 자리 (밀림 2번 정답) |
+| `HkPreviewSlot` | hkit.dart:988 | **32 불변** | 미리보기 자리 |
+| `HkSkeletonRow` | hkit.dart:1034 | **행 60** | 목록 로딩 한 줄 |
+| `HkSocialButton` | hkit.dart:1348 | **52 불변** | |
+| `HkAppBar` / `.identity` | hkit.dart:1735 | **52 불변** | |
+| `HkSegment` | hkit.dart:1977 | **40 불변** | |
+| `HkTabBar` | hkit.dart:2037 | **64 불변** (+SafeArea) | |
+| `HkDayStrip` | hkit.dart:2190 | **58 불변**, 칸 폭 균등(360/7=48) | 점 자리 상시 예약 |
+| `HkCheckRow` · `HkSwitch` | hkit.dart:218 · 280 | **48 불변** | 터치 48 |
+| `HkLoading` | hkit.dart:807 | **22×22 불변** | |
+| `HkButton` | hkit.dart:43 | **높이 48/36 불변** | ⚠ **폭은 변함** — 아래 2-3 참조 |
+| `HkSectionSlot` · `HkReservedSlot` | hkit.dart:902 · 1282 | `minHeight` 인자 | 값은 **호출부가 각자 정한다** |
+| `InboxBellAction` | inbox_bell.dart:11 | **48×48** | 미읽음 점은 Positioned |
+| `OfflineBannerOverlay` | offline_banner.dart:75 | — | Stack 겹침 — 본문 y 불변 |
+
+### 2-2. 내용 높이 부품 (자리 예약 없음)
+
+`HkCard`(345) · `HkStatTile`(464) · `HkRowCard`(643) · `HkSheet`(1915) · `HkDialog`(1797) ·
+`HkSectionLabel`(203) · `HkMarquee`(1129) · `HkSnack`(1412, 오버레이) · `HkConfetti`(1594, 오버레이) ·
+`Avatar`(avatar.dart:14, 36 정사각) · `BrandLogo`(brand_logo.dart:8) · `QuoteCard`(quote_card.dart:7) ·
+`GymInfoCard`(gym_info_card.dart:15, **미측정** — Provider 필요) · `HypeeIntroDeck`(hypee_intro.dart:23, 미측정)
+
+### 2-3. 상태에 따라 크기가 변하는 부품 = 밀림 원인 후보
+
+| 부품 | 변동 | 계기 |
+|---|---|---|
+| `HkListRow` (hkit.dart:487) | 39 → 42 / 49 / 60 / **64** | 제목배지 · 아래줄 · 부제 · **탭 가능 배지(48 터치영역이 행을 밀어 올림)** |
+| `HkEmptyState` (744) | 70 ↔ 97 (**+27**) | 캡션 유무 |
+| `HkPhoneText` (2136) | 48 ↔ 23 (**−25**) | 걸 수 없는 번호면 터치영역이 사라짐 |
+| `HkBadge` (398) | 26 ↔ 48 (**+22**) | 표시용 ↔ 탭 가능 (D113) |
+| `HkAccordion` (681) | 46 ↔ 96 | 여닫기 (의도된 동작) |
+| `HkSectionSlot` (902) | minHeight ↔ 내용 | **minHeight 를 실제 내용보다 작게 잡은 호출부** |
+| `HyphenMascot` (mascot.dart:36) | 0 ↔ size | 에셋 없음·로드 실패 |
+| `OfflineBanner` (offline_banner.dart:19) | 0 ↔ 46 | 온·오프라인 — **Overlay 로 이미 해결** |
+| `HkButton` (43) | 높이 불변, **폭 49.6 → 360** | `busy` 일 때 자식이 `HkLoading`(Center 래퍼) → `expand:false` 도 부모 폭을 먹음 |
+| `HkLoadingScreen` (1316) | caption 유무 ±31 | 로고 y 는 `HkEntryLogoGap` 이 고정 |
+
+### 2-4. 로딩·빈·에러 3종의 낙차 — **부품에 공통 규격이 없다**
+
+| 부품 | 실측 | 구성 |
+|---|---|---|
+| `HkLoading` | **22** | 스피너 단독 |
+| `HkEmptyState` 제목만 | **70** | 패딩 24×2 + 제목 22 |
+| `HkEmptyState` +캡션 | **97** | + 간격 8 + 캡션 19 |
+| `HkErrorState` | **131** | 패딩 24×2 + 본문 22.5 + 간격 12 + 버튼 48 |
+
+로딩→빈 **48** · 빈→에러 **34~61** · **로딩→에러 109**.
+같은 자리에서 삼항으로 갈아 끼우면 그만큼 밀린다. 지금은 `HkSectionSlot(minHeight:)` 으로
+감싼 호출부만 안전하고, 그 값은 호출부마다 각자 정한다.
+
+### 2-5. 같은 역할 중복 (SSOT 위반 후보)
+
+| 역할 | 부품 | 판정 |
+|---|---|---|
+| 스켈레톤 막대 | `_HkSkeletonBar`(964, surfaceAlt·r2) / `HkSkeletonBar`(1088, border·r1) | **실질 중복** — 같은 그림인데 색·모서리가 다르다 |
+| 공간 예약 그릇 | `HkReservedSlot`(1282) / `HkSectionSlot`(902) | **본문 동일** — SectionSlot 이 상위집합, 흡수 가능 |
+| "없음" 표시 | `HkEmptyState` / `HkSectionSlot.empty` / `HkPreviewSlot.placeholder` | 자리는 다르나 문구 규격이 세 곳에 흩어짐 |
+| 에러 · 상단 띠 · 배지 | 각 3~4종 | 주석에 역할 분담 명시 — **의도된 분리** |
+
+---
+
+## 3. 앱 안정성 게이트 — 8파일 20검사
+
+헬퍼 = `test/golden/layout_stability.dart` `expectStableAnchorY` (허용 오차 0.01px).
+상태를 하나씩 렌더하며 앵커 y 를 재고, 다르면 **어느 앵커가 몇 px 밀렸는지 표로** 실패시킨다.
+앵커 좌표는 `build/*_layout_anchors.json` 으로도 떨어진다.
+
+| 검사 파일 | 화면 | 상태 수 | 앵커 |
+|---|---|---|---|
+| `layout_stability_test` | 로그인 | 6 | 아이디 · 비밀번호 · 로그인버튼 · 가입신청 · 약관 |
+| `stability_signup_test` | 가입 신청 / 온보딩 | 5 / 4 | 입력칸들 · 신청버튼 · 안내 / 전화 · 성별 · 경력배지 · 시작 |
+| `stability_home_test` | 홈 / 오프라인 배너 / 업적 스켈레톤 | 4 / 2 / 2 | 공지 · 오늘예약 · 레벨 · 업적 · 마일스톤 |
+| `stability_mypage_test` | 내 정보 / 회원권 카드 / 상태 슬롯 | 7 / 5 / 1 | 회원권 · 로그아웃 · 포인트 · 알림 · 메뉴 |
+| `achievements_stability_test` | 업적 목록 | 2 | 요약 · 세그먼트 · 첫 분류 · 첫 행 |
+| `stability_coach_inbox_test` | 코치 주간 / 아코디언 / 쪽지함 / 쪽지 상세 | 3 / 2 / 4 / 3 | 주간헤더 · 요일 · 공지자리 · 대화목록 · 액션자리 |
+| `stability_wod_test` | 수업 상세 / 수업 탭 / 주간 보드 / 요일 띠 / 여닫기 | 5 / 2 / 4 / 3 / 2 | 구역 라벨 4 · 주간이동줄 · 요일띠 · 첫 줄 |
+| `stability_result_sheet_test` | 완료 시트 | 2 | 저장버튼 · 고지줄 |
+
+---
+
+## 4. 앱 화면 커버리지
+
+골든 89장은 **픽셀 회귀**를 잡는다. 다만 골든은 캡처한 그 한 상태만 잡고
+"상태가 바뀌어도 y 가 같다"를 증명하지 않는다. 아래 판정은 **앵커 y 게이트 기준**이다.
+
+- **덮임 (13)** — 로그인 · 가입 신청 · 온보딩 · 홈 · 오늘 예약 · 업적 목록 · 업적 구역 ·
+  수업 탭 · 주간 보드 · 수업 상세 · 쪽지함 공지 · 쪽지 상세 · 내 정보 · 코치 주간 예약
+- **일부만 (4)** — 완료 시트(에러 상태 미검사) · 쪽지함 대화·활동 목록(목록 top 만) · 채팅
+- **없음 (18)** — 스플래시 · 홈 도전 섹션 · 트로피 룸 · 체육관 정보 · 가입 신청 목록 ·
+  새 쪽지 · 히스토리 목록·상세 · 근력 보드 · 세션 화면 · 전자계약 · 코치 대시보드 ·
+  명단 시트 · 셸 2종
+
+### 밀림 후보 (아래에 밀릴 것이 실제로 있는 자리부터)
+
+| # | 자리 | 근거 | 왜 미는가 |
+|---|---|---|---|
+| 1 | 완료 시트 에러 줄 | `gym/wod_result_sheet.dart:293` | 조건부 블록이 저장 버튼·고지 줄 바로 위. 게이트는 2상태만 잼 |
+| 2 | 미가입 화면 확인 버튼 | `gym/membership_status_view.dart:94` | 스피너 22 ↔ 버튼 36 — **아래 로그아웃 버튼이 14px 밀린다** |
+| 3 | 코치 주간 실패 배너 | `boss/coach_week_classes.dart:153` | 카드 7행을 배너로 통째 치환 — 에러일 땐 앵커 자체가 사라짐 |
+| 4 | 수업 상세 대체요청 시트 | `gym/wod_detail_screen.dart:133` | 조건부 블록이 보내기 버튼 바로 위 |
+| 5 | 쪽지함 대화·활동 목록 | `inbox/inbox_screen.dart:786 · 872` | 로딩·에러·빈·목록 넷의 높이가 제각각 |
+| 6 | 가입 신청 목록 에러 | `gym/member_approvals_screen.dart:88` | 에러가 HKit 이 아니라 **평문 텍스트** |
+| 7 | 홈 도전 섹션 | `home/challenge_section.dart:80` | 로딩·실패·0건이 0px → 도착하면 통째로 생김 |
+| 8 | 계약 목록 | `contracts/member_contracts_screen.dart:112 · 233` | 본문 전체를 4상태로 갈아 끼움 |
+| 9 | 수업 질문 시트 | `gym/wod_row.dart:523` | 같은 22↔36 스왑 |
+| 10 | 채팅 전송 아이콘 | `inbox/inbox_screen.dart:453` | **미확인** — 입력칸 안이라 제약 가능성, 실측 필요 |
+
+---
+
+---
+
+## 5. PC 부품 인덱스 — `web/facing-admin/static/style.css`
+
+**405 선택자** = 유틸리티 **235** + 부품 **170** + 상태 클래스 **25**.
+유틸리티는 전부 `.x.x.x{한 속성}` 3중 반복이고 생성기(`scripts/inline_style_sweep.py`)가 만든다 — 수동 편집 금지.
+
+부품 계열: 셸 11 · 버튼/필터 6 · 카드·표 · 뱃지 3 · **로딩·빈 10** · 모달 9 · 폼 9 · 락커 6 ·
+계약 12 · 설정·쪽지 10 · KPI·차트 12 · 달력 7 · **그날 운동 편집기 `pe-*` 34** · 픽토 2
+
+### 5-1. 이름 충돌 3건
+
+| 이름 | 충돌 |
+|---|---|
+| `.tnum` | 부품(style.css:485) **+** 유틸(1354) 이중 정의 |
+| `.nowrap` | `td.nowrap`(1021) **+** 유틸(1306) |
+| `.is-hidden` / `.is-invisible` | 전자는 유틸 계열, 후자만 2중 반복 — 계열이 어긋남 |
+
+### 5-2. 자리 예약 현황
+
+**예약된 것** — `.skeleton-line` 14 · `.skeleton-block` 48(사문) · `.tab-panel.card` 400 ·
+`.locker` 104 · `.pe-status` 18 · `.pe-new-error` 16 · `.pe-part-label` 18.
+→ **주석에 "자리를 미리 잡아 둔다" 가 적힌 것은 편집기 `pe-*` 뿐**이다. 개념이 그 부품에만 도달했다.
+
+**예약 없는 것 (= 밀림 원인)** — `.table-msg`(패딩만 · `.is-roomy` 는 또 다른 높이) ·
+`.panel-msg` · `.panel-box` · `.table-skel`(자식 수 종속) · `.note` · `.gantt-note` · `.pe-result-none`.
+**`.page-banner`** 는 높이 없이 `display:none` 으로 시작한다 — 나타나는 순간 페이지 전체가
+약 45px 밀린다 (수업 관리 · 회원 두 곳).
+
+**구조적 밀림** — `static/app.js` 의 두 로더가 스켈레톤 → 빈·에러 문구 → 실제 행으로 3단 교체하는데
+셋의 높이가 다르다 (약 80 / 74 / 무제한). 자리를 잡아 주는 그릇이 없다.
+
+---
+
+## 6. PC 화면 실태 — 템플릿 28개 전수
+
+`.page-header` 를 가진 본 화면 21개 기준. (셸·로그인·법적 고지 6개, 부분 템플릿 1개 제외)
+
+### 6-1. 로딩을 그리는 방식이 5갈래
+
+| 갈래 | 방식 | 화면 |
+|---|---|---|
+| 1 | 스켈레톤 | 회원 상세(7탭) · 전자계약(2) · 동작 사전 |
+| 2 | `.table-msg` 행 "불러오는 중" | 수업 안내 · 프로그램 · 회원권 · 포인트 · 업적 · 알림(2) |
+| 3 | **다른** 커스텀 행 | 공지 · 가입 관리 |
+| 4 | 클래스 없는 평문 | 락커 · 쪽지 · 수업 내용(3패널) · 홈 |
+| 5 | **아예 없음** | 수업 관리(빈 캘린더) · 업적 규칙 · 체육관 프로필 · 예약 설정(한도 표) |
+
+**원인은 공용 로더에 있다** — `static/app.js` 의 `fetchListInto` 는 스켈레톤을 깔고
+`fetchTableInto` 는 깔지 않는다. 그래서 표 화면은 전부 글자, 목록형인 회원 상세만 스켈레톤이다.
+
+### 6-2. 에러를 그리는 방식이 5갈래
+
+| 방식 | 화면 수 | 문제 |
+|---|---|---|
+| `.table-msg is-error` (빨강) | 4 | 이것이 정본으로 보인다 |
+| `.table-msg` 만 (회색) | 5 | **빈 상태와 똑같이 보인다** — 실패인지 0건인지 구분 불가 |
+| 커스텀 인라인 | 3 | 각자 다른 색·여백 |
+| **토스트만** | 3 | 토스트가 사라지면 화면에 실패 흔적이 없다. 빈 칸이 정상처럼 선다 |
+| 페이지 배너 | 2 | 수업 관리(고정) · 통계(서버 렌더) |
+
+다시 시도 링크는 **6곳에만** 있다 (수업 안내 · 락커 · 업적 2 · 회원권 · 수업 관리).
+
+### 6-3. 액션바 (헤더 우측)
+
+버튼 1개 11 · 컨트롤 여럿 3 · **우측 없음 5**(락커 · 수업 관리 · 수업 내용 · 알림 설정 · 업적 설정) ·
+**폭이 변함 2**(공지 `#monthLabel` · 회원 상세 포인트 숫자 — 값이 길어지면 옆 버튼이 밀린다) ·
+비활성으로 시작 2(체육관 프로필 · 예약 설정 — 덮어쓰기 방지, 의도됨).
+
+---
+
+## 7. 갤러리 대조 — 인덱스 구멍
+
+`design/gallery.html` 20 섹션 ↔ `style.css` 양방향.
+
+- **갤러리에 있는데 정의 없음 3** — `active`(버그, 아래) · `btn-ghost`(폐기 별칭 데모, 의도됨) · `table`(사문)
+- **정의는 있는데 갤러리에 없음 106 + 상태 22** — 셸 17 · **로딩·빈 4**(`.table-msg`·`.panel-msg`·
+  `.panel-box`·`.table-skel`) · 모달 5 · 폼·설정 8 · 쪽지 6 · 표·계약 12 · 차트 5 · 달력 8 ·
+  **편집기 34 전부**. 등재된 상태는 셋뿐 (`is-danger`·`is-on`·`is-warn`)
+
+### 7-1. 갤러리가 실물과 다른 곳 3건 (직접 재확인함)
+
+1. **선택 상태 시안이 안 그려진다.** 갤러리 §4 가 `class="chip active"` · `class="tab-chip active"` 인데
+   CSS 는 `.chip.is-active` 만 정의한다. 템플릿은 전부 `is-active`(52곳).
+   → 갤러리의 "선택됨" 시안이 선택 안 된 모습으로 보인다.
+2. **토스트 구현이 두 벌이고 값이 다르다.** `style.css .toast`(패딩 24×36 · 왼쪽선 8 ·
+   `@keyframes toast-in`)는 **아무도 안 쓴다**. 실물은 `templates/_layout.html:319 showToast()` 가
+   인라인 `cssText` 로 따로 그린다(패딩 20×28 · 왼쪽선 6 · `min-width:480` ·
+   `@keyframes toastSlideIn`, 키프레임도 그 파일 안 별도 정의).
+   style.css 주석의 "실물과 같은 배율로 맞춘다" 가 이원화의 자백이다.
+3. **빈 상태 시안이 정본 부품을 안 쓴다.** 갤러리 §10 이 `.table-msg`(실제 44곳이 쓰는 정본) 대신
+   인라인 스타일로 손수 그렸다 — 갤러리가 자기 §11 "금지 패턴" 을 어기고 있다.
+
+### 7-2. 죽은 부품 13건
+
+`.stack`·`.is-tight`·`.is-loose`(**§17 에서 "A안 확정" 승인까지 받았으나 도입 0건**) ·
+`.inline-edit`·`.saving`·`.saved` · `.skeleton-block` · `.stat` · `.brand` ·
+`.has-rail` · `.signature-box`·`.signature-pad` · `.tpl-clauses`
+
+> 문자열로 조립돼 살아 있는 14건은 따로 확인했다 (락커 상태 4 · `is-error`·`is-roomy` ·
+> `is-count` · `is-mine` · `is-off` · 달력 상태 3 · `is-current`·`is-active` · `gantt-legend`).
+> **`className =` 대입만 쓰는 것이 있어 `class=` 만 grep 하면 오판한다.**
+
+---
+
+## 8. 다음 할 일 (순서)
+
+정본을 만들면 **같은 커밋에 게이트**를 만든다 (대전제 6-b — 문서로만 막는 것은 위반).
+
+| 단계 | 내용 |
+|---|---|
+| P0 | PC `design/SSOT.md §17 레이아웃 안정성` 신설 + `CLAUDE.md` 한 줄. **앱 문서를 베끼지 말고 링크** |
+| P1 | `fetchTableInto` 도 스켈레톤을 깔게(표 7화면 한 번에) · 유령 클래스 `.tabs` 정리 · 에러 부품 통일 · 폭 변동 2곳 예약 |
+| P2 | PC 게이트 3종 — 유령 클래스 검사 · 세 상태 동일 부품 검사 · 페이지 스타일 블록 래칫 |
+| P3 | 앱 부품에 규격 — 상태 3종 공통 최소 높이 · 스켈레톤 막대 통합 · 예약 그릇 통합 · 버튼 가로 밀림 |
+| P4 | 앱 밀림 후보 10건에 게이트 — **화면을 고치기 전에 검사부터 쓴다** |
+
+### 하지 말 것
+
+- 앱 규격을 PC 문서에 베껴 적지 말 것 (두 벌이 되면 한쪽만 고쳐진다)
+- 문서만 만들고 게이트를 미루지 말 것
+- 골든 재생성으로 밀림을 "고쳤다" 고 하지 말 것 — 골든은 한 상태의 그림만 잡는다
+- 스켈레톤과 공간 예약을 섞어 부르지 말 것 (다른 기법이다 — §0 용어표)
+
+---
+
+## 조사 범위와 한계
+
+- 범위: 앱 `lib/widgets` 34종(**실제 렌더 측정**) · `lib/features` 35화면 · 검사 39파일 /
+  PC 템플릿 28 · `style.css` 405 선택자 · 갤러리 20 섹션. 서버는 범위 밖.
+- **PC 는 브라우저 실측을 하지 않았다** — px 값은 CSS 계산치다.
+- 앱 `GymInfoCard`·`HypeeIntroDeck` 미측정 (Provider·티커 필요).
+- PC 템플릿 안 지역 `<style>` 클래스가 `style.css` 부품과 겹치는지 미확인 (또 다른 이원화 가능성).
+
+---
+
+## 변경 이력
+
+- 2026-09-04 — 신설 (사용자 지시 "index화 해놓고, 있어? 없으면 만들고").
+  앱 부품 34종·게이트 20검사·화면 35개 + PC 부품 170·화면 21·갤러리 대조 실측 인덱스.
+  읽기 좋은 판 = 아티팩트 「하이픈 자리 예약 감사」.
