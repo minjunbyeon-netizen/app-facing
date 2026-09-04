@@ -16,14 +16,17 @@
 | 캐릭터 설정집 (고정 요소 · 생성 프롬프트 · 포즈 전체 목록) | `C:/dev/services/design/_작업/문서/캐릭터-HYPEE.md` |
 | 재생성 명령 | 디자인 폴더에서 `python _작업/스크립트/gen_app_assets.py` |
 
-**정본 재고 26종 중 이 앱에 실린 것은 액션 11종뿐이다** (2026-09-04 실사).
-아직 안 실린 것 —
+**정본 재고 26종 중 이 앱에 실린 것은 17종이다** (2026-09-04 실사).
 
-- **마감·인사 6종** `bow` `wave` `thanks` `heart` `cross` `sheepish` (2026-09-04 신규,
-  감사·배웅·마감 안내용). 액션 11종이 전부 운동 동작이라 "고맙습니다 / 다음에 만나요"를
-  표현할 컷이 없어서 만든 한 벌이다.
-- **얼굴 9종** `calm` `happy` `smug` `struggle` `tired` `surprised` `determined` `worried` `wink`.
-  위의 스낵바 3장(`happy.png`·`sad.png`·`neutral.png`)과는 별개 세트다.
+| 세트 | 상태 | 폴더 |
+|---|---|---|
+| 액션 11종 | 실림 | `action/` |
+| 마감·인사 6종 | **실림** (2026-09-04 추가) | `greeting/` |
+| 얼굴 9종 | 미탑재 | — |
+
+미탑재 = **얼굴 9종** `calm` `happy` `smug` `struggle` `tired` `surprised`
+`determined` `worried` `wink`. 위의 스낵바 3장(`happy.png`·`sad.png`·`neutral.png`)과는
+이름이 겹쳐도 **별개 세트**다 — 저쪽은 표정시트에서 사용자가 손으로 골라 넣은 3장이다.
 
 필요해지면 정본 `flutter/` 에서 **쓸 이름만** 골라 같은 3층(1x·`2.0x/`·`3.0x/`) 구조로
 복사하고, `pubspec.yaml` 폴더 등록 + `mascot.dart` 매핑을 추가한다. 26종을 통째로 넣으면
@@ -60,6 +63,22 @@ kettlebell·battlerope·wallball·boxjump·rest·scale·thumbsup·cheer)이 들�
 - 순서·파라미터 정본 = `docs/SPLASH-INTRO-HANDOFF.md`
 - 경로 매핑 = `lib/widgets/mascot.dart` 의 `HypeeActions` (여기 밖에 경로를 적지 않는다)
 - 2.0x·3.0x 배율본이 함께 있다 (Flutter 자동 인식)
+
+## greeting/ 하위 폴더도 별개다 (마감·인사용, 2026-09-04 추가)
+
+`assets/character/greeting/` 에는 **전신 마감·인사 6종**(bow·wave·thanks·heart·
+cross·sheepish)이 들어 있다. 액션 11종이 전부 운동 동작이라 "고맙습니다 / 다음에
+만나요"를 표현할 컷이 없어서 따로 받았다.
+
+`action/` 과 섞지 않는다 — 저쪽은 **스플래시에서 한 번에 다 나오는 한 벌**이라 인사 컷이
+끼면 등장 순서가 곧 이야기인 연출이 깨진다. 이쪽은 **필요한 화면이 한 장씩 골라 쓰는** 낱개다.
+
+- 경로 매핑 = `lib/widgets/mascot.dart` 의 `HypeeGreetings` (여기 밖에 경로를 적지 않는다)
+- 그리는 위젯 = 같은 파일의 `HypeeGreetingImage` — 전신이라 **높이** 기준이다.
+  컷마다 가로폭이 달라(`cross` 가 가장 좁고 `wave` 가 가장 넓다) 정사각으로 가두면
+  어떤 컷은 여백만 남고 어떤 컷은 잘린다. 1배율 원본이 높이 320이라 그 이하로 쓴다.
+- 2.0x·3.0x 배율본이 함께 있다 (Flutter 자동 인식)
+- **아직 어느 화면에도 호출부가 없다** — 그림과 배선만 준비된 상태다.
 
 ## 그림 조건
 

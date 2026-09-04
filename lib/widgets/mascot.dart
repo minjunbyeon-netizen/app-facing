@@ -127,3 +127,78 @@ class HypeeActions {
   /// 그림이 실제로 번들에 들어왔는지 (에셋 누락 시 연출을 통째로 접는 판단용).
   static bool get ready => _assets.length == HypeeAction.values.length;
 }
+
+/// 마감·인사용 전신 컷 (2026-09-04 도착). [HypeeAction] 과도 [MascotMood] 와도 별개다.
+///
+/// 왜 따로 두는가 — 액션 11종은 **스플래시에서 한 번에 다 나오는 한 벌**이라
+/// 여기에 인사 컷을 섞으면 등장 순서가 곧 이야기인 연출이 깨진다([HypeeActions.introSequence]).
+/// 표정 3종은 스낵바 아이콘(32px)이라 전신 컷을 그 자리에 넣을 수 없다.
+/// 이쪽은 **필요한 화면이 한 장씩 골라 쓰는** 낱개 세트다.
+///
+/// 정본 그림·설정집 = `C:/dev/services/design/_작업/앱에셋` (여기 있는 건 사본).
+/// 고칠 일은 항상 그쪽에서 하고 떨군다 — 이 앱 안에서 이미지를 편집하지 않는다.
+enum HypeeGreeting {
+  /// 꾸벅 인사 — 가입 감사 · 결제 완료 · 마무리 인사.
+  bow,
+
+  /// 손 흔들기 — 배웅 · 로그아웃 · 다음에 또.
+  wave,
+
+  /// 두 손 모아 — 감사 · 부탁 · 리뷰 요청.
+  thanks,
+
+  /// 머리 위 하트 — 고마움 · 즐겨찾기 · 추천.
+  heart,
+
+  /// 두 팔 엑스 — 마감 · 종료 · 모집 완료.
+  cross,
+
+  /// 머리 긁적 — 아쉬움 · 미안 · 빈 결과.
+  sheepish,
+}
+
+class HypeeGreetings {
+  const HypeeGreetings._();
+
+  static const Map<HypeeGreeting, String> _assets = {
+    HypeeGreeting.bow: 'assets/character/greeting/hypee_bow.webp',
+    HypeeGreeting.wave: 'assets/character/greeting/hypee_wave.webp',
+    HypeeGreeting.thanks: 'assets/character/greeting/hypee_thanks.webp',
+    HypeeGreeting.heart: 'assets/character/greeting/hypee_heart.webp',
+    HypeeGreeting.cross: 'assets/character/greeting/hypee_cross.webp',
+    HypeeGreeting.sheepish: 'assets/character/greeting/hypee_sheepish.webp',
+  };
+
+  static String assetFor(HypeeGreeting g) => _assets[g]!;
+
+  static bool get ready => _assets.length == HypeeGreeting.values.length;
+}
+
+/// 마감·인사 컷 한 장을 그린다. 전신이라 **높이**를 기준으로 잡는다 —
+/// 컷마다 가로폭이 달라(`cross` 가 가장 좁고 `wave` 가 가장 넓다) 정사각으로 가두면
+/// 어떤 컷은 여백만 남고 어떤 컷은 잘린다.
+///
+/// 1배율 원본이 높이 320이므로 그 이하로 쓰는 것이 기본이다.
+class HypeeGreetingImage extends StatelessWidget {
+  final HypeeGreeting greeting;
+
+  /// 그림 높이(dp). 가로는 원본 비율대로 따라온다.
+  final double height;
+
+  const HypeeGreetingImage({
+    super.key,
+    required this.greeting,
+    this.height = 200,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.asset(
+      HypeeGreetings.assetFor(greeting),
+      height: height,
+      fit: BoxFit.contain,
+      // 파일이 빠졌을 때 화면이 깨지는 대신 조용히 접힌다 ([HyphenMascot] 과 같은 규약).
+      errorBuilder: (_, _, _) => const SizedBox.shrink(),
+    );
+  }
+}

@@ -73,6 +73,10 @@ flutter:
     # 하위 폴더로 분리한다 — 규칙 = assets/character/README.md.
     # 2.0x·3.0x 는 Flutter 가 배율 변형으로 자동 인식하므로 따로 적지 않는다.
     - assets/character/action/
+    # 마감·인사 전신 6종 (2026-09-04). 액션 11종이 전부 운동 동작이라 감사·배웅·마감을
+    # 표현할 컷이 없어 따로 받은 한 벌 — 스플래시 연출과 섞이면 등장 순서가 깨진다.
+    # 정본 = C:/dev/services/design/_작업/앱에셋/flutter (여기 있는 건 사본)
+    - assets/character/greeting/
     # 업적 픽토그램 55종 (2026-08-21) — hyphen-achievement-pack v1.0.
     # 정본·매핑·재생성 = C:/dev/services/design/hyphen-achievement-pack
     - assets/pictograms/
