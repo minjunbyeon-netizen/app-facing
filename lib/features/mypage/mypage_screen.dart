@@ -19,6 +19,7 @@ import 'edit_profile_screen.dart';
 import 'privacy_screen.dart';
 import 'terms_screen.dart';
 import '../../core/app_clock.dart';
+import '../../core/time_format.dart';
 
 /// v1.22: Profile = identity + 측정값 편집 진입 + 잘안쓰는 actions.
 /// Engine score · Tier · Radar · Category Tier · Trend · Records · RoleModel 등
@@ -690,7 +691,7 @@ class _MembershipTimeline extends StatelessWidget {
   Widget build(BuildContext context) {
     final totalDays = end.difference(start).inDays.clamp(1, 9999);
     final now = appClock.now();
-    final today = DateTime(now.year, now.month, now.day);
+    final today = now.gymDay();
     final elapsedDays = today
         .difference(start)
         .inDays

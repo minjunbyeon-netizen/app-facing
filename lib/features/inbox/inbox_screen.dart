@@ -212,7 +212,7 @@ class CoachDossierTile extends StatelessWidget {
     final due = DateTime.tryParse('${dueDate}T00:00:00');
     if (due == null) return null;
     final now = appClock.now().gym();
-    final today = DateTime(now.year, now.month, now.day);
+    final today = now.gymDay();
     final diff = due.difference(today).inDays;
     if (diff < 0) return _DueBadge('OVERDUE', color: HyphenTokens.overdue);
     if (diff == 0) return _DueBadge('TODAY', color: HyphenTokens.accent);

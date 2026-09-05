@@ -68,7 +68,7 @@ class _CoachWeekClassesState extends State<CoachWeekClasses> {
   void initState() {
     super.initState();
     final now = appClock.now();
-    _today = DateTime(now.year, now.month, now.day);
+    _today = now.gymDay();
     _weekStart = _today.subtract(Duration(days: _today.weekday - 1));
     _selected = _today.weekday - 1;
     _load();

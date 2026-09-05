@@ -170,8 +170,7 @@ class _WeekBoardState extends State<WeekBoard> {
     _repo = ClassesRepository(context.read<ApiClient>());
     // 2026-09-06 — '오늘' 도 체육관 시각(한국). 기기 시계(UTC 에뮬 등)로 세면
     // 수업(기기 날짜)과 글(서버 한국 날짜)이 다른 날에 묶인다.
-    final now = appClock.now().gym();
-    _today = DateTime(now.year, now.month, now.day);
+    _today = appClock.now().gymDay();
     _weekStart = _today.subtract(Duration(days: _today.weekday - 1));
     _selected = _today.weekday - 1;
     _loadClasses();

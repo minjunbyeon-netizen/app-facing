@@ -41,6 +41,8 @@ const List<(String, String)> _forbidden = [
 /// 묶음에 들어가고, 서버가 한국 날짜로 묶은 글과 짝이 어긋난다 (2026-09-06 에뮬 실측).
 /// 정본 = `lib/core/time_format.dart` 의 `gym()` 하나 — 그 파일만 예외.
 const _forbiddenTimezone = <(String, String)>[
+  (r'DateTime\(\w+\.year, ?\w+\.month, ?\w+\.day\)',
+   '기기 시간대 자정 생성 금지 — 체육관 날짜 자정은 .gymDay() (2026-09-06 조회 범위 9시간 밀림)'),
   (r'\.toLocal\(\)', '기기 시간대 표시 금지 — 체육관 시각 .gym() 하나 (time_format.dart)'),
 ];
 
@@ -102,6 +104,8 @@ void main() {
       if (f is! File || !f.path.endsWith('.dart')) continue;
       final norm = f.path.replaceAll(r'\', '/');
       if (norm.endsWith('core/time_format.dart')) continue;
+      // 생년월일 검증기 — 체육관 하루 규칙이 아니라 예외.
+      if (norm.endsWith('core/input_formatters.dart')) continue;
       final src = f.readAsStringSync();
       for (final (pattern, why) in _forbiddenTimezone) {
         if (RegExp(pattern).hasMatch(src)) hits.add('$norm — $why');

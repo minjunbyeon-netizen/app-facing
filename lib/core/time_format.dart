@@ -26,6 +26,14 @@ tz.Location get _gymLocation =>
 /// 화면·모델 코드는 `.toLocal()` 을 쓰지 않는다 — `test/ssot_lint_test.dart` 가 막는다.
 extension GymTime on DateTime {
   DateTime gym() => tz.TZDateTime.from(this, _gymLocation);
+
+  /// 그 순간이 속한 **체육관 날짜의 00:00** (Asia/Seoul). 주 시작·날짜 묶음·조회 범위는
+  /// 이걸로 만든다 — `DateTime(y, m, d)` 는 기기 시간대 자정이라 UTC 기기에서 09:00 KST
+  /// 가 되어, 그 앞의 06:30 수업이 조회 범위 밖으로 떨어졌다 (2026-09-06 에뮬 실측).
+  DateTime gymDay() {
+    final g = gym();
+    return tz.TZDateTime(_gymLocation, g.year, g.month, g.day);
+  }
 }
 
 String _two(int n) => n.toString().padLeft(2, '0');
