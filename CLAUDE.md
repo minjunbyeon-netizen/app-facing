@@ -26,7 +26,8 @@
    → 이 앱의 코치 화면은 PC 웹의 **보조**다. "코치는 폰 안 씀" 전제 금지
 4. **전 체육관은 한국이다 — 시간대는 KST 하나.** (2026-08-26 사용자 "전부 한국이야, 확실히 못박아놔")
    → `gyms.timezone` 은 'Asia/Seoul' 한 값 · 서버 `api/_time.py tz_of` 는 항상 KST · 다른 시간대
-   체육관 대비 작업(func.date 범위 전환·시간대 설정 화면) 금지. 폰·PC 는 표시만 기기 시간대.
+   체육관 대비 작업(func.date 범위 전환·시간대 설정 화면) 금지. **폰·PC 표시도 체육관 시각(KST) 하나**
+   (D123 · 2026-09-06 사용자 "업계 표준대로" — 구 '표시만 기기 시간대' 폐기. 정본 `.gym()`/`.gymDay()`).
 
 5. **제품은 코치↔회원 4가지뿐 — 공지사항 · 쪽지 · 수업 예약 · 수업 공개(+게이미피케이션: 업적).**
    (2026-08-27 사용자 "그게 끝이야. 여기에 위배되거나 필요없는 건 없애도 된다니까")
@@ -436,7 +437,10 @@ python tool/golden_gallery.py               # 단일 HTML 갤러리 (build/golde
 가짜 백엔드(`test/golden/fakes.dart` — ApiClient implements, 네트워크 0)로 실물 픽셀 렌더
 (갤S22 급 360×780·2x). 폰트는 `test/flutter_test_config.dart` 가 FontManifest 전체
 (Pretendard·MaterialIcons)를 로드. 참조 아키텍처: `apps/writeplz-app` 골든스탠다드.
-현재 **89장** (2026-09-05 — D121 파트 종류가 기록 칸을 정한다: for_time 완주 시간·amrap 라운드+추가 회·
+현재 **91장** (2026-09-06 — D122 축을 서버가 내려준다: EMOM '완료한 분'·AMRAP `+ 회`·세트별 횟수
+프리필·히스토리 파트 줄·캡 배지. **+2 신규**(state_34_result_sheet_emom · hist_07_detail_capped), 8장 재생성
+(member_06·06b·state_28·29·hist_02~05). D123 체육관 시각 전환은 골든 변화 0.
+직전 **89장** (2026-09-05 — D121 파트 종류가 기록 칸을 정한다: for_time 완주 시간·amrap 라운드+추가 회·
 strength 세트별 [무게][횟수]·무게 칸은 `has_load` 동작에만. **4장 재생성, 장수 불변** — member_06 ·
 member_06b · state_28 · state_29. 계약 = `docs/CONTRACT-result-axes.md`, 런타임 정본 = 서버
 `services/result_axes.py`. 게이트 = `test/result_axes_test.dart`(13) · `stability_result_sheet_test.dart`(+3).
