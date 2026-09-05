@@ -30,13 +30,13 @@ void main() {
       Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          for (final label in ['예약', '대기', '종료', '예약됨', '완료 표시'])
+          for (final label in ['예약', '대기', '취소', '예약됨', '완료 표시'])
             HkBadge(label, color: HyphenTokens.accent, onTap: () {}),
         ],
       ),
     ));
 
-    for (final label in ['예약', '대기', '종료', '예약됨', '완료 표시']) {
+    for (final label in ['예약', '대기', '취소', '예약됨', '완료 표시']) {
       final size = tester.getSize(find.widgetWithText(HkBadge, label));
       expect(size.width, greaterThanOrEqualTo(kTouch),
           reason: "'$label' 배지 가로가 손가락 기준(48) 미달");
@@ -47,7 +47,7 @@ void main() {
 
   testWidgets('배지 — 못 누르는 배지는 종전 크기 그대로 (글자만큼)', (tester) async {
     await tester.pumpWidget(_app(
-      const HkBadge('종료', color: HyphenTokens.muted),
+      const HkBadge('마감', color: HyphenTokens.muted),
     ));
     final size = tester.getSize(find.byType(HkBadge));
     expect(size.width, lessThan(kTouch),

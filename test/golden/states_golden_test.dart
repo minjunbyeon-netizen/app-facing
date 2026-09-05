@@ -136,7 +136,9 @@ void main() {
     );
     await capture(tester, 'state_04_history_error');
   });
-  // ── 종료 수업 — 버튼 숨김 + '종료' 배지 (2026-08-24 CLASS_ENDED 게이트 UX) ──
+  // ── 종료 수업 — 오른쪽이 **빈다** (2026-09-05 사용자 지시 "날짜가 지나면 굳이
+  //    종료라고 버튼 해서 지저분하게 하지말고 … 걍 깨끗한 화면". 구 '종료' 배지 폐기,
+  //    자리 높이는 유지 = test/class_row_clean_test.dart) ──
   testWidgets('state: classes ended card', (tester) async {
     phone(tester);
     SharedPreferences.setMockInitialValues(signedInPrefs());
@@ -488,8 +490,10 @@ void _rememberedLoginGolden() {
     await capture(tester, 'state_11_class_membership_required');
   });
 
-  // ── 하루 한도 도달 — 예약한 날의 다른 수업은 '예약' 대신 '오늘 예약 완료'
-  //    (2026-09-02 사용자 보고 "예약 버튼이 살아 있어 되는 것처럼 오해") ──
+  // ── 하루 한도 도달 — 예약한 날의 다른 수업은 오른쪽이 **빈다**
+  //    (2026-09-02 '예약 버튼이 살아 있어 오해' → 배지로 막았고, 2026-09-05
+  //    "그런 문구도 그냥 없애자. 걍 깨끗한 화면" 으로 문구까지 뺐다.
+  //    '예약' 이 서지 않는다는 사실 자체가 한도를 말한다) ──
   testWidgets('state: classes daily limit reached', (tester) async {
     phone(tester);
     SharedPreferences.setMockInitialValues(signedInPrefs());
@@ -512,7 +516,10 @@ void _rememberedLoginGolden() {
     );
     await tester.pumpAndSettle();
     expect(find.text('예약됨'), findsOneWidget);
-    expect(find.text('오늘 예약 완료'), findsOneWidget);
+    // 한도에 걸린 21시 줄에는 아무 배지도 없다 — '예약' 도 서지 않는다
+    // (예약된 20시 줄의 '취소' 하나만 남는다).
+    expect(find.text('오늘 예약 완료'), findsNothing);
+    expect(find.text('예약'), findsNothing);
     await capture(tester, 'state_32_class_daily_limit');
   });
 

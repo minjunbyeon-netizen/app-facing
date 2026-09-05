@@ -140,6 +140,17 @@ class ClassLine extends StatelessWidget {
     );
   }
 
+  /// 누를 게 없는 줄의 오른쪽 자리 — **비어 있되 자리는 지킨다.**
+  ///
+  /// 배지를 그냥 없애면 줄이 짧아져 목록이 들쭉날쭉해지고, 상태가 바뀌는 순간
+  /// 아래가 밀린다 (docs/DESIGN-SSOT.md §레이아웃 안정성). 손가락 기준(48)과
+  /// 같은 높이를 잡아 두면 예약 가능한 줄과 높이가 같다.
+  /// 회귀 게이트 = `test/class_row_clean_test.dart`.
+  static const Widget _emptyAction = SizedBox(
+    height: HyphenTokens.touchMin,
+    width: 0,
+  );
+
   static Widget _memberAction(
     ClassSessionDto session, {
     required bool isPastDay,
@@ -169,7 +180,11 @@ class ClassLine extends StatelessWidget {
       );
     }
     if (isPastDay || isOver) {
-      return const HkBadge('종료', color: HyphenTokens.muted);
+      // 2026-09-05 사용자 지시 ("날짜가 지나면 굳이 종료라고 버튼 해서 지저분하게
+      // 하지말고, 그냥 깨끗하게 아무것도 없는 화면으로"): 지난 수업의 오른쪽은
+      // 비운다. 날짜·시각이 이미 지났다고 말하고 있어 '종료' 는 같은 말을 한 번
+      // 더 하는 배지였다. 자리는 그대로 둔다 (아래 _emptyAction 주석).
+      return _emptyAction;
     }
     // S5 (2026-08-26 사용자 결정 "회원권 없으면 예약·대기 당연히 안 된다"):
     // 그날 유효한 회원권이 없으면 예약·대기 대신 '회원권 필요'. 탭은 그대로
@@ -184,11 +199,12 @@ class ClassLine extends StatelessWidget {
     // 그대로 서버로 보내 409 문구("하루 예약 한도(1회)를 초과했습니다")를
     // 스낵바로 받는다 — 정책 문구 정본은 서버 하나 (회원권 필요와 같은 규격).
     if (session.reserveLimitReached != null) {
-      return HkBadge(
-        session.reserveLimitReached == 'weekly' ? '이번 주 예약 완료' : '오늘 예약 완료',
-        color: HyphenTokens.muted,
-        onTap: onReserve,
-      );
+      // 2026-09-05 사용자 지시 ("예약하고 나서도 다른곳도 오늘 예약완료 그런 문구도
+      // 그냥 없애자. 걍 깨끗한 화면"): 한도에 걸린 수업의 오른쪽도 비운다.
+      // 누를 수 없는 것을 누를 수 있는 것처럼 세워 두지 않는 목적은 그대로 —
+      // '예약' 이 서지 않는다는 사실 자체가 한도를 말한다.
+      // (판정은 종전대로 서버 예약 게이트와 같은 함수 `reserve_limit_reached`.)
+      return _emptyAction;
     }
     // D82 (2026-08-29 사용자 지시 "그 예약 버튼 누르고 싶은데, 아직 설정한 시간이
     // 아닐 때 누르면 스낵바로 '예약 가능한 시간이 아니에요' 캐릭터와 함께"):

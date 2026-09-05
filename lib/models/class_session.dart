@@ -41,7 +41,8 @@ class ClassSessionDto {
   final bool? membershipOk;
   /// 2026-09-02 — 이 수업을 새로 예약하면 하루·주 한도에 걸리는가. 서버 예약
   /// 게이트와 같은 함수(reserve_limit_reached)의 답 — 'daily' | 'weekly' | null.
-  /// null = 여유·미설정·코치 조회. 앱은 이 값으로만 '예약 완료' 배지를 그린다.
+  /// null = 여유·미설정·코치 조회. 이 값이 있으면 앱은 그 줄의 **예약 배지를
+  /// 세우지 않는다** (D119 · 2026-09-05 — 구 '오늘/이번 주 예약 완료' 배지 폐기).
   final String? reserveLimitReached;
 
   const ClassSessionDto({
