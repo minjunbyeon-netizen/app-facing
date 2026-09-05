@@ -436,7 +436,11 @@ python tool/golden_gallery.py               # 단일 HTML 갤러리 (build/golde
 가짜 백엔드(`test/golden/fakes.dart` — ApiClient implements, 네트워크 0)로 실물 픽셀 렌더
 (갤S22 급 360×780·2x). 폰트는 `test/flutter_test_config.dart` 가 FontManifest 전체
 (Pretendard·MaterialIcons)를 로드. 참조 아키텍처: `apps/writeplz-app` 골든스탠다드.
-현재 **89장** (2026-09-05 — D119 수업 줄 오른쪽 비우기: 사용자 "날짜가 지나면 굳이 종료라고 버튼
+현재 **89장** (2026-09-05 — D121 파트 종류가 기록 칸을 정한다: for_time 완주 시간·amrap 라운드+추가 회·
+strength 세트별 [무게][횟수]·무게 칸은 `has_load` 동작에만. **4장 재생성, 장수 불변** — member_06 ·
+member_06b · state_28 · state_29. 계약 = `docs/CONTRACT-result-axes.md`, 런타임 정본 = 서버
+`services/result_axes.py`. 게이트 = `test/result_axes_test.dart`(13) · `stability_result_sheet_test.dart`(+3).
+직전 **89장** (2026-09-05 — D119 수업 줄 오른쪽 비우기: 사용자 "날짜가 지나면 굳이 종료라고 버튼
 해서 지저분하게 하지말고 … 예약하고 나서도 다른곳도 오늘 예약완료 그런 문구도 그냥 없애자. 걍 깨끗한
 화면". **'종료'**(지난 수업)·**'오늘/이번 주 예약 완료'**(하루·주 한도) 두 배지 폐기 — 못 하는 것을
 배지로 설명하지 않는다(D82 '오픈 전' 폐기와 같은 방향). 자리는 비우되 **높이는 48 그대로**(`_emptyAction`)
