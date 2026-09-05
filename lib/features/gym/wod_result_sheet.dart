@@ -105,9 +105,9 @@ String _kgText(double w) => w == w.roundToDouble() ? '${w.toInt()}' : '$w';
 
 /// 동작 **한 줄**의 입력 상태 — 게시물의 WodMovementItem + 회원이 실제 한 값.
 ///
-/// strength 파트는 같은 동작이 세트 수만큼 줄을 갖는다 ([setIndex] 0..n-1).
-/// 어떤 칸을 그릴지는 파트 종류와 `has_load` 가 정한다 (계약 §2) — 앱은 그 두 값을
-/// 읽어서 그리기만 하고, 축 표 자체는 서버 `services/result_axes.py` 가 정본이다.
+/// 세트 축 파트는 같은 동작이 세트 수만큼 줄을 갖는다 ([setIndex] 0..n-1).
+/// 어떤 칸을 그릴지는 서버 `show_movement_reps`·`has_load` 가 정한다 (계약 D122 §3) —
+/// 앱은 그 값을 읽어서 그리기만 하고, 축 표 자체는 서버 `result_axes.py` 가 정본이다.
 class _MoveEntry {
   final WodMovementItem item;
   final int partIndex;
@@ -545,7 +545,7 @@ class _WodResultSheetState extends State<WodResultSheet> {
                 const SizedBox(height: HyphenTokens.sp2),
               ],
 
-              // ── 내 기록 — 파트로 묶고, 파트 종류가 칸을 정한다 (계약 D121 §2) ──
+              // ── 내 기록 — 파트로 묶고, 서버 score_keys 가 칸을 정한다 (D122 §3) ──
               if (_structured) ...[
                 const HkSectionLabel('내 기록'),
                 const SizedBox(height: HyphenTokens.sp1),
