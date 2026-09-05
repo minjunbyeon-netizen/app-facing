@@ -11,7 +11,6 @@ import 'gym_repository.dart';
 import 'gym_state.dart';
 import 'wod_detail_screen.dart';
 import 'wod_result_sheet.dart';
-import 'wod_type_label.dart';
 
 /// v2.4 (2026-08-12): box_wod_screen.dart 에서 분리.
 /// 주간 보드(week_board.dart)와 WOD 보드가 같은 행 규격을 쓴다 — 같은 역할의
@@ -21,7 +20,9 @@ import 'wod_type_label.dart';
 /// (미래 게시물 '당일 공개' 잠금은 2026-08-23 폐지 — 잠금 사유는 회원권 만료뿐.)
 class LockedWodBanner extends StatelessWidget {
   final String dateLabel;
-  final String wodType;
+
+  /// 종류 라벨 — 서버 `wod_type_label` 그대로 (D124 · 앱 조립 금지).
+  final String typeLabel;
 
   /// 날짜를 함께 보일지. 주간 보드처럼 날짜가 이미 위에 있으면 false.
   final bool showDate;
@@ -29,7 +30,7 @@ class LockedWodBanner extends StatelessWidget {
   const LockedWodBanner({
     super.key,
     required this.dateLabel,
-    required this.wodType,
+    required this.typeLabel,
     this.showDate = true,
   });
 
@@ -60,7 +61,7 @@ class LockedWodBanner extends StatelessWidget {
                   const SizedBox(height: 2),
                 ],
                 Text(
-                  wodTypeLabel(wodType),
+                  typeLabel,
                   style: HyphenTokens.body.copyWith(
                     color: HyphenTokens.muted,
                     fontWeight: FontWeight.w700,
@@ -276,7 +277,7 @@ class _WodRowState extends State<WodRow> {
                   ],
                   if (!wod.isMultiPart) ...[
                     Text(
-                      wodTypeLabel(wod.wodType),
+                      wod.wodTypeLabel,
                       style: HyphenTokens.sectionLabel.copyWith(
                         color: isMinimal
                             ? HyphenTokens.muted
@@ -503,7 +504,7 @@ class _MsgCoachSheetState extends State<_MsgCoachSheet> {
           const HkSectionLabel('코치에게 메시지'),
           const SizedBox(height: 4),
           Text(
-            '${wodTypeLabel(widget.wod.wodType)} · ${widget.wod.postDate}',
+            '${widget.wod.wodTypeLabel} · ${widget.wod.postDate}',
             style: HyphenTokens.caption,
           ),
           const SizedBox(height: HyphenTokens.sp3),

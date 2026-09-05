@@ -419,6 +419,16 @@ String _ymd(DateTime d) =>
 /// 일부러 **뒤섞인 순서**로 두고 BUILD 를 두 번 넣는다: 화면이 첫 수업 시각 순
 /// (AWAKE 06:00 → SWEAT 12:00 → BUILD 18:00)으로 다시 세우고 같은 종류를 한 번만
 /// 그리는지, 픽스처가 그 자체로 증명하게 하려는 것이다.
+/// 종류 라벨 — 가짜 서버가 실어 주는 `wod_type_label` (정본 = 서버 `program_lines.WOD_TYPE_LABELS`).
+/// D124 — 앱은 라벨을 조립하지 않으므로 가짜 응답이 서버처럼 라벨을 실어 준다.
+String fakeWodTypeLabel(String type) => const {
+      'for_time': 'FOR TIME',
+      'amrap': 'AMRAP',
+      'emom': 'EMOM',
+      'strength': 'STRENGTH',
+      'custom': '수업',
+    }[type] ?? type;
+
 List<Map<String, dynamic>> gymWods() {
   final now = appClock.now();
   final d = _ymd(now);
@@ -429,6 +439,7 @@ List<Map<String, dynamic>> gymWods() {
         'id': id,
         'post_date': d,
         'wod_type': type,
+        'wod_type_label': fakeWodTypeLabel(type),
         'content': content,
         // D111 — 접힌 수업 줄의 한 줄 요약 (서버 movement_summary 그대로).
         'summary': summary,
@@ -582,6 +593,7 @@ List<Map<String, dynamic>> gymWods() {
       'first_class_at': '${d}T06:00:00',
       'post_date': _ymd(now),
       'wod_type': 'for_time',
+      'wod_type_label': fakeWodTypeLabel('for_time'),
       'summary': 'Thruster 21-15-9회 · 42.5kg · Pull-up 21-15-9회',
       'content': '21-15-9\nThruster 42.5kg\nPull-up',
       'scaled_version': '15-12-9\nThruster 30kg\nRing Row',
@@ -637,6 +649,7 @@ List<Map<String, dynamic>> gymWods() {
       'id': 30,
       'post_date': _ymd(now.subtract(const Duration(days: 1))),
       'wod_type': 'amrap',
+      'wod_type_label': fakeWodTypeLabel('amrap'),
       'content': 'AMRAP 20\n5 Pull-up\n10 Push-up\n15 Air Squat',
       'rounds_data': [],
       'time_cap_sec': 1200,
@@ -779,6 +792,7 @@ List<Map<String, dynamic>> gymWodsStrengthToday() {
       'id': 33,
       'post_date': _ymd(now),
       'wod_type': 'strength',
+      'wod_type_label': fakeWodTypeLabel('strength'),
       'content': 'Back Squat 5x5\n무거운 5회 × 5세트 — 마지막 세트 최고 무게를 기록',
       'rounds_data': [
         {
@@ -2222,6 +2236,7 @@ Map<String, dynamic> wodAxesPost() {
     'post_date': d,
     // 파트가 둘 이상이면 게시물 종류는 전체를 대표하지 않는다 (D109).
     'wod_type': 'custom',
+    'wod_type_label': fakeWodTypeLabel('custom'),
     'content': 'AXES\n'
         'A 파트 · 15분 · STRENGTH\n'
         'Back Squat 5-5-5-5-5회 · 60kg\n'
@@ -2285,6 +2300,8 @@ Map<String, dynamic> wodAxesPost() {
         'score_keys': ['rounds', 'extra_reps'],
         'score_labels': {'rounds': '라운드', 'extra_reps': '+ 회'},
         'score_target': 21,
+        // D124 — 힌트 **문장**도 서버 (앱이 '21 미만' 을 조립하지 않는다).
+        'score_hints': {'extra_reps': '21 미만'},
         'round_reps': 21,
         'show_movement_reps': false,
         'set_based': false,
@@ -2367,6 +2384,7 @@ Map<String, dynamic> wodAxesPost() {
         'score_keys': ['rounds'],
         'score_labels': {'rounds': '완료한 분'},
         'score_target': 10,
+        'score_hints': {'rounds': '10분 중'},
         'show_movement_reps': false,
         'set_based': false,
         'movements': [
@@ -2448,6 +2466,7 @@ Map<String, dynamic> wodEmomBodyweightPost() {
     'first_class_at': '${d}T20:00:00',
     'post_date': d,
     'wod_type': 'emom',
+    'wod_type_label': fakeWodTypeLabel('emom'),
     'content': 'ENGINE\n10분 · EMOM\nBurpee 8회\nAir Squat 12회',
     'summary': 'Burpee 8회 · Air Squat 12회',
     'rounds_data': [
@@ -2464,6 +2483,7 @@ Map<String, dynamic> wodEmomBodyweightPost() {
         'score_keys': ['rounds'],
         'score_labels': {'rounds': '완료한 분'},
         'score_target': 10,
+        'score_hints': {'rounds': '10분 중'},
         'show_movement_reps': false,
         'set_based': false,
         'movements': [

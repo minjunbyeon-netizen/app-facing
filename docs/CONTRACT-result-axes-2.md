@@ -89,6 +89,7 @@ def load_fingerprint(movements) -> str:
     "time_sec": "완주 시간", "capped": "캡 종료", "extra_reps": "남긴 렙스"
   },
   "score_target": null,                                  // NEW — 숫자 힌트 (emom=duration_min, amrap=round_reps)
+  "score_hints": {},                                     // D124 — 힌트 **문장** {"extra_reps": "21 미만"} · {"rounds": "10분 중"}. 앱은 숫자로 조립하지 않는다
   "show_movement_reps": false,                           // NEW — has_movement_reps()
   "set_based": false                                     // NEW — is_set_based()
 }

@@ -443,6 +443,11 @@ class WodRoundItem {
   /// 숫자 힌트 — emom 은 `duration_min`, amrap 은 `round_reps`. 없으면 null.
   final int? scoreTarget;
 
+  /// 점수 칸의 **힌트 문장** — `{'extra_reps': '21 미만'}` · `{'rounds': '10분 중'}` (D124).
+  /// 한글 문장도 서버(`result_axes.part_score_hints`)가 준다 — 앱이 [scoreTarget] 숫자로
+  /// 조립하지 않는다. 없는 칸은 화면이 빈 값 표시('0')를 쓴다.
+  final Map<String, String> scoreHints;
+
   /// 동작 줄에 **한 횟수 칸**을 두는가 (서버 `has_movement_reps()`).
   /// 키가 없는 옛 응답은 종전대로 준다(true).
   final bool showMovementReps;
@@ -473,6 +478,7 @@ class WodRoundItem {
     this.scoreKeys = const [],
     this.scoreLabels = const {},
     this.scoreTarget,
+    this.scoreHints = const {},
     this.showMovementReps = true,
     this.setBased = false,
   });
@@ -517,6 +523,12 @@ class WodRoundItem {
             }
           : const {},
       scoreTarget: (j['score_target'] as num?)?.toInt(),
+      scoreHints: (j['score_hints'] is Map)
+          ? {
+              for (final e in (j['score_hints'] as Map).entries)
+                e.key.toString(): e.value.toString(),
+            }
+          : const {},
       showMovementReps: j['show_movement_reps'] == null
           ? true
           : j['show_movement_reps'] == true,
@@ -535,6 +547,11 @@ class GymWodPost {
   final int id;
   final String postDate; // YYYY-MM-DD
   final String wodType;
+
+  /// 종류 라벨 — 서버 `wod_type_label`(정본 `program_lines.WOD_TYPE_LABELS`) 그대로.
+  /// 앱이 `for_time` → 'FOR TIME' 을 조립하던 `wod_type_label.dart` 는 D124 에서 삭제.
+  /// 라벨을 안 실은 옛 응답은 값(`wod_type`)을 그대로 보인다 — 없는 글자를 지어내지 않는다.
+  final String wodTypeLabel;
   final String content; // RX 버전
   final String? scaledVersion;
   final String? beginnerVersion;
@@ -588,6 +605,7 @@ class GymWodPost {
     required this.id,
     required this.postDate,
     required this.wodType,
+    required this.wodTypeLabel,
     required this.content,
     this.scaledVersion,
     this.beginnerVersion,
@@ -636,6 +654,7 @@ class GymWodPost {
       id: (j['id'] as num).toInt(),
       postDate: (j['post_date'] ?? '').toString(),
       wodType: (j['wod_type'] ?? '').toString(),
+      wodTypeLabel: (j['wod_type_label'] ?? j['wod_type'] ?? '').toString(),
       content: (j['content'] ?? '').toString(),
       scaledVersion: j['scaled_version']?.toString(),
       beginnerVersion: j['beginner_version']?.toString(),

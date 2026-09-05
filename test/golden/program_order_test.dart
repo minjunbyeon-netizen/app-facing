@@ -34,6 +34,7 @@ GymWodPost _p(int id, {int? tid, String? name, DateTime? at}) => GymWodPost(
       id: id,
       postDate: '2026-08-29',
       wodType: 'custom',
+      wodTypeLabel: '수업',
       content: '내용 $id',
       createdAt: DateTime(2026, 8, 29, 5),
       templateId: tid,

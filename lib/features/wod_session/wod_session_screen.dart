@@ -18,7 +18,6 @@ import '../../core/haptic.dart';
 import '../../core/theme.dart';
 import '../../core/wod_session_bus.dart';
 import '../../models/gym.dart';
-import '../gym/wod_type_label.dart';
 import '../achievement/achievement_state.dart';
 import '../achievement/unlock_toast.dart';
 import '../gym/gym_repository.dart';
@@ -187,7 +186,7 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
                     const HkSectionLabel('기록 저장'),
                     const SizedBox(height: HyphenTokens.sp1),
                     Text(
-                      wodTypeLabel(widget.wod.wodType),
+                      widget.wod.wodTypeLabel,
                       style: HyphenTokens.h3.copyWith(
                         color: HyphenTokens.accent,
                         fontWeight: FontWeight.w800,
@@ -368,7 +367,7 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
         Haptic.achievementUnlock(emphasize: true);
         HkSnack.show(
           context,
-          'PR · ${wodTypeLabel(widget.wod.wodType)} '
+          'PR · ${widget.wod.wodTypeLabel} '
           '$m:${s.toString().padLeft(2, '0')}',
           mood: MascotMood.happy,
         );
@@ -446,7 +445,7 @@ class _WodSessionScreenState extends State<WodSessionScreen> {
         }
       },
       child: Scaffold(
-        appBar: HkAppBar(title: wodTypeLabel(widget.wod.wodType)),
+        appBar: HkAppBar(title: widget.wod.wodTypeLabel),
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(HyphenTokens.sp4),

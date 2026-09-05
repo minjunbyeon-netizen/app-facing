@@ -239,7 +239,7 @@ void main() {
       );
     });
 
-    testWidgets('완료한 분 힌트는 서버 score_target', (tester) async {
+    testWidgets('완료한 분 힌트는 서버 score_hints 문장 그대로', (tester) async {
       await mountSheet(tester, wodEmomBodyweightPost());
       expect(_hintOf(tester, WodResultSheet.partFieldKey(0, 'rounds')), '10분 중');
     });
@@ -286,12 +286,12 @@ void main() {
       expect(_labelOf(tester, WodResultSheet.partFieldKey(1, 'extra')), '+ 회');
     });
 
-    testWidgets('힌트는 서버 score_target — 있으면 "N 미만"', (tester) async {
+    testWidgets('힌트는 서버 score_hints 문장 — "21 미만" 을 그대로 (D124 · 앱 조립 금지)', (tester) async {
       await mountSheet(tester, wodAxesPost());
       expect(_hintOf(tester, WodResultSheet.partFieldKey(1, 'extra')), '21 미만');
     });
 
-    testWidgets('score_target 이 없으면 종전대로 0', (tester) async {
+    testWidgets('score_hints 가 없으면 빈 값 표시 0', (tester) async {
       // SWEAT(32) B 파트 = AMRAP + Row(meters) — 한 라운드 렙스 합을 셀 수 없다.
       await mountSheet(tester, gymWods().firstWhere((p) => p['id'] == 32));
       expect(_hintOf(tester, WodResultSheet.partFieldKey(1, 'extra')), '0');
@@ -379,6 +379,7 @@ void main() {
                 'score_keys',
                 'score_labels',
                 'score_target',
+                'score_hints',
                 'show_movement_reps',
                 'set_based',
               ].contains(e.key))

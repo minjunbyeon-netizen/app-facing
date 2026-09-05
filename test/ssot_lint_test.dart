@@ -33,6 +33,11 @@ const List<(String, String)> _forbidden = [
   (r"'(signed|sent|viewed)'\s*(\|\||=>)", '계약 상태 라벨·서명 가능 판정은 서버 status_label·signable (D102)'),
   (r'coversDay\(|hasMembershipOn\(', '그날 회원권 유무는 서버 수업 목록의 membership_ok (과제 4 · 2026-08-30)'),
   (r'DateTime\.parse\(pause(Start|End)', '정지 중·정지 예정 판정은 서버 is_paused/is_pause_scheduled (과제 4)'),
+  // D124 (2026-09-06) — 종류 라벨·힌트 문장은 서버 한 곳. `for_time` → 'FOR TIME' 조립과
+  // `score_target` 숫자로 '21 미만'·'10분 중' 을 짓는 것 둘 다 금지 (응답 `wod_type_label`·`score_hints`).
+  (r'wodTypeLabel\(', "종류 라벨은 서버 wod_type_label — 모델 wodTypeLabel 필드를 그대로 (D124)"),
+  (r"replaceAll\('_', ' '\)\.toUpperCase\(\)", '종류 라벨 조립 금지 — 서버 wod_type_label (D124)'),
+  (r"'\$\w+ 미만'|'\$\w+분 중'", '점수 힌트 문장은 서버 score_hints — 숫자로 조립 금지 (D124)'),
 ];
 
 /// 모델까지 보는 패턴 — 회원권 날짜 규칙은 서버 api/_membership.membership_calendar_fields 한 곳.

@@ -651,6 +651,22 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 >   갈라져 "같은 바닥" 을 택했다), 예약된 자리 **안**에서는 세로 정렬 차이로
 >   첫 글자가 30~50px 움직인다. 자리 밖은 안 밀린다. 목록 = `docs/UI-INDEX.md §12`.
 
+> **D124 (2026-09-06 집행) — 6-b 잔여 사본 3곳 제거: 종류 라벨·힌트 문장·편집기 축을 전부 서버가 준다 (서버·앱·PC).
+> 사용자 "전부 다 하자, 깨끗하게 정리".**
+>
+> - **앱 `wod_type_label.dart` 삭제** — `for_time` → 'FOR TIME' 조립 8곳이 모델 `GymWodPost.wodTypeLabel`
+>   (서버 `wod_type_label`, 정본 `program_lines.WOD_TYPE_LABELS`) 을 그대로 그린다. 라벨을 안 실은 옛 응답은
+>   값을 그대로 보인다 — 글자를 지어내지 않는다. `LockedWodBanner` 도 라벨을 받는다(`typeLabel`).
+> - **앱 힌트 문구** `'$n 미만'`·`'$n분 중'` 조립 삭제 — 파트 응답의 `score_hints`(`result_axes.part_score_hints`,
+>   `{'extra_reps': '21 미만'}`·`{'rounds': '10분 중'}`) 문장을 그대로. 숫자가 없으면 키가 없고 화면은 빈 값 '0'.
+> - **PC `ROUNDS_NOT_PRESCRIBED`·`SET_BASED_TYPES` 삭제** — `program-meta` 의 `wod_types[]` 가 종류마다
+>   `rounds_prescribed`·`set_based`(`result_axes.editor_axes`) 를 싣고 편집기는 읽기만 한다. 메타 전이면 둘 다 false.
+> - 게이트: 서버 `test_ssot_result_axes_lint.py`(정본 마커 2·재정의 금지·힌트 문장 리터럴) ·
+>   `test_result_axes_d122.py` 3·3b·3c(`score_hints`) · `test_program_d88.py` j(메타 축) / 앱 `test/ssot_lint_test.dart`
+>   (`wodTypeLabel(`·`replaceAll('_',' ').toUpperCase()`·`'$n 미만'` 0건) · `result_axes2_test.dart` / PC `design/lint.py §7.10`
+>   (판정 원천 = 메타 `rounds_prescribed`/`set_based`, 리터럴 목록은 있으면 위반).
+> - 골든 픽셀 변화 0 (서버 라벨 = 종전 조립 결과). 가짜 서버(`fakes.dart`)가 `wod_type_label`·`score_hints` 를 싣는다.
+
 > **D123 (2026-09-06 집행) — 시각·날짜는 체육관 시각(Asia/Seoul) 하나로. 기기 시간대 표시 폐기 (앱).
 > 사용자 지시 "업계 표준대로" (Wodify·SugarWOD·BTWB — 수업 시각·날짜는 체육관 시간대).**
 >

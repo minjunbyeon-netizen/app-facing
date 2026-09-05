@@ -480,7 +480,7 @@ class _DayList extends StatelessWidget {
                   if (w.locked)
                     LockedWodBanner(
                       dateLabel: mdDot(date),
-                      wodType: w.wodType,
+                      typeLabel: w.wodTypeLabel,
                       showDate: false,
                     )
                   else
@@ -532,7 +532,7 @@ class _ProgramBlock extends StatelessWidget {
     } else if (p.locked) {
       body = LockedWodBanner(
         dateLabel: mdDot(date),
-        wodType: p.wodType,
+        typeLabel: p.wodTypeLabel,
         showDate: false,
       );
     } else {

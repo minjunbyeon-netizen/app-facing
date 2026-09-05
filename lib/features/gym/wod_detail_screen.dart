@@ -14,7 +14,6 @@ import '../../widgets/hkit.dart';
 import '../wod_session/wod_session_screen.dart';
 import 'gym_repository.dart';
 import 'gym_state.dart';
-import 'wod_type_label.dart';
 import '../../core/time_format.dart';
 
 enum _ScaleLevel { rx, scaled, beginner }
@@ -332,7 +331,7 @@ class _WodDetailScreenState extends State<WodDetailScreen> {
 
     return Scaffold(
       appBar: HkAppBar(
-        title: wodTypeLabel(wod.wodType),
+        title: wod.wodTypeLabel,
         actions: [
           IconButton(icon: const Icon(Icons.refresh), onPressed: _reload),
         ],

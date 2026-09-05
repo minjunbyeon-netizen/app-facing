@@ -35,12 +35,12 @@
 // D122 (2026-09-06 · 계약 `docs/CONTRACT-result-axes-2.md`) — **축을 서버가 내려준다.**
 // D121 은 축 표를 앱에 리터럴로 복제해 뒀다 (`_scoredTypes`·`_noRepsTypes`) — 새 종류나
 // 축 변경마다 앱 재배포와 스토어 심사가 필요한 상태였다. 이제 파트마다 서버가
-// `score_keys`·`score_labels`·`score_target`·`show_movement_reps`·`set_based` 를 싣고,
+// `score_keys`·`score_labels`·`score_target`·`score_hints`·`show_movement_reps`·`set_based` 를 싣고,
 // 이 파일은 **그 열쇠만 보고 위젯을 고른다** (종류 이름을 보지 않는다).
 // - EMOM 에 점수가 생겼다 — `rounds`(라벨 '완료한 분', 힌트 = duration_min). 종전에는
 //   적을 칸이 없어 **파트 자체가 사라졌다** ("D 파트는 왜 없지?").
 // - AMRAP 오른 칸은 '추가 회' → **'+ 회'** (뜻이 정반대로 읽히던 라벨) + 늘 있는
-//   고정 높이 안내 한 줄 + 힌트 `N 미만`(서버 round_reps).
+//   고정 높이 안내 한 줄 + 힌트 `N 미만`(서버 `score_hints` 문장 — D124, 앱 조립 금지).
 // - 입력 칸이 없는 동작은 사라지지 않고 **서버 `lines`** 로 선다 (읽기 전용).
 // - 세트 줄 횟수는 서버 `set_reps` — 앱은 코치 처방을 쪼개지 않는다.
 // - 검사 = `test/result_axes2_test.dart`(정적 사본 금지 + 종류별 칸 + 힌트·라벨) ·
@@ -58,7 +58,6 @@ import '../../models/gym.dart';
 import '../../widgets/hkit.dart';
 import 'gym_repository.dart';
 import 'gym_state.dart';
-import 'wod_type_label.dart';
 
 /// 저장 중 토스트 (2026-08-30 사용자 원문 "수업을 저장중이에요 로딩바 두두둥"). 굵은 제목 +
 /// 가로 로딩바(HkSnack.progress). 골든 `snack_06_saving` · `state_29_result_sheet_saving`.
@@ -503,7 +502,7 @@ class _WodResultSheetState extends State<WodResultSheet> {
               Row(
                 children: [
                   Text(
-                    wodTypeLabel(widget.wod.wodType),
+                    widget.wod.wodTypeLabel,
                     style: HyphenTokens.sectionLabel.copyWith(
                       color: HyphenTokens.accent,
                     ),
@@ -690,20 +689,19 @@ class _PartScore extends StatelessWidget {
     required this.onCapped,
   });
 
-  /// '남긴 렙스' 칸의 힌트. 캡 줄과 짝이면 캡을 켜야 열린다는 뜻을 적고, 아니면
-  /// 서버 `score_target`(= 한 라운드 렙스 합) 미만이라는 뜻을 적는다 (계약 §5).
+  /// '남긴 렙스' 칸의 힌트. 캡 줄과 짝이면 캡을 켜야 열린다는 뜻(화면 상태)을 적고,
+  /// 아니면 서버 `score_hints['extra_reps']`('21 미만') 를 그대로 (계약 §5 · D124 —
+  /// 앱이 `score_target` 숫자로 문장을 조립하지 않는다). 없으면 빈 값 표시 '0'.
   String get _extraHint {
     if (entry.showsCap) return entry.capped ? '0' : '캡 종료일 때만';
-    final target = entry.part.scoreTarget;
-    return target == null ? '0' : '$target 미만';
+    return entry.part.scoreHints[_ScoreKey.extraReps] ?? '0';
   }
 
   /// 라운드 칸의 힌트. '추가 회' 칸이 따로 없는 모양(EMOM)에서는 서버
-  /// `score_target`(= 그 파트의 분)이 이 칸의 기준이다 (계약 §4 — '10분 중').
+  /// `score_hints['rounds']`('10분 중') 가 이 칸의 기준이다 (계약 §4 · D124).
   String get _roundsHint {
-    final target = entry.part.scoreTarget;
-    if (entry.showsExtra || target == null) return '0';
-    return '$target분 중';
+    if (entry.showsExtra) return '0';
+    return entry.part.scoreHints[_ScoreKey.rounds] ?? '0';
   }
 
   @override
