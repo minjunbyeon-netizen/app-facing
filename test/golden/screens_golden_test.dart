@@ -383,7 +383,11 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.text('6:52'), findsOneWidget);
-    expect(find.text('SCALED'), findsOneWidget);
+    // 2026-09-05 — 난도 배지 삭제. 가짜에는 'scaled' 가 들어 있지만 **실서비스에는
+    // 그 값을 고르는 창구가 없다** (v3.45 에서 난도 칸을 없앤 뒤 앱은 기본값 'rx' 만
+    // 보낸다). 창구 없는 값을 화면이 단정하지 않는다 — test/no_false_scale_badge_test.dart.
+    expect(find.text('SCALED'), findsNothing);
+    expect(find.text('RXD'), findsNothing);
     await capture(tester, 'hist_04_detail');
   });
 

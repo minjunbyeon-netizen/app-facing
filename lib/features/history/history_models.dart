@@ -110,9 +110,10 @@ class WodHistoryItem {
   /// 목록 오른쪽 점수 — 서버 라벨 그대로, 없으면 '-'.
   String get scoreDisplay => label.isEmpty ? '-' : label;
 
-  /// 난도 배지 — 서버 값 'rx' 는 앱 표기 'RXD' (GLOSSARY §3), 나머지는 대문자 그대로.
-  String get scaleLabel =>
-      scaleLevel == 'rx' ? 'RXD' : scaleLevel.toUpperCase();
+  // (구 scaleLabel — 2026-09-05 삭제. 회원이 난도를 고르는 칸이 v3.45 에서
+  //  사라진 뒤로 이 값은 아무도 고르지 않은 기본값 'rx' 뿐이라, 그것을 'RXD'
+  //  라는 표기로 바꾸는 순간 화면이 거짓말을 했다. [scaleLevel] 값 자체는
+  //  휴면으로 계속 받는다 — 데이터는 지우지 않는다.)
 }
 
 /// 동작 한 개 참조 — 동작 사전 번호 + 표시 이름(+완료 값 줄). 히스토리 상세의

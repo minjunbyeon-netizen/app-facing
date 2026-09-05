@@ -115,8 +115,11 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
                         fontFeatures: HyphenTokens.tabular,
                       ),
                     ),
-                    const SizedBox(width: HyphenTokens.sp3),
-                    HkBadge(item.scaleLabel),
+                    // 2026-09-05 — 난도 배지 삭제. v3.45 에서 회원이 난도를 고르는
+                    // 칸을 없앴는데 앱은 기본값 'rx' 를 계속 보냈고, 이 자리가 그것을
+                    // 조건 없이 'RXD' 라고 단정했다. 코치 처방보다 가볍게 든 기록에도
+                    // 붙는 거짓말이다 (제1원칙). 다시 보여주려면 **고르는 창구**부터
+                    // 만든다. 게이트 = test/no_false_scale_badge_test.dart.
                     if (item.isPr) ...[
                       const SizedBox(width: HyphenTokens.sp2),
                       const HkBadge('PR', color: HyphenTokens.primary),
