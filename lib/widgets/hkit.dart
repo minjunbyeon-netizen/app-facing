@@ -218,13 +218,24 @@ class HkButton extends StatelessWidget {
 }
 
 /// 섹션 구분 라벨 — 대문자 강제.
+///
+/// [strong] (D125 · 2026-09-06 가시성 점검) — **폼 안 묶음 제목**용 한 단어 상태.
+/// 완료 시트의 파트 머리('A 파트 · 15분 · STRENGTH')가 12sp 회색 대문자라 그 안의
+/// 항목('Back Squat · 1세트' 17sp 검정)보다 작고 연해 위계가 뒤집혀 있었다. `strong`
+/// 은 body 세미볼드 검정, 대문자 강제 없음. 화면 섹션 헤더 규칙(R3)은 그대로 —
+/// 화면 섹션 헤더는 기본형을 쓴다. 새 라벨 variant 신설 금지, 이 두 상태뿐이다.
 class HkSectionLabel extends StatelessWidget {
   final String text;
-  const HkSectionLabel(this.text, {super.key});
+  final bool strong;
+  const HkSectionLabel(this.text, {super.key, this.strong = false});
 
   @override
-  Widget build(BuildContext context) =>
-      Text(text.toUpperCase(), style: HyphenTokens.sectionLabel);
+  Widget build(BuildContext context) => strong
+      ? Text(
+          text,
+          style: HyphenTokens.body.copyWith(fontWeight: FontWeight.w600),
+        )
+      : Text(text.toUpperCase(), style: HyphenTokens.sectionLabel);
 }
 
 /// 체크 줄 — 체크박스 + 라벨 한 줄 (v3.18 · 2026-08-25 로그인 '아이디 기억하기').
@@ -280,6 +291,112 @@ class HkCheckRow extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// 숫자 전용 칸 — 1~3자리 값을 적는 칸의 유일 규격 (D125 · 2026-09-06 가시성 점검,
+/// `docs/audit-visibility-2026-09-06.html`).
+///
+/// 완료 시트의 점수·세트 칸이 전부 전폭(Expanded) TextField 라 '5' 한 글자가 156~328dp
+/// 상자 왼쪽 구석에 묻혔고, 칸 이름은 placeholder 색(#A1A1AA · 2.56:1)으로만 보였다.
+/// 그래서 **폭 고정 · 오른쪽 정렬 · 단위는 칸 밖 · 라벨은 항상 보이게** 로 규격을
+/// 한 곳에 못 박는다.
+///
+/// - [fieldKey] 는 안쪽 TextField 에 그대로 단다 — 검사가 `find.byKey` 로 TextField 를 집는다.
+/// - [label]: null = 라벨 줄 없음 · '' = 빈 라벨 줄(높이만 예약 — 옆 칸과 상자 y 를 맞춘다)
+///   · 글자 = 칸 위에 textSub 세미볼드로. placeholder 가 라벨 노릇을 하지 않는다.
+/// - [hint] 는 TextField hintText 그대로 (예시 숫자 '0' 같은 것만).
+/// - [unit] 은 칸 오른쪽 바깥 글자('kg' · '회' · '분' · '초') — 칸 안에 넣으면 숫자 폭을 먹는다.
+/// - 상자 = [width] × [HyphenTokens.touchMin]. 테두리·힌트 색은 테마 inputDecorationTheme
+///   한 벌 (여기서 OutlineInputBorder 를 다시 그리지 않는다 — ssot_lint_test).
+/// - 새 숫자 칸 variant 신설 금지 — 필요하면 [width] 만 바꿔 쓴다.
+class HkNumberField extends StatelessWidget {
+  final Key fieldKey;
+  final TextEditingController controller;
+  final String? label;
+  final String? hint;
+  final String? unit;
+  final double width;
+  final bool enabled;
+  final bool numeric;
+  const HkNumberField({
+    super.key,
+    required this.fieldKey,
+    required this.controller,
+    this.label,
+    this.hint,
+    this.unit,
+    this.width = 96,
+    this.enabled = true,
+    this.numeric = true,
+  });
+
+  /// 라벨 줄 높이 — 라벨이 있든 비었든 같은 값이라 옆 칸과 상자 y 가 맞는다.
+  static const double labelHeight = 18;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (label != null) ...[
+          SizedBox(
+            height: labelHeight,
+            child: Text(
+              label!,
+              style: HyphenTokens.caption.copyWith(
+                color: HyphenTokens.fgSecondary,
+                fontWeight: FontWeight.w600,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(height: HyphenTokens.sp1),
+        ],
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: width,
+              height: HyphenTokens.touchMin,
+              child: TextField(
+                key: fieldKey,
+                controller: controller,
+                enabled: enabled,
+                keyboardType: numeric
+                    ? const TextInputType.numberWithOptions(decimal: true)
+                    : TextInputType.text,
+                textAlign: TextAlign.right,
+                style: HyphenTokens.h3.copyWith(
+                  fontWeight: FontWeight.w600,
+                  fontFeatures: HyphenTokens.tabular,
+                ),
+                decoration: InputDecoration(
+                  hintText: hint,
+                  isDense: true,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: HyphenTokens.sp3,
+                    vertical: HyphenTokens.sp2,
+                  ),
+                ),
+              ),
+            ),
+            if (unit != null) ...[
+              const SizedBox(width: HyphenTokens.sp1),
+              Text(
+                unit!,
+                style: HyphenTokens.body.copyWith(
+                  color: HyphenTokens.fgSecondary,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ],
     );
   }
 }
