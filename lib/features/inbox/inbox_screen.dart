@@ -28,6 +28,7 @@ import 'inbox_state.dart';
 import 'note_detail_screen.dart';
 import '../../core/app_clock.dart';
 import 'new_note_screen.dart';
+import '../../core/time_format.dart';
 
 // v3.2 (2026-08-20 사용자 지시 "깨끗하게 다 지워"): 구 Notice 탭의 InboxScreen
 // (재활 가이드 전담)은 셸에서 빠진 뒤 도달 불가 — rehab 일체와 함께 삭제.
@@ -210,7 +211,7 @@ class CoachDossierTile extends StatelessWidget {
     if (dueDate == null || dueDate.isEmpty) return null;
     final due = DateTime.tryParse('${dueDate}T00:00:00');
     if (due == null) return null;
-    final now = appClock.now().toLocal();
+    final now = appClock.now().gym();
     final today = DateTime(now.year, now.month, now.day);
     final diff = due.difference(today).inDays;
     if (diff < 0) return _DueBadge('OVERDUE', color: HyphenTokens.overdue);
@@ -226,7 +227,7 @@ class CoachDossierTile extends StatelessWidget {
     if (d.inMinutes < 60) return '${d.inMinutes}m';
     if (d.inHours < 24) return '${d.inHours}h';
     if (d.inDays < 7) return '${d.inDays}d';
-    final l = created.toLocal();
+    final l = created.gym();
     final mm = l.month.toString().padLeft(2, '0');
     final dd = l.day.toString().padLeft(2, '0');
     if (l.year != appClock.now().year) {

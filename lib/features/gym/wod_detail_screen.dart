@@ -669,7 +669,7 @@ class _FeedbackCard extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                mdHm(fb.updatedAt.toLocal()),
+                mdHm(fb.updatedAt.gym()),
                 style: HyphenTokens.micro.copyWith(color: HyphenTokens.muted),
               ),
             ],
@@ -714,7 +714,7 @@ class _CommentRow extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                mdHm(comment.createdAt.toLocal()),
+                mdHm(comment.createdAt.gym()),
                 style: HyphenTokens.micro.copyWith(color: HyphenTokens.muted),
               ),
             ],

@@ -101,17 +101,17 @@ class GymAnnouncement {
         ctaLabel: j['cta_label'] as String?,
         ctaUrl: j['cta_url'] as String?,
         startAt: j['start_at'] != null
-            ? tryParseServerTime(j['start_at'] as String)?.toLocal()
+            ? tryParseServerTime(j['start_at'] as String)?.gym()
             : null,
         endAt: j['end_at'] != null
-            ? tryParseServerTime(j['end_at'] as String)?.toLocal()
+            ? tryParseServerTime(j['end_at'] as String)?.gym()
             : null,
         pinned: j['pinned'] == true,
         category: AnnouncementCategory.fromString(j['category'] as String?),
         visibleTo: (j['visible_to'] ?? 'all').toString(),
-        createdAt: parseServerTime(j['created_at'] as String).toLocal(),
+        createdAt: parseServerTime(j['created_at'] as String).gym(),
         updatedAt: j['updated_at'] != null
-            ? tryParseServerTime(j['updated_at'] as String)?.toLocal()
+            ? tryParseServerTime(j['updated_at'] as String)?.gym()
             : null,
       );
 }

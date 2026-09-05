@@ -10,6 +10,7 @@ import '../../core/wod_session_bus.dart';
 import '../../widgets/hkit.dart';
 import 'history_models.dart';
 import 'history_repository.dart';
+import '../../core/time_format.dart';
 
 /// 히스토리 — 내 수업 기록 목록 + 검색 (D84 · 2026-08-29).
 ///
@@ -339,7 +340,7 @@ class _HistoryRow extends StatelessWidget {
 // _EmptyView·_ErrorView 삭제 — HkEmptyState·HkErrorState(widgets/hkit.dart)로 대체 (v1.27 UI SSOT).
 
 String _formatDate(DateTime dt) {
-  final local = dt.toLocal();
+  final local = dt.gym();
   String two(int n) => n.toString().padLeft(2, '0');
   return '${local.year}-${two(local.month)}-${two(local.day)} '
       '${two(local.hour)}:${two(local.minute)}';

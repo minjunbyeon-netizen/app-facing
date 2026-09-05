@@ -42,7 +42,7 @@ class ChatMessage {
       senderColor: j['sender_color']?.toString(),
       autoKind: j['auto_kind']?.toString(),
       createdAt:
-          tryParseServerTime((j['created_at'] ?? '').toString())?.toLocal() ??
+          tryParseServerTime((j['created_at'] ?? '').toString())?.gym() ??
               DateTime.fromMillisecondsSinceEpoch(0),
       status: my is Map ? my['status']?.toString() : null,
     );
@@ -73,7 +73,7 @@ class CoachThread {
         peerColor: j['peer_color']?.toString(),
         lastBody: (j['last_body'] ?? '').toString(),
         lastAt:
-            tryParseServerTime((j['last_at'] ?? '').toString())?.toLocal() ??
+            tryParseServerTime((j['last_at'] ?? '').toString())?.gym() ??
                 DateTime.fromMillisecondsSinceEpoch(0),
         unread: (j['unread'] as num?)?.toInt() ?? 0,
       );

@@ -120,7 +120,7 @@ class WodHistoryItem {
               .isEmpty
           ? null
           : j['headline_part_label'].toString().trim(),
-      createdAt: parseServerTime(j['created_at'] as String).toLocal(),
+      createdAt: parseServerTime(j['created_at'] as String).gym(),
     );
   }
 

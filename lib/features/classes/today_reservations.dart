@@ -80,7 +80,7 @@ class _TodayReservationsCardState extends State<TodayReservationsCard> {
   List<MyReservationItem> _todayUpcoming(List<MyReservationItem> all) {
     final now = appClock.now();
     return all.where((r) {
-      final s = r.startAt.toLocal();
+      final s = r.startAt.gym();
       if (s.year != now.year || s.month != now.month || s.day != now.day) {
         return false;
       }
@@ -92,7 +92,7 @@ class _TodayReservationsCardState extends State<TodayReservationsCard> {
   /// 한 줄 요약 — "20:00 WOD Class · 21:00 대기".
   String _line(List<MyReservationItem> items) {
     final shown = items.take(TodayReservationsCard.kShown).map((r) {
-      final t = hhmm(r.startAt.toLocal());
+      final t = hhmm(r.startAt.gym());
       return r.isWaitlist ? '$t ${r.displayTitle} (대기)' : '$t ${r.displayTitle}';
     }).toList();
     final rest = items.length - shown.length;
@@ -160,7 +160,7 @@ Future<void> restoreClassReminders(List<MyReservationItem> reservations) async {
   final now = appClock.now();
   for (final r in reservations) {
     if (r.isWaitlist) continue; // 대기는 아직 내 자리가 아니다
-    final start = r.startAt.toLocal();
+    final start = r.startAt.gym();
     if (!start.isAfter(now)) continue; // 지난 수업은 알릴 것이 없다
     await NotificationService.instance.scheduleClassReminder(
       reservationId: r.id,

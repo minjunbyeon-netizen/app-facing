@@ -323,7 +323,7 @@ class _DetailSheet extends StatelessWidget {
             if (isUnlocked) ...[
               const SizedBox(height: HyphenTokens.sp3),
               Text(
-                '${ymd(unlock!.unlockedAt.toLocal())} 해금',
+                '${ymd(unlock!.unlockedAt.gym())} 해금',
                 style: HyphenTokens.caption.copyWith(
                   color: HyphenTokens.accent,
                 ),

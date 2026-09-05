@@ -91,8 +91,8 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
               Text(
                 [
                   item.wodTypeLabel,
-                  ymd(item.createdAt.toLocal()),
-                  hhmm(item.createdAt.toLocal()),
+                  ymd(item.createdAt.gym()),
+                  hhmm(item.createdAt.gym()),
                   if (classTitle.isNotEmpty && classTitle != item.heading)
                     classTitle,
                 ].join(' · '),

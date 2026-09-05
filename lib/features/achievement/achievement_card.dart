@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme.dart';
 import '../../models/achievement.dart';
 import 'hyphen_pictogram.dart';
+import '../../core/time_format.dart';
 
 /// v1.16 Sprint 9a: Achievement 배지 카드.
 /// 잠긴 배지에도 해금 조건 힌트 표시 — hidden 배지만 "· · ·" 유지.
@@ -371,7 +372,7 @@ class AchievementCard extends StatelessWidget {
       name.replaceAll(RegExp(r'\.+$'), '').trim();
 
   static String _formatDate(DateTime d) {
-    final l = d.toLocal();
+    final l = d.gym();
     return '${l.year}-${l.month.toString().padLeft(2, '0')}-${l.day.toString().padLeft(2, '0')}';
   }
 }

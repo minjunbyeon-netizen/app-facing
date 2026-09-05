@@ -209,7 +209,7 @@ class MemberProfile {
         emergencyContact: _s(j['emergency_contact']),
         updatedAt: j['updated_at'] == null
             ? null
-            : tryParseServerTime(j['updated_at'].toString())?.toLocal(),
+            : tryParseServerTime(j['updated_at'].toString())?.gym(),
       );
 
   static String? _s(dynamic v) {
@@ -279,13 +279,13 @@ class GymMember {
         deviceHashPrefix: (j['device_hash_prefix'] ?? '').toString(),
         deviceHashFull: j['device_hash']?.toString(),
         status: (j['status'] ?? '').toString(),
-        requestedAt: parseServerTime(j['requested_at'] as String).toLocal(),
+        requestedAt: parseServerTime(j['requested_at'] as String).gym(),
         decidedAt: j['decided_at'] == null
             ? null
-            : parseServerTime(j['decided_at'] as String).toLocal(),
+            : parseServerTime(j['decided_at'] as String).gym(),
         lastWodAt: j['last_wod_at'] == null
             ? null
-            : parseServerTime(j['last_wod_at'] as String).toLocal(),
+            : parseServerTime(j['last_wod_at'] as String).gym(),
         totalSessions: ((j['total_sessions'] ?? 0) as num).toInt(),
         streakDays: ((j['streak_days'] ?? 0) as num).toInt(),
         name: _s(j['name']),
@@ -646,7 +646,7 @@ class GymWodPost {
       myResult: (j['my_result'] is Map<String, dynamic>)
           ? GymMyResult.fromJson(j['my_result'] as Map<String, dynamic>)
           : null,
-      createdAt: parseServerTime(j['created_at'] as String).toLocal(),
+      createdAt: parseServerTime(j['created_at'] as String).gym(),
       locked: j['locked'] == true,
       templateId: (j['template_id'] as num?)?.toInt(),
       templateName: j['template_name']?.toString(),
@@ -655,7 +655,7 @@ class GymWodPost {
       summary: (j['summary'] ?? '').toString(),
       firstClassAt: (j['first_class_at'] is String &&
               (j['first_class_at'] as String).isNotEmpty)
-          ? parseServerTime(j['first_class_at'] as String).toLocal()
+          ? parseServerTime(j['first_class_at'] as String).gym()
           : null,
       scoreHint: j['score_hint']?.toString(),
       completionBlocked: j['completion_blocked']?.toString(),
@@ -734,7 +734,7 @@ class GymWodResult {
         weightReps: (j['weight_reps'] as num?)?.toInt(),
         scaleLevel: (j['scale_level'] ?? 'rx').toString(),
         notes: (j['notes'] ?? '').toString(),
-        createdAt: parseServerTime(j['created_at'] as String).toLocal(),
+        createdAt: parseServerTime(j['created_at'] as String).gym(),
       );
 }
 
@@ -759,7 +759,7 @@ class GymWodComment {
         authorPrefix: (j['author_prefix'] ?? '').toString(),
         isMine: j['is_mine'] == true,
         body: (j['body'] ?? '').toString(),
-        createdAt: parseServerTime(j['created_at'] as String).toLocal(),
+        createdAt: parseServerTime(j['created_at'] as String).gym(),
       );
 }
 

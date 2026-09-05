@@ -73,7 +73,7 @@ void showCancelResult(HkSnack messenger, Map<String, dynamic> result) {
 /// 상태 안내다: 회원이 잘못한 게 없다. 오픈 시각은 서버가 준 `booking_open_at`
 /// 그대로 붙인다 (정책 계산을 앱에 두 번 적지 않는다).
 void _noticeBookingNotOpen(HkSnack messenger, ClassSessionDto c) {
-  final open = c.bookingOpenAt?.toLocal();
+  final open = c.bookingOpenAt?.gym();
   // 둘째 줄에 시각 — 한 줄로 이으면 스낵바 폭에서 '부터' 만 다음 줄로 떨어진다(골든 실측).
   final when = open == null ? '' : '\n${open.month}/${open.day} ${hhmm(open)} 부터';
   messenger.info('$kBookingNotOpenSnack$when', mood: MascotMood.neutral);
@@ -104,7 +104,7 @@ Future<bool> reserveClassFlow(
       await NotificationService.instance.scheduleClassReminder(
         reservationId: rid,
         title: c.displayTitle,
-        startAt: c.startAt.toLocal(),
+        startAt: c.startAt.gym(),
       );
     }
     if (status == 'waitlisted') {
@@ -140,7 +140,7 @@ Future<bool> cancelClassFlow(
   final isWaitlistCancel = c.isWaitlisted;
   final res = c.myReservation;
   if (!isWaitlistCancel && (res == null || !c.isReserved)) return false;
-  final l = c.startAt.toLocal();
+  final l = c.startAt.gym();
   final when = '${l.month}/${l.day} ${hhmm(l)}';
   // 테스터 확정 (2026-08-28) — 시작이 임박해도 취소를 막지 않는다. 대신 차감될 수
   // 있다는 사실을 누르기 전에 말한다. 조용히 차감하면 화면이 거짓말을 하는 것이다

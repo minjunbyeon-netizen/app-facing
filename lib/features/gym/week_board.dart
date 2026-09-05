@@ -168,7 +168,9 @@ class _WeekBoardState extends State<WeekBoard> {
   void initState() {
     super.initState();
     _repo = ClassesRepository(context.read<ApiClient>());
-    final now = appClock.now();
+    // 2026-09-06 — '오늘' 도 체육관 시각(한국). 기기 시계(UTC 에뮬 등)로 세면
+    // 수업(기기 날짜)과 글(서버 한국 날짜)이 다른 날에 묶인다.
+    final now = appClock.now().gym();
     _today = DateTime(now.year, now.month, now.day);
     _weekStart = _today.subtract(Duration(days: _today.weekday - 1));
     _selected = _today.weekday - 1;
@@ -262,7 +264,7 @@ class _WeekBoardState extends State<WeekBoard> {
     for (final c in _classes) {
       // 내 예약이 없는 취소 수업은 노이즈 — 목록에서 제외 (v1.26 규칙 유지).
       if (c.isCancelled && c.myReservation == null) continue;
-      classesByDate.putIfAbsent(ymd(c.startAt.toLocal()), () => []).add(c);
+      classesByDate.putIfAbsent(ymd(c.startAt.gym()), () => []).add(c);
     }
     for (final list in classesByDate.values) {
       list.sort((a, b) => a.startAt.compareTo(b.startAt));

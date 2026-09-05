@@ -12,6 +12,7 @@ import '../../models/locker.dart';
 import '../../models/membership.dart';
 import 'gym_repository.dart';
 import '../../core/app_clock.dart';
+import '../../core/time_format.dart';
 
 /// v1.15.3: 박스 소속 + 오늘 WOD 전역 상태.
 /// PHASE5: SSE 자동 갱신 — PC 사장이 회원·membership·클래스 등 변경하면 즉시 reload.
@@ -180,7 +181,7 @@ class GymState extends ChangeNotifier {
 
   String get todayIso {
     // QA B-TZ-3: 박스 WOD 날짜 기준은 KST. UTC 사용 시 자정 전후 9시간 오차.
-    final now = appClock.now().toLocal();
+    final now = appClock.now().gym();
     return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
   }
 

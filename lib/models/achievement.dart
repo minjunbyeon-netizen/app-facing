@@ -50,7 +50,7 @@ class AchievementUnlock {
   factory AchievementUnlock.fromJson(Map<String, dynamic> j) =>
       AchievementUnlock(
         code: (j['code'] ?? '').toString(),
-        unlockedAt: parseServerTime(j['unlocked_at'] as String).toLocal(),
+        unlockedAt: parseServerTime(j['unlocked_at'] as String).gym(),
         context: j['context'] is Map<String, dynamic>
             ? Map<String, dynamic>.from(j['context'] as Map)
             : const {},

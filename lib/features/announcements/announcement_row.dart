@@ -43,7 +43,7 @@ class AnnouncementRow extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: HyphenTokens.sp2),
-              Text(mdDot(item.createdAt.toLocal()), style: HyphenTokens.micro),
+              Text(mdDot(item.createdAt.gym()), style: HyphenTokens.micro),
             ],
           ),
           if (item.body.isNotEmpty) ...[

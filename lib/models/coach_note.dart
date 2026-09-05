@@ -101,7 +101,7 @@ class CoachNote {
       voiceMemoPath: j['voice_memo_path']?.toString(),
       autoKind: j['auto_kind']?.toString(),
       createdAt: j['created_at'] is String
-          ? tryParseServerTime(j['created_at'] as String)?.toLocal() ??
+          ? tryParseServerTime(j['created_at'] as String)?.gym() ??
               appClock.now().toUtc()
           : appClock.now().toUtc(),
       my: j['my'] is Map
@@ -270,11 +270,11 @@ class RecipientStatus {
     }
     return RecipientStatus(
       status: (j['status'] ?? 'sent').toString(),
-      readAt: j['read_at'] is String ? parseServerTime(j['read_at']).toLocal() : null,
+      readAt: j['read_at'] is String ? parseServerTime(j['read_at']).gym() : null,
       acceptedAt:
-          j['accepted_at'] is String ? parseServerTime(j['accepted_at']).toLocal() : null,
+          j['accepted_at'] is String ? parseServerTime(j['accepted_at']).gym() : null,
       completedAt:
-          j['completed_at'] is String ? parseServerTime(j['completed_at']).toLocal() : null,
+          j['completed_at'] is String ? parseServerTime(j['completed_at']).gym() : null,
       declineReason: j['decline_reason']?.toString(),
       actual: actuals,
     );
@@ -344,9 +344,9 @@ class RecipientSummary {
         name: j['name']?.toString(),
         color: j['color']?.toString(),
         status: (j['status'] ?? 'sent').toString(),
-        readAt: j['read_at'] is String ? parseServerTime(j['read_at']).toLocal() : null,
+        readAt: j['read_at'] is String ? parseServerTime(j['read_at']).gym() : null,
         completedAt:
-            j['completed_at'] is String ? parseServerTime(j['completed_at']).toLocal() : null,
+            j['completed_at'] is String ? parseServerTime(j['completed_at']).gym() : null,
         declineReason: j['decline_reason']?.toString(),
       );
 }

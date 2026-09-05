@@ -139,7 +139,7 @@ class _CoachWeekClassesState extends State<CoachWeekClasses> {
     final byDate = <String, List<ClassSessionDto>>{};
     for (final c in _classes) {
       if (c.isCancelled) continue;
-      byDate.putIfAbsent(ymd(c.startAt.toLocal()), () => []).add(c);
+      byDate.putIfAbsent(ymd(c.startAt.gym()), () => []).add(c);
     }
     for (final l in byDate.values) {
       l.sort((a, b) => a.startAt.compareTo(b.startAt));
@@ -381,7 +381,7 @@ class _CoachDayRow extends StatelessWidget {
                         children: [
                           for (final c in classes)
                             ClassLine.coach(
-                              timeLabel: hhmm(c.startAt.toLocal()),
+                              timeLabel: hhmm(c.startAt.gym()),
                               title: c.title,
                               subtitle: [
                                 if ((c.room ?? '').isNotEmpty) c.room!,

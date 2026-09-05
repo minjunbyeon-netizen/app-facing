@@ -795,7 +795,7 @@ List<Map<String, dynamic>> gymWodsStrengthToday() {
             {
               'name': 'Back Squat',
               'slug': 'back_squat',
-              'reps': '5x5',
+              'reps': '5-5-5-5-5',
               // 사전 동작이라 코치가 무게를 안 적어도 무게 칸을 갖는다 (계약 §2).
               'has_load': true,
               'set_count': 5,

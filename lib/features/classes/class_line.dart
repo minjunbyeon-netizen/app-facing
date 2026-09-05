@@ -108,7 +108,7 @@ class ClassLine extends StatelessWidget {
     bool expanded = false,
     VoidCallback? onToggle,
   }) {
-    final l = session.startAt.toLocal();
+    final l = session.startAt.gym();
     final isCancelled = session.isCancelled;
     final isFull = session.isFull;
     final isOver = l.isBefore(appClock.now());

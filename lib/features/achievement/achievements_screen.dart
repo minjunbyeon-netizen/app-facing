@@ -219,7 +219,7 @@ class _Summary extends StatelessWidget {
     final recent = last == null || lastAt == null
         ? '최근 달성 없음'
         : '최근 · ${AchievementCard.displayTitle(last!)} · '
-              '${lastAt!.toLocal().month}월 ${lastAt!.toLocal().day}일';
+              '${lastAt!.gym().month}월 ${lastAt!.gym().day}일';
     return SizedBox(
       height: height,
       child: HkCard(
@@ -410,7 +410,7 @@ class AchievementStamp extends StatelessWidget {
   Widget build(BuildContext context) {
     return Transform.rotate(
       angle: -0.105,
-      child: HkBadge('달성 ${mdShort(date.toLocal())}', color: color),
+      child: HkBadge('달성 ${mdShort(date.gym())}', color: color),
     );
   }
 }

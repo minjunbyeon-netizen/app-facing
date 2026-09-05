@@ -36,6 +36,14 @@ const List<(String, String)> _forbidden = [
 ];
 
 /// 모델까지 보는 패턴 — 회원권 날짜 규칙은 서버 api/_membership.membership_calendar_fields 한 곳.
+/// 2026-09-06 사용자 지시 "업계 표준대로" — 시각·날짜는 **체육관 시각(Asia/Seoul)** 하나로
+/// 그린다. 기기 시간대(`toLocal`)로 그리면 UTC 기기에서 수업이 전날 밤으로 밀려 다른 날
+/// 묶음에 들어가고, 서버가 한국 날짜로 묶은 글과 짝이 어긋난다 (2026-09-06 에뮬 실측).
+/// 정본 = `lib/core/time_format.dart` 의 `gym()` 하나 — 그 파일만 예외.
+const _forbiddenTimezone = <(String, String)>[
+  (r'\.toLocal\(\)', '기기 시간대 표시 금지 — 체육관 시각 .gym() 하나 (time_format.dart)'),
+];
+
 const _forbiddenInModels = <(String, String)>[
   (r'DateTime\.parse\(pause(Start|End)', '정지 판정을 폰이 다시 세지 않는다 — 서버 is_paused (과제 4)'),
   (r'coversDay\(', '그날 회원권 유무는 서버 membership_ok (과제 4)'),
@@ -86,5 +94,19 @@ void main() {
       }
     }
     expect(hits, isEmpty, reason: '회원권 날짜 판정이 폰에 다시 생겼습니다:\n${hits.join('\n')}');
+  });
+
+  test('lib/** 에 기기 시간대 표시(.toLocal) 0건 — 체육관 시각 한 벌', () {
+    final hits = <String>[];
+    for (final f in Directory('lib').listSync(recursive: true)) {
+      if (f is! File || !f.path.endsWith('.dart')) continue;
+      final norm = f.path.replaceAll(r'\', '/');
+      if (norm.endsWith('core/time_format.dart')) continue;
+      final src = f.readAsStringSync();
+      for (final (pattern, why) in _forbiddenTimezone) {
+        if (RegExp(pattern).hasMatch(src)) hits.add('$norm — $why');
+      }
+    }
+    expect(hits, isEmpty, reason: hits.join(', '));
   });
 }
