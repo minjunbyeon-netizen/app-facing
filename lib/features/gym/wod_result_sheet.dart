@@ -100,6 +100,9 @@ class _MoveEntry {
 }
 
 class WodResultSheet extends StatefulWidget {
+  /// 수업 내용 블록 — 잘리지 않는지 재는 앵커 (2026-09-05).
+  static const Key kWodContent = Key('wod-result-content');
+
   final GymWodPost wod;
   const WodResultSheet({super.key, required this.wod});
 
@@ -259,11 +262,15 @@ class _WodResultSheetState extends State<WodResultSheet> {
               ),
               const SizedBox(height: HyphenTokens.sp1),
               // 오늘 수업 내용 — 그대로 가져온다 (내가 다시 적지 않는다).
+              //
+              // 2026-09-05 실사용 검증에서 잡음: `maxLines: 4` 는 파트가 생기기
+              // 전(D109 이전) 값이라, A·B 두 파트짜리 수업을 열면 A 파트에서
+              // 잘려 **자기가 지금 적는 B 파트 동작이 안 보였다**. 시트는 이미
+              // 스크롤되므로 자를 이유가 없다. 게이트 = test/result_sheet_content_test.dart.
               Text(
                 widget.wod.content,
+                key: WodResultSheet.kWodContent,
                 style: HyphenTokens.caption,
-                maxLines: 4,
-                overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: HyphenTokens.sp4),
 
