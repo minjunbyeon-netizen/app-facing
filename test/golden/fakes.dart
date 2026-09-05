@@ -37,6 +37,10 @@ class FakeApi implements ApiClient {
   /// 요청받은 경로 순서 기록 — 예약 뒤 wods 재조회 같은 "다시 불렀나" 검증용.
   final List<String> calls = [];
 
+  /// POST/PATCH 로 실제 보낸 body 기록 — 제출 payload 계약 검증용
+  /// (D121 `docs/CONTRACT-result-axes.md` §4, `test/result_axes_test.dart`).
+  final List<({String path, Map<String, dynamic> body})> posts = [];
+
   Future<dynamic> _respond(String path) {
     calls.add(path);
     if (hang || hangPaths.any(path.startsWith)) {
@@ -93,6 +97,7 @@ class FakeApi implements ApiClient {
     String path,
     Map<String, dynamic> body,
   ) async {
+    posts.add((path: path, body: body));
     if (hang || hangPaths.any(path.startsWith)) {
       return Completer<Map<String, dynamic>>().future;
     }
@@ -467,6 +472,8 @@ List<Map<String, dynamic>> gymWods() {
       'time_cap_sec': null,
       'rounds_data': [
         {
+          // D121 계약 §3 — 파트 `index`, 동작 `has_load`·`set_count`.
+          'index': 0,
           'label': 'A',
           'title': 'A 파트 · 15분 · STRENGTH',
           'duration_min': 15,
@@ -485,10 +492,13 @@ List<Map<String, dynamic>> gymWods() {
               'reps': '5-5-5',
               'load_value': '100',
               'load_unit': 'kg',
+              'has_load': true,
+              'set_count': 3,
             },
           ],
         },
         {
+          'index': 1,
           'label': 'B',
           'title': 'B 파트 · 20분 · AMRAP · 캡 12분',
           'duration_min': 20,
@@ -506,6 +516,7 @@ List<Map<String, dynamic>> gymWods() {
               'reps': '15',
               'load_value': '24',
               'load_unit': 'kg',
+              'has_load': true,
             },
             {
               'movement_id': 30,
@@ -515,10 +526,12 @@ List<Map<String, dynamic>> gymWods() {
               'reps': '200',
               'load_value': '',
               'load_unit': '',
+              'has_load': false,
             },
           ],
         },
         {
+          'index': 2,
           'label': 'C',
           'title': 'C 파트 · 10분',
           'duration_min': 10,
@@ -536,6 +549,7 @@ List<Map<String, dynamic>> gymWods() {
               'reps': '60',
               'load_value': '',
               'load_unit': '',
+              'has_load': false,
             },
           ],
         },
@@ -556,6 +570,9 @@ List<Map<String, dynamic>> gymWods() {
       'scale_guide': 'Thruster 는 프론트랙 유지가 무너지면 중량을 낮춘다.',
       'rounds_data': [
         {
+          // 파트 필드가 없던 옛 글 — `wod_type` 이 없으므로 게시물 종류(for_time)를
+          // 따른다. 무게는 `has_load` 가 정한다 (풀업에는 무게 칸을 주지 않는다).
+          'index': 0,
           'label': 'A. Metcon',
           'content': '21-15-9 Thruster + Pull-up',
           'time_cap_sec': 600,
@@ -566,8 +583,14 @@ List<Map<String, dynamic>> gymWods() {
               'reps': '21-15-9',
               'load_value': '42.5',
               'load_unit': 'kg',
+              'has_load': true,
             },
-            {'name': 'Pull-up', 'slug': 'pull_up', 'reps': '21-15-9'},
+            {
+              'name': 'Pull-up',
+              'slug': 'pull_up',
+              'reps': '21-15-9',
+              'has_load': false,
+            },
           ],
         },
       ],
@@ -727,20 +750,39 @@ List<Map<String, dynamic>> gymWodsStrengthToday() {
       'content': 'Back Squat 5x5\n무거운 5회 × 5세트 — 마지막 세트 최고 무게를 기록',
       'rounds_data': [
         {
+          'index': 0,
           'label': 'A. Strength',
           'content': 'Back Squat 5x5',
           'movements': [
-            {'name': 'Back Squat', 'slug': 'back_squat', 'reps': '5x5'},
+            {
+              'name': 'Back Squat',
+              'slug': 'back_squat',
+              'reps': '5x5',
+              // 사전 동작이라 코치가 무게를 안 적어도 무게 칸을 갖는다 (계약 §2).
+              'has_load': true,
+              'set_count': 5,
+            },
           ],
         },
       ],
       // 결함 수정 4 — 기존 기록 상태 (카드 '기록 105kg' 배지 + 시트 프리필·
-      // 덮어쓰기 안내를 한 캡처로).
+      // 덮어쓰기 안내를 한 캡처로). D121 — 세트별 값도 함께 (1~3세트만 적었다).
       'my_result': {
         'weight_kg': 105,
         'weight_reps': 3,
         'scale_level': 'rx',
         'display': '105kg×3',
+        'movements': [
+          for (var i = 0; i < 3; i++)
+            {
+              'part_index': 0,
+              'set_index': i,
+              'name': 'Back Squat',
+              'unit': 'reps',
+              'reps': '5',
+              'load_kg': 95 + i * 5,
+            },
+        ],
       },
       'created_at': '${_ymd(now)}T06:30:00',
       'locked': false,
@@ -2085,3 +2127,203 @@ Map<String, dynamic> _histRec(
     'created_at': '${_ymd(day)}T10:00:00',
   };
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 기록 축 계약 (D121 · docs/CONTRACT-result-axes.md) — 서버가 내려주는 꼴 그대로.
+// 파트마다 `index`, 동작마다 `has_load`, strength 는 `set_count`.
+// 서버가 아직 배포 전이라 이 가짜가 계약의 유일한 표본이다.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// 파트 넷으로 네 종류(strength·amrap·for_time·emom)를 한 글에 담은 게시물.
+/// 완료 시트가 종류마다 다른 칸을 그리는지 재는 표본 (`test/result_axes_test.dart`).
+Map<String, dynamic> wodAxesPost() {
+  final d = _ymd(appClock.now());
+  return {
+    'id': 40,
+    'template_id': 4,
+    'template_name': 'AXES',
+    'display_name': 'AXES',
+    'first_class_at': '${d}T19:00:00',
+    'post_date': d,
+    // 파트가 둘 이상이면 게시물 종류는 전체를 대표하지 않는다 (D109).
+    'wod_type': 'custom',
+    'content': 'AXES\n'
+        'A 파트 · 15분 · STRENGTH\n'
+        'Back Squat 5-5-5-5-5회 · 60kg\n'
+        '\n'
+        'B 파트 · 20분 · AMRAP\n'
+        'Thruster 12회 · 40kg\n'
+        'Toes-to-bar 9회\n'
+        '\n'
+        'C 파트 · 12분 · FOR TIME · 캡 12분\n'
+        'Row 500m\n'
+        'Wall Ball 20회 · 9kg\n'
+        '\n'
+        'D 파트 · 10분 · EMOM\n'
+        'Clean 1회 · 70kg',
+    'summary': 'Back Squat 5-5-5-5-5회 · 60kg · Thruster 12회 · 40kg',
+    'rounds_data': [
+      {
+        'index': 0,
+        'label': 'A',
+        'title': 'A 파트 · 15분 · STRENGTH',
+        'wod_type': 'strength',
+        'duration_min': 15,
+        'rounds': null,
+        'time_cap_sec': null,
+        'content': '',
+        'lines': ['Back Squat 5-5-5-5-5회 · 60kg'],
+        'movements': [
+          {
+            'movement_id': 10,
+            'name': 'Back Squat',
+            'slug': 'back_squat',
+            'unit': 'reps',
+            'reps': '5-5-5-5-5',
+            'load_value': '60',
+            'load_unit': 'kg',
+            'has_load': true,
+            'set_count': 5,
+          },
+        ],
+      },
+      {
+        'index': 1,
+        'label': 'B',
+        'title': 'B 파트 · 20분 · AMRAP',
+        'wod_type': 'amrap',
+        'duration_min': 20,
+        'rounds': null,
+        'time_cap_sec': null,
+        'content': '',
+        'lines': ['Thruster 12회 · 40kg', 'Toes-to-bar 9회'],
+        'movements': [
+          {
+            'movement_id': 50,
+            'name': 'Thruster',
+            'slug': 'thruster',
+            'unit': 'reps',
+            'reps': '12',
+            'load_value': '40',
+            'load_unit': 'kg',
+            'has_load': true,
+          },
+          {
+            'movement_id': 51,
+            'name': 'Toes-to-bar',
+            'slug': 'toes_to_bar',
+            'unit': 'reps',
+            'reps': '9',
+            'load_value': '',
+            'load_unit': '',
+            'has_load': false,
+          },
+        ],
+      },
+      {
+        'index': 2,
+        'label': 'C',
+        'title': 'C 파트 · 12분 · FOR TIME · 캡 12분',
+        'wod_type': 'for_time',
+        'duration_min': 12,
+        'rounds': null,
+        'time_cap_sec': 720,
+        'content': '',
+        'lines': ['Row 500m', 'Wall Ball 20회 · 9kg'],
+        'movements': [
+          {
+            'movement_id': 30,
+            'name': 'Row',
+            'slug': 'row',
+            'unit': 'meters',
+            'reps': '500',
+            'load_value': '',
+            'load_unit': '',
+            'has_load': false,
+          },
+          {
+            'movement_id': 52,
+            'name': 'Wall Ball',
+            'slug': 'wall_ball',
+            'unit': 'reps',
+            'reps': '20',
+            'load_value': '9',
+            'load_unit': 'kg',
+            'has_load': true,
+          },
+        ],
+      },
+      {
+        'index': 3,
+        'label': 'D',
+        'title': 'D 파트 · 10분 · EMOM',
+        'wod_type': 'emom',
+        'duration_min': 10,
+        'rounds': null,
+        'time_cap_sec': null,
+        'content': '',
+        'lines': ['Clean 1회 · 70kg'],
+        'movements': [
+          {
+            'movement_id': 53,
+            'name': 'Clean',
+            'slug': 'clean',
+            'unit': 'reps',
+            'reps': '1',
+            'load_value': '70',
+            'load_unit': 'kg',
+            'has_load': true,
+          },
+        ],
+      },
+    ],
+    'rounds': null,
+    'time_cap_sec': null,
+    'created_at': '${d}T05:00:00',
+    'locked': false,
+    'score_hint': 'rounds',
+    'movement_suggestions': <String>[],
+  };
+}
+
+/// 같은 글에 **이미 저장한 기록**이 붙은 변형 — 재수정 프리필 표본 (계약 §3 my_result).
+Map<String, dynamic> wodAxesPostWithResult() => {
+  ...wodAxesPost(),
+  'my_result': {
+    'scale_level': 'rx',
+    'display': 'AMRAP 5R+12 · 12분 34초',
+    'parts': [
+      {'index': 1, 'wod_type': 'amrap', 'rounds': 5, 'extra_reps': 12},
+      {'index': 2, 'wod_type': 'for_time', 'time_sec': 754, 'capped': false},
+    ],
+    'movements': [
+      {
+        'part_index': 0,
+        'set_index': 0,
+        'movement_id': 10,
+        'name': 'Back Squat',
+        'unit': 'reps',
+        'reps': '5',
+        'load_kg': 60.0,
+      },
+      {
+        'part_index': 0,
+        'set_index': 1,
+        'movement_id': 10,
+        'name': 'Back Squat',
+        'unit': 'reps',
+        'reps': '5',
+        'load_kg': 65.0,
+      },
+      {
+        'part_index': 1,
+        'set_index': null,
+        'movement_id': 50,
+        'name': 'Thruster',
+        'unit': 'reps',
+        'reps': '12',
+        'load_kg': 40.0,
+      },
+    ],
+  },
+};
