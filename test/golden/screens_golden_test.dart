@@ -417,6 +417,31 @@ void main() {
     await capture(tester, 'hist_06_detail_no_score');
   });
 
+  // ── 이력 상세 — 캡 기록 + 파트별 줄 (D122 §7 · CONTRACT-result-axes-2.md) ──
+  // 캡에 걸려 끝난 기록은 완주 기록과 **다른 단위**다 (§2) — '캡' 배지로 갈라 둔다.
+  // 파트별 줄은 서버 `parts[].line` 그대로 (앱은 파트 라벨도 종류도 조립하지 않는다).
+  testWidgets('history: detail capped with parts', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi({
+      '/api/v1/history/wod/502': wodHistoryDetailCapped(),
+      ...memberWorld(),
+    });
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        home: const HistoryDetailScreen(recordId: 502),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('캡'), findsOneWidget);
+    expect(find.text('파트별 기록'), findsOneWidget);
+    expect(find.text('SCALED'), findsNothing);
+    await capture(tester, 'hist_07_detail_capped');
+  });
+
   // ── 동작 필터 (2026-09-02) — 상세 '동작별 기록 보기' 배지 탭 → 목록이 그 동작만.
   // 판정·필터는 서버 `?movement_id=` (program_lines.result_movement_ids 한 곳) —
   // 가짜는 서버가 거른 결과를 돌려주고, 폰은 받은 순서 그대로 그린다 (6-b).
@@ -448,6 +473,10 @@ void main() {
     await tester.pumpAndSettle();
     // D109 — 제목이 'SWEAT' 인 행이 둘(502 · 505). 최근순이라 첫 행이 502(Fran).
     await tester.tap(find.text('SWEAT').first);
+    await tester.pumpAndSettle();
+    // D122 §7 로 상세에 '파트별 기록' 칸이 얹혀 배지가 첫 화면 밖으로 내려갔다 —
+    // 안 보이는 곳은 탭이 안 닿는다. 먼저 보이게 내린다.
+    await tester.ensureVisible(find.text('THRUSTER'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('THRUSTER')); // 배지 (HkBadge 는 대문자로 그린다)
     await tester.pumpAndSettle();

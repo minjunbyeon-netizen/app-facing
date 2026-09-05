@@ -120,6 +120,12 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
                     // 조건 없이 'RXD' 라고 단정했다. 코치 처방보다 가볍게 든 기록에도
                     // 붙는 거짓말이다 (제1원칙). 다시 보여주려면 **고르는 창구**부터
                     // 만든다. 게이트 = test/no_false_scale_badge_test.dart.
+                    // D122 §2 — 캡에 걸려 끝난 기록은 완주 기록과 **다른 단위**다.
+                    // 같은 얼굴로 보여 주면 자기 기록끼리도 잘못 견준다.
+                    if (item.capped) ...[
+                      const SizedBox(width: HyphenTokens.sp2),
+                      const HkBadge('캡'),
+                    ],
                     if (item.isPr) ...[
                       const SizedBox(width: HyphenTokens.sp2),
                       const HkBadge('PR', color: HyphenTokens.primary),
@@ -130,6 +136,19 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
               if (item.movement != null && item.movement!.isNotEmpty) ...[
                 const SizedBox(height: HyphenTokens.sp1),
                 Text(item.movement!, style: HyphenTokens.caption),
+              ],
+              // D122 §7 — 파트별 점수. 서버 `parts[]` 의 `line` 을 그대로 세운다
+              // (앱이 파트 라벨·종류를 조립하지 않는다). 파트가 하나뿐이거나 점수를
+              // 안 적은 기록에는 칸도 없다.
+              if (item.parts.isNotEmpty) ...[
+                const SizedBox(height: HyphenTokens.sp5),
+                const HkSectionLabel('파트별 기록'),
+                const SizedBox(height: HyphenTokens.sp2),
+                for (final p in item.parts)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: HyphenTokens.sp1),
+                    child: Text(p.line, style: HyphenTokens.body),
+                  ),
               ],
               // D94 — 회원이 적은 동작별 값 (서버 줄 그대로). 없으면 칸도 없다 —
               // 2차 검증(2026-08-30)에서 상세에 이 칸이 빠져 있던 것을 채움.

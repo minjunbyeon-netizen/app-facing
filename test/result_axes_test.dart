@@ -125,16 +125,23 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('라운드'), findsOneWidget);
-      expect(find.text('추가 회'), findsOneWidget);
+      // D122 §5 — 오른 칸 라벨은 '추가 회' → '+ 회' (뜻이 정반대로 읽히던 말).
+      expect(find.text('+ 회'), findsOneWidget);
     });
 
-    testWidgets('emom — 점수 칸 없음 (무게 칸만)', (tester) async {
+    // D122 §4 로 갱신 — EMOM 에 점수가 생겼다 (`rounds` = 완료한 분). 종전에는 적을
+    // 칸이 없어 파트 자체가 화면에서 사라졌다. 자세한 검사는 result_axes2_test.dart.
+    testWidgets('emom — 완료한 분 한 칸 (시간·추가 회 없음)', (tester) async {
       await mountSheet(tester, wodAxesPost());
-      for (final f in const ['min', 'sec', 'rounds', 'extra']) {
+      expect(
+        find.byKey(WodResultSheet.partFieldKey(3, 'rounds')),
+        findsOneWidget,
+      );
+      for (final f in const ['min', 'sec', 'extra']) {
         expect(
           find.byKey(WodResultSheet.partFieldKey(3, f)),
           findsNothing,
-          reason: 'EMOM 파트에 점수 칸 "$f" 가 생겼다 — 완주가 기본, 점수 축 없음',
+          reason: 'EMOM 파트에 없는 칸 "$f" 가 생겼다 (축 = rounds 하나)',
         );
       }
       // Clean 은 무게 쓰는 동작이라 무게 칸은 있다.

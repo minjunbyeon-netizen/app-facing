@@ -31,6 +31,20 @@
 //   `set_count` 를 읽어서 그리기만 한다 (대전제 6-b).
 // - 검사 = `test/result_axes_test.dart`(칸·payload·프리필) ·
 //   `test/golden/stability_result_sheet_test.dart`(파트 넷 시트 밀림).
+//
+// D122 (2026-09-06 · 계약 `docs/CONTRACT-result-axes-2.md`) — **축을 서버가 내려준다.**
+// D121 은 축 표를 앱에 리터럴로 복제해 뒀다 (`_scoredTypes`·`_noRepsTypes`) — 새 종류나
+// 축 변경마다 앱 재배포와 스토어 심사가 필요한 상태였다. 이제 파트마다 서버가
+// `score_keys`·`score_labels`·`score_target`·`show_movement_reps`·`set_based` 를 싣고,
+// 이 파일은 **그 열쇠만 보고 위젯을 고른다** (종류 이름을 보지 않는다).
+// - EMOM 에 점수가 생겼다 — `rounds`(라벨 '완료한 분', 힌트 = duration_min). 종전에는
+//   적을 칸이 없어 **파트 자체가 사라졌다** ("D 파트는 왜 없지?").
+// - AMRAP 오른 칸은 '추가 회' → **'+ 회'** (뜻이 정반대로 읽히던 라벨) + 늘 있는
+//   고정 높이 안내 한 줄 + 힌트 `N 미만`(서버 round_reps).
+// - 입력 칸이 없는 동작은 사라지지 않고 **서버 `lines`** 로 선다 (읽기 전용).
+// - 세트 줄 횟수는 서버 `set_reps` — 앱은 코치 처방을 쪼개지 않는다.
+// - 검사 = `test/result_axes2_test.dart`(정적 사본 금지 + 종류별 칸 + 힌트·라벨) ·
+//   `test/golden/stability_result_sheet_test.dart`(파트·세트가 늘어도 밀림 0).
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -67,13 +81,20 @@ const String kWodSavedOnly = '저장됨';
 const Key kWodSaveButton = ValueKey('wod-result-save');
 const Key kWodSaveCaption = ValueKey('wod-result-save-caption');
 
-/// 파트 점수가 있는 종류 (계약 §2 축 표). 나머지는 파트 점수 칸이 없다 —
-/// strength 는 세트 줄이, emom·custom 은 동작 줄이 대신한다.
-const Set<String> _scoredTypes = {'for_time', 'amrap'};
+/// AMRAP '+ 회' 안내 (계약 D122 §5). `추가 회` 는 한국어로 "정해진 것에 더해서" 로
+/// 읽히는데 실제 뜻은 정반대다 — 마지막 라운드를 다 못 채우고 한 만큼이다.
+/// 점수 칸 아래 **늘 있는 고정 높이 한 줄** (상태에 따라 생겼다 사라지면 아래가 밀린다).
+const String kAmrapExtraNote = '마지막 라운드에서 한 횟수를 적습니다';
 
-/// 동작 줄에 **한 횟수 칸을 두지 않는** 종류 — 점수 축이 파트에 있어서다.
-/// (`custom`(수업)과 종류를 모르는 옛 글은 종전대로 한 횟수 칸을 준다.)
-const Set<String> _noRepsTypes = {'for_time', 'amrap', 'emom'};
+/// 서버 `score_keys` 가 주는 **점수 칸의 열쇠**. 앱은 이 글자를 보고 어떤 위젯을
+/// 세울지만 안다 — 어느 종류가 어떤 열쇠를 갖는지는 서버 `services/result_axes.py`
+/// 한 곳이 정한다 (계약 D122 §3 · 대전제 6-b).
+class _ScoreKey {
+  static const time = 'time_sec';
+  static const capped = 'capped';
+  static const rounds = 'rounds';
+  static const extraReps = 'extra_reps';
+}
 
 /// 몇 초를 `분`·`초` 두 칸으로. 서버는 `time_sec` 한 값만 안다 (계약 §3·§4).
 (String, String) _splitSec(int sec) =>
@@ -84,9 +105,9 @@ String _kgText(double w) => w == w.roundToDouble() ? '${w.toInt()}' : '$w';
 
 /// 동작 **한 줄**의 입력 상태 — 게시물의 WodMovementItem + 회원이 실제 한 값.
 ///
-/// strength 파트는 같은 동작이 세트 수만큼 줄을 갖는다 ([setIndex] 0..n-1).
-/// 어떤 칸을 그릴지는 파트 종류와 `has_load` 가 정한다 (계약 §2) — 앱은 그 두 값을
-/// 읽어서 그리기만 하고, 축 표 자체는 서버 `services/result_axes.py` 가 정본이다.
+/// 세트 축 파트는 같은 동작이 세트 수만큼 줄을 갖는다 ([setIndex] 0..n-1).
+/// 어떤 칸을 그릴지는 서버 `show_movement_reps`·`has_load` 가 정한다 (계약 D122 §3) —
+/// 앱은 그 값을 읽어서 그리기만 하고, 축 표 자체는 서버 `result_axes.py` 가 정본이다.
 class _MoveEntry {
   final WodMovementItem item;
   final int partIndex;
@@ -97,17 +118,26 @@ class _MoveEntry {
   /// strength 세트 번호. 세트가 없는 종류는 null.
   final int? setIndex;
 
-  /// 한 횟수 칸을 그리는가 (파트 종류가 정한다).
+  /// 한 횟수 칸을 그리는가 (서버 `show_movement_reps` 가 정한다).
   final bool showReps;
 
   /// 무게 칸을 그리는가 (`has_load` 가 정한다 — 토투바·풀업에는 안 준다).
   final bool showLoad;
 
+  /// 서버가 그린 동작 줄 ('Toes-to-bar 9회'). 입력 칸이 하나도 없는 동작을
+  /// **읽기 전용**으로 세울 때만 쓴다 (계약 D122 §5 — 줄이 사라지면 화면이 없는 척한다).
+  final String line;
+
+  /// 이 줄에 적을 칸이 하나도 없는가 — 서버 줄만 보여 준다.
+  bool get isReadOnly => !showReps && !showLoad;
+
+  /// 이 줄이 요구하는 횟수 — 세트 줄은 **그 세트의 목표**(서버 `set_reps`), 아니면
+  /// 코치가 적은 글 그대로. 세트를 가르는 규칙의 정본은 서버다 (앱은 쪼개지 않는다).
+  String get repsTarget =>
+      setIndex == null ? item.reps : item.setRepsAt(setIndex!);
+
   late final TextEditingController repsCtrl = TextEditingController(
-    // strength 세트 줄의 코치 reps 는 '5-5-5-5-5' 처럼 **세트 전체**를 적은 글이라
-    // 한 줄에 그대로 넣으면 거짓말이 된다. 세트를 가르는 규칙의 정본은 서버
-    // (`set_count`)뿐이므로 앱이 다시 쪼개지 않고(6-b) 힌트로만 보여 준다.
-    text: setIndex == null ? item.reps : '',
+    text: repsTarget,
   );
   late final TextEditingController weightCtrl = TextEditingController(
     text: item.loadValue,
@@ -120,6 +150,7 @@ class _MoveEntry {
     required this.setIndex,
     required this.showReps,
     required this.showLoad,
+    this.line = '',
   });
 
   bool get hasCoachLoad => item.loadValue.isNotEmpty;
@@ -168,15 +199,13 @@ class _MoveEntry {
   }
 }
 
-/// 파트 하나의 입력 상태 — 종류가 정하는 점수 칸 + 그 파트의 동작 줄 (계약 §2).
+/// 파트 하나의 입력 상태 — **서버 `score_keys` 가 정하는** 점수 칸 + 그 파트의 동작 줄
+/// (계약 D122 §3). 앱은 종류 이름을 보지 않는다.
 class _PartEntry {
   final WodRoundItem part;
-
-  /// 이 파트의 종류. 파트에 없으면 게시물 종류를 쓴다 (파트 필드가 없던 옛 글).
-  final String wodType;
   final List<_MoveEntry> moves;
 
-  /// 캡에 걸려 끝났는가 — for_time 만. 켜면 '남긴 렙스' 칸이 열린다.
+  /// 캡에 걸려 끝났는가. 켜면 '남긴 렙스' 칸이 열린다.
   bool capped = false;
 
   final TextEditingController minCtrl = TextEditingController();
@@ -184,15 +213,35 @@ class _PartEntry {
   final TextEditingController roundsCtrl = TextEditingController();
   final TextEditingController extraCtrl = TextEditingController();
 
-  _PartEntry({required this.part, required this.wodType, required this.moves});
+  _PartEntry({required this.part, required this.moves});
 
   int get index => part.index;
-  bool get isForTime => wodType == 'for_time';
-  bool get isAmrap => wodType == 'amrap';
-  bool get hasScore => _scoredTypes.contains(wodType);
-  bool get hasCap => part.timeCapSec != null;
 
-  /// 이 파트가 시트에 자리를 차지하는가 (점수 칸도 동작 칸도 없으면 그리지 않는다).
+  /// 점수 칸 — 전부 서버가 준 열쇠로만 판단한다.
+  bool get showsTime => part.hasScoreKey(_ScoreKey.time);
+  bool get showsRounds => part.hasScoreKey(_ScoreKey.rounds);
+
+  /// 캡 종료 줄 — 열쇠가 있고 **그 파트에 실제로 캡이 걸려 있을 때만**.
+  /// (캡이 없는 수업에 '캡 종료' 를 물으면 없는 규칙을 지어내는 것이다.)
+  bool get showsCap => part.hasScoreKey(_ScoreKey.capped) && part.timeCapSec != null;
+
+  /// 남은 렙스 칸. `capped` 열쇠와 짝인 모양(FOR TIME)에서는 **캡이 걸린 파트에만**
+  /// 뜻이 있다 — 캡이 없으면 남길 렙스라는 개념 자체가 없다.
+  bool get showsExtra =>
+      part.hasScoreKey(_ScoreKey.extraReps) &&
+      (!part.hasScoreKey(_ScoreKey.capped) || showsCap);
+
+  /// '+ 회' 안내 줄 — 라운드와 추가 회를 함께 갖는 모양에만 뜻이 있다 (계약 §5).
+  /// 완주 시간이 있는 모양의 `extra_reps` 는 '남긴 렙스' 라 뜻이 다르다.
+  bool get showsExtraNote => showsRounds && showsExtra;
+
+  bool get hasScore => part.scoreKeys.isNotEmpty;
+
+  /// 점수 칸의 라벨 — 한글도 서버가 준다 (앱에 심지 않는다, 대전제 6-b).
+  String labelOf(String key) => part.scoreLabels[key] ?? '';
+
+  /// 이 파트가 시트에 자리를 차지하는가. 동작 줄이 하나라도 있으면(읽기 전용이라도)
+  /// 남는다 — 적을 칸이 없다고 파트를 지우면 "이 파트는 왜 없지?" 가 된다 (계약 §4).
   bool get hasAnything => hasScore || moves.isNotEmpty;
 
   static int? _int(TextEditingController c) => int.tryParse(c.text.trim());
@@ -216,27 +265,23 @@ class _PartEntry {
     capped = p.capped;
   }
 
-  /// 서버로 보낼 파트 점수 (계약 §4). 적은 것이 없으면 null — 그 파트는 안 보낸다.
+  /// 서버로 보낼 파트 점수 (계약 §4). **화면에 선 칸만** 담고, 적은 것이 없으면
+  /// null — 그 파트는 안 보낸다 (0 을 지어내지 않는다).
   /// `wod_type` 은 담지 않는다 (서버가 게시물에서 읽는다).
   Map<String, dynamic>? toJson() {
-    if (isForTime) {
-      final t = _timeSec;
-      final extra = capped ? _int(extraCtrl) : null;
-      if (t == null && extra == null) return null;
-      return {
-        'index': index,
-        'time_sec': ?t,
-        'extra_reps': ?extra,
-        'capped': capped,
-      };
-    }
-    if (isAmrap) {
-      final r = _int(roundsCtrl);
-      final e = _int(extraCtrl);
-      if (r == null && e == null) return null;
-      return {'index': index, 'rounds': ?r, 'extra_reps': ?e};
-    }
-    return null;
+    if (!hasScore) return null;
+    final t = showsTime ? _timeSec : null;
+    final r = showsRounds ? _int(roundsCtrl) : null;
+    // 캡 줄이 있는데 안 켰으면 '남긴 렙스' 칸은 잠겨 있다 — 값도 없다.
+    final e = (showsExtra && !(showsCap && !capped)) ? _int(extraCtrl) : null;
+    if (t == null && r == null && e == null) return null;
+    return {
+      'index': index,
+      'time_sec': ?t,
+      'rounds': ?r,
+      'extra_reps': ?e,
+      if (showsCap) 'capped': capped,
+    };
   }
 
   void dispose() {
@@ -286,8 +331,7 @@ class _WodResultSheetState extends State<WodResultSheet> {
   void initState() {
     super.initState();
     _parts = [
-      for (final r in widget.wod.roundsData)
-        _buildPart(r, fallbackType: widget.wod.wodType),
+      for (final r in widget.wod.roundsData) _buildPart(r),
     ]..removeWhere((p) => !p.hasAnything);
 
     // 재수정이면 저장된 값으로 프리필 — 빈 시트로 열려 조용히 덮어쓰던 문제의
@@ -307,34 +351,47 @@ class _WodResultSheetState extends State<WodResultSheet> {
     }
   }
 
-  /// 파트 하나를 입력 상태로 편다 — 종류가 칸을, `has_load` 가 무게 칸을,
-  /// `set_count` 가 세트 줄 수를 정한다 (계약 §2). 규칙의 정본은 서버다.
-  _PartEntry _buildPart(WodRoundItem r, {required String fallbackType}) {
-    final type = (r.wodType?.isNotEmpty == true) ? r.wodType! : fallbackType;
-    final showReps = !_noRepsTypes.contains(type);
-    final isStrength = type == 'strength';
+  /// 파트 하나를 입력 상태로 편다 — **서버가 정한다**: `show_movement_reps` 가 한 횟수
+  /// 칸을, `has_load` 가 무게 칸을, `set_based`·`set_reps` 가 세트 줄을 (계약 D122 §3·§6).
+  _PartEntry _buildPart(WodRoundItem r) {
     final moves = <_MoveEntry>[];
     for (var i = 0; i < r.movements.length; i++) {
       final m = r.movements[i];
-      // 세트 줄 수는 서버 `set_count` — 없거나 0 이하면 한 줄 (줄이 아예 없으면
-      // 그 동작을 못 적는다).
-      final sets = isStrength ? ((m.setCount ?? 1) < 1 ? 1 : m.setCount!) : 1;
-      for (var s = 0; s < sets; s++) {
-        // 아무 칸도 안 서는 동작은 줄 자체를 만들지 않는다 (죽은 줄 금지).
-        if (!showReps && !m.hasLoad) continue;
+      final showLoad = m.hasLoad;
+      if (!r.showMovementReps && !showLoad) {
+        // 적을 칸이 하나도 없는 동작 — 사라지게 두지 않고 서버가 그린 줄로 세운다
+        // (계약 §5). 줄이 없으면 앱이 지어낼 수 없으므로 그때만 뺀다.
+        final line = r.lineFor(i);
+        if (line.isEmpty) continue;
         moves.add(
           _MoveEntry(
             item: m,
             partIndex: r.index,
             moveIndex: i,
-            setIndex: isStrength ? s : null,
-            showReps: showReps,
-            showLoad: m.hasLoad,
+            setIndex: null,
+            showReps: false,
+            showLoad: false,
+            line: line,
+          ),
+        );
+        continue;
+      }
+      // 세트 줄 수는 서버 `set_reps` 길이(없으면 `set_count`) — 앱은 쪼개지 않는다.
+      final sets = r.setBased ? m.setLines : 1;
+      for (var s = 0; s < sets; s++) {
+        moves.add(
+          _MoveEntry(
+            item: m,
+            partIndex: r.index,
+            moveIndex: i,
+            setIndex: r.setBased ? s : null,
+            showReps: r.showMovementReps,
+            showLoad: showLoad,
           ),
         );
       }
     }
-    return _PartEntry(part: r, wodType: type, moves: moves);
+    return _PartEntry(part: r, moves: moves);
   }
 
   @override
@@ -488,7 +545,7 @@ class _WodResultSheetState extends State<WodResultSheet> {
                 const SizedBox(height: HyphenTokens.sp2),
               ],
 
-              // ── 내 기록 — 파트로 묶고, 파트 종류가 칸을 정한다 (계약 D121 §2) ──
+              // ── 내 기록 — 파트로 묶고, 서버 score_keys 가 칸을 정한다 (D122 §3) ──
               if (_structured) ...[
                 const HkSectionLabel('내 기록'),
                 const SizedBox(height: HyphenTokens.sp1),
@@ -574,8 +631,8 @@ class _PartBlock extends StatelessWidget {
             HkSectionLabel(head),
             const SizedBox(height: HyphenTokens.sp1),
           ],
-          if (entry.isForTime) _ForTimeScore(entry: entry, enabled: enabled, onCapped: onCapped),
-          if (entry.isAmrap) _AmrapScore(entry: entry, enabled: enabled),
+          if (entry.hasScore)
+            _PartScore(entry: entry, enabled: enabled, onCapped: onCapped),
           for (final e in entry.moves) _MovementRow(entry: e, enabled: enabled),
         ],
       ),
@@ -616,119 +673,147 @@ class _Field extends StatelessWidget {
   );
 }
 
-/// FOR TIME — 몇 분 만에 끝났나. 캡이 걸린 파트는 '캡 종료' + 남긴 렙스가 따라온다.
+/// 파트 점수 — **어떤 칸을 세울지는 서버 `score_keys` 가 정한다** (계약 D122 §3).
+/// 앱은 열쇠(`time_sec`·`capped`·`rounds`·`extra_reps`)를 보고 위젯만 고르고,
+/// 라벨은 서버 `score_labels` 를 그대로 쓴다 (한글을 앱에 심지 않는다 — 대전제 6-b).
 ///
-/// 캡 줄은 **켜든 껐든 같은 자리**에 있다 (남긴 렙스 칸이 켤 때 생기면 그 아래가
-/// 통째로 밀린다 — DESIGN-SSOT §레이아웃 안정성).
-class _ForTimeScore extends StatelessWidget {
+/// 자리의 **높이**는 상태가 바뀌어도 같아야 한다 — 캡을 켜면 '남긴 렙스' 칸이 생기는
+/// 식으로 만들면 그 아래가 통째로 밀린다 (DESIGN-SSOT §레이아웃 안정성). 그래서 칸을
+/// 늘 그려 두고 `enabled` 만 바꾸고, 안내 줄도 고정 높이로 늘 세워 둔다.
+class _PartScore extends StatelessWidget {
   final _PartEntry entry;
   final bool enabled;
   final ValueChanged<bool> onCapped;
-  const _ForTimeScore({
+  const _PartScore({
     required this.entry,
     required this.enabled,
     required this.onCapped,
   });
 
+  /// '남긴 렙스' 칸의 힌트. 캡 줄과 짝이면 캡을 켜야 열린다는 뜻을 적고, 아니면
+  /// 서버 `score_target`(= 한 라운드 렙스 합) 미만이라는 뜻을 적는다 (계약 §5).
+  String get _extraHint {
+    if (entry.showsCap) return entry.capped ? '0' : '캡 종료일 때만';
+    final target = entry.part.scoreTarget;
+    return target == null ? '0' : '$target 미만';
+  }
+
+  /// 라운드 칸의 힌트. '추가 회' 칸이 따로 없는 모양(EMOM)에서는 서버
+  /// `score_target`(= 그 파트의 분)이 이 칸의 기준이다 (계약 §4 — '10분 중').
+  String get _roundsHint {
+    final target = entry.part.scoreTarget;
+    if (entry.showsExtra || target == null) return '0';
+    return '$target분 중';
+  }
+
   @override
-  Widget build(BuildContext context) => Padding(
-    // 이 자리의 **높이**가 캡을 켜고 꺼도 같아야 한다 — 안정성 게이트가 잰다
-    // (`stability_result_sheet_test.dart`). 앵커 y 만 재면 스크롤이 차이를
-    // 감춘다(2026-09-05 실측): 자리 높이로 재야 잡힌다.
-    key: WodResultSheet.partFieldKey(entry.index, 'score'),
-    padding: const EdgeInsets.only(bottom: HyphenTokens.sp2),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: _Field(
-                fieldKey: WodResultSheet.partFieldKey(entry.index, 'min'),
-                controller: entry.minCtrl,
-                label: '완주 시간 (분)',
-                hint: '0',
-                enabled: enabled,
-              ),
+  Widget build(BuildContext context) {
+    final extraField = _Field(
+      fieldKey: WodResultSheet.partFieldKey(entry.index, 'extra'),
+      controller: entry.extraCtrl,
+      label: entry.labelOf(_ScoreKey.extraReps),
+      hint: _extraHint,
+      enabled: enabled && (!entry.showsCap || entry.capped),
+    );
+    return Padding(
+      // 이 자리의 높이를 안정성 게이트가 잰다 (`stability_result_sheet_test.dart`).
+      // 앵커 y 만 재면 스크롤이 차이를 감춘다(2026-09-05 실측).
+      key: WodResultSheet.partFieldKey(entry.index, 'score'),
+      padding: const EdgeInsets.only(bottom: HyphenTokens.sp2),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // 완주 시간 — 서버는 `time_sec` 한 값만 안다. 분·초 두 칸은 앱이 나눠 받는
+          // 방식일 뿐이고(§4 `_splitSec`), 무엇을 묻는지는 서버 라벨이 말한다.
+          if (entry.showsTime)
+            Row(
+              children: [
+                Expanded(
+                  child: _Field(
+                    fieldKey: WodResultSheet.partFieldKey(entry.index, 'min'),
+                    controller: entry.minCtrl,
+                    label: '${entry.labelOf(_ScoreKey.time)} (분)',
+                    hint: '0',
+                    enabled: enabled,
+                  ),
+                ),
+                const SizedBox(width: HyphenTokens.sp2),
+                Expanded(
+                  child: _Field(
+                    fieldKey: WodResultSheet.partFieldKey(entry.index, 'sec'),
+                    controller: entry.secCtrl,
+                    label: '초',
+                    hint: '00',
+                    enabled: enabled,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: HyphenTokens.sp2),
-            Expanded(
-              child: _Field(
-                fieldKey: WodResultSheet.partFieldKey(entry.index, 'sec'),
-                controller: entry.secCtrl,
-                label: '초',
-                hint: '00',
-                enabled: enabled,
+          // 라운드(+ 회) — 캡 줄이 따로 있는 모양에서는 '남긴 렙스' 가 캡 줄로 간다.
+          if (entry.showsRounds || (entry.showsExtra && !entry.showsCap)) ...[
+            if (entry.showsTime) const SizedBox(height: HyphenTokens.sp1),
+            Row(
+              children: [
+                if (entry.showsRounds)
+                  Expanded(
+                    child: _Field(
+                      fieldKey: WodResultSheet.partFieldKey(
+                        entry.index,
+                        'rounds',
+                      ),
+                      controller: entry.roundsCtrl,
+                      label: entry.labelOf(_ScoreKey.rounds),
+                      hint: _roundsHint,
+                      enabled: enabled,
+                    ),
+                  ),
+                if (entry.showsRounds && entry.showsExtra && !entry.showsCap)
+                  const SizedBox(width: HyphenTokens.sp2),
+                if (entry.showsExtra && !entry.showsCap)
+                  Expanded(child: extraField),
+              ],
+            ),
+          ],
+          // 캡 종료 — 켜든 껐든 같은 자리 (밀림 0).
+          if (entry.showsCap) ...[
+            const SizedBox(height: HyphenTokens.sp1),
+            Row(
+              children: [
+                HkCheckRow(
+                  key: WodResultSheet.partFieldKey(entry.index, 'cap'),
+                  value: entry.capped,
+                  label: entry.labelOf(_ScoreKey.capped),
+                  onChanged: enabled ? onCapped : (_) {},
+                ),
+                const SizedBox(width: HyphenTokens.sp2),
+                if (entry.showsExtra) Expanded(child: extraField),
+              ],
+            ),
+          ],
+          // '+ 회' 가 무엇인지 알려 주는 한 줄 — **늘 있고 높이가 고정**이다 (계약 §5).
+          if (entry.showsExtraNote) ...[
+            const SizedBox(height: HyphenTokens.sp1),
+            SizedBox(
+              key: WodResultSheet.partFieldKey(entry.index, 'note'),
+              height: 18,
+              child: const Text(
+                kAmrapExtraNote,
+                style: HyphenTokens.caption,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
-        ),
-        if (entry.hasCap) ...[
-          const SizedBox(height: HyphenTokens.sp1),
-          Row(
-            children: [
-              HkCheckRow(
-                key: WodResultSheet.partFieldKey(entry.index, 'cap'),
-                value: entry.capped,
-                label: '캡 종료',
-                onChanged: enabled ? onCapped : (_) {},
-              ),
-              const SizedBox(width: HyphenTokens.sp2),
-              Expanded(
-                child: _Field(
-                  fieldKey: WodResultSheet.partFieldKey(entry.index, 'extra'),
-                  controller: entry.extraCtrl,
-                  label: '남긴 렙스',
-                  hint: entry.capped ? '0' : '캡 종료일 때만',
-                  enabled: enabled && entry.capped,
-                ),
-              ),
-            ],
-          ),
         ],
-      ],
-    ),
-  );
+      ),
+    );
+  }
 }
 
-/// AMRAP — 몇 라운드 + 추가 몇 회.
-class _AmrapScore extends StatelessWidget {
-  final _PartEntry entry;
-  final bool enabled;
-  const _AmrapScore({required this.entry, required this.enabled});
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: HyphenTokens.sp2),
-    child: Row(
-      children: [
-        Expanded(
-          child: _Field(
-            fieldKey: WodResultSheet.partFieldKey(entry.index, 'rounds'),
-            controller: entry.roundsCtrl,
-            label: '라운드',
-            hint: '0',
-            enabled: enabled,
-          ),
-        ),
-        const SizedBox(width: HyphenTokens.sp2),
-        Expanded(
-          child: _Field(
-            fieldKey: WodResultSheet.partFieldKey(entry.index, 'extra'),
-            controller: entry.extraCtrl,
-            label: '추가 회',
-            hint: '0',
-            enabled: enabled,
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-/// 동작 1줄 — 코치가 정한 동작 이름 + 그 종류가 정한 칸 (계약 §2).
-/// strength 는 세트마다 한 줄이고 이름 자리에 '1세트' 가 붙는다.
+/// 동작 1줄 — 코치가 정한 동작 이름 + 서버가 정한 칸 (계약 §3).
+/// 세트 축 파트는 세트마다 한 줄이고 이름 자리에 '1세트' 가 붙는다.
 /// 무게 칸은 `has_load` 인 동작에만 — 토투바·풀업에 무게 칸을 주지 않는다.
+/// 적을 칸이 하나도 없는 동작은 **서버가 그린 줄**을 읽기 전용으로 세운다 (계약 §5).
 class _MovementRow extends StatelessWidget {
   final _MoveEntry entry;
   final bool enabled;
@@ -736,11 +821,25 @@ class _MovementRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (entry.isReadOnly) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: HyphenTokens.sp2),
+        child: Text(
+          entry.line,
+          style: HyphenTokens.caption.copyWith(color: HyphenTokens.fg),
+        ),
+      );
+    }
     final it = entry.item;
     final name = it.name.isEmpty ? it.slug : it.name;
     final title = entry.setIndex == null
         ? name
         : '$name · ${entry.setIndex! + 1}세트';
+    // 세트 줄은 **그 세트의 목표**만 힌트로 (전체 처방 '5-5-5-5-5' 를 다섯 줄에 그대로
+    // 보여 주면 그 줄이 무엇을 요구하는지 알 수 없다 — 계약 §6).
+    final repsHint = entry.repsTarget.isNotEmpty
+        ? entry.repsTarget
+        : (entry.setIndex == null ? '예: 21-15-9' : null);
     final fields = <Widget>[
       if (entry.showLoad)
         _Field(
@@ -755,7 +854,7 @@ class _MovementRow extends StatelessWidget {
           fieldKey: entry.repsKey,
           controller: entry.repsCtrl,
           label: entry.setIndex == null ? '한 횟수' : '횟수',
-          hint: it.reps.isEmpty ? '예: 21-15-9' : it.reps,
+          hint: repsHint,
           enabled: enabled,
           numeric: false,
         ),

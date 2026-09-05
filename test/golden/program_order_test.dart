@@ -106,7 +106,13 @@ void main() {
       final post = GymWodPost.fromJson(awake);
       expect(post.isMultiPart, isFalse);
       expect(post.roundsData.single.title, '');
-      expect(post.roundsData.single.lines, isEmpty);
+      // D122 (2026-09-06) — 동작 줄은 이제 파트마다 온다. 입력 칸이 없는 동작
+      // (Pull-up)을 완료 시트가 이 줄로 세우기 때문이다 (계약 §5). 파트가 하나뿐인
+      // 글은 여전히 **머리줄(title)이 없다** — 나눌 것이 없어서다.
+      expect(post.roundsData.single.lines, [
+        'Thruster 21-15-9회 · 42.5kg',
+        'Pull-up 21-15-9회',
+      ]);
       expect(post.memo, '');
     });
   });

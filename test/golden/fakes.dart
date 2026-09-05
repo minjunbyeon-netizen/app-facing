@@ -483,6 +483,12 @@ List<Map<String, dynamic>> gymWods() {
           // 메모는 옛 자리(첫 파트 content)에만 — 서버 stored_memo 규약.
           'content': '마지막 파트는 쿨다운.',
           'lines': ['Back Squat 5-5-5회 · 100kg'],
+          // D122 §3 — 축은 서버가 내려준다 (앱의 사본 제거).
+          'score_keys': <String>[],
+          'score_labels': <String, String>{},
+          'score_target': null,
+          'show_movement_reps': true,
+          'set_based': true,
           'movements': [
             {
               'movement_id': 10,
@@ -494,6 +500,7 @@ List<Map<String, dynamic>> gymWods() {
               'load_unit': 'kg',
               'has_load': true,
               'set_count': 3,
+              'set_reps': ['5', '5', '5'],
             },
           ],
         },
@@ -507,6 +514,13 @@ List<Map<String, dynamic>> gymWods() {
           'time_cap_sec': 720,
           'content': '',
           'lines': ['KB Swing 15회 · 24kg', 'Row 200m'],
+          // Row 는 unit 이 meters — 한 라운드 렙스 합을 셀 수 없다 (§5 round_reps=None).
+          'score_keys': ['rounds', 'extra_reps'],
+          'score_labels': {'rounds': '라운드', 'extra_reps': '+ 회'},
+          'score_target': null,
+          'round_reps': null,
+          'show_movement_reps': false,
+          'set_based': false,
           'movements': [
             {
               'movement_id': 21,
@@ -540,6 +554,11 @@ List<Map<String, dynamic>> gymWods() {
           'time_cap_sec': null,
           'content': '',
           'lines': ['Plank 60초'],
+          'score_keys': <String>[],
+          'score_labels': <String, String>{},
+          'score_target': null,
+          'show_movement_reps': true,
+          'set_based': false,
           'movements': [
             {
               'movement_id': 44,
@@ -576,6 +595,19 @@ List<Map<String, dynamic>> gymWods() {
           'label': 'A. Metcon',
           'content': '21-15-9 Thruster + Pull-up',
           'time_cap_sec': 600,
+          // 파트에 `wod_type` 이 없어도 서버는 게시물 종류(for_time)로 축을 내려준다
+          // (D122 §3 — 판정은 서버 result_axes 한 곳).
+          'score_keys': ['time_sec', 'capped', 'extra_reps'],
+          'score_labels': {
+            'time_sec': '완주 시간',
+            'capped': '캡 종료',
+            'extra_reps': '남긴 렙스',
+          },
+          'score_target': null,
+          'show_movement_reps': false,
+          'set_based': false,
+          // 서버가 그린 동작 줄 — 입력 칸이 없는 동작(Pull-up)은 이 줄로 선다 (§5).
+          'lines': ['Thruster 21-15-9회 · 42.5kg', 'Pull-up 21-15-9회'],
           'movements': [
             {
               'name': 'Thruster',
@@ -753,6 +785,12 @@ List<Map<String, dynamic>> gymWodsStrengthToday() {
           'index': 0,
           'label': 'A. Strength',
           'content': 'Back Squat 5x5',
+          'score_keys': <String>[],
+          'score_labels': <String, String>{},
+          'score_target': null,
+          'show_movement_reps': true,
+          'set_based': true,
+          'lines': ['Back Squat 5x5'],
           'movements': [
             {
               'name': 'Back Squat',
@@ -761,6 +799,7 @@ List<Map<String, dynamic>> gymWodsStrengthToday() {
               // 사전 동작이라 코치가 무게를 안 적어도 무게 칸을 갖는다 (계약 §2).
               'has_load': true,
               'set_count': 5,
+              'set_reps': ['5', '5', '5', '5', '5'],
             },
           ],
         },
@@ -2019,7 +2058,14 @@ List<Map<String, dynamic>> wodHistoryList() {
         movement: 'Back Squat', isPr: true),
     _histRec(502, 40, 'for_time', 'FOR TIME', 'SWEAT',
         'Thruster 21-15-9회 · 43kg · Pull-up 21-15-9회', now, 3,
-        label: '6:52', sec: 412, scale: 'scaled', notes: 'Fran'),
+        label: '6:52', sec: 412, scale: 'scaled', notes: 'Fran',
+        // 파트 셋짜리 수업 — 헤드라인 점수는 C 파트에서 온 값이다 (D122 §7).
+        headlinePartLabel: 'C 파트',
+        parts: const [
+          {'index': 0, 'wod_type': 'strength', 'line': 'A 파트 · STRENGTH — 70kg×5'},
+          {'index': 1, 'wod_type': 'amrap', 'line': 'B 파트 · AMRAP — 5R+12'},
+          {'index': 2, 'wod_type': 'for_time', 'line': 'C 파트 · FOR TIME — 6:52'},
+        ]),
     _histRec(503, 38, 'amrap', 'AMRAP', 'AWAKE', 'Burpee 12회 · Row 250m', now, 6,
         kind: 'rounds', label: '7R+4', rounds: 7, extra: 4),
     _histRec(504, 35, 'strength', 'STRENGTH', 'BUILD', 'Front Squat 3×5 · 80kg', now, 8,
@@ -2065,6 +2111,24 @@ Map<String, dynamic> wodHistoryDetail() {
 /// v3.45 (2026-09-02) — 점수 없는 완료 기록 상세. 앱이 점수 키를 안 보내
 /// `label` 이 빈 문자열이라 상세의 히어로 점수 줄이 숨는다(검은 대시 결함 픽스).
 /// 동작별 기록이 곧 그 회원의 기록. 골든 `hist_06_detail_no_score`.
+/// 캡에 걸려 끝난 기록 상세 (D122 §7) — 완주 기록과 **다른 단위**라 배지로 갈라 둔다.
+/// 골든 `hist_07_detail_capped`.
+Map<String, dynamic> wodHistoryDetailCapped() {
+  final d = wodHistoryDetail();
+  final result = Map<String, dynamic>.from(d['result'] as Map);
+  result['capped'] = true;
+  result['label'] = '12:00';
+  result['time_sec'] = 720;
+  result['extra_reps'] = 3;
+  result['is_pr'] = false;
+  result['parts'] = const [
+    {'index': 0, 'wod_type': 'strength', 'line': 'A 파트 · STRENGTH — 70kg×5'},
+    {'index': 1, 'wod_type': 'for_time', 'line': 'B 파트 · FOR TIME — 캡 12:00 · 3 남김'},
+  ];
+  result['headline_part_label'] = 'B 파트';
+  return {...d, 'result': result};
+}
+
 Map<String, dynamic> wodHistoryDetailNoScore() {
   final d = wodHistoryDetail();
   final result = Map<String, dynamic>.from(d['result'] as Map);
@@ -2076,6 +2140,9 @@ Map<String, dynamic> wodHistoryDetailNoScore() {
   result['weight_kg'] = null;
   result['is_pr'] = false;
   result['notes'] = '';
+  // 점수 키를 안 보낸 기록이라 파트 점수도 없다 (D122 §7 — 없는 것을 지어내지 않는다).
+  result['parts'] = const <Map<String, dynamic>>[];
+  result['headline_part_label'] = null;
   return {...d, 'result': result};
 }
 
@@ -2099,9 +2166,17 @@ Map<String, dynamic> _histRec(
   String scale = 'rx',
   bool isPr = false,
   String notes = '',
+  // D122 §7 — 파트 점수가 보이게. `line` 은 서버가 그린 글 그대로(앱은 조립 금지),
+  // `capped` 는 파트에서 파생, `headline_part_label` 은 다중 파트일 때만.
+  List<Map<String, dynamic>> parts = const [],
+  bool capped = false,
+  String? headlinePartLabel,
 }) {
   final day = now.subtract(Duration(days: daysAgo));
   return {
+    'parts': parts,
+    'capped': capped,
+    'headline_part_label': headlinePartLabel,
     'id': id,
     'post_id': postId,
     'class_session_id': null,
@@ -2173,6 +2248,13 @@ Map<String, dynamic> wodAxesPost() {
         'time_cap_sec': null,
         'content': '',
         'lines': ['Back Squat 5-5-5-5-5회 · 60kg'],
+        // D122 §3 — 축은 서버가 내려준다. strength 는 파트 점수가 없고(세트가 담당)
+        // 동작 줄이 세트별 [무게][횟수] 다.
+        'score_keys': <String>[],
+        'score_labels': <String, String>{},
+        'score_target': null,
+        'show_movement_reps': true,
+        'set_based': true,
         'movements': [
           {
             'movement_id': 10,
@@ -2184,6 +2266,8 @@ Map<String, dynamic> wodAxesPost() {
             'load_unit': 'kg',
             'has_load': true,
             'set_count': 5,
+            // D122 §6 — 세트별 목표. set_count 는 len(set_reps).
+            'set_reps': ['5', '5', '5', '5', '5'],
           },
         ],
       },
@@ -2197,6 +2281,13 @@ Map<String, dynamic> wodAxesPost() {
         'time_cap_sec': null,
         'content': '',
         'lines': ['Thruster 12회 · 40kg', 'Toes-to-bar 9회'],
+        // D122 §5 — '추가 회' 는 '+ 회' 로. score_target = round_reps (12+9).
+        'score_keys': ['rounds', 'extra_reps'],
+        'score_labels': {'rounds': '라운드', 'extra_reps': '+ 회'},
+        'score_target': 21,
+        'round_reps': 21,
+        'show_movement_reps': false,
+        'set_based': false,
         'movements': [
           {
             'movement_id': 50,
@@ -2230,6 +2321,15 @@ Map<String, dynamic> wodAxesPost() {
         'time_cap_sec': 720,
         'content': '',
         'lines': ['Row 500m', 'Wall Ball 20회 · 9kg'],
+        'score_keys': ['time_sec', 'capped', 'extra_reps'],
+        'score_labels': {
+          'time_sec': '완주 시간',
+          'capped': '캡 종료',
+          'extra_reps': '남긴 렙스',
+        },
+        'score_target': null,
+        'show_movement_reps': false,
+        'set_based': false,
         'movements': [
           {
             'movement_id': 30,
@@ -2263,6 +2363,12 @@ Map<String, dynamic> wodAxesPost() {
         'time_cap_sec': null,
         'content': '',
         'lines': ['Clean 1회 · 70kg'],
+        // D122 §4 — EMOM 에도 점수를 준다: 완료한 분(rounds), 힌트 = duration_min.
+        'score_keys': ['rounds'],
+        'score_labels': {'rounds': '완료한 분'},
+        'score_target': 10,
+        'show_movement_reps': false,
+        'set_based': false,
         'movements': [
           {
             'movement_id': 53,
@@ -2327,3 +2433,68 @@ Map<String, dynamic> wodAxesPostWithResult() => {
     ],
   },
 };
+
+/// 맨몸 동작만 든 **EMOM** 한 파트 (D122 §4). 계약 전에는 이런 파트가 시트에서
+/// 통째로 사라졌다 — 적을 칸이 하나도 없었기 때문이다 ("D 파트는 왜 없지?").
+/// 이제 축 = `rounds`(라벨 '완료한 분', 힌트 = duration_min) 하나를 서버가 준다.
+/// 골든 `state_34_result_sheet_emom` · 검사 `test/result_axes2_test.dart`.
+Map<String, dynamic> wodEmomBodyweightPost() {
+  final d = _ymd(appClock.now());
+  return {
+    'id': 41,
+    'template_id': 5,
+    'template_name': 'ENGINE',
+    'display_name': 'ENGINE',
+    'first_class_at': '${d}T20:00:00',
+    'post_date': d,
+    'wod_type': 'emom',
+    'content': 'ENGINE\n10분 · EMOM\nBurpee 8회\nAir Squat 12회',
+    'summary': 'Burpee 8회 · Air Squat 12회',
+    'rounds_data': [
+      {
+        'index': 0,
+        'label': 'A',
+        'title': '10분 · EMOM',
+        'wod_type': 'emom',
+        'duration_min': 10,
+        'rounds': null,
+        'time_cap_sec': null,
+        'content': '',
+        'lines': ['Burpee 8회', 'Air Squat 12회'],
+        'score_keys': ['rounds'],
+        'score_labels': {'rounds': '완료한 분'},
+        'score_target': 10,
+        'show_movement_reps': false,
+        'set_based': false,
+        'movements': [
+          {
+            'movement_id': 60,
+            'name': 'Burpee',
+            'slug': 'burpee',
+            'unit': 'reps',
+            'reps': '8',
+            'load_value': '',
+            'load_unit': '',
+            'has_load': false,
+          },
+          {
+            'movement_id': 61,
+            'name': 'Air Squat',
+            'slug': 'air_squat',
+            'unit': 'reps',
+            'reps': '12',
+            'load_value': '',
+            'load_unit': '',
+            'has_load': false,
+          },
+        ],
+      },
+    ],
+    'rounds': null,
+    'time_cap_sec': null,
+    'created_at': '${d}T05:00:00',
+    'locked': false,
+    'score_hint': 'rounds',
+    'movement_suggestions': <String>[],
+  };
+}

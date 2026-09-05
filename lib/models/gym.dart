@@ -336,6 +336,19 @@ class WodMovementItem {
   /// 파생 규칙의 정본은 서버다. 없으면 한 줄.
   final int? setCount;
 
+  /// 세트별 목표 횟수 (계약 D122 §6 — `['5','5','5','5','5']`).
+  /// 쪼개는 규칙의 정본은 서버 `result_axes.set_reps()` 하나다 — **앱은 쪼개지 않는다**.
+  /// 세트 축이 아닌 종류에서는 빈 목록.
+  final List<String> setReps;
+
+  /// 실제로 그릴 세트 줄 수. 서버가 `set_reps` 를 주면 그 길이가 정본이고
+  /// (`set_count` == `len(set_reps)` — 계약 §6), 없으면 `set_count`, 그것도 없으면 한 줄.
+  int get setLines =>
+      setReps.isNotEmpty ? setReps.length : ((setCount ?? 1) < 1 ? 1 : setCount!);
+
+  /// [i] 번째 세트의 목표 횟수 — 없으면 빈 글자 (지어내지 않는다).
+  String setRepsAt(int i) => (i >= 0 && i < setReps.length) ? setReps[i] : '';
+
   const WodMovementItem({
     this.movementId,
     this.unit = 'reps',
@@ -349,6 +362,7 @@ class WodMovementItem {
     this.videoUrl = '',
     this.hasLoad = true,
     this.setCount,
+    this.setReps = const [],
   });
 
   bool get hasVideo => videoUrl.isNotEmpty;
@@ -381,6 +395,9 @@ class WodMovementItem {
         videoUrl: (j['video_url'] ?? '').toString(),
         hasLoad: j['has_load'] == null ? true : j['has_load'] == true,
         setCount: (j['set_count'] as num?)?.toInt(),
+        setReps: (j['set_reps'] is List)
+            ? [for (final e in j['set_reps'] as List) e.toString()]
+            : const [],
       );
 }
 
@@ -411,6 +428,37 @@ class WodRoundItem {
   /// 키가 없는 옛 응답은 목록 위치로 채운다.
   final int index;
 
+  // ── 기록 축 (계약 D122 §3) — **서버가 내려준다.** ────────────────────────────
+  // 어떤 종류가 어떤 칸을 갖는지의 표(정본 = 서버 `services/result_axes.py`)를 앱이
+  // 복제하면, 새 종류·축 변경마다 앱 재배포와 스토어 심사가 필요해진다. 그래서
+  // 파트마다 아래 다섯을 실어 주고 앱은 **읽어서 그리기만** 한다 (대전제 6-b).
+
+  /// 이 파트가 갖는 점수 칸과 **그리는 순서** (`['time_sec','capped','extra_reps']`).
+  /// 옛 응답에는 없다 — 그때는 점수 칸을 그리지 않는다 (표를 앱이 만들지 않는다).
+  final List<String> scoreKeys;
+
+  /// 점수 칸의 라벨 — 한글도 서버가 준다 (`{'rounds': '완료한 분'}`).
+  final Map<String, String> scoreLabels;
+
+  /// 숫자 힌트 — emom 은 `duration_min`, amrap 은 `round_reps`. 없으면 null.
+  final int? scoreTarget;
+
+  /// 동작 줄에 **한 횟수 칸**을 두는가 (서버 `has_movement_reps()`).
+  /// 키가 없는 옛 응답은 종전대로 준다(true).
+  final bool showMovementReps;
+
+  /// 동작 줄을 **세트별로** 세우는가 (서버 `is_set_based()`).
+  final bool setBased;
+
+  bool hasScoreKey(String key) => scoreKeys.contains(key);
+
+  /// [i] 번째 동작의 서버 렌더 줄 — 입력 칸이 없는 동작을 읽기 전용으로 세울 때 쓴다
+  /// (계약 §5). 줄 수가 동작 수와 다르면 짝을 확신할 수 없으므로 아무 것도 주지 않는다.
+  String lineFor(int i) =>
+      (lines.length == movements.length && i >= 0 && i < lines.length)
+      ? lines[i]
+      : '';
+
   const WodRoundItem({
     required this.label,
     required this.content,
@@ -422,6 +470,11 @@ class WodRoundItem {
     this.wodType,
     this.rounds,
     this.index = 0,
+    this.scoreKeys = const [],
+    this.scoreLabels = const {},
+    this.scoreTarget,
+    this.showMovementReps = true,
+    this.setBased = false,
   });
 
   bool get hasMovements => movements.isNotEmpty;
@@ -451,6 +504,23 @@ class WodRoundItem {
       wodType: j['wod_type']?.toString(),
       rounds: (j['rounds'] as num?)?.toInt(),
       index: (j['index'] as num?)?.toInt() ?? fallbackIndex,
+      scoreKeys: (j['score_keys'] is List)
+          ? [
+              for (final e in j['score_keys'] as List)
+                if (e.toString().isNotEmpty) e.toString(),
+            ]
+          : const [],
+      scoreLabels: (j['score_labels'] is Map)
+          ? {
+              for (final e in (j['score_labels'] as Map).entries)
+                e.key.toString(): e.value.toString(),
+            }
+          : const {},
+      scoreTarget: (j['score_target'] as num?)?.toInt(),
+      showMovementReps: j['show_movement_reps'] == null
+          ? true
+          : j['show_movement_reps'] == true,
+      setBased: j['set_based'] == true,
     );
   }
 
