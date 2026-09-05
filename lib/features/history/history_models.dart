@@ -38,6 +38,18 @@ class WodHistoryItem {
   /// 동작별 완료 값 — 서버 `movements[]` (D94). 줄 문자열은 서버 `line` 그대로,
   /// 동작 사전 번호(`movement_id`)는 동작 필터(`?movement_id=`)의 키 (2026-09-02).
   final List<WodMovementRef> movements;
+
+  /// 파트별 점수 (D122 §7 `parts[]`). 종전에는 서버가 내려주는데 **앱이 파싱조차
+  /// 하지 않아**, 회원이 파트마다 적어 낸 값을 다시 볼 방법이 없었다.
+  final List<WodHistoryPart> parts;
+
+  /// 캡에 걸려 끝난 기록인가 (서버가 파트에서 파생 — 결과 행 컬럼이 아니다).
+  /// 캡 기록과 완주 기록은 **다른 단위**라 화면에서 갈라 보여 준다 (D122 §2).
+  final bool capped;
+
+  /// 헤드라인 점수가 **어느 파트에서 온 값인지** (서버 `headline_part_label`).
+  /// 파트가 하나면 null — 그때는 밝힐 것이 없다.
+  final String? headlinePartLabel;
   final DateTime createdAt;
 
   /// 동작별 완료 값 줄들 — 서버 `line` 그대로. 앱은 조립하지 않는다.
@@ -64,6 +76,9 @@ class WodHistoryItem {
     this.isPr = false,
     this.notes = '',
     this.movements = const [],
+    this.parts = const [],
+    this.capped = false,
+    this.headlinePartLabel,
     required this.createdAt,
   });
 
@@ -93,6 +108,18 @@ class WodHistoryItem {
           if (m is Map && (m['line'] ?? '').toString().trim().isNotEmpty)
             WodMovementRef.fromJson(m.cast<String, dynamic>()),
       ],
+      parts: [
+        for (final p in (j['parts'] as List? ?? const []))
+          if (p is Map && (p['line'] ?? '').toString().trim().isNotEmpty)
+            WodHistoryPart.fromJson(p.cast<String, dynamic>()),
+      ],
+      capped: j['capped'] == true,
+      headlinePartLabel: (j['headline_part_label'] ?? '')
+              .toString()
+              .trim()
+              .isEmpty
+          ? null
+          : j['headline_part_label'].toString().trim(),
       createdAt: parseServerTime(j['created_at'] as String).toLocal(),
     );
   }
@@ -114,6 +141,28 @@ class WodHistoryItem {
   //  사라진 뒤로 이 값은 아무도 고르지 않은 기본값 'rx' 뿐이라, 그것을 'RXD'
   //  라는 표기로 바꾸는 순간 화면이 거짓말을 했다. [scaleLevel] 값 자체는
   //  휴면으로 계속 받는다 — 데이터는 지우지 않는다.)
+}
+
+/// 파트 한 구간의 점수 (D122 §7 `history_item.parts[]`).
+///
+/// [line] 은 **서버가 그린 글 그대로**다 ('A 파트 · STRENGTH — 70kg×5'). 앱은 파트
+/// 라벨도 종류 이름도 조립하지 않는다 (대전제 6-b) — 받은 줄을 세우기만 한다.
+class WodHistoryPart {
+  final int index;
+  final String wodType;
+  final String line;
+
+  const WodHistoryPart({
+    required this.index,
+    this.wodType = '',
+    required this.line,
+  });
+
+  factory WodHistoryPart.fromJson(Map<String, dynamic> j) => WodHistoryPart(
+    index: (j['index'] as num?)?.toInt() ?? 0,
+    wodType: (j['wod_type'] ?? '').toString(),
+    line: (j['line'] ?? '').toString().trim(),
+  );
 }
 
 /// 동작 한 개 참조 — 동작 사전 번호 + 표시 이름(+완료 값 줄). 히스토리 상세의

@@ -918,4 +918,33 @@ void _achievementsLoadingGolden() {
     await capture(tester, 'state_29_result_sheet_saving');
   });
 
+  // ── 완료 시트 — EMOM 파트 (D122 §4 · 계약 CONTRACT-result-axes-2.md) ──
+  //    맨몸 동작만 든 EMOM 은 종전에 적을 칸이 하나도 없어 **파트째로 사라졌다**
+  //    ("D 파트는 왜 없지?"). 이제 축 = `rounds` 하나 — 라벨 '완료한 분', 힌트는
+  //    서버 `score_target`(= 그 파트의 분). 체크박스가 아니라 숫자 한 칸인 이유는
+  //    체크 안 된 칸이 '실패' 로 읽히는데 실제로는 '안 적음' 일 수 있어서다.
+  //    입력 칸이 없는 동작은 서버 `lines` 를 읽기 전용으로 세운다 (§5).
+  testWidgets('state: result sheet emom', (tester) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi(memberWorld());
+    final gym = GymState(GymRepository(api), sse: FakeSse());
+    await gym.loadMine();
+    final post = GymWodPost.fromJson(wodEmomBodyweightPost());
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        gym: gym,
+        home: Scaffold(
+          body: SingleChildScrollView(child: WodResultSheet(wod: post)),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('완료한 분'), findsOneWidget);
+    expect(find.text('Burpee 8회'), findsOneWidget);
+    await capture(tester, 'state_34_result_sheet_emom');
+  });
 }

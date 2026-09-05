@@ -18,6 +18,12 @@ import 'harness.dart';
 import 'layout_stability.dart';
 import 'screens_golden_test.dart' show rxProfile, signedInAuth, signedInPrefs;
 
+/// 상태를 하나씩 다시 올릴 때마다 **새 State** 를 강제한다. 키가 같으면 Flutter 가
+/// 같은 위젯으로 보고 State 를 재사용해서, 다른 게시물을 올려도 `initState` 에서
+/// 편 파트 목록이 앞 상태의 것으로 남는다 (2026-09-06 D122 검사에서 실측).
+int _mountSeq = 0;
+Key _freshSheetKey() => ValueKey('sheet-${_mountSeq++}');
+
 void main() {
   const resultsPath = '/api/v1/gyms/1/wods/31/results';
 
@@ -45,7 +51,7 @@ void main() {
         profile: rxProfile(),
         gym: gym,
         home: Scaffold(
-          body: SingleChildScrollView(child: WodResultSheet(wod: post)),
+          body: SingleChildScrollView(child: WodResultSheet(key: _freshSheetKey(), wod: post)),
         ),
       ),
     );
@@ -114,6 +120,7 @@ void main() {
     WidgetTester tester, {
     bool hang = false,
     bool fail = false,
+    Map<String, dynamic>? raw,
   }) async {
     phone(tester);
     SharedPreferences.setMockInitialValues(signedInPrefs());
@@ -124,7 +131,7 @@ void main() {
     );
     final gym = GymState(GymRepository(api), sse: FakeSse());
     await gym.loadMine();
-    final post = GymWodPost.fromJson(wodAxesPost());
+    final post = GymWodPost.fromJson(raw ?? wodAxesPost());
     await tester.pumpWidget(
       harness(
         api: api,
@@ -132,7 +139,7 @@ void main() {
         profile: rxProfile(),
         gym: gym,
         home: Scaffold(
-          body: SingleChildScrollView(child: WodResultSheet(wod: post)),
+          body: SingleChildScrollView(child: WodResultSheet(key: _freshSheetKey(), wod: post)),
         ),
       ),
     );
@@ -225,6 +232,62 @@ void main() {
         },
       },
       targets: {'FOR TIME 점수 자리': WodResultSheet.partFieldKey(2, 'score')},
+    );
+  });
+
+  // ── D122 (2026-09-06) — 파트·세트가 늘어도 저장 버튼이 도망가지 않는다
+  //    (계약 CONTRACT-result-axes-2.md §9 앱 게이트 마지막 줄).
+  //
+  //    D122 로 시트가 길어지는 자리가 셋 늘었다: EMOM 점수 칸 · AMRAP 안내 줄 ·
+  //    입력 칸 없는 동작의 읽기 전용 줄. 길어지는 것 자체는 문제가 아니지만(시트는
+  //    스크롤된다), 길이에 따라 **버튼이 화면에서 잡히는 자리**가 달라지면 손가락
+  //    아래에서 도망간다. 파트 다섯·세트 여덟짜리 시트로 그 끝을 재 둔다.
+  testWidgets('파트·세트가 늘어도 저장 버튼·고지 줄은 같은 y', (tester) async {
+    Map<String, dynamic> bigger() {
+      final raw = Map<String, dynamic>.from(wodAxesPost());
+      final rounds = [
+        for (final r in raw['rounds_data'] as List)
+          Map<String, dynamic>.from(r as Map<String, dynamic>),
+      ];
+      // 세트 다섯 → 여덟.
+      final a = Map<String, dynamic>.from(rounds[0]);
+      a['movements'] = [
+        {
+          ...(a['movements'] as List).first as Map<String, dynamic>,
+          'set_count': 8,
+          'set_reps': const ['5', '5', '5', '3', '3', '3', '1', '1'],
+        },
+      ];
+      rounds[0] = a;
+      // 파트 넷 → 다섯 (맨몸 EMOM 한 파트 추가).
+      final extra = Map<String, dynamic>.from(
+        (wodEmomBodyweightPost()['rounds_data'] as List).first
+            as Map<String, dynamic>,
+      );
+      extra['index'] = 4;
+      extra['title'] = 'E 파트 · 10분 · EMOM';
+      raw['rounds_data'] = [...rounds, extra];
+      return raw;
+    }
+
+    await expectStableAnchorY(
+      tester,
+      states: {
+        '파트 넷': (t) async {
+          await mountAxes(t);
+          await scrollToSave(t);
+        },
+        '파트 다섯 · 세트 여덟': (t) async {
+          await mountAxes(t, raw: bigger());
+          await scrollToSave(t);
+          expect(
+            find.byKey(WodResultSheet.partFieldKey(4, 'rounds')),
+            findsOneWidget,
+            reason: '늘린 EMOM 파트가 실제로 서 있어야 잰 값에 뜻이 있다',
+          );
+        },
+      },
+      anchors: {'저장 버튼': kWodSaveButton, '고지 줄': kWodSaveCaption},
     );
   });
 }

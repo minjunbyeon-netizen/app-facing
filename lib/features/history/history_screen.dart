@@ -273,10 +273,12 @@ class _HistoryRow extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   // D91 — 동작 검색이 맞춘 줄이 바로 읽히도록 그날 운동 요약을 둘째 줄에.
+                  // D122 §7 — 한 줄에서 잘리면 파트가 여럿인 수업의 뒷부분이 통째로
+                  // 안 보인다. 두 줄까지 편다.
                   Text(
                     item.subheading,
                     style: HyphenTokens.caption.copyWith(color: HyphenTokens.fg),
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 2),
@@ -298,6 +300,20 @@ class _HistoryRow extends StatelessWidget {
                   style: HyphenTokens.h3.copyWith(
                     fontFeatures: HyphenTokens.tabular,
                   ),
+                ),
+                // D122 §7 — 파트가 여럿인 수업의 점수는 **그중 한 파트**의 값이다.
+                // 어느 파트인지 안 밝히면 수업 전체 기록처럼 읽힌다 (라벨은 서버).
+                // 자리는 늘 잡아 둔다 — 있는 행과 없는 행의 높이가 같아야 한다.
+                SizedBox(
+                  height: 15,
+                  child: item.headlinePartLabel == null
+                      ? null
+                      : Text(
+                          item.headlinePartLabel!,
+                          style: HyphenTokens.caption,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                 ),
                 // PR 자리는 늘 잡아 둔다 — 배지가 생겨도 점수 줄이 위로 밀리지 않는다.
                 SizedBox(
