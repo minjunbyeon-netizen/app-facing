@@ -811,8 +811,10 @@ void _achievementsLoadingGolden() {
   });
 
   // ── 완료 시트 — 내 기록 (D94 · v3.45 2026-09-02 "코치가 설정한 운동이 그대로
-  //    불러와지고 내 기록만"): 한 횟수·무게 kg 칸이 코치 값(21-15-9 · 42.5kg)으로 미리
-  //    채워져 있다. 점수 칩·난도·동작 이름 입력은 v3.45 에서 전부 삭제. 요약·판정은 서버. ──
+  //    불러와지고 내 기록만" · D121 2026-09-05 기록 축 계약): 파트 종류가 칸을 정한다.
+  //    글 31 은 FOR TIME 이라 **완주 시간(분·초)** 칸이 서고, 동작 줄에는 무게 쓰는
+  //    동작(Thruster 42.5kg)만 무게 칸을 갖는다 — Pull-up(has_load 거짓)에는 칸이 없다.
+  //    점수 칩·난도·동작 이름 입력은 v3.45 에서 전부 삭제. 요약·판정은 서버. ──
   testWidgets('state: result sheet movement values', (tester) async {
     phone(tester);
     SharedPreferences.setMockInitialValues(signedInPrefs());
@@ -837,6 +839,11 @@ void _achievementsLoadingGolden() {
     await tester.pumpAndSettle();
     expect(find.text('내 기록'), findsOneWidget);
     expect(find.text('42.5'), findsOneWidget);
+    // D121 — FOR TIME 은 '몇 분 만에 끝났나' 가 점수축이다.
+    expect(find.byKey(WodResultSheet.partFieldKey(0, 'min')), findsOneWidget);
+    expect(find.text('완주 시간 (분)'), findsOneWidget);
+    // Pull-up 은 무게를 안 쓰는 동작 — 무게 칸을 주지 않는다.
+    expect(find.byKey(WodResultSheet.fieldKey(0, 1, null, 'load')), findsNothing);
     // v3.45 — 점수 칩('내 결과')·난도(SCALED/RXD)·메모가 없어야 한다.
     expect(find.text('내 결과'), findsNothing);
     expect(find.text('SCALED'), findsNothing);

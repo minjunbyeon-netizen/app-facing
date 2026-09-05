@@ -98,4 +98,133 @@ void main() {
       },
     );
   });
+
+  // ── D121 (2026-09-05) — 파트가 여럿인 시트 (계약 CONTRACT-result-axes.md) ──
+  //
+  // 파트마다 종류가 다른 점수 칸(완주 시간·라운드·세트 줄)이 서면 시트가 길어진다.
+  // 길어지는 것 자체는 문제가 아니다 (시트는 스크롤된다) — 문제는 **상태가 바뀔 때**
+  // 그 안에서 무엇이 생겼다 사라지며 아래를 미는 것이다. 두 가지를 잰다:
+  //   1. 저장 중·저장 실패로 바뀌어도 버튼·고지 줄이 그 자리인가
+  //   2. '캡 종료' 를 켜서 '남긴 렙스' 칸이 열려도 아래가 안 밀리는가
+  //      (조건부 블록으로 만들었다면 여기서 걸린다 — 그래서 칸을 늘 그려 두고
+  //       enabled 만 바꾼다)
+  const axesResults = '/api/v1/gyms/1/wods/40/results';
+
+  Future<void> mountAxes(
+    WidgetTester tester, {
+    bool hang = false,
+    bool fail = false,
+  }) async {
+    phone(tester);
+    SharedPreferences.setMockInitialValues(signedInPrefs());
+    final api = FakeApi(
+      memberWorld(),
+      hangPaths: hang ? {axesResults} : const {},
+      errorPaths: fail ? {axesResults} : const {},
+    );
+    final gym = GymState(GymRepository(api), sse: FakeSse());
+    await gym.loadMine();
+    final post = GymWodPost.fromJson(wodAxesPost());
+    await tester.pumpWidget(
+      harness(
+        api: api,
+        auth: await signedInAuth(),
+        profile: rxProfile(),
+        gym: gym,
+        home: Scaffold(
+          body: SingleChildScrollView(child: WodResultSheet(wod: post)),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+  }
+
+  Future<void> scrollToSave(WidgetTester tester) async {
+    await tester.ensureVisible(find.byKey(kWodSaveButton));
+    await tester.pumpAndSettle();
+  }
+
+  // 상태 목록은 위 두 검사와 같은 이유로 한 검사에 하나씩만 묶는다 — 저장 중
+  // 토스트의 로딩바가 끝나지 않는 애니메이션이라 그 뒤에 다시 pumpWidget 하면
+  // 살아남은 ScaffoldMessenger 때문에 다음 상태가 서지 않는다.
+  testWidgets('파트 넷 시트: 저장 중에도 버튼·고지 줄은 같은 y', (tester) async {
+    await expectStableAnchorY(
+      tester,
+      states: {
+        '대기': (t) async {
+          await mountAxes(t);
+          await scrollToSave(t);
+        },
+        '저장 중': (t) async {
+          await mountAxes(t, hang: true);
+          await scrollToSave(t);
+          await t.tap(find.byKey(kWodSaveButton));
+          await t.pump(const Duration(milliseconds: 300));
+          expect(find.text(kWodSavingTitle), findsOneWidget);
+        },
+      },
+      anchors: {
+        '저장 버튼': kWodSaveButton,
+        '고지 줄': kWodSaveCaption,
+      },
+    );
+  });
+
+  testWidgets('파트 넷 시트: 저장이 실패해도 버튼·고지 줄은 같은 y', (tester) async {
+    await expectStableAnchorY(
+      tester,
+      states: {
+        '대기': (t) async {
+          await mountAxes(t);
+          await scrollToSave(t);
+        },
+        '저장 실패': (t) async {
+          await mountAxes(t, fail: true);
+          await scrollToSave(t);
+          await t.tap(find.byKey(kWodSaveButton));
+          await t.pumpAndSettle();
+          expect(find.byKey(kWodSaveButton), findsOneWidget);
+        },
+      },
+      anchors: {
+        '저장 버튼': kWodSaveButton,
+        '고지 줄': kWodSaveCaption,
+      },
+    );
+  });
+
+  // '캡 종료' 는 켤 때 '남긴 렙스' 칸이 **생기는** 자리다 — 조건부 블록으로 만들면
+  // 그 아래가 통째로 밀린다 (DESIGN-SSOT §레이아웃 안정성 밀림 2번). 그래서 칸을
+  // 늘 그려 두고 enabled 만 바꾼다.
+  //
+  // 여기서는 **자리의 높이**로 잰다. 앵커 y 로 재면 못 잡는다 — 시트가 스크롤되고
+  // 검사가 저장 버튼까지 내려서 재기 때문에, 위가 길어져도 버튼의 화면 y 는 같다
+  // (2026-09-05 실측으로 확인 — 조건부 블록을 일부러 넣어도 y 검사는 통과했다).
+  testWidgets("파트 넷 시트: '캡 종료' 를 켜도 점수 자리 높이가 그대로", (tester) async {
+    // 캡이 걸린 파트 = index 2 (C 파트 · FOR TIME · 캡 12분).
+    final cap = WodResultSheet.partFieldKey(2, 'cap');
+    await expectStableHeight(
+      tester,
+      states: {
+        '캡 끔': (t) async {
+          await mountAxes(t);
+          await t.ensureVisible(find.byKey(cap));
+          await t.pumpAndSettle();
+        },
+        '캡 켬': (t) async {
+          await mountAxes(t);
+          await t.ensureVisible(find.byKey(cap));
+          await t.pumpAndSettle();
+          await t.tap(find.byKey(cap));
+          await t.pumpAndSettle();
+          // 실제로 켜진 상태에서 재야 의미가 있다 — 남긴 렙스 칸이 열렸는지.
+          final extra = t.widget<TextField>(
+            find.byKey(WodResultSheet.partFieldKey(2, 'extra')),
+          );
+          expect(extra.enabled, isTrue, reason: '캡을 켰는데 남긴 렙스 칸이 안 열렸다');
+        },
+      },
+      targets: {'FOR TIME 점수 자리': WodResultSheet.partFieldKey(2, 'score')},
+    );
+  });
 }

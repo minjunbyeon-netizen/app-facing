@@ -215,6 +215,11 @@ class GymRepository {
     // D94 — 동작별 완료 값 [{movement_id, name, reps, load_kg, scaled}]. null 이면 키를
     // 보내지 않는다(서버가 종전 값 유지). 판정은 서버 normalize_result_movements 한 곳.
     List<Map<String, dynamic>>? movements,
+    // D121 (계약 `docs/CONTRACT-result-axes.md` §4) — 파트별 점수
+    // [{index, time_sec|rounds|extra_reps|capped}]. **점수가 있는 파트만** 담는다.
+    // `wod_type` 은 보내지 않는다 — 서버가 게시물에서 읽는다 (한 사실을 두 곳에서
+    // 보내지 않는다). null 이면 키 자체를 보내지 않아 서버가 종전 값을 유지한다.
+    List<Map<String, dynamic>>? parts,
   }) async {
     final data = await api.post('/api/v1/gyms/$gymId/wods/$wodId/results', {
       'time_sec': ?timeSec,
@@ -225,6 +230,7 @@ class GymRepository {
       'movement': ?movement,
       'scale_level': scaleLevel,
       'movements': ?movements,
+      'parts': ?parts,
     });
     final comparison = data['comparison'];
     return (

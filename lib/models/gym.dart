@@ -326,6 +326,16 @@ class WodMovementItem {
   final int? restSec;
   final String videoUrl;
 
+  /// 무게 칸을 그릴 동작인가 (계약 D121 · `docs/CONTRACT-result-axes.md` §2).
+  /// 정본은 서버 `movement_library.has_load` — 앱은 읽어서 그리기만 한다.
+  /// 키가 없는 **옛 응답**은 종전대로 무게 칸을 그린다(true) — 서버의 판정 규칙을
+  /// 앱이 다시 적지 않기 위해서다 (대전제 6-b).
+  final bool hasLoad;
+
+  /// strength 파트에서 그릴 **세트 줄 수** (계약 §2 — 코치 `5-5-5-5-5` → 5).
+  /// 파생 규칙의 정본은 서버다. 없으면 한 줄.
+  final int? setCount;
+
   const WodMovementItem({
     this.movementId,
     this.unit = 'reps',
@@ -337,6 +347,8 @@ class WodMovementItem {
     this.loadUnit = '',
     this.restSec,
     this.videoUrl = '',
+    this.hasLoad = true,
+    this.setCount,
   });
 
   bool get hasVideo => videoUrl.isNotEmpty;
@@ -367,6 +379,8 @@ class WodMovementItem {
         loadUnit: (j['load_unit'] ?? '').toString(),
         restSec: (j['rest_sec'] as num?)?.toInt(),
         videoUrl: (j['video_url'] ?? '').toString(),
+        hasLoad: j['has_load'] == null ? true : j['has_load'] == true,
+        setCount: (j['set_count'] as num?)?.toInt(),
       );
 }
 
@@ -393,6 +407,10 @@ class WodRoundItem {
   final String? wodType;
   final int? rounds;
 
+  /// 파트 순서 (계약 D121 §3) — 0부터. 점수·동작을 되돌려 보낼 때의 **열쇠**다.
+  /// 키가 없는 옛 응답은 목록 위치로 채운다.
+  final int index;
+
   const WodRoundItem({
     required this.label,
     required this.content,
@@ -403,11 +421,12 @@ class WodRoundItem {
     this.durationMin,
     this.wodType,
     this.rounds,
+    this.index = 0,
   });
 
   bool get hasMovements => movements.isNotEmpty;
 
-  factory WodRoundItem.fromJson(Map<String, dynamic> j) {
+  factory WodRoundItem.fromJson(Map<String, dynamic> j, [int fallbackIndex = 0]) {
     final mvRaw = j['movements'];
     final mv = (mvRaw is List)
         ? mvRaw
@@ -431,6 +450,7 @@ class WodRoundItem {
       durationMin: (j['duration_min'] as num?)?.toInt(),
       wodType: j['wod_type']?.toString(),
       rounds: (j['rounds'] as num?)?.toInt(),
+      index: (j['index'] as num?)?.toInt() ?? fallbackIndex,
     );
   }
 
@@ -536,9 +556,11 @@ class GymWodPost {
     final roundsRaw = j['rounds_data'];
     final rounds = (roundsRaw is List)
         ? roundsRaw
-            .whereType<Map<String, dynamic>>()
-            .map(WodRoundItem.fromJson)
-            .toList()
+              .whereType<Map<String, dynamic>>()
+              .toList()
+              .indexed
+              .map((e) => WodRoundItem.fromJson(e.$2, e.$1))
+              .toList()
         : <WodRoundItem>[];
     return GymWodPost(
       id: (j['id'] as num).toInt(),
@@ -769,12 +791,20 @@ class MyResultMovement {
   final double? loadKg;
   final bool scaled;
 
+  /// 어느 파트의 값인가 (계약 D121 §3). 키 없는 옛 기록은 0 (= 첫 파트).
+  final int partIndex;
+
+  /// strength 세트 번호. 세트가 없는 종류는 null.
+  final int? setIndex;
+
   const MyResultMovement({
     this.movementId,
     required this.name,
     this.reps = '',
     this.loadKg,
     this.scaled = false,
+    this.partIndex = 0,
+    this.setIndex,
   });
 
   factory MyResultMovement.fromJson(Map<String, dynamic> j) => MyResultMovement(
@@ -783,6 +813,37 @@ class MyResultMovement {
         reps: (j['reps'] ?? '').toString(),
         loadKg: (j['load_kg'] as num?)?.toDouble(),
         scaled: j['scaled'] == true,
+        partIndex: (j['part_index'] as num?)?.toInt() ?? 0,
+        setIndex: (j['set_index'] as num?)?.toInt(),
+      );
+}
+
+/// 파트 하나의 점수 (계약 D121 §3 `my_result.parts[]`) — 재수정 프리필용.
+/// 어떤 값이 실제로 있는지는 파트 종류가 정한다 (서버 `services/result_axes.py`).
+class MyResultPart {
+  final int index;
+  final String? wodType;
+  final int? timeSec;
+  final int? rounds;
+  final int? extraReps;
+  final bool capped;
+
+  const MyResultPart({
+    required this.index,
+    this.wodType,
+    this.timeSec,
+    this.rounds,
+    this.extraReps,
+    this.capped = false,
+  });
+
+  factory MyResultPart.fromJson(Map<String, dynamic> j) => MyResultPart(
+        index: (j['index'] as num?)?.toInt() ?? 0,
+        wodType: j['wod_type']?.toString(),
+        timeSec: (j['time_sec'] as num?)?.toInt(),
+        rounds: (j['rounds'] as num?)?.toInt(),
+        extraReps: (j['extra_reps'] as num?)?.toInt(),
+        capped: j['capped'] == true,
       );
 }
 
@@ -801,6 +862,9 @@ class GymMyResult {
   /// 동작별 완료 값 (D94) — 시트 재수정 프리필.
   final List<MyResultMovement> movements;
 
+  /// 파트별 점수 (D121 계약 §3) — 시트 재수정 프리필.
+  final List<MyResultPart> parts;
+
   const GymMyResult({
     this.timeSec,
     this.rounds,
@@ -811,6 +875,7 @@ class GymMyResult {
     required this.scaleLevel,
     required this.display,
     this.movements = const [],
+    this.parts = const [],
   });
 
   factory GymMyResult.fromJson(Map<String, dynamic> j) => GymMyResult(
@@ -825,6 +890,12 @@ class GymMyResult {
             ? (j['movements'] as List)
                 .whereType<Map<String, dynamic>>()
                 .map(MyResultMovement.fromJson)
+                .toList()
+            : const [],
+        parts: (j['parts'] is List)
+            ? (j['parts'] as List)
+                .whereType<Map<String, dynamic>>()
+                .map(MyResultPart.fromJson)
                 .toList()
             : const [],
         display: (j['display'] ?? '').toString(),
