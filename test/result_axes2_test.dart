@@ -23,6 +23,7 @@ import 'package:hyphen_app/features/gym/gym_repository.dart';
 import 'package:hyphen_app/features/gym/gym_state.dart';
 import 'package:hyphen_app/features/gym/wod_result_sheet.dart';
 import 'package:hyphen_app/models/gym.dart';
+import 'package:hyphen_app/widgets/hkit.dart';
 
 import 'golden/fakes.dart';
 import 'golden/harness.dart';
@@ -45,8 +46,12 @@ const Map<String, int> _allowed = {
 String? _hintOf(WidgetTester tester, Key key) =>
     tester.widget<TextField>(find.byKey(key)).decoration?.hintText;
 
-String? _labelOf(WidgetTester tester, Key key) =>
-    tester.widget<TextField>(find.byKey(key)).decoration?.labelText;
+/// D125 — 라벨은 TextField 안(labelText)이 아니라 `HkNumberField` 가 칸 위에 세운다.
+String? _labelOf(WidgetTester tester, Key key) => tester
+    .widget<HkNumberField>(
+      find.ancestor(of: find.byKey(key), matching: find.byType(HkNumberField)),
+    )
+    .label;
 
 /// 주석을 지운 코드 본문 (리터럴 검사는 코드에만 적용).
 String _codeOf(File f) => f
@@ -419,7 +424,8 @@ void main() {
           profile: rxProfile(),
           gym: gym,
           home: Scaffold(
-            body: SingleChildScrollView(child: WodResultSheet(wod: post)),
+            // D125 — 시트는 머리·본문(스크롤)·저장 바(고정) 세 층이라 높이가 유한한 자리에 놓는다 (실물과 같은 구조).
+            body: WodResultSheet(wod: post),
           ),
         ),
       );

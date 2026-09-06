@@ -832,16 +832,27 @@ void _achievementsLoadingGolden() {
         profile: rxProfile(),
         gym: gym,
         home: Scaffold(
-          body: SingleChildScrollView(child: WodResultSheet(wod: post)),
+          // D125 — 시트는 머리·본문(스크롤)·저장 바(고정) 세 층이라 높이가 유한한 자리에 놓는다 (실물과 같은 구조).
+          body: WodResultSheet(wod: post),
         ),
       ),
     );
     await tester.pumpAndSettle();
     expect(find.text('내 기록'), findsOneWidget);
-    expect(find.text('42.5'), findsOneWidget);
+    // D125 — 코치 무게는 값으로 채워지고 같은 글자가 힌트(지우면 보임)로도 남아
+    // `find.text` 는 둘을 센다. 칸의 값을 직접 읽는다.
+    expect(
+      tester
+          .widget<TextField>(
+            find.byKey(WodResultSheet.fieldKey(0, 0, null, 'load')),
+          )
+          .controller
+          ?.text,
+      '42.5',
+    );
     // D121 — FOR TIME 은 '몇 분 만에 끝났나' 가 점수축이다.
     expect(find.byKey(WodResultSheet.partFieldKey(0, 'min')), findsOneWidget);
-    expect(find.text('완주 시간 (분)'), findsOneWidget);
+    expect(find.text('완주 시간'), findsOneWidget); // D125 — 라벨은 칸 위, '분' 은 칸 밖 단위
     // Pull-up 은 무게를 안 쓰는 동작 — 무게 칸을 주지 않는다.
     expect(find.byKey(WodResultSheet.fieldKey(0, 1, null, 'load')), findsNothing);
     // v3.45 — 점수 칩('내 결과')·난도(SCALED/RXD)·메모가 없어야 한다.
@@ -904,7 +915,8 @@ void _achievementsLoadingGolden() {
         profile: rxProfile(),
         gym: gym,
         home: Scaffold(
-          body: SingleChildScrollView(child: WodResultSheet(wod: post)),
+          // D125 — 시트는 머리·본문(스크롤)·저장 바(고정) 세 층이라 높이가 유한한 자리에 놓는다 (실물과 같은 구조).
+          body: WodResultSheet(wod: post),
         ),
       ),
     );
@@ -938,7 +950,8 @@ void _achievementsLoadingGolden() {
         profile: rxProfile(),
         gym: gym,
         home: Scaffold(
-          body: SingleChildScrollView(child: WodResultSheet(wod: post)),
+          // D125 — 시트는 머리·본문(스크롤)·저장 바(고정) 세 층이라 높이가 유한한 자리에 놓는다 (실물과 같은 구조).
+          body: WodResultSheet(wod: post),
         ),
       ),
     );

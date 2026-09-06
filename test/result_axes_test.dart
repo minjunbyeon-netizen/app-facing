@@ -43,7 +43,8 @@ Future<FakeApi> mountSheet(
       profile: rxProfile(),
       gym: gym,
       home: Scaffold(
-        body: SingleChildScrollView(child: WodResultSheet(wod: post)),
+        // D125 — 시트는 머리·본문(스크롤)·저장 바(고정) 세 층이라 높이가 유한한 자리에 놓는다 (실물과 같은 구조).
+        body: WodResultSheet(wod: post),
       ),
     ),
   );
@@ -77,7 +78,10 @@ void main() {
       // 파트 2 = FOR TIME (캡 12분).
       expect(find.byKey(WodResultSheet.partFieldKey(2, 'min')), findsOneWidget);
       expect(find.byKey(WodResultSheet.partFieldKey(2, 'sec')), findsOneWidget);
-      expect(find.text('완주 시간 (분)'), findsOneWidget);
+      // D125 — 라벨은 서버 것 그대로 칸 위에, '분'·'초' 는 칸 밖 단위.
+      expect(find.text('완주 시간'), findsOneWidget);
+      expect(find.text('분'), findsOneWidget);
+      expect(find.text('초'), findsOneWidget);
       // 캡이 있는 파트만 캡 종료·남긴 렙스를 가진다.
       expect(find.text('캡 종료'), findsOneWidget);
       expect(

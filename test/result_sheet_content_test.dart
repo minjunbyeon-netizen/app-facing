@@ -48,7 +48,8 @@ void main() {
         profile: rxProfile(),
         gym: gym,
         home: Scaffold(
-          body: SingleChildScrollView(child: WodResultSheet(wod: post)),
+          // D125 — 시트는 머리·본문(스크롤)·저장 바(고정) 세 층이라 높이가 유한한 자리에 놓는다 (실물과 같은 구조).
+          body: WodResultSheet(wod: post),
         ),
       ),
     );

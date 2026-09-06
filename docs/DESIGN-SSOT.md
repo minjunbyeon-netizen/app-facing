@@ -78,7 +78,8 @@
 | `HkButton` | **버튼 유일 규격 (v2.2)** — primary 채움 52 / secondary 외곽선 52 / tertiary 글자 48. 화면당 primary 1개. 옵션 `expand`·`neutral`·`danger` 뿐. 상세 = §7-D |
 | `HkCard` | surface + 1px border + r3, 패딩 sp4 |
 | `HkBadge` | **배지·선택칩 통합 유일 규격 (v1.32)** — 1px 컬러 보더 + 대문자 + r1(4) 사각, 원형 pill 금지. `onTap` 주면 선택 컨트롤(터치 48 보장), `selected` 면 면 채움 반전 |
-| `HkSectionLabel` | sectionLabel + 대문자 강제 |
+| `HkSectionLabel` | sectionLabel + 대문자 강제. `strong: true` 는 **폼 안 묶음 제목**(완료 시트 파트 머리) 한 단어 상태 — body w600, 대문자 안 함 (D125 · 안의 항목보다 작고 연하던 위계 역전 해소). 화면 섹션 헤더는 기본형(R3) |
+| `HkNumberField` | **숫자 전용 칸 유일 규격 (D125 · 2026-09-06)** — 폭 고정(기본 96, 값 자릿수·힌트 길이에 맞춰 72~128) · 높이 48 · 오른쪽 정렬 h3 w600 tabular · 단위(`kg`·`회`·`분`·`초`)는 칸 **밖** · 라벨은 칸 **위** caption w600 fgSecondary(`''` 면 빈 줄로 y 예약) · placeholder 는 예시 숫자·서버 힌트 문장만. 1~3자리 값을 전폭 TextField 에 넣지 않는다 (가시성 점검 `docs/audit-visibility-2026-09-06.html`) |
 | `HkStatTile` | 라벨 위 + 값(h3) 아래 |
 | `HkListRow` | **표 행 유일 규격** — 좌 아이콘(20) · 제목(body w600)/부제(caption) · 우 값(micro) · below 슬롯(진행바). 패딩 sp4×sp3. `onTap` 이 있고 우측 값이 없으면 **화살표 자동** (v2.2) |
 | `HkRowCard` | 표 카드 — HkListRow 를 1px 구분선(indent sp4)으로 쌓음. 카드 1개 = 표 1개 |

@@ -45,6 +45,20 @@
 // - 세트 줄 횟수는 서버 `set_reps` — 앱은 코치 처방을 쪼개지 않는다.
 // - 검사 = `test/result_axes2_test.dart`(정적 사본 금지 + 종류별 칸 + 힌트·라벨) ·
 //   `test/golden/stability_result_sheet_test.dart`(파트·세트가 늘어도 밀림 0).
+//
+// D125 (2026-09-06 · 가시성 점검 `docs/audit-visibility-2026-09-06.html` §1, 사용자 "1") —
+// **보이는 것을 고쳤다. 축·키·payload 는 그대로다.**
+// - 숫자 칸이 전폭 TextField 라 1~3자리 값이 왼쪽 구석에 묻혔다 → `HkNumberField`
+//   (폭 고정 · 오른쪽 정렬 · 단위는 칸 밖 · 라벨은 항상 칸 위). 폭은 `_W` 한 곳.
+// - 빈 칸의 이름이 placeholder 색(2.56:1)뿐이었다 → 라벨(fgSecondary 7.7:1)이 늘 선다.
+//   placeholder 는 예시 숫자·서버 힌트 문장만.
+// - 세트 5개 = 카드 5장(565dp) → 동작 이름 한 줄 + `1세트 [100] kg × [5] 회` 줄(48dp).
+// - 파트 머리가 안의 항목보다 작고 연했다 → `HkSectionLabel(strong: true)`.
+// - 저장 버튼이 두 화면 아래로 밀렸다 → 시트 바닥에 **고정 저장 바**(머리 고정 · 본문만 스크롤).
+//   그래서 이 위젯은 **높이가 유한한 자리**에 놓아야 한다 (HkSheet · Scaffold body).
+//   검사·골든도 같은 구조로 올린다 (`SingleChildScrollView` 로 감싸지 않는다).
+// - 수업 내용 본문은 접지 않는다 — D120(B 파트가 안 보이던 것)·v3.45 "코치 운동이
+//   그대로 불러와지고" 를 지킨다. 색만 fgSecondary 로 올렸다.
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -84,6 +98,25 @@ const Key kWodSaveCaption = ValueKey('wod-result-save-caption');
 /// 읽히는데 실제 뜻은 정반대다 — 마지막 라운드를 다 못 채우고 한 만큼이다.
 /// 점수 칸 아래 **늘 있는 고정 높이 한 줄** (상태에 따라 생겼다 사라지면 아래가 밀린다).
 const String kAmrapExtraNote = '마지막 라운드에서 한 횟수를 적습니다';
+
+/// 숫자 칸 폭 (D125) — 값의 자릿수와 힌트 문장 길이에 맞춘다. 여기 한 곳.
+/// 분·초 두 자리 · 라운드 두 자리 · '완료한 분'(힌트 '10분 중') · '+ 회'/'남긴 렙스'(힌트
+/// '21 미만'·'캡 종료일 때만') · 무게 세 자리+소수 · 세트 횟수 한두 자리 · 자유 목표('21-15-9').
+class _W {
+  static const double minSec = 88;
+  static const double rounds = 96;
+  static const double roundsHinted = 112;
+  static const double extra = 128;
+  static const double load = 88;
+  static const double setReps = 72;
+  static const double freeReps = 112;
+
+  /// 세트 줄 왼쪽 '1세트' 칸.
+  static const double setLabel = 52;
+}
+
+/// 시트 바닥 고정 저장 바 — 안정성 검사·골든이 집는 앵커 (D125).
+const Key kWodSaveBar = ValueKey('wod-result-save-bar');
 
 /// 서버 `score_keys` 가 주는 **점수 칸의 열쇠**. 앱은 이 글자를 보고 어떤 위젯을
 /// 세울지만 안다 — 어느 종류가 어떤 열쇠를 갖는지는 서버 `services/result_axes.py`
@@ -488,18 +521,20 @@ class _WodResultSheetState extends State<WodResultSheet> {
             top: Radius.circular(HyphenTokens.r3),
           ),
         ),
-        padding: const EdgeInsets.fromLTRB(
-          HyphenTokens.sp4,
-          HyphenTokens.sp4,
-          HyphenTokens.sp4,
-          HyphenTokens.sp3,
-        ),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
+        // D125 — 머리(고정) · 본문(스크롤) · 저장 바(고정) 세 층. 세트가 늘어도
+        // 저장 버튼은 손가락 아래 그 자리다. 높이가 유한한 자리에만 놓는다.
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                HyphenTokens.sp4,
+                HyphenTokens.sp3,
+                HyphenTokens.sp2,
+                0,
+              ),
+              child: Row(
                 children: [
                   Text(
                     widget.wod.wodTypeLabel,
@@ -508,7 +543,7 @@ class _WodResultSheetState extends State<WodResultSheet> {
                     ),
                   ),
                   const SizedBox(width: HyphenTokens.sp2),
-                  const HkSectionLabel('· 완료 기록'),
+                  const Text('완료 기록', style: HyphenTokens.h3),
                   const Spacer(),
                   IconButton(
                     icon: const Icon(Icons.close, size: 20),
@@ -519,78 +554,119 @@ class _WodResultSheetState extends State<WodResultSheet> {
                   ),
                 ],
               ),
-              const SizedBox(height: HyphenTokens.sp1),
-              // 오늘 수업 내용 — 그대로 가져온다 (내가 다시 적지 않는다).
-              //
-              // 2026-09-05 실사용 검증에서 잡음: `maxLines: 4` 는 파트가 생기기
-              // 전(D109 이전) 값이라, A·B 두 파트짜리 수업을 열면 A 파트에서
-              // 잘려 **자기가 지금 적는 B 파트 동작이 안 보였다**. 시트는 이미
-              // 스크롤되므로 자를 이유가 없다. 게이트 = test/result_sheet_content_test.dart.
-              Text(
-                widget.wod.content,
-                key: WodResultSheet.kWodContent,
-                style: HyphenTokens.caption,
-              ),
-              const SizedBox(height: HyphenTokens.sp4),
-
-              // 재제출 = 덮어쓰기임을 알린다 (프리필과 한 쌍, 2026-08-20 픽스).
-              if (widget.wod.myResult != null) ...[
-                Text(
-                  '이미 저장한 기록이 있습니다 — 저장하면 새 값으로 바뀝니다.',
-                  style: HyphenTokens.caption.copyWith(
-                    color: HyphenTokens.warning,
-                  ),
+            ),
+            Flexible(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(
+                  HyphenTokens.sp4,
+                  HyphenTokens.sp1,
+                  HyphenTokens.sp4,
+                  HyphenTokens.sp3,
                 ),
-                const SizedBox(height: HyphenTokens.sp2),
-              ],
-
-              // ── 내 기록 — 파트로 묶고, 서버 score_keys 가 칸을 정한다 (D122 §3) ──
-              if (_structured) ...[
-                const HkSectionLabel('내 기록'),
-                const SizedBox(height: HyphenTokens.sp1),
-                const Text(
-                  '코치가 정한 값이 채워져 있습니다 — 다르게 했으면 고치세요.',
-                  style: HyphenTokens.caption,
-                ),
-                const SizedBox(height: HyphenTokens.sp2),
-                for (final p in _parts)
-                  _PartBlock(
-                    entry: p,
-                    enabled: !_saving,
-                    multi: _parts.length > 1,
-                    onCapped: (v) => setState(() => p.capped = v),
-                  ),
-              ],
-              const SizedBox(height: HyphenTokens.sp4),
-              // 버튼은 '저장' 하나 — 출석 동반 처리는 아래 한 줄로 고지 (GLOSSARY §3).
-              // 저장 중엔 버튼 자리 그대로 busy (D67 로그인과 같은 결 — 밀림 0).
-              HkButton.primary(
-                '저장',
-                key: kWodSaveButton,
-                icon: Icons.check,
-                busy: _saving,
-                onPressed: _submit,
-              ),
-              const SizedBox(height: HyphenTokens.sp2),
-              // D117 — 실패 문구는 **이미 있는 이 한 줄 자리**에서 글자만 바뀐다.
-              // 종전에는 버튼 위에 조건부 블록으로 생겨 버튼과 이 줄을 27px 밀어
-              // 내렸다 — 실패 직후가 다시 누르기 가장 쉬운 순간인데 손가락 아래에서
-              // 버튼이 도망갔다. 빈 띠를 새로 예약하지 않고 문장을 교체하는 쪽이
-              // DESIGN-SSOT §레이아웃 안정성 의 '빈 띠 없이 자리를 지키는 법' 이다.
-              Text(
-                _error ?? '저장하면 오늘 출석도 함께 기록됩니다.',
-                key: kWodSaveCaption,
-                style: _error == null
-                    ? HyphenTokens.caption
-                    : HyphenTokens.caption.copyWith(
-                        color: HyphenTokens.warning,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // 오늘 수업 내용 — 그대로 가져온다 (내가 다시 적지 않는다).
+                    //
+                    // 2026-09-05 실사용 검증에서 잡음: `maxLines: 4` 는 파트가 생기기
+                    // 전(D109 이전) 값이라, A·B 두 파트짜리 수업을 열면 A 파트에서
+                    // 잘려 **자기가 지금 적는 B 파트 동작이 안 보였다**. 시트는 이미
+                    // 스크롤되므로 자를 이유가 없다. 게이트 = test/result_sheet_content_test.dart.
+                    // D125 — 색만 fgSecondary(7.7:1). 본문은 접지 않는다.
+                    Text(
+                      widget.wod.content,
+                      key: WodResultSheet.kWodContent,
+                      style: HyphenTokens.caption.copyWith(
+                        color: HyphenTokens.fgSecondary,
                       ),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: HyphenTokens.sp3),
+
+                    // 재제출 = 덮어쓰기임을 알린다 (프리필과 한 쌍, 2026-08-20 픽스).
+                    if (widget.wod.myResult != null) ...[
+                      Text(
+                        '이미 저장한 기록이 있습니다 — 저장하면 새 값으로 바뀝니다.',
+                        style: HyphenTokens.caption.copyWith(
+                          color: HyphenTokens.warning,
+                        ),
+                      ),
+                      const SizedBox(height: HyphenTokens.sp2),
+                    ],
+
+                    // ── 내 기록 — 파트로 묶고, 서버 score_keys 가 칸을 정한다 (D122 §3) ──
+                    if (_structured) ...[
+                      const Divider(
+                        height: HyphenTokens.sp4,
+                        thickness: 1,
+                        color: HyphenTokens.border,
+                      ),
+                      const HkSectionLabel('내 기록'),
+                      const SizedBox(height: HyphenTokens.sp1),
+                      const Text(
+                        '코치가 정한 값이 채워져 있습니다 — 다르게 했으면 고치세요.',
+                        style: HyphenTokens.caption,
+                      ),
+                      const SizedBox(height: HyphenTokens.sp3),
+                      for (final p in _parts)
+                        _PartBlock(
+                          entry: p,
+                          enabled: !_saving,
+                          multi: _parts.length > 1,
+                          onCapped: (v) => setState(() => p.capped = v),
+                        ),
+                    ],
+                  ],
+                ),
               ),
-            ],
-          ),
+            ),
+            // 저장 바 — 시트 바닥 고정 (D125). 버튼은 '저장' 하나 — 출석 동반 처리는
+            // 아래 한 줄로 고지 (GLOSSARY §3). 저장 중엔 버튼 자리 그대로 busy
+            // (D67 로그인과 같은 결 — 밀림 0).
+            Container(
+              key: kWodSaveBar,
+              decoration: const BoxDecoration(
+                border: Border(top: BorderSide(color: HyphenTokens.border)),
+              ),
+              padding: const EdgeInsets.fromLTRB(
+                HyphenTokens.sp4,
+                HyphenTokens.sp3,
+                HyphenTokens.sp4,
+                HyphenTokens.sp3,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  HkButton.primary(
+                    '저장',
+                    key: kWodSaveButton,
+                    icon: Icons.check,
+                    busy: _saving,
+                    onPressed: _submit,
+                  ),
+                  const SizedBox(height: HyphenTokens.sp2),
+                  // D117 — 실패 문구는 **이미 있는 이 한 줄 자리**에서 글자만 바뀐다.
+                  // 종전에는 버튼 위에 조건부 블록으로 생겨 버튼과 이 줄을 27px 밀어
+                  // 내렸다 — 실패 직후가 다시 누르기 가장 쉬운 순간인데 손가락 아래에서
+                  // 버튼이 도망갔다. 빈 띠를 새로 예약하지 않고 문장을 교체하는 쪽이
+                  // DESIGN-SSOT §레이아웃 안정성 의 '빈 띠 없이 자리를 지키는 법' 이다.
+                  Text(
+                    _error ?? '저장하면 오늘 출석도 함께 기록됩니다.',
+                    key: kWodSaveCaption,
+                    style: _error == null
+                        ? HyphenTokens.caption
+                        : HyphenTokens.caption.copyWith(
+                            color: HyphenTokens.warning,
+                          ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -622,54 +698,38 @@ class _PartBlock extends StatelessWidget {
         ? entry.part.title
         : (multi ? entry.part.label : '');
     return Padding(
-      padding: const EdgeInsets.only(bottom: HyphenTokens.sp2),
+      padding: const EdgeInsets.only(bottom: HyphenTokens.sp3),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (head.isNotEmpty) ...[
-            HkSectionLabel(head),
-            const SizedBox(height: HyphenTokens.sp1),
+            // D125 — 묶음 제목은 안의 항목보다 무거워야 한다 (strong).
+            HkSectionLabel(head, strong: true),
+            const SizedBox(height: HyphenTokens.sp2),
           ],
           if (entry.hasScore)
             _PartScore(entry: entry, enabled: enabled, onCapped: onCapped),
-          for (final e in entry.moves) _MovementRow(entry: e, enabled: enabled),
+          // 동작 이름은 동작마다 한 번 — 세트 줄은 그 아래 '1세트 · 2세트 …' 로 선다.
+          for (final e in entry.moves) ...[
+            if (!e.isReadOnly && (e.setIndex ?? 0) == 0)
+              Padding(
+                padding: const EdgeInsets.only(
+                  top: HyphenTokens.sp1,
+                  bottom: HyphenTokens.sp1,
+                ),
+                child: Text(
+                  e.item.name.isEmpty ? e.item.slug : e.item.name,
+                  style: HyphenTokens.body.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            _MovementRow(entry: e, enabled: enabled),
+          ],
         ],
       ),
     );
   }
-}
-
-/// 칸 하나 — 화면 어디서든 같은 규격. 라벨·힌트만 다르다.
-class _Field extends StatelessWidget {
-  final Key fieldKey;
-  final TextEditingController controller;
-  final String label;
-  final String? hint;
-  final bool enabled;
-  final bool numeric;
-  const _Field({
-    required this.fieldKey,
-    required this.controller,
-    required this.label,
-    required this.enabled,
-    this.hint,
-    this.numeric = true,
-  });
-
-  @override
-  Widget build(BuildContext context) => TextField(
-    key: fieldKey,
-    controller: controller,
-    enabled: enabled,
-    keyboardType: numeric
-        ? const TextInputType.numberWithOptions(decimal: true)
-        : TextInputType.text,
-    decoration: InputDecoration(
-      labelText: label,
-      hintText: hint,
-      isDense: true,
-    ),
-  );
 }
 
 /// 파트 점수 — **어떤 칸을 세울지는 서버 `score_keys` 가 정한다** (계약 D122 §3).
@@ -706,11 +766,14 @@ class _PartScore extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final extraField = _Field(
+    // '남긴 렙스'/'+ 회' 칸 — 라벨은 서버 것, 힌트 문장도 서버 것 (D124). 폭은 힌트가
+    // 다 보이는 128 (D125 · `_W.extra`).
+    final extraField = HkNumberField(
       fieldKey: WodResultSheet.partFieldKey(entry.index, 'extra'),
       controller: entry.extraCtrl,
       label: entry.labelOf(_ScoreKey.extraReps),
       hint: _extraHint,
+      width: _W.extra,
       enabled: enabled && (!entry.showsCap || entry.capped),
     );
     return Padding(
@@ -719,63 +782,67 @@ class _PartScore extends StatelessWidget {
       key: WodResultSheet.partFieldKey(entry.index, 'score'),
       padding: const EdgeInsets.only(bottom: HyphenTokens.sp2),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // 완주 시간 — 서버는 `time_sec` 한 값만 안다. 분·초 두 칸은 앱이 나눠 받는
           // 방식일 뿐이고(§4 `_splitSec`), 무엇을 묻는지는 서버 라벨이 말한다.
+          // 라벨은 첫 칸 위에 한 번, 둘째 칸은 빈 라벨 줄로 y 를 맞춘다 (D125).
           if (entry.showsTime)
             Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Expanded(
-                  child: _Field(
-                    fieldKey: WodResultSheet.partFieldKey(entry.index, 'min'),
-                    controller: entry.minCtrl,
-                    label: '${entry.labelOf(_ScoreKey.time)} (분)',
-                    hint: '0',
-                    enabled: enabled,
-                  ),
+                HkNumberField(
+                  fieldKey: WodResultSheet.partFieldKey(entry.index, 'min'),
+                  controller: entry.minCtrl,
+                  label: entry.labelOf(_ScoreKey.time),
+                  hint: '0',
+                  unit: '분',
+                  width: _W.minSec,
+                  enabled: enabled,
                 ),
-                const SizedBox(width: HyphenTokens.sp2),
-                Expanded(
-                  child: _Field(
-                    fieldKey: WodResultSheet.partFieldKey(entry.index, 'sec'),
-                    controller: entry.secCtrl,
-                    label: '초',
-                    hint: '00',
-                    enabled: enabled,
-                  ),
+                const SizedBox(width: HyphenTokens.sp3),
+                HkNumberField(
+                  fieldKey: WodResultSheet.partFieldKey(entry.index, 'sec'),
+                  controller: entry.secCtrl,
+                  label: '',
+                  hint: '00',
+                  unit: '초',
+                  width: _W.minSec,
+                  enabled: enabled,
                 ),
               ],
             ),
           // 라운드(+ 회) — 캡 줄이 따로 있는 모양에서는 '남긴 렙스' 가 캡 줄로 간다.
           if (entry.showsRounds || (entry.showsExtra && !entry.showsCap)) ...[
-            if (entry.showsTime) const SizedBox(height: HyphenTokens.sp1),
+            if (entry.showsTime) const SizedBox(height: HyphenTokens.sp2),
             Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 if (entry.showsRounds)
-                  Expanded(
-                    child: _Field(
-                      fieldKey: WodResultSheet.partFieldKey(
-                        entry.index,
-                        'rounds',
-                      ),
-                      controller: entry.roundsCtrl,
-                      label: entry.labelOf(_ScoreKey.rounds),
-                      hint: _roundsHint,
-                      enabled: enabled,
+                  HkNumberField(
+                    fieldKey: WodResultSheet.partFieldKey(
+                      entry.index,
+                      'rounds',
                     ),
+                    controller: entry.roundsCtrl,
+                    label: entry.labelOf(_ScoreKey.rounds),
+                    hint: _roundsHint,
+                    // '완료한 분' 처럼 힌트 문장('10분 중')이 있는 칸만 조금 넓다.
+                    width: entry.showsExtra ? _W.rounds : _W.roundsHinted,
+                    enabled: enabled,
                   ),
                 if (entry.showsRounds && entry.showsExtra && !entry.showsCap)
-                  const SizedBox(width: HyphenTokens.sp2),
-                if (entry.showsExtra && !entry.showsCap)
-                  Expanded(child: extraField),
+                  const SizedBox(width: HyphenTokens.sp3),
+                if (entry.showsExtra && !entry.showsCap) extraField,
               ],
             ),
           ],
-          // 캡 종료 — 켜든 껐든 같은 자리 (밀림 0).
+          // 캡 종료 — 켜든 껐든 같은 자리 (밀림 0). 체크 줄(48)은 숫자 칸의 상자와
+          // 바닥을 맞춘다 (라벨 줄만큼 숫자 칸이 더 높다).
           if (entry.showsCap) ...[
-            const SizedBox(height: HyphenTokens.sp1),
+            const SizedBox(height: HyphenTokens.sp2),
             Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 HkCheckRow(
                   key: WodResultSheet.partFieldKey(entry.index, 'cap'),
@@ -783,8 +850,8 @@ class _PartScore extends StatelessWidget {
                   label: entry.labelOf(_ScoreKey.capped),
                   onChanged: enabled ? onCapped : (_) {},
                 ),
-                const SizedBox(width: HyphenTokens.sp2),
-                if (entry.showsExtra) Expanded(child: extraField),
+                const SizedBox(width: HyphenTokens.sp3),
+                if (entry.showsExtra) extraField,
               ],
             ),
           ],
@@ -808,10 +875,13 @@ class _PartScore extends StatelessWidget {
   }
 }
 
-/// 동작 1줄 — 코치가 정한 동작 이름 + 서버가 정한 칸 (계약 §3).
-/// 세트 축 파트는 세트마다 한 줄이고 이름 자리에 '1세트' 가 붙는다.
+/// 동작 1줄 — 서버가 정한 칸만 한 줄에 (계약 §3). 동작 이름은 `_PartBlock` 이
+/// 동작마다 한 번 세우고, 이 줄은 세트면 `1세트 [100] kg × [5] 회`, 아니면
+/// `[42.5] kg × [21-15-9] 회` 다 (D125 — 카드 한 장 113dp 가 한 줄 48dp 로).
 /// 무게 칸은 `has_load` 인 동작에만 — 토투바·풀업에 무게 칸을 주지 않는다.
 /// 적을 칸이 하나도 없는 동작은 **서버가 그린 줄**을 읽기 전용으로 세운다 (계약 §5).
+/// 단위 글자: 무게는 계약이 kg 하나(서버 `LOAD_UNIT`), 횟수는 서버 `unit` 이 reps 일 때만
+/// '회' — 미터·칼로리 동작에 '회' 를 지어 붙이지 않는다.
 class _MovementRow extends StatelessWidget {
   final _MoveEntry entry;
   final bool enabled;
@@ -821,65 +891,65 @@ class _MovementRow extends StatelessWidget {
   Widget build(BuildContext context) {
     if (entry.isReadOnly) {
       return Padding(
-        padding: const EdgeInsets.only(bottom: HyphenTokens.sp2),
-        child: Text(
-          entry.line,
-          style: HyphenTokens.caption.copyWith(color: HyphenTokens.fg),
+        padding: const EdgeInsets.only(
+          top: HyphenTokens.sp1,
+          bottom: HyphenTokens.sp2,
         ),
+        child: Text(entry.line, style: HyphenTokens.body),
       );
     }
     final it = entry.item;
-    final name = it.name.isEmpty ? it.slug : it.name;
-    final title = entry.setIndex == null
-        ? name
-        : '$name · ${entry.setIndex! + 1}세트';
+    final isSet = entry.setIndex != null;
     // 세트 줄은 **그 세트의 목표**만 힌트로 (전체 처방 '5-5-5-5-5' 를 다섯 줄에 그대로
     // 보여 주면 그 줄이 무엇을 요구하는지 알 수 없다 — 계약 §6).
     final repsHint = entry.repsTarget.isNotEmpty
         ? entry.repsTarget
-        : (entry.setIndex == null ? '예: 21-15-9' : null);
-    final fields = <Widget>[
-      if (entry.showLoad)
-        _Field(
-          fieldKey: entry.loadKey,
-          controller: entry.weightCtrl,
-          label: '무게 (kg)',
-          hint: entry.hasCoachLoad ? '코치 ${it.loadValue}${it.loadUnit}' : '선택',
-          enabled: enabled,
-        ),
-      if (entry.showReps)
-        _Field(
-          fieldKey: entry.repsKey,
-          controller: entry.repsCtrl,
-          label: entry.setIndex == null ? '한 횟수' : '횟수',
-          hint: repsHint,
-          enabled: enabled,
-          numeric: false,
-        ),
-    ];
-    return Container(
-      margin: const EdgeInsets.only(bottom: HyphenTokens.sp2),
-      padding: const EdgeInsets.all(HyphenTokens.sp3),
-      decoration: BoxDecoration(
-        border: Border.all(color: HyphenTokens.border),
-        borderRadius: BorderRadius.circular(HyphenTokens.r2),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        : (isSet ? null : '21-15-9');
+    return Padding(
+      padding: const EdgeInsets.only(bottom: HyphenTokens.sp2),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(
-            title,
-            style: HyphenTokens.body.copyWith(fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: HyphenTokens.sp2),
-          Row(
-            children: [
-              for (var i = 0; i < fields.length; i++) ...[
-                if (i > 0) const SizedBox(width: HyphenTokens.sp2),
-                Expanded(child: fields[i]),
-              ],
-            ],
-          ),
+          if (isSet)
+            SizedBox(
+              width: _W.setLabel,
+              child: Text(
+                '${entry.setIndex! + 1}세트',
+                style: HyphenTokens.caption.copyWith(
+                  color: HyphenTokens.fgSecondary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          if (entry.showLoad)
+            HkNumberField(
+              fieldKey: entry.loadKey,
+              controller: entry.weightCtrl,
+              // 코치 무게는 값으로 채워져 있고, 지우면 그 값이 힌트로 남는다.
+              hint: entry.hasCoachLoad ? it.loadValue : '0',
+              unit: 'kg',
+              width: _W.load,
+              enabled: enabled,
+            ),
+          if (entry.showLoad && entry.showReps)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: HyphenTokens.sp2),
+              child: Text(
+                '×',
+                style: HyphenTokens.body.copyWith(color: HyphenTokens.muted),
+              ),
+            ),
+          if (entry.showReps)
+            HkNumberField(
+              fieldKey: entry.repsKey,
+              controller: entry.repsCtrl,
+              hint: repsHint,
+              unit: it.unit == 'reps' ? '회' : null,
+              width: isSet ? _W.setReps : _W.freeReps,
+              enabled: enabled,
+              // 자유 목표는 '21-15-9' 같은 글자라 문자 자판, 세트 한 줄은 숫자 자판.
+              numeric: isSet,
+            ),
         ],
       ),
     );
