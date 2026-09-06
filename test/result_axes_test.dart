@@ -275,9 +275,7 @@ void main() {
                   onPressed: () => Navigator.of(ctx).push(
                     MaterialPageRoute<void>(
                       builder: (_) => Scaffold(
-                        body: SingleChildScrollView(
-                          child: WodResultSheet(wod: post),
-                        ),
+                        body: WodResultSheet(wod: post),
                       ),
                     ),
                   ),
@@ -382,9 +380,7 @@ void main() {
                   onPressed: () => Navigator.of(ctx).push(
                     MaterialPageRoute<void>(
                       builder: (_) => Scaffold(
-                        body: SingleChildScrollView(
-                          child: WodResultSheet(wod: post),
-                        ),
+                        body: WodResultSheet(wod: post),
                       ),
                     ),
                   ),

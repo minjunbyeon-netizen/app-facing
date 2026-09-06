@@ -51,7 +51,7 @@ void main() {
         profile: rxProfile(),
         gym: gym,
         home: Scaffold(
-          body: SingleChildScrollView(child: WodResultSheet(key: _freshSheetKey(), wod: post)),
+          body: WodResultSheet(key: _freshSheetKey(), wod: post),
         ),
       ),
     );
@@ -139,7 +139,7 @@ void main() {
         profile: rxProfile(),
         gym: gym,
         home: Scaffold(
-          body: SingleChildScrollView(child: WodResultSheet(key: _freshSheetKey(), wod: post)),
+          body: WodResultSheet(key: _freshSheetKey(), wod: post),
         ),
       ),
     );

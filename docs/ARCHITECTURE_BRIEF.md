@@ -670,6 +670,9 @@ linko.my (한국 1위급, 350+ 박스) 의 운영 자동화 7 모듈을 흡수�
 >   `result_axes*_test.dart`(라벨은 `HkNumberField.label` 로 읽음) · `stability_result_sheet_test.dart`(저장 바 y).
 > - 골든 **5장 재생성, 장수 불변(91)** — member_06 · member_06b · state_28 · state_29 · state_34. state_28 검사는
 >   단언도 고침(코치 무게가 값이자 힌트라 `find.text` 가 둘을 셈 → 칸 값을 직접 읽는다).
+> - **잔손질(2026-09-07, 리뷰 차단 0 · 3건)**: 검사 4곳(`stability_result_sheet_test` 2 · `result_axes_test` 2)이
+>   아직 `SingleChildScrollView` 로 감싸던 것을 `Scaffold(body:)` 직접으로 — 실물과 같은 구조를 잰다. 코치 무게가
+>   없는 동작의 무게 힌트 `'0'` → **'선택'** 복구(D125 전 값). 힌트 글자가 바뀌어 member_06b 1장 재생성, 장수 불변.
 > - 남은 것(점검 §2·§4·§5 — 별건): 행동 배지 3단(HkBadge 15sp·채움/외곽선/글자) · 홈 공백 · 쪽지함 빈 카드 ·
 >   로그인 약관 굵기 · 내 정보 이름 중복 · 회색 상자 위 12sp 라벨 색.
 

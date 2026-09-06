@@ -926,7 +926,8 @@ class _MovementRow extends StatelessWidget {
               fieldKey: entry.loadKey,
               controller: entry.weightCtrl,
               // 코치 무게는 값으로 채워져 있고, 지우면 그 값이 힌트로 남는다.
-              hint: entry.hasCoachLoad ? it.loadValue : '0',
+              // 코치 무게가 없는 동작은 적어도 되고 안 적어도 된다 — '선택'.
+              hint: entry.hasCoachLoad ? it.loadValue : '선택',
               unit: 'kg',
               width: _W.load,
               enabled: enabled,
