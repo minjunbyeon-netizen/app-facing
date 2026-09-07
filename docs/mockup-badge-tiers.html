@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>배지 3단 목업 · HYPHEN</title>
+<style>
+  :root {
+    --bg: #FAFAFA; --surface: #FFFFFF; --surface-alt: #F5F5F5;
+    --fg: #18181B; --fg-sub: #52525B; --muted: #71717A; --border: #E4E4E7;
+    --accent: #CC1F1F; --warning: #B45309; --success: #047857;
+    --font: "Pretendard Variable", Pretendard, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --r: 8px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font);
+         font-size: 15px; line-height: 1.6; letter-spacing: -0.02em; }
+  main { max-width: 1120px; margin: 0 auto; padding: 40px 24px 96px; }
+  h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; margin: 0 0 6px; }
+  h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em;
+       margin: 52px 0 12px; padding-top: 22px; border-top: 1px solid var(--border); }
+  h3 { font-size: 17px; font-weight: 700; letter-spacing: -0.015em; margin: 26px 0 8px; }
+  p { margin: 0 0 10px; }
+  .sub { color: var(--muted); font-size: 14px; }
+  .lead { font-size: 17px; line-height: 1.55; }
+  .note { background: var(--surface); border: 1px solid var(--border);
+          border-left: 4px solid var(--accent); border-radius: var(--r);
+          padding: 14px 18px; margin: 16px 0; }
+  table { width: 100%; border-collapse: collapse; background: var(--surface);
+          border: 1px solid var(--border); border-radius: var(--r);
+          overflow: hidden; font-size: 14px; margin: 12px 0; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border);
+           vertical-align: top; }
+  th { background: var(--surface-alt); font-weight: 600; color: var(--fg-sub); font-size: 13px; }
+  tr:last-child td { border-bottom: 0; }
+
+  /* ── 두 안 나란히 ─────────────────────────────────────────── */
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+  @media (max-width: 820px) { .pair { grid-template-columns: 1fr; } }
+  .pane { border: 1px solid var(--border); border-radius: var(--r);
+          background: var(--surface); overflow: hidden; }
+  .pane > .cap { padding: 9px 16px; border-bottom: 1px solid var(--border);
+                 font-size: 13px; font-weight: 700; letter-spacing: -0.01em; }
+  .pane.now > .cap { color: var(--muted); }
+  .pane.next > .cap { color: var(--success); }
+  .phone { width: 360px; max-width: 100%; margin: 0 auto; padding: 8px 0; }
+
+  /* ── 앱 실물 재현 — lib/widgets/hkit.dart HkBadge + 수업 줄 ── */
+  .row { display: flex; align-items: center; gap: 10px; min-height: 48px;
+         padding: 0 16px; border-bottom: 1px solid var(--border); }
+  .row .time { font-size: 17px; font-weight: 600; letter-spacing: -0.015em;
+               font-variant-numeric: tabular-nums; }
+  .row .name { font-size: 17px; font-weight: 600; letter-spacing: -0.015em; }
+  .row .cap  { font-size: 13px; color: var(--muted); letter-spacing: -0.013em; }
+  .row .sp   { flex: 1; }
+  .chev { font-size: 13px; color: var(--muted); }
+
+  /* 지금 = HkBadge 그대로: padding 8×3 · border 1 · r4 · 13sp w700 · 자간 +0.8 */
+  .b { display: inline-flex; align-items: center; padding: 3px 8px;
+       border: 1px solid currentColor; border-radius: 4px;
+       font-size: 13px; font-weight: 700; letter-spacing: 0.8px; line-height: 1.4;
+       white-space: nowrap; }
+  .b.fill { background: currentColor; }
+  .b.fill > span { color: var(--bg); }
+  .t-accent { color: var(--accent); }
+  .t-success { color: var(--success); }
+  .t-warning { color: var(--warning); }
+  .t-muted { color: var(--muted); }
+  .t-sub { color: var(--fg-sub); }
+
+  /* 제안 = 15sp w600 · 자간 음수(한글 규칙) · 3단 */
+  .b2 { display: inline-flex; align-items: center; padding: 4px 10px;
+        border: 1px solid currentColor; border-radius: 4px;
+        font-size: 15px; font-weight: 600; letter-spacing: -0.15px; line-height: 1.4;
+        white-space: nowrap; }
+  .b2.fill { background: currentColor; border-color: currentColor; }
+  .b2.fill > span { color: var(--bg); }
+  .b2.bare { border-color: transparent; padding-left: 2px; padding-right: 2px;
+             font-weight: 500; }
+
+  .legend { display: flex; gap: 24px; flex-wrap: wrap; margin: 10px 0 0;
+            font-size: 13px; color: var(--muted); }
+  .swatch { display: flex; align-items: center; gap: 8px; }
+</style>
+</head>
+<body>
+<main>
+
+  <h1>행동 배지 3단 — 목업</h1>
+  <p class="sub">2026-09-07 · 회원 앱 · 정본 = <span>lib/widgets/hkit.dart HkBadge</span> ·
+    값 = <span>lib/core/appkit.gen.dart</span></p>
+  <p class="lead">
+    왼쪽은 <b>지금 실물</b>을 코드 값 그대로 옮긴 것이고, 오른쪽이 제안입니다.
+    아직 코드는 한 줄도 고치지 않았습니다 — 보고 정하시라고 만든 그림입니다.
+  </p>
+
+  <div class="note">
+    <b>먼저 정정합니다.</b> 점검 보고서 §2 에 "주 행동 '완료 표시' 가 옆의 '메시지 · 자세히' 와
+    같은 외곽선 배지" 라고 적었는데 <b>사실이 아닙니다</b>. '완료 표시' 는 2026-08-12 부터
+    <span>selected: true</span> 라 이미 <b>채움</b>입니다. 실제로 외곽선인 주 행동은
+    <b>'예약'</b> 쪽입니다. 그래서 제안도 그만큼 작아집니다.
+  </div>
+
+  <h2>1. 수업 줄 — 예약할 수 있는 상태</h2>
+  <div class="pair">
+    <div class="pane now">
+      <div class="cap">지금</div>
+      <div class="phone">
+        <div class="row">
+          <span class="time">20:00</span><span class="name">SWEAT</span><span class="chev">∨</span>
+          <span class="sp"></span>
+          <span class="cap">정원 8/12</span>
+          <span class="b t-accent"><span>예약</span></span>
+        </div>
+        <div class="row">
+          <span class="time">21:00</span><span class="name">BUILD</span><span class="chev">∨</span>
+          <span class="sp"></span>
+          <span class="cap">정원 12/12</span>
+          <span class="b t-warning"><span>대기</span></span>
+        </div>
+      </div>
+    </div>
+    <div class="pane next">
+      <div class="cap">제안</div>
+      <div class="phone">
+        <div class="row">
+          <span class="time">20:00</span><span class="name">SWEAT</span><span class="chev">∨</span>
+          <span class="sp"></span>
+          <span class="cap">정원 8/12</span>
+          <span class="b2 fill t-accent"><span>예약</span></span>
+        </div>
+        <div class="row">
+          <span class="time">21:00</span><span class="name">BUILD</span><span class="chev">∨</span>
+          <span class="sp"></span>
+          <span class="cap">정원 12/12</span>
+          <span class="b2 fill t-warning"><span>대기</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="sub">누르는 글자가 제목(17)·정원(13)보다 작지 않게 되고, 주 행동이 면으로 섭니다.</p>
+
+  <h2>2. 이미 예약한 줄 — 주 행동이 없는 상태</h2>
+  <div class="pair">
+    <div class="pane now">
+      <div class="cap">지금</div>
+      <div class="phone">
+        <div class="row">
+          <span class="time">20:00</span><span class="name">SWEAT</span><span class="chev">∨</span>
+          <span class="sp"></span>
+          <span class="b t-success"><span>예약됨</span></span>
+          <span class="b t-muted"><span>취소</span></span>
+        </div>
+      </div>
+    </div>
+    <div class="pane next">
+      <div class="cap">제안</div>
+      <div class="phone">
+        <div class="row">
+          <span class="time">20:00</span><span class="name">SWEAT</span><span class="chev">∨</span>
+          <span class="sp"></span>
+          <span class="b2 t-success"><span>예약됨</span></span>
+          <span class="b2 t-muted"><span>취소</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="sub">
+    '예약됨' 은 상태, '취소' 는 보조 행동 — 둘 다 <b>외곽선</b>으로 남습니다.
+    채움은 그 줄에서 <b>제일 하고 싶은 일 하나</b>에만 씁니다.
+  </p>
+
+  <h2>3. 펼친 글 — 완료 표시 · 못 누르는 이유</h2>
+  <div class="pair">
+    <div class="pane now">
+      <div class="cap">지금</div>
+      <div class="phone">
+        <div class="row">
+          <span class="b fill t-accent"><span>완료 표시</span></span>
+          <span class="sp"></span>
+          <span class="b t-sub"><span>메시지</span></span>
+          <span class="b t-sub"><span>자세히</span></span>
+        </div>
+        <div class="row">
+          <span class="b t-muted"><span>수업 시작 전</span></span>
+          <span class="sp"></span>
+          <span class="b t-sub"><span>메시지</span></span>
+          <span class="b t-sub"><span>자세히</span></span>
+        </div>
+      </div>
+    </div>
+    <div class="pane next">
+      <div class="cap">제안</div>
+      <div class="phone">
+        <div class="row">
+          <span class="b2 fill t-accent"><span>완료 표시</span></span>
+          <span class="sp"></span>
+          <span class="b2 t-sub"><span>메시지</span></span>
+          <span class="b2 t-sub"><span>자세히</span></span>
+        </div>
+        <div class="row">
+          <span class="b2 bare t-muted"><span>수업 시작 전</span></span>
+          <span class="sp"></span>
+          <span class="b2 t-sub"><span>메시지</span></span>
+          <span class="b2 t-sub"><span>자세히</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="sub">
+    '수업 시작 전' 은 <b>버튼이 아니라 이유</b>입니다. 테두리를 벗기면 눌러도 안 된다는 것이
+    모양으로 먼저 보입니다 (탭하면 서버 문구 스낵바가 뜨는 동작은 그대로 둡니다).
+    같은 자리 = '예약 필요' · '회원권 필요' · '마감' · '취소됨'.
+  </p>
+
+  <h2>4. 3단 정리</h2>
+  <table>
+    <thead><tr><th>단</th><th>모양</th><th>어디</th><th>지금과 다른 점</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="b2 fill t-accent"><span>주 행동</span></span></td>
+        <td>채움 · 15sp w600</td>
+        <td>예약 · 대기 · 완료 표시</td>
+        <td>'완료 표시' 는 <b>이미 채움</b> · <b>'예약' · '대기' 가 새로 채움</b></td>
+      </tr>
+      <tr>
+        <td><span class="b2 t-sub"><span>보조</span></span></td>
+        <td>외곽선 · 15sp w600</td>
+        <td>취소 · 메시지 · 자세히 · 예약됨(상태) · 이번 주 · PR · 캡</td>
+        <td>모양 그대로, <b>글자만 13 → 15</b></td>
+      </tr>
+      <tr>
+        <td><span class="b2 bare t-muted"><span>이유</span></span></td>
+        <td>테두리 없음 · 15sp w500 회색</td>
+        <td>수업 시작 전 · 예약 필요 · 회원권 필요 · 마감 · 취소됨</td>
+        <td><b>테두리를 벗긴다</b> — 버튼으로 안 읽히게</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>5. 값으로 바뀌는 것</h2>
+  <table>
+    <thead><tr><th>항목</th><th>지금</th><th>제안</th><th>왜</th></tr></thead>
+    <tbody>
+      <tr><td>글자 크기</td><td>13sp (micro)</td><td><b>15sp (body)</b></td>
+          <td>같은 줄 제목 17 · 정원 13 — 누르는 글자가 제일 작았다</td></tr>
+      <tr><td>굵기</td><td>w700</td><td>w600</td>
+          <td>15sp 로 커지면 700 은 과하다 (굵기 4단 정책)</td></tr>
+      <tr><td>자간</td><td>+0.8px</td><td><b>-0.15px</b></td>
+          <td><b>한글 자간은 항상 음수</b> (글로벌 §2-B-자간). 지금은 한글에 양수 트래킹이라 규칙 위반</td></tr>
+      <tr><td>안쪽 여백</td><td>8 × 3</td><td>10 × 4</td>
+          <td>글자가 커진 만큼. 누르는 상자 48 은 종전대로 바깥에서 잡는다</td></tr>
+      <tr><td>3단 구분</td><td>채움 / 외곽선 2단</td><td>채움 / 외곽선 / 민글자 3단</td>
+          <td>못 누르는 것이 버튼처럼 보이던 문제</td></tr>
+    </tbody>
+  </table>
+  <div class="legend">
+    <span class="swatch">accent <b>#CC1F1F</b></span>
+    <span class="swatch">success <b>#047857</b></span>
+    <span class="swatch">warning <b>#B45309</b></span>
+    <span class="swatch">muted <b>#71717A</b></span>
+    <span class="swatch">textSub <b>#52525B</b></span>
+  </div>
+
+  <h2>6. 집행하면 드는 비용</h2>
+  <table>
+    <thead><tr><th>무엇</th><th>규모</th></tr></thead>
+    <tbody>
+      <tr><td>코드</td><td><b>HkBadge 한 곳</b> + 이유 배지에 단(tier)을 넘기는 호출 5곳
+        (class_line 4 · wod_row 1)</td></tr>
+      <tr><td>골든 재생성</td><td>약 25장 (수업 탭 · 히스토리 · 홈 · 업적 · 코치 명단)</td></tr>
+      <tr><td>통과해야 할 게이트</td><td>손가락 영역 48 (<span>test/touch_target_test.dart</span>) ·
+        밀림(레이아웃 안정성) · 카피 린트</td></tr>
+      <tr><td>안 건드리는 것</td><td>배지 <b>색</b>·둥근 정도(r4)·대문자 변환·탭 동작·서버 판정</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <b>이 그림의 한계.</b> 여기는 브라우저이고 실물은 Flutter 라 글꼴 렌더가 1px 단위로 같지는
+    않습니다. 크기·굵기·자간·색은 코드 값 그대로 넣었으니 <b>무게 차이</b>를 보는 데는 맞고,
+    최종 확인은 집행 후 골든 캡처로 합니다.
+  </div>
+
+</main>
+</body>
+</html>
