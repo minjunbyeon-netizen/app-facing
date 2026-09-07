@@ -160,7 +160,8 @@ class ClassLine extends StatelessWidget {
     required VoidCallback onCancel,
   }) {
     if (session.isCancelled) {
-      return const HkBadge('취소됨', color: HyphenTokens.muted);
+      return const HkBadge('취소됨',
+          color: HyphenTokens.muted, tier: HkBadgeTier.reason);
     }
     if (session.isReserved || session.isWaitlisted) {
       return Row(
@@ -191,7 +192,10 @@ class ClassLine extends StatelessWidget {
     // 서버로 보내 409 MEMBERSHIP_REQUIRED 문구를 스낵바로 받는다 — 정책 문구
     // 정본은 서버 하나 (앱에 같은 문장을 두 번 적지 않는다).
     if (!membershipOk) {
-      return HkBadge('회원권 필요', color: HyphenTokens.muted, onTap: onReserve);
+      return HkBadge('회원권 필요',
+          color: HyphenTokens.muted,
+          tier: HkBadgeTier.reason,
+          onTap: onReserve);
     }
     // 2026-09-02 사용자 보고 "하루 1수업 예약했는데 다른 수업 예약 버튼이 살아 있어
     // 되는 것처럼 오해": 하루·주 한도에 걸리는 수업은 '예약' 대신 이 배지.
@@ -212,10 +216,14 @@ class ClassLine extends StatelessWidget {
     // 누르면 reserveClassFlow 가 캐릭터 스낵바로 알린다 (구 D58 '오픈 전' 배지 폐기).
     final blocked =
         session.isFull && session.waitlistCount >= session.waitlistCapacity;
-    if (blocked) return const HkBadge('마감', color: HyphenTokens.muted);
+    if (blocked) {
+      return const HkBadge('마감',
+          color: HyphenTokens.muted, tier: HkBadgeTier.reason);
+    }
     return HkBadge(
       session.isFull ? '대기' : '예약',
       color: session.isFull ? HyphenTokens.warning : HyphenTokens.accent,
+      tier: HkBadgeTier.action,
       onTap: onReserve,
     );
   }

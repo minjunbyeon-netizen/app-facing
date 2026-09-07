@@ -523,19 +523,44 @@ class HkCard extends StatelessWidget {
   }
 }
 
+/// 배지의 무게 3단 (2026-09-07 · 가시성 점검 §2 → 목업 승인).
+///
+/// 종전에는 채움/외곽선 2단뿐이라 **못 누르는 것이 버튼처럼 보였다** —
+/// '수업 시작 전' · '예약 필요' 가 '메시지' · '자세히' 와 같은 외곽선이었다.
+enum HkBadgeTier {
+  /// 주 행동 — 면 채움. **그 줄에서 제일 하고 싶은 일 하나**에만 쓴다.
+  action,
+
+  /// 보조 행동·상태 — 외곽선 (기본값).
+  secondary,
+
+  /// 이유 — 테두리 없는 글자. 못 누르는 까닭을 적는 자리라 버튼처럼 보이면 안 된다.
+  /// 탭은 그대로 살아 있다 (서버 문구를 스낵바로 알린다).
+  reason,
+}
+
 /// 배지 — **표시·선택 통합 유일 규격** (v1.32 · 2026-08-07 "1종으로 통합" 지시).
-/// 1px 컬러 보더 + r1(4) 사각 + micro w700 대문자. 원형 pill 금지.
+/// r1(4) 사각 + body 15 w600. 원형 pill 금지.
 ///
 /// [onTap] 을 주면 선택 컨트롤로 동작한다 — 터치 최소 48 보장, [selected] 면 면 채움 반전.
+/// [tier] 는 무게다 — 채움(action) · 외곽선(secondary, 기본) · 민글자(reason).
 /// 화면마다 따로 만들던 `_Pill`·`_MiniPill`·`_StatusChip`·`_CategoryChip`·`_PainChip`·
 /// `_chip` 등 11종은 v1.32 에서 전부 이 하나로 흡수했다. 새 variant 신설 금지 —
 /// 모양이 다른 배지가 필요하면 여기부터 고친다.
+///
+/// 글자는 2026-09-07 에 micro 13 w700 자간 +0.8 → **body 15 w600 자간 음수**로 올렸다.
+/// 누르는 글자가 같은 줄 제목(17)·캡션(13)보다 작았고, 한글에 양수 트래킹이라
+/// 글로벌 §2-B-자간(한글 자간은 항상 음수)에도 어긋났다.
 class HkBadge extends StatelessWidget {
   final String text;
   final Color color;
 
-  /// 면 채움(반전) 여부. 선택 컨트롤에서만 의미가 있다.
+  /// 면 채움(반전) 여부. 선택 컨트롤에서만 의미가 있다
+  /// (켜짐/꺼짐이 있는 토글 — 출석·노쇼처럼). 주 행동은 [tier] 로 말한다.
   final bool selected;
+
+  /// 무게. 기본은 외곽선.
+  final HkBadgeTier tier;
 
   /// null 이면 표시 전용 배지, 주면 탭 가능한 선택 컨트롤.
   final VoidCallback? onTap;
@@ -545,29 +570,33 @@ class HkBadge extends StatelessWidget {
     super.key,
     this.color = HyphenTokens.muted,
     this.selected = false,
+    this.tier = HkBadgeTier.secondary,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final tappable = onTap != null;
+    // 채움 = 선택된 토글이거나 주 행동. 둘은 뜻이 다르지만 그림은 같다.
+    final filled = selected || tier == HkBadgeTier.action;
+    final bare = tier == HkBadgeTier.reason;
     // 시각 크기는 표시·선택이 완전히 같다 (1종 강제). 다른 건 터치 영역뿐.
     final box = Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: HyphenTokens.sp2,
-        vertical: 3,
+      padding: EdgeInsets.symmetric(
+        // 민글자는 테두리가 없으므로 옆 여백도 줄인다 (글자만 남는다).
+        horizontal: bare ? HyphenTokens.sp1 : HyphenTokens.sp3,
+        vertical: HyphenTokens.sp1,
       ),
       decoration: BoxDecoration(
-        color: selected ? color : Colors.transparent,
-        border: Border.all(color: color),
+        color: filled ? color : Colors.transparent,
+        border: bare ? null : Border.all(color: color),
         borderRadius: BorderRadius.circular(HyphenTokens.r1),
       ),
       child: Text(
         text.toUpperCase(),
-        style: HyphenTokens.micro.copyWith(
-          color: selected ? HyphenTokens.bg : color,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.8,
+        style: HyphenTokens.body.copyWith(
+          color: filled ? HyphenTokens.bg : color,
+          fontWeight: bare ? FontWeight.w500 : FontWeight.w600,
         ),
       ),
     );

@@ -396,6 +396,7 @@ class _WodRowState extends State<WodRow> {
                             ? '수업 시작 전'
                             : '예약 필요',
                         color: HyphenTokens.muted,
+                        tier: HkBadgeTier.reason,
                         onTap: () => _showBlocked(context),
                       )
                     else
@@ -406,7 +407,8 @@ class _WodRowState extends State<WodRow> {
                         color: wod.myResult != null
                             ? HyphenTokens.success
                             : HyphenTokens.primary,
-                        selected: true,
+                        // 주 행동이다 — '선택된 토글' 이 아니라 (selected 와 뜻이 다르다).
+                        tier: HkBadgeTier.action,
                         onTap: () => _openResultSheet(context),
                       ),
                     const Spacer(),

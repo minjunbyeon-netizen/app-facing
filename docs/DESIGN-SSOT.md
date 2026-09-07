@@ -77,7 +77,7 @@
 |---|---|
 | `HkButton` | **버튼 유일 규격 (v2.2)** — primary 채움 52 / secondary 외곽선 52 / tertiary 글자 48. 화면당 primary 1개. 옵션 `expand`·`neutral`·`danger` 뿐. 상세 = §7-D |
 | `HkCard` | surface + 1px border + r3, 패딩 sp4 |
-| `HkBadge` | **배지·선택칩 통합 유일 규격 (v1.32)** — 1px 컬러 보더 + 대문자 + r1(4) 사각, 원형 pill 금지. `onTap` 주면 선택 컨트롤(터치 48 보장), `selected` 면 면 채움 반전 |
+| `HkBadge` | **배지·선택칩 통합 유일 규격 (v1.32)** — 1px 컬러 보더 + 대문자 + r1(4) 사각, 원형 pill 금지. `onTap` 주면 선택 컨트롤(터치 48 보장), `selected` 면 면 채움 반전. 무게 3단 `tier`(action 채움 / secondary 외곽선 / reason 민글자) · 글자 body 15 w600 (D127) |
 | `HkSectionLabel` | sectionLabel + 대문자 강제. `strong: true` 는 **폼 안 묶음 제목**(완료 시트 파트 머리) 한 단어 상태 — body w600, 대문자 안 함 (D125 · 안의 항목보다 작고 연하던 위계 역전 해소). 화면 섹션 헤더는 기본형(R3) |
 | `HkNumberField` | **숫자 전용 칸 유일 규격 (D125 · 2026-09-06)** — 폭 고정(기본 96, 값 자릿수·힌트 길이에 맞춰 72~128) · 높이 48 · 오른쪽 정렬 h3 w600 tabular · 단위(`kg`·`회`·`분`·`초`)는 칸 **밖** · 라벨은 칸 **위** caption w600 fgSecondary(`''` 면 빈 줄로 y 예약) · placeholder 는 예시 숫자·서버 힌트 문장만. 1~3자리 값을 전폭 TextField 에 넣지 않는다 (가시성 점검 `docs/audit-visibility-2026-09-06.html`) |
 | `HkStatTile` | 라벨 위 + 값(h3) 아래 |
@@ -241,7 +241,13 @@ v3.31 삭제 — README §제거된 기능 대장 11·31):
 ## 7-C. 배지·칩 1종 강제 (v1.32 · 2026-08-07 사용자 지시 "1종으로 통합해라 강제로라도")
 
 - **작은 라벨 조각은 `HkBadge` 하나뿐이다.** 표시(읽기 전용)든 선택(토글)이든 같은 위젯을 쓴다.
-  구분은 인자로만 한다 — `onTap` 유무 = 표시/선택, `selected` = 면 채움 반전, `color` = 의미.
+  구분은 인자로만 한다 — `onTap` 유무 = 표시/선택, `tier` = 무게, `selected` = 토글 켜짐, `color` = 의미.
+- **무게 3단 `HkBadgeTier` (D127 · 2026-09-07)**: `action` 채움(그 줄에서 제일 하고 싶은 일
+  **하나**만 — 예약·대기·완료 표시) · `secondary` 외곽선(기본 — 취소·메시지·자세히·예약됨·PR) ·
+  `reason` 테두리 없는 글자(못 누르는 까닭 — 수업 시작 전·예약 필요·회원권 필요·마감·취소됨).
+  이유 배지는 **탭이 살아 있어도** 버튼처럼 보이면 안 된다 (탭하면 서버 문구를 스낵바로 알린다).
+- **글자 = `body` 15 w600, 자간 음수** (D127). 구 `micro` 13 w700 자간 +0.8 은 누르는 글자가
+  같은 줄 제목(17)보다 작았고, 한글에 양수 트래킹이라 글로벌 §2-B-자간 위반이기도 했다.
 - **금지**: `_Pill`·`_MiniPill`·`_StatusChip`·`_CategoryChip`·`_PainChip`·`_chip` 같은
   화면 로컬 variant 신설. `BorderRadius.circular` 에 숫자 하드코드, `r4`(CTA 값) 를 칩에 사용,
   `Chip`/`ChoiceChip`/`FilterChip` 등 Material 기본 칩 위젯 사용.

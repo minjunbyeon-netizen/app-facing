@@ -50,7 +50,9 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   _Filter _filter = _Filter.all;
 
   /// 행 높이 — 배지 44(+판 두께 2.4) + 상하 sp2. 스켈레톤이 같은 값을 쓴다.
-  static const double kRowH = 64;
+  // 2026-09-07 배지 3단 — 배지 글자가 13 → 15 로 커지면서 제목 줄이 6px 넘쳤다.
+  // 배지 크기는 1종이 원칙이라(HkBadge) 행 높이를 올려 받는다.
+  static const double kRowH = 72;
 
   /// 도장·요약·분류 라벨·진열대와 같은 말 — "달성 / 미달성" (문구 조정 2).
   static const List<String> _filterLabels = ['전체', '미달성', '달성'];

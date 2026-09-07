@@ -50,8 +50,11 @@ void main() {
       const HkBadge('마감', color: HyphenTokens.muted),
     ));
     final size = tester.getSize(find.byType(HkBadge));
-    expect(size.width, lessThan(kTouch),
-        reason: '표시 전용 배지까지 넓히면 줄이 뚱뚱해진다 — 조작 배지만 48');
+    // 2026-09-07 배지 글자 15sp — '마감' 두 글자도 자연 폭이 48 을 넘는다.
+    // 재는 축을 높이로 바꾼다: 조작 배지는 48 상자에 담기고(세로 48), 표시 전용은
+    // 글자만큼만 높다(약 31). "조작 배지만 48" 이라는 뜻은 그대로다.
+    expect(size.height, lessThan(kTouch),
+        reason: '표시 전용 배지까지 48 상자에 담으면 줄이 뚱뚱해진다 — 조작 배지만 48');
   });
 
   testWidgets('요일 띠 — 일곱 칸이 각자 48 이상 (360 폭 기준)', (tester) async {

@@ -437,7 +437,11 @@ python tool/golden_gallery.py               # 단일 HTML 갤러리 (build/golde
 가짜 백엔드(`test/golden/fakes.dart` — ApiClient implements, 네트워크 0)로 실물 픽셀 렌더
 (갤S22 급 360×780·2x). 폰트는 `test/flutter_test_config.dart` 가 FontManifest 전체
 (Pretendard·MaterialIcons)를 로드. 참조 아키텍처: `apps/writeplz-app` 골든스탠다드.
-현재 **91장** (2026-09-06 — D122 축을 서버가 내려준다: EMOM '완료한 분'·AMRAP `+ 회`·세트별 횟수
+현재 **91장** (2026-09-07 — D127 행동 배지 3단: 채움(예약·대기·완료 표시) / 외곽선(취소·메시지·
+자세히·예약됨·PR) / 민글자(수업 시작 전·예약 필요·회원권 필요·마감·취소됨), 글자 13 w700 자간 +0.8 →
+**15 w600 자간 음수**. **40장 재생성, 장수 불변** — 배지가 있는 화면 전부(수업 탭·히스토리·업적·
+계약·코치·온보딩·가입). 곁가지 = 업적 행 높이 64→72 · `touch_target_test` 표시 배지 검사 축 폭→높이.
+직전 **91장** (2026-09-06 — D122 축을 서버가 내려준다: EMOM '완료한 분'·AMRAP `+ 회`·세트별 횟수
 프리필·히스토리 파트 줄·캡 배지. **+2 신규**(state_34_result_sheet_emom · hist_07_detail_capped), 8장 재생성
 (member_06·06b·state_28·29·hist_02~05). D123 체육관 시각 전환은 골든 변화 0.
 직전 **89장** (2026-09-05 — D121 파트 종류가 기록 칸을 정한다: for_time 완주 시간·amrap 라운드+추가 회·
